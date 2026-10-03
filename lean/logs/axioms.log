@@ -54,3 +54,5 @@
 'EulerianCert.Cyclohedral.cheb_even_factorisations' depends on axioms: [propext, Classical.choice, Quot.sound]
 'EulerianCert.Cyclohedral.riemann_hurwitz_genus' depends on axioms: [propext, Classical.choice, Quot.sound]
 'EulerianCert.Cyclohedral.node_count_genus' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianCert.MontgomeryTaylor.coth_imaginary' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianCert.MontgomeryTaylor.z0_coth_z0' depends on axioms: [propext, Classical.choice, Quot.sound]

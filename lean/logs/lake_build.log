@@ -1,35 +1,37 @@
-⚠ [1992/2223] Replayed EulerianCert.SignCriterion
+⚠ [1992/2082] Replayed EulerianCert.SignCriterion
 warning: EulerianCert/SignCriterion.lean: imports `Mathlib.Topology.MetricSpace.HausdorffDistance` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/SignCriterion.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/SignCriterion.lean: imports `Mathlib.Analysis.Normed.Group.InfiniteSum` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/SignCriterion.lean: imports `Mathlib.Topology.Algebra.InfiniteSum.Real` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [2290/2404] Replayed EulerianCert.Bracket
+⚠ [2290/2378] Replayed EulerianCert.Bracket
 warning: EulerianCert/Bracket.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Bracket.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [2291/2404] Replayed EulerianCert.Crossing
+⚠ [2291/2378] Replayed EulerianCert.Crossing
 warning: EulerianCert/Crossing.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [2292/2404] Replayed EulerianCert.Limacon
+⚠ [2292/2378] Replayed EulerianCert.Limacon
 warning: EulerianCert/Limacon.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Limacon.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [2293/2404] Replayed EulerianCert.Corner
+⚠ [2293/2378] Replayed EulerianCert.Corner
 warning: EulerianCert/Corner.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Corner.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Corner.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [2446/2463] Replayed EulerianCert.Combinatorics
+⚠ [2448/2464] Replayed EulerianCert.Combinatorics
 warning: EulerianCert/Combinatorics.lean: imports `Mathlib.LinearAlgebra.Matrix.SchurComplement` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.SpecialFunctions.Exp` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.SpecialFunctions.Sqrt` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.SpecificLimits.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Topology.Algebra.InfiniteSum.Real` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [2461/2463] Built EulerianCert.Cyclohedral (4.2s)
+⚠ [2461/2464] Replayed EulerianCert.Cyclohedral
 warning: EulerianCert/Cyclohedral.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Chebyshev.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Cyclohedral.lean: imports `Mathlib.Analysis.SpecialFunctions.Pow.Real` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Cyclohedral.lean: imports `Mathlib.LinearAlgebra.Matrix.Determinant.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Cyclohedral.lean: imports `Mathlib.Analysis.Complex.Norm` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-✔ [2462/2463] Built EulerianCert (2.1s)
-Build completed successfully (2463 jobs).
+⚠ [2462/2464] Built EulerianCert.MontgomeryTaylor (3.0s)
+warning: EulerianCert/MontgomeryTaylor.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+✔ [2463/2464] Built EulerianCert (5.8s)
+Build completed successfully (2464 jobs).
 
-real	0m8.421s
-user	0m6.464s
-sys	0m3.162s
+real	0m11.999s
+user	0m5.458s
+sys	0m5.460s
