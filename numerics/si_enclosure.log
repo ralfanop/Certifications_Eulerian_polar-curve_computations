@@ -1,0 +1,13 @@
+Si(pi/2)  in 1.370762168154488480069678288381575329991 1.44e-139
+A0 (Eq. 6)                         printed  24 dp  certified-in-cell=True  enclosure width=1.92e-139
+b_E (Eq. 27)                       printed  24 dp  certified-in-cell=True  enclosure width=9.58e-140
+a_E (Eq. 28)                       printed  24 dp  certified-in-cell=True  enclosure width=3.33e-139
+b_E-a_E-2/pi (Eq. 29, Cor. 3.9)    printed  20 dp  certified-in-cell=True  enclosure width=4.33e-139
+rms (Eq. 47)                       printed  24 dp  certified-in-cell=True  enclosure width=6.57e-138
+relative endpoint % (Eq. 48)       printed  24 dp  certified-in-cell=True  enclosure width=6.81e-137
+Table 1 row 1 %                    printed   3 dp  certified-in-cell=True  enclosure width=3.95e-137
+Table 1 row 2 %                    printed   3 dp  certified-in-cell=True  enclosure width=4.65e-137
+Table 1 row 3 %                    printed   3 dp  certified-in-cell=True  enclosure width=2.77e-135
+vartheta_E degrees (Eq. 33)        printed   7 dp  certified-in-cell=True  enclosure width=1.16e-137
+b_E-a_E-2/pi, 80 places            printed  80 dp  certified-in-cell=True  enclosure width=4.33e-139
+projection Hausdorff error (Sec. 3.10 discussion) printed 0.0847669...  certified-truncation=True
