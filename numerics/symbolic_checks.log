@@ -1,0 +1,16 @@
+Eq.(4) Si series (through z^15): True
+Prop. 3.6 proof, r_E': True
+Eq.(40) curvature numerator identity: True
+Cor. 3.8 numerator: True  value at cos=-1: (a - b)*(2*a - b)
+Eq.(59) slope formula, residual at theta=2.1: -0.e-165
+Eq.(62): True
+Eq.(63) residuals at two points: [0.e-174, -0.e-171]
+Eq.(64): True
+Lemma 3.14, det(J^T J) for n=3: 4
+Lemma 3.14, det(J^T J) for n=7: 8
+B(e^h) = e^{h/2} Z(h): True
+r_E(t) = Z(it): True
+psi''(0) = 1/12: True
+psi' = coth(h/2)/2 - 1/h: True
+-i psi'(i pi) = 1/pi: True
+Gaussian homothety: True

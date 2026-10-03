@@ -1,0 +1,5 @@
+[1] Q(L) > L : True   certified gap dist - L > 1.3442e-80
+[2a] concavity outside [1.98,2.22]: True  g(cos1.98)<= 0.098451, g(cos2.22)<= 0.098467, g(cos2.1)>= 0.099533, 2U=0.098596
+[2b] cover of [1.98,2.22]: 315 panels, max depth 129, exact tiling: True, order-0 panels 0, Taylor panels 315
+RESULT (mpmath.iv): L < h_* < U certified; the 80-place decimal of h_* is correctly rounded
+elapsed 6.5s

@@ -1,0 +1,33 @@
+--- backend: mpmath.iv, 90 digits
+sign change of S on [t0, t1] (encloses theta_*): True
+theta_*  (Eq. 59)                            2.10258309466509376393       certified=True
+Delta    (Eq. 60)                            0.09953351643838914835807    certified=True
+eps_rad  (Eq. 60)                            0.04976675821919457417904    certified=True
+b_rad    (Eq. 61)                            0.86807664440298524572       certified=True
+h_*      (Eq. 70)                            0.04929794832571833571       certified=True
+b_H      (Eq. 70)                            0.86760783450950900724       certified=True
+h_*      (abstract, Sec. 1) 0.0492979...                                  certified=True
+eps_rad  (abstract, Sec. 1) 0.0497667...                                  certified=True
+negative control: eps_rad truncated (earlier draft) 0.04976675821919457417903    certified=False
+h_* < eps_rad (Eq. 71): True   margin > 4.688099e-04
+b_H > 2 a_H > 0 (Eq. 71), a_H = m: True
+gain over radial optimum 100(1 - h_*/eps_rad) in [0.942014, 0.942014] %: rounds to 0.94 % = True
+gain over projection 100(1 - h_*/(b_E-a_E-2/pi)) in [41.8429, 41.8429] %: 'about 42 %' (in [41.5, 42.5)) = True
+theta_* enclosure width 2.00e-70; Delta enclosure width 1.57e-70
+--- backend: ia_fixed, 560-bit fixed point
+sign change of S on [t0, t1] (encloses theta_*): True
+theta_*  (Eq. 59)                            2.10258309466509376393       certified=True
+Delta    (Eq. 60)                            0.09953351643838914835807    certified=True
+eps_rad  (Eq. 60)                            0.04976675821919457417904    certified=True
+b_rad    (Eq. 61)                            0.86807664440298524572       certified=True
+h_*      (Eq. 70)                            0.04929794832571833571       certified=True
+b_H      (Eq. 70)                            0.86760783450950900724       certified=True
+h_*      (abstract, Sec. 1) 0.0492979...                                  certified=True
+eps_rad  (abstract, Sec. 1) 0.0497667...                                  certified=True
+negative control: eps_rad truncated (earlier draft) 0.04976675821919457417903    certified=False
+h_* < eps_rad (Eq. 71): True   margin > 4.688099e-04
+b_H > 2 a_H > 0 (Eq. 71), a_H = m: True
+gain over radial optimum 100(1 - h_*/eps_rad) in [0.942014, 0.942014] %: rounds to 0.94 % = True
+gain over projection 100(1 - h_*/(b_E-a_E-2/pi)) in [41.8429, 41.8429] %: 'about 42 %' (in [41.5, 42.5)) = True
+theta_* enclosure width 2.00e-70; Delta enclosure width 2.10e-70
+elapsed 0.0s

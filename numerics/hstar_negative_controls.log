@@ -1,0 +1,3 @@
+shift +0.0e+00: Q(L)>L certified=True (gap +1.344e-80), Q(U)<U certified=True
+shift -1.0e-80: Q(L)>L certified=True (gap +3.324e-80), Q(U)<U certified=False
+shift +1.0e-80: Q(L)>L certified=False (gap -6.359e-81), Q(U)<U certified=True

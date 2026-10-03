@@ -1,0 +1,5 @@
+[1] Q(L) > L : True   gap > 1.3442e-80
+[2a] concavity outside [1.98,2.22]: True
+[2b] 315 panels replayed, failures: 0, exact tiling: True
+RESULT (independent fixed-point replay): L < h_* < U certified
+elapsed 14.5s
