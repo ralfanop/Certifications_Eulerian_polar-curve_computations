@@ -56,3 +56,17 @@ open EulerianCert
 #print axioms EulerianCert.Combinatorics.tail_bound_strict
 #print axioms EulerianCert.Combinatorics.det_JtJ
 #print axioms EulerianCert.Combinatorics.gaussian_homothety
+-- Companion manuscript V500 (EulerianCert.Cyclohedral)
+#print axioms EulerianCert.Cyclohedral.tail_numerator_factor
+#print axioms EulerianCert.Cyclohedral.zhat_closed_form
+#print axioms EulerianCert.Cyclohedral.zhat_at_origin
+#print axioms EulerianCert.Cyclohedral.branch_right_half_plane
+#print axioms EulerianCert.Cyclohedral.zhat_zero_free
+#print axioms EulerianCert.Cyclohedral.cyclohedral_spectral_link
+#print axioms EulerianCert.Cyclohedral.charpoly_A
+#print axioms EulerianCert.Cyclohedral.cassini_chain
+#print axioms EulerianCert.Cyclohedral.M2_eq_A_half_transpose
+#print axioms EulerianCert.Cyclohedral.cheb_composition
+#print axioms EulerianCert.Cyclohedral.cheb_even_factorisations
+#print axioms EulerianCert.Cyclohedral.riemann_hurwitz_genus
+#print axioms EulerianCert.Cyclohedral.node_count_genus

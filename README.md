@@ -87,7 +87,7 @@ compiler is not trusted. The full axiom report is in `lean/logs/axioms.log` (pro
 * Check: `lake env lean AxiomCheck.lean`.
 * Cost of `EulerianCert` itself: 2–3 minutes, of which 110–160 s is the kernel evaluation in
   `Bracket`. Peak memory is about 4.5 GB.
-* The only messages are 18 advisories that the files import Mathlib modules "designed for use with
+* The only messages are 22 advisories that the files import Mathlib modules "designed for use with
   the module system". They are not warnings about the proofs.
 
 | Module | V478 content | Main declarations |
@@ -130,6 +130,7 @@ python3 hstar_negative_controls.py
 python3 epsrad_cert.py
 python3 eulerian_bracket.py
 python3 remark315_asymptotic.py
+python3 v500_certificates.py      # companion manuscript V500, Section 7
 python3 symbolic_checks.py
 ```
 If mpmath is not installed system-wide, put its source checkout on the path, e.g.
@@ -144,6 +145,30 @@ lake build
 lake env lean AxiomCheck.lean
 ```
 
-## 7. License
+## 7. Companion manuscript V500 (cyclohedral zeta targets, Chebyshev strong cycles)
+
+R. Alfano, *Cyclohedral zeta targets, Cassini spectral bridges, and Chebyshev strong-cycle
+realisations* (manuscript V500). Numbers refer to the V500 PDF. The same two layers are used.
+
+| V500 claim | Certificate | Method | Result |
+| --- | --- | --- | --- |
+| Cor. 3.1, Eqs. (24), (28)-(35): branch in the right half-plane on \|q\| < 1/4, factorisation (ω-1)²(ω+2), closed form 8(ω+2)/(ω(ω+1)²), value 6 at q = 0, zero-free property | Lean `Cyclohedral.branch_right_half_plane`, `tail_numerator_factor`, `zhat_closed_form`, `zhat_at_origin`, `zhat_zero_free` | Mathlib, `field_simp`/`ring` | proved |
+| Cor. 3.1, Eqs. (15)-(18): Taylor coefficients of the closed form are C(2m+4, m+2) | `v500_certificates.py` [A] | exact power series, m ≤ 300 | correct |
+| Eq. (76): T₂(ω) = 1 − 8q when ω² = 1 − 4q | Lean `cyclohedral_spectral_link` | Mathlib `Chebyshev.T` | proved |
+| Prop. 4.1, Eqs. (55)-(56): det[ξI − A_c(θ)] = ξ² − 1/2 − c e^{iθ} and the chain with T₂ and 𝒬 | Lean `charpoly_A`, `cassini_chain` | `Matrix.det_fin_two` | proved |
+| Eq. (58): M₂(e^{iθ}) = A_{1/2}(θ)ᵀ | Lean `M2_eq_A_half_transpose` | cos(π/4) = 1/√2, 2^{-1/2} = 1/√2 | proved |
+| Prop. 4.2, Eq. (65): det[λI − Mₙ(w)] = 2^{1−n}[Tₙ(λ) − w] | `v500_certificates.py` [F] | interval determinant, n = 2..12 | the difference encloses 0 (consistency check; the proof is a one-permutation expansion) |
+| Cor. 4.5: T_{ab} = T_a ∘ T_b = T_b ∘ T_a; T_{2m} ∓ 1 factorisations behind (82)-(83) | Lean `cheb_composition`, `cheb_even_factorisations` | Mathlib `Chebyshev.T_mul` | proved |
+| Prop. 4.6, Eqs. (93), (95) and the node-count check: both counts give ⌊(n−1)²/2⌋ | Lean `riemann_hurwitz_genus`, `node_count_genus`; `v500_certificates.py` [D] | integer arithmetic, all n | proved |
+| Prop. 4.6: monodromy group D_n of order 2n | `v500_certificates.py` [G] | numerical continuation, n = 3..6 | order 2n (non-rigorous cross-check) |
+| Cor. 4.7, Eqs. (98)-(100), and the Floquet identity after it | `v500_certificates.py` [B] | exact arithmetic in ℚ(√2)(i), n ≤ 12 | correct |
+| Eqs. (89)-(90): dyadic product, Viète's 2/π, radial-mean series | `v500_certificates.py` [C] | enclosures with explicit tail bounds, both backends | enclosures agree (widths ≤ 10⁻³⁶) |
+| Figure 1: the disc of radius 11/50 about 3/4 + 57i/4 lies in the strip and misses ρ₁ | `v500_certificates.py` [E] | exact rationals, with 14.1347251417 < γ₁ < 14.1347251418 | distance > 0.2752 > 0.22 |
+
+Not formalised: Voronin universality and the zeta-jet corollary (classical theorem applied to the
+certified target), Brualdi localisation, cyclicity and the Jordan structure of Cor. 4.5, and the
+covering-space part of Prop. 4.6.
+
+## 8. License
 
 All files in this repository are released under CC0 1.0 Universal (see `LICENSE`).
