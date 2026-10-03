@@ -18,6 +18,8 @@ Module map (statement and equation numbers of the V478 PDF):
                                   corner angle, Sullivan atom.
 * `EulerianCert.Combinatorics` — Eq. (21) (telescoping tail bound), Lemma 3.14 (det JᵀJ = n+1),
                                   Gaussian homothety of §3.11.
+* `EulerianCert.MontgomeryTaylor` — §3.11: z₀ coth z₀ = (1/√2) cot(1/√2) for z₀ = i/√2 of Eq. (4)
+                                  (Montgomery–Taylor constants).
 * `EulerianCert.Cyclohedral`   — companion manuscript V500 (cyclohedral zeta targets, Chebyshev
                                   strong-cycle realisations): Cor. 3.1 algebra and zero-free
                                   property, Eq. (76), Prop. 4.1 and Eq. (58), Chebyshev
@@ -30,4 +32,5 @@ import EulerianCert.Crossing
 import EulerianCert.Limacon
 import EulerianCert.Corner
 import EulerianCert.Combinatorics
+import EulerianCert.MontgomeryTaylor
 import EulerianCert.Cyclohedral

@@ -38,6 +38,7 @@ Every interval certificate in the table below is run on **both** backends; the i
 | Eq. (59) θ_*; Eq. (60) Δ, ε_rad; Eq. (61) b_rad; Eq. (70) h_*, b_H (20 dp); Eq. (71) h_* < ε_rad and b_H > 2a_H > 0; the 0.94 % and "about 42 %" gains; h_* = 0.0492979… and ε_rad = 0.0497667… in the abstract and §1 | `epsrad_cert.py` | interval sign change of f′(cos θ) − m (monotone by Eqs (62)–(64)) brackets θ_*; Δ = g(θ_*) enclosed on the bracket; h_* from the certificate above | `epsrad_cert.log` | all certified on both backends. **Note:** the draft printed ε_rad ≈ …17903, a truncation that fails the rounding-cell criterion; V478 now prints …17904. The old value is kept as a negative control, and it fails. |
 | Remark 3.15, Eq. (80): c₆₆₉ = 3.13914926973… < 333/106, 355/113 < c₆₇₁ = 3.14377888960…; c₃ = c₅ = 1/2; c_n strictly increasing for odd 5 ≤ n ≤ 1001 (so the crossing is unique there) | `eulerian_bracket.py` | exact integer recurrence for E(n,k), n ≤ 1001, exact rational comparisons | `eulerian_bracket.log` | correct |
 | Remark 3.15, two-term expansion c_n = √(π(n+1)/216)(1 + 15/(4(n+1)) + O(n⁻²)) and corrected crossing order: 670 < 216π − 15/2 < 672, while the one-term estimate 216π exceeds 672 | `remark315_asymptotic.py` | (i) exact rational c_n for odd n ≤ 1001 from the Eulerian recurrence; (n+1)(c_n/√(π(n+1)/216) − 1) tabulated against 15/4. (ii) the two inequalities on both interval backends and from 333/106 < π < 355/113 | `remark315_asymptotic.log` | (i) 3.7539… at n = 669, 3.7526… at n = 1001, strictly decreasing for odd 101 ≤ n ≤ 1001 (a corroboration; the expansion itself is proved analytically in V478). (ii) certified: 671.066 < 216π − 15/2 < 671.085; also proved in Lean (`Crossing`) |
+| §3.11, Montgomery–Taylor: C_MT = 1/2 + z₀ coth z₀ = 1.3274992963… and 3/2 − z₀ coth z₀ = 0.6725007…, z₀ = i/√2 | `montgomery_taylor.py`; Lean `MontgomeryTaylor.z0_coth_z0` | (1/√2) cot(1/√2) enclosed on both backends; the identity z₀ coth z₀ = (1/√2) cot(1/√2) proved in Lean | `montgomery_taylor.log` | certified on both backends |
 | Symbolic identities: Eq. (4); r_E′ (proof of Prop. 3.6); Eq. (40); Cor. 3.8 numerator; Eqs (59), (62)–(64); det JᵀJ = n + 1 (Lemma 3.14); B(eʰ) = e^{h/2}Z(h), r_E(t) = Z(it), ψ″(0) = 1/12, −iψ′(iπ) = 1/π and the Gaussian homothety (§3.11) | `symbolic_checks.py` (sympy) | exact symbolic simplification | `symbolic_checks.log` | all hold |
 | Cross-checks (non-rigorous, 45–120 digits) | `constants.py`, `limacon_minimax.py`, `dkappa.py` | mpmath quadrature / Newton | `*.log` | agree with every printed digit |
 
@@ -87,7 +88,7 @@ compiler is not trusted. The full axiom report is in `lean/logs/axioms.log` (pro
 * Check: `lake env lean AxiomCheck.lean`.
 * Cost of `EulerianCert` itself: 2–3 minutes, of which 110–160 s is the kernel evaluation in
   `Bracket`. Peak memory is about 4.5 GB.
-* The only messages are 22 advisories that the files import Mathlib modules "designed for use with
+* The only messages are 23 advisories that the files import Mathlib modules "designed for use with
   the module system". They are not warnings about the proofs.
 
 | Module | V478 content | Main declarations |
@@ -98,6 +99,7 @@ compiler is not trusted. The full axiom report is in `lean/logs/axioms.log` (pro
 | `Limacon` | **Cor. 3.8** (numerator b² + 3ab cos θ + 2a², its minimum, b_E > 2/π > 32/(3π³) > 2a_E). **Thm 3.12**: c − 2m = 3/π − 1/2 > 0 and the three-point uniqueness. **Thm 3.13**: endpoint containment (73)–(74), its strict and equality cases, and the scalar-balance lemmas (uniqueness of h_*, D ≥ h_*, the certificate logic L < h_* < U, and h_* < ε_rad from Q(ε_rad) < ε_rad) | `convexity_chain`, `affine_unique`, `endpoint_containment(_strict)`, `endpoint_equalities`, `balance_bracket`, `balance_lt` |
 | `Corner` | **Props 3.6–3.7**: r_E′, r_E″, r_E(π) = 2/π, r_E′(π) = −2/π² (31), one-sided tangents (32), tan(ϑ_E/2) = 1/π (33), unit tangents (36), Sullivan atom (38) with norm 2 sin(ϑ_E/2), and Eq. (40) with its positivity | `curvature_numerator_pos`, `tangent_minus`, `tangent_plus`, `sullivan_atom` |
 | `Combinatorics` | Eq. (21) (telescoping identity, and the strict tail bound from the strict termwise bound of Eq. (9)); Lemma 3.14 (JᵀJ = I + 𝟙𝟙ᵀ, det = n + 1); Gaussian homothety of §3.11 | `tail_bound_strict`, `det_JtJ`, `gaussian_homothety` |
+| `MontgomeryTaylor` | §3.11: z₀ coth z₀ = (1/√2) cot(1/√2) for z₀ = i/√2 of Eq. (4), hence C_MT = 1/2 + z₀ coth z₀ and 3/2 − z₀ coth z₀ in the (1/√2)cot(1/√2) form of Lamzouri (arXiv:2609.02882v2, Eqs. (1.1), (3.1)) | `coth_imaginary`, `z0_coth_z0` |
 
 **How the abstract statements apply.** `SignCriterion` works with an arbitrary non-negative
 summable coefficient sequence. Taking c_n = |A_n| uses the sign pattern and summability of
@@ -130,6 +132,7 @@ python3 hstar_negative_controls.py
 python3 epsrad_cert.py
 python3 eulerian_bracket.py
 python3 remark315_asymptotic.py
+python3 montgomery_taylor.py
 python3 v500_certificates.py      # companion manuscript V500, Section 7
 python3 symbolic_checks.py
 ```

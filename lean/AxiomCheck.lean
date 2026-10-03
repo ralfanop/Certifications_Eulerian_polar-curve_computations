@@ -70,3 +70,6 @@ open EulerianCert
 #print axioms EulerianCert.Cyclohedral.cheb_even_factorisations
 #print axioms EulerianCert.Cyclohedral.riemann_hurwitz_genus
 #print axioms EulerianCert.Cyclohedral.node_count_genus
+-- §3.11, Montgomery–Taylor constants (EulerianCert.MontgomeryTaylor)
+#print axioms EulerianCert.MontgomeryTaylor.coth_imaginary
+#print axioms EulerianCert.MontgomeryTaylor.z0_coth_z0
