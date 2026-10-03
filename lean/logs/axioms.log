@@ -11,6 +11,8 @@
 'EulerianCert.Bracket.rowsum669' depends on axioms: [propext]
 'EulerianCert.Bracket.rowsum671' depends on axioms: [propext]
 'EulerianCert.Bracket.angle_bracket' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianCert.Crossing.crossing_bracket' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianCert.Crossing.one_term_outside' depends on axioms: [propext, Classical.choice, Quot.sound]
 'EulerianCert.Limacon.limacon_numerator_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
 'EulerianCert.Limacon.convexity_chain' depends on axioms: [propext, Classical.choice, Quot.sound]
 'EulerianCert.Limacon.c_sub_two_m_pos' depends on axioms: [propext, Classical.choice, Quot.sound]

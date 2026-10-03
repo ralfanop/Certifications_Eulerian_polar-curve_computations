@@ -23,6 +23,8 @@ open EulerianCert
 #print axioms EulerianCert.Bracket.rowsum669
 #print axioms EulerianCert.Bracket.rowsum671
 #print axioms EulerianCert.Bracket.angle_bracket
+#print axioms EulerianCert.Crossing.crossing_bracket
+#print axioms EulerianCert.Crossing.one_term_outside
 -- Corollary 3.8, Theorems 3.12-3.13
 #print axioms EulerianCert.Limacon.limacon_numerator_pos
 #print axioms EulerianCert.Limacon.convexity_chain

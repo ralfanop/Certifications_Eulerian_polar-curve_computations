@@ -9,6 +9,8 @@ Module map (statement and equation numbers of the V478 PDF):
 * `EulerianCert.Bracket`       — Remark 3.15, Eq. (80): Eulerian numbers by their recurrence,
                                   kernel evaluation of the 669/671 integer inequalities, angle
                                   comparison.
+* `EulerianCert.Crossing`      — Remark 3.15: 670 < 216π − 15/2 < 672 (corrected crossing order)
+                                  and 672 < 216π (the one-term estimate lies outside the bracket).
 * `EulerianCert.Limacon`       — Cor. 3.8; Thm 3.12 (three-point uniqueness); Thm 3.13
                                   (endpoint containment, equality case, scalar balance, logic of
                                   the h_* certificate).
@@ -19,6 +21,7 @@ Module map (statement and equation numbers of the V478 PDF):
 -/
 import EulerianCert.SignCriterion
 import EulerianCert.Bracket
+import EulerianCert.Crossing
 import EulerianCert.Limacon
 import EulerianCert.Corner
 import EulerianCert.Combinatorics
