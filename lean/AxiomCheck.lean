@@ -63,6 +63,10 @@ open EulerianCert
 #print axioms EulerianCert.Cyclohedral.branch_right_half_plane
 #print axioms EulerianCert.Cyclohedral.zhat_zero_free
 #print axioms EulerianCert.Cyclohedral.cyclohedral_spectral_link
+#print axioms EulerianCert.Cyclohedral.boundary_lemniscate
+#print axioms EulerianCert.Cyclohedral.lemniscate_scaling
+#print axioms EulerianCert.Cyclohedral.node_iff
+#print axioms EulerianCert.Cyclohedral.circles_tangent
 #print axioms EulerianCert.Cyclohedral.charpoly_A
 #print axioms EulerianCert.Cyclohedral.cassini_chain
 #print axioms EulerianCert.Cyclohedral.M2_eq_A_half_transpose
