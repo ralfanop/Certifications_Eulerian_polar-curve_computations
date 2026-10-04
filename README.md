@@ -173,6 +173,12 @@ Not formalised: Voronin universality and the zeta-jet corollary (classical theor
 certified target), Brualdi localisation, cyclicity and the Jordan structure of Cor. 4.5, and the
 covering-space part of Prop. 4.6.
 
-## 8. License
+## 8. Figure: Eulerian distributions, n = 3, …, 670
+
+`figures/eulerian_distribution_FS_IX14/` holds a vector PDF of the Eulerian distributions for
+n = 3, …, 670 in the field of Flajolet–Sedgewick Figure IX.14, the script that writes it from the
+book's formulas, and a one-page description.
+
+## 9. License
 
 All files in this repository are released under CC0 1.0 Universal (see `LICENSE`).
