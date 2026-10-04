@@ -2,8 +2,8 @@ c_669 = 3.139149269738908663060394077343430645268
 c_671 = 3.143778889600799010547298957375532007612
 c_669 < 333/106 : True
 355/113 < c_671 : True
-Eq. (80) printed c_669 = 3.13914926973... certified: True
-Eq. (80) printed c_671 = 3.14377888960... certified: True
+Eq. (91) printed c_669 = 3.13914926973... certified: True
+Eq. (91) printed c_671 = 3.14377888960... certified: True
 c_3 = c_5 = 1/2: True
 c_n strictly increasing for odd 5..1001: True
 odd n with c_n < pi < c_{n+2}: [669]
@@ -13,7 +13,3 @@ odd n with c_n < pi < c_{n+2}: [669]
 671 3.1437788896008 sqrt(pi D/216)= 3.12631473322317
 1001 3.83182242448206 sqrt(pi D/216)= 3.81752527878371
 digits of 671!: 1608
-
-real	0m1.621s
-user	0m0.578s
-sys	0m0.021s

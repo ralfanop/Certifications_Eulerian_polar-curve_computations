@@ -12,7 +12,7 @@ open EulerianCert
 #print axioms EulerianCert.common_endpoint_sign_criterion
 #print axioms EulerianCert.sign_criterion
 #print axioms EulerianCert.damping
--- Remark 3.15
+-- Remark 3.16 (and the crossing order)
 #print axioms EulerianCert.Bracket.E_one_zero
 #print axioms EulerianCert.Bracket.E_eq_zero_of_le
 #print axioms EulerianCert.Bracket.E_succ_zero

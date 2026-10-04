@@ -1,5 +1,5 @@
 /-
-# Remark 3.15 of the V478 manuscript (central polygonal angles at n = 669, 671)
+# Remark 3.16 of the V478 manuscript (crossing order: central polygonal angles at n = 669, 671)
 
 `E(n,k)`, `0 ≤ k ≤ n - 1`, denotes the Eulerian numbers in Deza's convention, as in §2 of the
 manuscript (permutations of `{1, …, n}` with exactly `k` ascents): `E(1,0) = 1`,
@@ -154,7 +154,7 @@ theorem pi_bracket : (333 : ℝ) / 106 < π ∧ π < 355 / 113 := by
     norm_num at this ⊢
     linarith
 
-/-- `c_n` of Remark 3.15, with the index `k = (n-1)/2` passed explicitly:
+/-- `c_n` of Lemma 3.15 and Remark 3.16, with the index `k = (n-1)/2` passed explicitly:
 `c_n = n! / ((n+1) (E(n,k) - E(n,k-1)))`. -/
 noncomputable def cn (n k : ℕ) : ℝ :=
   (Nat.factorial n : ℝ) / (((n : ℝ) + 1) * ((E n k : ℝ) - (E n (k - 1) : ℝ)))
@@ -207,7 +207,7 @@ theorem pi_lt_c671 : π < cn 671 335 := by
 
 lemma cn669_pos : 0 < cn 669 334 := cn_pos diffs_pos.1
 
-/-- **Remark 3.15, Eq. (80).**  With `α_n = 2 arccot(c_n) = 2 arctan(1/c_n)` and
+/-- **Remark 3.16, Eq. (91).**  With `α_n = 2 arccot(c_n) = 2 arctan(1/c_n)` and
 `ϑ_E = 2 arccot(π) = 2 arctan(1/π)`: `α_671 < ϑ_E < α_669`. -/
 theorem angle_bracket :
     2 * arctan (1 / cn 671 335) < 2 * arctan (1 / π) ∧
