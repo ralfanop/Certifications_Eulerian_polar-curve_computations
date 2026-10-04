@@ -10,6 +10,9 @@ Certified here:
   `Re(1-4q) > 0` on `|q| < 1/4` (Eq. (24)), and the zero-free property (Eqs. (34)-(35)).
 * Eq. (76): `T₂(ω) = 1 - 8q` whenever `ω² = 1 - 4q` (the cyclohedral branch is the principal
   order-two Chebyshev branch).
+* Section 4.3, after Eq. (76): on `|q| = 1/4` the branch satisfies `|ω² - 1| = 1`, the lemniscate
+  `√2 · K_{1/2}`; `ω = 0` exactly at `q = 1/4` (its node); the circles `|w| = 1` and `|w - 1| = 2`
+  meet only at `w = -1`.
 * Proposition 4.1: the characteristic polynomial of `A_c(θ)` (Eq. (56)) and the chain (55).
 * Eq. (58): `M₂(e^{iθ}) = A_{1/2}(θ)ᵀ`.
 * Corollary 4.5: Chebyshev composition `T_{ab} = T_a ∘ T_b = T_b ∘ T_a` and, for `a = 2`,
@@ -73,6 +76,40 @@ theorem cyclohedral_spectral_link (q ω : ℂ) (h : ω ^ 2 = 1 - 4 * q) :
     (Chebyshev.T ℂ 2).eval ω = 1 - 8 * q := by
   simp only [Chebyshev.T_two, eval_sub, eval_mul, eval_pow, eval_X, eval_one, eval_ofNat]
   rw [h]; ring
+
+/-! ## Section 4.3: the boundary of `D_q` and the Bernoulli lemniscate -/
+
+/-- On `|q| = 1/4`, the branch `ω² = 1 - 4q` lies on the lemniscate `|ω² - 1| = 1`. -/
+theorem boundary_lemniscate (q ω : ℂ) (h : ω ^ 2 = 1 - 4 * q) (hq : ‖q‖ = 1 / 4) :
+    ‖ω ^ 2 - 1‖ = 1 := by
+  rw [h, show (1 : ℂ) - 4 * q - 1 = -(4 * q) by ring, norm_neg, norm_mul, hq]
+  norm_num
+
+/-- The lemniscate `|ω² - 1| = 1` is `√2 · K_{1/2}`: `|(ω/√2)² - 1/2| = |ω² - 1| / 2`. -/
+theorem lemniscate_scaling (ω : ℂ) :
+    ‖(ω / ((Real.sqrt 2 : ℝ) : ℂ)) ^ 2 - 1 / 2‖ = ‖ω ^ 2 - 1‖ / 2 := by
+  have h2 : ((Real.sqrt 2 : ℝ) : ℂ) ^ 2 = 2 := by
+    rw [← Complex.ofReal_pow, Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 2)]; norm_num
+  rw [div_pow, h2, show ω ^ 2 / 2 - 1 / 2 = (ω ^ 2 - 1) / 2 by ring, norm_div]
+  norm_num
+
+/-- The node: on the branch `ω² = 1 - 4q`, `ω = 0` exactly at `q = 1/4`. -/
+theorem node_iff (q ω : ℂ) (h : ω ^ 2 = 1 - 4 * q) : ω = 0 ↔ q = 1 / 4 := by
+  constructor
+  · intro h0; rw [h0] at h; linear_combination h / 4
+  · intro hq; rw [hq] at h; exact pow_eq_zero_iff (two_ne_zero) |>.mp (by rw [h]; ring)
+
+/-- The circles `|w| = 1` (the family `K_{1/2}`, Eq. (58)) and `|w - 1| = 2` (the image of
+`∂D_q` under `w = 1 - 8q`) meet only at `w = -1`. -/
+theorem circles_tangent (w : ℂ) (h1 : ‖w‖ = 1) (h2 : ‖w - 1‖ = 2) : w = -1 := by
+  have a := Complex.sq_norm w
+  have b := Complex.sq_norm (w - 1)
+  rw [h1, Complex.normSq_apply] at a
+  rw [h2, Complex.normSq_apply] at b
+  simp only [sub_re, one_re, sub_im, one_im, sub_zero] at b
+  have hre : w.re = -1 := by nlinarith
+  have him : w.im = 0 := by nlinarith
+  apply Complex.ext <;> simp [hre, him]
 
 /-! ## Proposition 4.1 and Eq. (58) -/
 

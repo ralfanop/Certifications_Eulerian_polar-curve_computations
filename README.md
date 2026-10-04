@@ -158,6 +158,7 @@ realisations* (manuscript V500). Numbers refer to the V500 PDF. The same two lay
 | Cor. 3.1, Eqs. (24), (28)-(35): branch in the right half-plane on \|q\| < 1/4, factorisation (ω-1)²(ω+2), closed form 8(ω+2)/(ω(ω+1)²), value 6 at q = 0, zero-free property | Lean `Cyclohedral.branch_right_half_plane`, `tail_numerator_factor`, `zhat_closed_form`, `zhat_at_origin`, `zhat_zero_free` | Mathlib, `field_simp`/`ring` | proved |
 | Cor. 3.1, Eqs. (15)-(18): Taylor coefficients of the closed form are C(2m+4, m+2) | `v500_certificates.py` [A] | exact power series, m ≤ 300 | correct |
 | Eq. (76): T₂(ω) = 1 − 8q when ω² = 1 − 4q | Lean `cyclohedral_spectral_link` | Mathlib `Chebyshev.T` | proved |
+| §4.3 after Eq. (76): ω maps ∂D_q onto the right loop of \|ω² − 1\| = 1, the lemniscate √2·K_{1/2}, sending q = 1/4 to its node; the circles \|w\| = 1 and \|w − 1\| = 2 meet only at w = −1 | Lean `boundary_lemniscate`, `lemniscate_scaling`, `node_iff`, `circles_tangent` | Mathlib, norms in ℂ | proved |
 | Prop. 4.1, Eqs. (55)-(56): det[ξI − A_c(θ)] = ξ² − 1/2 − c e^{iθ} and the chain with T₂ and 𝒬 | Lean `charpoly_A`, `cassini_chain` | `Matrix.det_fin_two` | proved |
 | Eq. (58): M₂(e^{iθ}) = A_{1/2}(θ)ᵀ | Lean `M2_eq_A_half_transpose` | cos(π/4) = 1/√2, 2^{-1/2} = 1/√2 | proved |
 | Prop. 4.2, Eq. (65): det[λI − Mₙ(w)] = 2^{1−n}[Tₙ(λ) − w] | `v500_certificates.py` [F] | interval determinant, n = 2..12 | the difference encloses 0 (consistency check; the proof is a one-permutation expansion) |
