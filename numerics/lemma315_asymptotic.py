@@ -8,7 +8,7 @@ so the crossing c_n = pi (alpha_n = theta_E) moves from n+1 ~ 216 pi to n+1 ~ 21
 This script (i) computes c_n exactly (rational arithmetic, exact Eulerian recurrence) for odd n <= 1001
 and prints (n+1)(c_n / sqrt(pi(n+1)/216) - 1), which should tend to 15/4 = 3.75;
 (ii) checks 670 < 216 pi - 15/2 < 672 and 216 pi > 672 with both interval backends (mpmath.iv and
-ia_fixed) and, independently, with the rational bounds 333/106 < pi < 355/113 used in Eq. (82)
+ia_fixed) and, independently, with the rational bounds 333/106 < pi < 355/113 used in Eq. (91)
 (also proved in Lean: EulerianCert.Crossing).
 
 Part (i) is a numerical corroboration of the analytic expansion, not a proof of it.

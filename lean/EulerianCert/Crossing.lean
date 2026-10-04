@@ -7,7 +7,7 @@ Lemma 3.15 of the manuscript proves, by Laplace's method applied to the Fourier 
 
 This file certifies the two numerical facts quoted with it:
 * `crossing_bracket`: `670 < 216π − 15/2 < 672`, i.e. the corrected estimate lies strictly between
-  the orders `n + 1 = 670` and `n + 1 = 672` bracketed by Eq. (82) (`EulerianCert.Bracket`);
+  the orders `n + 1 = 670` and `n + 1 = 672` bracketed by Eq. (91) (`EulerianCert.Bracket`);
 * `one_term_outside`: `672 < 216π`, i.e. the one-term estimate falls outside that bracket.
 
 The asymptotic expansion itself is analysis (Laplace's method) and is not formalised here;

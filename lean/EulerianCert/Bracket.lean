@@ -207,7 +207,7 @@ theorem pi_lt_c671 : π < cn 671 335 := by
 
 lemma cn669_pos : 0 < cn 669 334 := cn_pos diffs_pos.1
 
-/-- **Remark 3.16, Eq. (82).**  With `α_n = 2 arccot(c_n) = 2 arctan(1/c_n)` and
+/-- **Remark 3.16, Eq. (91).**  With `α_n = 2 arccot(c_n) = 2 arctan(1/c_n)` and
 `ϑ_E = 2 arccot(π) = 2 arctan(1/π)`: `α_671 < ϑ_E < α_669`. -/
 theorem angle_bracket :
     2 * arctan (1 / cn 671 335) < 2 * arctan (1 / π) ∧
