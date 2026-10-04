@@ -18,7 +18,7 @@ Certified here:
 * Corollary 4.5: Chebyshev composition `T_{ab} = T_a ∘ T_b = T_b ∘ T_a` and, for `a = 2`,
   `T_{2m} - 1 = 2(T_m - 1)(T_m + 1)`, `T_{2m} + 1 = 2T_m²` (the factorisations behind (82)-(83)).
 * Proposition 4.6: the Riemann–Hurwitz count and the node count give the same genus
-  `⌊(n-1)²/2⌋` (Eqs. (93) and (95) and the node-count check).
+  `⌊(n-1)²/2⌋` (Eqs. (93) and (95), and the node-count check, Eqs. (97)-(99)).
 
 The spectral, covering and analytic statements themselves (Voronin universality, Brualdi sets,
 monodromy, Jordan structure) are not formalised; see `numerics/v500_certificates.py`.
