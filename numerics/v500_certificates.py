@@ -5,14 +5,14 @@ Equation and statement numbers refer to the V500 PDF.
 RIGOROUS (exact rational / algebraic arithmetic, or outward-rounded intervals on both backends):
   [A] Cor. 3.1, Eqs. (15)-(18): Taylor coefficients of 8(w+2)/(w(w+1)^2), w = sqrt(1-4q),
       equal f_0(P_{C_{m+3}}) = C(2m+4, m+2) for m <= 300 (exact power-series arithmetic).
-  [B] Cor. 4.7, Eqs. (98)-(100): det(lam I - J_n) = 2^{1-n} T_n(lam) and
+  [B] Cor. 4.7, Eqs. (102)-(104): det(lam I - J_n) = 2^{1-n} T_n(lam) and
       det(lam I - A_n(w)) = 2^{1-n}[T_n(lam) - w], exactly in Q(sqrt2)(i), n = 2..12, at
       Gaussian-rational points; the Floquet identity after Cor. 4.7 (symmetric corners
       (1/2)e^{+-i phi}, e^{i phi} = (3+4i)/5) gives 2^{1-n}[T_n(lam) - cos phi], n = 3..12.
   [C] Eqs. (89)-(90): enclosures of 2 sin(t/2)/t, of the dyadic product prod_{k>=2} cos(t/2^k)
       (with an explicit tail bound) and of the series sum C(2k,k) q^k/(2k+1), q = (1-cos t)/8
       (with an explicit tail bound), at t = 1/2, 1, 2, 3; Viete's 2/pi at t = pi. Both backends.
-  [D] Prop. 4.6: Riemann-Hurwitz count, node count and floor((n-1)^2/2) agree for n = 2..60
+  [D] Prop. 4.6: Riemann-Hurwitz count, node count (Eqs. (97)-(99)) and floor((n-1)^2/2) agree for n = 2..60
       (exact integers; the general statement is proved in Lean, EulerianCert.Cyclohedral).
   [E] Figure 1: the closed disc |s - (3/4 + 57i/4)| <= 11/50 lies in 1/2 < Re s < 1 and misses
       rho_1 = 1/2 + i*gamma_1, using the published bounds 14.1347251417 < gamma_1 < 14.1347251418.

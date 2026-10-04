@@ -163,9 +163,9 @@ realisations* (manuscript V500). Numbers refer to the V500 PDF. The same two lay
 | Eq. (58): M₂(e^{iθ}) = A_{1/2}(θ)ᵀ | Lean `M2_eq_A_half_transpose` | cos(π/4) = 1/√2, 2^{-1/2} = 1/√2 | proved |
 | Prop. 4.2, Eq. (65): det[λI − Mₙ(w)] = 2^{1−n}[Tₙ(λ) − w] | `v500_certificates.py` [F] | interval determinant, n = 2..12 | the difference encloses 0 (consistency check; the proof is a one-permutation expansion) |
 | Cor. 4.5: T_{ab} = T_a ∘ T_b = T_b ∘ T_a; T_{2m} ∓ 1 factorisations behind (82)-(83) | Lean `cheb_composition`, `cheb_even_factorisations` | Mathlib `Chebyshev.T_mul` | proved |
-| Prop. 4.6, Eqs. (93), (95) and the node-count check: both counts give ⌊(n−1)²/2⌋ | Lean `riemann_hurwitz_genus`, `node_count_genus`; `v500_certificates.py` [D] | integer arithmetic, all n | proved |
+| Prop. 4.6, Eqs. (93), (95) and the node-count check, Eqs. (97)-(99): both counts give ⌊(n−1)²/2⌋ | Lean `riemann_hurwitz_genus`, `node_count_genus`; `v500_certificates.py` [D] | integer arithmetic, all n | proved |
 | Prop. 4.6: monodromy group D_n of order 2n | `v500_certificates.py` [G] | numerical continuation, n = 3..6 | order 2n (non-rigorous cross-check) |
-| Cor. 4.7, Eqs. (98)-(100), and the Floquet identity after it | `v500_certificates.py` [B] | exact arithmetic in ℚ(√2)(i), n ≤ 12 | correct |
+| Cor. 4.7, Eqs. (102)-(104), and the Floquet identity after it | `v500_certificates.py` [B] | exact arithmetic in ℚ(√2)(i), n ≤ 12 | correct |
 | Eqs. (89)-(90): dyadic product, Viète's 2/π, radial-mean series | `v500_certificates.py` [C] | enclosures with explicit tail bounds, both backends | enclosures agree (widths ≤ 10⁻³⁶) |
 | Figure 1: the disc of radius 11/50 about 3/4 + 57i/4 lies in the strip and misses ρ₁ | `v500_certificates.py` [E] | exact rationals, with 14.1347251417 < γ₁ < 14.1347251418 | distance > 0.2752 > 0.22 |
 
