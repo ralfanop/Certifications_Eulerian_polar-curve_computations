@@ -1,14 +1,14 @@
-"""Remark 3.15 of the V478 manuscript: two-term asymptotic of c_n and the corrected crossing order.
+"""Lemma 3.15 and Remark 3.16 of the V478 manuscript: two-term asymptotic of c_n (Eq. (81)) and the crossing order.
 
 c_n = n! / ((n+1) * (E(n,(n-1)/2) - E(n,(n-3)/2)))  for odd n >= 3  (E(n,k) in Deza's convention).
-The manuscript states, by Laplace's method applied to the Fourier inversion of Eq. (78),
+Lemma 3.15 proves, by Laplace's method applied to the Fourier inversion of Eq. (78),
     c_n = sqrt(pi (n+1)/216) * (1 + 15/(4(n+1)) + O(n^-2)),
 so the crossing c_n = pi (alpha_n = theta_E) moves from n+1 ~ 216 pi to n+1 ~ 216 pi - 15/2.
 
 This script (i) computes c_n exactly (rational arithmetic, exact Eulerian recurrence) for odd n <= 1001
 and prints (n+1)(c_n / sqrt(pi(n+1)/216) - 1), which should tend to 15/4 = 3.75;
 (ii) checks 670 < 216 pi - 15/2 < 672 and 216 pi > 672 with both interval backends (mpmath.iv and
-ia_fixed) and, independently, with the rational bounds 333/106 < pi < 355/113 used in Eq. (80)
+ia_fixed) and, independently, with the rational bounds 333/106 < pi < 355/113 used in Eq. (82)
 (also proved in Lean: EulerianCert.Crossing).
 
 Part (i) is a numerical corroboration of the analytic expansion, not a proof of it.

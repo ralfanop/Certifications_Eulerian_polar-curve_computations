@@ -1,4 +1,4 @@
-"""Exact-integer check of Remark 3.15 / Eq. (80) of the V478 manuscript (central polygonal angles)
+"""Exact-integer check of Remark 3.16 / Eq. (82) of the V478 manuscript (crossing order)
 and the scan of all odd orders up to 1001.
 
 E(n,k), 0<=k<=n-1 (Deza's convention, as in Sec. 2 of the manuscript): permutations of [n] with
@@ -46,8 +46,8 @@ print("355/113 < c_671 :", Fraction(355, 113) < c671)
 def trunc(x, dec):
     d = Fraction(dec); k = len(dec.split(".")[1])
     return d <= x < d + Fraction(1, 10**k)
-print("Eq. (80) printed c_669 = 3.13914926973... certified:", trunc(c669, "3.13914926973"))
-print("Eq. (80) printed c_671 = 3.14377888960... certified:", trunc(c671, "3.14377888960"))
+print("Eq. (82) printed c_669 = 3.13914926973... certified:", trunc(c669, "3.13914926973"))
+print("Eq. (82) printed c_671 = 3.14377888960... certified:", trunc(c671, "3.14377888960"))
 # monotonicity of c_n over odd n and the unique crossing of pi
 odd = sorted(cs)
 print("c_3 = c_5 = 1/2:", cs[3] == cs[5] == Fraction(1, 2))

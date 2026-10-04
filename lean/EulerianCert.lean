@@ -6,10 +6,10 @@ Module map (statement and equation numbers of the V478 PDF):
 * `EulerianCert.SignCriterion` — Lemma 3.2 (sign criterion, incl. the exact Hausdorff distance
                                   in ℂ), its truncation case (Cors 3.3, 3.9, Prop. 3.4, abstract
                                   form) and damping case (Cor. 3.11).
-* `EulerianCert.Bracket`       — Remark 3.15, Eq. (80): Eulerian numbers by their recurrence,
+* `EulerianCert.Bracket`       — Remark 3.16, Eq. (82): Eulerian numbers by their recurrence,
                                   kernel evaluation of the 669/671 integer inequalities, angle
                                   comparison.
-* `EulerianCert.Crossing`      — Remark 3.15: 670 < 216π − 15/2 < 672 (corrected crossing order)
+* `EulerianCert.Crossing`      — Remark 3.16: 670 < 216π − 15/2 < 672 (corrected crossing order)
                                   and 672 < 216π (the one-term estimate lies outside the bracket).
 * `EulerianCert.Limacon`       — Cor. 3.8; Thm 3.12 (three-point uniqueness); Thm 3.13
                                   (endpoint containment, equality case, scalar balance, logic of
