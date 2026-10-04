@@ -1,0 +1,5 @@
+file: ../figures/Figure5_Eulerian_distribution_cartesian_x045_055_y00_02_BW_labels.pdf
+curves n = 3..670: 668; points drawn: 24241
+drawn points that are not an exact vertex (tolerance 1e-6 pt): 0
+exact vertices inside the plot box: 22508; not drawn: 0
+RESULT: every exact vertex drawn, and nothing else

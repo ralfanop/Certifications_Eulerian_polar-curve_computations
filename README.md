@@ -39,6 +39,7 @@ Every interval certificate in the table below is run on **both** backends; the i
 | Remark 3.15, Eq. (80): c₆₆₉ = 3.13914926973… < 333/106, 355/113 < c₆₇₁ = 3.14377888960…; c₃ = c₅ = 1/2; c_n strictly increasing for odd 5 ≤ n ≤ 1001 (so the crossing is unique there) | `eulerian_bracket.py` | exact integer recurrence for E(n,k), n ≤ 1001, exact rational comparisons | `eulerian_bracket.log` | correct |
 | Remark 3.15, two-term expansion c_n = √(π(n+1)/216)(1 + 15/(4(n+1)) + O(n⁻²)) and corrected crossing order: 670 < 216π − 15/2 < 672, while the one-term estimate 216π exceeds 672 | `remark315_asymptotic.py` | (i) exact rational c_n for odd n ≤ 1001 from the Eulerian recurrence; (n+1)(c_n/√(π(n+1)/216) − 1) tabulated against 15/4. (ii) the two inequalities on both interval backends and from 333/106 < π < 355/113 | `remark315_asymptotic.log` | (i) 3.7539… at n = 669, 3.7526… at n = 1001, strictly decreasing for odd 101 ≤ n ≤ 1001 (a corroboration; the expansion itself is proved analytically in V478). (ii) certified: 671.066 < 216π − 15/2 < 671.085; also proved in Lean (`Crossing`) |
 | §3.11, Montgomery–Taylor: C_MT = 1/2 + z₀ coth z₀ = 1.3274992963… and 3/2 − z₀ coth z₀ = 0.6725007…, z₀ = i/√2 | `montgomery_taylor.py`; Lean `MontgomeryTaylor.z0_coth_z0` | (1/√2) cot(1/√2) enclosed on both backends; the identity z₀ coth z₀ = (1/√2) cot(1/√2) proved in Lean | `montgomery_taylor.log` | certified on both backends |
+| Figure 5 and the sentence before it: the polylines join the exact points (x_{n,k}, p_{n,k}) = (k/(n+1), E(n,k−1)/n!), n = 3..670, by straight segments | `figure5_vertices.py` | the figure PDF is parsed (standard library only); every drawn point is compared with the exact rational vertex, and every exact vertex inside the plot box is looked up | `figure5_vertices.log` | every one of the 22,508 exact vertices in the plot box is drawn, and every drawn point is an exact vertex (to the PDF's 10⁻⁶ pt print precision). See §8 |
 | Symbolic identities: Eq. (4); r_E′ (proof of Prop. 3.6); Eq. (40); Cor. 3.8 numerator; Eqs (59), (62)–(64); det JᵀJ = n + 1 (Lemma 3.14); B(eʰ) = e^{h/2}Z(h), r_E(t) = Z(it), ψ″(0) = 1/12, −iψ′(iπ) = 1/π and the Gaussian homothety (§3.11) | `symbolic_checks.py` (sympy) | exact symbolic simplification | `symbolic_checks.log` | all hold |
 | Cross-checks (non-rigorous, 45–120 digits) | `constants.py`, `limacon_minimax.py`, `dkappa.py` | mpmath quadrature / Newton | `*.log` | agree with every printed digit |
 
@@ -133,6 +134,7 @@ python3 epsrad_cert.py
 python3 eulerian_bracket.py
 python3 remark315_asymptotic.py
 python3 montgomery_taylor.py
+python3 figure5_vertices.py       # Figure 5, Section 8
 python3 v500_certificates.py      # companion manuscript V500, Section 7
 python3 symbolic_checks.py
 ```
@@ -172,6 +174,25 @@ Not formalised: Voronin universality and the zeta-jet corollary (classical theor
 certified target), Brualdi localisation, cyclicity and the Jordan structure of Cor. 4.5, and the
 covering-space part of Prop. 4.6.
 
-## 8. License
+## 8. Figure 5 (V478): every exact vertex is drawn
+
+`figures/Figure5_Eulerian_distribution_cartesian_x045_055_y00_02_BW_labels.pdf` is the Figure 5
+file of V478. The earlier file (`figures/superseded/Figure5_V478_matplotlib_simplified.pdf`) was
+written by matplotlib with its default path simplification, which drops a vertex lying within
+1/9 pt of a straight continuation. `numerics/figure5_vertices.py` run on it
+(`figure5_vertices_superseded.log`) finds 2,653 of the 22,508 exact vertices in the plot box not
+drawn: 1,651 in the flat tails (p < 0.0005) and 1,002 near the inflection points of the curves, in
+runs of fixed offset j = k − (n+1)/2 around N = n + 1 = 12j² (j = ±3.5: n = 140–146; j = ±4:
+n = 181–197; …). Each dropped vertex replaces two segments by one chord. The chords for j = ±3.5 and
+±4 show as two symmetric pairs of thin straight light lines near x ≈ 0.47–0.48 and 0.52–0.53. Its
+1,891 drawn points that are not vertices are matplotlib's clipping points outside the plot box.
+
+`figures/restore_vertices.py` (needs `pikepdf`) rebuilt the figure. It rewrites only the polyline
+operators inside the plot's clip blocks, with every vertex taken from the exact values E(n,k−1)/n!.
+Fonts, ticks, labels and page geometry are unchanged: at 1200 dpi, no pixel outside the plot frame
+differs. With every vertex drawn, the straight lines are gone. The curved arcs and bands along the
+fixed-j vertex trains remain, because they belong to the exact polygonal data.
+
+## 9. License
 
 All files in this repository are released under CC0 1.0 Universal (see `LICENSE`).

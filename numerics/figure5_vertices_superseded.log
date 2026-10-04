@@ -1,0 +1,29 @@
+file: ../figures/superseded/Figure5_V478_matplotlib_simplified.pdf
+curves n = 3..670: 668; points drawn: 24165
+drawn points that are not an exact vertex (tolerance 1e-6 pt): 1891
+exact vertices inside the plot box: 22508; not drawn: 2653
+not drawn, with p_{n,k} >= 0.0005, grouped by the offset j = k - (n+1)/2:
+  j =  -3.5:   4 curves, n = 140..146   (12 j^2 - 1 = 146)
+  j =  +3.5:   4 curves, n = 140..146   (12 j^2 - 1 = 146)
+  j =  -4.0:   9 curves, n = 181..197   (12 j^2 - 1 = 191)
+  j =  +4.0:   8 curves, n = 181..195   (12 j^2 - 1 = 191)
+  j =  -4.5:  14 curves, n = 228..254   (12 j^2 - 1 = 242)
+  j =  +4.5:  14 curves, n = 228..254   (12 j^2 - 1 = 242)
+  j =  -5.0:  34 curves, n = 275..395   (12 j^2 - 1 = 299)
+  j =  +5.0:  26 curves, n = 275..325   (12 j^2 - 1 = 299)
+  j =  -5.5:  66 curves, n = 328..570   (12 j^2 - 1 = 362)
+  j =  +5.5:  43 curves, n = 326..410   (12 j^2 - 1 = 362)
+  j =  -6.0: 104 curves, n = 381..665   (12 j^2 - 1 = 431)
+  j =  +6.0:  70 curves, n = 325..517   (12 j^2 - 1 = 431)
+  j =  -6.5: 107 curves, n = 436..668   (12 j^2 - 1 = 506)
+  j =  +6.5: 126 curves, n = 386..658   (12 j^2 - 1 = 506)
+  j =  -7.0:  72 curves, n = 491..669   (12 j^2 - 1 = 587)
+  j =  +7.0: 103 curves, n = 451..669   (12 j^2 - 1 = 587)
+  j =  -7.5:  56 curves, n = 548..658   (12 j^2 - 1 = 674)
+  j =  +7.5:  46 curves, n = 520..670   (12 j^2 - 1 = 674)
+  j =  -8.0:  33 curves, n = 605..669   (12 j^2 - 1 = 767)
+  j =  +8.0:  40 curves, n = 591..669   (12 j^2 - 1 = 767)
+  j =  -8.5:   6 curves, n = 660..670   (12 j^2 - 1 = 866)
+  j =  +8.5:  13 curves, n = 584..670   (12 j^2 - 1 = 866)
+  j =  +9.0:   4 curves, n = 663..669   (12 j^2 - 1 = 971)
+RESULT: VERTICES MISSING OR WRONG
