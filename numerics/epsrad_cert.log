@@ -6,9 +6,10 @@ eps_rad  (Eq. 60)                            0.04976675821919457417904    certif
 b_rad    (Eq. 61)                            0.86807664440298524572       certified=True
 h_*      (Eq. 70)                            0.04929794832571833571       certified=True
 b_H      (Eq. 70)                            0.86760783450950900724       certified=True
-h_*      (abstract, Sec. 1) 0.0492979...                                  certified=True
-eps_rad  (abstract, Sec. 1) 0.0497667...                                  certified=True
+h_*      (abstract, Sec. 1) approx           0.0492979                    certified=True
+eps_rad  (abstract, Sec. 1) approx           0.0497668                    certified=True
 negative control: eps_rad truncated (earlier draft) 0.04976675821919457417903    certified=False
+negative control: eps_rad approx 0.0497667 (truncation) 0.0497667                    certified=False
 h_* < eps_rad (Eq. 71): True   margin > 4.688099e-04
 b_H > 2 a_H > 0 (Eq. 71), a_H = m: True
 gain over radial optimum 100(1 - h_*/eps_rad) in [0.942014, 0.942014] %: rounds to 0.94 % = True
@@ -22,9 +23,10 @@ eps_rad  (Eq. 60)                            0.04976675821919457417904    certif
 b_rad    (Eq. 61)                            0.86807664440298524572       certified=True
 h_*      (Eq. 70)                            0.04929794832571833571       certified=True
 b_H      (Eq. 70)                            0.86760783450950900724       certified=True
-h_*      (abstract, Sec. 1) 0.0492979...                                  certified=True
-eps_rad  (abstract, Sec. 1) 0.0497667...                                  certified=True
+h_*      (abstract, Sec. 1) approx           0.0492979                    certified=True
+eps_rad  (abstract, Sec. 1) approx           0.0497668                    certified=True
 negative control: eps_rad truncated (earlier draft) 0.04976675821919457417903    certified=False
+negative control: eps_rad approx 0.0497667 (truncation) 0.0497667                    certified=False
 h_* < eps_rad (Eq. 71): True   margin > 4.688099e-04
 b_H > 2 a_H > 0 (Eq. 71), a_H = m: True
 gain over radial optimum 100(1 - h_*/eps_rad) in [0.942014, 0.942014] %: rounds to 0.94 % = True

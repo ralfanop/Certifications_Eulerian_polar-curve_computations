@@ -10,8 +10,8 @@ is enclosed by evaluating g on [t0, t1]; eps_rad = Delta/2, b_rad = c + eps_rad.
 Theorem 3.13.  h_* lies in (L, U) = (D80 - 1/2 10^-80, D80 + 1/2 10^-80) by the certificate of
 hstar_cert.py (stored in hstar_certificate.json); b_H = c + h_*.
 
-Printed decimals "approx d" must have their enclosure inside the rounding cell of d; values printed
-as "d..." inside [d, d + 10^-k).  All comparisons are exact (Fractions).
+Printed decimals "approx d" must have their enclosure inside the rounding cell of d (V478 prints
+h_* and eps_rad in the Abstract and Section 1 as correctly rounded "approx" values).  All comparisons are exact (Fractions).
 """
 import contextlib, io, json, time
 from fractions import Fraction as Fr
@@ -63,10 +63,6 @@ def cell(lo, hi, dec):
     d = Fr(dec); nd = len(dec.split(".")[1]); h = Fr(1, 2 * 10**nd)
     return d - h < lo and hi < d + h
 
-def trunc(lo, hi, dec):
-    d = Fr(dec); nd = len(dec.split(".")[1])
-    return d <= lo and hi < d + Fr(1, 10**nd)
-
 def report(name, R):
     print(f"--- backend: {name}")
     (thl, thh), (Dl, Dh), (cl, ch), (el, eh) = R["theta"], R["Delta"], R["c"], R["err1"]
@@ -78,11 +74,13 @@ def report(name, R):
         ("b_rad    (Eq. 61)", cell(cl + epl, ch + eph, "0.86807664440298524572"), "0.86807664440298524572"),
         ("h_*      (Eq. 70)", cell(HL, HU, "0.04929794832571833571"), "0.04929794832571833571"),
         ("b_H      (Eq. 70)", cell(cl + HL, ch + HU, "0.86760783450950900724"), "0.86760783450950900724"),
-        ("h_*      (abstract, Sec. 1) 0.0492979...", trunc(HL, HU, "0.0492979"), ""),
-        ("eps_rad  (abstract, Sec. 1) 0.0497667...", trunc(epl, eph, "0.0497667"), ""),
+        ("h_*      (abstract, Sec. 1) approx", cell(HL, HU, "0.0492979"), "0.0492979"),
+        ("eps_rad  (abstract, Sec. 1) approx", cell(epl, eph, "0.0497668"), "0.0497668"),
     ]
     rows.append(("negative control: eps_rad truncated (earlier draft)",
                  cell(epl, eph, "0.04976675821919457417903"), "0.04976675821919457417903"))
+    rows.append(("negative control: eps_rad approx 0.0497667 (truncation)",
+                 cell(epl, eph, "0.0497667"), "0.0497667"))
     print(f"sign change of S on [t0, t1] (encloses theta_*): {R['sign_ok']}")
     for label, ok, dec in rows:
         print(f"{label:44s} {dec:28s} certified={ok}")
