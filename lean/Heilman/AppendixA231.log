@@ -26,3 +26,9 @@ Lean (version 4.22.0, Release)
 'HeilmanA.slip_A47' does not depend on any axioms
 'HeilmanA.slip_A49' does not depend on any axioms
 'HeilmanA.slip_A66' does not depend on any axioms
+'HeilmanA.c115_bounds' does not depend on any axioms
+'HeilmanA.ratio_232_233' does not depend on any axioms
+'HeilmanA.p231_in_monotone_range' does not depend on any axioms
+'HeilmanA.m232_dominated' does not depend on any axioms
+'HeilmanA.sup_delta0_231' does not depend on any axioms
+'HeilmanA.heilman_eps_near_optimal' does not depend on any axioms

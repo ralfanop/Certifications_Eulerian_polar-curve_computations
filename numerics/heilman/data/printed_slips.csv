@@ -1,0 +1,7 @@
+equation,quantity,printed,exact,note
+(A.39),p_0.92 >=,1.20508454e-4,1.205084539442e-4,printed lower bound exceeds the exact value
+(A.45)-(A.46),M = 12 x 381.8015394237 <=,4581.618473084,4.5816184730844e3,exact product exceeds the printed bound
+(A.47),R <= sqrt((6/7)^2+7^2) <=,7.05228288411,7.0522828841128...,printed bound below the root
+(A.49),C_r' <=,2.01664948e18,1.8351510255e20,printed formula [1-(0.9/r)]^-2; printed value is that of [1-(0.9/r)^2]^-1 = 2.0166494786e18
+(A.63),p(231) M_phi rho^-231 < 1/(2 231!),strict,equality,strict iff sup|phi| < M_phi on |z| = rho
+(A.66),delta_0 >=,4.07123102832e-457,4.07123102830199e-457,printed lower bound exceeds the exact value; 11 digits survive

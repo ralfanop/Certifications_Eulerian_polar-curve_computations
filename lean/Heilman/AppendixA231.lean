@@ -183,6 +183,41 @@ theorem slip_A49 :
 theorem slip_A66 : Q.Lt (p 231 * Dh) (loss 231 Cprinted + dec 407123102832 468) := by
   decide +kernel
 
+
+/-! ### Optimality of 231 (Section 3 of the manuscript)
+
+  Write ε = c Δ/L. Then tail(n) < ε/2 iff c > c(n) := 2 L tail(n)/Δ, and δ₀ > 0 forces c < 1.
+  Since Δ ∈ [Dl, Dh], c(115) ∈ [2 L tail(115)/Dh, 2 L tail(115)/Dl]. -/
+
+/-- c(115) ∈ (0.66328, 0.66329); hence 0.664 is c(115) rounded up at the third decimal. -/
+theorem c115_bounds :
+    Q.Lt (fr 66328 100000) (2 * L * tail 115 / Dh) ∧ Q.Lt (2 * L * tail 115 / Dl) (fr 66329 100000) := by
+  decide +kernel
+
+/-- R(m,115) = p(m) M_φ ρ^−231 · 2·231! equals ρ/232 for m = 232 and ρ²/(232·233) for m = 233. -/
+theorem ratio_232_233 :
+    Q.Eq (p 232 * Mφ / ρ ^ 231 * fr (2 * fact 231) 1) (ρ / 232) ∧
+    Q.Eq (p 233 * Mφ / ρ ^ 231 * fr (2 * fact 231) 1) (ρ ^ 2 / fr (232 * 233) 1) := by
+  decide +kernel
+
+/-- δ₀ = p[(Δ − Lε) − L C' p] is positive and increasing in p up to (Δ − Lε)/(2 L C'), and p(231) lies below. -/
+theorem p231_in_monotone_range : Q.Lt (p 231 * (2 * L * Cs) + L * ε) Dl := by decide +kernel
+
+/-- Every m ≥ 232: δ₀ < p(m) Δ ≤ p(232) Dh < 6.02e-459, below the δ₀(231) ≥ 4.0712310283e-457 of `delta0_231`. -/
+theorem m232_dominated :
+    Q.Lt (p 232 * Dh) (dec 602 461) ∧ Q.Lt (dec 602 461) (dec 40712310283 467) := by decide +kernel
+
+/-- For m = 231 (so n = 115 and ε > 2 tail(115)), the supremum of δ₀ over ε is
+    p(231)(Δ − 2 L tail(115)) − L C' p(231)², which lies in [4.07992590889e-457, 4.07992590890e-457]. -/
+theorem sup_delta0_231 :
+    Q.Le (p 231 * (2 * L * tail 115) + L * Cs * p 231 ^ 2 + dec 407992590889 468) (p 231 * DlT) ∧
+    Q.Le (p 231 * Dh) (p 231 * (2 * L * tail 115) + dec 407992590890 468) := by decide +kernel
+
+/-- Heilman's ε = 8.34296222775e-23 attains at least 99.78% of that supremum. -/
+theorem heilman_eps_near_optimal :
+    Q.Le (fr 9978 10000 * (p 231 * Dh) + loss 231 Cs)
+         (p 231 * DlT + fr 9978 10000 * (p 231 * (2 * L * tail 115))) := by decide +kernel
+
 /-! ### Axiom audit
   Every kernel-checked fact depends on no axiom at all. `n114_impossible` uses only the
   three standard Lean axioms (propext, Classical.choice, Quot.sound), through core `Nat` lemmas. -/
@@ -214,5 +249,11 @@ theorem slip_A66 : Q.Lt (p 231 * Dh) (loss 231 Cprinted + dec 407123102832 468) 
 #print axioms slip_A47
 #print axioms slip_A49
 #print axioms slip_A66
+#print axioms c115_bounds
+#print axioms ratio_232_233
+#print axioms p231_in_monotone_range
+#print axioms m232_dominated
+#print axioms sup_delta0_231
+#print axioms heilman_eps_near_optimal
 
 end HeilmanA

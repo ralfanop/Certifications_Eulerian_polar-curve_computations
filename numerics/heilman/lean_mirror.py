@@ -47,6 +47,12 @@ S = {
  "slip A.49 printed formula": Cprinted < 2 * Cr / r * x / F(1, 46)**2,
  "A.49 value formula ok": 2 * Cr / r * x / F(91, 2116) <= Cprinted,
  "slip A.66": p(231) * Dh < lhs(231, Cprinted) + dec(407123102832, 468),
+ "c(115) in (0.66328, 0.66329)": F(66328,100000) < 2*L*tail(115)/Dh and 2*L*tail(115)/Dl < F(66329,100000),
+ "R(232,115)=rho/232, R(233,115)=rho^2/(232*233)": p(232)*Mphi/rho**231*2*fact(231) == rho/232 and p(233)*Mphi/rho**231*2*fact(231) == rho**2/(232*233),
+ "p(231) in monotone range": p(231)*(2*L*Cs) + L*eps < Dl,
+ "m>=232 dominated": p(232)*Dh < dec(602,461) < dec(40712310283,467),
+ "sup delta0(231) bounds": p(231)*(2*L*tail(115)) + L*Cs*p(231)**2 + dec(407992590889,468) <= p(231)*DlT and p(231)*Dh <= p(231)*(2*L*tail(115)) + dec(407992590890,468),
+ "Heilman eps >= 99.78% of sup": F(9978,10000)*(p(231)*Dh) + lhs(231,Cs) <= p(231)*DlT + F(9978,10000)*(p(231)*(2*L*tail(115))),
 }
 for k, v in S.items(): print("PASS" if v else "FAIL", k)
 print(sum(S.values()), "/", len(S))
