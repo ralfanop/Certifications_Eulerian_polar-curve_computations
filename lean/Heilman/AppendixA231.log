@@ -39,7 +39,4 @@ Lean (version 4.22.0, Release)
 'HeilmanA.delta0_phat_231' does not depend on any axioms
 'HeilmanA.sup_delta0_phat_231' does not depend on any axioms
 'HeilmanA.C_prime_BMMN' does not depend on any axioms
-
-real	0m5.672s
-user	0m2.537s
-sys	0m2.350s
+'HeilmanA.phat_233_lt_p232' does not depend on any axioms

@@ -254,6 +254,9 @@ theorem C_prime_BMMN : Q.Le (fr 4500 91 * sci 407811339 8) Cprinted ∧
     Q.Eq (2 * sci 407811339 8 / dec 92 2 * fr 45 46 / fr 91 2116) (fr 4500 91 * sci 407811339 8) := by
   decide +kernel
 
+/-- For n ≥ 116 the relaxed bound gives p ≤ p̂(233) = 2 p(233) < p(232); hence δ₀ < p(232) Δ < 6.02e-459 there. -/
+theorem phat_233_lt_p232 : Q.Lt (phat 233) (p 232) := by decide +kernel
+
 /-! ### Axiom audit
   Every kernel-checked fact depends on no axiom at all. `n114_impossible` uses only the
   three standard Lean axioms (propext, Classical.choice, Quot.sound), through core `Nat` lemmas. -/
@@ -298,5 +301,6 @@ theorem C_prime_BMMN : Q.Le (fr 4500 91 * sci 407811339 8) Cprinted ∧
 #print axioms delta0_phat_231
 #print axioms sup_delta0_phat_231
 #print axioms C_prime_BMMN
+#print axioms phat_233_lt_p232
 
 end HeilmanA

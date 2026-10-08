@@ -106,7 +106,7 @@ None of these affects the conclusion. After outward rounding, (A.79) K_Kr − K_
 python3 ri.py                    # self-test
 python3 appendixA_chain.py       # 35/41: 29 printed steps (23 pass, 6 slips) + 12 further checks
 python3 generate_data.py         # writes data/*.csv
-python3 lean_mirror.py           # 41/41
+python3 lean_mirror.py           # 42/42
 lean ../../lean/Heilman/AppendixA231.lean   # any Lean 4 toolchain with `decide +kernel`
 ```
 
@@ -114,9 +114,9 @@ lean ../../lean/Heilman/AppendixA231.lean   # any Lean 4 toolchain with `decide 
 
 `lean/Heilman/AppendixA231.lean` compiles with **Lean 4.22.0**, built from source, in about 2 s. The compiler output is in `lean/Heilman/AppendixA231.log`.
 
-- 40 theorems are certified.
-- 39 of them are kernel computations (`decide +kernel`) and depend on **no axioms**.
+- 41 theorems are certified.
+- 40 of them are kernel computations (`decide +kernel`) and depend on **no axioms**.
 - `n114_impossible` is a short proof by hand. It uses only the three standard Lean axioms.
 - Two auxiliary order lemmas (`Q.lt_trans`, `Q.not_lt_of_le`) support `n114_impossible`.
 - The negations of two natural but false variants are theorems of the file: `sign_230_fails` (sign control for m = 230 at k = 115) and `tail_114` (tail(114) < ε/2 fails).
-- `lean_mirror.py` re-evaluates the 39 decided theorems in 41 checks.
+- `lean_mirror.py` re-evaluates the 40 decided theorems in 42 checks.

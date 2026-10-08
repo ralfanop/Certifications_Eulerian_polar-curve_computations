@@ -59,6 +59,7 @@ S = {
  "phat(231) < p096 < p092": 2*p(231) < p096 < p092,
  "delta0(phat 231) >= 8.1424620566e-457": L*(Cs*(2*p(231))**2 + 2*p(231)*eps) + dec(81424620566,467) <= 2*p(231)*DlT,
  "sup delta0(phat 231) >= 8.1598518177e-457": 2*p(231)*(2*L*tail(115)) + L*Cs*(2*p(231))**2 + dec(81598518177,467) <= 2*p(231)*DlT,
+ "phat(233) < p(232)": 2*p(233) < p(232),
  "C' = (4500/91) C_r <= printed": F(4500,91)*Cr <= Cprinted and 2*Cr/r*x/F(91,2116) == F(4500,91)*Cr,
 }
 for k, v in S.items(): print("PASS" if v else "FAIL", k)
