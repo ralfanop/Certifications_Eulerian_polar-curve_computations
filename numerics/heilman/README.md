@@ -63,3 +63,14 @@ python3 appendixA_chain.py       # 35/41; the 6 FAILs are the printed slips abov
 python3 lean_mirror.py           # 28/28
 lean ../../lean/Heilman/AppendixA231.lean   # any Lean 4 toolchain with `decide +kernel`
 ```
+
+## Lean status
+
+`lean/Heilman/AppendixA231.lean` compiles with **Lean 4.22.0**, built from source, in about 2 s. The compiler output is in `lean/Heilman/AppendixA231.log`.
+
+- 27 theorems are certified.
+- 26 of them are kernel computations (`decide +kernel`) and depend on **no axioms**.
+- `n114_impossible` is a short proof by hand. It uses only the three standard Lean axioms.
+- Two deliberately false variants were checked separately and are rejected by the kernel:
+  - sign control for m = 230 at all k ≤ 115;
+  - tail(114) < ε/2.
