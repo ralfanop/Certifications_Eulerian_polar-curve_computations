@@ -60,6 +60,21 @@ Write ε = cΔ/L. Note that δ₀ = p(Δ − Lε) − LC′p² > 0 forces c < 1.
   - A tenfold gain lowers n by ≈ 4.66.
   - Changing ρ changes q and M_φ.
 
+## The sign-control requirement and the doubled parameter
+
+In Braverman et al., proof of Theorem 5.1, (5.20)–(5.22), the condition on p for k ≤ n is used for one purpose only: the terms ||b₂ₖ₊₁ + p c₂ₖ₊₁| − (−1)ᵏ(b₂ₖ₊₁ + p c₂ₖ₊₁)| must vanish. That requires (−1)ᵏ(b₂ₖ₊₁ + p c₂ₖ₊₁) ≥ 0, which follows from **p|c₂ₖ₊₁| ≤ |b₂ₖ₊₁|**. The factor ½ and the strict inequality of (A.63) are not needed. The C_r p² error is handled separately, by the second sum in (5.20).
+
+- With p = p(231), the equality case of (A.63) still leaves a factor 2 of margin, so Theorem A.1 holds without reservation.
+- With the Cauchy bound |c₂ₖ₊₁| ≤ M_φ ρ^{−(2k+1)}, the largest admissible p is **p\* = ρ²³¹/(231!·M_φ) = 2p(231) = 5.64561800119e-436**.
+  - Relaxed sign control holds for k = 0..115, with equality at k = 115.
+  - 230 still fails.
+  - p\* < p₀.₉₆ < p₀.₉₂.
+- Results with p\*:
+  - **δ₀ ≥ 8.1424620566e-457** and **K_Kr − K_G ≥ 1.6464765801e-456**, with the ε of (A.60).
+  - With the optimal ε: δ₀ ≥ 8.1598518177e-457 and K_Kr − K_G ≥ 1.6499929409e-456.
+- 231 = 2n + 1 is again the exponent of the optimal p.
+- A rigorous enclosure of the true coefficients c₂ₖ₊₁ (instead of the Cauchy bound) could enlarge p further.
+
 ## Data tables (`data/`)
 
 | File | Content |
@@ -70,6 +85,7 @@ Write ε = cΔ/L. Note that δ₀ = p(Δ − Lε) − LC′p² > 0 forces c < 1.
 | `delta0_vs_m.csv` | m = 231..260, 281, 301, 351, 401: p(m), δ₀ and K_Kr − K_G, with Heilman's ε and with the optimal ε |
 | `nmin_vs_c.csv` | c = 0.01..0.99, plus 0.66328, 0.66329 and 0.664: n_min, m = 2n_min + 1, δ₀, gap |
 | `printed_slips.csv` | The six printed values of Appendix A against the exact values |
+| `relaxed_phat_vs_m.csv` | m = 231..240, 301: p̂(m) = ρ^m/(m!·M_φ) = 2p(m) under the relaxed sign control, with δ₀ and the gap |
 
 Decimals in columns named `_lo` are rounded down and those named `_hi` are rounded up. Other columns are rounded to nearest.
 
@@ -80,8 +96,8 @@ None of these affects the conclusion. After outward rounding, (A.79) K_Kr − K_
 - **(A.39)** p₀.₉₂ = 1.205084539442e-4 is below the printed lower bound 1.20508454e-4.
 - **(A.45)–(A.46)** 12 × 381.8015394237 = 4581.6184730844 exceeds the printed M = 4581.618473084.
 - **(A.47)** √((6/7)² + 7²) = 7.0522828841128… exceeds the printed 7.05228288411.
-- **(A.49)** The printed value 2.01664948e18 is that of 2C_r/r·(0.9/r)·[1 − (0.9/r)²]⁻¹. The printed formula 2C_r/r·(0.9/r)·[1 − 0.9/r]⁻² gives 1.835e20 instead. Either way the C′p² term is negligible; all checks here use C′ ≤ 1.84e20.
-- **(A.63)** At k = 115 with p = p(231), sign control holds with equality at the level of the bounds. Strictness requires sup|φ| < M_φ strictly on |z| = ρ.
+- **(A.49)** The printed value 2.01664948e18 is that of 2C_r/r·(0.9/r)·[1 − (0.9/r)²]⁻¹ = (4500/91)·C_r. That value is the correct one: in Braverman et al., (5.20)–(5.21), the error is 2·Σ_k C_r p² γ^{2k+1}/r^{2k+2}, a geometric series over odd powers. The printed formula 2C_r/r·(0.9/r)·[1 − 0.9/r]⁻², which gives 4500·C_r = 1.835e20, is a typo. The checks here use the safe C′ ≤ 1.84e20 anyway.
+- **(A.63)** At k = 115 with p = p(231), the sufficient condition p|c| < ½|b| holds with equality at the level of the bounds. This is harmless, see below.
 - **(A.66)** The exact δ₀ = 4.07123102830199e-457 is below the printed 4.07123102832e-457. Eleven digits survive: 4.0712310283e-457.
 
 ## Reproduce
@@ -90,7 +106,7 @@ None of these affects the conclusion. After outward rounding, (A.79) K_Kr − K_
 python3 ri.py                    # self-test
 python3 appendixA_chain.py       # 35/41: 29 printed steps (23 pass, 6 slips) + 12 further checks
 python3 generate_data.py         # writes data/*.csv
-python3 lean_mirror.py           # 34/34
+python3 lean_mirror.py           # 41/41
 lean ../../lean/Heilman/AppendixA231.lean   # any Lean 4 toolchain with `decide +kernel`
 ```
 
@@ -98,9 +114,9 @@ lean ../../lean/Heilman/AppendixA231.lean   # any Lean 4 toolchain with `decide 
 
 `lean/Heilman/AppendixA231.lean` compiles with **Lean 4.22.0**, built from source, in about 2 s. The compiler output is in `lean/Heilman/AppendixA231.log`.
 
-- 33 theorems are certified.
-- 32 of them are kernel computations (`decide +kernel`) and depend on **no axioms**.
+- 40 theorems are certified.
+- 39 of them are kernel computations (`decide +kernel`) and depend on **no axioms**.
 - `n114_impossible` is a short proof by hand. It uses only the three standard Lean axioms.
 - Two auxiliary order lemmas (`Q.lt_trans`, `Q.not_lt_of_le`) support `n114_impossible`.
 - The negations of two natural but false variants are theorems of the file: `sign_230_fails` (sign control for m = 230 at k = 115) and `tail_114` (tail(114) < ε/2 fails).
-- `lean_mirror.py` re-evaluates the 32 decided theorems in 34 checks.
+- `lean_mirror.py` re-evaluates the 39 decided theorems in 41 checks.

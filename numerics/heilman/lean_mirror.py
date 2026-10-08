@@ -53,6 +53,13 @@ S = {
  "m>=232 dominated": p(232)*Dh < dec(602,461) < dec(40712310283,467),
  "sup delta0(231) bounds": p(231)*(2*L*tail(115)) + L*Cs*p(231)**2 + dec(407992590889,468) <= p(231)*DlT and p(231)*Dh <= p(231)*(2*L*tail(115)) + dec(407992590890,468),
  "Heilman eps >= 99.78% of sup": F(9978,10000)*(p(231)*Dh) + lhs(231,Cs) <= p(231)*DlT + F(9978,10000)*(p(231)*(2*L*tail(115))),
+ "phat(231) = 2 p(231)": rho**231/(fact(231)*Mphi) == 2*p(231),
+ "relaxed sign control k<116 for phat(231)": all(rho**231/(fact(231)*Mphi)*Mphi/rho**(2*k+1) <= F(1,fact(2*k+1)) for k in range(116)),
+ "relaxed sign control fails for phat(230) at k=115": not (rho**230/(fact(230)*Mphi)*Mphi/rho**231 <= F(1,fact(231))),
+ "phat(231) < p096 < p092": 2*p(231) < p096 < p092,
+ "delta0(phat 231) >= 8.1424620566e-457": L*(Cs*(2*p(231))**2 + 2*p(231)*eps) + dec(81424620566,467) <= 2*p(231)*DlT,
+ "sup delta0(phat 231) >= 8.1598518177e-457": 2*p(231)*(2*L*tail(115)) + L*Cs*(2*p(231))**2 + dec(81598518177,467) <= 2*p(231)*DlT,
+ "C' = (4500/91) C_r <= printed": F(4500,91)*Cr <= Cprinted and 2*Cr/r*x/F(91,2116) == F(4500,91)*Cr,
 }
 for k, v in S.items(): print("PASS" if v else "FAIL", k)
 print(sum(S.values()), "/", len(S))

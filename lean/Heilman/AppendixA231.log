@@ -32,3 +32,14 @@ Lean (version 4.22.0, Release)
 'HeilmanA.m232_dominated' does not depend on any axioms
 'HeilmanA.sup_delta0_231' does not depend on any axioms
 'HeilmanA.heilman_eps_near_optimal' does not depend on any axioms
+'HeilmanA.phat_231_eq' does not depend on any axioms
+'HeilmanA.sign_rel_231' does not depend on any axioms
+'HeilmanA.sign_rel_230_fails' does not depend on any axioms
+'HeilmanA.phat_231_small' does not depend on any axioms
+'HeilmanA.delta0_phat_231' does not depend on any axioms
+'HeilmanA.sup_delta0_phat_231' does not depend on any axioms
+'HeilmanA.C_prime_BMMN' does not depend on any axioms
+
+real	0m5.672s
+user	0m2.537s
+sys	0m2.350s

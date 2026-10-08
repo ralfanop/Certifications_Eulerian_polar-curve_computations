@@ -218,6 +218,42 @@ theorem heilman_eps_near_optimal :
     Q.Le (fr 9978 10000 * (p 231 * Dh) + loss 231 Cs)
          (p 231 * DlT + fr 9978 10000 * (p 231 * (2 * L * tail 115))) := by decide +kernel
 
+
+/-! ### The sign-control requirement of Braverman et al. and the doubled parameter
+
+  In BMMN, proof of Theorem 5.1, (5.20)–(5.22), the condition on p for k ≤ n is used only to
+  make the terms ||b + p c| − (−1)^k (b + p c)| vanish, i.e. (−1)^k (b_{2k+1} + p c_{2k+1}) ≥ 0.
+  Since (−1)^k b_{2k+1} = 1/(2k+1)!, the condition p|c_{2k+1}| ≤ 1/(2k+1)! suffices.
+  With the Cauchy bound |c_{2k+1}| ≤ M_φ ρ^−(2k+1) it holds for p ≤ p* := ρ^231/(231! M_φ) = 2 p(231). -/
+
+/-- p̂(m) = ρ^m / (m! · M_φ) = 2 p(m). -/
+def phat (m : Nat) : Q := ρ ^ m / (fr (fact m) 1 * Mφ)
+
+/-- Relaxed sign control: p M_φ ρ^−(2k+1) ≤ 1/(2k+1)!. -/
+def SignRel (m k : Nat) : Prop := Q.Le (phat m * Mφ / ρ ^ (2 * k + 1)) (fr 1 (fact (2 * k + 1)))
+instance (m k : Nat) : Decidable (SignRel m k) := by unfold SignRel; infer_instance
+
+theorem phat_231_eq : Q.Eq (phat 231) (2 * p 231) := by decide +kernel
+theorem sign_rel_231 : ∀ k, k < 116 → SignRel 231 k := by decide +kernel
+theorem sign_rel_230_fails : ¬ SignRel 230 115 := by decide +kernel
+theorem phat_231_small : Q.Lt (phat 231) p096 ∧ Q.Lt (phat 231) p092 := by decide +kernel
+
+/-- δ₀(p*) = p*Δ − L(C' p*² + p* ε) ≥ 8.1424620566e-457 (Δ ≥ DlT, C' ≤ 1.84e20). -/
+theorem delta0_phat_231 :
+    Q.Le (L * (Cs * phat 231 ^ 2 + phat 231 * ε) + dec 81424620566 467) (phat 231 * DlT) := by
+  decide +kernel
+
+/-- Supremum over ε (n = 115): p*(Δ − 2 L tail(115)) − L C' p*² ≥ 8.1598518177e-457. -/
+theorem sup_delta0_phat_231 :
+    Q.Le (phat 231 * (2 * L * tail 115) + L * Cs * phat 231 ^ 2 + dec 81598518177 467)
+         (phat 231 * DlT) := by decide +kernel
+
+/-- (A.49) settled by BMMN (5.21): C' = (2C_r/r) Σ_k (0.9/r)^{2k+1} = (2C_r/r)(45/46)/(1 − (45/46)²)
+    = (4500/91) C_r, which the printed 2.01664948e18 bounds. -/
+theorem C_prime_BMMN : Q.Le (fr 4500 91 * sci 407811339 8) Cprinted ∧
+    Q.Eq (2 * sci 407811339 8 / dec 92 2 * fr 45 46 / fr 91 2116) (fr 4500 91 * sci 407811339 8) := by
+  decide +kernel
+
 /-! ### Axiom audit
   Every kernel-checked fact depends on no axiom at all. `n114_impossible` uses only the
   three standard Lean axioms (propext, Classical.choice, Quot.sound), through core `Nat` lemmas. -/
@@ -255,5 +291,12 @@ theorem heilman_eps_near_optimal :
 #print axioms m232_dominated
 #print axioms sup_delta0_231
 #print axioms heilman_eps_near_optimal
+#print axioms phat_231_eq
+#print axioms sign_rel_231
+#print axioms sign_rel_230_fails
+#print axioms phat_231_small
+#print axioms delta0_phat_231
+#print axioms sup_delta0_phat_231
+#print axioms C_prime_BMMN
 
 end HeilmanA

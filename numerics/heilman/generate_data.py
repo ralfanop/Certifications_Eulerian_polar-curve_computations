@@ -150,10 +150,24 @@ rows = [
      "exact product exceeds the printed bound"],
     ["(A.47)", "R <= sqrt((6/7)^2+7^2) <=", "7.05228288411", "7.0522828841128...", "printed bound below the root"],
     ["(A.49)", "C_r' <=", "2.01664948e18", fsci(2 * cr / r * x / (1 - x) ** 2, 11),
-     "printed formula [1-(0.9/r)]^-2; printed value is that of [1-(0.9/r)^2]^-1 = " + fsci(2 * cr / r * x / (1 - x * x), 11)],
+     "printed formula [1-(0.9/r)]^-2 is a typo; the printed value is that of [1-(0.9/r)^2]^-1 = " + fsci(2 * cr / r * x / (1 - x * x), 11) + ", as in Braverman et al. (5.21)"],
     ["(A.63)", "p(231) M_phi rho^-231 < 1/(2 231!)", "strict", "equality",
-     "strict iff sup|phi| < M_phi on |z| = rho"],
+     "harmless: Braverman et al. (5.20) needs only p|c_{2k+1}| <= |b_{2k+1}|, which holds with a factor 2 of margin"],
     ["(A.66)", "delta_0 >=", "4.07123102832e-457", fsci(delta0(231, EPS).lo, 15, "down"),
      "printed lower bound exceeds the exact value; 11 digits survive"],
 ]
 write("printed_slips.csv", ["equation", "quantity", "printed", "exact", "note"], rows)
+
+
+# 6. The relaxed sign control of Braverman et al. (5.20): p |c_{2k+1}| <= |b_{2k+1}| suffices,
+#    so p may be taken as phat(m) = rho^m / (m! M_phi) = 2 p(m).
+rows = []
+for m in list(range(231, 241)) + [301]:
+    ph = 2 * p(m)
+    d = ph * Delta - L * (Cs * ph**2 + ph * EPS)
+    ds = ph * (Delta - 2 * L * tail(115)) - L * Cs * ph**2
+    rows.append([m, fsci(ph, 12), "yes" if all(ph * Mphi / rho ** (2 * k + 1) <= F(1, factorial(2 * k + 1)) for k in range(116)) else "no",
+                 fsci(d.lo, 12, "down"), fsci(gap(d).lo, 12, "down"), fsci(ds.lo, 12, "down"), fsci(gap(ds).lo, 12, "down")])
+write("relaxed_phat_vs_m.csv",
+      ["m", "phat(m)=2p(m)", "relaxed sign control k<=115", "delta0_lo (eps of A.60)", "gap_lo (eps of A.60)",
+       "sup_eps delta0_lo", "sup_eps gap_lo"], rows)
