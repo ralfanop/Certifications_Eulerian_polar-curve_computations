@@ -208,6 +208,7 @@ static void eval_point(evalres *E, const arb_t x, const arb_t y, const acb_t t)
 
 /* upper bounds (doubles, rounded up) of the two integrands on a box; also center values */
 static double half_lb = 0.5;
+static arb_struct *g_R2mv = NULL;   /* optional second enclosure of |R_e|^2 (mean-value form) */
 static void box_ub(double out[2], const arb_t x, const arb_t y, const acb_t t)
 {
     evalres E; evalres_init(&E);
@@ -231,6 +232,8 @@ static void box_ub(double out[2], const arb_t x, const arb_t y, const acb_t t)
     {
         arf_t ub; arf_init(ub); arb_get_ubound_arf(ub, E.R2[e], prec); double R = arf_get_d(ub, ARF_RND_UP); arf_clear(ub);
         if (!arb_is_finite(E.R2[e])) R = INFINITY;
+        if (g_R2mv != NULL && arb_is_finite(g_R2mv + e))
+        { arf_t u2; arf_init(u2); arb_get_ubound_arf(u2, g_R2mv + e, prec); double R2 = arf_get_d(u2, ARF_RND_UP); arf_clear(u2); if (R2 < R) R = R2; }
         out[e] = R * prefac * ee * (1 + 1e-12);
     }
     arb_clear(s); arb_clear(q); arb_clear(ex); arb_clear(pre); arf_clear(lb);
@@ -242,12 +245,127 @@ static void set_interval(arb_t z, double lo, double hi)
     arb_set_d(z, lo); arb_t h; arb_init(h); arb_set_d(h, hi); arb_union(z, z, h, prec); arb_clear(h);
 }
 
+
+/* ---------- first-order jets (value, derivative in one variable) for mean-value enclosures of R_e ---------- */
+typedef struct { acb_t v, d; } jet;
+static void jinit(jet *a) { acb_init(a->v); acb_init(a->d); }
+static void jclear(jet *a) { acb_clear(a->v); acb_clear(a->d); }
+static void jset(jet *a, const jet *b) { acb_set(a->v, b->v); acb_set(a->d, b->d); }
+static void jconst_si(jet *a, slong c) { acb_set_si(a->v, c); acb_zero(a->d); }
+static void jadd(jet *r, const jet *a, const jet *b) { acb_add(r->v, a->v, b->v, prec); acb_add(r->d, a->d, b->d, prec); }
+static void jsub(jet *r, const jet *a, const jet *b) { acb_sub(r->v, a->v, b->v, prec); acb_sub(r->d, a->d, b->d, prec); }
+static void jmul(jet *r, const jet *a, const jet *b)
+{ acb_t t1, t2; acb_init(t1); acb_init(t2); acb_mul(t1, a->d, b->v, prec); acb_mul(t2, a->v, b->d, prec); acb_add(t1, t1, t2, prec); acb_mul(r->v, a->v, b->v, prec); acb_swap(r->d, t1); acb_clear(t1); acb_clear(t2); }
+static void jmul_si(jet *r, const jet *a, slong c) { acb_mul_si(r->v, a->v, c, prec); acb_mul_si(r->d, a->d, c, prec); }
+static void jinv(jet *r, const jet *a)
+{ acb_t iv; acb_init(iv); acb_inv(iv, a->v, prec); acb_mul(r->d, a->d, iv, prec); acb_mul(r->d, r->d, iv, prec); acb_neg(r->d, r->d); acb_swap(r->v, iv); acb_clear(iv); }
+static void jpoly_arb(jet *r, const arb_poly_t p, const jet *x)
+{ jet acc, c; jinit(&acc); jinit(&c); acb_zero(acc.v); acb_zero(acc.d);
+  for (slong k = arb_poly_length(p) - 1; k >= 0; k--) { jmul(&acc, &acc, x); acb_set_arb(c.v, arb_poly_get_coeff_ptr(p, k)); acb_zero(c.d); jadd(&acc, &acc, &c); }
+  jset(r, &acc); jclear(&acc); jclear(&c); }
+static void jpoly_acb(jet *r, const acb_poly_t p, const jet *x)
+{ jet acc, c; jinit(&acc); jinit(&c); acb_zero(acc.v); acb_zero(acc.d);
+  for (slong k = acb_poly_length(p) - 1; k >= 0; k--) { jmul(&acc, &acc, x); acb_poly_get_coeff_acb(c.v, p, k); acb_zero(c.d); jadd(&acc, &acc, &c); }
+  jset(r, &acc); jclear(&acc); jclear(&c); }
+
+/* R_0, R_1 as jets */
+static void eval_R_jet(jet R[2], const jet *x, const jet *y, const jet *t)
+{
+    jet u, v, Bx[5][5], By[5][5], q[4], r, d, di, lu, lv, F[4][4], tmp, tmp2, kap, one;
+    jinit(&u); jinit(&v); jinit(&r); jinit(&d); jinit(&di); jinit(&lu); jinit(&lv); jinit(&tmp); jinit(&tmp2); jinit(&kap); jinit(&one);
+    for (int a = 0; a < 5; a++) for (int i = 0; i < 5; i++) { jinit(&Bx[a][i]); jinit(&By[a][i]); }
+    for (int j = 0; j < 4; j++) jinit(&q[j]);
+    for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) jinit(&F[i][j]);
+    jconst_si(&one, 1);
+    jpoly_arb(&u, Pm, x); jpoly_arb(&v, Pm, y);
+    for (int a = 0; a < 5; a++) for (int i = 0; i <= a; i++) { jpoly_arb(&Bx[a][i], Bell[a][i], x); jpoly_arb(&By[a][i], Bell[a][i], y); }
+    for (int j = 0; j < 4; j++) jpoly_acb(&q[j], Drho[j], t);
+    jset(&r, &q[0]);
+    jmul(&d, &r, &r); jsub(&d, &one, &d); jinv(&di, &d);
+    jmul(&lu, &r, &v); jsub(&lu, &lu, &u); jmul(&lu, &lu, &di);
+    jmul(&lv, &r, &u); jsub(&lv, &lv, &v); jmul(&lv, &lv, &di);
+    jconst_si(&F[0][0], 1);
+    for (int j = 1; j < 4; j++) { jmul(&F[0][j], &lv, &F[0][j - 1]); if (j >= 2) { jmul_si(&tmp, &di, j - 1); jmul(&tmp, &tmp, &F[0][j - 2]); jsub(&F[0][j], &F[0][j], &tmp); } }
+    for (int i = 1; i < 4; i++) for (int j = 0; j < 4; j++)
+    {
+        jmul(&F[i][j], &lu, &F[i - 1][j]);
+        if (i >= 2) { jmul_si(&tmp, &di, i - 1); jmul(&tmp, &tmp, &F[i - 2][j]); jsub(&F[i][j], &F[i][j], &tmp); }
+        if (j >= 1) { jmul(&tmp, &r, &di); jmul_si(&tmp, &tmp, j); jmul(&tmp, &tmp, &F[i - 1][j - 1]); jadd(&F[i][j], &F[i][j], &tmp); }
+    }
+    static const int PA[9][2] = { {1,0},{2,0},{3,0},{0,1},{0,2},{0,3},{1,1},{2,1},{1,2} };
+    for (int e = 0; e < 2; e++) { acb_zero(R[e].v); acb_zero(R[e].d); }
+    for (int k = 0; k < 9; k++)
+    {
+        int p = PA[k][0], a = PA[k][1];
+        switch (k)
+        {
+            case 0: jset(&kap, &q[3]); break;
+            case 1: jmul(&kap, &q[1], &q[2]); jmul_si(&kap, &kap, 3); break;
+            case 2: jmul(&kap, &q[1], &q[1]); jmul(&kap, &kap, &q[1]); break;
+            case 3: jmul_si(&kap, t, -1); break;
+            case 4: jmul(&kap, t, t); jmul_si(&kap, &kap, 3); break;
+            case 5: jmul(&kap, t, t); jmul(&kap, &kap, t); jmul_si(&kap, &kap, -1); break;
+            case 6: jadd(&kap, &q[1], &q[2]); jmul(&kap, &kap, t); jmul_si(&kap, &kap, -3); break;
+            case 7: jmul(&kap, &q[1], &q[1]); jmul(&kap, &kap, t); jmul_si(&kap, &kap, -3); break;
+            case 8: jmul(&kap, t, t); jmul(&kap, &kap, &q[1]); jmul_si(&kap, &kap, 3); break;
+        }
+        for (int e = 0; e < 2; e++)
+        {
+            int aa = a + e; acb_zero(tmp2.v); acb_zero(tmp2.d);
+            for (int i = 0; i <= aa; i++) for (int j = 0; j <= aa; j++)
+            {
+                int fi, fj;
+                if (p >= 1) { fi = i + p - 1; fj = j + p - 1; } else { if (i == 0 || j == 0) continue; fi = i - 1; fj = j - 1; }
+                if (arb_poly_is_zero(Bell[aa][i]) || arb_poly_is_zero(Bell[aa][j])) continue;
+                jmul(&tmp, &F[fi][fj], &Bx[aa][i]); jmul(&tmp, &tmp, &By[aa][j]); jadd(&tmp2, &tmp2, &tmp);
+            }
+            jmul(&tmp, &tmp2, &kap); jadd(&R[e], &R[e], &tmp);
+        }
+    }
+    jclear(&u); jclear(&v); jclear(&r); jclear(&d); jclear(&di); jclear(&lu); jclear(&lv); jclear(&tmp); jclear(&tmp2); jclear(&kap); jclear(&one);
+    for (int a = 0; a < 5; a++) for (int i = 0; i < 5; i++) { jclear(&Bx[a][i]); jclear(&By[a][i]); }
+    for (int j = 0; j < 4; j++) jclear(&q[j]);
+    for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) jclear(&F[i][j]);
+}
+
+/* mean-value enclosure of |R_e|^2 on the box (x, y real intervals; theta interval) */
+static void R2_meanvalue(arb_t out[2], double x0, double x1, double y0, double y1, double t0, double t1)
+{
+    double xc = 0.5 * (x0 + x1), yc = 0.5 * (y0 + y1), tc = 0.5 * (t0 + t1);
+    double h[3] = { 0.5 * (x1 - x0) * (1 + 1e-12), 0.5 * (y1 - y0) * (1 + 1e-12), 0.5 * (t1 - t0) * (1 + 1e-12) };
+    jet X, Y, T, R[2]; jinit(&X); jinit(&Y); jinit(&T); jinit(&R[0]); jinit(&R[1]);
+    acb_t Rc[2]; acb_init(Rc[0]); acb_init(Rc[1]);
+    arb_t th; arb_init(th);
+    /* center */
+    acb_set_d(X.v, xc); acb_zero(X.d); acb_set_d(Y.v, yc); acb_zero(Y.d);
+    arb_set_d(th, tc); arb_sin_cos(acb_imagref(T.v), acb_realref(T.v), th, prec); acb_zero(T.d);
+    eval_R_jet(R, &X, &Y, &T); acb_set(Rc[0], R[0].v); acb_set(Rc[1], R[1].v);
+    for (int k = 0; k < 3; k++)
+    {
+        set_interval(acb_realref(X.v), x0, x1); arb_zero(acb_imagref(X.v)); acb_set_si(X.d, k == 0);
+        set_interval(acb_realref(Y.v), y0, y1); arb_zero(acb_imagref(Y.v)); acb_set_si(Y.d, k == 1);
+        set_interval(th, t0, t1); arb_sin_cos(acb_imagref(T.v), acb_realref(T.v), th, prec);
+        if (k == 2) acb_mul_onei(T.d, T.v); else acb_zero(T.d);      /* d/dtheta e^{i theta} = i e^{i theta} */
+        eval_R_jet(R, &X, &Y, &T);
+        for (int e = 0; e < 2; e++) { mag_t m, hm; mag_init(m); mag_init(hm); acb_get_mag(m, R[e].d); mag_set_d(hm, h[k]); mag_mul(m, m, hm); acb_add_error_mag(Rc[e], m); mag_clear(m); mag_clear(hm); }
+    }
+    for (int e = 0; e < 2; e++) { acb_abs(out[e], Rc[e], prec); arb_sqr(out[e], out[e], prec); }
+    jclear(&X); jclear(&Y); jclear(&T); jclear(&R[0]); jclear(&R[1]); acb_clear(Rc[0]); acb_clear(Rc[1]); arb_clear(th);
+}
+
+static int use_mv = 1;
+static void R2_meanvalue(arb_t out[2], double x0, double x1, double y0, double y1, double t0, double t1);
 static void eval_box(double out[2], double x0, double x1, double y0, double y1, double t0, double t1)
 {
     arb_t x, y, th; acb_t t; arb_init(x); arb_init(y); arb_init(th); acb_init(t);
     set_interval(x, x0, x1); set_interval(y, y0, y1); set_interval(th, t0, t1);
     arb_sin_cos(acb_imagref(t), acb_realref(t), th, prec);
+    arb_ptr mv = NULL;
+    if (use_mv && (x1 > x0 || y1 > y0 || t1 > t0)) { mv = _arb_vec_init(2); R2_meanvalue((arb_t *) mv, x0, x1, y0, y1, t0, t1); }
+    g_R2mv = mv;
     box_ub(out, x, y, t);
+    g_R2mv = NULL;
+    if (mv) _arb_vec_clear(mv, 2);
     arb_clear(x); arb_clear(y); arb_clear(th); acb_clear(t);
 }
 
@@ -275,11 +393,111 @@ static void test_mode(double tval)
     printf("T_{-t}[Phi_3] at t = %.4f (trapezoid, h = %.4f): %.12e\n", tval, h, sum * h * h);
 }
 
+
+/* ---------- exterior bound: max(|x|,|y|) > X0 ----------
+   For |r| <= 1 one has A +- B >= 1/2, hence exp(-Re(Q/d)) <= exp(-(u^2+v^2)/2) <= exp(-s^2/4) e^{-(u^2+v^2)/4} with s = |u|+|v|
+   ((u^2+v^2) >= s^2/2).  |l_u|, |l_v| <= s/delta, |1/d| <= 1/delta, |r| <= 1 give |F_ij| <= Ft_ij(s) (recurrence with absolute
+   values), and Ft_ij(s) e^{-s^2/8} <= M_ij := sum_k c_k (4k/e)^{k/2}.  So |R_e|^2 exp(-Re(Q/d)) <= (sum_T c_T X_T(|x|) Y_T(|y|))^2,
+   with X_T, Y_T Bell polynomials with absolute coefficients, and (sum_T a_T)^2 <= nT sum_T a_T^2.  Then
+   J_e^ext <= (1/delta) nT sum_T c_T^2 [ m_ext(X_T^2) m(Y_T^2) + m(X_T^2) m_ext(Y_T^2) ],
+   m(p) = int p(|x|) dgamma, m_ext(p) = int_{|x|>X0} p(|x|) dgamma, int_{|x|>X0} |x|^k dgamma = 2^{k/2} Gamma((k+1)/2, X0^2/2)/sqrt(pi).
+   delta = min_{|t|=1} |1 - rho(t)^2| (rigorous, theta panels); kappa bounded with |t| = 1, |q_j| <= sum_k |c_k| k^j. */
+static void moment_abs(arb_t out, slong k, const arb_t X0, int ext)
+{
+    /* int |x|^k dgamma over |x| > X0 (ext) or over R (X0 ignored) */
+    arb_t a, z, pi; arb_init(a); arb_init(z); arb_init(pi);
+    arb_set_ui(a, k + 1); arb_mul_2exp_si(a, a, -1);
+    if (ext) { arb_sqr(z, X0, prec); arb_mul_2exp_si(z, z, -1); arb_hypgeom_gamma_upper(out, a, z, 0, prec); }
+    else arb_gamma(out, a, prec);
+    arb_const_pi(pi, prec); arb_sqrt(pi, pi, prec); arb_div(out, out, pi, prec);
+    arb_set_ui(z, 2); arb_set_ui(a, k); arb_mul_2exp_si(a, a, -1); arb_pow(z, z, a, prec); arb_mul(out, out, z, prec);
+    arb_clear(a); arb_clear(z); arb_clear(pi);
+}
+static void poly_abs(arb_poly_t out, const arb_poly_t p)
+{ arb_poly_set(out, p); for (slong k = 0; k < arb_poly_length(out); k++) { arb_t c; arb_init(c); arb_abs(c, arb_poly_get_coeff_ptr(out, k)); arb_get_ubound_arf(arb_midref(c), c, prec); mag_zero(arb_radref(c)); arb_poly_set_coeff_arb(out, k, c); arb_clear(c); } }
+static void poly_moment(arb_t out, const arb_poly_t p, const arb_t X0, int ext)
+{ arb_zero(out); arb_t m; arb_init(m); for (slong k = 0; k < arb_poly_length(p); k++) { moment_abs(m, k, X0, ext); arb_addmul(out, m, arb_poly_get_coeff_ptr(p, k), prec); } arb_clear(m); }
+
+static void exterior_bound(double X0d, double a_weight)
+{
+    arb_t X0, delta, tmp, th; arb_init(X0); arb_init(delta); arb_init(tmp); arb_init(th);
+    arb_set_d(X0, X0d);
+    /* delta = min |1 - rho^2| on the circle, 20000 theta panels */
+    acb_t t, r; acb_init(t); acb_init(r); arf_t lb, mn; arf_init(lb); arf_init(mn); arf_pos_inf(mn);
+    slong K = 20000;
+    for (slong k = 0; k < K; k++)
+    {
+        set_interval(th, M_PI * k / K, M_PI * (k + 1) / K * (1 + 1e-15)); arb_sin_cos(acb_imagref(t), acb_realref(t), th, prec);
+        acb_poly_evaluate(r, rho, t, prec); acb_sqr(r, r, prec); acb_sub_ui(r, r, 1, prec); acb_abs(tmp, r, prec);
+        arb_get_lbound_arf(lb, tmp, prec); if (arf_cmp(lb, mn) < 0) arf_set(mn, lb);
+    }
+    arb_set_arf(delta, mn);
+    printf("delta = min_{|t|=1} |1 - rho(t)^2| >= "); arf_printd(mn, 8); printf("\n");
+    if (arf_sgn(mn) <= 0) { printf("delta not positive\n"); return; }
+    /* |q_j| bounds and |kappa| bounds on |t| = 1 */
+    arb_t Q[4]; for (int j = 0; j < 4; j++) { arb_init(Q[j]); for (slong k = 0; k < acb_poly_length(Drho[j]); k++) { acb_poly_get_coeff_acb(r, Drho[j], k); acb_abs(tmp, r, prec); arb_add(Q[j], Q[j], tmp, prec); } arb_get_ubound_arf(arb_midref(Q[j]), Q[j], prec); mag_zero(arb_radref(Q[j])); }
+    arb_t kap[9]; for (int k = 0; k < 9; k++) arb_init(kap[k]);
+    arb_set(kap[0], Q[3]); arb_mul(kap[1], Q[1], Q[2], prec); arb_mul_ui(kap[1], kap[1], 3, prec); arb_pow_ui(kap[2], Q[1], 3, prec);
+    arb_one(kap[3]); arb_set_ui(kap[4], 3); arb_one(kap[5]); arb_add(kap[6], Q[1], Q[2], prec); arb_mul_ui(kap[6], kap[6], 3, prec);
+    arb_sqr(kap[7], Q[1], prec); arb_mul_ui(kap[7], kap[7], 3, prec); arb_mul_ui(kap[8], Q[1], 3, prec);
+    /* M_ij: Ft as polynomials in s with nonnegative coefficients */
+    arb_poly_t Ft[4][4]; arb_t id; arb_init(id); arb_inv(id, delta, prec);
+    for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) arb_poly_init(Ft[i][j]);
+    arb_poly_one(Ft[0][0]);
+    arb_poly_t sx, tp; arb_poly_init(sx); arb_poly_init(tp); arb_poly_set_coeff_arb(sx, 1, id);   /* s/delta */
+    for (int j = 1; j < 4; j++) { arb_poly_mul(Ft[0][j], sx, Ft[0][j - 1], prec); if (j >= 2) { arb_poly_scalar_mul(tp, Ft[0][j - 2], id, prec); arb_poly_scalar_mul_2exp_si(tp, tp, 0); for (int q = 0; q < j - 2; q++) {} arb_mul_ui(tmp, id, j - 1, prec); arb_poly_scalar_mul(tp, Ft[0][j - 2], tmp, prec); arb_poly_add(Ft[0][j], Ft[0][j], tp, prec); } }
+    for (int i = 1; i < 4; i++) for (int j = 0; j < 4; j++)
+    {
+        arb_poly_mul(Ft[i][j], sx, Ft[i - 1][j], prec);
+        if (i >= 2) { arb_mul_ui(tmp, id, i - 1, prec); arb_poly_scalar_mul(tp, Ft[i - 2][j], tmp, prec); arb_poly_add(Ft[i][j], Ft[i][j], tp, prec); }
+        if (j >= 1) { arb_mul_ui(tmp, id, j, prec); arb_poly_scalar_mul(tp, Ft[i - 1][j - 1], tmp, prec); arb_poly_add(Ft[i][j], Ft[i][j], tp, prec); }
+    }
+    arb_t M[4][4];
+    for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++)
+    {
+        arb_init(M[i][j]);
+        for (slong k = 0; k < arb_poly_length(Ft[i][j]); k++)
+        {
+            arb_t c; arb_init(c);
+            if (k == 0) arb_one(c); else { arb_set_ui(c, 4 * k); { arb_t ee; arb_init(ee); arb_const_e(ee, prec); arb_div(c, c, ee, prec); arb_clear(ee); } arb_set_ui(tmp, k); arb_mul_2exp_si(tmp, tmp, -1); arb_pow(c, c, tmp, prec); }
+            arb_addmul(M[i][j], c, arb_poly_get_coeff_ptr(Ft[i][j], k), prec); arb_clear(c);
+        }
+    }
+    /* terms T = (kappa_k, i, j) for each e: c_T = |kappa_k| M_ij, X_T = |B_{a+e,i}|, Y_T = |B_{a+e,j}| */
+    static const int PA[9][2] = { {1,0},{2,0},{3,0},{0,1},{0,2},{0,3},{1,1},{2,1},{1,2} };
+    arb_t S[2], mx, my, mxe, mye, cT; arb_init(S[0]); arb_init(S[1]); arb_init(mx); arb_init(my); arb_init(mxe); arb_init(mye); arb_init(cT);
+    arb_poly_t Xa, X2; arb_poly_init(Xa); arb_poly_init(X2);
+    for (int e = 0; e < 2; e++)
+    {
+        slong nT = 0;
+        for (int k = 0; k < 9; k++) { int p = PA[k][0], a = PA[k][1], aa = a + e; for (int i = 0; i <= aa; i++) for (int j = 0; j <= aa; j++) { if (p == 0 && (i == 0 || j == 0)) continue; if (arb_poly_is_zero(Bell[aa][i]) || arb_poly_is_zero(Bell[aa][j])) continue; nT++; } }
+        for (int k = 0; k < 9; k++)
+        {
+            int p = PA[k][0], a = PA[k][1], aa = a + e;
+            for (int i = 0; i <= aa; i++) for (int j = 0; j <= aa; j++)
+            {
+                int fi, fj;
+                if (p >= 1) { fi = i + p - 1; fj = j + p - 1; } else { if (i == 0 || j == 0) continue; fi = i - 1; fj = j - 1; }
+                if (arb_poly_is_zero(Bell[aa][i]) || arb_poly_is_zero(Bell[aa][j])) continue;
+                arb_mul(cT, kap[k], M[fi][fj], prec);
+                poly_abs(Xa, Bell[aa][i]); arb_poly_mul(X2, Xa, Xa, prec); poly_moment(mx, X2, X0, 0); poly_moment(mxe, X2, X0, 1);
+                poly_abs(Xa, Bell[aa][j]); arb_poly_mul(X2, Xa, Xa, prec); poly_moment(my, X2, X0, 0); poly_moment(mye, X2, X0, 1);
+                arb_mul(tmp, mxe, my, prec); arb_addmul(tmp, mx, mye, prec); arb_mul(tmp, tmp, cT, prec); arb_mul(tmp, tmp, cT, prec);
+                arb_add(S[e], S[e], tmp, prec);
+            }
+        }
+        arb_mul_ui(S[e], S[e], nT, prec); arb_mul(S[e], S[e], id, prec);
+        printf("exterior (max(|x|,|y|) > %.1f): J_%d^ext <= ", X0d, e); arb_printd(S[e], 6); printf("   (%ld terms)\n", nT);
+    }
+    (void) a_weight;
+}
+
 int main(int argc, char **argv)
 {
     if (argc < 3) { fprintf(stderr, "usage: d3norm SCHEME X0 eta tau maxboxes | d3norm SCHEME test t\n"); return 2; }
     setup_scheme(argv[1]);
     if (strcmp(argv[2], "test") == 0) { test_mode(atof(argv[3])); return 0; }
+    if (strcmp(argv[2], "ext") == 0) { exterior_bound(atof(argv[3]), 0); return 0; }
     if (strcmp(argv[2], "probe2") == 0)
     {
         double xs = atof(argv[3]), ys = atof(argv[4]), ts = atof(argv[5]), w = atof(argv[6]), e = 1e-5;
