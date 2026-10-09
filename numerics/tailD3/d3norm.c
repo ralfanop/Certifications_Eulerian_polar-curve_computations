@@ -546,7 +546,8 @@ int main(int argc, char **argv)
     long cap = maxboxes + 1000000; leaf_t *hp = malloc(sizeof(leaf_t) * cap); long hn = 0;
     if (!hp) { printf("out of memory\n"); return 1; }
     double pi_up = 3.14159265358979323846 * (1 + 1e-15);
-    double S_ub[2] = {0, 0}, S_cv[2] = {0, 0}, S_key = 0; long neval = 0;
+    double S_ub[2] = {0, 0}, S_cv[2] = {0, 0}, S_key = 0; long neval = 0, n_inf = 0;
+#define LEAF_FINITE(L) ((L).ub[0] < INFINITY && (L).ub[1] < INFINITY && (L).key < 1e299)
 #define HSWAP(i, j) { leaf_t tmp_ = hp[i]; hp[i] = hp[j]; hp[j] = tmp_; }
     #define EVAL_LEAF(L) { double t1_ = ((L).t1 >= M_PI) ? pi_up : (L).t1; \
         eval_box((L).ub, (L).x0, (L).x1, (L).y0, (L).y1, (L).t0, t1_); \
@@ -562,15 +563,15 @@ int main(int argc, char **argv)
         if (k == nt - 1) L.t1 = M_PI;
         EVAL_LEAF(L);
         hp[hn] = L; long c = hn++; while (c > 0 && hp[(c - 1) / 2].key < hp[c].key) { HSWAP(c, (c - 1) / 2); c = (c - 1) / 2; }
-        for (int e = 0; e < 2; e++) { S_ub[e] += L.ub[e] * L.vol; S_cv[e] += L.cv[e] * L.vol; } S_key += L.key;
+        if (LEAF_FINITE(L)) { for (int e = 0; e < 2; e++) { S_ub[e] += L.ub[e] * L.vol; S_cv[e] += L.cv[e] * L.vol; } S_key += L.key; } else n_inf++;
     }
     while (neval < maxboxes && hn + 2 < cap)
     {
         double wc = S_cv[0] + a_w * S_cv[1];
-        if (S_key <= eta * wc + tau && S_key < 1e299) break;
+        if (n_inf == 0 && S_key <= eta * wc + tau) break;
         leaf_t W = hp[0];
         hp[0] = hp[--hn]; { long c = 0; for (;;) { long l = 2 * c + 1, r = l + 1, m = c; if (l < hn && hp[l].key > hp[m].key) m = l; if (r < hn && hp[r].key > hp[m].key) m = r; if (m == c) break; HSWAP(c, m); c = m; } }
-        for (int e = 0; e < 2; e++) { S_ub[e] -= W.ub[e] * W.vol; S_cv[e] -= W.cv[e] * W.vol; } S_key -= W.key;
+        if (LEAF_FINITE(W)) { for (int e = 0; e < 2; e++) { S_ub[e] -= W.ub[e] * W.vol; S_cv[e] -= W.cv[e] * W.vol; } S_key -= W.key; } else n_inf--;
         double wx = (W.x1 - W.x0) / 0.25, wy = (W.y1 - W.y0) / 0.25, wt = (W.t1 - W.t0) / 0.1;
         leaf_t C[2] = { W, W };
         if (wx >= wy && wx >= wt) { double m = 0.5 * (W.x0 + W.x1); C[0].x1 = m; C[1].x0 = m; }
@@ -580,9 +581,9 @@ int main(int argc, char **argv)
         {
             EVAL_LEAF(C[q]);
             hp[hn] = C[q]; long c = hn++; while (c > 0 && hp[(c - 1) / 2].key < hp[c].key) { HSWAP(c, (c - 1) / 2); c = (c - 1) / 2; }
-            for (int e = 0; e < 2; e++) { S_ub[e] += C[q].ub[e] * C[q].vol; S_cv[e] += C[q].cv[e] * C[q].vol; } S_key += C[q].key;
+            if (LEAF_FINITE(C[q])) { for (int e = 0; e < 2; e++) { S_ub[e] += C[q].ub[e] * C[q].vol; S_cv[e] += C[q].cv[e] * C[q].vol; } S_key += C[q].key; } else n_inf++;
         }
-        if (neval % 100000 == 0) fprintf(stderr, "evals %ld leaves %ld  J0 <= %.6f J1 <= %.6f  (center %.6f %.6f)\n", neval, hn, 2 * S_ub[0] / M_PI, 2 * S_ub[1] / M_PI, 2 * S_cv[0] / M_PI, 2 * S_cv[1] / M_PI);
+        if (neval % 100000 == 0) fprintf(stderr, "evals %ld leaves %ld (infinite %ld)  J0 <= %.6f J1 <= %.6f  (center %.6f %.6f)\n", neval, hn, n_inf, 2 * S_ub[0] / M_PI, 2 * S_ub[1] / M_PI, 2 * S_cv[0] / M_PI, 2 * S_cv[1] / M_PI);
     }
     /* final: exact re-summation of the leaves (no cancellation drift) */
     double J[2] = {0, 0}, Jc[2] = {0, 0}; long nacc = hn;
