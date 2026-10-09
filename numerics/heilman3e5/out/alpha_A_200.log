@@ -1,0 +1,12 @@
+nodes: subinterval 0/45
+matrix product...
+error bounds: subinterval 0/45
+error bounds: subinterval 20/45
+error bounds: subinterval 40/45
+outer cells: 6494, root cells: 985, total root width 1.468e-05
+outer radii: n=0 max 1.371e-15, n>=1 max 1.371e-15
+done; tail bound = (858696939 * 2^-91)
+
+real	0m12.028s
+user	0m11.476s
+sys	0m0.178s

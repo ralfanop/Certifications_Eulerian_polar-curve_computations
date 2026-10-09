@@ -1,0 +1,21 @@
+  [ok] L_hi > asinh 1   [T_40(L_hi)^2 > 2]
+  [ok] L_lo < asinh 1   [(T_40(L_lo) + 2 L_lo^41/41!)^2 < 2]
+  [ok] gamma_t <= g_up   [pi_lo L_hi + 2 eps L_hi g_up <= g_up pi_lo]
+  [ok] sinh(51/50) <= sh_up
+  [ok] M' (mbound) <= 23.1
+  [ok] delta := Psup + M (s/rho)^201 / (1 - s/rho) <= delta_r
+  [ok] R' + delta_r + 1e-10 <= s
+  [ok] g_up < R'
+  [ok] A_N(g_up) <= A1r
+  [ok] tail(g_up) <= T1r
+  [ok] A1r + T1r < 1   ==> A(gamma_t) < 1 ==> K_G <= K_Kr - 3e-5
+    A_N(gamma_t^+) <= 0.999999212244999,  tail <= 4.484e-12,  1 - (A + tail) >= 7.877505e-07
+  [ok] 0.9 < R' and 1 < A_N(0.9) (lower bounds)
+  [ok] A_N(g_lo) + tail(g_lo) < 1   ==> c* > g_lo
+  [ok] A_N(g_hi) > 1 (lower bounds)  ==> c* < g_hi
+  [ok] pi/(2 g_lo) <= Kb
+  [ok] Kb + eps_lo <= K_Kr
+  [ok] K_Kr - pi/(2 g_hi) <= eps_hi
+    K_G <= Kb = 1782182847509648e-15 = K_Kr - eps with eps >= eps_lo = 31130681721e-15
+    the series bound pi/(2c*) of these profiles is K_Kr - eps*, eps_lo < eps* < eps_hi = 31130693777e-15
+17/17 checks pass
