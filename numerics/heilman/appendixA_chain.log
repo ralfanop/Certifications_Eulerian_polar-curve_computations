@@ -1,0 +1,61 @@
+=== Part I: the chain (A.14)-(A.80) ===
+A = 1.800632632314212e2  B = 1.419493145870837e13
+PASS (A.18) A = 1.80063263231421e2 (printed to 15 digits)
+PASS (A.19) B = 1.41949314587084e13 (printed to 15 digits)
+PASS (A.21) eta = 2.90803934947e-6 lies within 1e-17 of eta_* = sqrt(2A/3B)
+PASS (A.21) eta < 1e-2
+Delta(eta) in 4.292447349532965e-21 4.292447349532965e-21
+PASS (A.23) Delta >= 4.29244734953e-21
+PASS (A.28) 0.7988429115 < 4/5
+PASS (A.29) 0.8282425938 < 5/6
+PASS (A.38) m_0.92 = 0.9666807077 - 0.92 = 0.0466807077
+FAIL (A.39) p_0.92 = m/(2M) >= 1.20508454e-4  1.205084539442e-4
+PASS (A.42) p_0.96 = m/(2M) >= 6.17764466e-5  6.177644663534e-5
+PASS (A.45) 12 x 381.8015394237 = 4581.6184730844 (exact)
+FAIL (A.45)-(A.46) printed upper bound M = 4581.618473084 is >= 12 x 381.8015394237  exact product 4581.6184730844 exceeds the printed bound by 4e-10
+FAIL (A.47) R <= sqrt((6/7)^2+7^2) <= 7.05228288411
+PASS (A.48) C_r <= 4.07811339e16  4.0781133888e16
+FAIL (A.49) C_r' <= 2.01664948e18  1.8351510255e20
+PASS (A.50) L_0 = 2/sqrt5 <= 0.894427191
+PASS (A.51)-(A.53) L_eta <= 4 x 8.54068663589 <= 34.1627465436  3.416274654356e1
+PASS (A.54) L = max(L_0, L_eta) <= 34.1627465436
+PASS (A.56) 0.9950381805 < 1
+PASS (A.60) eps = 0.664 Delta/L = 8.34296222775e-23 (to 12 digits)  8.34296222773069e-23
+PASS q = 0.9/rho = 25/32 exactly
+PASS (A.62) minimal n with tail < eps/2 is 115  tail(114)=6.8271e-23, tail(115)=4.1669e-23, eps/2=4.1714e-23
+PASS (A.64) p = rho^231/(2 231! M_phi) = 2.82280900060e-436 (to 12 digits)  2.82280900059514e-436
+FAIL (A.63) sign control holds for k = 0..115 with p = p(231)
+PASS (A.64) p is below p_0.92 and p_0.96
+FAIL (A.66) delta_0 >= 4.07123102832e-457  4.07123102830199e-457
+PASS (A.66) delta_0 < 1e-100 < 0.9 - log(1+sqrt2)
+PASS (A.79) K_Kr - K_G >= 8.23e-457  8.232382e-457
+PASS (A.80) K_Kr = 1.78221397819136911177441345297254934079173190977324 (correctly rounded to 50 decimals; true digits ...0977323938...)
+
+=== Part I-bis: the chain re-run with every bound rounded outward ===
+PASS outward R = 7.052282884113 >= sqrt((6/7)^2+7^2)
+C_r (outward) = 4.0781133888e16 ; C_r' with printed formula = 1.8351510249e20 ; with [1-(0.9/r)^2]^-1 = 2.0166494779e18
+PASS corrected delta_0 >= 4.0712310283e-457 (the 11 digits that survive)  4.07123102830199e-457
+PASS corrected K_Kr - K_G >= 8.23e-457 (A.79) still holds  8.23238290e-457
+PASS sign control at k = 115 for p = p(231) holds with equality at the level of the bounds  strictness requires sup|phi| < M_phi strictly on |z| = rho
+
+=== Part II: the role of 231 = 2n+1 ===
+delta_0 > 0 for every p in (0, (Delta-L eps)/(L C_r')) = 2.093442e-41
+PASS m = 232: p = rho^m/(2 m! M_phi) = 1.4016e-438; sign control k<=115 and delta_0 > 0  delta_0 >= 2.0215e-459, K_Kr - K_G >= 4.0878e-459
+PASS m = 233: p = rho^m/(2 m! M_phi) = 6.9301e-441; sign control k<=115 and delta_0 > 0  delta_0 >= 9.9950e-462, K_Kr - K_G >= 2.0210e-461
+PASS m = 234: p = rho^m/(2 m! M_phi) = 3.4117e-443; sign control k<=115 and delta_0 > 0  delta_0 >= 4.9206e-464, K_Kr - K_G >= 9.9500e-464
+PASS m = 235: p = rho^m/(2 m! M_phi) = 1.6724e-445; sign control k<=115 and delta_0 > 0  delta_0 >= 2.4121e-466, K_Kr - K_G >= 4.8776e-466
+PASS m = 241: p = rho^m/(2 m! M_phi) = 2.1242e-459; sign control k<=115 and delta_0 > 0  delta_0 >= 3.0637e-480, K_Kr - K_G >= 6.1952e-480
+PASS m = 301: p = rho^m/(2 m! M_phi) = 1.0999e-601; sign control k<=115 and delta_0 > 0  delta_0 >= 1.5864e-622, K_Kr - K_G >= 3.2079e-622
+PASS m = 230 (p larger than p(231)) violates sign control at k = 115
+PASS n = 114 is impossible for every admissible eps (eps < Delta/L, needed for delta_0 > 0), given the certified Delta, L, M_phi, rho  tail(114) = 6.8271e-23 >= Delta/(2L) = 6.2823e-23
+
+minimal n as a function of the free factor c in eps = c Delta/L (rho, M_phi fixed):
+  c =   0.1:  n_min = 119,  2n+1 = 239
+  c =   0.3:  n_min = 117,  2n+1 = 235
+  c =   0.5:  n_min = 116,  2n+1 = 233
+  c = 0.664:  n_min = 115,  2n+1 = 231
+  c =   0.8:  n_min = 115,  2n+1 = 231
+  c =   0.9:  n_min = 115,  2n+1 = 231
+  c =  0.99:  n_min = 115,  2n+1 = 231
+
+35/41 checks passed
