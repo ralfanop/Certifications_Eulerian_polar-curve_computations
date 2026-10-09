@@ -2,6 +2,6 @@ c in [0, 8]: processed 58364, certified pairs 29310, failures 0, evaluation retr
 covered fraction 1.000000000000, worst relative margin (d(cU) - bound)/d(cU) = 6.7787e-07 at c = 6.625000, time 96s
 CERTIFIED: J(c,a) < d(c) for all unit a and all c in [0, 8]
 
-real	1m36.183s
-user	1m34.907s
-sys	0m0.012s
+real	1m35.827s
+user	1m34.497s
+sys	0m0.008s

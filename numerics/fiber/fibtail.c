@@ -7,7 +7,7 @@
  *          y1 = 2 A0 / (1 + sqrt(1 - 4 A0 B u)),
  *     T2 = 5/2 phi0 kappa^2 O / (c^2 (c - 2|B| kappa/c)),
  *     T3 = (4/sqrt6) phi0 exp(-sqrt6 c / 2),
- * and, with h(u) = D(u) - 2 phi0 q(u), D(u) = (3nu/2)/(1 + sqrt(1+u)) = c d(c) lambda^0 ... (c^3 d = D/u, c^3 T1 = 2phi0 q/u):
+ * and, with D(u) = (3nu/2)/(1 + sqrt(1+u)) (so that c^3 d(c) = D(u)/u and c^3 T1 = 2 phi0 q(u)/u) and h = D - 2 phi0 q:
  *     c^3 (d - T1 - T2 - T3) = phi0 (3/2)(1 - r^2 cos^2 f)/u + h'(xi) - c^3 T2 - c^3 T3,   xi in [0, u]
  * (h(0) = phi0 (3/2 - A0^2) and q(0) = A0^2/2).  The even part is (a0, a2) = r (cos t, sin t) with t = f - t0,
  * tan t0 = 1/sqrt2, so that A0 = r sqrt(3/2) cos f >= 0 for f in [-pi/2, pi/2] (A0 < 0 is the same as -p) and

@@ -11,7 +11,8 @@
  *         J(c, a) <= T * max_j J(cL / T, v_j),
  *    and d(c) >= d(cU).  A (patch, band) pair is certified when T max_j J(cL/T, v_j) < d(cU), all in ball arithmetic
  *    with the exact closed-form enclosure of J from fibcore.h.
- *  - Uncertified pairs are split (patch bisection or band bisection), best-first by nothing: plain DFS stack.
+ *  - Uncertified pairs are split (patch bisection or band bisection), depth-first; a pair whose patch or band
+ *    has reached the resolution floor is reported as FAIL (so the program always terminates).
  *
  * usage: fibcover cmin cmax nbands [maxitems]
  */
@@ -111,7 +112,7 @@ int main(int argc, char **argv)
         /* split: band if the drop of d across the band dominates the patch slack, else the patch */
         double lossc = dd(it.cL) - dd(it.cU), lossp = (r < 0) ? 1e300 : M - Jc;
         int splitc = (lossc >= lossp) || (r < 0 && w < 1e-6);
-        if (w < 1e-7 && it.cU - it.cL < 1e-12) { nfail++; fprintf(stdout, "FAIL f=%d box [%.17g,%.17g]x[%.17g,%.17g]x[%.17g,%.17g] c [%.17g,%.17g]\n", it.f, it.l[0], it.h[0], it.l[1], it.h[1], it.l[2], it.h[2], it.cL, it.cU); continue; }
+        if ((w < 1e-7 && it.cU - it.cL < 1e-12) || w < 1e-9 || it.cU - it.cL < 1e-14) { nfail++; fprintf(stdout, "FAIL f=%d box [%.17g,%.17g]x[%.17g,%.17g]x[%.17g,%.17g] c [%.17g,%.17g]\n", it.f, it.l[0], it.h[0], it.l[1], it.h[1], it.l[2], it.h[2], it.cL, it.cU); continue; }
         if (sp + 2 >= cap) { cap *= 2; st = realloc(st, sizeof(item_t) * cap); }
         item_t A = it, B = it;
         if (splitc) { double m = 0.5 * (it.cL + it.cU); A.cU = m; B.cL = m; }

@@ -16,7 +16,7 @@ For a unit a ∈ ℝ⁴, let p_a = Σ a_j ψ_j, and set
 
 Then **(36) holds for all u if and only if J(c, a) ≤ d(c) for all unit a and all c ≥ 0**.
 - **Necessity.** E[u p_a] − cβ(u) ≤ √V(u) − cβ(u) ≤ φ(β) − cβ ≤ d(c), where φ(β) = √(3νβ − β²) and d is the concave conjugate of φ. The graph of φ is a semicircle of radius 3ν/2, and its support function is (3ν/2)(√(1+c²) − c). Moreover, sup_u (E[u p] − cβ(u)) = J(c, a), attained pointwise by u = sgn(p)·1{|p| ≥ c|z|}.
-- **Sufficiency.** Take a = (E[uψ_j])/√V(u). Then √V = E[u p_a] ≤ J(c, a) + cβ ≤ d(c) + cβ for every c ≥ 0. Since β ≤ ν < 3ν/2, the infimum over c ≥ 0 of d(c) + cβ is φ(β).
+- **Sufficiency.** If V(u) = 0 there is nothing to prove. Otherwise take a = (E[uψ_j])/√V(u). Then √V = E[u p_a] ≤ J(c, a) + cβ ≤ d(c) + cβ for every c ≥ 0. Since β ≤ ν < 3ν/2, the infimum over c ≥ 0 of d(c) + cβ is φ(β).
 
 The authors (Appendix D) use the dual form only for c ≥ 0.993. Below that they use a different primal "high-budget" bound, spliced at β₀. **We certify the dual form on the whole half-line c ≥ 0**, so no splice is needed.
 
@@ -53,14 +53,14 @@ Write p = e + o, with even part e(s) = A₀ + B s² and odd part o; let O = a₁
 3. **Far part (s ≥ S₀).** It is at most 2∫_{S₀}^∞ (s³/√6 − cs)φ = (4/√6)φ(S₀).
 4. **Near part (s ≤ s*).**
    - Since |o| ≤ √(5O/2)·s ≤ cs, the near part is at most T₁ + T₂.
-   - **T₁.** T₁ = 2∫(A₀ + Bs² − cs)₊φ ≤ 2φ₀∫₀^{s₁}(A₀ + Bs² − cs)(1 − s²/2 + s⁴/8) ds. Here s₁ is the exact root, written stably as 2A₀/(c + √(c² − 4A₀B)).
+   - **T₁.** Since |B|s* < c, (−e − cs)₊ = 0 on (0, s*], so (|e| − cs)₊ = (A₀ + Bs² − cs)₊ there. The second root of A₀ + Bs² − cs (when B > 0) is ≥ c/(2B) > s*, and the integrand is ≥ 0 on [0, s₁], so integrating up to s₁ only over-estimates. Hence T₁ = 2∫(A₀ + Bs² − cs)₊φ ≤ 2φ₀∫₀^{s₁}(A₀ + Bs² − cs)(1 − s²/2 + s⁴/8) ds. Here s₁ is the exact root, written stably as 2A₀/(c + √(c² − 4A₀B)).
    - **T₂.** u(s) = |e| − cs decreases with slope at least c − 2|B|s*. Hence T₂ = ∫(|o| − |u|)₊φ ≤ φ₀ · (5/2)Oκ²c⁻² / (c − 2|B|κ/c).
 5. **Margin.** In the variable u = 1/c²,
    c³(d − T₁ − T₂ − T₃) = φ₀(3/2)(1 − r²cos²f)/u + h′(ξ) − c³T₂ − c³T₃, with ξ ∈ [0, u].
    Here h is explicit, and its derivative needs no differentiation of the root, because the integrand vanishes there. It is enclosed on the whole interval [0, u]. The parameters are (A₀, B) = r·(√(3/2) cos f, sin(f − atan(1/√2))/√2).
 6. **Branch and bound.** Interval branch and bound on f ∈ [−π/2, π/2], r ∈ [0,1], u ∈ [0, 1/64]: 2 224 boxes, all positive.
 
-**Sanity check.** On 20 000 random (a, c ≥ 8), the bound T₁ + T₂ + T₃ was always ≥ the exact J. This is a numerical check, not part of the proof.
+**Sanity check** (`tail_sanity.py`). On 20 000 random (a, c ≥ 8), the bound T₁ + T₂ + T₃ was always ≥ the exact J. This is a numerical check, not part of the proof.
 
 ### Result
 
@@ -69,7 +69,7 @@ Write p = e + o, with even part e(s) = A₀ + B s² and odd part o; let O = a₁
 - an exact closed-form J with convexity on S³ patches, instead of their Christoffel envelopes and 480 panels;
 - our own analytic tail with mean-value enclosure in u, instead of their local/away charts and moving-cutoff lemma.
 
-We did not use their scripts.
+We did not use their scripts. An independent audit (separate reviewer, reruns from source, quadrature harness on 3 012 cases including degenerate ones, ball inputs, 6 006 tail samples) found no soundness gap.
 
 ## The rest of the proof of K_G ≥ 6π/11 (checked by hand, not machine-checked)
 
@@ -96,9 +96,10 @@ We did not use their scripts.
 ## Reproduce
 
 ```
-gcc -O2 -I$FLINT/include fibcover.c -o fibcover -L$FLINT/lib -lflint -lmpfr -lgmp -lm
-gcc -O2 -I$FLINT/include fibtail.c  -o fibtail  -L$FLINT/lib -lflint -lmpfr -lgmp -lm
+gcc -O2 -I$FLINT/include fibcover.c -o fibcover -L$FLINT/lib -Wl,-rpath,$FLINT/lib -lflint -lmpfr -lgmp -lm
+gcc -O2 -I$FLINT/include fibtail.c  -o fibtail  -L$FLINT/lib -Wl,-rpath,$FLINT/lib -lflint -lmpfr -lgmp -lm
 ./fibcover 0 8 64 > out/fibcover_0_8.log      # ~100 s
 ./fibtail > out/fibtail.log                   # < 1 s
 python3 scalar_checks.py > out/scalar_checks.log
+python3 tail_sanity.py                        # numerical, not part of the proof
 ```
