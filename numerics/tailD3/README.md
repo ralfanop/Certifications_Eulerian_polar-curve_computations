@@ -34,6 +34,7 @@ The b_m and the head Σ_{3≤m≤N} |b_m| are certified in `../cubicquintic` and
 Inputs, all certified by us:
 - δ ≥ 0.37246733; the authors give 0.3724.
 - **Inner domain** (`out/cq_A.log`, `out/cq_B.log`): J₀ ≤ 2 × 3.430454708 and J₁ ≤ 2 × 590.2601312. The two θ-halves give identical results, as expected from the symmetry θ → π − θ. These two logs were produced with the code of commit c7a96fe; later commits only tighten the box enclosures (θ-Taylor form, Bell values from P^{(j)}, per-box a priori fallback), so the logged bounds remain valid. The exterior was recomputed after the correction of its constant.
+- **Consistency rerun with the current code** (`out/cq_A_v2.log`, `out/cq_B_v2.log`; η = 20, τ = 5, capped at 1.5·10⁶ evaluations per half): J₀ ≤ 2 × 5.593671736 and J₁ ≤ 2 × 1634.135268. The closing (`out/cq_close_v2.log`) also certifies: tail ≤ 7.86·10⁻⁶, margin ≥ 9.23·10⁻⁶. The longer original runs give the sharper figures below.
 - **Exterior** (`out/cq_ext.log`): J₀ ≤ 8.74·10⁻⁷² and J₁ ≤ 7.58·10⁻⁶⁴.
 - **Closing inputs:** J₀ ≤ 6.860909417 and J₁ ≤ 1180.520263 (inner + exterior, rounded up).
 

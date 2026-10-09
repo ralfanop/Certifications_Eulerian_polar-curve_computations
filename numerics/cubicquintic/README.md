@@ -42,9 +42,9 @@ Both certified inputs agree with ours to all digits they print. The tail Σ_{m>2
 
 **Inverse series.** The inverse series converges too slowly at γ to be used directly. The partial inverse majorant Σ_{n≤251} |a_n| γⁿ = 0.99998061523306, and the inverse coefficients still have size around 10⁻¹¹ at n = 251. The reason is that H is nearly linear (b₁ − γ ≈ 2.8·10⁻⁵): H⁻¹ is analytic only slightly beyond |w| = γ. The near-linearity criterion is therefore the right route for this scheme.
 
-## Not yet done
+## Tail
 
-The independent bound of the tail Σ_{m>251} |b_m|. It needs boundary values of H, or of its derivatives, on |t| = 1, where the margin of the Gaussian kernel with correlation e^{iθ} is exactly ½.
+The tail Σ_{m>251} |b_m| is bounded independently in `../tailD3` (D³H trace estimate, rigorous integration): ≤ 5.766·10⁻⁶, which leaves a margin ≥ 1.131·10⁻⁵. **Hence K_G ≤ 1.7818666069360661 is certified for this scheme with our code.**
 
 ## Reproduce
 

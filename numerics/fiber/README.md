@@ -91,7 +91,14 @@ We did not use their scripts. An independent audit (separate reviewer, reruns fr
   - With Σ|b_m| ≤ π/2, uniform convergence on [−1,1] implies coefficientwise convergence.
   - Affine inequalities pass to mixtures and limits.
 
-  **Still to do:** a line-by-line comparison of the authors' quotation of NR14 (eqs. (4)–(6), the choice of c_k, Lemma 2.1) with the published text.
+  **Comparison with NR14 (arXiv:1205.6415, read on 9 Oct 2026; published version doi:10.1090/S0002-9939-2014-12169-1).** The authors' quotation matches:
+  - NR (4): a Borel probability measure ν_k on pairs of sign assignments on S^{k−1} with averaged kernel ⟨x, y⟩/K_G;
+  - NR (5): the radial extension;
+  - NR (6): f_k(t) = E⟨G₁/‖G₁‖, Y/‖Y‖⟩ with Y = tG₁ + √(1−t²)G₂, which is exactly (2/π)·K_G·H_k for the Gaussian correlation used here;
+  - f_k⁻¹(w) = Σ b_n(k) w^{2n+1} on a disc of radius a₀(k) − C/k;
+  - c_k ∈ (0, 1 − 2C/k] with Σ|b_n(k)|c_k^{2n+1} = 1 − 4C/k ≤ 1, and Lemma 2.1: c_k ≥ 1 − O(1/k).
+
+  These are exactly the three properties used in Lemma 11.2: admissibility, c_k ≤ 1 and c_k → 1. Moreover b₁(H_k) = (π/(2K_G))a₀(k) ∈ (0, 1]. (In the arXiv text, "t^{2k+1}" in the expansion of f_k is evidently a misprint for t^{2n+1}.)
 
 ## Reproduce
 
