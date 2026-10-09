@@ -547,7 +547,7 @@ int main(int argc, char **argv)
     if (!hp) { printf("out of memory\n"); return 1; }
     double pi_up = 3.14159265358979323846 * (1 + 1e-15);
     double S_ub[2] = {0, 0}, S_cv[2] = {0, 0}, S_key = 0; long neval = 0, n_inf = 0;
-#define LEAF_FINITE(L) ((L).ub[0] < INFINITY && (L).ub[1] < INFINITY && (L).key < 1e299)
+#define LEAF_FINITE(L) ((L).ub[0] < INFINITY && (L).ub[1] < INFINITY && (L).key < 1e30)
 #define HSWAP(i, j) { leaf_t tmp_ = hp[i]; hp[i] = hp[j]; hp[j] = tmp_; }
     #define EVAL_LEAF(L) { double t1_ = ((L).t1 >= M_PI) ? pi_up : (L).t1; \
         eval_box((L).ub, (L).x0, (L).x1, (L).y0, (L).y1, (L).t0, t1_); \
@@ -567,8 +567,13 @@ int main(int argc, char **argv)
     }
     while (neval < maxboxes && hn + 2 < cap)
     {
-        double wc = S_cv[0] + a_w * S_cv[1];
-        if (n_inf == 0 && S_key <= eta * wc + tau) break;
+        if (neval % 20000 == 0 || (n_inf == 0 && S_key <= eta * (S_cv[0] + a_w * S_cv[1]) + tau))
+        {
+            /* exact re-summation over the heap (removes cancellation drift of the running sums) */
+            S_ub[0] = S_ub[1] = S_cv[0] = S_cv[1] = S_key = 0; n_inf = 0;
+            for (long i = 0; i < hn; i++) { if (LEAF_FINITE(hp[i]) && hp[i].key < 1e30) { for (int e = 0; e < 2; e++) { S_ub[e] += hp[i].ub[e] * hp[i].vol; S_cv[e] += hp[i].cv[e] * hp[i].vol; } S_key += hp[i].key; } else n_inf++; }
+            if (n_inf == 0 && S_key <= eta * (S_cv[0] + a_w * S_cv[1]) + tau) break;
+        }
         leaf_t W = hp[0];
         hp[0] = hp[--hn]; { long c = 0; for (;;) { long l = 2 * c + 1, r = l + 1, m = c; if (l < hn && hp[l].key > hp[m].key) m = l; if (r < hn && hp[r].key > hp[m].key) m = r; if (m == c) break; HSWAP(c, m); c = m; } }
         if (LEAF_FINITE(W)) { for (int e = 0; e < 2; e++) { S_ub[e] -= W.ub[e] * W.vol; S_cv[e] -= W.cv[e] * W.vol; } S_key -= W.key; } else n_inf--;
