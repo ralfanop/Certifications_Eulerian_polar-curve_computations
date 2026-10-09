@@ -490,6 +490,21 @@ static void exterior_bound(double X0d, double a_weight)
             }
         }
         arb_mul_ui(S[e], S[e], nT, prec); arb_mul(S[e], S[e], id, prec);
+        /* unused half of the Gaussian factor: exp(-(u^2+v^2)/4) <= exp(-U0^2/4) where |x| > X0 or |y| > X0,
+           U0 = X0^n (|p_n| - sum_{j<n} |p_j| X0^{j-n}) <= |P(x)| for |x| >= X0 */
+        {
+            slong n = arb_poly_degree(Pm); arb_t c, U0, pj; arb_init(c); arb_init(U0); arb_init(pj);
+            arb_abs(c, arb_poly_get_coeff_ptr(Pm, n));
+            for (slong j = 0; j < n; j++) { arb_abs(pj, arb_poly_get_coeff_ptr(Pm, j)); arb_pow_ui(U0, X0, n - j, prec); arb_div(pj, pj, U0, prec); arb_sub(c, c, pj, prec); }
+            if (arb_is_positive(c))
+            {
+                arb_pow_ui(U0, X0, n, prec); arb_mul(U0, U0, c, prec);
+                if (e == 0) { printf("|P(x)| >= U0 = "); arb_printd(U0, 8); printf(" for |x| >= X0\n"); }
+                arb_sqr(U0, U0, prec); arb_mul_2exp_si(U0, U0, -2); arb_neg(U0, U0); arb_exp(U0, U0, prec); arb_mul(S[e], S[e], U0, prec);
+            }
+            else if (e == 0) printf("no lower bound for |P| at this X0\n");
+            arb_clear(c); arb_clear(U0); arb_clear(pj);
+        }
         printf("exterior (max(|x|,|y|) > %.1f): J_%d^ext <= ", X0d, e); arb_printd(S[e], 6); printf("   (%ld terms)\n", nT);
     }
     (void) a_weight;
