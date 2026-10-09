@@ -331,6 +331,130 @@ static void eval_R_jet(jet R[2], const jet *x, const jet *y, const jet *t)
     for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) jclear(&F[i][j]);
 }
 
+
+/* ---------- second-order Taylor series in theta: s = (c0, c1, c2) = (f, f', f''/2) ---------- */
+typedef struct { acb_t c[3]; } ser;
+static void sinit(ser *a) { for (int i = 0; i < 3; i++) acb_init(a->c[i]); }
+static void sclear(ser *a) { for (int i = 0; i < 3; i++) acb_clear(a->c[i]); }
+static void sset(ser *a, const ser *b) { for (int i = 0; i < 3; i++) acb_set(a->c[i], b->c[i]); }
+static void sconst(ser *a, const acb_t v) { acb_set(a->c[0], v); acb_zero(a->c[1]); acb_zero(a->c[2]); }
+static void sconst_si(ser *a, slong v) { acb_set_si(a->c[0], v); acb_zero(a->c[1]); acb_zero(a->c[2]); }
+static void sadd(ser *r, const ser *a, const ser *b) { for (int i = 0; i < 3; i++) acb_add(r->c[i], a->c[i], b->c[i], prec); }
+static void ssub(ser *r, const ser *a, const ser *b) { for (int i = 0; i < 3; i++) acb_sub(r->c[i], a->c[i], b->c[i], prec); }
+static void smul_si(ser *r, const ser *a, slong k) { for (int i = 0; i < 3; i++) acb_mul_si(r->c[i], a->c[i], k, prec); }
+static void smul(ser *r, const ser *a, const ser *b)
+{
+    acb_t t0, t1, t2, u; acb_init(t0); acb_init(t1); acb_init(t2); acb_init(u);
+    acb_mul(t0, a->c[0], b->c[0], prec);
+    acb_mul(t1, a->c[0], b->c[1], prec); acb_mul(u, a->c[1], b->c[0], prec); acb_add(t1, t1, u, prec);
+    acb_mul(t2, a->c[0], b->c[2], prec); acb_mul(u, a->c[1], b->c[1], prec); acb_add(t2, t2, u, prec); acb_mul(u, a->c[2], b->c[0], prec); acb_add(t2, t2, u, prec);
+    acb_swap(r->c[0], t0); acb_swap(r->c[1], t1); acb_swap(r->c[2], t2);
+    acb_clear(t0); acb_clear(t1); acb_clear(t2); acb_clear(u);
+}
+static void sinv(ser *r, const ser *a)
+{
+    acb_t g0, g1, g2, u; acb_init(g0); acb_init(g1); acb_init(g2); acb_init(u);
+    acb_inv(g0, a->c[0], prec);
+    acb_mul(g1, a->c[1], g0, prec); acb_mul(g1, g1, g0, prec); acb_neg(g1, g1);
+    acb_mul(g2, a->c[2], g0, prec); acb_mul(u, a->c[1], g1, prec); acb_add(g2, g2, u, prec); acb_mul(g2, g2, g0, prec); acb_neg(g2, g2);
+    acb_swap(r->c[0], g0); acb_swap(r->c[1], g1); acb_swap(r->c[2], g2);
+    acb_clear(g0); acb_clear(g1); acb_clear(g2); acb_clear(u);
+}
+static void spoly_acb(ser *r, const acb_poly_t p, const ser *x)
+{ ser acc, c; sinit(&acc); sinit(&c); sconst_si(&acc, 0);
+  for (slong k = acb_poly_length(p) - 1; k >= 0; k--) { smul(&acc, &acc, x); acb_poly_get_coeff_acb(c.c[0], p, k); acb_zero(c.c[1]); acb_zero(c.c[2]); sadd(&acc, &acc, &c); }
+  sset(r, &acc); sclear(&acc); sclear(&c); }
+
+/* R_0, R_1 as second-order series in theta; x, y real balls (theta-independent), t series of e^{i theta} */
+static void eval_R_ser(ser R[2], const arb_t x, const arb_t y, const ser *t)
+{
+    ser q[4], r, d, di, lu, lv, F[4][4], tmp, tmp2, kap, one, U, V;
+    arb_t u, v, bx[5][5], by[5][5];
+    arb_init(u); arb_init(v);
+    for (int a = 0; a < 5; a++) for (int i = 0; i < 5; i++) { arb_init(bx[a][i]); arb_init(by[a][i]); }
+    for (int j = 0; j < 4; j++) sinit(&q[j]);
+    sinit(&r); sinit(&d); sinit(&di); sinit(&lu); sinit(&lv); sinit(&tmp); sinit(&tmp2); sinit(&kap); sinit(&one); sinit(&U); sinit(&V);
+    for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) sinit(&F[i][j]);
+    sconst_si(&one, 1);
+    arb_poly_evaluate(u, Pm, x, prec); arb_poly_evaluate(v, Pm, y, prec);
+    acb_set_arb(U.c[0], u); acb_zero(U.c[1]); acb_zero(U.c[2]); acb_set_arb(V.c[0], v); acb_zero(V.c[1]); acb_zero(V.c[2]);
+    for (int a = 0; a < 5; a++) for (int i = 0; i <= a; i++) { arb_poly_evaluate(bx[a][i], Bell[a][i], x, prec); arb_poly_evaluate(by[a][i], Bell[a][i], y, prec); }
+    for (int j = 0; j < 4; j++) spoly_acb(&q[j], Drho[j], t);
+    sset(&r, &q[0]);
+    smul(&d, &r, &r); ssub(&d, &one, &d); sinv(&di, &d);
+    smul(&lu, &r, &V); ssub(&lu, &lu, &U); smul(&lu, &lu, &di);
+    smul(&lv, &r, &U); ssub(&lv, &lv, &V); smul(&lv, &lv, &di);
+    sconst_si(&F[0][0], 1);
+    for (int j = 1; j < 4; j++) { smul(&F[0][j], &lv, &F[0][j - 1]); if (j >= 2) { smul_si(&tmp, &di, j - 1); smul(&tmp, &tmp, &F[0][j - 2]); ssub(&F[0][j], &F[0][j], &tmp); } }
+    for (int i = 1; i < 4; i++) for (int j = 0; j < 4; j++)
+    {
+        smul(&F[i][j], &lu, &F[i - 1][j]);
+        if (i >= 2) { smul_si(&tmp, &di, i - 1); smul(&tmp, &tmp, &F[i - 2][j]); ssub(&F[i][j], &F[i][j], &tmp); }
+        if (j >= 1) { smul(&tmp, &r, &di); smul_si(&tmp, &tmp, j); smul(&tmp, &tmp, &F[i - 1][j - 1]); sadd(&F[i][j], &F[i][j], &tmp); }
+    }
+    static const int PA[9][2] = { {1,0},{2,0},{3,0},{0,1},{0,2},{0,3},{1,1},{2,1},{1,2} };
+    for (int e = 0; e < 2; e++) sconst_si(&R[e], 0);
+    acb_t bb; acb_init(bb);
+    for (int k = 0; k < 9; k++)
+    {
+        int p = PA[k][0], a = PA[k][1];
+        switch (k)
+        {
+            case 0: sset(&kap, &q[3]); break;
+            case 1: smul(&kap, &q[1], &q[2]); smul_si(&kap, &kap, 3); break;
+            case 2: smul(&kap, &q[1], &q[1]); smul(&kap, &kap, &q[1]); break;
+            case 3: smul_si(&kap, t, -1); break;
+            case 4: smul(&kap, t, t); smul_si(&kap, &kap, 3); break;
+            case 5: smul(&kap, t, t); smul(&kap, &kap, t); smul_si(&kap, &kap, -1); break;
+            case 6: sadd(&kap, &q[1], &q[2]); smul(&kap, &kap, t); smul_si(&kap, &kap, -3); break;
+            case 7: smul(&kap, &q[1], &q[1]); smul(&kap, &kap, t); smul_si(&kap, &kap, -3); break;
+            case 8: smul(&kap, t, t); smul(&kap, &kap, &q[1]); smul_si(&kap, &kap, 3); break;
+        }
+        for (int e = 0; e < 2; e++)
+        {
+            int aa = a + e; sconst_si(&tmp2, 0);
+            for (int i = 0; i <= aa; i++) for (int j = 0; j <= aa; j++)
+            {
+                int fi, fj;
+                if (p >= 1) { fi = i + p - 1; fj = j + p - 1; } else { if (i == 0 || j == 0) continue; fi = i - 1; fj = j - 1; }
+                if (arb_poly_is_zero(Bell[aa][i]) || arb_poly_is_zero(Bell[aa][j])) continue;
+                arb_t w; arb_init(w); arb_mul(w, bx[aa][i], by[aa][j], prec); acb_set_arb(bb, w); arb_clear(w);
+                for (int c = 0; c < 3; c++) { acb_mul(tmp.c[c], F[fi][fj].c[c], bb, prec); }
+                sadd(&tmp2, &tmp2, &tmp);
+            }
+            smul(&tmp, &tmp2, &kap); sadd(&R[e], &R[e], &tmp);
+        }
+    }
+    acb_clear(bb);
+    arb_clear(u); arb_clear(v);
+    for (int a = 0; a < 5; a++) for (int i = 0; i < 5; i++) { arb_clear(bx[a][i]); arb_clear(by[a][i]); }
+    for (int j = 0; j < 4; j++) sclear(&q[j]);
+    sclear(&r); sclear(&d); sclear(&di); sclear(&lu); sclear(&lv); sclear(&tmp); sclear(&tmp2); sclear(&kap); sclear(&one); sclear(&U); sclear(&V);
+    for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) sclear(&F[i][j]);
+}
+
+/* R(box) in c0(theta_c) + c1(theta_c) [-h, h] + c2(Theta) [0, h^2]  (second-order Taylor in theta; x, y as balls) */
+static void R2_theta2(arb_t out[2], double x0, double x1, double y0, double y1, double t0, double t1)
+{
+    double tc = 0.5 * (t0 + t1), h = 0.5 * (t1 - t0) * (1 + 1e-12);
+    arb_t x, y, th; arb_init(x); arb_init(y); arb_init(th);
+    set_interval(x, x0, x1); set_interval(y, y0, y1);
+    ser T, R[2]; sinit(&T); sinit(&R[0]); sinit(&R[1]);
+    acb_t base[2]; acb_init(base[0]); acb_init(base[1]);
+    /* t(theta) = e^{i theta}: t' = i t, t''/2 = -t/2 */
+    arb_set_d(th, tc); arb_sin_cos(acb_imagref(T.c[0]), acb_realref(T.c[0]), th, prec);
+    acb_mul_onei(T.c[1], T.c[0]); acb_mul_2exp_si(T.c[2], T.c[0], -1); acb_neg(T.c[2], T.c[2]);
+    eval_R_ser(R, x, y, &T);
+    mag_t m, hm; mag_init(m); mag_init(hm);
+    for (int e = 0; e < 2; e++) { acb_set(base[e], R[e].c[0]); acb_get_mag(m, R[e].c[1]); mag_set_d(hm, h); mag_mul(m, m, hm); acb_add_error_mag(base[e], m); }
+    set_interval(th, t0, t1); arb_sin_cos(acb_imagref(T.c[0]), acb_realref(T.c[0]), th, prec);
+    acb_mul_onei(T.c[1], T.c[0]); acb_mul_2exp_si(T.c[2], T.c[0], -1); acb_neg(T.c[2], T.c[2]);
+    eval_R_ser(R, x, y, &T);
+    for (int e = 0; e < 2; e++) { acb_get_mag(m, R[e].c[2]); mag_set_d(hm, h); mag_mul(m, m, hm); mag_mul(m, m, hm); acb_add_error_mag(base[e], m); acb_abs(out[e], base[e], prec); arb_sqr(out[e], out[e], prec); }
+    mag_clear(m); mag_clear(hm); acb_clear(base[0]); acb_clear(base[1]); sclear(&T); sclear(&R[0]); sclear(&R[1]);
+    arb_clear(x); arb_clear(y); arb_clear(th);
+}
+
 /* mean-value enclosure of |R_e|^2 on the box (x, y real intervals; theta interval) */
 static void R2_meanvalue(arb_t out[2], double x0, double x1, double y0, double y1, double t0, double t1)
 {
@@ -364,7 +488,19 @@ static void eval_box(double out[2], double x0, double x1, double y0, double y1, 
     set_interval(x, x0, x1); set_interval(y, y0, y1); set_interval(th, t0, t1);
     arb_sin_cos(acb_imagref(t), acb_realref(t), th, prec);
     arb_ptr mv = NULL;
-    if (use_mv && (x1 > x0 || y1 > y0 || t1 > t0)) { mv = _arb_vec_init(2); R2_meanvalue((arb_t *) mv, x0, x1, y0, y1, t0, t1); }
+    if (use_mv && (x1 > x0 || y1 > y0 || t1 > t0))
+    {
+        mv = _arb_vec_init(2); R2_meanvalue((arb_t *) mv, x0, x1, y0, y1, t0, t1);
+        arb_ptr tz = _arb_vec_init(2); R2_theta2((arb_t *) tz, x0, x1, y0, y1, t0, t1);
+        for (int e = 0; e < 2; e++)
+        {
+            arf_t a1, a2; arf_init(a1); arf_init(a2);
+            arb_get_ubound_arf(a1, mv + e, prec); arb_get_ubound_arf(a2, tz + e, prec);
+            if (arb_is_finite(tz + e) && (!arb_is_finite(mv + e) || arf_cmp(a2, a1) < 0)) arb_set(mv + e, tz + e);
+            arf_clear(a1); arf_clear(a2);
+        }
+        _arb_vec_clear(tz, 2);
+    }
     g_R2mv = mv; skip_R = (mv != NULL);
     box_ub(out, x, y, t);
     g_R2mv = NULL; skip_R = 0;
