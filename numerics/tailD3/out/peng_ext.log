@@ -1,0 +1,8 @@
+delta = min_{|t|=1} |1 - rho(t)^2| >= 0.38034475
+|P(x)| >= U0 = 240.33857 +/- 6.3508e-14 for |x| >= X0
+exterior (max(|x|,|y|) > 8.0): J_0^ext <= 1.06543e-6234 +/- 8.1344e-6246   (23 terms)
+exterior (max(|x|,|y|) > 8.0): J_1^ext <= 1.72729e-6210 +/- 1.3184e-6221   (49 terms)
+
+real	0m0.282s
+user	0m0.275s
+sys	0m0.004s

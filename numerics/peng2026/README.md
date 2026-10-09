@@ -29,7 +29,9 @@ The transcription of ρ is confirmed exactly: the program reproduces his (7), �
 
 **Agreement.** Both certified inputs agree to every printed digit.
 
-**What remains.** The tail Σ_{n>301}|b_n| must stay below 2.4971·10⁻⁵. His bound is 2.1527·10⁻⁵, so the margin of his proof is 3.44·10⁻⁶, as he states. The independent tail bound is not yet done.
+**Degree 501** (`out/penghead_501.log`): head Σ_{3≤n≤501}|b_n| ≤ 3.59235480199·10⁻⁸, b₁ ≥ 0.881850816423338, room for the tail ≥ 2.496408·10⁻⁵.
+
+**Tail.** Certified independently in `../tailD3`: Σ_{n>501}|b_n| ≤ 7.79·10⁻⁶, margin ≥ 1.717·10⁻⁵. **Hence K_G ≤ 1.7813 holds for Peng's scheme, certified with our code.**
 
 ## Reproduce
 

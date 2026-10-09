@@ -33,8 +33,9 @@ The b_m and the head Σ_{3≤m≤N} |b_m| are certified in `../cubicquintic` and
 
 Inputs, all certified by us:
 - δ ≥ 0.37246733; the authors give 0.3724.
-- **Inner domain** (`out/cq_A.log`, `out/cq_B.log`): J₀ ≤ 2 × 3.430454708 and J₁ ≤ 2 × 590.2601312. The two θ-halves give identical results, as expected from the symmetry θ → π − θ.
-- **Exterior:** J₀ ≤ 6.6·10⁻⁷³ and J₁ ≤ 1.6·10⁻⁶⁵.
+- **Inner domain** (`out/cq_A.log`, `out/cq_B.log`): J₀ ≤ 2 × 3.430454708 and J₁ ≤ 2 × 590.2601312. The two θ-halves give identical results, as expected from the symmetry θ → π − θ. These two logs were produced with the code of commit c7a96fe; later commits only tighten the box enclosures (θ-Taylor form, Bell values from P^{(j)}, per-box a priori fallback), so the logged bounds remain valid. The exterior was recomputed after the correction of its constant.
+- **Exterior** (`out/cq_ext.log`): J₀ ≤ 8.74·10⁻⁷² and J₁ ≤ 7.58·10⁻⁶⁴.
+- **Closing inputs:** J₀ ≤ 6.860909417 and J₁ ≤ 1180.520263 (inner + exterior, rounded up).
 
 The closing step (`out/cq_close.log`), with a = 1/64, gives:
 - **Tail bound:** Σ_{m>251} |b_m| ≤ 5.77·10⁻⁶. The authors give ≤ 4.58·10⁻⁶.
@@ -44,12 +45,31 @@ The closing step (`out/cq_close.log`), with a = 1/64, gives:
 
 ### Peng (N = 501)
 
-Certified so far:
-- δ ≥ 0.38034475;
-- |P(x)| ≥ U₀ = 240.3385 for |x| ≥ 8, which agrees with his c₈·8¹¹ > 240.3385653640865;
-- head Σ_{3≤n≤501} |b_n| ≤ 3.59·10⁻⁸.
+Inputs, all certified by us:
+- δ ≥ 0.38034475, and |P(x)| ≥ U₀ = 240.3385 for |x| ≥ 8 (`out/peng_ext.log`). This agrees with his c₈·8¹¹ > 240.3385653640865.
+- **Head** (`../peng2026/out/penghead_501.log`): b₁ ≥ 0.881850816423338 and Σ_{3≤n≤501}|b_n| ≤ 3.59235480199·10⁻⁸. Room for the tail: ≥ 2.496408·10⁻⁵.
+- **Inner domain** (`out/peng_A.log`, `out/peng_B.log`; 6 585 618 evaluations per half): J₀ ≤ 2 × 304.1465559 and J₁ ≤ 2 × 28 609.54363. Again the two θ-halves agree.
+- **Exterior** (`out/peng_ext.log`): J₀ ≤ 1.07·10⁻⁶²³⁴ and J₁ ≤ 1.73·10⁻⁶²¹⁰.
+- **Closing inputs:** J₀ ≤ 608.2931118 and J₁ ≤ 57219.0873.
 
-Room for the tail: 2.496·10⁻⁵. The run for the inner domain is in progress.
+The closing step (`out/peng_close.log`), with a = 1/100, gives:
+- **Tail bound:** Σ_{n>501}|b_n| ≤ 7.79·10⁻⁶ (B₃² ≤ 19 152, i.e. B₃ ≤ 138.4). Peng states B₃ < 107 and tail < 2.1527·10⁻⁵ for n > 301.
+- **Margin:** b₁ − γ − head − tail ≥ 1.717·10⁻⁵.
+
+**Hence γ + Σ_{n≥3}|b_n| < b₁ is certified for Peng's scheme, with γ = 5000π/17813, so that K_G ≤ π/(2γ) = 1.7813.** The certificate uses our own code throughout: Hermite coefficients, head at degree 501 instead of his 301, D³ representation, and tail integration. The reduction lemmas are the same as for the cubic–quintic scheme (below).
+
+## Reproduce
+
+```
+gcc -O2 -I$FLINT/include d3norm.c -o d3norm -L$FLINT/lib -lflint -lmpfr -lgmp -lm
+./d3norm cq:0.136419125:0.34101124:0.05276111 ext 8 > out/cq_ext.log
+./d3norm cq:0.136419125:0.34101124:0.05276111 8 200.0 50.0 12000000 0 16 > out/cq_A.log 2>&1      # and 16 32 for cq_B
+python3 tail_close.py 251 0.881545409 0.0000113288599277 0.881573822049599 6.860909417 1180.520263 0.125 0.1875 0.25 0.375 0.5 1 2
+S=he:../peng2026/threshold_P.txt:../peng2026/rho.txt
+./d3norm $S ext 8 > out/peng_ext.log
+./d3norm $S 8 200.0 50.0 12000000 0 16 0.01 > out/peng_A.log 2>&1       # ~3 h; and 16 32 for peng_B
+python3 tail_close.py 501 peng 0.0000000359235480199 0.881850816423338 608.2931118 57219.0873 0.0625 0.08 0.1 0.125 0.25 0.5
+```
 
 ## Reduction lemmas used (stated in the preprints, checked by hand here)
 
