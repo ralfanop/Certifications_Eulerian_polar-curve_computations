@@ -280,6 +280,23 @@ int main(int argc, char **argv)
     if (argc < 3) { fprintf(stderr, "usage: d3norm SCHEME X0 eta tau maxboxes | d3norm SCHEME test t\n"); return 2; }
     setup_scheme(argv[1]);
     if (strcmp(argv[2], "test") == 0) { test_mode(atof(argv[3])); return 0; }
+    if (strcmp(argv[2], "probe2") == 0)
+    {
+        double xs = atof(argv[3]), ys = atof(argv[4]), ts = atof(argv[5]), w = atof(argv[6]), e = 1e-5;
+        double cv[2], ub[2]; eval_box(cv, xs, xs, ys, ys, ts, ts);
+        eval_box(ub, xs, xs + w, ys, ys + e, ts, ts + e); printf("x only : %.3e %.3e\n", ub[0] / cv[0], ub[1] / cv[1]);
+        eval_box(ub, xs, xs + e, ys, ys + w, ts, ts + e); printf("y only : %.3e %.3e\n", ub[0] / cv[0], ub[1] / cv[1]);
+        eval_box(ub, xs, xs + e, ys, ys + e, ts, ts + w); printf("th only: %.3e %.3e\n", ub[0] / cv[0], ub[1] / cv[1]);
+        return 0;
+    }
+    if (strcmp(argv[2], "probe") == 0)
+    {
+        double xs = atof(argv[3]), ys = atof(argv[4]), ts = atof(argv[5]);
+        for (double w = 0.4; w > 1e-4; w /= 4)
+        { double ub[2], cv[2]; eval_box(ub, xs, xs + w, ys, ys + w, ts, ts + w / 2); double xm = xs + w / 2, ym = ys + w / 2, tm = ts + w / 4; eval_box(cv, xm, xm, ym, ym, tm, tm);
+          printf("w = %.5f  ub/center: J0 %.3e  J1 %.3e   (center %.3e %.3e)\n", w, ub[0] / cv[0], ub[1] / cv[1], cv[0], cv[1]); }
+        return 0;
+    }
     double X0 = atof(argv[2]), eta = atof(argv[3]), tau = atof(argv[4]); long maxboxes = atol(argv[5]);
     printf("P(x) = "); arb_poly_printd(Pm, 12); printf("\nrho(t) = "); acb_poly_printd(rho, 12); printf("\n");
 
