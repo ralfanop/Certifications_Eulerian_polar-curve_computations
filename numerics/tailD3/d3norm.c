@@ -125,6 +125,47 @@ static void setup_scheme(const char *sch)
     arb_poly_clear(dP); arb_poly_clear(tmp);
 }
 
+
+/* ---------- threshold derivatives and Bell values on balls (avoids high-degree monomial evaluation) ---------- */
+static arb_poly_t Pder[8];   /* P^{(j)}, j = 0..7 */
+static int pder_ready = 0;
+static void pder_setup(void)
+{
+    if (pder_ready) return;
+    arb_poly_init(Pder[0]); arb_poly_set(Pder[0], Pm);
+    for (int j = 1; j < 8; j++) { arb_poly_init(Pder[j]); arb_poly_derivative(Pder[j], Pder[j - 1], prec); }
+    pder_ready = 1;
+}
+/* P^{(j)}(X): intersection of Horner and the centred form P^{(j)}(c) + P^{(j+1)}(X)[-r, r] */
+static void peval(arb_t out, int j, const arb_t x)
+{
+    pder_setup();
+    arb_poly_evaluate(out, Pder[j], x, prec);
+    if (j + 1 < 8 && !mag_is_zero(arb_radref(x)))
+    {
+        arb_t c, d, t; arb_init(c); arb_init(d); arb_init(t);
+        arf_set(arb_midref(c), arb_midref(x)); mag_zero(arb_radref(c));
+        arb_poly_evaluate(t, Pder[j], c, prec);
+        arb_poly_evaluate(d, Pder[j + 1], x, prec);
+        { mag_t m; mag_init(m); arb_get_mag(m, d); mag_mul(m, m, arb_radref(x)); arb_add_error_mag(t, m); mag_clear(m); }
+        if (arb_overlaps(t, out)) arb_intersection(out, out, t, prec); else arb_set(out, t);
+        arb_clear(c); arb_clear(d); arb_clear(t);
+    }
+}
+/* B[n][k] = B_{n,k}(P', P'', ...) at X, n <= 5, by B_{n,k} = sum_j C(n-1, j-1) P^{(j)} B_{n-j,k-1} */
+static void bell_vals(arb_t B[6][6], const arb_t x)
+{
+    arb_t D[6], t; for (int j = 0; j < 6; j++) arb_init(D[j]); arb_init(t);
+    for (int j = 1; j <= 5; j++) peval(D[j], j, x);
+    for (int n = 0; n <= 5; n++) for (int k = 0; k <= 5; k++) arb_zero(B[n][k]);
+    arb_one(B[0][0]);
+    static const int C[5][5] = { {1,0,0,0,0}, {1,1,0,0,0}, {1,2,1,0,0}, {1,3,3,1,0}, {1,4,6,4,1} };
+    for (int n = 1; n <= 5; n++) for (int k = 1; k <= n; k++)
+        for (int j = 1; j <= n - k + 1; j++)
+        { arb_mul(t, D[j], B[n - j][k - 1], prec); arb_mul_ui(t, t, C[n - 1][j - 1], prec); arb_add(B[n][k], B[n][k], t, prec); }
+    for (int j = 0; j < 6; j++) arb_clear(D[j]); arb_clear(t);
+}
+
 /* ---------- integrand ---------- */
 /* For x, y real balls and t a complex ball: R2[e] = |R_e|^2 (balls), and the quantities for the exponent. */
 typedef struct { arb_t R2[2], dabs, AmB, ApB, u, v; acb_t R0, dd; } evalres;
@@ -140,8 +181,11 @@ static void eval_point(evalres *E, const arb_t x, const arb_t y, const acb_t t)
     acb_init(r); acb_init(d); acb_init(dinv); acb_init(lu); acb_init(lv); acb_init(tmp); acb_init(tmp2); acb_init(kap); acb_init(Re[0]); acb_init(Re[1]);
     for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) acb_init(F[i][j]);
 
-    arb_poly_evaluate(E->u, Pm, x, prec); arb_poly_evaluate(E->v, Pm, y, prec);
-    for (int a = 0; a < 5; a++) for (int i = 0; i <= a; i++) { arb_poly_evaluate(Bx[a][i], Bell[a][i], x, prec); arb_poly_evaluate(By[a][i], Bell[a][i], y, prec); }
+    peval(E->u, 0, x); peval(E->v, 0, y);
+    { arb_t BX[6][6], BY[6][6]; for (int a = 0; a < 6; a++) for (int i = 0; i < 6; i++) { arb_init(BX[a][i]); arb_init(BY[a][i]); }
+      bell_vals(BX, x); bell_vals(BY, y);
+      for (int a = 0; a < 5; a++) for (int i = 0; i <= a; i++) { arb_set(Bx[a][i], BX[a][i]); arb_set(By[a][i], BY[a][i]); }
+      for (int a = 0; a < 6; a++) for (int i = 0; i < 6; i++) { arb_clear(BX[a][i]); arb_clear(BY[a][i]); } }
     for (int j = 0; j < 4; j++) acb_poly_evaluate(q[j], Drho[j], t, prec);
     acb_set(r, q[0]);
     acb_sqr(d, r, prec); acb_neg(d, d); acb_add_ui(d, d, 1, prec);       /* d = 1 - r^2 */
@@ -280,8 +324,28 @@ static void eval_R_jet(jet R[2], const jet *x, const jet *y, const jet *t)
     for (int j = 0; j < 4; j++) jinit(&q[j]);
     for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) jinit(&F[i][j]);
     jconst_si(&one, 1);
-    jpoly_arb(&u, Pm, x); jpoly_arb(&v, Pm, y);
-    for (int a = 0; a < 5; a++) for (int i = 0; i <= a; i++) { jpoly_arb(&Bx[a][i], Bell[a][i], x); jpoly_arb(&By[a][i], Bell[a][i], y); }
+    {
+        const jet *XY[2] = { x, y }; jet *UV[2] = { &u, &v };
+        for (int w = 0; w < 2; w++)
+        {
+            arb_t X, B[6][6], d1, t; arb_init(X); arb_init(d1); arb_init(t);
+            for (int a = 0; a < 6; a++) for (int i = 0; i < 6; i++) arb_init(B[a][i]);
+            arb_set(X, acb_realref(XY[w]->v));
+            bell_vals(B, X); peval(t, 0, X); acb_set_arb(UV[w]->v, t); peval(d1, 1, X);
+            acb_mul_arb(UV[w]->d, XY[w]->d, d1, prec);                        /* u' = P'(x) x' */
+            jet *BB = (w == 0) ? &Bx[0][0] : &By[0][0];
+            for (int a = 0; a < 5; a++) for (int i = 0; i <= a; i++)
+            {
+                jet *J = BB + a * 5 + i;
+                acb_set_arb(J->v, B[a][i]);
+                /* d/dx B_{a,i} = B_{a+1,i} - P' B_{a,i-1} */
+                arb_set(t, B[a + 1][i]); if (i >= 1) arb_submul(t, d1, B[a][i - 1], prec);
+                acb_mul_arb(J->d, XY[w]->d, t, prec);
+            }
+            for (int a = 0; a < 6; a++) for (int i = 0; i < 6; i++) arb_clear(B[a][i]);
+            arb_clear(X); arb_clear(d1); arb_clear(t);
+        }
+    }
     for (int j = 0; j < 4; j++) jpoly_acb(&q[j], Drho[j], t);
     jset(&r, &q[0]);
     jmul(&d, &r, &r); jsub(&d, &one, &d); jinv(&di, &d);
@@ -376,9 +440,12 @@ static void eval_R_ser(ser R[2], const arb_t x, const arb_t y, const ser *t)
     sinit(&r); sinit(&d); sinit(&di); sinit(&lu); sinit(&lv); sinit(&tmp); sinit(&tmp2); sinit(&kap); sinit(&one); sinit(&U); sinit(&V);
     for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) sinit(&F[i][j]);
     sconst_si(&one, 1);
-    arb_poly_evaluate(u, Pm, x, prec); arb_poly_evaluate(v, Pm, y, prec);
+    peval(u, 0, x); peval(v, 0, y);
     acb_set_arb(U.c[0], u); acb_zero(U.c[1]); acb_zero(U.c[2]); acb_set_arb(V.c[0], v); acb_zero(V.c[1]); acb_zero(V.c[2]);
-    for (int a = 0; a < 5; a++) for (int i = 0; i <= a; i++) { arb_poly_evaluate(bx[a][i], Bell[a][i], x, prec); arb_poly_evaluate(by[a][i], Bell[a][i], y, prec); }
+    { arb_t BX[6][6], BY[6][6]; for (int a = 0; a < 6; a++) for (int i = 0; i < 6; i++) { arb_init(BX[a][i]); arb_init(BY[a][i]); }
+      bell_vals(BX, x); bell_vals(BY, y);
+      for (int a = 0; a < 5; a++) for (int i = 0; i <= a; i++) { arb_set(bx[a][i], BX[a][i]); arb_set(by[a][i], BY[a][i]); }
+      for (int a = 0; a < 6; a++) for (int i = 0; i < 6; i++) { arb_clear(BX[a][i]); arb_clear(BY[a][i]); } }
     for (int j = 0; j < 4; j++) spoly_acb(&q[j], Drho[j], t);
     sset(&r, &q[0]);
     smul(&d, &r, &r); ssub(&d, &one, &d); sinv(&di, &d);
