@@ -537,47 +537,58 @@ int main(int argc, char **argv)
     int k0 = argc > 7 ? atoi(argv[6]) : 0, k1 = argc > 7 ? atoi(argv[7]) : 32;   /* theta panels k0 <= k < k1 of 32 */
     printf("P(x) = "); arb_poly_printd(Pm, 12); printf("\nrho(t) = "); acb_poly_printd(rho, 12); printf("\n");
 
-    /* adaptive partition: stack of boxes */
-    typedef struct { double x0, x1, y0, y1, t0, t1; } box_t;
-    long cap = 1 << 24; box_t *stk = malloc(sizeof(box_t) * cap); long sp = 0;
+    /* adaptive partition: max-heap of leaves keyed by the weighted excess (ub - center) * vol,
+       weight a_w on J_1 (the trace weight a in C_a (J_0 + a J_1)).  Every leaf keeps its upper bound, so at any time
+       J_e <= sum over leaves of ub_e * vol.  The worst leaf is split until the weighted excess is below
+       eta * (weighted center total) + tau, or until maxboxes evaluations. */
+    double a_w = argc > 8 ? atof(argv[8]) : 0.0625;
+    typedef struct { double x0, x1, y0, y1, t0, t1, ub[2], cv[2], vol, key; } leaf_t;
+    long cap = maxboxes + 1000000; leaf_t *hp = malloc(sizeof(leaf_t) * cap); long hn = 0;
+    if (!hp) { printf("out of memory\n"); return 1; }
+    double pi_up = 3.14159265358979323846 * (1 + 1e-15);
+    double S_ub[2] = {0, 0}, S_cv[2] = {0, 0}, S_key = 0; long neval = 0;
+#define HSWAP(i, j) { leaf_t tmp_ = hp[i]; hp[i] = hp[j]; hp[j] = tmp_; }
+    #define EVAL_LEAF(L) { double t1_ = ((L).t1 >= M_PI) ? pi_up : (L).t1; \
+        eval_box((L).ub, (L).x0, (L).x1, (L).y0, (L).y1, (L).t0, t1_); \
+        double xm_ = 0.5 * ((L).x0 + (L).x1), ym_ = 0.5 * ((L).y0 + (L).y1), tm_ = 0.5 * ((L).t0 + t1_); \
+        eval_box((L).cv, xm_, xm_, ym_, ym_, tm_, tm_); neval++; \
+        (L).vol = ((L).x1 - (L).x0) * ((L).y1 - (L).y0) * (t1_ - (L).t0) * (1 + 1e-12); \
+        double k_ = (((L).ub[0] - (L).cv[0]) + a_w * ((L).ub[1] - (L).cv[1])) * (L).vol; \
+        (L).key = (k_ < INFINITY && k_ == k_) ? k_ : 1e300; }
     int nx = (int) (2 * X0), ny = (int) (4 * X0), nt = 32;
     for (int i = 0; i < nx; i++) for (int j = 0; j < ny; j++) for (int k = k0; k < k1; k++)
-    { box_t b = { X0 * i / nx, X0 * (i + 1) / nx, -X0 + 2 * X0 * j / ny, -X0 + 2 * X0 * (j + 1) / ny, M_PI * k / nt, M_PI * (k + 1) / nt };
-      if (k == nt - 1) b.t1 = M_PI;   /* t1 is enlarged to cover pi below */
-      stk[sp++] = b; }
-    double J[2] = {0, 0}, Jc[2] = {0, 0}; long nacc = 0, neval = 0;
-    double pi_up = 3.14159265358979323846 * (1 + 1e-15);
-    while (sp > 0)
     {
-        box_t b = stk[--sp];
-        double t1 = (b.t1 >= M_PI) ? pi_up : b.t1;
-        double ub[2], cv[2]; eval_box(ub, b.x0, b.x1, b.y0, b.y1, b.t0, t1); neval++;
-        double vol = (b.x1 - b.x0) * (b.y1 - b.y0) * (t1 - b.t0) * (1 + 1e-12);
-        double xm = 0.5 * (b.x0 + b.x1), ym = 0.5 * (b.y0 + b.y1), tm = 0.5 * (b.t0 + t1);
-        eval_box(cv, xm, xm, ym, ym, tm, tm);
-        double excess = (ub[0] - cv[0]) + (ub[1] - cv[1]);
-        int accept = (excess * vol <= eta * (cv[0] + cv[1]) * vol + tau * vol) || (sp + 2 >= cap) || (neval > maxboxes);
-        if (!accept && !(ub[0] < INFINITY && ub[1] < INFINITY)) accept = 0;
-        if (accept)
-        {
-            if (!(ub[0] < INFINITY) || !(ub[1] < INFINITY)) { printf("infinite bound on an accepted box; increase maxboxes\n"); return 1; }
-            for (int e = 0; e < 2; e++) { J[e] += ub[e] * vol; Jc[e] += cv[e] * vol; }
-            nacc++;
-        }
-        else
-        {
-            /* split the dimension with the largest scaled width */
-            double wx = (b.x1 - b.x0) / 0.25, wy = (b.y1 - b.y0) / 0.25, wt = (b.t1 - b.t0) / 0.1;
-            box_t c1 = b, c2 = b;
-            if (wx >= wy && wx >= wt) { double m = 0.5 * (b.x0 + b.x1); c1.x1 = m; c2.x0 = m; }
-            else if (wy >= wt) { double m = 0.5 * (b.y0 + b.y1); c1.y1 = m; c2.y0 = m; }
-            else { double m = 0.5 * (b.t0 + b.t1); c1.t1 = m; c2.t0 = m; }
-            stk[sp++] = c1; stk[sp++] = c2;
-        }
-        if (neval % 200000 == 0) fprintf(stderr, "evals %ld accepted %ld stack %ld  J0 <= %.6f J1 <= %.6f\n", neval, nacc, sp, 2 * J[0] / M_PI, 2 * J[1] / M_PI);
+        leaf_t L = { X0 * i / nx, X0 * (i + 1) / nx, -X0 + 2 * X0 * j / ny, -X0 + 2 * X0 * (j + 1) / ny, M_PI * k / nt, M_PI * (k + 1) / nt, {0,0},{0,0},0,0 };
+        if (k == nt - 1) L.t1 = M_PI;
+        EVAL_LEAF(L);
+        hp[hn] = L; long c = hn++; while (c > 0 && hp[(c - 1) / 2].key < hp[c].key) { HSWAP(c, (c - 1) / 2); c = (c - 1) / 2; }
+        for (int e = 0; e < 2; e++) { S_ub[e] += L.ub[e] * L.vol; S_cv[e] += L.cv[e] * L.vol; } S_key += L.key;
     }
+    while (neval < maxboxes && hn + 2 < cap)
+    {
+        double wc = S_cv[0] + a_w * S_cv[1];
+        if (S_key <= eta * wc + tau && S_key < 1e299) break;
+        leaf_t W = hp[0];
+        hp[0] = hp[--hn]; { long c = 0; for (;;) { long l = 2 * c + 1, r = l + 1, m = c; if (l < hn && hp[l].key > hp[m].key) m = l; if (r < hn && hp[r].key > hp[m].key) m = r; if (m == c) break; HSWAP(c, m); c = m; } }
+        for (int e = 0; e < 2; e++) { S_ub[e] -= W.ub[e] * W.vol; S_cv[e] -= W.cv[e] * W.vol; } S_key -= W.key;
+        double wx = (W.x1 - W.x0) / 0.25, wy = (W.y1 - W.y0) / 0.25, wt = (W.t1 - W.t0) / 0.1;
+        leaf_t C[2] = { W, W };
+        if (wx >= wy && wx >= wt) { double m = 0.5 * (W.x0 + W.x1); C[0].x1 = m; C[1].x0 = m; }
+        else if (wy >= wt) { double m = 0.5 * (W.y0 + W.y1); C[0].y1 = m; C[1].y0 = m; }
+        else { double m = 0.5 * (W.t0 + W.t1); C[0].t1 = m; C[1].t0 = m; }
+        for (int q = 0; q < 2; q++)
+        {
+            EVAL_LEAF(C[q]);
+            hp[hn] = C[q]; long c = hn++; while (c > 0 && hp[(c - 1) / 2].key < hp[c].key) { HSWAP(c, (c - 1) / 2); c = (c - 1) / 2; }
+            for (int e = 0; e < 2; e++) { S_ub[e] += C[q].ub[e] * C[q].vol; S_cv[e] += C[q].cv[e] * C[q].vol; } S_key += C[q].key;
+        }
+        if (neval % 100000 == 0) fprintf(stderr, "evals %ld leaves %ld  J0 <= %.6f J1 <= %.6f  (center %.6f %.6f)\n", neval, hn, 2 * S_ub[0] / M_PI, 2 * S_ub[1] / M_PI, 2 * S_cv[0] / M_PI, 2 * S_cv[1] / M_PI);
+    }
+    /* final: exact re-summation of the leaves (no cancellation drift) */
+    double J[2] = {0, 0}, Jc[2] = {0, 0}; long nacc = hn;
+    for (long i = 0; i < hn; i++) { if (!(hp[i].ub[0] < INFINITY) || !(hp[i].ub[1] < INFINITY)) { printf("infinite leaf bound remains; increase maxboxes\n"); return 1; } for (int e = 0; e < 2; e++) { J[e] += hp[i].ub[e] * hp[i].vol; Jc[e] += hp[i].cv[e] * hp[i].vol; } }
     /* symmetry factor 2, mean over theta: 1/pi; outward safety */
-    double J0 = 2 * J[0] / M_PI * (1 + 1e-9), J1 = 2 * J[1] / M_PI * (1 + 1e-9);
+    double J0 = 2 * J[0] / M_PI * (1 + 1e-6), J1 = 2 * J[1] / M_PI * (1 + 1e-6);
     printf("boxes accepted %ld, evaluations %ld\n", nacc, neval);
     printf("theta panels %d..%d of 32; inner domain [0,%.1f]x[-%.1f,%.1f]x[0,pi]:  J0 <= %.9e   J1 <= %.9e   (center-value sums %.6e, %.6e)\n", k0, k1 - 1, X0, X0, X0, J0, J1, 2 * Jc[0] / M_PI, 2 * Jc[1] / M_PI);
     return 0;
