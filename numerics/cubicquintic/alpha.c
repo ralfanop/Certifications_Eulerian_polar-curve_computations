@@ -227,7 +227,7 @@ static void psiexp_sup_interval(mag_ptr S, double lo, double hi, slong N)
 
 int main(int argc, char **argv)
 {
-    if (argc < 5) { fprintf(stderr, "usage: alpha profile|cq:eta:s3:s5 N0 prec out [nsub]\n"); return 1; }
+    if (argc < 5) { fprintf(stderr, "usage: alpha profile|cq:eta:s3:s5|he:file N0 prec out [nsub]\n"); return 1; }
     const char *pf = argv[1]; slong N0 = atol(argv[2]); prec = atol(argv[3]); const char *of = argv[4];
     NMAX = (N0 > MAXDEG ? N0 : MAXDEG) + 2;
     const slong P = 60;              /* Gauss-Legendre points per subinterval */
@@ -248,7 +248,23 @@ int main(int argc, char **argv)
     arb_t pim14, pi, sqpi; arb_init(pim14); arb_init(pi); arb_init(sqpi);
     arb_const_pi(pi, prec); arb_sqrt(sqpi, pi, prec);
     arb_root_ui(pim14, pi, 4, prec); arb_inv(pim14, pim14, prec);
-    if (strncmp(pf, "cq:", 3) == 0)
+    if (strncmp(pf, "he:", 3) == 0)
+    {
+        /* threshold f(w,x) = sgn(w + sum_j c_j h_j(x)), h_j = He_j/sqrt(j!) orthonormal probabilists' Hermite,
+           j odd <= 101; file lines "j c_j" (exact decimals).  With w = sqrt2 z, x = sqrt2 u and h_j(sqrt2 u) = psi_j(u):
+           a(u) = -(1/sqrt2) sum_j c_j psi_j(u). */
+        FILE *fp = fopen(pf + 3, "r"); if (!fp) { fprintf(stderr, "cannot open %s\n", pf + 3); return 1; }
+        for (int j = 0; j < NMODES; j++) { arb_init(Acoef[j]); arb_zero(Acoef[j]); }
+        long jj; char buf[128]; arb_t s2; arb_init(s2); arb_sqrt_ui(s2, 2, prec);
+        while (fscanf(fp, "%ld %127s", &jj, buf) == 2)
+        {
+            if (jj < 1 || jj > MAXDEG || jj % 2 == 0) { fprintf(stderr, "bad index %ld\n", jj); return 1; }
+            if (arb_set_str(Acoef[(jj - 1) / 2], buf, prec)) { fprintf(stderr, "bad number %s\n", buf); return 1; }
+            arb_div(Acoef[(jj - 1) / 2], Acoef[(jj - 1) / 2], s2, prec); arb_neg(Acoef[(jj - 1) / 2], Acoef[(jj - 1) / 2]);
+        }
+        fclose(fp); arb_clear(s2);
+    }
+    else if (strncmp(pf, "cq:", 3) == 0)
     {
         /* cubic-quintic scheme of Saha et al.: f(w,x) = sgn(w + theta He3(x)), theta = eta/sqrt(V),
            V = 1 + s3^2 + s5^2.  With w = sqrt2 z, x = sqrt2 u (variance 1/2) and He3(sqrt2 u) = psi_3(u):
