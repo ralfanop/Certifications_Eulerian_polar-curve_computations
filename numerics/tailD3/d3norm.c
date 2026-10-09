@@ -253,6 +253,95 @@ cleanup:
     for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) acb_clear(F[i][j]);
 }
 
+
+static void set_interval(arb_t z, double lo, double hi);
+/* ---------- per-box a priori bound (same estimates as the exterior bound; used where the interval forms blow up) ----------
+   integrand_e <= (1/(2 pi delta)) (sum_T c_T Bt_{a,i}(|x|) Bt_{a,j}(|y|))^2 exp(-(u^2+v^2)/4 - (x^2+y^2)/2)   */
+static int ap_ready = 0; static double ap_delta = 0;
+static int ap_nT[2]; static double ap_c[2][200]; static int ap_a[2][200], ap_i[2][200], ap_j[2][200];
+static arb_poly_t ap_B[5][5];
+static void apriori_setup(void)
+{
+    if (ap_ready) return;
+    arb_t tmp, th, id; acb_t t, r; arb_init(tmp); arb_init(th); arb_init(id); acb_init(t); acb_init(r);
+    arf_t lb, mn; arf_init(lb); arf_init(mn); arf_pos_inf(mn);
+    slong K = 20000;
+    for (slong k = 0; k < K; k++)
+    {
+        set_interval(th, M_PI * k / K, M_PI * (k + 1) / K * (1 + 1e-15)); arb_sin_cos(acb_imagref(t), acb_realref(t), th, prec);
+        acb_poly_evaluate(r, rho, t, prec); acb_sqr(r, r, prec); acb_sub_ui(r, r, 1, prec); acb_abs(tmp, r, prec);
+        arb_get_lbound_arf(lb, tmp, prec); if (arf_cmp(lb, mn) < 0) arf_set(mn, lb);
+    }
+    ap_delta = arf_get_d(mn, ARF_RND_DOWN) * (1 - 1e-12);
+    arb_set_d(id, ap_delta); arb_inv(id, id, prec);
+    arb_t Q[4]; for (int j = 0; j < 4; j++) { arb_init(Q[j]); for (slong k = 0; k < acb_poly_length(Drho[j]); k++) { acb_poly_get_coeff_acb(r, Drho[j], k); acb_abs(tmp, r, prec); arb_add(Q[j], Q[j], tmp, prec); } }
+    arb_t kap[9]; for (int k = 0; k < 9; k++) arb_init(kap[k]);
+    arb_set(kap[0], Q[3]); arb_mul(kap[1], Q[1], Q[2], prec); arb_mul_ui(kap[1], kap[1], 3, prec); arb_pow_ui(kap[2], Q[1], 3, prec);
+    arb_one(kap[3]); arb_set_ui(kap[4], 3); arb_one(kap[5]); arb_add(kap[6], Q[1], Q[2], prec); arb_mul_ui(kap[6], kap[6], 3, prec);
+    arb_sqr(kap[7], Q[1], prec); arb_mul_ui(kap[7], kap[7], 3, prec); arb_mul_ui(kap[8], Q[1], 3, prec);
+    arb_poly_t Ft[4][4], sx, tp; for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) arb_poly_init(Ft[i][j]);
+    arb_poly_init(sx); arb_poly_init(tp); arb_poly_set_coeff_arb(sx, 1, id); arb_poly_one(Ft[0][0]);
+    for (int j = 1; j < 4; j++) { arb_poly_mul(Ft[0][j], sx, Ft[0][j - 1], prec); if (j >= 2) { arb_mul_ui(tmp, id, j - 1, prec); arb_poly_scalar_mul(tp, Ft[0][j - 2], tmp, prec); arb_poly_add(Ft[0][j], Ft[0][j], tp, prec); } }
+    for (int i = 1; i < 4; i++) for (int j = 0; j < 4; j++)
+    {
+        arb_poly_mul(Ft[i][j], sx, Ft[i - 1][j], prec);
+        if (i >= 2) { arb_mul_ui(tmp, id, i - 1, prec); arb_poly_scalar_mul(tp, Ft[i - 2][j], tmp, prec); arb_poly_add(Ft[i][j], Ft[i][j], tp, prec); }
+        if (j >= 1) { arb_mul_ui(tmp, id, j, prec); arb_poly_scalar_mul(tp, Ft[i - 1][j - 1], tmp, prec); arb_poly_add(Ft[i][j], Ft[i][j], tp, prec); }
+    }
+    double M[4][4];
+    for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++)
+    {
+        arb_t Mij, c, ee; arb_init(Mij); arb_init(c); arb_init(ee); arb_const_e(ee, prec);
+        for (slong k = 0; k < arb_poly_length(Ft[i][j]); k++)
+        { if (k == 0) arb_one(c); else { arb_set_ui(c, 8 * k); arb_div(c, c, ee, prec); arb_set_ui(tmp, k); arb_mul_2exp_si(tmp, tmp, -1); arb_pow(c, c, tmp, prec); }
+          arb_addmul(Mij, c, arb_poly_get_coeff_ptr(Ft[i][j], k), prec); }
+        arf_t u; arf_init(u); arb_get_ubound_arf(u, Mij, prec); M[i][j] = arf_get_d(u, ARF_RND_UP); arf_clear(u);
+        arb_clear(Mij); arb_clear(c); arb_clear(ee);
+    }
+    for (int a = 0; a < 5; a++) for (int i = 0; i < 5; i++)
+    {
+        arb_poly_init(ap_B[a][i]); arb_poly_set(ap_B[a][i], Bell[a][i]);
+        for (slong k = 0; k < arb_poly_length(ap_B[a][i]); k++) { arb_t c; arb_init(c); arb_abs(c, arb_poly_get_coeff_ptr(ap_B[a][i], k)); arb_get_ubound_arf(arb_midref(c), c, prec); mag_zero(arb_radref(c)); arb_poly_set_coeff_arb(ap_B[a][i], k, c); arb_clear(c); }
+    }
+    static const int PA[9][2] = { {1,0},{2,0},{3,0},{0,1},{0,2},{0,3},{1,1},{2,1},{1,2} };
+    for (int e = 0; e < 2; e++)
+    {
+        ap_nT[e] = 0;
+        for (int k = 0; k < 9; k++)
+        {
+            int p = PA[k][0], a = PA[k][1], aa = a + e;
+            arf_t u; arf_init(u); arb_get_ubound_arf(u, kap[k], prec); double kk = arf_get_d(u, ARF_RND_UP); arf_clear(u);
+            for (int i = 0; i <= aa; i++) for (int j = 0; j <= aa; j++)
+            {
+                int fi, fj;
+                if (p >= 1) { fi = i + p - 1; fj = j + p - 1; } else { if (i == 0 || j == 0) continue; fi = i - 1; fj = j - 1; }
+                if (arb_poly_is_zero(Bell[aa][i]) || arb_poly_is_zero(Bell[aa][j])) continue;
+                int n = ap_nT[e]++; ap_c[e][n] = kk * M[fi][fj] * (1 + 1e-12); ap_a[e][n] = aa; ap_i[e][n] = i; ap_j[e][n] = j;
+            }
+        }
+    }
+    ap_ready = 1;
+}
+static void apriori_box(double out[2], double xmax, double ymax, double ulb, double vlb, double xlb, double ylb)
+{
+    apriori_setup();
+    arb_t X, Y, bx, by, S; arb_init(X); arb_init(Y); arb_init(bx); arb_init(by); arb_init(S);
+    arb_set_d(X, xmax); arb_set_d(Y, ymax);
+    double g = exp(-(ulb * ulb + vlb * vlb) / 4 - (xlb * xlb + ylb * ylb) / 2) * (1 + 1e-12) / (2 * M_PI * ap_delta);
+    for (int e = 0; e < 2; e++)
+    {
+        arb_zero(S);
+        for (int n = 0; n < ap_nT[e]; n++)
+        {
+            arb_poly_evaluate(bx, ap_B[ap_a[e][n]][ap_i[e][n]], X, prec); arb_poly_evaluate(by, ap_B[ap_a[e][n]][ap_j[e][n]], Y, prec);
+            arb_mul(bx, bx, by, prec); arb_set_d(by, ap_c[e][n]); arb_addmul(S, bx, by, prec);
+        }
+        arb_sqr(S, S, prec); arf_t u; arf_init(u); arb_get_ubound_arf(u, S, prec); double sv = arf_get_d(u, ARF_RND_UP); arf_clear(u);
+        out[e] = (g == 0) ? 0 : sv * g * (1 + 1e-12);
+    }
+    arb_clear(X); arb_clear(Y); arb_clear(bx); arb_clear(by); arb_clear(S);
+}
+
 /* upper bounds (doubles, rounded up) of the two integrands on a box; also center values */
 static double half_lb = 0.5;
 static arb_struct *g_R2mv = NULL;   /* optional second enclosure of |R_e|^2 (mean-value form) */
@@ -266,15 +355,29 @@ static void box_ub(double out[2], const arb_t x, const arb_t y, const acb_t t)
     double cAmB, cApB;
     arb_get_lbound_arf(lb, E.AmB, prec); cAmB = arf_get_d(lb, ARF_RND_DOWN); if (!(cAmB > half_lb)) cAmB = half_lb;
     arb_get_lbound_arf(lb, E.ApB, prec); cApB = arf_get_d(lb, ARF_RND_DOWN); if (!(cApB > half_lb)) cApB = half_lb;
-    arb_add(s, E.u, E.v, prec); arb_sqr(s, s, prec); arb_get_lbound_arf(lb, s, prec); double sp = arf_get_d(lb, ARF_RND_DOWN); if (sp < 0) sp = 0;
-    arb_sub(s, E.u, E.v, prec); arb_sqr(s, s, prec); arb_get_lbound_arf(lb, s, prec); double sm = arf_get_d(lb, ARF_RND_DOWN); if (sm < 0) sm = 0;
-    arb_sqr(s, x, prec); arb_sqr(q, y, prec); arb_add(s, s, q, prec); arb_get_lbound_arf(lb, s, prec); double sx = arf_get_d(lb, ARF_RND_DOWN); if (sx < 0) sx = 0;
+    /* squares bounded below through |z| >= dist(0, ball) (a direct ball square loses the sign information) */
+    double sp, sm, sx;
+    arb_add(s, E.u, E.v, prec); arb_get_abs_lbound_arf(lb, s, prec); sp = arf_get_d(lb, ARF_RND_DOWN); sp = (sp > 0) ? sp * sp * (1 - 1e-15) : 0;
+    arb_sub(s, E.u, E.v, prec); arb_get_abs_lbound_arf(lb, s, prec); sm = arf_get_d(lb, ARF_RND_DOWN); sm = (sm > 0) ? sm * sm * (1 - 1e-15) : 0;
+    { double a1, a2; arb_get_abs_lbound_arf(lb, x, prec); a1 = arf_get_d(lb, ARF_RND_DOWN); arb_get_abs_lbound_arf(lb, y, prec); a2 = arf_get_d(lb, ARF_RND_DOWN);
+      if (a1 < 0) a1 = 0; if (a2 < 0) a2 = 0; sx = (a1 * a1 + a2 * a2) * (1 - 1e-15); }
+    (void) q;
     double expo = 0.5 * cAmB * sp + 0.5 * cApB * sm + 0.5 * sx;
     expo *= (1 - 1e-12);
     /* prefactor 1/(2 pi |d|) upper bound */
     arb_get_lbound_arf(lb, E.dabs, prec); double dl = arf_get_d(lb, ARF_RND_DOWN);
     double prefac = (dl > 0) ? 1.0 / (2 * M_PI * dl) * (1 + 1e-12) : INFINITY;
     double ee = exp(-expo) * (1 + 1e-12);
+    double apb[2];
+    {
+        double xmax, ymax, ulb, vlb, xlb, ylb; arf_t t1; arf_init(t1);
+        arb_get_abs_ubound_arf(t1, x, prec); xmax = arf_get_d(t1, ARF_RND_UP); arb_get_abs_ubound_arf(t1, y, prec); ymax = arf_get_d(t1, ARF_RND_UP);
+        arb_get_abs_lbound_arf(t1, E.u, prec); ulb = arf_get_d(t1, ARF_RND_DOWN); arb_get_abs_lbound_arf(t1, E.v, prec); vlb = arf_get_d(t1, ARF_RND_DOWN);
+        arb_get_abs_lbound_arf(t1, x, prec); xlb = arf_get_d(t1, ARF_RND_DOWN); arb_get_abs_lbound_arf(t1, y, prec); ylb = arf_get_d(t1, ARF_RND_DOWN);
+        if (ulb < 0) ulb = 0; if (vlb < 0) vlb = 0; if (xlb < 0) xlb = 0; if (ylb < 0) ylb = 0;
+        arf_clear(t1);
+        apriori_box(apb, xmax, ymax, ulb, vlb, xlb, ylb);
+    }
     for (int e = 0; e < 2; e++)
     {
         arf_t ub; arf_init(ub); arb_get_ubound_arf(ub, E.R2[e], prec); double R = arf_get_d(ub, ARF_RND_UP); arf_clear(ub);
@@ -282,6 +385,8 @@ static void box_ub(double out[2], const arb_t x, const arb_t y, const acb_t t)
         if (g_R2mv != NULL && arb_is_finite(g_R2mv + e))
         { arf_t u2; arf_init(u2); arb_get_ubound_arf(u2, g_R2mv + e, prec); double R2 = arf_get_d(u2, ARF_RND_UP); arf_clear(u2); if (R2 < R) R = R2; }
         out[e] = R * prefac * ee * (1 + 1e-12);
+        if (!(out[e] == out[e])) out[e] = INFINITY;          /* NaN (inf * 0) */
+        if (apb[e] < out[e]) out[e] = apb[e];
     }
     arb_clear(s); arb_clear(q); arb_clear(ex); arb_clear(pre); arf_clear(lb);
     for (int e = 0; e < 2; e++) { arb_clear(E.R2[e]); } arb_clear(E.dabs); arb_clear(E.AmB); arb_clear(E.ApB); arb_clear(E.u); arb_clear(E.v);
@@ -601,9 +706,10 @@ static void test_mode(double tval)
 
 
 /* ---------- exterior bound: max(|x|,|y|) > X0 ----------
-   For |r| <= 1 one has A +- B >= 1/2, hence exp(-Re(Q/d)) <= exp(-(u^2+v^2)/2) <= exp(-s^2/4) e^{-(u^2+v^2)/4} with s = |u|+|v|
-   ((u^2+v^2) >= s^2/2).  |l_u|, |l_v| <= s/delta, |1/d| <= 1/delta, |r| <= 1 give |F_ij| <= Ft_ij(s) (recurrence with absolute
-   values), and Ft_ij(s) e^{-s^2/8} <= M_ij := sum_k c_k (4k/e)^{k/2}.  So |R_e|^2 exp(-Re(Q/d)) <= (sum_T c_T X_T(|x|) Y_T(|y|))^2,
+   For |r| <= 1 one has A +- B >= 1/2, hence exp(-Re(Q/d)) <= exp(-(u^2+v^2)/2) = e^{-(u^2+v^2)/4} e^{-(u^2+v^2)/4}, and the first
+   factor is <= e^{-s^2/8} = (e^{-s^2/16})^2 with s = |u|+|v| ((u^2+v^2) >= s^2/2).  |l_u|, |l_v| <= s/delta, |1/d| <= 1/delta, |r| <= 1
+   give |F_ij| <= Ft_ij(s) (recurrence with absolute values), and Ft_ij(s) e^{-s^2/16} <= M_ij := sum_k c_k (8k/e)^{k/2}
+   (max of s^k e^{-s^2/16} at s^2 = 8k).  So |R_e|^2 exp(-Re(Q/d)) <= (sum_T c_T X_T(|x|) Y_T(|y|))^2 e^{-(u^2+v^2)/4},
    with X_T, Y_T Bell polynomials with absolute coefficients, and (sum_T a_T)^2 <= nT sum_T a_T^2.  Then
    J_e^ext <= (1/delta) nT sum_T c_T^2 [ m_ext(X_T^2) m(Y_T^2) + m(X_T^2) m_ext(Y_T^2) ],
    m(p) = int p(|x|) dgamma, m_ext(p) = int_{|x|>X0} p(|x|) dgamma, int_{|x|>X0} |x|^k dgamma = 2^{k/2} Gamma((k+1)/2, X0^2/2)/sqrt(pi).
@@ -665,7 +771,7 @@ static void exterior_bound(double X0d, double a_weight)
         for (slong k = 0; k < arb_poly_length(Ft[i][j]); k++)
         {
             arb_t c; arb_init(c);
-            if (k == 0) arb_one(c); else { arb_set_ui(c, 4 * k); { arb_t ee; arb_init(ee); arb_const_e(ee, prec); arb_div(c, c, ee, prec); arb_clear(ee); } arb_set_ui(tmp, k); arb_mul_2exp_si(tmp, tmp, -1); arb_pow(c, c, tmp, prec); }
+            if (k == 0) arb_one(c); else { arb_set_ui(c, 8 * k); { arb_t ee; arb_init(ee); arb_const_e(ee, prec); arb_div(c, c, ee, prec); arb_clear(ee); } arb_set_ui(tmp, k); arb_mul_2exp_si(tmp, tmp, -1); arb_pow(c, c, tmp, prec); }
             arb_addmul(M[i][j], c, arb_poly_get_coeff_ptr(Ft[i][j], k), prec); arb_clear(c);
         }
     }
