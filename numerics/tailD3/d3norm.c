@@ -131,6 +131,7 @@ typedef struct { arb_t R2[2], dabs, AmB, ApB, u, v; acb_t R0, dd; } evalres;
 
 static void evalres_init(evalres *E) { acb_init(E->R0); acb_init(E->dd); for (int e = 0; e < 2; e++) arb_init(E->R2[e]); arb_init(E->dabs); arb_init(E->AmB); arb_init(E->ApB); arb_init(E->u); arb_init(E->v); }
 
+static int skip_R = 0;
 static void eval_point(evalres *E, const arb_t x, const arb_t y, const acb_t t)
 {
     arb_t Bx[5][5], By[5][5]; acb_t q[4], r, d, dinv, lu, lv, F[4][4], tmp, tmp2, kap, Re[2];
@@ -165,6 +166,7 @@ static void eval_point(evalres *E, const arb_t x, const arb_t y, const acb_t t)
             if (i >= 2) { acb_mul_si(tmp, dinv, i - 1, prec); acb_mul(tmp, tmp, F[i - 2][j], prec); acb_sub(F[i][j], F[i][j], tmp, prec); }
             if (j >= 1) { acb_mul(tmp, r, dinv, prec); acb_mul_si(tmp, tmp, j, prec); acb_mul(tmp, tmp, F[i - 1][j - 1], prec); acb_add(F[i][j], F[i][j], tmp, prec); }
         }
+    if (skip_R) { arb_pos_inf(E->R2[0]); arb_pos_inf(E->R2[1]); acb_zero(E->R0); acb_set(E->dd, d); goto cleanup; }
     /* kappa table */
     static const int PA[9][2] = { {1,0},{2,0},{3,0},{0,1},{0,2},{0,3},{1,1},{2,1},{1,2} };
     for (int e = 0; e < 2; e++) acb_zero(Re[e]);
@@ -199,6 +201,7 @@ static void eval_point(evalres *E, const arb_t x, const arb_t y, const acb_t t)
     }
     acb_set(E->R0, Re[0]); acb_set(E->dd, d);
     for (int e = 0; e < 2; e++) { acb_abs(E->R2[e], Re[e], prec); arb_sqr(E->R2[e], E->R2[e], prec); }
+cleanup:
 
     for (int a = 0; a < 5; a++) for (int i = 0; i < 5; i++) { arb_clear(Bx[a][i]); arb_clear(By[a][i]); }
     for (int j = 0; j < 4; j++) acb_clear(q[j]);
@@ -362,9 +365,9 @@ static void eval_box(double out[2], double x0, double x1, double y0, double y1, 
     arb_sin_cos(acb_imagref(t), acb_realref(t), th, prec);
     arb_ptr mv = NULL;
     if (use_mv && (x1 > x0 || y1 > y0 || t1 > t0)) { mv = _arb_vec_init(2); R2_meanvalue((arb_t *) mv, x0, x1, y0, y1, t0, t1); }
-    g_R2mv = mv;
+    g_R2mv = mv; skip_R = (mv != NULL);
     box_ub(out, x, y, t);
-    g_R2mv = NULL;
+    g_R2mv = NULL; skip_R = 0;
     if (mv) _arb_vec_clear(mv, 2);
     arb_clear(x); arb_clear(y); arb_clear(th); acb_clear(t);
 }
@@ -516,13 +519,14 @@ int main(int argc, char **argv)
         return 0;
     }
     double X0 = atof(argv[2]), eta = atof(argv[3]), tau = atof(argv[4]); long maxboxes = atol(argv[5]);
+    int k0 = argc > 7 ? atoi(argv[6]) : 0, k1 = argc > 7 ? atoi(argv[7]) : 32;   /* theta panels k0 <= k < k1 of 32 */
     printf("P(x) = "); arb_poly_printd(Pm, 12); printf("\nrho(t) = "); acb_poly_printd(rho, 12); printf("\n");
 
     /* adaptive partition: stack of boxes */
     typedef struct { double x0, x1, y0, y1, t0, t1; } box_t;
     long cap = 1 << 24; box_t *stk = malloc(sizeof(box_t) * cap); long sp = 0;
-    int nx = 16, ny = 32, nt = 32;
-    for (int i = 0; i < nx; i++) for (int j = 0; j < ny; j++) for (int k = 0; k < nt; k++)
+    int nx = (int) (2 * X0), ny = (int) (4 * X0), nt = 32;
+    for (int i = 0; i < nx; i++) for (int j = 0; j < ny; j++) for (int k = k0; k < k1; k++)
     { box_t b = { X0 * i / nx, X0 * (i + 1) / nx, -X0 + 2 * X0 * j / ny, -X0 + 2 * X0 * (j + 1) / ny, M_PI * k / nt, M_PI * (k + 1) / nt };
       if (k == nt - 1) b.t1 = M_PI;   /* t1 is enlarged to cover pi below */
       stk[sp++] = b; }
@@ -555,11 +559,11 @@ int main(int argc, char **argv)
             else { double m = 0.5 * (b.t0 + b.t1); c1.t1 = m; c2.t0 = m; }
             stk[sp++] = c1; stk[sp++] = c2;
         }
-        if (neval % 2000000 == 0) fprintf(stderr, "evals %ld accepted %ld stack %ld  J0 <= %.6f J1 <= %.6f\n", neval, nacc, sp, 2 * J[0] / M_PI, 2 * J[1] / M_PI);
+        if (neval % 200000 == 0) fprintf(stderr, "evals %ld accepted %ld stack %ld  J0 <= %.6f J1 <= %.6f\n", neval, nacc, sp, 2 * J[0] / M_PI, 2 * J[1] / M_PI);
     }
     /* symmetry factor 2, mean over theta: 1/pi; outward safety */
     double J0 = 2 * J[0] / M_PI * (1 + 1e-9), J1 = 2 * J[1] / M_PI * (1 + 1e-9);
     printf("boxes accepted %ld, evaluations %ld\n", nacc, neval);
-    printf("inner domain [0,%.1f]x[-%.1f,%.1f]x[0,pi]:  J0 <= %.9e   J1 <= %.9e   (center-value sums %.6e, %.6e)\n", X0, X0, X0, J0, J1, 2 * Jc[0] / M_PI, 2 * Jc[1] / M_PI);
+    printf("theta panels %d..%d of 32; inner domain [0,%.1f]x[-%.1f,%.1f]x[0,pi]:  J0 <= %.9e   J1 <= %.9e   (center-value sums %.6e, %.6e)\n", k0, k1 - 1, X0, X0, X0, J0, J1, 2 * Jc[0] / M_PI, 2 * Jc[1] / M_PI);
     return 0;
 }
