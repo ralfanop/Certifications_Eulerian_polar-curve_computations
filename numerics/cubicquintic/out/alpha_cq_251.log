@@ -1,0 +1,14 @@
+cq profile: a(u) = [-0.091186630755412532534 +/- 3.18e-22] * psi_3(u)
+nodes: subinterval 0/60
+nodes: subinterval 50/60
+matrix product...
+error bounds: subinterval 0/60
+error bounds: subinterval 20/60
+error bounds: subinterval 40/60
+outer cells: 72, root cells: 0, total root width 0.000e+00
+outer radii: n=0 max 2.016e-108, n>=1 max 6.390e-58
+done; tail bound = (689156852 * 2^-112)
+
+real	0m26.466s
+user	0m25.612s
+sys	0m0.409s
