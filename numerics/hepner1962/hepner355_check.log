@@ -1,0 +1,11 @@
+(1)-(2) angular momentum relations in six dimensions         True
+(4) iM_6k +- M_5k = (1 +- g5) g_k / 2                        True
+(2a) g_i^(+-) g_k^(+-) = 0                                   True
+(2b) [M_ik, g_l^(+-)] = d_kl g_i^(+-) - d_il g_k^(+-)        True
+(2c) [g_i^(+), g_i^(-)] = -2i M_56                           True
+(2c) [g_i^(+), g_k^(-)] = 2 M_ik (i != k)  [corrected]       True
+(2c) as printed: [g_i^(+), g_k^(-)] = 4 M_ik (i != k)        False
+(2d) [M_56, g_k^(+-)] = +- i g_k^(+-)                        True
+(2d) [M_56, M_ik] = 0                                        True
+footnote (5): g_i^(+) g_i^(-) + g_i^(-) g_i^(+) = 1          True
+ALL CHECKS PASSED (printed 4 M_ik is false; the correct coefficient is 2)
