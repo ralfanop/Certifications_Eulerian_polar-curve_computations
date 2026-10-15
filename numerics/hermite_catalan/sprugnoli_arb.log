@@ -1,0 +1,8 @@
+N = 16777216
+S1 enclosure  [-1.246 +/- 6.67e-4]
+-sqrt2 log(1+sqrt2) = [-1.246450480280461026788040 +/- 1.61e-25]
+contained: YES
+S2 enclosure  [-1.5536387998 +/- 2.16e-11]
+-2 log(1+sqrt2)^2   = [-1.553638799791391963001149 +/- 4.21e-25]
+contained: YES
+ALL CHECKS PASSED

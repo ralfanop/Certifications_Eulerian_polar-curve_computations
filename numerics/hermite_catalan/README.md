@@ -7,6 +7,7 @@ Status: **certified by us** (15 Oct 2026). The identities are classical; what we
 | `exact_checks.py`, `exact_checks.log` | (A), (B), (C) | exact integers and rationals, standard library only |
 | `series_arb.c`, `series_arb.log` | (D), (E) | Arb ball arithmetic (FLINT 3.3.1) |
 | `haagerup_k0.c`, `haagerup_k0.log` | (F) | Arb ball arithmetic |
+| `sprugnoli_arb.c`, `sprugnoli_arb.log` | (G) | Arb ball arithmetic |
 
 ## (A) Type-B Catalan numbers are Hermite values at 0
 
@@ -47,6 +48,12 @@ Haagerup's theorem gives K_G^ℂ ≤ 8/(π(k₀ + 1)), where k₀ ∈ (0,1) solv
 
 The uniqueness of k₀ in (0,1) is taken from Haagerup's theorem, not checked here.
 
+## (G) Sprugnoli's Theorem 3.2 (Integers 6, 2006, A27)
+
+  Σ_{n≥1} (−4)ⁿ/(n C(2n,n)) = √2 ln(√2 − 1) = −√2 log(1 + √2),  Σ_{n≥1} (−4)ⁿ/(n² C(2n,n)) = −2 log(1 + √2)².
+
+In the proof (p. 8) the generating function is evaluated at z = i√2/2 = z₀. The terms alternate in sign and their moduli decrease, so the value lies between two consecutive partial sums (Leibniz). With N = 2²⁴ the enclosures are −1.246 ± 6.7·10⁻⁴ for the first series, which converges like N^{−1/2}, and −1.5536387998 ± 2.2·10⁻¹¹ for the second. Both contain the closed forms. This is a consistency check of a published theorem, not a high-precision evaluation.
+
 ## Reproduce
 
 ```
@@ -55,4 +62,6 @@ gcc -O2 -I$FLINT/include series_arb.c -o series_arb -L$FLINT/lib -Wl,-rpath,$FLI
 ./series_arb > series_arb.log
 gcc -O2 -I$FLINT/include haagerup_k0.c -o haagerup_k0 -L$FLINT/lib -Wl,-rpath,$FLINT/lib -lflint -lmpfr -lgmp -lm
 ./haagerup_k0 > haagerup_k0.log
+gcc -O2 -I$FLINT/include sprugnoli_arb.c -o sprugnoli_arb -L$FLINT/lib -Wl,-rpath,$FLINT/lib -lflint -lmpfr -lgmp -lm
+./sprugnoli_arb > sprugnoli_arb.log
 ```
