@@ -30,3 +30,9 @@ The forms printed in eq. (2.15) of the 22 May 2026 submission and in eq. (316) o
 gcc -O2 -I$FLINT/include davie_arb.c -o davie_arb -L$FLINT/lib -Wl,-rpath,$FLINT/lib -lflint -lmpfr -lgmp -lm
 ./davie_arb > davie_arb.log
 ```
+
+## 1000 certified digits (`davie_1000.c`, `davie_1000.log`)
+
+The program `davie_1000.c` encloses α* to 1000 digits and C_D with error below 2.4·10⁻¹⁰¹⁰. It works at 3600 bits: Newton steps, then a certified sign change of H on [α* − 2⁻³⁵⁰⁰, α* + 2⁻³⁵⁰⁰].
+
+The root is unique because H′(a) = 2c e^{−a²/2}(c a e^{−a²/2} − 1) < 0 for a ≥ 0, since c a e^{−a²/2} ≤ c e^{−1/2} < 1. These are digits of Davie's constant C_D, the value of his lower bound; they are not digits of K_G.
