@@ -1,0 +1,24 @@
+ARITHMETIC_SELF_TESTS_PASSED
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/importlib/metadata/__init__.py", line 407, in from_name
+    return next(iter(cls.discover(name=name)))
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/claude/hjm/runs/complete-c1ea813c/lower_source/verify.py", line 78, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/home/claude/hjm/runs/complete-c1ea813c/lower_source/verify.py", line 67, in main
+    environment['python_packages']={name:importlib.metadata.version(name) for name in ['numpy','Cython','setuptools']}
+                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.13/importlib/metadata/__init__.py", line 987, in version
+    return distribution(distribution_name).version
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/importlib/metadata/__init__.py", line 960, in distribution
+    return Distribution.from_name(distribution_name)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/importlib/metadata/__init__.py", line 409, in from_name
+    raise PackageNotFoundError(name)
+importlib.metadata.PackageNotFoundError: No package metadata was found for Cython
