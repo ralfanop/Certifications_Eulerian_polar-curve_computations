@@ -37,7 +37,7 @@ This folder records what we checked on 15 Oct 2026. Status categories:
    - the panel density comparison e^{h max|s|};
    - the roof-duality (min-cut) upper bound (B.20).
 
-   We read the persistency argument for sign fixing, but did not re-derive it.
+   The persistency argument for sign fixing is now also reconstructed in full; see `HAND_CHECK.md`, which writes out every step of the lower-bound chain.
 
 ### Numerical certificate (re-executed by us, `lower_run/`)
 
