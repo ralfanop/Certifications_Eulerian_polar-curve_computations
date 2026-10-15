@@ -1,0 +1,7 @@
+Hepner's choice t = a = z0 = i/sqrt2: mismatches []
+t = z0*2, a = z0/2: mismatches []
+t = z0*-3, a = z0/-3: mismatches []
+t = z0*1j, a = z0/1j: mismatches []
+t = z0*(0.5+0.7j), a = z0/(0.5+0.7j): mismatches []
+t = a = 1:  mismatches 9 entries
+t*a must equal z0^2 = -1/2; t = a = 1/sqrt2 (product +1/2): mismatches 9 entries
