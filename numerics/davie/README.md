@@ -36,3 +36,14 @@ gcc -O2 -I$FLINT/include davie_arb.c -o davie_arb -L$FLINT/lib -Wl,-rpath,$FLINT
 The program `davie_1000.c` encloses α* to 1000 digits and C_D with error below 2.4·10⁻¹⁰¹⁰. It works at 3600 bits: Newton steps, then a certified sign change of H on [α* − 2⁻³⁵⁰⁰, α* + 2⁻³⁵⁰⁰].
 
 The root is unique because H′(a) = 2c e^{−a²/2}(c a e^{−a²/2} − 1) < 0 for a ≥ 0, since c a e^{−a²/2} ≤ c e^{−1/2} < 1. These are digits of Davie's constant C_D, the value of his lower bound; they are not digits of K_G.
+
+## Review of the Lean 4 package (received 15 Oct 2026, 09:30)
+
+We received `Davie_Lean4_Numerical_Certificate_2026-10-15.zip`. Its SHA-256 is aa2762d8…dd4b, which matches the announced value, and all 63 entries of its `SHA256SUMS.txt` match. We read the package; we did **not** rebuild it. A rebuild needs Lean 4.24.0 and mathlib `f897ebc`, and neither the toolchain release nor the mathlib cache is reachable from our machine.
+
+What we checked by reading:
+
+- **The hypothesis `IsGrothendieckBound K`** (`GrothendieckBound.lean`) is the finite real Grothendieck inequality. It states |Σ a_ij⟨u_i, v_j⟩| ≤ K·M for all finite I, J, every dimension n, and ‖u_i‖, ‖v_j‖ ≤ 1, whenever |Σ a_ij s_i t_j| ≤ M for all s_i, t_j ∈ [−1, 1]. So `davie_lower_bound` states exactly K_G ≥ C_D.
+- **The scalar definitions** (`Basic.lean`): F(r, x) = (2/π)e^{−x²} + r(1 − 2·tail x), with tail x = c∫_x^∞ e^{−t²/2}. This is Davie's original formula, and the file says so explicitly ("not the erroneous printed formula").
+- **No proof escapes.** There is no `sorry`, `admit`, `axiom`, `native_decide`, `implemented_by` or `extern` in the 3247 lines of source. The recorded axiom audit lists only propext, Classical.choice and Quot.sound.
+- **The numerical enclosures** of α* and C_D agree with our independent Arb computation (above).
