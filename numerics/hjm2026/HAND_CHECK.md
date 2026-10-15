@@ -12,6 +12,8 @@ Let Q = Σ_m q_m Π_m on L²(γ_n), with q_1 = 1, |q_m| ≤ 1 and q_{2m} = 0.
 
 Hence **K_G ≥ 1/v_∞(q)**, where v_∞(q) = sup_n sup over odd Boolean f, g of ⟨f, Qg⟩.
 
+**Relation to Davie.** Only this first step, K_G ≥ SDP(Q)/OPT(Q), is shared with Davie. Davie's operator is Q = Π_1 − ρI, that is, q_1 = 1 − ρ and q_m = −ρ for all other m. For that operator SDP → 1 − ρ and OPT = M_ρ, which he evaluates in closed form through the threshold function F_ρ(α); this gives 1.67696. Heilman, Jones and Malavolta instead optimise eleven free coefficients q_1, q_3, …, q_21. They cannot evaluate OPT in closed form, so they bound it with Sections 2–4 below, and obtain 1.773. The two bounds therefore come from different operators.
+
 ## 2. Proposition B.1 (one-variable criterion)
 
 Put h = (f+g)/2 and k = (f−g)/2. Then h² + k² = 1, ⟨Π_m f, Π_m g⟩ = ‖Π_m h‖² − ‖Π_m k‖², and ‖Π_m f‖² + ‖Π_m g‖² = 2(‖Π_m h‖² + ‖Π_m k‖²).
