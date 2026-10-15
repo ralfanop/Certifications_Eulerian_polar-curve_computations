@@ -25,17 +25,23 @@ Exact residuals for n ≤ 20 are in the log. The corrected sum
 
 retains the central binomial coefficients C(2ρ,ρ), the type-B Catalan numbers.
 
-## (B) The transformation of Normalform 2
+## (B) The transformation of Normalform 2 (corrected 15 Oct 2026)
 
-Normalform 2 (p. 732) is y″ + (δ + εx)y′ + λy = 0. With ξ = a + bx and b = √(−ε/2), the coefficient of y_ξ after division by b² is −2ξ + (δ − εa/b)/b. The Hermite form needs this constant to vanish, i.e.
+Normalform 2 (p. 732) is y″ + (δ + εx)y′ + λy = 0. Bochner prints
 
-  ξ = −δ√(−1/(2ε)) + √(−ε/2)·x,  equivalently ξ = −(δ + εx)/√(−2ε).
+  ξ = δ√(−1/(2ε)) + √(−ε/2)·x.
 
-The reflected choice ξ = (δ + εx)/√(−2ε) is equally valid; it changes Hₙ by (−1)ⁿ. Bochner prints
+Put ξ = a + bx with b² = −ε/2. After division by b², the coefficient of y_ξ is −2ξ + (δ − εa/b)/b. The Hermite form needs a = δb/ε, and since (b/ε)² = −1/(2ε), Bochner's coefficient √(−1/(2ε)) must equal b/ε. With principal square roots:
 
-  ξ = δ√(−1/(2ε)) + √(−ε/2)·x,
+- **ε > 0.** b = i√(ε/2) and √(−1/(2ε)) = i/√(2ε) = b/ε. Bochner's formula is exactly right, and ξ is complex. For ε = 1, both coefficients equal
 
-with both terms of the same sign. That choice leaves y_ξξ − 2(ξ − 2a)y_ξ + λ′y = 0, which is not the Hermite form unless δ = 0. The script checks this on exact rational instances (ε = −2k², k = 1, 2, 3).
+    z₀ = √(−1/2) = i/√2,  so ξ = z₀(δ + x).
+
+- **ε < 0** (real ξ, the case of orthogonality on the real line). b = √(−ε/2) > 0, while b/ε < 0. The two roots must then carry opposite signs, ξ = −δ√(−1/(2ε)) + √(−ε/2)·x. Read with positive real roots, the printed form leaves y_ξξ − 2(ξ − 2a)y_ξ + λ′y = 0.
+
+So the formula is correct in the complex reading. The earlier version of this note called it wrong, but it is so only when both roots are taken real and positive for ε < 0. The two admissible real choices differ by ξ → −ξ, which multiplies Hₙ by (−1)ⁿ, i.e. it changes the sign of the odd-degree polynomials only. The script checks both signs of ε exactly, in Gaussian rationals, with ε = ±2k² and k = 1, 2, 3.
+
+The constant z₀ = i/√2 = √(−1/2) also satisfies z₀² = −1/2 = ζ(3)/ψ⁽²⁾(1). Since ψ⁽ⁿ⁾(1) = (−1)ⁿ⁺¹ n! ζ(n+1), this second identity holds for the factorial 2! = 2, independently of the value of ζ(3).
 
 For comparison, the next transformation on the page, x = −ξ/ε to the Laguerre equation, is correct up to renaming λ.
 

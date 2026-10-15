@@ -28,14 +28,26 @@ first n where the printed sum differs from H_n and fails the ODE: 4
 identity n!/(r!(n-2r)!) = C(2r,r) C(n,2r) r!  verified for all n <= 20
 
 (B) Transformation of Normalform 2 on p. 733
-eps=-2, delta=1: y'' coeff of y_xi = -2 xi + c;  c(printed a=+delta s) = 2,  c(a=-delta s) = 0
-eps=-2, delta=3: y'' coeff of y_xi = -2 xi + c;  c(printed a=+delta s) = 6,  c(a=-delta s) = 0
-eps=-2, delta=-5/7: y'' coeff of y_xi = -2 xi + c;  c(printed a=+delta s) = -10/7,  c(a=-delta s) = 0
-eps=-8, delta=1: y'' coeff of y_xi = -2 xi + c;  c(printed a=+delta s) = 1,  c(a=-delta s) = 0
-eps=-8, delta=3: y'' coeff of y_xi = -2 xi + c;  c(printed a=+delta s) = 3,  c(a=-delta s) = 0
-eps=-8, delta=-5/7: y'' coeff of y_xi = -2 xi + c;  c(printed a=+delta s) = -5/7,  c(a=-delta s) = 0
-eps=-18, delta=1: y'' coeff of y_xi = -2 xi + c;  c(printed a=+delta s) = 2/3,  c(a=-delta s) = 0
-eps=-18, delta=3: y'' coeff of y_xi = -2 xi + c;  c(printed a=+delta s) = 2,  c(a=-delta s) = 0
-eps=-18, delta=-5/7: y'' coeff of y_xi = -2 xi + c;  c(printed a=+delta s) = -10/21,  c(a=-delta s) = 0
-printed sign leaves -2 xi + 2 delta/b = -2 (xi - 2a), a shifted equation (not Hermite form unless delta = 0); xi = -delta sqrt(-1/(2eps)) + sqrt(-eps/2) x gives the Hermite form.
+eps=-2, delta=1: sqrt(-eps/2)=1, sqrt(-1/(2eps))=1/2;  constant with Bochner's xi = 2
+eps=-2, delta=3: sqrt(-eps/2)=1, sqrt(-1/(2eps))=1/2;  constant with Bochner's xi = 6
+eps=-2, delta=-5/7: sqrt(-eps/2)=1, sqrt(-1/(2eps))=1/2;  constant with Bochner's xi = -10/7
+eps=-8, delta=1: sqrt(-eps/2)=2, sqrt(-1/(2eps))=1/4;  constant with Bochner's xi = 1
+eps=-8, delta=3: sqrt(-eps/2)=2, sqrt(-1/(2eps))=1/4;  constant with Bochner's xi = 3
+eps=-8, delta=-5/7: sqrt(-eps/2)=2, sqrt(-1/(2eps))=1/4;  constant with Bochner's xi = -5/7
+eps=-18, delta=1: sqrt(-eps/2)=3, sqrt(-1/(2eps))=1/6;  constant with Bochner's xi = 2/3
+eps=-18, delta=3: sqrt(-eps/2)=3, sqrt(-1/(2eps))=1/6;  constant with Bochner's xi = 2
+eps=-18, delta=-5/7: sqrt(-eps/2)=3, sqrt(-1/(2eps))=1/6;  constant with Bochner's xi = -10/21
+eps=2, delta=1: sqrt(-eps/2)=(0+1i), sqrt(-1/(2eps))=(0+1/2i);  constant with Bochner's xi = 0
+eps=2, delta=3: sqrt(-eps/2)=(0+1i), sqrt(-1/(2eps))=(0+1/2i);  constant with Bochner's xi = 0
+eps=2, delta=-5/7: sqrt(-eps/2)=(0+1i), sqrt(-1/(2eps))=(0+1/2i);  constant with Bochner's xi = 0
+eps=8, delta=1: sqrt(-eps/2)=(0+2i), sqrt(-1/(2eps))=(0+1/4i);  constant with Bochner's xi = 0
+eps=8, delta=3: sqrt(-eps/2)=(0+2i), sqrt(-1/(2eps))=(0+1/4i);  constant with Bochner's xi = 0
+eps=8, delta=-5/7: sqrt(-eps/2)=(0+2i), sqrt(-1/(2eps))=(0+1/4i);  constant with Bochner's xi = 0
+eps=18, delta=1: sqrt(-eps/2)=(0+3i), sqrt(-1/(2eps))=(0+1/6i);  constant with Bochner's xi = 0
+eps=18, delta=3: sqrt(-eps/2)=(0+3i), sqrt(-1/(2eps))=(0+1/6i);  constant with Bochner's xi = 0
+eps=18, delta=-5/7: sqrt(-eps/2)=(0+3i), sqrt(-1/(2eps))=(0+1/6i);  constant with Bochner's xi = 0
+Bochner's xi = delta sqrt(-1/(2eps)) + sqrt(-eps/2) x with principal roots gives the
+Hermite form exactly when eps > 0 (complex xi; for eps = 1 both coefficients equal
+z0 = i/sqrt2 = sqrt(-1/2), so xi = z0 (delta + x)); for eps < 0 (real xi) the roots
+need opposite signs, xi = -delta sqrt(-1/(2eps)) + sqrt(-eps/2) x.
 ALL CHECKS PASSED
