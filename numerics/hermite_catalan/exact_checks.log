@@ -1,0 +1,5 @@
+(A) H_2n(0) = (-1)^n C(2n,n) n!   verified exactly for n = 0..200
+(B) ((2k-1)!!)^2/(2k+1)! = C(2k,k)/(4^k(2k+1))   verified exactly for k = 0..200
+    c_{2k+1}^2 = (2/pi) C(2k,k)/(4^k(2k+1)); first values of (pi/2) c_{2k+1}^2: ['1', '1/6', '3/40', '5/112', '35/1152', '63/2816']
+(C) phi_C(t) = (pi/4) sum C(2k,k) C_k t^(2k+1)/16^k: coefficients verified exactly for k = 0..200
+ALL EXACT CHECKS PASSED
