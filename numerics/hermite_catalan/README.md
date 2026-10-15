@@ -6,6 +6,7 @@ Status: **certified by us** (15 Oct 2026). The identities are classical; what we
 |---|---|---|
 | `exact_checks.py`, `exact_checks.log` | (A), (B), (C) | exact integers and rationals, standard library only |
 | `series_arb.c`, `series_arb.log` | (D), (E) | Arb ball arithmetic (FLINT 3.3.1) |
+| `haagerup_k0.c`, `haagerup_k0.log` | (F) | Arb ball arithmetic |
 
 ## (A) Type-B Catalan numbers are Hermite values at 0
 
@@ -37,10 +38,21 @@ Arb certifies this for N = 2²² terms with the alternating-series tail bound: t
 
 At t = 1/2, 9/10 and 99/100, the integral (certified by `acb_calc_integrate`) and the series (with the geometric tail bound a_K t²/(1 − t²)) agree to 40 digits; the balls overlap. Run time 1.6 s.
 
+## (F) Haagerup's bound
+
+Haagerup's theorem gives K_G^ℂ ≤ 8/(π(k₀ + 1)), where k₀ ∈ (0,1) solves φ_ℂ(k) = π(k + 1)/8. We evaluate φ_ℂ through the Catalan series (C), with a geometric tail bound. Bisection with certified signs then gives
+
+- k₀ = 0.8125578588214724423185934946124780525493 ± 5·10⁻⁴²,
+- 8/(π(k₀ + 1)) = 1.404909132735795535525448150614654342781 ± 4·10⁻⁴⁰.
+
+The uniqueness of k₀ in (0,1) is taken from Haagerup's theorem, not checked here.
+
 ## Reproduce
 
 ```
 python3 -I exact_checks.py > exact_checks.log
 gcc -O2 -I$FLINT/include series_arb.c -o series_arb -L$FLINT/lib -Wl,-rpath,$FLINT/lib -lflint -lmpfr -lgmp -lm
 ./series_arb > series_arb.log
+gcc -O2 -I$FLINT/include haagerup_k0.c -o haagerup_k0 -L$FLINT/lib -Wl,-rpath,$FLINT/lib -lflint -lmpfr -lgmp -lm
+./haagerup_k0 > haagerup_k0.log
 ```
