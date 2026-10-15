@@ -15,6 +15,19 @@ Status: **numerically certified by us to 1000 digits** (15 Oct 2026). This is a 
 - Value: LHS = RHS = 6.02723946596899677985500120455788713524416586107838160…; all 1000 digits are in the log.
 - Run time 6 s.
 
+## G recomputed from the identity (`kz797_1000.log`, `kz797_3000.log`)
+
+Solving the identity for Catalan's constant gives
+
+  G_KZ = (π/20) · ( log((27 + 19√2)/(27 − 19√2)) − 1728π² ∫_{√2}^∞ E₄(iy)Δ(iy)/E₆(iy)² · (y² − 2) dy ).
+
+We computed G_KZ independently of any Catalan routine and extracted its exact (truncated) decimals. We then compared them digit by digit with G from `arb_const_catalan` (see also `../catalan/`).
+
+- 1000 digits: all 1000 decimals of G_KZ agree with G, and |G_KZ − G| ≤ 6.1·10⁻¹⁰²⁵ (5 s).
+- 3000 digits: all 3000 decimals agree, and |G_KZ − G| ≤ 1.9·10⁻³⁰²⁸ (76 s; tail bound 1.0·10⁻³⁰⁵⁰).
+
+Up to 3000 digits, the identity shows no deviation.
+
 ## Method
 
 The computation uses Arb ball arithmetic (FLINT 3.3.1).
@@ -32,4 +45,5 @@ The computation uses Arb ball arithmetic (FLINT 3.3.1).
 ```
 gcc -O2 -I$FLINT/include kz797_arb.c -o kz797_arb -L$FLINT/lib -Wl,-rpath,$FLINT/lib -lflint -lmpfr -lgmp -lm
 ./kz797_arb 1000 > kz797_1000.log
+./kz797_arb 3000 > kz797_3000.log
 ```

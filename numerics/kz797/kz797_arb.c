@@ -28,6 +28,22 @@
 #include "flint/acb_calc.h"
 #include "flint/arb_calc.h"
 
+
+#include "flint/fmpz.h"
+/* floor(x * 10^D) if the ball determines it */
+static char * exact_digits(const arb_t x, slong D, slong prec)
+{
+    arb_t y; fmpz_t lo, hi, p10; arf_t a; char *s = NULL;
+    arb_init(y); fmpz_init(lo); fmpz_init(hi); fmpz_init(p10); arf_init(a);
+    fmpz_ui_pow_ui(p10, 10, D);
+    arb_mul_fmpz(y, x, p10, prec);
+    arb_get_lbound_arf(a, y, prec); arf_get_fmpz(lo, a, ARF_RND_FLOOR);
+    arb_get_ubound_arf(a, y, prec); arf_get_fmpz(hi, a, ARF_RND_FLOOR);
+    if (fmpz_equal(lo, hi)) s = fmpz_get_str(NULL, 10, lo);
+    arb_clear(y); fmpz_clear(lo); fmpz_clear(hi); fmpz_clear(p10); arf_clear(a);
+    return s;
+}
+
 typedef struct { arb_t z4x2, z6x2; } param_t;   /* 2 zeta(4), 2 zeta(6) */
 
 static int f(acb_ptr res, const acb_t y, void *pp, slong order, slong prec)
@@ -153,5 +169,26 @@ int main(int argc, char **argv)
         arb_clear(bound);
     }
     printf("radius(LHS) = "); mag_printd(arb_radref(lhs), 5); printf("\n");
+    /* G extracted from the identity: G_KZ = (pi/20) (RHS - 1728 pi^2 I) */
+    {
+        arb_t GK, Gc, w; char *dk, *dc; slong D = digits, k, agree = 0;
+        arb_init(GK); arb_init(Gc); arb_init(w);
+        arb_sqr(w, pi, prec); arb_mul_ui(w, w, 1728, prec); arb_mul(w, w, I, prec);
+        arb_sub(GK, rhs, w, prec); arb_mul(GK, GK, pi, prec); arb_div_ui(GK, GK, 20, prec);
+        arb_const_catalan(Gc, prec);
+        printf("\nG from the identity: "); arb_printn(GK, 30, 0);
+        printf("\nradius(G_KZ) = "); mag_printd(arb_radref(GK), 4);
+        arb_sub(w, GK, Gc, prec);
+        printf("\nG_KZ - G = "); arb_printn(w, 10, 0); printf("\n");
+        dk = exact_digits(GK, D, prec); dc = exact_digits(Gc, D, prec);
+        if (dk == NULL || dc == NULL) printf("digit string not determined at D = %ld\n", D);
+        else {
+            for (k = 0; dk[k] && dc[k] && dk[k] == dc[k]; k++) agree++;
+            printf("exact decimals of G_KZ (truncated, %ld):\nG_KZ = 0.", D);
+            for (k = 0; k < D; k++) { putchar(dk[k]); if ((k+1) % 50 == 0 && k+1 < D) printf("\n       "); else if ((k+1) % 10 == 0) putchar(' '); }
+            printf("\nagreement with Catalan's G: %ld of %ld decimals\n", agree, D);
+        }
+        arb_clear(GK); arb_clear(Gc); arb_clear(w);
+    }
     return 0;
 }
