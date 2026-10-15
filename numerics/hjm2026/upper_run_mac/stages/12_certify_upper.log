@@ -1,0 +1,28 @@
+{
+  "status": "FULL_REAL_GROTHENDIECK_UPPER_BOUND_ACCEPTED",
+  "degree": 681,
+  "theorem": "K_G^R < 1779893/1000000 = 1.779893",
+  "exact_strict_upper": "1779893/1000000",
+  "complete_rounding_margin_lower_ball": "[0.561831528950465003075670041184531560 +/- 9.17e-37]",
+  "reciprocal_margin_upper_ball": "[1.77989299010694537541801786810195874 +/- 1.97e-36]",
+  "strict_margin_lower": "1000000/1779893",
+  "head_margin_lower_ball": "[0.561877379945335208348602138041376608794107459 +/- 8.30e-46]",
+  "nonadditive_full_tail_upper_ball": "[3.878150168294242359355941081008929718851582767657807882318578909639e-6 +/- 8.94e-73]",
+  "rare_additive_full_tail_upper_ball": "[3.4097111321495717623759740374163093837791618e-5 +/- 6.43e-49]",
+  "heavy_additive_full_tail_upper_ball": "[7.875733380415312948981175389876e-6 +/- 8.21e-37]",
+  "atoms_covered": 32,
+  "uncovered_atoms": [],
+  "source_sha256": "7e042c037c80f416e799f345badfaacaf496f04c6bf4748bfc7ae73ff06176fe",
+  "verifier_sha256": "7099be98f6feaae4413018ab5691f7fc8312d570cfab51c61a893f50357ce6c8",
+  "component_sha256": {
+    "degree681/head_certificate.json": "7925e7913403a011fd3d4b900a48b5a8674468dd452f689096b1058c6469d777",
+    "degree681/rare_additive_tail_certificate.json": "b46ed90420677cc9b3f6d508497778a90e0dbbfe0a461672dce0f3ebb420be47",
+    "upper_tail/heavy_tail_fine_certificate.json": "f397b57aa0199a6cf8b203938d353e3070080e03641dfa8a3864dedd6e106606",
+    "weighted_staircase/nonadditive_certificate_d681.json": "3f8ee453f6f82dd804c364b530f6f78341d43e42ccfec765a79fa327bd019694"
+  },
+  "proof": "All full tails and the entire finite head are enclosed. Apply the odd-Dirichlet Neumann completion to H=c1*t+E: a complete absolute margin B>0 realizes exact linear rounding with rate at least B, hence K_G^R<=1/B.",
+  "numerical_model": "Directed Arb arithmetic plus explicit IEEE754 binary64 error bounds for the native coefficient contraction.",
+  "lower_endpoint_status": "NOT_CERTIFIED: no dimension-uniform Boolean norm upper bound for the repaired degree21 game has been obtained.",
+  "scope": "Upper bound only. This does not certify the proposed lower endpoint or a0.001 interval."
+}
+FULL_REAL_GROTHENDIECK_UPPER_BOUND_ACCEPTED=1

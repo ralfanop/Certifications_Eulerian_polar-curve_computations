@@ -1,0 +1,11 @@
+{
+  "status": "ALL_THIRTEEN_RARE_ADDITIVE_TAILS_CERTIFIED",
+  "source_sha256": "7e042c037c80f416e799f345badfaacaf496f04c6bf4748bfc7ae73ff06176fe",
+  "degree": 681,
+  "verifier_sha256": "5eec1aaaf8814350728533ad438fbb62b5f7fea4053c21ed10da3c6db8ffcbb8",
+  "native_plane_sha256": "dcf371f2ef5f9df99c9d53cd1a53c667c29479e27777a3f4b7b6ef843d8c3ff4",
+  "native_plane_metadata_sha256": "37c67e98bdc99361e299b71f4d6e83315780bf0ff7c5bd4462f9cbb193f9ac1e",
+  "whole_weighted_rare_additive_tail_upper_ball": "[3.4097111321495717623759740374163093837791618e-5 +/- 6.42e-49]",
+  "scope": "All additive atoms except indices0,15,16. The three heavy additive tails and universal lower-instance norm remain unproved."
+}
+RARE_ADDITIVE_FULL_TAIL_ACCEPTED=1

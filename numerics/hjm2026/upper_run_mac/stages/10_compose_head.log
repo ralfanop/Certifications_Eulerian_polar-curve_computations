@@ -1,0 +1,37 @@
+Composed additive atom 0; 1.5s
+Composed additive atom 1; 1.6s
+Composed additive atom 2; 3.2s
+Composed additive atom 3; 4.8s
+Composed additive atom 4; 6.4s
+Composed additive atom 5; 7.8s
+Composed additive atom 6; 9.2s
+Composed additive atom 7; 10.6s
+Composed additive atom 8; 12.3s
+Composed additive atom 9; 14.2s
+Composed additive atom 10; 16.0s
+Composed additive atom 11; 18.2s
+Composed additive atom 12; 20.5s
+Composed additive atom 13; 22.7s
+Composed additive atom 15; 24.0s
+Composed additive atom 16; 25.4s
+{
+  "status": "FINITE_ROUNDING_HEAD_CERTIFIED_ADDITIVE_TAILS_MISSING",
+  "source_sha256": "7e042c037c80f416e799f345badfaacaf496f04c6bf4748bfc7ae73ff06176fe",
+  "degree": 681,
+  "verifier_sha256": "32a8411d7cdbd3cd41613c5dc2c77d90bfded74720c9131f1e1f51e110669df3",
+  "native_plane_sha256": "dcf371f2ef5f9df99c9d53cd1a53c667c29479e27777a3f4b7b6ef843d8c3ff4",
+  "native_plane_metadata_sha256": "37c67e98bdc99361e299b71f4d6e83315780bf0ff7c5bd4462f9cbb193f9ac1e",
+  "nonadditive_certificate_sha256": "3f8ee453f6f82dd804c364b530f6f78341d43e42ccfec765a79fa327bd019694",
+  "arithmetic_precision_bits": 256,
+  "exact_normalized_additive_weight": "1315400222548137891645/1351351351351351364726",
+  "representative_linear_coefficient": "[0.5618946492549953278014826925074356338608806863700249654504192841395350884274 +/- 7.46e-77]",
+  "representative_nonlinear_head_l1": "[1.5401293314056798742006892388908678229528379068038075494011186089385815e-5 +/- 5.11e-76]",
+  "representative_head_margin": "[0.561879247961681271002740685615046725182651157990956927374925272953445702612 +/- 4.54e-76]",
+  "whole_head_l1_error": "[1.868016346062654138547573670116388543699e-6 +/- 8.20e-46]",
+  "certified_head_margin_lower_ball": "[0.561877379945335208348602138041376608794107459 +/- 8.29e-46]",
+  "after_nonadditive_tail_lower_ball": "[0.561873501795166914106242782100295599864388607 +/- 7.40e-46]",
+  "allowable_additive_tail_for_KG_below_1_78": "[7.574898617815006129896187557649874079310e-5 +/- 2.13e-45]",
+  "seconds": 25.41006302833557,
+  "scope": "The true full rate is at least after_nonadditive_tail_lower_ball minus the entire omitted additive tail. That tail is not supplied here. No K_G endpoint is certified."
+}
+FINITE_ROUNDING_HEAD_ACCEPTED=1

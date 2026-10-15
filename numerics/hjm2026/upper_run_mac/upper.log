@@ -1,0 +1,136 @@
+Fresh output: /Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr
+ALTERNATIVE_RECIPE_FROZEN 7e042c037c80f416e799f345badfaacaf496f04c6bf4748bfc7ae73ff06176fe
+Running 1/12: upper_head_681/certified_b_matrix.py
+Running 2/12: upper_head_681/contract_certified_head.py
+Running 3/12: upper_head_681/verify_plane_budget.py
+Running 4/12: weighted_staircase/certify_head.py
+Running 5/12: degree681/certify_linear_tails.py
+Running 6/12: weighted_staircase/certify_nonadditive.py
+Running 7/12: upper_tail/certify_quintic_continuation.py
+Running 8/12: upper_tail/certify_factorized_energies.py
+Running 9/12: upper_tail/certify_heavy_tail_fine.py
+Running 10/12: compose_head.py
+Running 11/12: certify_rare_additive_tails.py
+Running 12/12: certify_upper.py
+{
+  "status": "FRESH_FULL_UPPER_REGENERATION_ACCEPTED",
+  "degree": 681,
+  "seconds": 1201.602966785431,
+  "python": "/Users/rob.alfano/Downloads/RealGrothendieck/.venv/bin/python",
+  "python_flint_version": "0.9.0",
+  "stages": [
+    {
+      "stage": [
+        "upper_head_681/certified_b_matrix.py"
+      ],
+      "exit_code": 0,
+      "seconds": 16.965124130249023,
+      "log": "/Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr/work/certification/degree681/reproduction_logs/20261015T093118Z/01_certified_b_matrix.log"
+    },
+    {
+      "stage": [
+        "upper_head_681/contract_certified_head.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1075.8626148700714,
+      "log": "/Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr/work/certification/degree681/reproduction_logs/20261015T093118Z/02_contract_certified_head.log"
+    },
+    {
+      "stage": [
+        "upper_head_681/verify_plane_budget.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.8688039779663086,
+      "log": "/Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr/work/certification/degree681/reproduction_logs/20261015T093118Z/03_verify_plane_budget.log"
+    },
+    {
+      "stage": [
+        "weighted_staircase/certify_head.py",
+        "--degree",
+        "681",
+        "--prec",
+        "384"
+      ],
+      "exit_code": 0,
+      "seconds": 20.851066827774048,
+      "log": "/Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr/work/certification/degree681/reproduction_logs/20261015T093118Z/04_certify_head.log"
+    },
+    {
+      "stage": [
+        "degree681/certify_linear_tails.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2785518169403076,
+      "log": "/Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr/work/certification/degree681/reproduction_logs/20261015T093118Z/05_certify_linear_tails.log"
+    },
+    {
+      "stage": [
+        "weighted_staircase/certify_nonadditive.py",
+        "--degree",
+        "681"
+      ],
+      "exit_code": 0,
+      "seconds": 0.3354151248931885,
+      "log": "/Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr/work/certification/degree681/reproduction_logs/20261015T093118Z/06_certify_nonadditive.log"
+    },
+    {
+      "stage": [
+        "upper_tail/certify_quintic_continuation.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.281588077545166,
+      "log": "/Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr/work/certification/degree681/reproduction_logs/20261015T093118Z/07_certify_quintic_continuation.log"
+    },
+    {
+      "stage": [
+        "upper_tail/certify_factorized_energies.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.231644868850708,
+      "log": "/Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr/work/certification/degree681/reproduction_logs/20261015T093118Z/08_certify_factorized_energies.log"
+    },
+    {
+      "stage": [
+        "upper_tail/certify_heavy_tail_fine.py"
+      ],
+      "exit_code": 0,
+      "seconds": 37.11412715911865,
+      "log": "/Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr/work/certification/degree681/reproduction_logs/20261015T093118Z/09_certify_heavy_tail_fine.log"
+    },
+    {
+      "stage": [
+        "compose_head.py",
+        "--degree",
+        "681"
+      ],
+      "exit_code": 0,
+      "seconds": 26.217451095581055,
+      "log": "/Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr/work/certification/degree681/reproduction_logs/20261015T093118Z/10_compose_head.log"
+    },
+    {
+      "stage": [
+        "certify_rare_additive_tails.py",
+        "--degree",
+        "681"
+      ],
+      "exit_code": 0,
+      "seconds": 22.365161895751953,
+      "log": "/Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr/work/certification/degree681/reproduction_logs/20261015T093118Z/11_certify_rare_additive_tails.log"
+    },
+    {
+      "stage": [
+        "certify_upper.py",
+        "--degree",
+        "681"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2283010482788086,
+      "log": "/Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr/work/certification/degree681/reproduction_logs/20261015T093118Z/12_certify_upper.log"
+    }
+  ],
+  "lower_endpoint": "Not certified. This run covers only the upper endpoint."
+}
+FRESH_FULL_UPPER_REGENERATION_ACCEPTED=1
+FRESH_COMPLETE_UPPER_CERTIFICATE_VERIFIED=1
+CERTIFIED_KG_UPPER=1779893/1000000
+RESULT=/Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr/VERIFIED.json

@@ -1,0 +1,21 @@
+{
+  "status": "DIRECTED_FINITE_NATIVE_COEFFICIENT_PLANE",
+  "D": 681,
+  "candidate_sha256": "e224ea8b723929b758cd0f5cee2c528f139028417091c30cb9fe9aab0563d19a",
+  "sum_computed_C": 0.9801378203638923,
+  "plane_l1_error": "[6.0788795640740566123723170878279624445e-8 +/- 2.07e-46]",
+  "fft_plane_l1_error": "[5.6687083841935341810207389525549459512e-8 +/- 5.72e-46]",
+  "contraction_l1_error": "[3.2821821623429716649008459641982450069e-9 +/- 5.36e-47]",
+  "pruning_l1_error": "[5.7915278372156754389740111071781905623e-14 +/- 6.40e-52]",
+  "whole_kernel_cutoff_error": "[1.858282199123213308520375660566791334370e-6 +/- 3.84e-46]",
+  "seconds": 1074.582043170929,
+  "arithmetic_model": "IEEE754 binary64 round-to-nearest; explicit radix-two butterflies, Arb-certified twiddles, ordinary optimize=False einsum sums. See source for forward-error constants.",
+  "precision_bits_error_budget": 256,
+  "FFT_derived_per_pair_l1_error": "[2.2222460624253674699223548221580983958e-11 +/- 1.32e-49]",
+  "FFT_allocated_per_pair_l1_error": "[2.27373675450878165832055095742899448091e-9 +/- 8.14e-48]",
+  "FFT_allocation_passed": true,
+  "plane_sha256": "dcf371f2ef5f9df99c9d53cd1a53c667c29479e27777a3f4b7b6ef843d8c3ff4",
+  "input_array_sha256": "d61e81d53bafb20897dacb61a753b06558a53e47e2b006f337c0ff3522c4798d",
+  "input_metadata_sha256": "d3775ce28c5f2a98f5c21e3238f43b69f5d5367eb3d9e5f536d4c1c6cfd1f7e1",
+  "error_verifier_sha256": "9c270e48ab29cc77604464109b051692ea12746228db3533372e85e28cdca42b"
+}

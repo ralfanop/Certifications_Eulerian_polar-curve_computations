@@ -1,0 +1,12 @@
+{
+  "status": "NONADDITIVE_HEAD_AND_FULL_TAIL_COMPONENT_CERTIFIED",
+  "source_sha256": "7e042c037c80f416e799f345badfaacaf496f04c6bf4748bfc7ae73ff06176fe",
+  "degree": 681,
+  "precision_bits": 384,
+  "atom_count": 16,
+  "verifier_sha256": "357c51b784a47e6754862e8b73fc625494b3c68cfde35e3f87402bae783a670d",
+  "full_tail_upper_ball": "[3.878150168294242359355941081008929718851582767657807882318578909639e-6 +/- 8.93e-73]",
+  "full_tail_strict_upper": "729318/125000000000",
+  "scope": "All fifteen linear atoms and the staircase replacement atom. No additive coefficients or additive tails are included. No K_G endpoint is certified."
+}
+NONADDITIVE_HEAD_AND_FULL_TAIL_ACCEPTED=1

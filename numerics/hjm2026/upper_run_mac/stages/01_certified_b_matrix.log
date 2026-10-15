@@ -1,0 +1,35 @@
+{'status': 'DIRECTED_QUADRATURE_PLAN_ONLY_NO_COEFFICIENTS_YET', 'candidate_sha256': 'e224ea8b723929b758cd0f5cee2c528f139028417091c30cb9fe9aab0563d19a', 'precision_bits': 512, 'D': 681, 'L': '7.3', 'T': '32', 'inner_gauss_order': 32, 'outer_gauss_order': 24, 'inner_nodes_positive_half': 1600, 'outer_nodes': 768, 'inner_vector_quadrature_error': '[3.288380170603703943913296770331964699035e-12 +/- 3.64e-52]', 'outer_Hilbert_quadrature_error': '[2.917598329141818973556487066157313401634e-10 +/- 6.57e-51]', 'outer_analytic_bound': '[320.7933288071259196768614593994918259518 +/- 4.94e-38]', 'tilted_J0_bound': '[2.262302379286888332165253760377773777781 +/- 8.28e-41]', 'tilted_J2_bound': '[2023.738286187421382923685302269072037509 +/- 3.45e-37]', 'W_projection_Fourier_tail_Hilbert': '[8.228745130280608712123538961882815017661e-18 +/- 4.71e-58]', 'whole_kernel_cutoff_error': '[1.858282199123213308520375660566791334370e-6 +/- 3.84e-46]'}
+inner data prepared 1600 seconds 5.915018081665039
+outer nodes 0 seconds 5.9795920848846436
+outer nodes 64 seconds 6.644481182098389
+outer nodes 128 seconds 7.302512168884277
+outer nodes 192 seconds 7.949584007263184
+outer nodes 256 seconds 8.60820722579956
+outer nodes 320 seconds 9.329076051712036
+outer nodes 384 seconds 9.98197603225708
+outer nodes 448 seconds 10.645549058914185
+outer nodes 512 seconds 11.307535171508789
+outer nodes 576 seconds 11.96835994720459
+outer nodes 640 seconds 12.632334232330322
+outer nodes 704 seconds 13.292747974395752
+{
+  "status": "CERTIFIED_B_MATRIX_INPUTS_FULL_CONTRACTION_PENDING",
+  "D": 681,
+  "nodes": 768,
+  "inner_nodes_positive_half": 1600,
+  "candidate_sha256": "e224ea8b723929b758cd0f5cee2c528f139028417091c30cb9fe9aab0563d19a",
+  "B_vector_error": "[5.604655228361578772488011310485008856532e-12 +/- 3.89e-52]",
+  "B_norm_bound": "[1.000000000005604655228361578772488011310 +/- 4.86e-40]",
+  "observed_float_B_norm": 0.9999999999998438,
+  "V_rounding_vector_error": "[3.050177189723511672411658096242403400936e-16 +/- 1.59e-56]",
+  "V_sum_vector_norms": "[6.454332802795004859977246364289404916454 +/- 1.75e-40]",
+  "U_total_l1_error": "[1.092870488954583536068652529375542301663e-15 +/- 6.45e-56]",
+  "U_l1_squares_sum": "[61.51537673192036042099858126605475237395 +/- 4.46e-39]",
+  "U_l1_sum": "[26.90461021689649136094955661384623131482 +/- 4.95e-39]",
+  "A_Hilbert_error": "[4.096939258128557800631238593043539951270e-10 +/- 3.75e-50]",
+  "plane_l1_quadrature_error": "[8.193878517935606729741974942554384327951e-10 +/- 4.82e-50]",
+  "plane_l1_U_input_error": "[8.386939012630161734448151080579827863975e-14 +/- 2.64e-54]",
+  "whole_kernel_cutoff_error": "[1.858282199123213308520375660566791334370e-6 +/- 3.84e-46]",
+  "seconds": 16.4029221534729,
+  "arithmetic_assumption": "Binary64 round-to-nearest; each einsum output is the displayed N-term ordinary sum, with at most N multiplications and N additions; FMA reduces the same bound. All transcendental inputs evaluated by Arb."
+}

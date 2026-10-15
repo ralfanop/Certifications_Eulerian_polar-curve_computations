@@ -64,17 +64,18 @@ The driver stopped only afterwards, while writing the environment record: `impor
 
 - **Lemma 2.1 (checked by hand).** For any randomized rounding with E[x̃ỹ] = H(⟨u,v⟩) = Σ c_m t^m, applied to SDP-optimal vectors, OPT(A) ≥ (c_1 − Σ_{m≥3} |c_m|) SDP(A), using ±(u^{⊗m}, v^{⊗m}). It needs no Krivine preprocessing.
 - **The rounding algorithm of Section 4.2 (checked by hand).** It is explicit: a signed tensor realization of the 31 polynomials P_i, with ‖P_i‖_A ≤ 1, and shared Gaussian vectors. The formula (C.2), H_i(t) = Σ C[a,b] P_i(t)^a (−t)^b, follows from Mehler's formula. The bound therefore does not need the asymptotic-space results (Theorem 3.2, which rests on the preprint HMP24 and the unpublished Jon26).
-- **Numerical part (claimed, not yet checked).** This covers:
-  - the head up to degree 681 (Lemma C.1, Claim 1);
-  - the truncation bound (C.6);
-  - the tails (C.30), (C.38) and (C.40), with Claims 2–9.
-
-  The authors' verifier needs python-flint and, by their account, about 12–16 GB of memory. Our machine has 7 GB and no PyPI access, so it was not run here.
+- **Numerical part (re-executed, `upper_run_mac/`).** We ran `python verify.py --upper` on 15 Oct 2026 on the author's MacBook Pro: Intel x86_64, 32 GB, macOS 15.8.1, Python 3.12.15, NumPy 2.3.5, python-flint 0.9.0. The same three documentation-hash corrections were needed, plus `upper/MANIFEST.sha256` (README.md); no source or data file was changed.
+  - All 12 stages completed in about 20 minutes (1202 s): `FRESH_COMPLETE_UPPER_CERTIFICATE_VERIFIED=1`, `CERTIFIED_KG_UPPER=1779893/1000000`.
+  - Margin c₁ − Σ_{m≥3}|c_m| ≥ 0.5618315289504650030756700411845 (± 9·10⁻³⁷), so K_G ≤ 1.7798929901069453754 < 1.779893.
+  - Components: head through degree 681 ≥ 0.561877379945335208; non-additive tail ≤ 3.8782·10⁻⁶; rare additive tail ≤ 3.40972·10⁻⁵; heavy additive tail ≤ 7.8758·10⁻⁶. These agree with the values printed in Theorem 4.2.
+  - The 256-bit Fourier-tail check (C.22) passes: 2.72·10⁻¹⁸ < 3·10⁻¹⁸.
+  - Note: the upper package's own final log still states `lower_endpoint_status: NOT_CERTIFIED` for the degree-21 game. That text comes from the upper package, which predates the separate lower certificate (re-executed above).
+  - **Status:** reduction checked by hand; numerical certificate re-executed. The analytic claims of Appendix C (Claims 1–9) are implemented in the verifier, but we have not checked them by hand. Method and code are the authors'.
 
 ## Summary
 
 | Statement | Status |
 |---|---|
 | K_G ≥ 1.773 | analytic chain checked by hand; authors' certificate re-executed and accepted |
-| K_G < 1.779893 | reduction checked by hand; numerical certificate **claimed** (not run, not checked) |
+| K_G < 1.779893 | reduction checked by hand; authors' certificate re-executed (on the author's Mac) and accepted; Appendix C claims not checked by hand |
 | K_G ≈ 1.779 | heuristic, by the authors' own description |

@@ -1,0 +1,22 @@
+Integrated 512/2048 strips; 5.2s
+Integrated 1024/2048 strips; 10.6s
+Integrated 1536/2048 strips; 15.7s
+Integrated 2048/2048 strips; 20.6s
+{
+  "status": "FIXED_STAIRCASE_HEAD_AND_FULL_TAIL_CERTIFIED",
+  "precision_bits": 384,
+  "degree": 681,
+  "source_sha256": "2d9a68c3ea888090e3dd2633dd89d9559aa3849a3e4d2c488971f4934d319528",
+  "source": "/Users/rob.alfano/Downloads/RealGrothendieck/runs/complete-dw_vq93x/upper_results/run-htugp0dr/work/competitors/staircase_3_5.json",
+  "verifier_sha256": "f8d3f60111d62973a8a0eea15754a5d318810d1664665340c83b3b6f141c5232",
+  "original_recipe_sha256": "e224ea8b723929b758cd0f5cee2c528f139028417091c30cb9fe9aab0563d19a",
+  "indices": 7843,
+  "included_energy": "[0.96484170146617958449825037428271995585016901584770044671101109695579604031033647034 +/- 2.13e-84]",
+  "head_l1": "[0.86377972100614199663373682471109329644946261464543324887532011231522861640959657222 +/- 2.41e-84]",
+  "full_tail_upper_ball": "[0.03515829853382041550174962571728004414983098415229955328898890304420395968966352966 +/- 2.13e-84]",
+  "exact_normalized_weight": "892199070421725000/25000000000000000247431",
+  "weighted_full_tail_upper_ball": "[1.2547280507793628558556559133156867375374909219736074576736381332922448000842499086e-6 +/- 7.48e-89]",
+  "seconds": 20.63479495048523,
+  "proof_scope": "Only the separately specified staircase replacement component. No complete rounding endpoint or universal game norm is certified."
+}
+FIXED_STAIRCASE_HEAD_AND_FULL_TAIL_ACCEPTED=1
