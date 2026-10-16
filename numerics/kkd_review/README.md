@@ -22,3 +22,11 @@ These are numerical checks for an adversarial review, made with mpmath. They are
 python3 -I kkd_checks.py > kkd_checks.log
 python3 -I n_growth.py > n_growth.log
 ```
+
+## Correction (16 October 2026)
+
+An earlier version of this review said that (86) was wrong by a factor 2 and that "fundamental unit of norm 1" was wrong. Both statements were mistaken. In Edwards, *Fermat's Last Theorem* (1977), §9.3, p. 349, D is the squarefree *determinant*, and E is the fundamental unit **with norm 1**: E = ε if N(ε) = 1, and E = ε² if N(ε) = −1.
+
+For D = 2 this gives ε = 1+√2, which has norm −1, so E = (1+√2)² = 3+2√2. Then log E/(2√2) = log(1+√2)/√2, and (86) is correct. Likewise (88) is Edwards' formula for D < 0 on p. 346, with h = 1; it is correct.
+
+Two terminology points remain. In the paper, "fundamental discriminant D = ±2" should read "squarefree determinant D = ±2, in Edwards' convention". For D = −2, the phrase "fundamental unit E of norm 1" has no role, because no unit enters the formula when D < 0.

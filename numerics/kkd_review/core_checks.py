@@ -2,8 +2,10 @@
 from mpmath import mp, sqrt, log, pi, sin, cos, quad, hyp2f1, hyp3f2, zeta, atan, exp, inf
 mp.dps = 30
 L = log(1 + sqrt(2))
-print('(86) printed log E/(2 sqrt D), D=2 :', L/(2*sqrt(2)), '  L(1,chi_8) =', L/sqrt(2), '  2 log E/sqrt 8 =', 2*L/sqrt(8))
-print('N(1+sqrt2) =', (1+sqrt(2))*(1-sqrt(2)), '  (the fundamental unit has norm -1)')
+E = (1+sqrt(2))**2   # Edwards (1977) p. 349: E = eps^2 = 3 + 2 sqrt2, the fundamental unit of norm +1, since N(1+sqrt2) = -1
+print('N(1+sqrt2) =', (1+sqrt(2))*(1-sqrt(2)), '  E = (1+sqrt2)^2 =', E, '  N(E) =', (3+2*sqrt(2))*(3-2*sqrt(2)))
+print('(86) log E/(2 sqrt D), D = 2 (Edwards p. 349) :', log(E)/(2*sqrt(2)), '  L(1,chi_8) =', L/sqrt(2))
+print('(88) pi/(2 sqrt|D|), D = -2, h = 1 (Edwards p. 346) :', pi/(2*sqrt(2)))
 print('(87) int_0^{pi/2} sin^2/(sin+cos) =', quad(lambda x: sin(x)**2/(sin(x)+cos(x)), [0, pi/2]))
 print('(67)-(70) 2F1(1)/2F1(-1) =', hyp2f1(0.5, 0.5, 1.5, 1)/hyp2f1(0.5, 0.5, 1.5, -1), '  pi/(2L) =', pi/(2*L))
 print('(77) (2/3) 3F2(3/4,3/4,5/4;3/2,7/4;1) =', 2*hyp3f2(0.75, 0.75, 1.25, 1.5, 1.75, 1)/3, '  pi-2L =', pi-2*L)
