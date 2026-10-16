@@ -1,0 +1,41 @@
+import sys  # requires mpmath
+from mpmath import *
+mp.dps = 80
+L = log(1+sqrt(2)); K = pi/(2*L)
+chi8  = lambda n: {1:1,3:-1,5:-1,7:1}.get(n%8,0)
+chim8 = lambda n: {1:1,3:1,5:-1,7:-1}.get(n%8,0)
+Lfun = lambda chi, s: mpf(8)**(-s)*fsum(chi(a)*zeta(s, mpf(a)/8) for a in range(1,8))
+L8  = Lfun(chi8,  1+mpf(10)**-25)   # L(1,chi_8) via Hurwitz zeta (pole cancels)
+Lm8 = Lfun(chim8, 1+mpf(10)**-25)   # L(1,chi_-8)
+print('L(1,chi8) =', L8, ' log(1+sqrt2)/sqrt2 =', L/sqrt(2))
+print('L(1,chi-8)=', Lm8, ' pi/sqrt8 =', pi/sqrt(8))
+print('Krivine = Lm8/L8 :', Lm8/L8, K)
+S0 = nsum(lambda n: (-4)**n/((2*n+1)**2*binomial(2*n,n)), [0,inf])
+print('S0 =', S0, ' pi^2/8 - L^2/2 =', pi**2/8 - L**2/2, ' Lm8^2-L8^2 =', Lm8**2-L8**2)
+print('digamma form:', (psi(0,mpf(7)/8)-psi(0,mpf(3)/8))*(psi(0,mpf(5)/8)-psi(0,mpf(1)/8))/16)
+print('(2.73) (psi(7/8)-psi(3/8))/sqrt2 =', (psi(0,mpf(7)/8)-psi(0,mpf(3)/8))/sqrt(2), ' pi-2L =', pi-2*L)
+print('(2.143) sum (-4)^n/((2n+1)C) =', nsum(lambda n: (-4)**n/((2*n+1)*binomial(2*n,n)), [0,inf]), ' L/sqrt2 =', L/sqrt(2))
+P = sqrt(2)+L; print('Thm 2.31: 1 - P/sqrt2 =', 1-P/sqrt(2), ' sigma0 =', L/sqrt(2))
+print('(2.141) int (1-erf^2) =', quad(lambda x: 1-erf(x)**2, [-inf,0,inf]), ' 8/pi =', 8/pi, ' sqrt(8/pi) =', sqrt(8/pi))
+print('(2.136) a0 claimed via erf:', L*quad(lambda x: 1-erf(x)**2, [-inf,0,inf]), ' a0=(8/pi)L =', 8/pi*L)
+FB = 1 + nsum(lambda n: (binomial(2*n,n)/4**n)**2 - 1/(pi*n), [1,inf]); print('(2.199) Finch-Borwein =', FB, ' (4/pi)log2 =', 4/pi*log(2), ' draft 0.88524')
+print('Lemma 2.42: sum C/20^n =', nsum(lambda n: binomial(2*n,n)/mpf(20)**n,[0,inf]), ' L5(1)/log phi =', (2/sqrt(5)*log((1+sqrt(5))/2))/log((1+sqrt(5))/2))
+print('(A.4) sqrt2*sqrt(L8(2)) =', sqrt(2)*sqrt(pi**2/(8*sqrt(2))), ' vs pi/sqrt8 =', pi/sqrt(8))
+print('(A.9) sum sech^2((2n-1)pi/2) =', nsum(lambda n: sech((2*n-1)*pi/2)**2,[1,inf]), ' 1/(2pi) =', 1/(2*pi))
+# Stieltjes combination = zeta(2,1/8)-zeta(2,3/8)-zeta(2,5/8)+zeta(2,7/8)
+comb = zeta(2,mpf(1)/8)-zeta(2,mpf(3)/8)-zeta(2,mpf(5)/8)+zeta(2,mpf(7)/8)
+print('(2.27) Stieltjes combination = Hurwitz combo =', comb, ' sqrt32 pi^2 =', sqrt(32)*pi**2, ' 4pi^2*sqrt2 check')
+print('Example 2.5 gamma_1(1/8) =', stieltjes(1, mpf(1)/8), ' draft -16.64171976')
+#: gamma + L'(1,chi8)/L(1,chi8)
+#Lp = diff(lambda s: nsum(lambda k: sum(chi8(n)/mpf(n)**s for n in range(8*int(k)+1,8*int(k)+9)),[0,inf]), 1)
+#print('gamma_Q(sqrt2) = gamma + L\'/L =', euler + Lp/L8, ' draft (C.6) 1.20933063094138118664')
+#Rcomb_needed = (euler + Lp/L8 - log(2*pi*exp(euler)))*2*L
+#print('(C.1) implied R-combination =', #Rcomb_needed)
+print('(1.5) minimal polynomial x^2-2x+1/2 roots:', polyroots([1,-2,0.5]), ' sigma0 =', L/sqrt(2))
+print('(2.234) Lehmer sum n^2 C x^n at 1/8 =', nsum(lambda n: n**2*binomial(2*n,n)/mpf(8)**n,[1,inf]), ' 5/(2sqrt2) =', 5/(2*sqrt(2)))
+print('Prop 2.44: zeta3 - mu(H) =', zeta(3)-mpf('1.20203976149065128'))
+
+# Heilman gap: K_R - pi/(2(L+delta0)) equals pi*delta0/(2L(L+delta0)), a LOWER bound for K_R - K_G
+mp.dps = 500
+d0 = mpf('4.07123102832e-457'); L = log(1+sqrt(2))
+print('pi*d0/(2L(L+d0)) =', nstr(pi*d0/(2*L*(L+d0)), 6), '; K_R - pi/(2(L+d0)) =', nstr(pi/(2*L) - pi/(2*(L+d0)), 6))
