@@ -30,3 +30,21 @@ An earlier version of this review said that (86) was wrong by a factor 2 and tha
 For D = 2 this gives ε = 1+√2, which has norm −1, so E = (1+√2)² = 3+2√2. Then log E/(2√2) = log(1+√2)/√2, and (86) is correct. Likewise (88) is Edwards' formula for D < 0 on p. 346, with h = 1; it is correct.
 
 Two terminology points remain. In the paper, "fundamental discriminant D = ±2" should read "squarefree determinant D = ±2, in Edwards' convention". For D = −2, the phrase "fundamental unit E of norm 1" has no role, because no unit enters the formula when D < 0.
+
+## The three conventions for the class number formula (checked 16 October 2026)
+
+All three sources give the same values for K = ℚ(√2) and ℚ(√−2): L(1,χ₈) = log(1+√2)/√2 and L(1,χ₋₈) = π/√8. They differ only in notation.
+
+- **Edwards (1977), §§9.2–9.3, pp. 346 and 349.**
+  - D is the squarefree *determinant* (Gauss's form ax² + 2bxy + cy²).
+  - For D > 0, D ≢ 1 mod 4: h·log E/(2√D) = Σ(D/n)/n, with E the unit of norm +1, so E = (1+√2)² for D = 2.
+  - For D < 0: hπ/(2√|D|) = Σ(D/n)/n.
+- **Finch, *Mathematical Constants II* (2018), §1.12.**
+  - Table 1.1 (p. 79): the squarefree m = ±2 corresponds to the fundamental discriminant D = ±8.
+  - p. 86: L(D) = πh(D)/√(−D) for D < −4, and 2h(D)·ln ε/√D for D > 4, with ε the fundamental unit.
+  - h⁺(D)·ln ε⁺ = 2h(D)·ln ε.
+- **Halter-Koch, *Class Field Theory and L Functions* (2022), Corollary 7.1.10, p. 457.**
+  - Res_{s=1} ζ_K(s) = 2^{r₁}(2π)^{r₂}·R_K·h_K/(w_K√|d_K|), with regulator R_K = log ε.
+  - For ℚ(√2): 4·log(1+√2)/(2√8) = log(1+√2)/√2. For ℚ(√−2): 2π/(2√8) = π/√8.
+
+**Consequence.** K_R = L(1,χ₋₈)/L(1,χ₈) = π/(2R_{ℚ(√2)}), since h(±8) = 1 and w = 2. In KKD's own Edwards notation this is K_R = π/log E.
