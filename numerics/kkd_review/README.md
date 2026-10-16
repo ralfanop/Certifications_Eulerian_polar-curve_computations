@@ -65,3 +65,5 @@ All three sources give the same values for K = ℚ(√2) and ℚ(√−2): L(1,�
 ```
 python3 tjm_corrections_check.py > tjm_corrections_check.log   # needs mpmath
 ```
+
+**(4) corrected from König (2001), pp. 187–190 (16 October 2026).** Assuming König's conjecture, K_G ≥ I_n/J_n = K_R · Γ((n+1)/2)² ₂F₁(1/2,1/2;n/2+1;−1)/(Γ(n/2)Γ(n/2+1)). The last line of `tjm_corrections_check.log` shows that this equals 1 for n = 1 and increases to K_R.

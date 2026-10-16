@@ -24,3 +24,8 @@ mp.dps = 500
 d0 = mpf('4.07123102832e-457')
 L = log(1 + sqrt(2)); KR = pi/(2*L)
 print('(13) pi d0/(2L(L+d0)) =', nstr(pi*d0/(2*L*(L+d0)), 6), '= K_R - pi/(2(L+d0)) =', nstr(KR - pi/(2*(L+d0)), 6))
+# (4), corrected from Konig 2001, pp. 189-190: K_R * Gamma((n+1)/2)^2 2F1(1/2,1/2;n/2+1;-1) / (Gamma(n/2) Gamma(n/2+1))
+from mpmath import gamma, hyp2f1
+mp.dps = 20
+KR4 = pi/(2*log(1 + sqrt(2)))
+print('(4) corrected, n = 1, 2, 3, 10, 100, 10^6:', [nstr(KR4*gamma((n+1)/mpf(2))**2*hyp2f1(0.5, 0.5, n/mpf(2)+1, -1)/(gamma(n/mpf(2))*gamma(n/mpf(2)+1)), 10) for n in (1, 2, 3, 10, 100, 10**6)], ' K_R =', nstr(KR4, 10))
