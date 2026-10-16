@@ -8,6 +8,7 @@ Status: **certified by us** (15 Oct 2026). The identities are classical; what we
 | `series_arb.c`, `series_arb.log` | (D), (E) | Arb ball arithmetic (FLINT 3.3.1) |
 | `haagerup_k0.c`, `haagerup_k0.log` | (F) | Arb ball arithmetic |
 | `sprugnoli_arb.c`, `sprugnoli_arb.log` | (G) | Arb ball arithmetic |
+| `constants100.c`, `constants100.log` | (H) | Arb ball arithmetic, 1200 bits |
 
 ## (A) Type-B Catalan numbers are Hermite values at 0
 
@@ -54,6 +55,10 @@ The uniqueness of k₀ in (0,1) is taken from Haagerup's theorem, not checked he
 
 In the proof (p. 8) the generating function is evaluated at z = i√2/2 = z₀. The terms alternate in sign and their moduli decrease, so the value lies between two consecutive partial sums (Leibniz). With N = 2²⁴ the enclosures are −1.246 ± 6.7·10⁻⁴ for the first series, which converges like N^{−1/2}, and −1.5536387998 ± 2.2·10⁻¹¹ for the second. Both contain the closed forms. This is a consistency check of a published theorem, not a high-precision evaluation.
 
+## (H) 100 certified decimals of every constant
+
+`constants100.c` encloses each constant in a ball at 1200 bits and prints floor(10^100 x) only when every point of the ball gives the same value (`arb_get_unique_fmpz`), so all 100 printed decimals are exact (truncated, not rounded). The constants are π/(2 log(1+√2)) (Krivine's bound), log(1+√2) = arcsinh 1, c = (2/π) log(1+√2), Sprugnoli's √2 log(√2−1) and −2 log(1+√2)², |z₀| = 1/√2, k₀, 8/(π(k₀+1)) (Haagerup's bound), φ_ℂ(k₀) = π(k₀+1)/8, and 8/π − 1. φ_ℂ is evaluated as (π/4) k ₂F₁(½, ½; 2; k²) with `arb_hypgeom_2f1`, and k₀ is isolated by 420 bisection steps with certified signs (uniqueness of k₀ in (0,1) is Haagerup's). Run time about 1 s.
+
 ## Reproduce
 
 ```
@@ -64,4 +69,6 @@ gcc -O2 -I$FLINT/include haagerup_k0.c -o haagerup_k0 -L$FLINT/lib -Wl,-rpath,$F
 ./haagerup_k0 > haagerup_k0.log
 gcc -O2 -I$FLINT/include sprugnoli_arb.c -o sprugnoli_arb -L$FLINT/lib -Wl,-rpath,$FLINT/lib -lflint -lmpfr -lgmp -lm
 ./sprugnoli_arb > sprugnoli_arb.log
+gcc -O2 -I$FLINT/include constants100.c -o constants100 -L$FLINT/lib -Wl,-rpath,$FLINT/lib -lflint -lmpfr -lgmp -lm
+./constants100 > constants100.log
 ```
