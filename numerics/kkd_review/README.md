@@ -48,3 +48,20 @@ All three sources give the same values for K = ℚ(√2) and ℚ(√−2): L(1,�
   - For ℚ(√2): 4·log(1+√2)/(2√8) = log(1+√2)/√2. For ℚ(√−2): 2π/(2√8) = π/√8.
 
 **Consequence.** K_R = L(1,χ₋₈)/L(1,χ₈) = π/(2R_{ℚ(√2)}), since h(±8) = 1 and w = 2. In KKD's own Edwards notation this is K_R = π/log E.
+
+## Checks of the corrected TJM version (16 October 2026)
+
+`tjm_corrections_check.py` (log: `tjm_corrections_check.log`) checks the statements as corrected in the TJM transposition:
+
+- the sign–sign integral over the whole plane equals 4 × the quadrant value = √8 log(1+√2) = I₁, so (5)–(6) and (27), (28), (50), (63) integrate over ℝ²;
+- (93) holds with exponent −2: 16P_A/(∫(1−erf²))² = 1;
+- (18) and (20) are equalities;
+- (45) and (55), written as quotients, agree with (43);
+- (89) is the principal character modulo 2: 3ζ(2)/4 = π²/8;
+- H₂ = 3/2;
+- K_R − 1.676956674 ≈ 0.10526, so K_R − K_G < 0.106 by the Davie–Reeds lower bound;
+- πδ₀/(2L(L+δ₀)) = K_R − π/(2(L+δ₀)) ≈ 8.23·10⁻⁴⁵⁷, a lower bound for K_R − K_G.
+
+```
+python3 tjm_corrections_check.py > tjm_corrections_check.log   # needs mpmath
+```

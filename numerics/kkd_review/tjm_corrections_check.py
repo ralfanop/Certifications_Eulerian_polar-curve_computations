@@ -1,0 +1,26 @@
+# Numerical checks of the corrected statements in the TJM version of KKD (16 October 2026). Requires mpmath.
+from mpmath import mp, mpf, sqrt, log, pi, exp, erf, erfi, quad, inf, zeta, diff, euler, nstr
+mp.dps = 30
+L = log(1 + sqrt(2)); KR = pi/(2*L)
+inner = lambda x: sqrt(pi/2)*exp(-x**2/2)*erfi(x/sqrt(2))
+quadrant = quad(lambda x: exp(-x**2/2)*inner(x), [0, inf])
+print('(6) whole plane, f=g=sign = 4*quadrant:', 4*quadrant, ' I1 = sqrt8 L =', sqrt(8)*L)
+print('(7) quadrant, f=g=1 :', quadrant, ' M0 =', L/sqrt(2))
+I = quad(lambda x: 1 - erf(x)**2, [-inf, 0, inf])
+print('(93) 16 P_A / (int)^2 =', 16/(2*pi)/I**2, '  (should be 1)')
+Lm8 = pi/sqrt(8); L8 = L/sqrt(2)
+print('(18) L_{-8}/L_8 - K_R =', Lm8/L8 - KR)
+print('(20) (1-KR)/(1+KR) - (L8-Lm8)/(Lm8+L8) =', (1-KR)/(1+KR) - (L8-Lm8)/(Lm8+L8))
+R = lambda x: -diff(lambda s: zeta(s, x), 0, 2)
+Rs = R(mpf(1)/8) - R(mpf(3)/8) - R(mpf(5)/8) + R(mpf(7)/8)
+g8 = log(2*pi) + 2*euler + Rs/(2*L)
+print('(43) gamma_8 =', g8, ' (44) prints 1.20933063094138118664...')
+print('(55) Rsum/(sqrt8 (g8 - log(2 pi e^{2gamma}))) - M0 =', Rs/(sqrt(8)*(g8 - log(2*pi) - 2*euler)) - L8)
+print('(45) pi (g8 - log(2 pi e^{2gamma}))/Rsum - K_R =', pi*(g8 - log(2*pi) - 2*euler)/Rs - KR)
+print('(89) sum over odd n of 1/n^2 (principal character mod 2) =', zeta(2)*3/4, ' pi^2/8 =', pi**2/8)
+print('H_2 =', 1 + mpf(1)/2)
+print('K_R - 1.676956674 =', KR - mpf('1.676956674'))
+mp.dps = 500
+d0 = mpf('4.07123102832e-457')
+L = log(1 + sqrt(2)); KR = pi/(2*L)
+print('(13) pi d0/(2L(L+d0)) =', nstr(pi*d0/(2*L*(L+d0)), 6), '= K_R - pi/(2(L+d0)) =', nstr(KR - pi/(2*(L+d0)), 6))
