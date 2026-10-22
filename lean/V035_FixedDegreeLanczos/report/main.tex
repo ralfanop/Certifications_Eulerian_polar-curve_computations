@@ -1,0 +1,367 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,amsmath,amssymb,amsthm,booktabs,array,longtable}
+\usepackage[margin=24mm]{geometry}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+\usepackage{microtype}
+\usepackage{enumitem}
+\setlist{itemsep=2pt,topsep=4pt,parsep=0pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlength{\abovedisplayskip}{7pt}
+\setlength{\belowdisplayskip}{7pt}
+\newcommand{\E}{\mathbb E}
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newcommand{\He}{\mathrm{He}}
+\newtheorem{proposition}{Proposition}
+\title{V033: Independent adversarial verification\\
+\large Exact Lanczos coefficients and fixed-degree two-term asymptotics}
+\author{Verification report}
+\date{21 October 2026: formalisation update}
+\begin{document}
+\maketitle
+\begin{abstract}
+All twelve supplied rational functions, for $5\leq j\leq16$, agree identically with an independent exact reconstruction. No mathematical error was found in their coefficients, scalar factors, parity construction, or the stated fixed-degree two-term theorem. The latter has a valid proof for every fixed $j$, with a genuine $O_j(M^{-1})$ remainder. Lean 4 now verifies the all-degree asymptotic statement as well as the finite certificates. The formal proof connects actual independent uniform variables to exact cumulant polynomials, controls the denominator and remainder, and derives the determinant representation from the defining monic recurrence. Originality is not certified: the displayed terms already appear in Milovanovi\'c's Conjecture~2.
+\end{abstract}
+
+\section{Scope and verdicts}
+The targets are the supplied files:
+\begin{itemize}
+\item \texttt{V033\_Lanczos\_exact.js};
+\item \texttt{V033\_Lanczos\_beta5\_beta16\_exact.json};
+\item \texttt{V033\_Two\_Term\_Theorem.tex}.
+\end{itemize}
+The V032 page-reflow archive is recorded by SHA-256 as a baseline, not used as independent mathematical evidence. The original files and V032 have not been edited. Full input hashes accompany the report.
+
+Here $S_M=\sum_{\ell=1}^M U_\ell$, where the $U_\ell$ are independent and uniform on $[-1/2,1/2]$, and $M\in\N$, $M\geq1$. The recurrence is monic:
+\[
+P_{j+1}(x)=xP_j(x)-\beta_j^{[M]}P_{j-1}(x),\qquad P_0=1,\quad P_1=x.
+\]
+The off-diagonal coefficient in the orthonormal Jacobi matrix is $\sqrt{\beta_j^{[M]}}$, not $\beta_j^{[M]}$.
+
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{.32\linewidth}>{\raggedright\arraybackslash}p{.23\linewidth}>{\raggedright\arraybackslash}p{.39\linewidth}@{}}
+\toprule Claim & Classification & Evidence / qualification\\ \midrule
+\endfirsthead
+\toprule Claim (continued) & Classification & Evidence / qualification\\ \midrule
+\endhead
+Even moments and normalisation & verified & Independent occupancy derivation; polynomial checks through order 32; Lean certificates.\\
+Parity-Hankel construction & verified & Gram determinant factorisation; independently recomputed blocks, primitive factors and scalars.\\
+Twelve rational functions & verified & Symbolic Stieltjes reconstruction, orthogonality checks and norm-ratio identities.\\
+Legendre identity at $M=1$ & verified & General Legendre proof; exact checks for all twelve functions.\\
+Other integer specialisations & verified & Independent full Gram--Schmidt for $M=1,2,3,4,5,10$, through degree 16.\\
+Two-term theorem, every fixed $j$ & verified & General moment-functional perturbation proof in Section~5.\\
+Remainder estimate & verified with qualifications & Constant and threshold depend on $j$; no growing-degree uniformity.\\
+All-$j$ probability/asymptotic statement in Lean & verified & Actual uniform integrals, eventual invertibility, quantitative remainder and the defining monic recurrence are connected; see Section~6 for the exact formal scope.\\
+Originality / priority & unresolved & Prior conjecture and computations must be acknowledged; this is not an exhaustive priority search.\\
+\bottomrule
+\end{longtable}
+No claim actually stated in the V033 theorem was found false. This verdict does not extend to other asymptotic regimes or constitute a fresh audit of every claim in V032.
+
+\section{Independent moment derivation}
+Direct integration gives
+\[
+\begin{gathered}
+\E U^{2r}=\frac{1}{4^r(2r+1)},\qquad \E U^{2r+1}=0,\\[5pt]
+A(t):=\E e^{tU}=\frac{\sinh(t/2)}{t/2}
+=\sum_{r\geq0}\frac{t^{2r}}{4^r(2r+1)!}.
+\end{gathered}
+\]
+The value at $t=0$ is interpreted by continuity. Independence gives
+$\E e^{tS_M}=A(t)^M$; symmetry alone would not suffice.
+
+Let $(M)_{\underline{k}}=M(M-1)\cdots(M-k+1)$ and $B=A-1$. Expanding $(1+B)^M$ gives the independent finite formula
+\begin{equation}
+\mu_{2r}(M):=\E S_M^{2r}
+=(2r)!\sum_{k=0}^{r}\frac{(M)_{\underline{k}}}{k!}
+[t^{2r}]B(t)^k.
+\label{eq:occupancy}
+\end{equation}
+Only $k\leq r$ can contribute, and for $k>M$ the falling factorial is zero. Equivalently, assigning the even exponents to the independent summands gives
+\[
+\mu_{2r}(M)
+=(2r)!\!
+\sum_{\substack{m_1,\ldots,m_r\geq0\\\sum_{s=1}^r s m_s=r}}
+(M)_{\underline{\sum_s m_s}}
+\prod_{s=1}^r
+\frac{1}{m_s!\,[4^s(2s+1)!]^{m_s}}.
+\]
+Thus $\mu_{2r}$ is a polynomial in $M$ of degree $r$. In particular,
+\[
+\mu_0=1,\quad \mu_2=\frac{M}{12},\quad
+\mu_4=\frac{M(5M-2)}{240},\quad
+\mu_6=\frac{M(35M^2-42M+16)}{4032}.
+\]
+The least common denominator of the coefficients of
+$\mu_0,\mu_2,\ldots,\mu_{32}$ is
+\[
+L=23548542893175783555072000,
+\]
+agreeing with the supplied JSON.
+
+The independent code constructs \eqref{eq:occupancy} over $\mathbb Q[M]$ using falling factorials. It does not use the moment recurrence or coefficient data of the supplied JavaScript. Lean checks the corresponding denominator-cleared occupancy identities. The formal source also proves the single-uniform even and odd integrals for arbitrary degree.
+
+\section{Recurrence and parity determinants}
+Put
+\[
+h_n=\E[P_n(S_M)^2],\qquad
+\Delta_n=\det(\mu_{a+b})_{0\leq a,b<n},\qquad \Delta_0=1.
+\]
+The density of $S_M$ is positive on $(-M/2,M/2)$. A nonzero polynomial cannot vanish throughout that interval. All polynomial Gram matrices are therefore positive definite, $h_n>0$ and $\Delta_n>0$, for every positive integer $M$. Hence
+\[
+h_n=\frac{\Delta_{n+1}}{\Delta_n},\qquad
+\beta_n^{[M]}=\frac{h_n}{h_{n-1}}
+=\frac{\Delta_{n+1}\Delta_{n-1}}{\Delta_n^2}.
+\]
+
+Distinguish the raw parity determinants from the primitive integer polynomials $A_r,B_r$ in the JSON:
+\[
+E_r=\det(\mu_{2(a+b)})_{0\leq a,b<r},\quad
+O_r=\det(\mu_{2(a+b+1)})_{0\leq a,b<r},\quad E_0=O_0=1.
+\]
+Simultaneously permuting rows and columns into even and odd indices creates no net sign. Odd moments are zero, so
+\[
+\Delta_{2r}=E_rO_r,\qquad \Delta_{2r+1}=E_{r+1}O_r.
+\]
+It follows that
+\begin{equation}
+\beta_{2r}=\frac{E_{r+1}O_{r-1}}{E_rO_r},
+\qquad
+\beta_{2r+1}=\frac{E_rO_{r+1}}{E_{r+1}O_r}.
+\label{eq:parity}
+\end{equation}
+These are the parity formulae implemented in the supplied code.
+
+The independent reconstruction instead uses Stieltjes orthogonalisation and norm ratios:
+\[
+P_{n+1}=xP_n-\frac{h_n}{h_{n-1}}P_{n-1},\qquad
+h_n=\E[S_M^nP_n(S_M)].
+\]
+The second equality follows from monicity and orthogonality. At every degree, the audit checks all defining orthogonality identities
+$\E[S_M^kP_n(S_M)]=0$ for $0\leq k<n$, as exact identities in $\mathbb Q(M)$.
+
+Only afterwards are the parity blocks recomputed by exact Gaussian elimination and compared. Every $A_0,\ldots,A_9$ and $B_0,\ldots,B_8$ agrees, including its rational normalisation before primitive-part extraction. All twelve hard-coded scalar factors are correct. A common moment scale $L$ cancels from \eqref{eq:parity} and does not introduce a missing factor.
+
+\section{The twelve functions and exact specialisations}
+Every row below means a zero cross-product polynomial in $\mathbb Q[M]$, not agreement at sample points. The final numerator and denominator are coprime over $\mathbb Q[M]$ in each case.
+\begin{center}
+\begin{tabular}{@{}rrrrl@{}}
+\toprule
+$j$ & numerator degree & denominator degree & $\beta_j^{[1]}$ & verdict\\
+\midrule
+5&7&6&$25/396$&verified\\
+6&11&10&$9/143$&verified\\
+7&16&15&$49/780$&verified\\
+8&22&21&$16/255$&verified\\
+9&29&28&$81/1292$&verified\\
+10&37&36&$25/399$&verified\\
+11&46&45&$121/1932$&verified\\
+12&56&55&$36/575$&verified\\
+13&67&66&$169/2700$&verified\\
+14&79&78&$49/783$&verified\\
+15&92&91&$225/3596$&verified\\
+16&106&105&$64/1023$&verified\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For the general $M=1$ identity, let $L_j$ be the standard Legendre polynomial on $[-1,1]$, with $L_j(1)=1$. Then
+\[
+P_j(x)=\frac{L_j(2x)}{\binom{2j}{j}},\qquad
+h_j=\frac{1}{(2j+1)\binom{2j}{j}^2},\qquad
+\frac{h_j}{h_{j-1}}=\frac{j^2}{4(4j^2-1)}.
+\]
+This proves the identity for every $j\geq1$, independently of the twelve examples.
+
+For further tests, a separate implementation repeatedly convolves the single-uniform moment sequence, then performs full Gram--Schmidt on $1,x,\ldots,x^{16}$ using Python's exact \texttt{Fraction} arithmetic. It uses neither determinants nor the symbolic Stieltjes calculation. All 96 comparisons pass for $M=1,2,3,4,5,10$ and $1\leq j\leq16$. For example,
+\[
+\begin{aligned}
+\beta_5^{[2]}&=\frac{207725}{856482},
+&\beta_5^{[3]}&=\frac{4561325}{8832692},\\
+\beta_6^{[2]}&=\frac{286749501}{1159331030},
+&\beta_6^{[3]}&=\frac{69924116932}{132932519005}.
+\end{aligned}
+\]
+Exact evaluations at $M=335$ are also recorded. They evaluate the verified symbolic functions; they are not a separate 335-fold Gram--Schmidt experiment.
+
+\subsection*{Singularities and representation issues}
+There is no removable common nonconstant factor in the twelve final numerator/denominator pairs. Their denominators do not vanish at a positive integer $M$, by the positive Gram-minor representation.
+
+The raw determinants degenerate at $M=0$. In the checked range, $E_r$ has the factor $M^{r-1}$ for $r\geq1$, and $O_r$ has $M^r$. Thus a common $M^{j-1}$ cancels in the raw ratio for $j\geq2$. The rational continuation at zero is not an orthogonal-polynomial coefficient of a nondegenerate distribution: the measure at $M=0$ is a point mass. This is outside the stated domain.
+
+One must not silently extend the probabilistic claim to every real $M>0$: already $\beta_2^{[M]}=M/6-1/10$ is negative for $0<M<3/5$. A continuous parameter in a rational expression is not automatically a convolution order of a positive measure.
+
+The JSON numerator and denominator arrays \emph{already include} the scalar prefactor. Multiplying their quotient by that scalar again would be wrong. The scalar belongs to the separately stated factorised representation.
+
+The supplied JavaScript reproduces all mathematical arrays, factors and scalars when run in an isolated directory. Its output schema differs from the supplied JSON: it uses \texttt{coefficients} where the supplied file uses \texttt{beta}, and \texttt{prefactor} in place of \texttt{scalar}. This is a reproducibility/interface discrepancy, not a mathematical error.
+
+\section{Independent all-degree proof with remainder control}
+\begin{proposition}
+For every fixed integer $j\geq1$, there are $C_j<\infty$ and $M_j\geq1$ such that
+\[
+\left|\beta_j^{[M]}-\frac{jM}{12}+\frac{j(j-1)}{20}\right|
+\leq C_j/M\qquad(M\in\N,\ M\geq M_j).
+\]
+\end{proposition}
+\begin{proof}
+Set $Y_M=\sqrt{12/M}\,S_M$ and $\varepsilon=1/M$. The Taylor expansion
+$\log(\sinh z/z)=z^2/6-z^4/180+O(z^6)$, with $z=t\sqrt{3\varepsilon}$, gives
+\[
+\log\E e^{tY_M}=t^2/2-\varepsilon t^4/20+O(\varepsilon^2),
+\quad
+\E e^{tY_M}=e^{t^2/2}(1-\varepsilon t^4/20)+O(\varepsilon^2).
+\]
+Both statements are coefficientwise in each prescribed finite degree in $t$, not global uniform approximations for all $t$.
+
+The moment functional $\mathcal L_\varepsilon$ has the exact polynomial extension
+\[
+\mathcal L_\varepsilon(x^{2r})
+=12^r\varepsilon^r\mu_{2r}(\varepsilon^{-1}),\qquad
+\mathcal L_\varepsilon(x^{2r+1})=0.
+\]
+At zero it is the standard Gaussian functional $\mathcal L_0(f)=\E f(Z)$. Since
+$\E[\He_4(Z)e^{tZ}]=t^4e^{t^2/2}$ and $\He_4(x)=x^4-6x^2+3$,
+\begin{equation}
+\mathcal L_\varepsilon(f)=\E f(Z)
+-\frac{\varepsilon}{20}\E[\He_4(Z)f(Z)]
++O_f(\varepsilon^2)
+\label{eq:functional}
+\end{equation}
+for each fixed polynomial $f$.
+
+Fix $n$. The moment matrix on degrees below $n$ is positive definite at $\varepsilon=0$. Its polynomial determinant is nonzero there. Solving the finite orthogonality system shows that the coefficients of the monic polynomial $Q_n(\varepsilon,x)$ and its norm $h_n(\varepsilon)$ are rational, hence analytic, near zero. Thus
+\[
+Q_n(\varepsilon,x)=\He_n(x)+\varepsilon R_n(x)+O_n(\varepsilon^2),
+\qquad \deg R_n\leq n-1.
+\]
+All coefficient remainders are bounded in this fixed finite-dimensional space. This justifies substituting the expansion of the varying polynomial $Q_n^2$ in \eqref{eq:functional}.
+
+Gaussian orthogonality eliminates $\E[\He_nR_n]$, giving
+\[
+h_n(\varepsilon)=n!-\frac{\varepsilon}{20}
+\E[\He_4(Z)\He_n(Z)^2]+O_n(\varepsilon^2).
+\]
+There is a convenient independent verification of the mixed expectation. Four Gaussian integrations by parts give
+$\E[\He_4(Z)f(Z)]=\E f^{(4)}(Z)$.
+Apply this to $f=\He_n^2$. Use $\He_n'=n\He_{n-1}$ and the Leibniz rule. Only the term with two derivatives on each factor survives orthogonality. For $n\geq2$,
+\[
+\E[\He_4\He_n^2]=6[n(n-1)]^2(n-2)!=6n(n-1)n!.
+\]
+For $n=0,1$ both sides are zero. Consequently
+\[
+h_n(\varepsilon)=n!\left(1-\frac{3n(n-1)}{10}\varepsilon
++O_n(\varepsilon^2)\right),
+\]
+and successive norm ratios satisfy
+\[
+b_j(\varepsilon):=\frac{h_j(\varepsilon)}{h_{j-1}(\varepsilon)}
+=j-\frac{3j(j-1)}5\varepsilon+O_j(\varepsilon^2).
+\]
+Rescaling to $S_M$ multiplies a monic recurrence coefficient by $M/12$. Therefore
+\[
+\beta_j^{[M]}=\frac{M}{12}b_j(1/M)
+=\frac{jM}{12}-\frac{j(j-1)}{20}+O_j(M^{-1}).
+\]
+
+For an actual remainder estimate, choose $\delta_j>0$ sufficiently small that the relevant Gram determinants and $h_{j-1}$ are nonzero on a neighbourhood of $[-\delta_j,\delta_j]$. Define
+\[
+C_j=\frac1{24}\max_{|s|\leq\delta_j}|b_j''(s)|,\qquad
+M_j=\max\{1,\lceil\delta_j^{-1}\rceil\}.
+\]
+Taylor's theorem gives the claimed inequality.
+\end{proof}
+
+This proof does not infer an all-degree conclusion from twelve examples. It spells out the analytic finite-dimensional argument compressed in the submitted proof. The latter is sound under its explicit coefficientwise, fixed-degree interpretation.
+
+For $j=1,2$ the expansion is exact: $\beta_1=M/12$ and $\beta_2=M/6-1/10$. In general the proof establishes existence of remainder constants, not numerically optimised constants. It does not settle any joint limit with growing $j$, nor the higher terms of the full conjecture.
+
+\section{Exact Lean coverage and its limits}
+The sources were checked with Lean 4.24.0 and the following mathlib commit:
+\begin{center}
+\texttt{f897ebcf72cd16f89ab4577d0c826cd14afaafc7}.
+\end{center}
+The certificates use transparent integer arithmetic and \texttt{decide}, not \texttt{native\_decide}. The included declarations are subjected to an axiom audit. Only the standard logical axioms \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound} occur; no admitted proof or native-evaluation axiom is accepted.
+
+Formalised components:
+\begin{enumerate}
+\item The real-polynomial semantics of the list arithmetic used by the checker.
+\item Single-uniform even and odd definite integrals for arbitrary degree.
+\item Seventeen occupancy moment-polynomial identities through order 32.
+\item Monicity witnesses, all 136 lower-monomial orthogonality identities through degree 16, and norm-numerator identities.
+\item Twelve denominator-cleared norm-ratio identities. Their rational-function interpretations explicitly assume the required denominators are nonzero.
+\item The twelve $M=1$ identities and leading/subleading checks; denominator positivity at $M=1,2,3,4,5,10,335$.
+\item General algebraic transfer from adjacent norm remainders to the two-term expansion, together with an explicit remainder-bound lemma.
+\item Moments of arbitrary sums of independent uniform random variables; exact normalized moment polynomials in $M^{-1}$, for every order.
+\item General Hermite orthogonality, squared norms, the fourth-Hermite mixed norm, and positivity of every finite Gaussian Gram matrix.
+\item The constant and linear terms of every Gram determinant, by finite first-order polynomial algebra and a monic change of basis.
+\item A quantitative rational-function remainder bound with its denominator proved nonzero eventually.
+\item The all-degree estimate for actual integral Hankel determinants, and its identification with the coefficient of any family satisfying the defining monic recurrence.
+\end{enumerate}
+The many individual certificate declarations are computational checks, not hundreds of new mathematical results.
+
+The new proof does not invoke an Edgeworth expansion. For each fixed order, it constructs an exact polynomial in $M^{-1}$. For any polynomial $f$, the first two coefficients of its moment polynomial are proved to be
+\[
+\E f(Z),\qquad -\frac1{20}\E[H_4(Z)f(Z)].
+\]
+Here the Gaussian functional in Lean is defined algebraically by the exact Gaussian moment recurrence. Hermite integration by parts and positivity are proved for that functional. The actual uniform probability integrals are independently connected to the same coefficient calculation.
+
+In the Hermite basis the Gram matrix at $M^{-1}=0$ is diagonal with entries $k!$. Its normalized determinant has linear coefficient
+\[
+-\frac{n(n-1)(n-2)}{10}.
+\]
+For numerator and denominator polynomials $A,B$, subtracting the constant and linear terms makes $A-(a+bt)B$ divisible by $t^2$. The quotient of the remaining polynomial by $B$ is continuous near zero because $B(0)\ne0$. This yields a bound, rather than assuming one for unnamed remainder functions. Restoring the variance $M/12$ gives the required $O_j(M^{-1})$ estimate.
+
+\textbf{Precise final statement.} For every fixed $j\geq1$, Lean proves that there exist $C_j>0$ and an integer $N_j>0$ such that, for all integers $M\geq N_j$,
+\[
+\left|\beta_j^{[M]}-\frac{jM}{12}+\frac{j(j-1)}{20}\right|
+\leq\frac{C_j}{M}.
+\]
+The file \texttt{V033AllDegreeTheorem.lean} contains both a statement about actual integral Hankel determinants (with eventual nonvanishing proved) and a statement about the monic recurrence family. In the code the positive degree is indexed as \texttt{j+1}, with \texttt{j} any natural number.
+
+The latter statement quantifies over the monic orthogonal family described in the manuscript, including its initial values and recurrence. These hypotheses define the object; they do not assume the asymptotic result, a determinant formula, or any remainder estimate. The determinant representation is derived from those properties. The integral-Hankel statement has no polynomial-family hypothesis. A separate construction of an infinite orthogonal family is not included.
+
+The earlier finite JSON certificates and their nonzero-denominator hypotheses are unchanged. Positivity of every original expanded JSON denominator at every positive integer $M$ remains a paper proof, while the eventual nonvanishing needed for the all-degree asymptotic theorem is now formal. The result does not assert uniformity for growing degree, optimized remainder constants, or originality. The new audit contains 132 general declarations in addition to the previous 499 finite and supporting declarations; their total is 631, not 631 independent mathematical discoveries.
+
+\section{Novelty, attribution and actions}
+Milovanovi\'c's Conjecture~2, p.~347 of \cite{milovanovic}, already displays
+\[
+\frac{jM}{12}-\frac{j(j-1)}{20}
++\frac{4j(j-1)(j-2)}{525M}+\cdots .
+\]
+The paper also reports symbolic computation of the first 60 recurrence coefficients. Thus neither the first two displayed terms nor computing coefficients through degree 16 establishes originality by itself.
+
+Gautschi \cite{gautschi} supplies another computational method and discusses the different regime of degree tending to infinity with spline order fixed. That is not V033's limit. The targeted primary-source comparison does not certify whether a proof of the first two terms appeared elsewhere.
+
+Suggested wording:
+\begin{quote}
+We prove the first two terms of the fixed-degree asymptotic expansion conjectured by Milovanovi\'c, with an $O_j(M^{-1})$ remainder, and supply independently verified exact rational recurrence coefficients and reproducible algebraic certificates.
+\end{quote}
+Avoid a claim of the first such proof without a broader priority search. Do not claim the entire conjectured series or a uniform two-parameter result.
+
+No coefficient or scalar correction is required. Recommended changes before integration:
+\begin{enumerate}
+\item Cite Conjecture~2 and distinguish the proved truncation from its higher terms.
+\item Retain positive integer $M$, fixed $j$, monic normalisation, and the dependence of remainder constants on $j$.
+\item Include the analytic finite-moment-matrix justification in Section~5.
+\item Explain expanded versus factorised JSON data and harmonise the output schema.
+\item State the completed asymptotic Lean coverage and its explicit scope precisely; retain the separate limits concerning all-$M$ JSON denominator positivity and originality.
+\end{enumerate}
+
+\section{Reproducibility}
+The package includes unchanged V033 inputs, input fingerprints, independent code, complete exact results, Lean sources and logs, and the axiom audit. The independent reconstruction does not import the supplied JavaScript. See \texttt{README.txt} for pinned dependencies and commands. The V032 manuscript has not been altered or treated as corroboration.
+
+\begin{thebibliography}{9}
+\bibitem{milovanovic}
+G.\,V. Milovanovi\'c,
+Symbolic--numeric computation of orthogonal polynomials and Gaussian quadratures with respect to the cardinal B-spline,
+\emph{Numerical Algorithms} \textbf{76} (2017), 333--347.
+\href{https://doi.org/10.1007/s11075-016-0256-y}{doi:10.1007/s11075-016-0256-y}.
+Conjectures 1 and 2, especially p.~347.
+\bibitem{gautschi}
+W. Gautschi,
+Polynomials orthogonal with respect to cardinal B-spline weight functions,
+\emph{Numerical Algorithms} \textbf{76} (2017), 1099--1107.
+\href{https://doi.org/10.1007/s11075-017-0298-9}{doi:10.1007/s11075-017-0298-9}.
+\end{thebibliography}
+\end{document}

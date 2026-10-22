@@ -1,0 +1,25 @@
+V033 - Aggiornamento della formalizzazione, 21 ottobre 2026
+
+Il teorema asintotico a due termini e ora verificato in Lean 4 per ogni grado
+fissato j>=1, con la stima esplicita nella forma:
+  esistono C_j>0 e N_j>0, per ogni intero M>=N_j,
+  |beta_j(M)-j*M/12+j*(j-1)/20| <= C_j/M.
+
+Sono verificati: momenti delle somme effettive di uniformi indipendenti,
+polinomi esatti in 1/M, identita di Hermite, positivita delle matrici di Gram
+gaussiane, primi due coefficienti dei determinanti, non annullamento eventuale
+dei denominatori e controllo del resto. Nessun teorema di Edgeworth e assunto.
+
+Il teorema sui determinanti integrali non presuppone una famiglia di polinomi.
+Un secondo enunciato prova l'identificazione con qualsiasi famiglia monica
+ortogonale avente la ricorrenza definitoria del manoscritto. La costruzione
+separata di una famiglia infinita non e inclusa. Le ipotesi non comprendono
+l'espansione asintotica o una stima sul resto.
+
+631 dichiarazioni controllate: 499 precedenti e 132 nuove. Solo gli assiomi
+logici standard di Lean; nessuna ammissione e nessun native_decide.
+I 12 coefficienti razionali e i file originari non sono stati cambiati.
+L'originalita non e certificata; la validita uniforme per gradi crescenti non
+viene affermata. La positivita per ogni M dei denominatori JSON originali
+rimane una dimostrazione su carta; il teorema Lean dimostra il non annullamento
+eventuale necessario per l'asintotica.

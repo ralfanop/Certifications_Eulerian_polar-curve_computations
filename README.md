@@ -202,3 +202,16 @@ centered uniform convolutions" (`reports/`). **Not part of V032/V035**; the manu
   (Levin–Lubinsky Remark (b) after Def. 1.1 and Theorem 13.4). These enter the formal statements as
   explicit hypotheses.
 * `numerics/uniform_lanczos/`: independent numerical consistency checks (see its README).
+
+## 7. V035 Theorem 5.1 (fixed-degree Jacobi–Lanczos asymptotics): Lean 4 formalisation
+
+`lean/V035_FixedDegreeLanczos/` holds, unchanged (SHA256SUMS.txt verifies all 205 files), the
+V033 verification package of 21 October 2026 that formalises Theorem 5.1 of V035:
+for every fixed degree j ≥ 1 there are C_j > 0 and M_j with
+|β_j^{[M]} − jM/12 + j(j−1)/20| ≤ C_j/M for all integers M ≥ M_j.
+Main declarations: `uniform_integral_hankel_two_term`, `canonical_two_term`,
+`uniform_probability_two_term`, `two_term_lanczos_asymptotic` (`lean/V033AllDegreeTheorem.lean`).
+Separate Lean project: toolchain Lean v4.24.0, Mathlib f897ebcf72cd16f89ab4577d0c826cd14afaafc7
+(`lakefile.toml`, `lean-toolchain`); build with `code/verify_lean_portable.sh`. Archived build logs
+and the 631-declaration axiom audit (only propext, Classical.choice, Quot.sound) are in `results/`;
+they were produced by the original verification (not re-executed for this deposit).

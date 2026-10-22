@@ -1,0 +1,499 @@
+'V033.peval_add' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.peval_scale' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.peval_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.peval_sub' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.peval_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.checked_equality' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.momentCombination_eval' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.checked_orthogonality' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.checked_norm_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_0' depends on axioms: [propext]
+'V033.moment_polynomial_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_1' depends on axioms: [propext]
+'V033.moment_polynomial_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_2' depends on axioms: [propext]
+'V033.moment_polynomial_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_3' depends on axioms: [propext]
+'V033.moment_polynomial_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_4' depends on axioms: [propext]
+'V033.moment_polynomial_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_5' depends on axioms: [propext]
+'V033.moment_polynomial_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_6' depends on axioms: [propext]
+'V033.moment_polynomial_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_7' depends on axioms: [propext]
+'V033.moment_polynomial_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_8' depends on axioms: [propext]
+'V033.moment_polynomial_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_9' depends on axioms: [propext]
+'V033.moment_polynomial_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_10' depends on axioms: [propext]
+'V033.moment_polynomial_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_11' depends on axioms: [propext]
+'V033.moment_polynomial_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_12' depends on axioms: [propext]
+'V033.moment_polynomial_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_13' depends on axioms: [propext]
+'V033.moment_polynomial_13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_14' depends on axioms: [propext]
+'V033.moment_polynomial_14' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_15' depends on axioms: [propext]
+'V033.moment_polynomial_15' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.moment_cert_16' depends on axioms: [propext]
+'V033.moment_polynomial_16' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.monic_0' does not depend on any axioms
+'V033.norm_cert_0' depends on axioms: [propext]
+'V033.monic_1' does not depend on any axioms
+'V033.orthog_cert_1_0' depends on axioms: [propext]
+'V033.orthog_1_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_1' depends on axioms: [propext]
+'V033.monic_2' does not depend on any axioms
+'V033.orthog_cert_2_0' depends on axioms: [propext]
+'V033.orthog_2_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_2_1' depends on axioms: [propext]
+'V033.orthog_2_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_2' depends on axioms: [propext]
+'V033.monic_3' does not depend on any axioms
+'V033.orthog_cert_3_0' depends on axioms: [propext]
+'V033.orthog_3_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_3_1' depends on axioms: [propext]
+'V033.orthog_3_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_3_2' depends on axioms: [propext]
+'V033.orthog_3_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_3' depends on axioms: [propext]
+'V033.monic_4' does not depend on any axioms
+'V033.orthog_cert_4_0' depends on axioms: [propext]
+'V033.orthog_4_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_4_1' depends on axioms: [propext]
+'V033.orthog_4_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_4_2' depends on axioms: [propext]
+'V033.orthog_4_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_4_3' depends on axioms: [propext]
+'V033.orthog_4_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_4' depends on axioms: [propext]
+'V033.monic_5' does not depend on any axioms
+'V033.orthog_cert_5_0' depends on axioms: [propext]
+'V033.orthog_5_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_5_1' depends on axioms: [propext]
+'V033.orthog_5_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_5_2' depends on axioms: [propext]
+'V033.orthog_5_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_5_3' depends on axioms: [propext]
+'V033.orthog_5_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_5_4' depends on axioms: [propext]
+'V033.orthog_5_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_5' depends on axioms: [propext]
+'V033.ratio_cert_5' depends on axioms: [propext]
+'V033.ratio_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.monic_6' does not depend on any axioms
+'V033.orthog_cert_6_0' depends on axioms: [propext]
+'V033.orthog_6_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_6_1' depends on axioms: [propext]
+'V033.orthog_6_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_6_2' depends on axioms: [propext]
+'V033.orthog_6_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_6_3' depends on axioms: [propext]
+'V033.orthog_6_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_6_4' depends on axioms: [propext]
+'V033.orthog_6_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_6_5' depends on axioms: [propext]
+'V033.orthog_6_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_6' depends on axioms: [propext]
+'V033.ratio_cert_6' depends on axioms: [propext]
+'V033.ratio_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.monic_7' does not depend on any axioms
+'V033.orthog_cert_7_0' depends on axioms: [propext]
+'V033.orthog_7_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_7_1' depends on axioms: [propext]
+'V033.orthog_7_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_7_2' depends on axioms: [propext]
+'V033.orthog_7_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_7_3' depends on axioms: [propext]
+'V033.orthog_7_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_7_4' depends on axioms: [propext]
+'V033.orthog_7_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_7_5' depends on axioms: [propext]
+'V033.orthog_7_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_7_6' depends on axioms: [propext]
+'V033.orthog_7_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_7' depends on axioms: [propext]
+'V033.ratio_cert_7' depends on axioms: [propext]
+'V033.ratio_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.monic_8' does not depend on any axioms
+'V033.orthog_cert_8_0' depends on axioms: [propext]
+'V033.orthog_8_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_8_1' depends on axioms: [propext]
+'V033.orthog_8_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_8_2' depends on axioms: [propext]
+'V033.orthog_8_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_8_3' depends on axioms: [propext]
+'V033.orthog_8_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_8_4' depends on axioms: [propext]
+'V033.orthog_8_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_8_5' depends on axioms: [propext]
+'V033.orthog_8_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_8_6' depends on axioms: [propext]
+'V033.orthog_8_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_8_7' depends on axioms: [propext]
+'V033.orthog_8_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_8' depends on axioms: [propext]
+'V033.ratio_cert_8' depends on axioms: [propext]
+'V033.ratio_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.monic_9' does not depend on any axioms
+'V033.orthog_cert_9_0' depends on axioms: [propext]
+'V033.orthog_9_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_9_1' depends on axioms: [propext]
+'V033.orthog_9_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_9_2' depends on axioms: [propext]
+'V033.orthog_9_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_9_3' depends on axioms: [propext]
+'V033.orthog_9_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_9_4' depends on axioms: [propext]
+'V033.orthog_9_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_9_5' depends on axioms: [propext]
+'V033.orthog_9_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_9_6' depends on axioms: [propext]
+'V033.orthog_9_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_9_7' depends on axioms: [propext]
+'V033.orthog_9_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_9_8' depends on axioms: [propext]
+'V033.orthog_9_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_9' depends on axioms: [propext]
+'V033.ratio_cert_9' depends on axioms: [propext]
+'V033.ratio_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.monic_10' does not depend on any axioms
+'V033.orthog_cert_10_0' depends on axioms: [propext]
+'V033.orthog_10_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_10_1' depends on axioms: [propext]
+'V033.orthog_10_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_10_2' depends on axioms: [propext]
+'V033.orthog_10_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_10_3' depends on axioms: [propext]
+'V033.orthog_10_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_10_4' depends on axioms: [propext]
+'V033.orthog_10_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_10_5' depends on axioms: [propext]
+'V033.orthog_10_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_10_6' depends on axioms: [propext]
+'V033.orthog_10_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_10_7' depends on axioms: [propext]
+'V033.orthog_10_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_10_8' depends on axioms: [propext]
+'V033.orthog_10_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_10_9' depends on axioms: [propext]
+'V033.orthog_10_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_10' depends on axioms: [propext]
+'V033.ratio_cert_10' depends on axioms: [propext]
+'V033.ratio_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.monic_11' does not depend on any axioms
+'V033.orthog_cert_11_0' depends on axioms: [propext]
+'V033.orthog_11_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_11_1' depends on axioms: [propext]
+'V033.orthog_11_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_11_2' depends on axioms: [propext]
+'V033.orthog_11_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_11_3' depends on axioms: [propext]
+'V033.orthog_11_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_11_4' depends on axioms: [propext]
+'V033.orthog_11_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_11_5' depends on axioms: [propext]
+'V033.orthog_11_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_11_6' depends on axioms: [propext]
+'V033.orthog_11_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_11_7' depends on axioms: [propext]
+'V033.orthog_11_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_11_8' depends on axioms: [propext]
+'V033.orthog_11_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_11_9' depends on axioms: [propext]
+'V033.orthog_11_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_11_10' depends on axioms: [propext]
+'V033.orthog_11_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_11' depends on axioms: [propext]
+'V033.ratio_cert_11' depends on axioms: [propext]
+'V033.ratio_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.monic_12' does not depend on any axioms
+'V033.orthog_cert_12_0' depends on axioms: [propext]
+'V033.orthog_12_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_12_1' depends on axioms: [propext]
+'V033.orthog_12_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_12_2' depends on axioms: [propext]
+'V033.orthog_12_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_12_3' depends on axioms: [propext]
+'V033.orthog_12_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_12_4' depends on axioms: [propext]
+'V033.orthog_12_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_12_5' depends on axioms: [propext]
+'V033.orthog_12_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_12_6' depends on axioms: [propext]
+'V033.orthog_12_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_12_7' depends on axioms: [propext]
+'V033.orthog_12_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_12_8' depends on axioms: [propext]
+'V033.orthog_12_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_12_9' depends on axioms: [propext]
+'V033.orthog_12_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_12_10' depends on axioms: [propext]
+'V033.orthog_12_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_12_11' depends on axioms: [propext]
+'V033.orthog_12_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_12' depends on axioms: [propext]
+'V033.ratio_cert_12' depends on axioms: [propext]
+'V033.ratio_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.monic_13' does not depend on any axioms
+'V033.orthog_cert_13_0' depends on axioms: [propext]
+'V033.orthog_13_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_13_1' depends on axioms: [propext]
+'V033.orthog_13_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_13_2' depends on axioms: [propext]
+'V033.orthog_13_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_13_3' depends on axioms: [propext]
+'V033.orthog_13_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_13_4' depends on axioms: [propext]
+'V033.orthog_13_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_13_5' depends on axioms: [propext]
+'V033.orthog_13_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_13_6' depends on axioms: [propext]
+'V033.orthog_13_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_13_7' depends on axioms: [propext]
+'V033.orthog_13_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_13_8' depends on axioms: [propext]
+'V033.orthog_13_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_13_9' depends on axioms: [propext]
+'V033.orthog_13_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_13_10' depends on axioms: [propext]
+'V033.orthog_13_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_13_11' depends on axioms: [propext]
+'V033.orthog_13_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_13_12' depends on axioms: [propext]
+'V033.orthog_13_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_13' depends on axioms: [propext]
+'V033.ratio_cert_13' depends on axioms: [propext]
+'V033.ratio_13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.monic_14' does not depend on any axioms
+'V033.orthog_cert_14_0' depends on axioms: [propext]
+'V033.orthog_14_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_14_1' depends on axioms: [propext]
+'V033.orthog_14_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_14_2' depends on axioms: [propext]
+'V033.orthog_14_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_14_3' depends on axioms: [propext]
+'V033.orthog_14_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_14_4' depends on axioms: [propext]
+'V033.orthog_14_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_14_5' depends on axioms: [propext]
+'V033.orthog_14_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_14_6' depends on axioms: [propext]
+'V033.orthog_14_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_14_7' depends on axioms: [propext]
+'V033.orthog_14_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_14_8' depends on axioms: [propext]
+'V033.orthog_14_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_14_9' depends on axioms: [propext]
+'V033.orthog_14_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_14_10' depends on axioms: [propext]
+'V033.orthog_14_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_14_11' depends on axioms: [propext]
+'V033.orthog_14_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_14_12' depends on axioms: [propext]
+'V033.orthog_14_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_14_13' depends on axioms: [propext]
+'V033.orthog_14_13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_14' depends on axioms: [propext]
+'V033.ratio_cert_14' depends on axioms: [propext]
+'V033.ratio_14' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.monic_15' does not depend on any axioms
+'V033.orthog_cert_15_0' depends on axioms: [propext]
+'V033.orthog_15_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_15_1' depends on axioms: [propext]
+'V033.orthog_15_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_15_2' depends on axioms: [propext]
+'V033.orthog_15_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_15_3' depends on axioms: [propext]
+'V033.orthog_15_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_15_4' depends on axioms: [propext]
+'V033.orthog_15_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_15_5' depends on axioms: [propext]
+'V033.orthog_15_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_15_6' depends on axioms: [propext]
+'V033.orthog_15_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_15_7' depends on axioms: [propext]
+'V033.orthog_15_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_15_8' depends on axioms: [propext]
+'V033.orthog_15_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_15_9' depends on axioms: [propext]
+'V033.orthog_15_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_15_10' depends on axioms: [propext]
+'V033.orthog_15_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_15_11' depends on axioms: [propext]
+'V033.orthog_15_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_15_12' depends on axioms: [propext]
+'V033.orthog_15_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_15_13' depends on axioms: [propext]
+'V033.orthog_15_13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_15_14' depends on axioms: [propext]
+'V033.orthog_15_14' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_15' depends on axioms: [propext]
+'V033.ratio_cert_15' depends on axioms: [propext]
+'V033.ratio_15' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.monic_16' does not depend on any axioms
+'V033.orthog_cert_16_0' depends on axioms: [propext]
+'V033.orthog_16_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_1' depends on axioms: [propext]
+'V033.orthog_16_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_2' depends on axioms: [propext]
+'V033.orthog_16_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_3' depends on axioms: [propext]
+'V033.orthog_16_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_4' depends on axioms: [propext]
+'V033.orthog_16_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_5' depends on axioms: [propext]
+'V033.orthog_16_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_6' depends on axioms: [propext]
+'V033.orthog_16_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_7' depends on axioms: [propext]
+'V033.orthog_16_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_8' depends on axioms: [propext]
+'V033.orthog_16_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_9' depends on axioms: [propext]
+'V033.orthog_16_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_10' depends on axioms: [propext]
+'V033.orthog_16_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_11' depends on axioms: [propext]
+'V033.orthog_16_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_12' depends on axioms: [propext]
+'V033.orthog_16_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_13' depends on axioms: [propext]
+'V033.orthog_16_13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_14' depends on axioms: [propext]
+'V033.orthog_16_14' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.orthog_cert_16_15' depends on axioms: [propext]
+'V033.orthog_16_15' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_cert_16' depends on axioms: [propext]
+'V033.ratio_cert_16' depends on axioms: [propext]
+'V033.ratio_16' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.two_term_exact_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.remainder_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_first_order_difference' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.original_scale_second_term' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.legendre_cert_5' depends on axioms: [propext]
+'V033.leading_cert_5' does not depend on any axioms
+'V033.subleading_cert_5' depends on axioms: [propext]
+'V033.denominator_positive_5_1' does not depend on any axioms
+'V033.denominator_positive_5_2' does not depend on any axioms
+'V033.denominator_positive_5_3' does not depend on any axioms
+'V033.denominator_positive_5_4' does not depend on any axioms
+'V033.denominator_positive_5_5' does not depend on any axioms
+'V033.denominator_positive_5_10' does not depend on any axioms
+'V033.denominator_positive_5_335' does not depend on any axioms
+'V033.legendre_cert_6' depends on axioms: [propext]
+'V033.leading_cert_6' does not depend on any axioms
+'V033.subleading_cert_6' depends on axioms: [propext]
+'V033.denominator_positive_6_1' does not depend on any axioms
+'V033.denominator_positive_6_2' does not depend on any axioms
+'V033.denominator_positive_6_3' does not depend on any axioms
+'V033.denominator_positive_6_4' does not depend on any axioms
+'V033.denominator_positive_6_5' does not depend on any axioms
+'V033.denominator_positive_6_10' does not depend on any axioms
+'V033.denominator_positive_6_335' does not depend on any axioms
+'V033.legendre_cert_7' depends on axioms: [propext]
+'V033.leading_cert_7' does not depend on any axioms
+'V033.subleading_cert_7' depends on axioms: [propext]
+'V033.denominator_positive_7_1' does not depend on any axioms
+'V033.denominator_positive_7_2' does not depend on any axioms
+'V033.denominator_positive_7_3' does not depend on any axioms
+'V033.denominator_positive_7_4' does not depend on any axioms
+'V033.denominator_positive_7_5' does not depend on any axioms
+'V033.denominator_positive_7_10' does not depend on any axioms
+'V033.denominator_positive_7_335' does not depend on any axioms
+'V033.legendre_cert_8' depends on axioms: [propext]
+'V033.leading_cert_8' does not depend on any axioms
+'V033.subleading_cert_8' depends on axioms: [propext]
+'V033.denominator_positive_8_1' does not depend on any axioms
+'V033.denominator_positive_8_2' does not depend on any axioms
+'V033.denominator_positive_8_3' does not depend on any axioms
+'V033.denominator_positive_8_4' does not depend on any axioms
+'V033.denominator_positive_8_5' does not depend on any axioms
+'V033.denominator_positive_8_10' does not depend on any axioms
+'V033.denominator_positive_8_335' does not depend on any axioms
+'V033.legendre_cert_9' depends on axioms: [propext]
+'V033.leading_cert_9' does not depend on any axioms
+'V033.subleading_cert_9' depends on axioms: [propext]
+'V033.denominator_positive_9_1' does not depend on any axioms
+'V033.denominator_positive_9_2' does not depend on any axioms
+'V033.denominator_positive_9_3' does not depend on any axioms
+'V033.denominator_positive_9_4' does not depend on any axioms
+'V033.denominator_positive_9_5' does not depend on any axioms
+'V033.denominator_positive_9_10' does not depend on any axioms
+'V033.denominator_positive_9_335' does not depend on any axioms
+'V033.legendre_cert_10' depends on axioms: [propext]
+'V033.leading_cert_10' does not depend on any axioms
+'V033.subleading_cert_10' depends on axioms: [propext]
+'V033.denominator_positive_10_1' does not depend on any axioms
+'V033.denominator_positive_10_2' does not depend on any axioms
+'V033.denominator_positive_10_3' does not depend on any axioms
+'V033.denominator_positive_10_4' does not depend on any axioms
+'V033.denominator_positive_10_5' does not depend on any axioms
+'V033.denominator_positive_10_10' does not depend on any axioms
+'V033.denominator_positive_10_335' does not depend on any axioms
+'V033.legendre_cert_11' depends on axioms: [propext]
+'V033.leading_cert_11' does not depend on any axioms
+'V033.subleading_cert_11' depends on axioms: [propext]
+'V033.denominator_positive_11_1' does not depend on any axioms
+'V033.denominator_positive_11_2' does not depend on any axioms
+'V033.denominator_positive_11_3' does not depend on any axioms
+'V033.denominator_positive_11_4' does not depend on any axioms
+'V033.denominator_positive_11_5' does not depend on any axioms
+'V033.denominator_positive_11_10' does not depend on any axioms
+'V033.denominator_positive_11_335' does not depend on any axioms
+'V033.legendre_cert_12' depends on axioms: [propext]
+'V033.leading_cert_12' does not depend on any axioms
+'V033.subleading_cert_12' depends on axioms: [propext]
+'V033.denominator_positive_12_1' does not depend on any axioms
+'V033.denominator_positive_12_2' does not depend on any axioms
+'V033.denominator_positive_12_3' does not depend on any axioms
+'V033.denominator_positive_12_4' does not depend on any axioms
+'V033.denominator_positive_12_5' does not depend on any axioms
+'V033.denominator_positive_12_10' does not depend on any axioms
+'V033.denominator_positive_12_335' does not depend on any axioms
+'V033.legendre_cert_13' depends on axioms: [propext]
+'V033.leading_cert_13' does not depend on any axioms
+'V033.subleading_cert_13' depends on axioms: [propext]
+'V033.denominator_positive_13_1' does not depend on any axioms
+'V033.denominator_positive_13_2' does not depend on any axioms
+'V033.denominator_positive_13_3' does not depend on any axioms
+'V033.denominator_positive_13_4' does not depend on any axioms
+'V033.denominator_positive_13_5' does not depend on any axioms
+'V033.denominator_positive_13_10' does not depend on any axioms
+'V033.denominator_positive_13_335' does not depend on any axioms
+'V033.legendre_cert_14' depends on axioms: [propext]
+'V033.leading_cert_14' does not depend on any axioms
+'V033.subleading_cert_14' depends on axioms: [propext]
+'V033.denominator_positive_14_1' does not depend on any axioms
+'V033.denominator_positive_14_2' does not depend on any axioms
+'V033.denominator_positive_14_3' does not depend on any axioms
+'V033.denominator_positive_14_4' does not depend on any axioms
+'V033.denominator_positive_14_5' does not depend on any axioms
+'V033.denominator_positive_14_10' does not depend on any axioms
+'V033.denominator_positive_14_335' does not depend on any axioms
+'V033.legendre_cert_15' depends on axioms: [propext]
+'V033.leading_cert_15' does not depend on any axioms
+'V033.subleading_cert_15' depends on axioms: [propext]
+'V033.denominator_positive_15_1' does not depend on any axioms
+'V033.denominator_positive_15_2' does not depend on any axioms
+'V033.denominator_positive_15_3' does not depend on any axioms
+'V033.denominator_positive_15_4' does not depend on any axioms
+'V033.denominator_positive_15_5' does not depend on any axioms
+'V033.denominator_positive_15_10' does not depend on any axioms
+'V033.denominator_positive_15_335' does not depend on any axioms
+'V033.legendre_cert_16' depends on axioms: [propext]
+'V033.leading_cert_16' does not depend on any axioms
+'V033.subleading_cert_16' depends on axioms: [propext]
+'V033.denominator_positive_16_1' does not depend on any axioms
+'V033.denominator_positive_16_2' does not depend on any axioms
+'V033.denominator_positive_16_3' does not depend on any axioms
+'V033.denominator_positive_16_4' does not depend on any axioms
+'V033.denominator_positive_16_5' does not depend on any axioms
+'V033.denominator_positive_16_10' does not depend on any axioms
+'V033.denominator_positive_16_335' does not depend on any axioms
+'V033.uniform_even_integral' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.uniform_odd_integral' depends on axioms: [propext, Classical.choice, Quot.sound]

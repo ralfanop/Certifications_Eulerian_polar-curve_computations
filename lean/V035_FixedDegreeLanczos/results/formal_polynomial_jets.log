@@ -1,0 +1,8 @@
+lean/V033PolynomialJets.lean:66:53: warning: This simp argument is unused:
+  Matrix.one_apply
+
+Hint: Omit it from the simp argument list.
+  simp [Matrix.add_apply, M̵a̵t̵r̵i̵x̵.̵o̵n̵e̵_̵a̵p̵p̵l̵y̵,̵ ̵hij, B, coeff_one]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+'V033.Jet.det_linear_of_constant_one' depends on axioms: [propext, Classical.choice, Quot.sound]

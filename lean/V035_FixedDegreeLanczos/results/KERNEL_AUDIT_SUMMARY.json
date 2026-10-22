@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "audits": [
+    {
+      "source": "V033Verification.lean",
+      "log": "V033Verification.log",
+      "declarations": 499,
+      "axioms_used": [
+        "Classical.choice",
+        "Quot.sound",
+        "propext"
+      ]
+    },
+    {
+      "source": "V033FullVerification.lean",
+      "log": "V033FullVerification.log",
+      "declarations": 132,
+      "axioms_used": [
+        "Classical.choice",
+        "Quot.sound",
+        "propext"
+      ]
+    }
+  ],
+  "total_declarations": 631,
+  "allowed_axioms": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+  ]
+}

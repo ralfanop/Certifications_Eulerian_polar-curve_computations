@@ -1,0 +1,19 @@
+lean/V033GramExpansion.lean:22:10: warning: This simp argument is unused:
+  Matrix.one_apply
+
+Hint: Omit it from the simp argument list.
+  simp [̵M̵a̵t̵r̵i̵x̵.̵o̵n̵e̵_̵a̵p̵p̵l̵y̵,̵ ̵s̵h̵o̵w̵ ̵(̵i̵.̵v̵a̵l̵.̵f̵a̵c̵t̵o̵r̵i̵a̵l̵:̵ℝ̵)̵[̲s̲h̲o̲w̲ ̲(̲i̲.̲v̲a̲l̲.̲f̲a̲c̲t̲o̲r̲i̲a̲l̲ ̲:̲ ̲ℝ̲)̲ ≠ 0 by positivity]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+lean/V033GramExpansion.lean:24:10: warning: This simp argument is unused:
+  Matrix.one_apply
+
+Hint: Omit it from the simp argument list.
+  simp [M̵a̵t̵r̵i̵x̵.̵o̵n̵e̵_̵a̵p̵p̵l̵y̵,̵ ̵hij]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+lean/V033GramExpansion.lean:32:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+'V033.UniformSum.determinant_constant' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.determinant_linear' depends on axioms: [propext, Classical.choice, Quot.sound]

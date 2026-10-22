@@ -1,0 +1,1 @@
+'V033.Gram.IsLanczosFamily.coefficient_as_determinants' depends on axioms: [propext, Classical.choice, Quot.sound]
