@@ -1,0 +1,2 @@
+'V033.moment_cert_2' depends on axioms: [propext]
+'V033.moment_polynomial_2' depends on axioms: [propext, Classical.choice, Quot.sound]

@@ -1,0 +1,11 @@
+lean/V033RationalRemainder.lean:37:15: warning: This simp argument is unused:
+  zero_ne_one
+
+Hint: Omit it from the simp argument list.
+  simp only [coeff_add, coeff_C, coeff_C_mul, coeff_X, if_false,
+  ̵  ̵ ̵ ̵ ̵ ̵if_true, z̵e̵r̵o_̵ne_o̵ne,̵ ̵o̵n̵e̵_n̵e̵_̵zero, mul_zero,
+  ̲  ̲ ̲ ̲ ̲ ̲mul_one, zero_add, add_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+'V033.rational_second_order' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.rational_remainder_bound' depends on axioms: [propext, Classical.choice, Quot.sound]

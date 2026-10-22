@@ -1,0 +1,5 @@
+2026-10-21: updated eight-page report compiled successfully in the built-in
+LaTeX compiler and exported with Tectonic. All eight pages rendered with
+Poppler and visually inspected. No clipped equations, overlapping text,
+missing glyphs, or overfull boxes found. The only TeX warning is that
+inputenc is ignored by the Unicode engine.

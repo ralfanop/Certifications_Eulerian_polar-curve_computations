@@ -1,0 +1,222 @@
+
+\documentclass[10pt]{amsart}
+
+\usepackage{amsmath,amssymb,amsthm}
+
+\newtheorem{theorem}{Theorem}
+
+\title{V033: Two-term asymptotics of Lanczos coefficients}
+\author{Roberto Alfano}
+\date{20 October 2026}
+
+\begin{document}
+\maketitle
+
+\section*{Definitions}
+
+Let $U_1,U_2,\ldots$ be independent random variables,
+each uniformly distributed on $[-1/2,1/2]$, and put
+\[
+S_M=\sum_{\ell=1}^{M}U_\ell,
+\qquad M\in\mathbb{N},\quad M\geq1.
+\]
+
+Let $\{P_j^{[M]}\}_{j\geq0}$ denote the monic orthogonal
+polynomials for the probability distribution of $S_M$.
+By symmetry, their three-term recurrence has the form
+\[
+P_{j+1}^{[M]}(x)
+ =xP_j^{[M]}(x)
+ -\beta_j^{[M]}P_{j-1}^{[M]}(x),
+\]
+where $P_0^{[M]}=1$, $P_1^{[M]}=x$, and $j\geq1$.
+
+\begin{theorem}[Two-term Lanczos asymptotics]
+For every fixed integer $j\geq1$,
+\[
+\boxed{
+\beta_j^{[M]}
+ =\frac{jM}{12}
+ -\frac{j(j-1)}{20}
+ +O_j(M^{-1})
+}
+\qquad (M\longrightarrow\infty).
+\]
+The implicit constant may depend on $j$.
+\end{theorem}
+
+\begin{proof}
+
+Define the variance-one random variable
+\[
+Y_M=\sqrt{\frac{12}{M}}\,S_M.
+\]
+Its moment-generating function is
+\[
+\mathbb E e^{tY_M}
+ =
+\left(
+\frac{\sinh\bigl(t\sqrt{12/M}/2\bigr)}
+     {t\sqrt{12/M}/2}
+\right)^M.
+\]
+
+The Taylor expansion
+\[
+\log\frac{\sinh z}{z}
+ =\frac{z^2}{6}
+  -\frac{z^4}{180}
+  +O(z^6)
+\]
+gives, coefficientwise through every fixed power of $t$,
+\[
+\log\mathbb E e^{tY_M}
+ =
+\frac{t^2}{2}
+ -\frac{t^4}{20M}
+ +O(M^{-2}).
+\]
+Consequently,
+\[
+\mathbb E e^{tY_M}
+ =
+e^{t^2/2}
+\left(1-\frac{t^4}{20M}\right)
++O(M^{-2}),
+\]
+where the final remainder is understood coefficientwise
+in every fixed finite Taylor truncation.
+
+Let $Z$ be a standard Gaussian random variable, and
+let $H_n$ denote the monic probabilists' Hermite polynomial.
+In particular,
+\[
+H_4(x)=x^4-6x^2+3.
+\]
+
+The Gaussian identity
+\[
+\mathbb E[H_4(Z)e^{tZ}]
+ =t^4 e^{t^2/2}
+\]
+shows that, for every fixed polynomial $f$,
+\[
+\mathbb E[f(Y_M)]
+ =
+\mathbb E[f(Z)]
+ -\frac{1}{20M}\mathbb E[H_4(Z)f(Z)]
+ +O_f(M^{-2}).
+\tag{1}
+\]
+
+Let $Q_n^{[M]}$ be the monic orthogonal polynomial of
+degree $n$ for the distribution of $Y_M$, and set
+\[
+h_n^{[M]}
+ =\mathbb E\!\left[Q_n^{[M]}(Y_M)^2\right].
+\]
+
+For fixed $n$, the moment matrices converge to the
+positive-definite Gaussian moment matrices. Their
+entries have expansions in powers of $M^{-1}$.
+The linear systems defining the coefficients of the
+monic orthogonal polynomials therefore give
+\[
+Q_n^{[M]}(x)
+ =H_n(x)+M^{-1}R_n(x)+O_n(M^{-2}),
+\]
+coefficientwise, where $\deg R_n\leq n-1$.
+
+By Gaussian orthogonality,
+\[
+\mathbb E[H_n(Z)R_n(Z)]=0.
+\]
+Thus (1) yields
+\[
+h_n^{[M]}
+ =
+\mathbb E[H_n(Z)^2]
+ -\frac{1}{20M}
+  \mathbb E[H_4(Z)H_n(Z)^2]
+ +O_n(M^{-2}).
+\tag{2}
+\]
+
+The Hermite product formula is
+\[
+H_n(x)^2
+ =
+\sum_{k=0}^{n}
+ k!\binom nk^2 H_{2n-2k}(x).
+\]
+Using
+\[
+\mathbb E[H_n(Z)^2]=n!,
+\qquad
+\mathbb E[H_4(Z)^2]=4!,
+\]
+we obtain
+\[
+\mathbb E[H_4(Z)H_n(Z)^2]
+ =6n(n-1)n!,
+\]
+including the zero cases $n=0,1$.
+
+Substitution into (2) gives
+\[
+h_n^{[M]}
+ =
+n!\left(
+1-\frac{3n(n-1)}{10M}
++O_n(M^{-2})
+\right).
+\]
+
+For monic orthogonal polynomials, the recurrence
+coefficient is the ratio of consecutive squared norms.
+Hence the coefficient for $Y_M$ is
+\[
+\widetilde\beta_j^{[M]}
+ =\frac{h_j^{[M]}}{h_{j-1}^{[M]}}
+ =j\left(
+1-\frac{3(j-1)}{5M}
++O_j(M^{-2})
+\right).
+\]
+
+Finally, the change of variable
+$Y_M=\sqrt{12/M}\,S_M$ implies
+\[
+\beta_j^{[M]}
+ =\frac{M}{12}\widetilde\beta_j^{[M]}.
+\]
+Therefore,
+\[
+\beta_j^{[M]}
+ =
+\frac{jM}{12}
+-\frac{j(j-1)}{20}
++O_j(M^{-1}),
+\]
+as claimed.
+\end{proof}
+
+\section*{Instructions for independent verification}
+
+The reviewer should independently check:
+
+\begin{enumerate}
+\item The coefficientwise moment expansion and its
+      $O(M^{-2})$ remainder for each fixed degree.
+\item The perturbation of the monic orthogonal polynomials.
+\item The Hermite product identity and squared-norm expansion.
+\item The scaling of the recurrence coefficients.
+\item The exact rational formulas for
+      $\beta_5^{[M]},\ldots,\beta_{16}^{[M]}$
+      supplied separately.
+\end{enumerate}
+
+No claim of novelty is inferred solely from the
+existence of these twelve explicit coefficients.
+
+\end{document}

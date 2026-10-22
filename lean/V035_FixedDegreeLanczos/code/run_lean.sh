@@ -1,0 +1,4 @@
+#!/bin/bash
+set -euo pipefail
+export LEAN_PATH='/Users/rob.alfano/Downloads/V033_INDEPENDENT_VERIFICATION/lean:/Users/rob.alfano/Downloads/Davie_Lean4/.lake/packages/mathlib/.lake/build/lib/lean:/Users/rob.alfano/Downloads/Davie_Lean4/.lake/packages/plausible/.lake/build/lib/lean:/Users/rob.alfano/Downloads/Davie_Lean4/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/rob.alfano/Downloads/Davie_Lean4/.lake/packages/batteries/.lake/build/lib/lean:/Users/rob.alfano/Downloads/Davie_Lean4/.lake/packages/aesop/.lake/build/lib/lean:/Users/rob.alfano/Downloads/Davie_Lean4/.lake/packages/importGraph/.lake/build/lib/lean:/Users/rob.alfano/Downloads/Davie_Lean4/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/rob.alfano/Downloads/Davie_Lean4/.lake/packages/Qq/.lake/build/lib/lean'
+exec /Users/rob.alfano/Downloads/Davie_Lean4/toolchain/lean-4.24.0-darwin/bin/lean -M 2048 -s 65536 "$@"

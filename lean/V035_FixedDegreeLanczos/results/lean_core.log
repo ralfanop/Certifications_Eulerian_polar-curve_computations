@@ -1,0 +1,5 @@
+lean/V033Core.lean:100:26: warning: unused variable `hCprev`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+'V033.checked_norm_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.checked_orthogonality' depends on axioms: [propext, Classical.choice, Quot.sound]

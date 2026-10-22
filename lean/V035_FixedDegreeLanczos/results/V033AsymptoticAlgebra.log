@@ -1,0 +1,7 @@
+lean/V033AsymptoticAlgebra.lean:22:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+'V033.two_term_exact_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.remainder_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.norm_first_order_difference' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.original_scale_second_term' depends on axioms: [propext, Classical.choice, Quot.sound]

@@ -1,0 +1,40 @@
+lean/V033MomentExpansion.lean:42:30: warning: This simp argument is unused:
+  pow_one
+
+Hint: Omit it from the simp argument list.
+  simp only [cumulant_zero, pow_o̵n̵e̵,̵ ̵p̵o̵w̵_̵zero, mul_one, mul_assoc,
+  ̵  ̵ ̵ ̵ ̵ ̵coeff_C_mul, Nat.sub_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+lean/V033MomentExpansion.lean:46:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+lean/V033MomentExpansion.lean:69:63: warning: This simp argument is unused:
+  mul_one
+
+Hint: Omit it from the simp argument list.
+  simp only [sum_insert, mem_singleton, zero_ne_one, not_false_eq_true,
+  ̵  ̵ ̵ ̵sum_singleton, Nat.sub_zero,
+  ̲  ̲ ̲ ̲Nat.add_sub_cancel, pow_zero, m̵u̵l̵_̵o̵n̵e̵,̵
+  ̵ ̵ ̵ ̵ ̵pow_one, mul_assoc, coeff_C_mul, coeff_X_mul, cumulant_zero,
+  ̲  ̲ ̲ ̲cumulant_one]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+lean/V033MomentExpansion.lean:82:8: warning: 'ring' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+lean/V033MomentExpansion.lean:82:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+'V033.UniformSum.actual_normalized_even_moment' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.actual_normalized_odd_moment' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.normalized_constant' depends on axioms: [propext, Classical.choice, Quot.sound]
+lean/V033MomentExpansion.lean:107:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+lean/V033MomentExpansion.lean:120:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+'V033.UniformSum.normalized_linear' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.even_moment_constant' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.even_moment_linear' depends on axioms: [propext, Classical.choice, Quot.sound]

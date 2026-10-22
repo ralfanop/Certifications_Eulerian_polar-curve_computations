@@ -1,0 +1,7 @@
+lean/V033AllDegreeTheorem.lean:38:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+'V033.UniformSum.two_term_lanczos_asymptotic' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.uniform_probability_two_term' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.canonical_two_term' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.uniform_integral_hankel_two_term' depends on axioms: [propext, Classical.choice, Quot.sound]

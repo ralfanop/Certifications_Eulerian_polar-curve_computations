@@ -1,0 +1,42 @@
+Stieltjes j=1: exact orthogonality and ratio PASS; 0.00s
+Stieltjes j=2: exact orthogonality and ratio PASS; 0.00s
+Stieltjes j=3: exact orthogonality and ratio PASS; 0.00s
+Stieltjes j=4: exact orthogonality and ratio PASS; 0.00s
+Stieltjes j=5: exact orthogonality and ratio PASS; 0.00s
+Stieltjes j=6: exact orthogonality and ratio PASS; 0.00s
+Stieltjes j=7: exact orthogonality and ratio PASS; 0.01s
+Stieltjes j=8: exact orthogonality and ratio PASS; 0.01s
+Stieltjes j=9: exact orthogonality and ratio PASS; 0.01s
+Stieltjes j=10: exact orthogonality and ratio PASS; 0.02s
+Stieltjes j=11: exact orthogonality and ratio PASS; 0.03s
+Stieltjes j=12: exact orthogonality and ratio PASS; 0.05s
+Stieltjes j=13: exact orthogonality and ratio PASS; 0.10s
+Stieltjes j=14: exact orthogonality and ratio PASS; 0.16s
+Stieltjes j=15: exact orthogonality and ratio PASS; 0.25s
+Stieltjes j=16: exact orthogonality and ratio PASS; 0.34s
+Full Fraction Gram-Schmidt M=1: all j<=16 PASS
+Full Fraction Gram-Schmidt M=2: all j<=16 PASS
+Full Fraction Gram-Schmidt M=3: all j<=16 PASS
+Full Fraction Gram-Schmidt M=4: all j<=16 PASS
+Full Fraction Gram-Schmidt M=5: all j<=16 PASS
+Full Fraction Gram-Schmidt M=10: all j<=16 PASS
+Parity A0: primitive and normalization PASS
+Parity A1: primitive and normalization PASS
+Parity A2: primitive and normalization PASS
+Parity A3: primitive and normalization PASS
+Parity A4: primitive and normalization PASS
+Parity A5: primitive and normalization PASS
+Parity A6: primitive and normalization PASS
+Parity A7: primitive and normalization PASS
+Parity A8: primitive and normalization PASS
+Parity A9: primitive and normalization PASS
+Parity B0: primitive and normalization PASS
+Parity B1: primitive and normalization PASS
+Parity B2: primitive and normalization PASS
+Parity B3: primitive and normalization PASS
+Parity B4: primitive and normalization PASS
+Parity B5: primitive and normalization PASS
+Parity B6: primitive and normalization PASS
+Parity B7: primitive and normalization PASS
+Parity B8: primitive and normalization PASS
+ALL EXACT CHECKS PASSED

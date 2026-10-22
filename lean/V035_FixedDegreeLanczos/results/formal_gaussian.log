@@ -1,0 +1,27 @@
+lean/V033GaussianAlgebra.lean:53:47: warning: This simp argument is unused:
+  Polynomial.hermite_one
+
+Hint: Omit it from the simp argument list.
+  simp [H,̵ ̵P̵o̵l̵y̵n̵o̵m̵i̵a̵l̵.̵h̵e̵r̵m̵i̵t̵e̵_̵o̵n̵e̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+lean/V033GaussianAlgebra.lean:88:56: warning: This simp argument is unused:
+  coeff_C
+
+Hint: Omit it from the simp argument list.
+  simp [Polynomial.coeff_eq_zero_of_natDegree_lt hlt, c̵o̵e̵f̵f̵_̵C̵,̵ ̵hk]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+lean/V033GaussianAlgebra.lean:160:6: warning: This simp argument is unused:
+  Nat.add_sub_cancel
+
+Hint: Omit it from the simp argument list.
+  simp only [Nat.descFactorial_succ, Nat.descFactorial_zero, Nat.sub_zero, N̵a̵t̵.̵a̵d̵d̵_̵s̵u̵b̵_̵c̵a̵n̵c̵e̵l̵,̵ ̵Nat.factorial_succ,
+  ̲  ̲ ̲ ̲ ̲ ̲Nat.cast_mul, Nat.cast_add, Nat.cast_one]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+'V033.Gaussian.fourth_hermite_mixed_norm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.Gaussian.stein' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.Gaussian.hermite_integration_by_parts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.Gaussian.hermite_norm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.Gaussian.hermite_orthogonal' depends on axioms: [propext, Classical.choice, Quot.sound]

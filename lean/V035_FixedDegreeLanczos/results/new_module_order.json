@@ -1,0 +1,16 @@
+[
+  "V033GaussianAlgebra",
+  "V033UniformSumMoments",
+  "V033CumulantPolynomials",
+  "V033GaussianGram",
+  "V033MomentExpansion",
+  "V033MomentFunctional",
+  "V033PolynomialJets",
+  "V033GramExpansion",
+  "V033RationalRemainder",
+  "V033GramBasis",
+  "V033DeterminantAsymptotic",
+  "V033ProbabilityFunctional",
+  "V033RecurrenceGram",
+  "V033AllDegreeTheorem"
+]
