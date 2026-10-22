@@ -179,7 +179,7 @@ covering-space part of Prop. 4.6.
 n = 3, …, 670 in the field of Flajolet–Sedgewick Figure IX.14, the script that writes it from the
 book's formulas, and a one-page description.
 
-## 10. Uniform Lanczos note (V035 candidate, 22 October 2026)
+## 9. Uniform Lanczos note (V035 candidate, 22 October 2026)
 
 Referee review and revised note "Uniform two-parameter asymptotics for Lanczos coefficients of
 centered uniform convolutions" (`reports/`). **Not part of V032/V035**; the manuscripts are unchanged.
@@ -199,7 +199,7 @@ centered uniform convolutions" (`reports/`). **Not part of V032/V035**; the manu
   explicit hypotheses.
 * `numerics/uniform_lanczos/`: independent numerical consistency checks (see its README).
 
-## 11. V035 Theorem 5.1 (fixed-degree Jacobi–Lanczos asymptotics): Lean 4 formalisation
+## 10. V035 Theorem 5.1 (fixed-degree Jacobi–Lanczos asymptotics): Lean 4 formalisation
 
 `lean/V035_FixedDegreeLanczos/` holds, unchanged (SHA256SUMS.txt verifies all 205 files), the
 V033 verification package of 21 October 2026 that formalises Theorem 5.1 of V035:
@@ -212,6 +212,6 @@ Separate Lean project: toolchain Lean v4.24.0, Mathlib f897ebcf72cd16f89ab4577d0
 and the 631-declaration axiom audit (only propext, Classical.choice, Quot.sound) are in `results/`;
 they were produced by the original verification (not re-executed for this deposit).
 
-## 9. License
+## 11. License
 
 All files in this repository are released under CC0 1.0 Universal (see `LICENSE`).
