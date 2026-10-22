@@ -1,0 +1,9 @@
+lean/V033GramBasis.lean:69:20: warning: This simp argument is unused:
+  diagonal_apply
+
+Hint: Omit it from the simp argument list.
+  simp [family, d̵i̵a̵g̵o̵n̵a̵l̵_̵a̵p̵p̵l̵y̵,̵ ̵hij, ho i j hij]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+'V033.Gram.monic_gram_det' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.Gram.orthogonal_gram_det' depends on axioms: [propext, Classical.choice, Quot.sound]

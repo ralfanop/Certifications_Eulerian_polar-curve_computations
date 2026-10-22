@@ -1,0 +1,336 @@
+\documentclass{math}
+\fi % Required compatibility closure for the original journal math.cls release.
+% Revised research note (22 October 2026). Separate document: V032 and V035 are not modified.
+% Template and display conventions copied from V035 so that sections can be transplanted.
+% T1 omitted here: cm-super is not installed in this build environment
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb,amsfonts,mathtools,graphicx,booktabs,enumitem,xurl,microtype}
+\usepackage{etoolbox}\usepackage{needspace}\usepackage{float}
+\usepackage[colorlinks=true,urlcolor=black,linkcolor=blue,citecolor=blue]{hyperref}
+\makeatletter
+\pretocmd{\NAT@citenum}{\upshape}{}{\PackageError{TJM}{Cannot enforce upright numeric citations}{}}
+\makeatother
+\input{math.tex}
+\input{clean-layout.tex}
+\counterwithout{equation}{section}
+\renewcommand{\theequation}{\arabic{equation}}
+\renewcommand{\baselinestretch}{1.08}
+\let\TJMoriginalint\int
+\renewcommand{\int}{\TJMoriginalint\limits}
+% Enlarged summation and integral signs in displays (about 50%), true fractions in displays.
+\let\OriginalSum\sum
+\let\OriginalInt\int
+\let\OriginalFrac\frac
+\newcommand{\DisplayOpScale}{1.5}
+\makeatletter
+\newcommand{\ScaledOp}[1]{\mathop{\mathchoice
+ {\vcenter{\hbox{\scalebox{\DisplayOpScale}{$\m@th\displaystyle#1$}}}}%
+ {\vcenter{\hbox{\scalebox{\DisplayOpScale}{$\m@th\textstyle#1$}}}}%
+ {\vcenter{\hbox{$\m@th\scriptstyle#1$}}}%
+ {\vcenter{\hbox{$\m@th\scriptscriptstyle#1$}}}}}
+\makeatother
+\newcommand{\DisplaySum}{\ScaledOp{\OriginalSum}\displaylimits}
+\newcommand{\DisplayInt}{\ScaledOp{\TJMoriginalint}\limits}
+\newcommand{\DisplayFrac}[2]{\mathchoice{\dfrac{#1}{#2}}{\dfrac{#1}{#2}}{\OriginalFrac{#1}{#2}}{\OriginalFrac{#1}{#2}}}
+\newcommand{\ApplyDisplayMathTypography}{\let\frac\DisplayFrac\let\sum\DisplaySum\let\int\DisplayInt}
+\everydisplay\expandafter{\the\everydisplay\ApplyDisplayMathTypography}
+\newcommand{\TJMDisplaySpacing}{%
+ \setlength{\abovedisplayskip}{12pt}\setlength{\belowdisplayskip}{12pt}%
+ \setlength{\abovedisplayshortskip}{12pt}\setlength{\belowdisplayshortskip}{12pt}}
+\AtBeginDocument{\TJMDisplaySpacing}
+\appto\normalsize{\TJMDisplaySpacing}
+\predisplaypenalty=0\postdisplaypenalty=0
+\widowpenalty=0\clubpenalty=0\displaywidowpenalty=0\brokenpenalty=0
+\setlength{\jot}{5pt}
+\setlength{\emergencystretch}{1.5em}
+\flushbottom
+\newcommand{\TJMWholeURL}[1]{\mbox{\url{#1}}}
+\newcommand{\urlsep}{\hspace{0pt plus 1fil}\penalty0\hspace{0pt plus -1fil}\ }
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newcommand{\Qc}{\mathcal Q}
+\newcommand{\ii}{\mathit{i}}
+\newcommand{\dd}{\,\mathrm d}
+\newcommand{\lean}[1]{\texttt{#1}}
+\yil{}\vol{}\fpage{}\lpage{}\doi{}
+\title{Uniform Two-Parameter Asymptotics for Lanczos Coefficients\\[4pt] of Centered Uniform Convolutions}
+\author[ALFANO]{\textbf{Roberto ALFANO$^{1,}$\thanks{Correspondence: roberto.alfano@physics.org}}\\[7pt]
+$^{1}$The Institution of Engineering and Technology, Futures Place, Kings Way, Stevenage SG1 2UA, United Kingdom\\[\dimexpr1.7em+3pt\relax]
+\rec{}\acc{}\finv{}}
+\amssayisi{2020 {\itshape AMS Mathematics Subject Classification:} Primary 42C05; Secondary 41A60, 31A15, 60F10}
+\begin{document}
+\maketitle
+\begin{abstract}
+Let $\beta_N^{[M]}$ be the monic three-term recurrence coefficients of the $M$-fold convolution of the uniform distribution on $[-1/2,1/2]$, whose density is the centered cardinal B-spline of order $M$. We prove that $\beta_N^{[M]}/M^2=F(N/M)+o(1)$ uniformly as $N,M\to\infty$ with $N/M$ in a compact subset of $(0,\infty)$, where $F(\alpha)=a_\alpha^2/4$ and $a_\alpha$ is the Mhaskar--Rakhmanov--Saff number of the Cram\'er rate function of the uniform law. The proof combines a saddlepoint estimate with two derivatives, uniform in the cardinal B-spline family, with the varying-weight theorem of Levin and Lubinsky. The profile $F$ increases from $0$ to $1/16$, and $F(\alpha)=\alpha/12-\alpha^2/20+O(\alpha^3)$; its first five Taylor coefficients coincide with the leading-degree coefficients of Milovanovi\'c's Conjecture~2, which concerns the different regime of fixed degree. All properties of the limiting objects, the endpoint lemma relative to the saddlepoint bound, the elementary conditions of the Levin--Lubinsky class, the reduction of the Mhaskar--Rakhmanov--Saff equations and the logic of the uniformity argument are certified in Lean~4.
+\keywords{cardinal B-splines, Lanczos coefficients, varying weights, Mhaskar--Rakhmanov--Saff numbers, saddlepoint approximation, Lean~4 verification}
+\par\kern4pt
+\end{abstract}
+
+\section{Introduction.}\label{sec:intro}
+The centered cardinal B-spline $w_M$ of order $M$ is the density of the sum $S_M$ of $M$ independent random variables uniformly distributed on $[-1/2,1/2]$. Its orthogonal polynomials were computed symbolically by Milovanovi\'c \cite{milovanovic2017} and numerically by Gautschi \cite{gautschi2017}. Milovanovi\'c also formulated two conjectures on the monic recurrence coefficients $\beta_N^{[M]}$, both in the regime of fixed degree $N$ and growing order $M$. For fixed $M$ and $N\to\infty$ the classical theory applies: $w_M$ is positive on $(-M/2,M/2)$, so Rakhmanov's theorem (see \cite{denisov2004}) gives $\beta_N^{[M]}\to M^2/16$. The present note concerns the intermediate, two-parameter regime in which the degree and the order grow together. There the external field of the scaled weight is asymptotically $M$ times the Cram\'er rate function $I$ of the uniform law, and the coefficients are governed by the Mhaskar--Rakhmanov--Saff equation of $I$. The precise statement is Theorem~\ref{thm:main}.
+
+The proof applies the varying-weight theory of Levin and Lubinsky \cite{levinlubinsky2018}. Its genuinely specific ingredient is a saddlepoint estimate for $\log w_M$ with two derivatives, uniform in $M$ (Lemma~\ref{lem:saddle}). We do not claim a rate of convergence, although the computations of Section~\ref{sec:cert} suggest an error of order $1/M$. Section~\ref{sec:prelim} fixes the notation and the classical inputs. Section~\ref{sec:profile} studies the limit profile. Sections~\ref{sec:saddle}--\ref{sec:classQ} prove the three lemmas, and Section~\ref{sec:proof} proves the theorem. Section~\ref{sec:cor} treats the profile near $0$ and $\infty$, and Section~\ref{sec:cert} reports the Lean~4 certification and the numerical checks.
+
+\section{Preliminaries.}\label{sec:prelim}
+\subsection{Notation and conventions.}\label{subsec:notation}
+Let $U_1,U_2,\ldots$ be independent and uniformly distributed on $[-1/2,1/2]$. For $M\in\N$ put
+\begin{equation}\label{eq:SM}
+S_M=\sum_{\ell=1}^MU_\ell,\qquad Y_M=\frac{S_M}{M},\qquad g_M(x)=Mw_M(Mx),\qquad \phi_M=-\frac1M\log g_M ,
+\end{equation}
+so that $w_M$ is the density of $S_M$, supported on $[-M/2,M/2]$, $g_M$ is the density of $Y_M$, supported on $[-1/2,1/2]$, and $\phi_M$ is defined on $(-1/2,1/2)$. The monic orthogonal polynomials $P_N^{[M]}$ of $w_M(x)\dd x$ satisfy, by symmetry, $P_0^{[M]}=1$, $P_1^{[M]}(x)=x$ and
+\begin{equation}\label{eq:recurrence}
+P_{N+1}^{[M]}(x)=xP_N^{[M]}(x)-\beta_N^{[M]}P_{N-1}^{[M]}(x),\qquad N\ge1 .
+\end{equation}
+Thus $\beta_N^{[M]}=\|P_N^{[M]}\|^2/\|P_{N-1}^{[M]}\|^2$ is the square of the $N$th off-diagonal entry of the orthonormal Jacobi matrix; this is Milovanovi\'c's indexing \cite[(2)--(3)]{milovanovic2017}, and translating the weight to $[0,M]$ does not change it. The Laplace transform of the uniform law and its logarithm are
+\begin{equation}\label{eq:Lambda}
+A(z)=\int_{-1/2}^{1/2}e^{zt}\dd t=\frac{2\sinh(z/2)}{z},\qquad \Lambda(s)=\log\frac{\sinh(s/2)}{s/2},\qquad s\in\R ,
+\end{equation}
+with $A(0)=1$ and $\Lambda(0)=0$. One has $\int e^{zy}w_M(y)\dd y=A(z)^M$, and the derivatives of $\Lambda$ are
+\begin{equation}\label{eq:Lambdaprime}
+\Lambda'(s)=\frac12+\frac1{e^s-1}-\frac1s,\qquad \Lambda''(s)=\frac1{s^2}-\frac1{4\sinh^2(s/2)},\qquad s\ne0 ,
+\end{equation}
+with $\Lambda'(0)=0$ and $\Lambda''(0)=1/12$. By Lemma~\ref{lem:Lambda} below, $\Lambda'$ is an increasing bijection of $\R$ onto $(-1/2,1/2)$. Its inverse is denoted $s(x)$, and we put $v(x)=\Lambda''(s(x))$ and $\kappa_j(x)=\Lambda^{(j)}(s(x))$. The Cram\'er rate function and its derivatives are
+\begin{equation}\label{eq:I}
+I(x)=\sup_{s\in\R}\{sx-\Lambda(s)\}=s(x)\,x-\Lambda(s(x)),\qquad I'(x)=s(x),\qquad I''(x)=\frac1{v(x)},\qquad |x|<\frac12 .
+\end{equation}
+For a function $G$ on $[0,1/2)$ we write $\mathcal H_G(a)=\frac1\pi\int_0^{\pi/2}G(a\sin\theta)\dd\theta$, and we use
+\begin{equation}\label{eq:H}
+H(a)=\frac1\pi\int_0^{\pi/2}a\sin\theta\,I'(a\sin\theta)\dd\theta=\frac1\pi\int_0^a\frac{xI'(x)}{\sqrt{a^2-x^2}}\dd x,\qquad H_M(a)=\frac1\pi\int_0^{\pi/2}a\sin\theta\,\phi_M'(a\sin\theta)\dd\theta ,
+\end{equation}
+for $0\le a<1/2$. For $\alpha>0$ we define $a_\alpha\in(0,1/2)$ by $H(a_\alpha)=\alpha$ (Lemma~\ref{lem:H}) and the limit profile
+\begin{equation}\label{eq:F}
+F(\alpha)=\frac{a_\alpha^2}{4}.
+\end{equation}
+Throughout, $C$ and $c$ denote positive constants whose dependence is indicated, and $K$ denotes a compact subset of $(0,\infty)$.
+
+\subsection{Classical inputs.}\label{subsec:inputs}
+We use the following results as published; they are not reproved here.
+
+\emph{Levin--Lubinsky \cite{levinlubinsky2018}.} For $n\ge1$ let $I_n=(c_n,d_n)$ with $-\infty\le c_n<d_n\le\infty$, and suppose that $[-r^*,r^*]\subset I_n$ for some $r^*>1$ and all $n$. Definition~1.1 \cite[pp.~6--7]{levinlubinsky2018} says that $\{Q_n\}\in\Qc$ if the weights $e^{-2nQ_n}$ on $I_n$ satisfy five conditions. (i) $Q_n(x)/\log(2+|x|)\to\infty$ at $c_n+$ and $d_n-$. (ii) $Q_n'$ is strictly increasing and continuous in $I_n$. (iii) There are $\alpha\in(0,1)$ and $C>0$ with $|Q_n'(x)-Q_n'(y)|\le C|x-y|^\alpha$ for $n\ge1$ and $x,y\in[-r^*,r^*]$. (iv) There are $\alpha_1\in(1/2,1)$, $C_1>0$ and an open neighbourhood $I_0$ of $1$ and $-1$ with $|Q_n'(x)-Q_n'(y)|\le C_1|x-y|^{\alpha_1}$ for $n\ge1$ and $x,y\in I_n\cap I_0$. (v) $[-1,1]$ is the support of the equilibrium distribution of $Q_n$. By Remark~(b) after that definition \cite[p.~6]{levinlubinsky2018}, condition (v) is equivalent to the Mhaskar--Rakhmanov--Saff equations
+\begin{equation}\label{eq:MRS}
+\frac1\pi\int_{-1}^1\frac{xQ_n'(x)}{\sqrt{1-x^2}}\dd x=1,\qquad \frac1\pi\int_{-1}^1\frac{Q_n'(x)}{\sqrt{1-x^2}}\dd x=0 .
+\end{equation}
+Let $p_{n,m}$ be the orthonormal polynomial of degree $m$ for $e^{-2nQ_n}$ on $I_n$, with leading coefficient $\gamma_{n,m}$, and write the recurrence as in \cite[p.~124]{levinlubinsky2018},
+\begin{equation}\label{eq:LLrec}
+xp_{n,m}(x)=A_{n,m}p_{n,m+1}(x)+B_{n,m}p_{n,m}(x)+A_{n,m-1}p_{n,m-1}(x),\qquad A_{n,m}=\frac{\gamma_{n,m}}{\gamma_{n,m+1}} ,
+\end{equation}
+the last identity being stated in the proof of Theorem~13.4 \cite[p.~138]{levinlubinsky2018}. (The recurrence printed in Theorem~2.3(c) \cite[p.~12]{levinlubinsky2018} contains a misprint, $A_{n,m}p_{n,m-1}$ for $A_{n,m}p_{n,m+1}$; we follow Chapter~13.) Theorem~13.4 \cite[p.~124]{levinlubinsky2018} states: if $\{Q_n\}\in\Qc$ and $\varepsilon\in(0,1/3)$, then for some $\tau_1>0$, uniformly for $m=m(n)$ with $|m-n|\le n^{1/3-\varepsilon}$,
+\begin{equation}\label{eq:LL134}
+A_{n,m}=\frac12+O\bigl(n^{-\tau_1}\bigr),\qquad B_{n,m}=O\bigl(n^{-\tau_1}\bigr).
+\end{equation}
+
+\emph{Floater \cite{floater2024}.} For a B-spline $B$ of degree $d\ge2$ with simple knots, Lemma~2 and inequality (11) of \cite{floater2024}, together with the remark following (11), give $BB''-\frac{d-1}{d}(B')^2<0$ on every interior knot interval, while on the two end intervals $B$ is a constant multiple of a $d$th power of the distance to the end knot. Since $BB''-(B')^2=\{BB''-\frac{d-1}d(B')^2\}-\frac1d(B')^2$, this yields $(\log B)''<0$ on every open knot interval of the support. For $w_M$ the degree is $d=M-1$ and the knots are $-M/2,-M/2+1,\ldots,M/2$.
+
+\section{The limit profile.}\label{sec:profile}
+\begin{lemma}\label{lem:Lambda}
+The function $\Lambda'$ is odd and is an increasing homeomorphism of $\R$ onto $(-1/2,1/2)$. For $s>0$,
+\begin{equation}\label{eq:Lambdabounds}
+0<\Lambda''(s)\le\frac14,\qquad 0<\Lambda'(s)\le\frac s4,\qquad \frac12-\frac1s<\Lambda'(s)\le\frac12-\frac1{s+2} .
+\end{equation}
+Consequently $I'$ is odd, continuous and strictly increasing on $(-1/2,1/2)$, and for $0\le y\le y'<1/2$,
+\begin{equation}\label{eq:Ibounds}
+I'(y)\ge0,\qquad I'(y')-I'(y)\ge4(y'-y),\qquad I'(y)\ge\frac1{1/2-y}-2 .
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Oddness of \eqref{eq:Lambdaprime} follows from $1/(e^{-s}-1)=-1-1/(e^s-1)$. With $u=s/2>0$, \eqref{eq:Lambdaprime} gives $\Lambda'(s)=(u\cosh u-\sinh u)/(2u\sinh u)$ and $\Lambda''(s)=(\sinh^2u-u^2)/(4u^2\sinh^2u)$. The functions $u\cosh u-\sinh u$ and $u^2\sinh u-u\cosh u+\sinh u$ vanish at $0$ and have derivatives $u\sinh u>0$ and $u\sinh u+u^2\cosh u\ge0$, so
+\begin{equation}\label{eq:hyp}
+\sinh u<u\cosh u,\qquad u\cosh u-\sinh u\le u^2\sinh u,\qquad u>0 .
+\end{equation}
+The first inequality gives $\Lambda'(s)>0$ and, squared with $\cosh^2u=1+\sinh^2u$, $\sinh^2u-u^2\le u^2\sinh^2u$, i.e.\ $\Lambda''(s)\le1/4$; the second gives $\Lambda'(s)\le u/2=s/4$; and $\sinh u>u$ gives $\Lambda''(s)>0$. The bounds $e^s>1+s$ and $e^s\ge1+s+s^2/2$ give the two outer inequalities of \eqref{eq:Lambdabounds}. By the mean value theorem and oddness, $\Lambda'$ is strictly increasing and $\Lambda'(\sigma')-\Lambda'(\sigma)\le(\sigma'-\sigma)/4$ for $0\le\sigma\le\sigma'$; the bound $|\Lambda'(s)|\le|s|/4$ gives continuity at $0$, and $\frac12-\frac1s<\Lambda'(s)<\frac12$ with the intermediate value theorem gives surjectivity onto $(-1/2,1/2)$. The inverse $I'$ of a strictly increasing continuous bijection is continuous and strictly increasing. For $\sigma=I'(y)\le\sigma'=I'(y')$ we have $y'-y=\Lambda'(\sigma')-\Lambda'(\sigma)\le(\sigma'-\sigma)/4$, and $y=\Lambda'(\sigma)\le\frac12-\frac1{\sigma+2}$ gives the last bound in \eqref{eq:Ibounds}.
+\end{proof}
+
+\begin{lemma}\label{lem:H}
+The function $H$ is continuous and strictly increasing on $[0,1/2)$, $H(0)=0$, and $H(a)\to\infty$ as $a\uparrow1/2$. Hence $a_\alpha$ and $F(\alpha)$ are well defined for every $\alpha>0$, $\alpha\mapsto a_\alpha$ is continuous and strictly increasing, and for $0\le a\le a'\le b<1/2$ and $0<\mathrm{lo}\le a$,
+\begin{equation}\label{eq:Hslope}
+H(a')-H(a)\ge\mathrm{lo}\,(a'-a).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+By Lemma~\ref{lem:Lambda} the function $G(y)=yI'(y)$ is continuous on $[0,b]$, vanishes at $0$ and is strictly increasing, and $G(y')-G(y)\ge4y(y'-y)$ for $0\le y\le y'\le b$. Continuity and strict monotonicity of $H=\mathcal H_G$ follow, the latter from the strict inequality at $\theta=\pi/2$. Integrating $G(a'\sin\theta)-G(a\sin\theta)\ge4\,\mathrm{lo}\,(a'-a)\sin^2\theta$ with $\int_0^{\pi/2}\sin^2\theta\dd\theta=\pi/4$ gives \eqref{eq:Hslope}. For the divergence let $0<\delta\le1/8$ and $a=\frac12-\frac{\delta^2}4$. For $\pi/2-\delta\le\theta\le\pi/2$ one has $\sin\theta=\cos(\pi/2-\theta)\ge1-\delta^2/2$, hence $y=a\sin\theta\ge1/8$ and $\frac12-y\le\delta^2/2$, and \eqref{eq:Ibounds} gives $G(y)\ge\frac{y}{1/2-y}-2y\ge\frac1{4\delta^2}-1$. Since $G\ge0$,
+\begin{equation}\label{eq:Hdiv}
+\pi H\Bigl(\frac12-\frac{\delta^2}4\Bigr)\ge\delta\Bigl(\frac1{4\delta^2}-1\Bigr)=\frac1{4\delta}-\delta ,
+\end{equation}
+which tends to $\infty$ as $\delta\downarrow0$; monotonicity completes the proof.
+\end{proof}
+
+\section{A saddlepoint estimate with two derivatives.}\label{sec:saddle}
+\begin{lemma}\label{lem:saddle}
+For every $b\in(0,1/2)$ there are $M_0$ and $C$ such that for $M\ge M_0$
+\begin{equation}\label{eq:saddle}
+\Bigl\|\log g_M+MI-\frac12\log\frac{M}{2\pi v}-\frac qM\Bigr\|_{C^2([-b,b])}\le\frac C{M^{3/2}},\qquad q=\frac{\kappa_4}{8v^2}-\frac{5\kappa_3^2}{24v^3} .
+\end{equation}
+In particular $\|\phi_M'-I'\|_{C^1([-b,b])}\le C/M$ and $\sup_{M\ge M_0}\sup_{|x|\le b}|\phi_M''(x)|<\infty$.
+\end{lemma}
+
+\begin{proof}
+\emph{Representation.} For real $s$ the probability density $e^{sy}w_M(y)A(s)^{-M}$ has characteristic function $\{A(s+\ii u)/A(s)\}^M$. Since $|2\sinh\{(s+\ii u)/2\}|\le2\cosh(s/2)$ and $|s+\ii u|\ge|u|$,
+\begin{equation}\label{eq:Adecay}
+|A(s+\ii u)|\le\frac{2\cosh(s/2)}{|u|},
+\end{equation}
+so for $M\ge2$ the characteristic function is integrable and Fourier inversion holds pointwise. Taking $y=Mx$, $s=s(x)$, and using $A(s)^Me^{-sMx}=e^{M\{\Lambda(s)-sx\}}=e^{-MI(x)}$, we obtain for $|x|<1/2$
+\begin{equation}\label{eq:rep}
+g_M(x)=\frac M{2\pi}e^{-MI(x)}J_M(x),\qquad J_M(x)=\int_{\R}G(x,u)^M\dd u,\qquad G(x,u)=e^{-\ii ux}\frac{A(s(x)+\ii u)}{A(s(x))} .
+\end{equation}
+\emph{Bounds on $G$.} The map $s$ is real-analytic, since $\Lambda''>0$, and $S=s([-b,b])$ is compact. As a characteristic function of a law with a density, $|G(x,u)|<1$ for $u\ne0$; by continuity, compactness and \eqref{eq:Adecay}, for every $\varepsilon>0$ there is $\rho_\varepsilon<1$ with $|G|\le\rho_\varepsilon$ for $|x|\le b$ and $|u|\ge\varepsilon$, and $|G|\le C/|u|$ for $|u|\ge1$. Differentiating in $x$,
+\begin{equation}\label{eq:dG}
+\partial_xG=-\ii uG+s'(x)\,e^{-\ii ux}\,\frac{A'(s+\ii u)A(s)-A(s+\ii u)A'(s)}{A(s)^2}.
+\end{equation}
+Because $A'(z)=\cosh(z/2)/z-2\sinh(z/2)/z^2$ satisfies $|A'(s+\ii u)|\le C/|u|$ for $|u|\ge1$, the second term of \eqref{eq:dG} is $O(1/|u|)$ and $|uG|\le C$, so $|\partial_xG|\le C$. In $\partial_x^2G$ the only term not bounded by a constant is $-\ii u\,\partial_xG=-u^2G+O(1)$, so $|\partial_x^2G|\le C(1+|u|)$.
+
+\emph{Outer region.} For $j\le2$, $\partial_x^j(G^M)$ is a combination of $MG^{M-1}\partial_x^jG$ and $M(M-1)G^{M-2}(\partial_xG)^2$. Hence $|\partial_x^j(G^M)|\le CM^2(1+|u|)|G|^{M-2}$, and for $|u|\ge\varepsilon$ and $M\ge7$, $|G|^{M-2}\le\rho_\varepsilon^{M-6}|G|^4$ with $(1+|u|)|G|^4$ integrable. This majorant, uniform in $|x|\le b$, justifies differentiating $J_M$ twice under the integral sign, and
+\begin{equation}\label{eq:outer}
+\sup_{|x|\le b}\Bigl|\partial_x^j\int_{|u|\ge\varepsilon}G(x,u)^M\dd u\Bigr|\le CM^2\rho_\varepsilon^{M-6},\qquad j=0,1,2 .
+\end{equation}
+\emph{Inner region.} Since $A>0$ on $\R$, we may choose $\varepsilon\in(0,1]$ so that $\Re A(\sigma+\ii u)>0$ for $\sigma$ in a neighbourhood of $S$ and $|u|\le\varepsilon$. There $G^M=e^{M\Psi}$ with the principal logarithm, $\Psi(x,u)=\Lambda(s(x)+\ii u)-\Lambda(s(x))-\ii ux$, and $\Psi$ is real-analytic in $x$ and analytic in $u$. Taylor's formula, with Cauchy's estimates for the $x$-derivatives of the remainder, gives
+\begin{equation}\label{eq:Psi}
+\Psi=-\frac v2u^2-\frac{\ii\kappa_3}6u^3+\frac{\kappa_4}{24}u^4+\Psi_5,\qquad |\partial_x^j\Psi_5|\le C|u|^5,\qquad j\le2,\ |u|\le\varepsilon .
+\end{equation}
+Shrinking $\varepsilon$ we also have $\Re\Psi\le-cu^2$. Moreover, $\partial_x\Psi=s'\{\Lambda'(s+\ii u)-\Lambda'(s)\}-\ii u$ has $u$-linear coefficient $\ii(s'v-1)$, and $\partial_x^2\Psi$ has $u$-linear coefficient $\ii(s''v+s'^2\kappa_3)$. Differentiating $\Lambda'(s(x))=x$ once and twice shows that both coefficients vanish, so
+\begin{equation}\label{eq:cancel}
+s'v=1,\qquad s''v+s'^2\kappa_3=0,\qquad |\partial_x\Psi|+|\partial_x^2\Psi|\le Cu^2,\qquad |u|\le\varepsilon .
+\end{equation}
+Put $u=z/\sqrt M$ and $Z=M^{1/12}$. On $Z<|z|\le\varepsilon\sqrt M$, \eqref{eq:cancel} gives $|\partial_x^je^{M\Psi}|\le C(1+z^4)e^{-cz^2}$, whose integral is $O(e^{-cM^{1/6}/2})$. On $|z|\le Z$ write $M\Psi=-vz^2/2+w$, so that
+\begin{equation}\label{eq:w}
+w=-\frac{\ii\kappa_3z^3}{6\sqrt M}+\frac{\kappa_4z^4}{24M}+M\Psi_5\Bigl(x,\frac z{\sqrt M}\Bigr),\qquad |\partial_x^jw|\le\frac{C(1+|z|)^5}{\sqrt M}\le CM^{-1/12},\qquad j\le2 .
+\end{equation}
+For $E=e^w-1-w-w^2/2$ one has $\partial_xE=(e^w-1-w)\partial_xw$ and $\partial_x^2E=(e^w-1-w)\partial_x^2w+(e^w-1)(\partial_xw)^2$, so $|\partial_x^jE|\le C(1+|z|)^{15}M^{-3/2}$ for $j\le2$. Collecting every term of order $M^{-3/2}$ into $\mathcal E_M$,
+\begin{equation}\label{eq:expansion}
+e^{M\Psi}=e^{-vz^2/2}\Bigl[1-\frac{\ii\kappa_3z^3}{6\sqrt M}+\frac1M\Bigl(\frac{\kappa_4z^4}{24}-\frac{\kappa_3^2z^6}{72}\Bigr)+\mathcal E_M\Bigr],\qquad |\partial_x^j\mathcal E_M|\le\frac{C(1+|z|)^{18}}{M^{3/2}} .
+\end{equation}
+The $x$-derivatives that fall on $e^{-vz^2/2}$ produce polynomial factors in $z$, so the remainder contributes $O(M^{-3/2})$ in $C^2$ after integration over $|z|\le Z$. The term in $z^3$ and its $x$-derivatives are odd in $z$ and integrate to zero over the symmetric range, and completing the Gaussian moments to $\R$ costs $O(e^{-cZ^2})$. The moments $\int z^4e^{-vz^2/2}\dd z=3\sqrt{2\pi}\,v^{-5/2}$ and $\int z^6e^{-vz^2/2}\dd z=15\sqrt{2\pi}\,v^{-7/2}$, together with \eqref{eq:outer}, give
+\begin{equation}\label{eq:JM}
+J_M=\sqrt{\frac{2\pi}{Mv}}\Bigl(1+\frac qM+R_M\Bigr),\qquad \|R_M\|_{C^2([-b,b])}\le\frac C{M^{3/2}} .
+\end{equation}
+By \eqref{eq:rep}, $\log g_M+MI-\frac12\log\{M/(2\pi v)\}=\log(1+q/M+R_M)$, and since $q$ is smooth on $[-b,b]$ this equals $q/M+O(M^{-3/2})$ in $C^2([-b,b])$. Dividing by $-M$ and differentiating gives the last assertions, because $\phi_M'-I'=-M^{-1}\{\frac12\log(1/v)\}'+O(M^{-2})$ in $C^1$.
+\end{proof}
+
+\section{Equilibrium endpoints.}\label{sec:endpoint}
+\begin{lemma}\label{lem:spline}
+For $M\ge3$ the function $\phi_M'$ is odd, continuous and strictly increasing on $(-1/2,1/2)$, with $\phi_M'(0)=0$; for $M=2$, $x\phi_2'(x)=|x|/(1-2|x|)$; for $M=1$, $\phi_1'\equiv0$. For $M\ge2$ and $x\uparrow1/2$, $x\phi_M'(x)\ge c_M/(1/2-x)$.
+\end{lemma}
+
+\begin{proof}
+The density $w_M$ is even and positive on $(-M/2,M/2)$, belongs to $C^{M-2}$, and on each knot interval is a polynomial of degree $M-1$. For $M\ge3$ it is $C^1$, and by Floater's result recalled in Section~\ref{subsec:inputs}, $(\log w_M)''<0$ on every open knot interval; hence $(\log w_M)'$ is strictly decreasing on $(-M/2,M/2)$, and the same holds for $\log g_M$, so $\phi_M'$ is strictly increasing. For $M=2$, $g_2(x)=2(1-2|x|)$. On the last knot interval $g_M(x)$ is a positive multiple of $(1/2-x)^{M-1}$, so $\phi_M'(x)=(M-1)/\{M(1/2-x)\}$ there.
+\end{proof}
+
+\begin{lemma}\label{lem:endpoint}
+\textup{(a)} For every $M\ge2$ and $t>0$ the equation $H_M(a)=t$ has a unique root $a_{t,M}\in(0,1/2)$; for $M=1$ it has no root. \textup{(b)} For every compact $K\subset(0,\infty)$ there are $0<\mathrm{lo}<b<1/2$, $C_K$ and $M_K$ such that for $M\ge M_K$ and $t\in K$ both roots $a_t$ and $a_{t,M}$ lie in $(\mathrm{lo},b)$ and
+\begin{equation}\label{eq:endpointest}
+|a_{t,M}-a_t|\le\frac{C_K}M .
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+(a) By Lemma~\ref{lem:spline}, $x\phi_M'(x)$ is continuous on $[0,1/2)$, vanishes at $0$, is strictly increasing and is bounded below by $c_M/(1/2-x)$ near $1/2$; as in Lemma~\ref{lem:H}, $H_M$ increases continuously from $0$ to $\infty$. For $M=1$, $H_1\equiv0$. (b) Let $K\subset[t_1,t_2]$. By Lemma~\ref{lem:H} choose $b<1/2$ with $H(b)\ge t_2+1$, and $\mathrm{lo}\in(0,b)$ with $H(\mathrm{lo})<t_1/2$. By Lemma~\ref{lem:saddle}, $|\phi_M'-I'|\le C/M$ on $[0,b]$, hence $|x\phi_M'(x)-xI'(x)|\le bC/M$ and
+\begin{equation}\label{eq:Hclose}
+|H_M(a)-H(a)|\le\frac{bC}{2M},\qquad 0\le a\le b .
+\end{equation}
+For $M>bC(1/t_1+1)$ this gives $H_M(\mathrm{lo})<t_1\le t\le t_2<H_M(b)$, so $a_{t,M}\in(\mathrm{lo},b)$, and likewise $a_t\in(\mathrm{lo},b)$. Then $|H(a_{t,M})-H(a_t)|=|H(a_{t,M})-H_M(a_{t,M})|\le bC/(2M)$, and \eqref{eq:Hslope} gives \eqref{eq:endpointest} with $C_K=bC/(2\,\mathrm{lo})$.
+\end{proof}
+
+\section{The Levin--Lubinsky class.}\label{sec:classQ}
+For $N,M\in\N$ with $M\ge2$ put $t=N/M$, $a=a_{N,M}=a_{t,M}$, and define $Q_{N,M}$ on $I_{N,M}=(-1/(2a),1/(2a))$ by
+\begin{equation}\label{eq:QNM}
+e^{-2NQ_{N,M}(y)}=a\,g_M(ay),\qquad Q_{N,M}(y)=\frac M{2N}\phi_M(ay)-\frac{\log a}{2N},\qquad Q_{N,M}'(y)=\frac{aM}{2N}\phi_M'(ay).
+\end{equation}
+
+\begin{lemma}\label{lem:classQ}
+Let $K\subset(0,\infty)$ be compact. There are $N_0$, $r^*>1$, $C>0$, $C_1>0$ and an open neighbourhood $I_0$ of $\pm1$ such that, with $\alpha=1/4$ and $\alpha_1=3/4$, the weights \eqref{eq:QNM} with $N\ge N_0$ and $N/M\in K$ satisfy conditions \textup{(i)}--\textup{(v)} of Definition~\textup{1.1} of \cite{levinlubinsky2018} with these constants.
+\end{lemma}
+
+\begin{proof}
+Let $b,\mathrm{lo}$ be as in Lemma~\ref{lem:endpoint}(b) and choose $r^*>1$ with $r^*b<1/2$, which is possible because $b<1/2$. For $N\ge N_0$ we have $M\ge M_K$, $a\in(\mathrm{lo},b)$ and so $[-r^*,r^*]\subset I_{N,M}$. Condition (i) holds because $g_M$ vanishes at $\pm1/2$, so $Q_{N,M}\to\infty$ at the finite endpoints of $I_{N,M}$. Condition (ii) is Lemma~\ref{lem:spline}, since $M\ge3$. By \eqref{eq:QNM} and Lemma~\ref{lem:saddle} applied on $[-r^*b,r^*b]$, for $x,y\in[-r^*,r^*]$,
+\begin{equation}\label{eq:Lip}
+|Q_{N,M}'(x)-Q_{N,M}'(y)|\le\frac{a^2M}{2N}\Bigl(\sup_{|u|\le r^*b}|\phi_M''(u)|\Bigr)|x-y|\le L|x-y| ,
+\end{equation}
+with $L$ independent of $(N,M)$, because $M/N\le1/\min K$. A Lipschitz bound on $[-r^*,r^*]$ implies $|Q'(x)-Q'(y)|\le L(2r^*)^{1-\gamma}|x-y|^\gamma$ for every $\gamma\in(0,1]$, which gives (iii) with $\alpha=1/4$ and (iv) with $\alpha_1=3/4$ and $I_0=\{x:\bigl||x|-1\bigr|<\eta\}$, $1+\eta<r^*$; note $\alpha\le\alpha_1-1/2$, as in Remark~(e) after Definition~1.1. For (v) we use \eqref{eq:MRS}. The second equation holds because $Q_{N,M}'$ is odd. In the first, the substitution $x=\cos\theta$ and then $x=a\sin\theta$ in \eqref{eq:QNM}, with the oddness of $\phi_M'$, give
+\begin{equation}\label{eq:MRSreduce}
+\frac1\pi\int_{-1}^1\frac{xQ_{N,M}'(x)}{\sqrt{1-x^2}}\dd x=\frac1\pi\int_0^\pi\cos\theta\,Q_{N,M}'(\cos\theta)\dd\theta=\frac MN\,H_M(a),
+\end{equation}
+which equals $1$ exactly when $H_M(a)=N/M$, the defining equation of $a=a_{N,M}$.
+\end{proof}
+
+\section{Proof of the theorem.}\label{sec:proof}
+\begin{theorem}\label{thm:main}
+For every compact $K\subset(0,\infty)$,
+\begin{equation}\label{eq:main}
+\lim_{L\to\infty}\ \sup_{\substack{N,M\in\N,\ N\ge L\\ N/M\in K}}\Bigl|\frac{\beta_N^{[M]}}{M^2}-F\Bigl(\frac NM\Bigr)\Bigr|=0 .
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+\emph{Scaling.} Let $y=Y_M/a$ with $a=a_{N,M}$, so that $S_M=May$ and $y$ has the weight $e^{-2NQ_{N,M}}$ of \eqref{eq:QNM}. If $h_n^{y}$ and $h_n^{S}$ are the squared norms of the monic orthogonal polynomials of $y$ and of $S_M$, then $P_n^{[M]}(X)=(Ma)^nP_n^{y}\{X/(Ma)\}$ and $h_n^{S}=(Ma)^{2n}h_n^{y}$. Since $\gamma_{N,n}=(h_n^{y})^{-1/2}$, \eqref{eq:LLrec} gives
+\begin{equation}\label{eq:scaling}
+\beta_N^{[M]}=\frac{h_N^{S}}{h_{N-1}^{S}}=(Ma)^2\frac{h_N^{y}}{h_{N-1}^{y}}=(Ma)^2A_{N,N-1}^2 .
+\end{equation}
+\emph{Sequences.} Let $K\subset[t_1,t_2]$ with $0<t_1<t_2$ and $E(N,M)=\beta_N^{[M]}/M^2-F(N/M)$. Let $m:\N\to\N$ satisfy $n/m(n)\in[t_1,t_2]$ for all large $n$. Put $Q_n=Q_{n,m(n)}$ for $n\ge N_0$, with $N_0$ from Lemma~\ref{lem:classQ} for $[t_1,t_2]$, and $Q_n(x)=x^2$ on $I_n=\R$ for $n<N_0$; the latter satisfies (i)--(v), since $\frac1\pi\int_{-1}^12x^2(1-x^2)^{-1/2}\dd x=1$. Then $\{Q_n\}\in\Qc$, and \eqref{eq:LL134} with $m=n-1$, which lies in the window $|m-n|\le n^{1/3-\varepsilon}$, gives $A_{n,n-1}\to1/2$. By \eqref{eq:scaling}, $E(n,m(n))=a_{n,m(n)}^2A_{n,n-1}^2-a_t^2/4$ with $t=n/m(n)$, and Lemma~\ref{lem:endpoint}(b) gives $a_{n,m(n)}-a_t\to0$. Hence $E(n,m(n))\to0$.
+
+\emph{Uniformity.} Suppose \eqref{eq:main} fails. Then there are $\varepsilon>0$ and pairs $(N_j,M_j)$ with $N_j$ strictly increasing, $N_j/M_j\in K$ and $|E(N_j,M_j)|\ge\varepsilon$. For every large $n$ there is $M$ with $n/M\in[t_1,t_2]$, for instance $M=\lceil n/t_2\rceil$. Define $m(N_j)=M_j$ and fill the other large $n$ in this way. By the previous step $E(n,m(n))\to0$, which contradicts $|E(N_j,M_j)|\ge\varepsilon$.
+\end{proof}
+
+\section{The profile near $0$ and $\infty$.}\label{sec:cor}
+\begin{corollary}\label{cor:F}
+The profile $F$ is continuous and strictly increasing on $(0,\infty)$, $0<F<1/16$, $F(\alpha)\to1/16$ as $\alpha\to\infty$, and as $\alpha\downarrow0$
+\begin{equation}\label{eq:Fseries}
+F(\alpha)=\frac{\alpha}{12}-\frac{\alpha^2}{20}+\frac{4\alpha^3}{525}+\frac{2\alpha^4}{525}+\frac{368\alpha^5}{336875}-\frac{544\alpha^6}{1340625}+O(\alpha^7).
+\end{equation}
+\end{corollary}
+
+\begin{proof}
+The first assertions follow from Lemma~\ref{lem:H}, since $a_\alpha\uparrow1/2$. The function $\Lambda'$ is analytic at $0$ with $\Lambda'(s)=\sum_{k\ge1}B_{2k}s^{2k-1}/(2k)!=s/12-s^3/720+\cdots$, where $B_{2k}$ are the Bernoulli numbers, and $\Lambda''(0)=1/12\ne0$. Hence $I'$ is analytic and odd at $0$, and inversion of the series gives
+\begin{equation}\label{eq:Iseries}
+I'(x)=12x+\frac{144}5x^3+\frac{19008}{175}x^5+\frac{393984}{875}x^7+O(x^9).
+\end{equation}
+Inserting this in \eqref{eq:H} and using $\int_0^{\pi/2}\sin^{2k}\theta\dd\theta=\frac\pi2\binom{2k}k4^{-k}$ gives
+\begin{equation}\label{eq:Hseries}
+H(a)=3a^2+\frac{27}5a^4+\frac{594}{35}a^6+\frac{1539}{25}a^8+O(a^{10}),
+\end{equation}
+and inverting $\alpha=H(a)$ for $a^2$ to sixth order gives \eqref{eq:Fseries}; the coefficients were obtained by exact rational arithmetic \cite{alfano2026cert}.
+\end{proof}
+
+Milovanovi\'c's Conjecture~2 \cite[p.~347]{milovanovic2017} asserts that for fixed $k\ge1$ and $m\to\infty$
+\begin{multline}\label{eq:conj2}
+\beta_k^{[m]}\asymp\frac k{12}m-\frac{k(k-1)}{20}+\frac{4k(k-1)(k-2)}{525m}+\frac{2k(k-1)(k-2)(5k-9)}{2625m^2}\\
++\frac{2k(k-1)(k-2)(552k^2-1279k+255)}{1010625m^3}+\cdots .
+\end{multline}
+The coefficients of the leading-degree monomials $k^jm^{2-j}$ of the five terms of \eqref{eq:conj2} are $\frac1{12}$, $-\frac1{20}$, $\frac4{525}$, $\frac{10}{2625}=\frac2{525}$ and $\frac{1104}{1010625}=\frac{368}{336875}$, which are exactly the first five coefficients of \eqref{eq:Fseries}. This is a consistency between two different regimes, not a proof of the conjecture or a consequence of Theorem~\ref{thm:main}, because no uniformity connecting fixed $k$ with $k\asymp m$ is available. The fixed-degree first two terms are the content of Theorem~5.1 of the manuscript V035, which Theorem~\ref{thm:main} neither implies nor uses; there the subleading term $+k/20$ of $-k(k-1)/20$ is visible, while in the ratio regime it is of lower order.
+
+\section{Certification and numerical evidence.}\label{sec:cert}
+\emph{Lean~4.} The library \lean{UniformLanczos} \cite{alfano2026cert}, compiled with the Lean~4 toolchain \lean{v4.35.0-rc3} and Mathlib commit \lean{0272bbe1c093}, contains no \lean{sorry}, and every main declaration depends only on the axioms \lean{propext}, \lean{Classical.choice} and \lean{Quot.sound}. It certifies the following statements. Lemma~\ref{lem:Lambda} in full, with $\Lambda'$ in the closed form \eqref{eq:Lambdaprime}, including the inverse $I'$ and \eqref{eq:Ibounds} (module \lean{Lambda}). Lemma~\ref{lem:H} in full, with $H$ in the $\theta$-form of \eqref{eq:H} (\lean{Endpoint}, \lean{EndpointConcrete}). Lemma~\ref{lem:endpoint}(b) relative to two hypotheses on the finite-$M$ functions, namely the bound $|\phi_M'-I'|\le C/M$ of Lemma~\ref{lem:saddle} and the regularity of Lemma~\ref{lem:spline} (\lean{endpoint\_concrete}). The cancellations \eqref{eq:cancel} and the identities \eqref{eq:I} (\lean{Cancellation}). In Lemma~\ref{lem:classQ}, the formula \eqref{eq:QNM} for $Q'$, the Lipschitz transfer \eqref{eq:Lip}, Lipschitz~$\Rightarrow$~H\"older, $[-r^*,r^*]\subset I_{N,M}$, the arcsine substitution in \eqref{eq:MRSreduce} for Lebesgue integrals without any integrability hypothesis, and the equivalence of \eqref{eq:MRS} with the endpoint equation (\lean{ClassQ}, \lean{MRS}, \lean{Arcsine}). The scaling \eqref{eq:scaling} and the uniformity argument with the filling step (\lean{Diagonal}). The first two terms of \eqref{eq:Fseries}, unconditionally: the bound $|I'(x)-12x-\frac{144}5x^3|\le520x^5$ for $0\le x\le\Lambda'(1)$, obtained from $|\Lambda'(s)-\frac s{12}+\frac{s^3}{720}|\le s^5/25600$ for $0<s\le2$, and the resulting $|F(\alpha)-\frac\alpha{12}+\frac{\alpha^2}{20}|\le K\alpha^3$ (\lean{Corollary}, \lean{Expansion}). Not formalised are the Fourier--Laplace analysis of Lemma~\ref{lem:saddle}, Lemma~\ref{lem:spline} (Floater's inequality), the coefficients of \eqref{eq:Fseries} beyond the second, which rest on exact rational series arithmetic, and the potential theory of \cite{levinlubinsky2018} used in \eqref{eq:MRS} and \eqref{eq:LL134}; in the formal statements these enter as explicit hypotheses.
+
+\emph{Numerical checks.} Table~\ref{tab:beta} compares $\beta_N^{[M]}/M^2$ with $F(N/M)$. The coefficients were computed by Gauss--Legendre discretisation on each knot interval, which is exact for the first $N$ coefficients, and the Stieltjes procedure in 64-bit-mantissa arithmetic; they agree to about $17$ digits with exact rational values for small $(N,M)$ \cite{alfano2026cert}. The quantity $ME$ is essentially independent of $M$, which suggests $E=c(t)/M+O(M^{-2})$; this rate is not claimed. The same programs confirm \eqref{eq:saddle}: at $x=0.25$, $M$ times the left side of \eqref{eq:saddle} without the term $q/M$ tends to $q(0.25)\approx-0.184391$.
+
+\begin{table}[h]
+\caption{The error $E=\beta_N^{[M]}/M^2-F(N/M)$ for $N=tM$; $F(t)$ to seven digits.}\label{tab:beta}
+\vspace{10pt}
+\centering
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+$t$ & $F(t)$ & $ME$, $M=100$ & $ME$, $M=200$ & $ME$, $M=400$ & $E$, $M=400$\\
+\midrule
+$1/4$ & $0.0178432$ & $0.010828$ & $0.010800$ & $0.010786$ & $2.70\times10^{-5}$\\
+$1/2$ & $0.0303768$ & $0.017171$ & $0.017111$ & $0.017081$ & $4.27\times10^{-5}$\\
+$1$   & $0.0445361$ & $0.017648$ & $0.017602$ & $0.017579$ & $4.39\times10^{-5}$\\
+$2$   & $0.0548091$ & $0.010479$ & $0.010471$ & $0.010466$ & $2.62\times10^{-5}$\\
+$4$   & $0.0598372$ & $0.004340$ & $0.004341$ & $0.004342$ & $1.09\times10^{-5}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\emph{Status.} With the published inputs of Section~\ref{subsec:inputs}, the proof above is complete. This revision was prepared with the assistance of Claude (Anthropic) as a technical tool, for checking the proofs against the cited sources, completing the missing estimates, writing the Lean~4 certificates and running the computations; the decision on incorporation into the manuscript rests with the author.
+
+\renewcommand{\refname}{References.}
+\renewcommand{\baselinestretch}{1}\selectfont
+\begin{thebibliography}{9}
+\bibitem{alfano2026cert} R. Alfano, \emph{Certification repository for this note}: Lean~4 library and numerical programs with logs, branch hjm2026-check.\urlsep\TJMWholeURL{https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations}.
+\bibitem{denisov2004} S. A. Denisov, On Rakhmanov's theorem for Jacobi matrices, \emph{Proc. Amer. Math. Soc.} \textbf{132} (2004), 847--852.\urlsep\TJMWholeURL{https://doi.org/10.1090/S0002-9939-03-07157-0}.
+\bibitem{floater2024} M. S. Floater, Log-concavity of B-splines, \emph{J. Approx. Theory} \textbf{300} (2024), 106042.\urlsep\TJMWholeURL{https://doi.org/10.1016/j.jat.2024.106042}.
+\bibitem{gautschi2017} W. Gautschi, Polynomials orthogonal with respect to cardinal B-spline weight functions, \emph{Numer. Algorithms} \textbf{76} (2017), 1099--1107.\urlsep\TJMWholeURL{https://doi.org/10.1007/s11075-017-0298-9}.
+\bibitem{levinlubinsky2018} E. Levin and D. S. Lubinsky, \emph{Bounds and Asymptotics for Orthogonal Polynomials for Varying Weights}, SpringerBriefs in Mathematics, Springer, Cham, 2018.\urlsep\TJMWholeURL{https://doi.org/10.1007/978-3-319-72947-3}.
+\bibitem{milovanovic2017} G. V. Milovanovi\'c, Symbolic--numeric computation of orthogonal polynomials and Gaussian quadratures with respect to the cardinal B-spline, \emph{Numer. Algorithms} \textbf{76} (2017), 333--347.\urlsep\TJMWholeURL{https://doi.org/10.1007/s11075-016-0256-y}.
+\end{thebibliography}
+\end{document}

@@ -1,0 +1,64 @@
+V033 - Formal theorem map (21 October 2026)
+
+Notation: M is the positive integer number of uniform summands.
+The final Lean theorems index the positive degree as j+1, where j : Nat.
+Substituting manuscript degree n=j+1 gives:
+  beta_n(M) = n*M/12 - n*(n-1)/20 + O_n(1/M).
+
+FINAL STATEMENTS
+1. uniform_integral_hankel_two_term concerns literal integrals on a probability
+   space of sums of a measurable independent uniform family. There is no
+   assumed orthogonal polynomial family in this theorem. The relevant
+   determinant is proved eventually nonzero, and a C/M error bound is proved.
+2. uniform_probability_two_term concerns the manuscript's monic family.
+   Its additional hypotheses spell out degree, monicity, integral orthogonality,
+   P_0=1, P_1=X, and the defining three-term recurrence. The norm/determinant
+   formula for beta is proved, not supplied as a hypothesis.
+3. canonical_two_term has no probability or polynomial-family parameters:
+   it proves the bound and eventual nonvanishing for the exactly defined
+   uniform-sum moment recurrence. The probability bridge identifies that
+   recurrence with actual uniform-sum integrals.
+
+PROOF MAP (source files and one-based declaration lines)
+  all_sum_moments: lean/V033UniformSumMoments.lean:87
+  normalizedEGFPolynomial_exact: lean/V033CumulantPolynomials.lean:146
+  momentMap_linear: lean/V033MomentFunctional.lean:72
+  gram_posDef: lean/V033GaussianGram.lean:77
+  determinant_linear: lean/V033GramExpansion.lean:81
+  rational_remainder_bound: lean/V033RationalRemainder.lean:49
+  coefficient_as_determinants: lean/V033RecurrenceGram.lean:57
+  two_term_lanczos_asymptotic: lean/V033AllDegreeTheorem.lean:44
+  uniform_probability_two_term: lean/V033AllDegreeTheorem.lean:63
+  uniform_integral_hankel_two_term: lean/V033AllDegreeTheorem.lean:124
+  canonical_two_term: lean/V033AllDegreeTheorem.lean:94
+
+Finite algebra route: actual moments -> exact cumulant polynomials -> Gaussian
+constant term and fourth-Hermite correction -> diagonal Gaussian Gram matrix
+-> first determinant coefficient -> exact quadratic polynomial remainder
+-> rational-function continuity and eventual nonzero denominator -> C/M bound.
+An Edgeworth theorem and uniform density expansions are not used.
+
+ASSUMPTIONS / LIMITS
+- The distribution is the ordinary uniform law on [-1/2,1/2]; the Lean law uses
+  the half-open interval Ioc. Endpoint equivalence with the closed interval
+  is proved in V033UniformSumMoments.lean.
+- Every fixed positive degree is covered. The constants and threshold are
+  existential and degree-dependent. They are not optimized or explicitly
+  numerically evaluated. No joint growing-degree asymptotic is claimed.
+- Gaussian polynomial expectations are defined by the exact Gaussian moment
+  recurrence and proved positive. Identifying them with a separately defined
+  Gaussian measure is unnecessary for this algebraic proof and is not claimed.
+- An infinite orthogonal family is not separately constructed. Its defining
+  properties are the explicit hypotheses of the recurrence-family theorem.
+  The canonical and integral-Hankel results do not rely on that hypothesis.
+- All-positive-M pole exclusion for every original expanded JSON denominator
+  remains a paper argument. Eventual nonvanishing for the general asymptotic
+  theorem is now proved in Lean.
+- Originality/priority is not certified. The finite inputs are unchanged.
+
+AXIOM AUDIT
+499 earlier declarations plus 132 new declarations; only propext,
+Classical.choice and Quot.sound. No sorry, custom axioms, or native_decide.
+Run code/verify_lean_portable.sh with the pinned Lean and mathlib versions.
+See results/V033Verification.log and results/V033FullVerification.log after
+a full rebuild; archived audit logs also appear under results/.

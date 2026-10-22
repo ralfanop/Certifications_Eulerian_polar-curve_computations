@@ -1,0 +1,9 @@
+lean/V033MomentFunctional.lean:14:63: warning: This simp argument is unused:
+  Nat.add_div
+
+Hint: Omit it from the simp argument list.
+  simp [momentPolynomial,̵ ̵N̵a̵t̵.̵a̵d̵d̵_̵d̵i̵v̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+'V033.UniformSum.momentMap_linear' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.actual_moment' depends on axioms: [propext, Classical.choice, Quot.sound]

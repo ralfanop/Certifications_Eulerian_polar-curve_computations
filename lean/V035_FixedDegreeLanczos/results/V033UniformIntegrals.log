@@ -1,0 +1,2 @@
+'V033.uniform_even_integral' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.uniform_odd_integral' depends on axioms: [propext, Classical.choice, Quot.sound]

@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-20",
+  "package_updated": "2026-10-21",
+  "readme_included": true,
+  "uniform_integrals_in_portable_verification": true,
+  "mathematical_verdict": "verified for every fixed positive integer j",
+  "twelve_rational_functions": "all exact symbolic identities verified",
+  "finite_lean_certificates": "passed",
+  "full_all_degree_probability_asymptotic_theorem_in_lean": "VERIFIED: actual integral Hankel theorem and defining monic recurrence family theorem",
+  "lean": "4.24.0",
+  "mathlib_commit": "f897ebcf72cd16f89ab4577d0c826cd14afaafc7",
+  "axiom_audit_declarations": 631,
+  "axioms_used": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+  ],
+  "admitted_proofs": false,
+  "native_decide": false,
+  "python": "3.12.14",
+  "python_flint": "0.9.0",
+  "independent_integer_specializations": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    10
+  ],
+  "extra_symbolic_evaluation": [
+    335
+  ],
+  "positive_integer_pole_exclusion": "proved mathematically by Gram positivity; not formalised for all M",
+  "novelty": "not certified; two terms present in Milovanovic Conjecture 2",
+  "input_files_unchanged": true,
+  "V032_used_as_independent_confirmation": false,
+  "new_general_declarations": 132,
+  "new_general_modules": 14,
+  "eventual_denominator_nonvanishing": "proved for every fixed degree",
+  "moment_probability_bridge": "proved for arbitrary independent uniform sums and every moment order",
+  "gaussian_gram_positive_definite": "proved at every finite order",
+  "remainder": "exists C_j>0,N_j>0; all integers M>=N_j satisfy the C_j/M bound; constants may depend on degree",
+  "edgeworth_theorem_required": false,
+  "infinite_orthogonal_family_construction": "not constructed separately; the recurrence theorem quantifies over the defining family; integral-Hankel theorem does not assume a family",
+  "full_rebuild_exit_code": 0,
+  "lean_source_files": 56,
+  "portable_script_includes_all_modules": true,
+  "kernel_audit_summary": "results/KERNEL_AUDIT_SUMMARY.json",
+  "pdf_pages": 8
+}

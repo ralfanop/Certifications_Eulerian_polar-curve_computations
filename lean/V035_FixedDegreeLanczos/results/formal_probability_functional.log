@@ -1,0 +1,3 @@
+'V033.UniformSum.rawFunctional_actual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.functional_actual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.hankel_scaling' depends on axioms: [propext, Classical.choice, Quot.sound]

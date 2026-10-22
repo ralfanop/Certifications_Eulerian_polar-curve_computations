@@ -1,0 +1,19 @@
+lean/V033CumulantPolynomials.lean:79:8: warning: 'ring' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+lean/V033CumulantPolynomials.lean:79:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+lean/V033CumulantPolynomials.lean:142:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+lean/V033CumulantPolynomials.lean:172:10: warning: 'ring' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+lean/V033CumulantPolynomials.lean:172:10: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+'V033.UniformSum.normalizedEGFPolynomial_exact' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.even_moment_coefficient' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.cumulant_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.cumulant_one' depends on axioms: [propext, Classical.choice, Quot.sound]
