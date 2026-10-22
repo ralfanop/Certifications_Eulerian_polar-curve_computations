@@ -21,7 +21,8 @@ Proved here, with no `sorry`:
 * `endpoint_lemma` : the assembled Lemma 2: uniformly for `t ∈ [t₁,t₂]`, for every `M` with
   `C/M` below an explicit threshold, the finite-`M` root `a_M(t)` exists, is unique in `[0,b]`,
   lies in `[lo,hi]` and satisfies `|a_M(t) - a_t| ≤ 2 b C/(m lo M)`.
-Inputs that are hypotheses (proved elsewhere or on paper): continuity and strict monotonicity of
+For the concrete `I'` all limit hypotheses are discharged in `EndpointConcrete.lean`
+(`endpoint_concrete`).  Inputs that are hypotheses here (proved elsewhere or on paper): continuity and strict monotonicity of
 `φ_M'` (Floater 2024 / log-concavity), the bound `|φ_M' - I'| ≤ C/M` on `[0,b]` (Lemma 1),
 the properties `I' ≥ 0`, `I'' ≥ m > 0` on `[0,b]` (Legendre duality, `Cancellation.lean`),
 and `H(lo) < t₁ ≤ t₂ < H(hi)` (which holds for suitable `lo, hi` because `H(0) = 0` and

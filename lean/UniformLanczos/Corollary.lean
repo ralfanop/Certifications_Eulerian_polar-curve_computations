@@ -9,8 +9,9 @@ With `Hint` from `Endpoint.lean` and `H(a) = Hint (x ↦ x I'(x)) a`:
 * `inversion` : if `α = 3A + (27/5)A² + r`, `|r| ≤ C A³`, `0 ≤ A ≤ 1`, then
   `|A/4 - (α/12 - α²/20)| ≤ K A³` with explicit `K`; with `A = a²`, `F(α) = a²/4`, this is
   `F(α) = α/12 - α²/20 + O(α³)` (and `A ≤ α/2` for small `A`, see `A_le_half_alpha`).
-The expansion `I'(x) = 12x + (144/5)x³ + O(x⁵)` itself (inversion of
-`Λ'(s) = s/12 - s³/720 + O(s⁵)`) is a hypothesis here.
+The expansion `I'(x) = 12x + (144/5)x³ + O(x⁵)` is a hypothesis of `Hint_expansion`; it is
+proved for the concrete `I'` in `Expansion.lean` (`Ip_expansion`), and `F_expansion` there
+assembles the unconditional statement.
 -/
 import UniformLanczos.Endpoint
 

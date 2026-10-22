@@ -185,18 +185,20 @@ All files in this repository are released under CC0 1.0 Universal (see `LICENSE`
 
 ## 6. Uniform Lanczos note (V035 candidate, 22 October 2026)
 
-Referee review of the note "Uniform two-parameter asymptotics for Lanczos coefficients of
-centered uniform convolutions". **Not part of V032/V035**; the manuscripts are unchanged.
+Referee review and revised note "Uniform two-parameter asymptotics for Lanczos coefficients of
+centered uniform convolutions" (`reports/`). **Not part of V032/V035**; the manuscripts are unchanged.
 
-* `lean/UniformLanczos/` (library `UniformLanczos`, 6 modules): the formalisable core of the three
-  lemmas and of the proof of the theorem — derivative cancellations and Legendre duality (Lemma 1),
-  the complete endpoint lemma from its analytic inputs (Lemma 2), the elementary conditions of
-  Levin–Lubinsky's class 𝒬 and the reduction of the MRS equations to the endpoint equation
-  (Lemma 3), the scaling β = (Ma)²A², the diagonal uniformity argument, and the small-α expansion
-  of F. `lake build UniformLanczos` succeeds with no `sorry`; all 30 main declarations use only
-  `propext`, `Classical.choice`, `Quot.sound` (`lean/logs/uniform_lanczos_axioms.log`, from
-  `lean/ULAxiomCheck.lean`).
-* **Not formalised:** the Fourier/Laplace analysis of Lemma 1, log-concavity of B-splines,
-  properties of the concrete Λ, and all potential theory (Levin–Lubinsky Remark (b) after
-  Def. 1.1 and Theorem 13.4). These enter the formal statements as hypotheses.
+* `lean/UniformLanczos/` (library `UniformLanczos`, 10 modules). `lake build UniformLanczos` succeeds
+  with no `sorry`; all 61 main declarations use only `propext`, `Classical.choice`, `Quot.sound`
+  (`lean/logs/uniform_lanczos_axioms.log`, from `lean/ULAxiomCheck.lean`). Certified: the concrete
+  Λ′ and its inverse I′ (`Lambda`), divergence of H and the endpoint lemma with every limit property
+  proved (`Endpoint`, `EndpointConcrete`), derivative cancellations and Legendre duality
+  (`Cancellation`), the elementary conditions of Levin–Lubinsky's class 𝒬 (`ClassQ`), the arcsine
+  substitution and the reduction of the MRS equations (1.13)–(1.14) to the endpoint equation
+  (`MRS`, `Arcsine`), the scaling β = (Ma)²A² and the diagonal uniformity argument (`MRS`,
+  `Diagonal`), and F(α) = α/12 − α²/20 + O(α³) unconditionally (`Corollary`, `Expansion`).
+* **Not formalised:** the Fourier/Laplace analysis of Lemma 1 (the bound |φ_M′ − I′| ≤ C/M and the
+  bound on φ_M″), log-concavity of B-splines (Floater 2024), and all potential theory
+  (Levin–Lubinsky Remark (b) after Def. 1.1 and Theorem 13.4). These enter the formal statements as
+  explicit hypotheses.
 * `numerics/uniform_lanczos/`: independent numerical consistency checks (see its README).

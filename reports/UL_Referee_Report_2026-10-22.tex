@@ -552,14 +552,14 @@ described as ``to the author's knowledge new''.
 
 \textbf{Environment.} Lean \texttt{v4.35.0}, Mathlib commit
 {\small\texttt{0272bbe1c093d038d7257ab15306abd58245f9ff}}\linebreak (the same as for the certification
-repository of V478). Library \texttt{UniformLanczos} (six modules) in the repository
+repository of V478). Library \texttt{UniformLanczos} (ten modules) in the repository
 \texttt{ralfanop/Certifications\_Eulerian\_polar-curve\_computations}, branch
 \texttt{hjm2026-check}, folder \texttt{lean/UniformLanczos}. Every file compiles with no
-error and no \texttt{sorry}, and no \texttt{native\_decide} is used. All 30 main
+error and no \texttt{sorry}, and no \texttt{native\_decide} is used. All 61 main
 declarations depend only on Lean's standard axioms \texttt{propext},
 \texttt{Classical.choice} and \texttt{Quot.sound} (file \texttt{lean/ULAxiomCheck.lean},
 log \texttt{lean/logs/uniform\_lanczos\_axioms.log}). A clean build of the library takes
-about 40~seconds.
+about 95~seconds.
 
 \textbf{What is machine-checked.} The following list gives the module and the
 main declarations for each part of the note.
@@ -586,6 +586,22 @@ $\beta=(Ma)^2A^2$ (\texttt{cos\_odd\_eq\_two\_sin}, \texttt{mrs\_first\_iff},
 $H(a)=3a^2+\frac{27}5a^4+O(a^6)$ from that of $I'$, and the inversion to
 $F(\alpha)=\frac\alpha{12}-\frac{\alpha^2}{20}+O(\alpha^3)$
 (\texttt{Hint\_expansion}, \texttt{A\_le\_half\_alpha}, \texttt{inversion}).
+\item \texttt{Lambda} (added in the revision): the concrete $\Lambda'(s)=\frac12+\frac1{e^s-1}-\frac1s$ is odd,
+an increasing homeomorphism $\R\to(-\frac12,\frac12)$, with $0<\Lambda''\le\frac14$,
+$0<\Lambda'(s)\le\frac s4$ and $\frac12-\frac1s<\Lambda'(s)\le\frac12-\frac1{s+2}$ for $s>0$; its
+inverse $I'$ is continuous and strictly increasing, with $I'(y')-I'(y)\ge4(y'-y)$ and
+$I'(y)\ge\frac1{1/2-y}-2$.
+\item \texttt{EndpointConcrete} (added): $H(a)\to\infty$ as $a\uparrow\frac12$, and Lemma~2(c) with every
+property of the limit proved; only the bound $|\phi_M'-I'|\le C/M$ (Lemma~1) and the regularity of
+$\phi_M'$ (Floater) remain hypotheses (\texttt{Hint\_unbounded}, \texttt{endpoint\_concrete}).
+\item \texttt{Arcsine} (added): the substitution $y=\cos\theta$ in the improper integrals (1.13)--(1.14)
+of Levin--Lubinsky, for Lebesgue integrals and with no integrability hypothesis, and the equivalence of
+(1.13) with the endpoint equation (\texttt{arcsine\_substitution}, \texttt{mrs\_LL\_first\_iff},
+\texttt{mrs\_LL\_second}).
+\item \texttt{Expansion} (added): $|\Lambda'(s)-\frac s{12}+\frac{s^3}{720}|\le s^5/25600$ for $0<s\le2$,
+$|I'(x)-12x-\frac{144}5x^3|\le520x^5$ for $0\le x\le\Lambda'(1)$, and unconditionally
+$F(\alpha)=\frac\alpha{12}-\frac{\alpha^2}{20}+O(\alpha^3)$ (\texttt{Lp\_taylor}, \texttt{Ip\_expansion},
+\texttt{F\_expansion}).
 \end{enumerate}
 
 \textbf{What is \emph{not} machine-checked.} The following inputs are hypotheses of the
@@ -594,18 +610,29 @@ formal statements, not formal theorems.
 \item The analytic content of Lemma~1, i.e.\ the representation \eqref{eq:rep}, the bounds on
 $G$ and the Laplace-method estimates. Consequently the hypotheses
 $|\phi_M'-I'|\le C/M$ and $\sup|\phi_M''|<\infty$ are not formal.
-\item The facts about the concrete $\Lambda$: $\Lambda''>0$, $\Lambda'(\pm\infty)=\pm\frac12$,
-$H(a)\to\infty$, and the expansion of $I'$ at $0$.
 \item The log-concavity of B-splines (Floater).
-\item The substitution $y=\cos\theta$ in the improper MRS integrals.
 \item All potential theory, i.e.\ Remark~(b) after Definition~1.1 and Theorem~13.4 of
 Levin--Lubinsky. Neither is in Mathlib, and formalising them is far beyond the scope of
 this review.
 \end{enumerate}
 Hence the three lemmas are \emph{not} formalised in full. Lemma~2 is formalised completely
-from its stated inputs. Lemmas~1 and~3 are formalised only in their algebraic and
+except for its two finite-$M$ inputs (the bound of Lemma~1 and Floater's log-concavity). Lemmas~1 and~3 are formalised only in their algebraic and
 elementary parts. The deduction of the theorem from them is formalised as logic, with
 Levin--Lubinsky's theorem entering as an explicit hypothesis.
+
+\section{Addendum: revision of the same day.}\label{sec:addendum}
+At the author's request every defect listed in Section~\ref{sec:audit} has been corrected in a
+separate revised note, \emph{Uniform Two-Parameter Asymptotics for Lanczos Coefficients of Centered
+Uniform Convolutions} (file \texttt{UL\_Note\_Revised.pdf}, TJM template of V035, V032 and V035
+unchanged). It contains the complete proof of Lemma~1 of Section~\ref{sec:L1}, with the sharper
+remainder $q/M+O(M^{-3/2})$. It restricts the endpoint and class-$\mathcal Q$ lemmas to $M\ge2$ and
+$M\ge3$, corrects the choice of $r^*$, and makes the filling of the diagonal sequence explicit. It
+records Levin--Lubinsky's recurrence convention and the misprint in Theorem~2.3(c), adds the
+six-term expansion of $F$ with its consistency with Conjecture~2, and separates the result from
+the fixed-degree Theorem~5.1 of V035. The formal coverage was extended as listed in
+Section~\ref{sec:lean}: all properties of the limiting objects are now machine-checked, and the
+remaining hypotheses concern only the finite-$M$ functions (Lemma~1 and Floater's inequality) and
+the potential theory of Levin--Lubinsky.
 
 \section{Final recommendation.}\label{sec:rec}
 
@@ -622,9 +649,10 @@ it stands. Before incorporation, five obligations remain:
 \cite{milovanovic2017} and \cite{gautschi2017} cited and the consistency
 \eqref{eq:Fseries} with Conjecture~2 stated as consistency only.
 \end{enumerate}
-Separately, the author's own criterion was that the three lemmas enter the manuscript only
-if they are formalised and certified. That criterion is \emph{not} met. Lemma~2 is fully
-machine-checked relative to its analytic inputs. Lemmas~1 and~3 are only partly
+These five obligations are discharged in the revised note described in
+Section~\ref{sec:addendum}. Separately, the author's own criterion was that the three lemmas enter
+the manuscript only if they are formalised and certified. That criterion is \emph{not} met. Lemma~2
+is machine-checked except for its two finite-$M$ inputs. Lemmas~1 and~3 are only partly
 machine-checked, and their remaining parts depend on Fourier analysis and potential theory
 that are not available in Mathlib. Whether to include the theorem with a paper proof and
 an explicit statement of its formal coverage, or to wait for a fuller formalisation, is the
