@@ -1,0 +1,27 @@
+⚠ [2074/2091] Built UniformLanczos.Cancellation (3.9s)
+warning: UniformLanczos/Cancellation.lean: imports `Mathlib.Analysis.Calculus.Deriv.Comp` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/Cancellation.lean: imports `Mathlib.Analysis.Calculus.Deriv.Mul` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/Cancellation.lean: imports `Mathlib.Analysis.Calculus.Deriv.Add` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/Cancellation.lean: imports `Mathlib.Analysis.Calculus.Deriv.Inv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [2234/2310] Built UniformLanczos.Diagonal (5.5s)
+warning: UniformLanczos/Diagonal.lean: imports `Mathlib.Order.Filter.AtTopBot.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/Diagonal.lean: imports `Mathlib.Topology.Order.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/Diagonal.lean: imports `Mathlib.Topology.Algebra.Order.Field` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/Diagonal.lean: imports `Mathlib.Algebra.Order.Floor.Semiring` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/Diagonal.lean: imports `Mathlib.Analysis.SpecificLimits.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [2833/2838] Built UniformLanczos.ClassQ (4.5s)
+warning: UniformLanczos/ClassQ.lean: imports `Mathlib.Analysis.Calculus.Deriv.Comp` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/ClassQ.lean: imports `Mathlib.Analysis.Calculus.Deriv.Mul` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/ClassQ.lean: imports `Mathlib.Analysis.Calculus.Deriv.Add` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/ClassQ.lean: imports `Mathlib.Analysis.SpecialFunctions.Pow.Real` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [2834/2838] Built UniformLanczos.Endpoint (8.3s)
+warning: UniformLanczos/Endpoint.lean: imports `Mathlib.Analysis.SpecialFunctions.Integrals.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/Endpoint.lean: imports `Mathlib.Topology.Order.IntermediateValue` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+✔ [2835/2838] Built UniformLanczos.MRS (5.1s)
+✔ [2836/2838] Built UniformLanczos.Corollary (14s)
+✔ [2837/2838] Built UniformLanczos (3.5s)
+Build completed successfully (2838 jobs).
+
+real	0m36.216s
+user	0m44.823s
+sys	0m7.475s

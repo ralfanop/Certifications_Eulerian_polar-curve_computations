@@ -1,0 +1,32 @@
+import UniformLanczos
+open UniformLanczos
+#print axioms tilt_first
+#print axioms tilt_second
+#print axioms tilt_cancellations
+#print axioms legendre_deriv
+#print axioms legendre_second
+#print axioms uniform_of_sequential
+#print axioms fill_ratio
+#print axioms Q_hasDerivAt
+#print axioms Qprime_strictMono
+#print axioms Qprime_lipschitz
+#print axioms holder_of_lipschitz
+#print axioms interval_contains
+#print axioms Hint_zero
+#print axioms Hint_continuousOn
+#print axioms Hint_strictMonoOn
+#print axioms Hint_close
+#print axioms Hint_slope
+#print axioms G_slope_of_Iprime
+#print axioms G_strictMono_of_Iprime
+#print axioms exists_unique_root
+#print axioms root_stability
+#print axioms endpoint_lemma
+#print axioms cos_odd_eq_two_sin
+#print axioms mrs_first_iff
+#print axioms mrs_second
+#print axioms beta_scaling
+#print axioms integral_sin_four_half_pi
+#print axioms Hint_expansion
+#print axioms A_le_half_alpha
+#print axioms inversion

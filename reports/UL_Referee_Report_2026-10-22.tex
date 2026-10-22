@@ -1,0 +1,658 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amsmath,amssymb,amsthm,mathtools,microtype,booktabs}
+\usepackage[margin=25mm]{geometry}
+\usepackage[hyphens]{url}
+\usepackage[colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue]{hyperref}
+\renewcommand{\baselinestretch}{1.08}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newcommand{\Q}{\mathcal Q}
+\numberwithin{equation}{section}
+\title{Referee report on ``Uniform two-parameter asymptotics\\ for Lanczos
+coefficients of centered uniform convolutions''\\[4pt]
+\large with independent proofs, a partial Lean~4 formalisation and numerical checks}
+\author{Independent review prepared for Roberto Alfano\\ by Claude (Anthropic), an AI system}
+\date{22 October 2026}
+\begin{document}
+\maketitle
+
+\noindent\textbf{Scope and status.} This is a separate research document. It reviews the
+five-page note of 20 October 2026 (henceforth \emph{the note}) under the instructions of
+the author. The manuscripts V032 and V035 were not modified. Mathematical validity,
+bibliographic novelty and formal-machine certification are reported separately, in
+Sections~\ref{sec:verdict}--\ref{sec:proof}, Section~\ref{sec:orig} and
+Section~\ref{sec:lean} respectively. Statements of Levin and Lubinsky, Floater and
+Milovanovi\'c were checked against the original documents supplied by the author
+(page images were inspected wherever the extracted text was garbled). Numerical
+computations are consistency checks only; they are not used as proof of anything.
+
+\section{Referee's verdict.}\label{sec:verdict}
+
+\textbf{Verdict: REPAIRABLE.} I believe the theorem is true, and the architecture of the
+proof is sound: the scaling, the reduction to the Mhaskar--Rakhmanov--Saff equations and
+the use of Levin--Lubinsky's Theorem~13.4 at the degrees $m=N-1,N$ are correct, and every
+factor of $M$, $N$, $2$ and $\pi$ checks out (Section~\ref{sec:norm}). No counterexample
+was found; on the contrary, high-precision computations up to $M=400$, $N=1600$ show
+$\beta_N^{[M]}/M^2-F(N/M)=c(N/M)/M+O(M^{-2})$ with a stable function $c$
+(Section~\ref{sec:num}). The note is not VALID as submitted because several steps are
+asserted rather than proved. The most substantial one is the remainder estimate in the
+differentiated saddlepoint expansion of Lemma~1, which is the analytic heart of the
+argument. There are also three smaller defects. Lemma~2 is false as literally stated for
+$M=1$. The choice of $r^*$ in Lemma~3 does not account for $a_{N,M}\neq a_t$. Definition~1.1
+of Levin--Lubinsky requires a whole sequence indexed by every $n\ge1$, which the diagonal
+argument must supply explicitly. None of these gaps is fatal. Section~\ref{sec:proof}
+supplies a complete proof of each missing step; with these repairs the theorem is, in my
+assessment, proved on paper, \emph{conditionally on Theorem~13.4 of Levin--Lubinsky as
+published}. It is \emph{not} certified by machine in full: the Lean~4 development covers
+the logical skeleton and every elementary step, but not the Fourier--Laplace analysis of
+Lemma~1 nor the potential theory behind Levin--Lubinsky's theorem (Section~\ref{sec:lean}).
+
+\section{Line-by-line mathematical audit.}\label{sec:audit}
+
+Each finding gives the place in the note, the issue, the source checked and a severity:
+\emph{fatal} (invalidates the result), \emph{substantial} (a step of the proof is missing),
+\emph{minor} (a correction of statement or wording). No fatal problem was found.
+
+\paragraph{A1. Page 1, definitions (minor, no change needed).} The density of $Y_M=X_M/M$ is
+$g_M(x)=Mf_M(Mx)$. The quantity $\Lambda(s)=\log\{\sinh(s/2)/(s/2)\}$ is the cumulant
+generating function of $\operatorname{Uniform}[-\frac12,\frac12]$, since
+$\int_{-1/2}^{1/2}e^{st}\,dt=2\sinh(s/2)/s$. For the monic recurrence of the note,
+$P_{N+1}=xP_N-\beta_NP_{N-1}$ (no diagonal term, by symmetry), the orthonormal recurrence
+is $xp_N=b_{N+1}p_{N+1}+b_Np_{N-1}$ with $b_N=\beta_N^{1/2}$, which is the $N$th
+off-diagonal entry of the Jacobi matrix. This is Milovanovi\'c's indexing
+\cite[(2)--(3)]{milovanovic2017}, so the $\beta_k^{[m]}$ there and the $\beta_N^{[M]}$ of the
+note coincide (his weight is $f_M$ translated to $[0,M]$, and translation does not change
+$\beta$). In the theorem, $N\ge L$ and $N/M\in K$ force $M\ge L/\max K$, so both
+parameters tend to infinity.
+
+\paragraph{A2. Equation (3) of the note, Legendre duality (correct).} The identities $I'=s$
+and $I''=1/v$ hold; they are formalised in Lean (\texttt{legendre\_deriv},
+\texttt{legendre\_second}).
+
+\paragraph{A3. Lemma~1, Fourier representation (6) (minor).} The formula is correct for
+$M\ge2$. The cleanest justification needs no contour shift: the tilted law with density
+$e^{sy}f_M(y)/A(s)^M$ has characteristic function $\{A(s+iu)/A(s)\}^M$, which is integrable
+for $M\ge2$ because $|A(s+iu)|\le2\cosh(s/2)/|u|$, and Fourier inversion applies. The note
+gives no justification; Section~\ref{sec:L1} supplies it.
+
+\paragraph{A4. Lemma~1, analytic logarithm and (7) (minor).} The zeros of $A(z)=2\sinh(z/2)/z$
+are $z=2\pi ik$, $k\ne0$, so $A$ does not vanish on a strip $\{\Re z\in S',\ |\Im z|\le
+\varepsilon\}$ for every compact $S'$ and $\varepsilon<2\pi$; for small $\varepsilon$ the
+values of $A$ there have positive real part and the principal logarithm is analytic. The
+note asserts this without proof; it is true.
+
+\paragraph{A5. Lemma~1, derivative cancellations (correct).} With $s'v=1$, the coefficient
+of $iu$ in $\partial_x\Psi$ is $s'v-1=0$, and the coefficient of $iu$ in $\partial_x^2\Psi$
+is $s''v+s'^2\Lambda'''(s)=0$. Both identities are proved in Lean
+(\texttt{tilt\_first}, \texttt{tilt\_second}, \texttt{tilt\_cancellations}). Hence
+$\partial_x\Psi=O_J(u^2)$ and $\partial_x^2\Psi=O_J(u^2)$, as claimed.
+
+\paragraph{A6. Lemma~1, outer region (substantial, repairable).} The bounds
+$\rho_{J,\varepsilon,R}<1$ and $|A(s+iu)/A(s)|\le C_J/(1+|u|)$ are correct. The claim that
+$\partial_x^j$ of the integrand is ``bounded by a polynomial in $M$ and $1+|u|$ times an
+$(M-j)$th power'' is correct but unproved. The required estimates are
+$|\partial_xG|\le C$ and $|\partial_x^2G|\le C(1+|u|)$ for
+$G=e^{-iux}A(s(x)+iu)/A(s(x))$; they are proved in Section~\ref{sec:L1}. The justification of
+differentiating under the integral sign twice is not mentioned; it follows from the same
+majorants for $M\ge7$.
+
+\paragraph{A7. Lemma~1, inner region (substantial, repairable).} The expansion of
+$e^{M\Psi}$ is correct, including the coefficients. The bound
+$C_JM^{-3/2}(1+|z|^{12})e^{c_Jz^2/M^{1/3}}$ for $\mathcal E_M$ and its two $x$-derivatives
+is stated without proof, and the exponential factor is unexplained (it is $O(1)$ on
+$|z|\le M^{1/12}$ and unnecessary). This is the decisive estimate of the lemma, so its
+absence is a real gap. Section~\ref{sec:L1} proves the bound $C(1+|z|)^{18}M^{-3/2}$.
+The vanishing of the $M^{-1/2}$ term, also after $x$-differentiation, is correct because
+the truncation $|z|\le M^{1/12}$ is symmetric. The conclusion is moreover confirmed to
+second order by computation: the $C^2$ remainder of (4) in the note equals $q(x)/M+O(M^{-2})$ with the classical
+correction $q=\kappa_4/(8v^2)-5\kappa_3^2/(24v^3)$, and $M$ times the remainder and its first
+two derivatives converge (Table~\ref{tab:saddle}).
+
+\paragraph{A8. Lemma~1, consequences (5) (correct).} With
+$\log g_M=-MI+\frac12\log\{M/(2\pi v)\}+O_{C^2}(M^{-1})$ one gets
+$\|\phi_M-I\|_{C^2(J)}=O(M^{-1}\log M)$ and $\|\phi_M'-I'\|_{C^1(J)}=O(M^{-1})$.
+
+\paragraph{A9. Lemma~2, the limit function $H$ (correct, one step brief).} Continuity,
+$H(0^+)=0$, strict increase and $H(a)\to\infty$ as $a\uparrow\frac12$ are correct. The
+divergence deserves one line: $\Lambda'(s)=\frac12\coth(s/2)-1/s$ gives
+$I'(x)\sim(\frac12-x)^{-1}$, and $\frac12-\frac12\sin\theta\sim\frac14(\frac\pi2-\theta)^2$
+makes $\int^{\pi/2}d\theta/(1-\sin\theta)$ diverge. Strict increase and continuity are
+formalised (\texttt{Hint\_strictMonoOn}, \texttt{Hint\_continuousOn}).
+
+\paragraph{A10. Lemma~2, statement for small $M$ (minor).} As literally stated (``for every
+$K$ and $t=N/M\in K$ there exists a unique $a_{N,M}$'') the lemma includes $M=1$, where
+$g_1\equiv1$ on its support, $\phi_1'\equiv0$ and no positive root exists. For $M=2$ a
+unique root exists, since $x\phi_2'(x)=|x|/(1-2|x|)$ is continuous and increasing, but $Q'$
+is then discontinuous at $0$, so Lemma~3 needs $M\ge3$. The statement should read
+``for every $M\ge2$'', and the estimate (9) of the note holds for $M\ge M_0(K)$.
+
+\paragraph{A11. Lemma~2, unimodality and strict log-concavity (correct; reference
+clarified).} The induction $f_{M+1}'(x)=f_M(x+\frac12)-f_M(x-\frac12)<0$ for
+$0<x<(M+1)/2$ is correct with base case $M=2$ (not $M=1$). The argument that $\log f_M$ is
+not affine on any subinterval is correct, because a polynomial of the form
+$e^{\lambda x+\mu}$ on an interval is constant, and $f_M$ has exact degree $M-1\ge1$ on every
+knot interval (the leading coefficient on the $(k+1)$th interval is
+$(-1)^k\binom{M-1}{k}/(M-1)!\neq0$). Floater \cite[Lemma~2, (11) and the discussion after
+it]{floater2024} gives more: for degree $d=M-1\ge2$ the B-spline is $d$-concave, inequality
+(11) is strict on the interior knot intervals, and on the two end intervals the spline is a
+pure power. Since $ff''-(f')^2=\{ff''-\frac{d-1}{d}(f')^2\}-\frac1d(f')^2$, this gives
+$(\log f_M)''<0$ on every open knot interval, which is exactly what the note needs. It
+makes $\phi_M'$ continuous and strictly increasing on the open support for $M\ge3$, where
+$f_M\in C^1$.
+
+\paragraph{A12. Lemma~2, estimate (9) (substantial for the write-up, now formalised).} The
+note's proof omits the a priori localisation of $a_{N,M}$ in a compact subinterval where
+$H'$ is bounded below. The complete argument, with explicit constants, is formalised in
+Lean (\texttt{endpoint\_lemma}): if $|\phi_M'-I'|\le C/M$ on $[0,b]$ and
+$H(\mathrm{lo})+bC/(2M)<t_1\le t_2<H(\mathrm{hi})-bC/(2M)$, then for every $t\in[t_1,t_2]$
+the finite-$M$ root exists, is unique, lies in $(\mathrm{lo},\mathrm{hi})$ and satisfies
+$|a_{N,M}-a_t|\le2bC/(m\,\mathrm{lo}\,M)$, where $m$ is a lower bound for $I''$ on $[0,b]$.
+
+\paragraph{A13. Lemma~3, conditions (i)--(iv) of Definition~1.1 (correct, two
+corrections).} I checked Definition~1.1 \cite[pp.~6--7]{levinlubinsky2018} directly.
+Condition (i) holds because $Q_{N,M}\to+\infty$ at the finite endpoints $\pm1/(2a)$.
+Condition (ii) requires $M\ge3$. Conditions (iii) and (iv) follow from a uniform bound on
+$\phi_M''$ over $[-ar^*,ar^*]$ (Lemma~1) by the chain rule and Lipschitz~$\Rightarrow$~H\"older
+(both formalised: \texttt{Qprime\_lipschitz}, \texttt{holder\_of\_lipschitz}). Two
+corrections are needed. First, $r^*$ must satisfy $r^*\sup a_{N,M}<\frac12$, not merely
+$r^*a_+<\frac12$; take $r^*(a_++\delta)<\frac12$ and $M$ so large that
+$a_{N,M}\le a_++\delta$ (Lemma~2). Second, Definition~1.1 demands the conditions for
+\emph{every} $n\ge1$ with the same constants, so the finitely many small $n$ and the degrees
+$n$ that do not occur must be filled with admissible weights; see A16.
+
+\paragraph{A14. Lemma~3, condition (v) and the MRS equations (correct).} Remark~(b) after
+Definition~1.1 \cite[p.~6]{levinlubinsky2018} states that the support condition is
+equivalent to (1.13)--(1.14). With
+$e^{-2NQ}=ag_M(ay)$ one has $Q'(y)=\frac{aM}{2N}\phi_M'(ay)$ (formalised:
+\texttt{Q\_hasDerivAt}). I verified, and formalised in the arcsine form
+(\texttt{cos\_odd\_eq\_two\_sin}, \texttt{mrs\_first\_iff}), that the first MRS equation is
+equivalent to the endpoint equation (8) of the note, and that the second holds by parity
+(\texttt{mrs\_second}). The normalisation is therefore correct. The change of variable
+$y=\cos\theta$ in the improper integrals of (1.13)--(1.14) is elementary but not formalised.
+
+\paragraph{A15. Proof of the theorem, application of Theorem~13.4 (correct; a misprint in
+the source).} I read Theorems~13.1--13.4 \cite[pp.~123--124]{levinlubinsky2018} and the
+proof of Theorem~13.4 \cite[p.~138]{levinlubinsky2018}. The recurrence there is
+$xp_{n,m}=A_{n,m}p_{n,m+1}+B_{n,m}p_{n,m}+A_{n,m-1}p_{n,m-1}$ with
+$A_{n,m}=\gamma_{n,m}/\gamma_{n,m+1}$, and (13.8) holds uniformly for $|m-n|\le
+n^{1/3-\varepsilon}$, the window (13.3). The coefficient linking degrees $N-1$ and $N$ is
+therefore $A_{N,N-1}$, as in the note, and $m=N-1$ lies in the window. Theorem~2.3(c)
+\cite[p.~12]{levinlubinsky2018} prints the recurrence with a misprint (the term
+$A_{n,m}p_{n,m-1}$ should read $A_{n,m}p_{n,m+1}$); the note's reading agrees with Chapter~13. The scaling
+(10) of the note, $\beta_N^{[M]}/M^2=a_{N,M}^2A_{N,N-1}^2$, is verified in
+Section~\ref{sec:norm} and its algebra is formalised (\texttt{beta\_scaling}).
+
+\paragraph{A16. Proof of the theorem, uniformity (correct in substance, details
+missing).} The contradiction argument is valid. The ``filling'' needs two explicit
+facts: (a) for every large $n$ there is $M$ with $n/M$ in a fixed interval
+$[t_1,t_2]\subset(0,\infty)$, and (b) the remaining small $n$ can be given a fixed admissible
+weight, for instance $Q_n(x)=x^2$ on $\R$, for which (1.13) reads
+$\frac1\pi\int_{-1}^1 2x^2(1-x^2)^{-1/2}dx=1$. Both the abstract argument and fact (a) are
+formalised (\texttt{uniform\_of\_sequential}, \texttt{fill\_ratio}).
+
+\paragraph{A17. Corollary (correct).} $\Lambda(s)=s^2/24-s^4/2880+O(s^6)$,
+$I'(x)=12x+\frac{144}{5}x^3+O(x^5)$, $H(a)=3a^2+\frac{27}{5}a^4+O(a^6)$ and
+$F(\alpha)=\frac{\alpha}{12}-\frac{\alpha^2}{20}+O(\alpha^3)$ are all correct; the last two
+steps are formalised (\texttt{Hint\_expansion}, \texttt{inversion}). Monotonicity,
+$0<F<\frac1{16}$ and $F(\alpha)\to\frac1{16}$ follow from Lemma~2. The note calls these
+``checks at the two ends of the scaling family''. They are properties of $F$ only; the
+theorem does not imply the fixed-$N$ or fixed-$M$ limits, because it is uniform only on
+compact ratio sets.
+
+\paragraph{A18. Novelty section (correct, one understatement).} The description of the
+fixed-$M$ theory and of Milovanovi\'c's conjectures is accurate. In fact the Taylor
+coefficients of $F$ agree with the top-degree parts of \emph{all five} coefficients in
+Conjecture~2, not only the first two (Section~\ref{sec:orig}).
+
+\section{Independent proof and necessary repairs.}\label{sec:proof}
+
+Throughout, $J=[-b,b]$ with $0<b<\frac12$, $s(x)$ is the tilt with $\Lambda'(s(x))=x$,
+$v=\Lambda''\circ s$, $\kappa_j=\Lambda^{(j)}\circ s$, and constants $C,c$ depend only on $b$
+(and later on $K$).
+
+\subsection{Normalisations.}\label{sec:norm}
+
+The weight of $y=Y_M/a$ with $a=a_{N,M}$ is $ag_M(ay)$ on $|y|<1/(2a)$, and $X_M=May$. If
+$P_n^{y}$ are the monic orthogonal polynomials of $y$ with $h_n^{y}=\|P_n^{y}\|^2$, then
+$P_n^{X}(X)=(Ma)^nP_n^{y}\{X/(Ma)\}$ are those of $X_M$ and $h_n^{X}=(Ma)^{2n}h_n^{y}$. Since
+$\beta_N=h_N/h_{N-1}$ for a monic recurrence, and the orthonormal leading coefficients are
+$\gamma_n=(h_n^{y})^{-1/2}$ with $A_{N,N-1}=\gamma_{N,N-1}/\gamma_{N,N}$ in the convention of
+\cite[p.~124 and p.~138]{levinlubinsky2018},
+\begin{equation}\label{eq:scaling}
+ \beta_N^{[M]}=\frac{h_N^{X}}{h_{N-1}^{X}}=(Ma)^2\,\frac{h_N^{y}}{h_{N-1}^{y}}
+ =(Ma)^2A_{N,N-1}^2 .
+\end{equation}
+Multiplying the weight by a constant (Levin--Lubinsky's normalisation $Q_n(t_n)=0$,
+Remark~(f) after Definition~1.1) changes neither $\beta$ nor $A$. The external field is
+\begin{equation}\label{eq:Q}
+ Q_{N,M}(y)=\frac{M}{2N}\,\phi_M(ay)-\frac{\log a}{2N},\qquad
+ Q_{N,M}'(y)=\frac{aM}{2N}\,\phi_M'(ay),\qquad \phi_M=-\frac1M\log g_M ,
+\end{equation}
+and, with $y=\cos\theta$ and the oddness of $\phi_M'$, the first MRS equation becomes
+\begin{equation}\label{eq:mrs}
+ \frac1\pi\int_0^\pi\cos\theta\,Q_{N,M}'(\cos\theta)\,d\theta
+ =\frac MN\cdot\frac1\pi\int_0^{\pi/2}a\sin\theta\,\phi_M'(a\sin\theta)\,d\theta=1 ,
+\end{equation}
+which is the note's endpoint equation with $t=N/M$. Equations
+\eqref{eq:scaling}--\eqref{eq:mrs} are formalised (Section~\ref{sec:lean}). The limit
+$A_{N,N-1}\to\frac12$ is the Chebyshev value for $[-1,1]$, so
+$\beta_N^{[M]}/M^2\to a^2/4$; as a sanity check, $\alpha\to0$ gives $F(\alpha)\sim\alpha/12$,
+i.e.\ $\beta_N\approx NM/12=N\operatorname{Var}X_M$ (Hermite), and $\alpha\to\infty$ gives
+$\frac1{16}$, i.e.\ $\beta_N\approx M^2/16=(\text{length}/4)^2$.
+
+\subsection{Lemma 1: a complete proof.}\label{sec:L1}
+
+\begin{lemma}\label{lem:L1}
+For every $b<\frac12$ there are $M_0$ and $C$ such that for $M\ge M_0$
+\begin{equation}\label{eq:L1}
+ \Bigl\|\log g_M+MI-\frac12\log\frac{M}{2\pi v}\Bigr\|_{C^2([-b,b])}\le\frac CM .
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+\emph{Step 0 (representation).} Let $A(z)=\int_{-1/2}^{1/2}e^{zt}dt=2\sinh(z/2)/z$, so that
+$\int e^{zy}f_M(y)\,dy=A(z)^M$ and $A=e^\Lambda$ on $\R$. For real $s$ the probability density
+$e^{sy}f_M(y)A(s)^{-M}$ has characteristic function $\{A(s+iu)/A(s)\}^M$. Since
+$|2\sinh\{(s+iu)/2\}|\le2\cosh(s/2)$ and $|s+iu|\ge|u|$,
+\begin{equation}\label{eq:Adecay}
+ |A(s+iu)|\le\frac{2\cosh(s/2)}{|u|},
+\end{equation}
+so for $M\ge2$ the characteristic function is integrable, $f_M$ is continuous, and Fourier
+inversion gives
+$e^{sy}f_M(y)A(s)^{-M}=\frac1{2\pi}\int_\R\{A(s+iu)/A(s)\}^Me^{-iuy}du$. Taking $y=Mx$,
+$s=s(x)$ and using $A(s)^Me^{-sMx}=e^{M\{\Lambda(s)-sx\}}=e^{-MI(x)}$,
+\begin{equation}\label{eq:rep}
+ g_M(x)=\frac{M}{2\pi}\,e^{-MI(x)}J_M(x),\qquad J_M(x)=\int_\R G(x,u)^M\,du,\qquad
+ G(x,u)=e^{-iux}\,\frac{A(s(x)+iu)}{A(s(x))}.
+\end{equation}
+
+\emph{Step 1 (bounds on $G$).} The map $x\mapsto s(x)$ is real-analytic on
+$(-\frac12,\frac12)$ (inverse function theorem, $\Lambda''>0$), and $S=s(J)$ is compact.
+(a) $|G|\le1$, and $|G(x,u)|<1$ for $u\ne0$ because $G(x,\cdot)$ is the characteristic
+function of a law with a density; by continuity and compactness, and by
+\eqref{eq:Adecay}, for every $\varepsilon>0$ there is $\rho_\varepsilon<1$ with
+$|G|\le\rho_\varepsilon$ for $x\in J$, $|u|\ge\varepsilon$, and $|G|\le C_1/|u|$ for
+$|u|\ge1$. (b) Write
+\begin{equation}\label{eq:dG}
+ \partial_xG=-iuG+s'(x)\,e^{-iux}\,\frac{A'(s+iu)A(s)-A(s+iu)A'(s)}{A(s)^2}.
+\end{equation}
+Since $A'(z)=\cosh(z/2)/z-2\sinh(z/2)/z^2$, we have $|A'(s+iu)|\le C/|u|$ for $|u|\ge1$, and
+$|uG|\le C$; hence $|\partial_xG|\le C$. Differentiating \eqref{eq:dG} once more, the only
+term not bounded by a constant is $-iu\,\partial_xG$, so $|\partial_x^2G|\le C(1+|u|)$.
+
+\emph{Step 2 (outer region).} For $j\le2$, $\partial_x^j(G^M)$ is a combination of
+$MG^{M-1}\partial_x^jG$ and $M(M-1)G^{M-2}(\partial_xG)^2$, so
+$|\partial_x^j(G^M)|\le CM^2(1+|u|)|G|^{M-2}$. For $|u|\ge\varepsilon$ and $M\ge7$,
+$|G|^{M-2}\le\rho_\varepsilon^{M-6}|G|^4$ and $(1+|u|)|G|^4$ is integrable by (a). This
+majorant, uniform in $x\in J$, justifies differentiating $J_M$ twice under the integral and
+gives
+\begin{equation}\label{eq:outer}
+ \sup_{x\in J}\,\Bigl|\partial_x^j\int_{|u|\ge\varepsilon}G^M\,du\Bigr|\le CM^2\rho_\varepsilon^{M-6},
+ \qquad j=0,1,2 .
+\end{equation}
+
+\emph{Step 3 (inner region).} Choose $\varepsilon\in(0,1]$ so small that $A(\sigma+iu)$ has
+positive real part for $\sigma$ in a neighbourhood $S'$ of $S$ and $|u|\le\varepsilon$
+(possible because $A>0$ on $\R$). Then
+$\Psi(x,u)=\Lambda(s(x)+iu)-\Lambda(s(x))-iux$, with the principal logarithm, satisfies
+$G^M=e^{M\Psi}$ there, is real-analytic in $x$ and analytic in $u$, and
+\begin{equation}\label{eq:Psi}
+ \Psi=-\frac{v}{2}u^2-\frac{i\kappa_3}{6}u^3+\frac{\kappa_4}{24}u^4+\Psi_5,\qquad
+ |\partial_x^j\Psi_5|\le C|u|^5,\qquad j\le2,\ |u|\le\varepsilon,
+\end{equation}
+because the $x$-derivatives of a Taylor remainder are the Taylor remainders of the
+$x$-derivatives, which are bounded uniformly by Cauchy's estimates. Shrinking $\varepsilon$,
+$\Re\Psi\le-cu^2$. By the cancellations of A5 (formalised), $|\partial_x\Psi|+
+|\partial_x^2\Psi|\le Cu^2$. Put $u=z/\sqrt M$ and $Z=M^{1/12}$.
+
+On $Z<|z|\le\varepsilon\sqrt M$,
+$|\partial_x^je^{M\Psi}|\le C\{1+M(|\partial_x\Psi|+|\partial_x^2\Psi|)+M^2|\partial_x\Psi|^2\}
+e^{M\Re\Psi}\le C(1+z^4)e^{-cz^2}$, whose integral is $O(e^{-cZ^2/2})=O(e^{-cM^{1/6}/2})$.
+
+On $|z|\le Z$, write $M\Psi=-\frac v2z^2+w$ with
+\begin{equation}\label{eq:w}
+ w=-\frac{i\kappa_3z^3}{6\sqrt M}+\frac{\kappa_4z^4}{24M}+M\Psi_5\Bigl(x,\frac z{\sqrt M}\Bigr),
+ \qquad |\partial_x^jw|\le C\,\frac{(1+|z|)^5}{\sqrt M}\le CM^{-1/12},\qquad j\le2 .
+\end{equation}
+Let $E=e^w-1-w-\frac{w^2}2$. By Taylor's formula for the exponential and the chain rule,
+for $j\le2$, $|\partial_x^jE|\le C\sum|w|^{3-k}\,\Pi_k$, where $\Pi_k$ is a product of $k$
+factors $|\partial_x^{i}w|$, $i\le2$; each term is at most $C(1+|z|)^{15}M^{-3/2}$. Expanding
+$w+\frac{w^2}2$ and moving every term of order $M^{-3/2}$ into the remainder,
+\begin{equation}\label{eq:exp}
+ e^{M\Psi}=e^{-vz^2/2}\Bigl[1-\frac{i\kappa_3z^3}{6\sqrt M}
+ +\frac1M\Bigl(\frac{\kappa_4z^4}{24}-\frac{\kappa_3^2z^6}{72}\Bigr)+\mathcal E_M\Bigr],
+ \qquad |\partial_x^j\mathcal E_M|\le C\,\frac{(1+|z|)^{18}}{M^{3/2}} ,
+\end{equation}
+for $j\le2$ and $|z|\le Z$. The $x$-derivatives falling on $e^{-vz^2/2}$ produce polynomial
+factors in $z$, so after integration over $|z|\le Z$ the remainder contributes
+$O(M^{-3/2})$ in $C^2(J)$. The $z^3$ term and its $x$-derivatives are odd in $z$ and
+integrate to zero over the symmetric range. Completing the remaining Gaussian moments to
+$\R$ costs $O(e^{-cZ^2})$. With $\int z^4e^{-vz^2/2}dz=3\sqrt{2\pi}v^{-5/2}$ and
+$\int z^6e^{-vz^2/2}dz=15\sqrt{2\pi}v^{-7/2}$ we obtain
+\begin{equation}\label{eq:JM}
+ J_M=\sqrt{\frac{2\pi}{Mv}}\,\bigl(1+R_M\bigr),\qquad
+ R_M=\frac{q}{M}+O_{C^2(J)}\bigl(M^{-3/2}\bigr),\qquad
+ q=\frac{\kappa_4}{8v^2}-\frac{5\kappa_3^2}{24v^3},
+\end{equation}
+where \eqref{eq:outer} and the middle region were used; both are exponentially small
+relative to $M^{-1/2}$. Since $q$ is smooth on $J$, $\|R_M\|_{C^2(J)}\le C/M$.
+
+\emph{Step 4.} By \eqref{eq:rep} and \eqref{eq:JM},
+$\log g_M+MI-\frac12\log\{M/(2\pi v)\}=\log(1+R_M)$, and
+$\|\log(1+R_M)\|_{C^2(J)}\le C\|R_M\|_{C^2(J)}$ once $\|R_M\|_{C^0}\le\frac12$. This
+proves \eqref{eq:L1}, and indeed the sharper statement that the left side equals
+$q/M+O(M^{-3/2})$ in $C^2(J)$.
+\end{proof}
+
+\begin{remark}
+The sharper statement is confirmed numerically (Table~\ref{tab:saddle}). At the points
+$x=0.05$, $0.15$, $0.25$, $0.35$ and $0.42$ one has $q=-0.151544$, $-0.163813$,
+$-0.184391$, $-0.167178$ and $-0.089240$, while $M$ times the left side of \eqref{eq:L1}
+at $M=800$ equals $-0.15157$, $-0.16386$, $-0.18449$, $-0.16724$ and $-0.08917$.
+\end{remark}
+
+\begin{remark}
+For the theorem with an $o(1)$ error, only two consequences of Lemma~\ref{lem:L1} are used:
+$\sup_{[0,b]}|\phi_M'-I'|\to0$ (with rate $O(M^{-1})$ for (9) of the note) and
+$\sup_M\sup_{[-b,b]}|\phi_M''|<\infty$. An alternative route avoids differentiating under
+the integral sign. The exact identities $f_M'(y)=f_{M-1}(y+\frac12)-f_{M-1}(y-\frac12)$ and
+$f_M''(y)=f_{M-2}(y+1)-2f_{M-2}(y)+f_{M-2}(y-1)$ express $\phi_M'$ and $\phi_M''$ through
+ratios of densities at shifted points. The undifferentiated case $j=0$ of the proof above,
+applied to $f_{M-k}$ with $k\le2$, then suffices.
+\end{remark}
+
+\subsection{Lemma 2: corrected statement.}\label{sec:L2}
+
+\begin{lemma}\label{lem:L2}
+Let $H(a)=\frac1\pi\int_0^{\pi/2}a\sin\theta\,I'(a\sin\theta)\,d\theta$ and let $H_M$ be
+defined in the same way with $\phi_M'$ in place of $I'$.
+\begin{enumerate}
+\item[(a)] $H$ is continuous and strictly increasing on $[0,\frac12)$, $H(0)=0$ and
+$H(a)\to\infty$ as $a\uparrow\frac12$; hence $a_t$ is well defined for every $t>0$.
+\item[(b)] For every $M\ge2$ and $t>0$ the equation $H_M(a)=t$ has a unique root
+$a_{t,M}\in(0,\frac12)$; for $M=1$ it has none.
+\item[(c)] For every compact $K\subset(0,\infty)$ there are $M_0,C$ with
+$|a_{t,M}-a_t|\le C/M$ for all $t\in K$ and $M\ge M_0$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Part (a) is in the note, with the divergence argument of A9. For (b), $x\phi_M'(x)$ is
+continuous on $[0,\frac12)$, vanishes at $0$ and is strictly increasing (A11 for $M\ge3$;
+$x\phi_2'(x)=x/(1-2x)$ for $M=2$). Near $\frac12$ the density is a positive multiple of
+$(\frac12-x)^{M-1}$, so $x\phi_M'(x)\ge c/(\frac12-x)$ there and $H_M(a)\to\infty$; the
+root exists and is unique. For (c), choose $0<\mathrm{lo}<\mathrm{hi}<b<\frac12$ with
+$H(\mathrm{lo})<\min K$ and $\max K<H(\mathrm{hi})$, and let $m=\min_{[0,b]}I''>0$. Lemma~1
+gives $|\phi_M'-I'|\le C/M$ on $[0,b]$, and $I'\ge0$, $I'(y')-I'(y)\ge m(y'-y)$ on $[0,b]$.
+The formal theorem \texttt{endpoint\_lemma} then yields (c) with constant $2bC/(m\,\mathrm{lo})$.
+\end{proof}
+
+\subsection{Lemma 3: corrected statement.}\label{sec:L3}
+
+\begin{lemma}\label{lem:L3}
+Let $K\subset(0,\infty)$ be compact. There are $N_0$ and constants $r^*>1$,
+$\alpha\in(0,\frac14]$, $C>0$, $\alpha_1=\frac34$, $C_1>0$ and an open neighbourhood $I_0$ of
+$\pm1$ such that, for all $(N,M)$ with $N\ge N_0$, $M\ge3$ and $N/M\in K$, the weight
+$e^{-2NQ_{N,M}}=a_{N,M}g_M(a_{N,M}\,\cdot)$ on $I_{N,M}=(-1/(2a_{N,M}),1/(2a_{N,M}))$
+satisfies conditions (i)--(v) of Definition~1.1 of \cite{levinlubinsky2018} with these
+constants.
+\end{lemma}
+
+\begin{proof}
+Let $a_\pm$ be the extreme values of $a_t$ on $K$ and fix $\delta>0$ and $r^*>1$ with
+$r^*(a_++\delta)<\frac12$; by Lemma~\ref{lem:L2}, $a_-/2\le a_{N,M}\le a_++\delta$ for
+$N\ge N_0$. Then $[-r^*,r^*]\subset I_{N,M}$ (formalised: \texttt{interval\_contains}).
+Condition (i) holds by A13 and condition (ii) by A11. By \eqref{eq:Q},
+$|Q'_{N,M}(x)-Q'_{N,M}(y)|\le\frac{a^2M}{2N}L_M|x-y|$ on $[-r^*,r^*]$, where
+$L_M=\sup\{|\phi_M''(u)|:|u|\le\frac12-\eta\}$ for $\eta=\frac12-r^*(a_++\delta)$; $L_M$ is
+bounded uniformly in $M\ge M_0$ by Lemma~\ref{lem:L1}, and $M/N\le1/\min K$. Hence $Q'_{N,M}$
+is uniformly Lipschitz on $[-r^*,r^*]$, and therefore uniformly H\"older of orders
+$\alpha$ and $\alpha_1$ there; take $I_0=(-1-\eta',-1+\eta')\cup(1-\eta',1+\eta')$ with
+$1+\eta'<r^*$. These give (iii) and (iv). Condition (v) is \eqref{eq:mrs} together with
+the second MRS equation, which holds by parity; by Remark~(b) after Definition~1.1 these are
+equivalent to (v).
+\end{proof}
+
+\subsection{Proof of the theorem.}\label{sec:thm}
+
+Let $E(N,M)=\beta_N^{[M]}/M^2-F(N/M)$, and let $K'=[t_1,t_2]\subset(0,\infty)$ with $t_1<t_2$
+and $K\subset K'$. Take any $m:\N\to\N$ with $n/m(n)\in K'$ for all large $n$. Define
+$Q_n=Q_{n,m(n)}$ for $n\ge N_0(K')$ and $Q_n(x)=x^2$ on $\R$ otherwise. By
+Lemma~\ref{lem:L3}, $\{Q_n\}\in\Q$, so Theorem~13.4 of \cite{levinlubinsky2018} gives
+$A_{n,n-1}=\frac12+o(1)$. By \eqref{eq:scaling}, $E(n,m(n))=a_{n,m(n)}^2A_{n,n-1}^2-a_{t}^2/4$
+with $t=n/m(n)$. Since $a_{n,m(n)}-a_t\to0$ by Lemma~\ref{lem:L2}(c), and $F$ is bounded,
+$E(n,m(n))\to0$. This is the hypothesis \texttt{hseq} of the formal theorem
+\texttt{uniform\_of\_sequential}. The filling hypothesis is \texttt{fill\_ratio}, so that
+theorem yields: for every $\varepsilon>0$ there is $L$ with $|E(N,M)|<\varepsilon$ whenever
+$N\ge L$ and $N/M\in K$. This is (2) of the note.\qed
+
+\subsection{What remains open.}\label{sec:open}
+
+On paper, nothing remains open: with Sections~\ref{sec:L1}--\ref{sec:thm} the theorem is
+proved modulo the published Theorem~13.4 and Remark~(b) after Definition~1.1 of
+Levin--Lubinsky, which are used as black boxes. No rate is claimed. A rate
+$O(N^{-\tau})$ would require knowing that the implied constants in Theorem~13.4 depend on
+$\{Q_n\}$ only through the constants of Definition~1.1. The book does not state this
+explicitly, and I have not verified it through the proofs.
+
+\section{Search for counterexamples and numerical consistency checks.}\label{sec:num}
+
+\textbf{Method.} The weight is a polynomial of degree $M-1$ on each knot interval. Gauss--Legendre
+quadrature with $n_g\ge N_{\max}+M/2$ nodes per knot interval therefore reproduces the
+first $N_{\max}$ recurrence coefficients exactly (the discretisation idea of Gautschi
+\cite{gautschi2017}). Spline values come from the positive B-spline recurrence, and the
+discretised Stieltjes procedure is run in 64-bit-mantissa extended precision. Against exact
+rational values (moments and the Chebyshev algorithm) the code agrees to about 17
+significant digits; for example both give $\beta_{12}^{[40]}=33.68595680113984\ldots$. All
+diagonal coefficients vanish to within $10^{-16}$. The profile $F$ was computed with
+\texttt{mpmath} at 30 digits. Scripts and logs are in the folder
+\texttt{numerics/uniform\_lanczos} of the certification repository.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+$t=N/M$ & $F(t)$ & $M\,E$, $M=100$ & $M\,E$, $M=200$ & $M\,E$, $M=400$ & $E$, $M=400$\\
+\midrule
+$1/4$ & $0.0178432$ & $0.010828$ & $0.010800$ & $0.010786$ & $2.70\times10^{-5}$\\
+$1/2$ & $0.0303768$ & $0.017171$ & $0.017111$ & $0.017081$ & $4.27\times10^{-5}$\\
+$1$   & $0.0445361$ & $0.017648$ & $0.017602$ & $0.017579$ & $4.39\times10^{-5}$\\
+$2$   & $0.0548091$ & $0.010479$ & $0.010471$ & $0.010466$ & $2.62\times10^{-5}$\\
+$4$   & $0.0598372$ & $0.004340$ & $0.004341$ & $0.004342$ & $1.09\times10^{-5}$\\
+\bottomrule
+\end{tabular}
+\caption{$E=\beta_N^{[M]}/M^2-F(N/M)$ with $N=tM$ (largest case $N=1600$). $ME$ is
+essentially constant in $M$, i.e.\ $E=c(t)/M+O(M^{-2})$.}\label{tab:beta}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+$x$ & $q(x)$ & $MR$ at $M=800$ & $MR'$, $M=50\to800$ & $MR''$, $M=50\to800$\\
+\midrule
+$0.05$ & $-0.151544$ & $-0.15157$ & $-0.06315\to-0.06186$ & $-1.2664\to-1.2388$\\
+$0.25$ & $-0.184391$ & $-0.18449$ & $-0.19104\to-0.18107$ & $2.2461\to2.2481$\\
+$0.42$ & $-0.089240$ & $-0.08917$ & $0.50738\to0.56497$ & $-35.856\to-35.183$\\
+\bottomrule
+\end{tabular}
+\caption{$R=\log g_M+MI-\frac12\log\{M/(2\pi v)\}$ and its derivatives, computed exactly
+through $f_M'=\Delta f_{M-1}$ and $f_M''=\Delta^2f_{M-2}$; $MR$, $MR'$ and $MR''$ converge,
+as Lemma~\ref{lem:L1} predicts, and $MR\to q$.}\label{tab:saddle}
+\end{table}
+
+\textbf{Counterexample search.} I looked for failures of uniformity near particular ratios
+($t$ from $\frac14$ to $4$), for normalisation errors (a wrong factor would show up as a
+non-vanishing limit of $E$, whereas $E\to0$ like $1/M$ in every case), and for
+finite-parameter behaviour incompatible with the limit. I found none. The edge of $J$
+($x=0.42$) has larger constants, as expected, but the same $1/M$ behaviour. These
+computations are evidence, not proof.
+
+\textbf{Milovanovi\'c's Conjecture~2.} As a by-product, for fixed $k=3,6,10$ the error of
+the five-term formula of Conjecture~2 behaves like $c_k\,m^{-4}$ for $m=50$ to $400$ (for
+$k=3$, $m^4\times\text{error}$ is $0.0100$, $0.0099$, $0.0099$, $0.0098$). This supports the
+conjecture numerically and proves nothing.
+
+\section{Originality and bibliography.}\label{sec:orig}
+
+\textbf{(I) Fixed $M$, $N\to\infty$.} For fixed $M\ge2$ the weight $f_M$ is positive on
+$(-\frac M2,\frac M2)$ and vanishes polynomially at the endpoints, so it lies in the Szeg\H{o}
+class, and a fortiori Rakhmanov's theorem (see \cite{denisov2004}) applies. Hence
+$\beta_N^{[M]}\to(M/4)^2=M^2/16$ as $N\to\infty$. This is classical and says nothing uniform
+in $M$, as the note correctly states.
+
+\textbf{(II) Milovanovi\'c's conjectures.} I read Section~5 of \cite{milovanovic2017} in the
+original (pp.~345--347). Conjecture~1 asserts that for $k\ge3$,
+$\beta_k^{(m)}=C_k\,q_{s_{k-3}}(m)q_{s_k}(m)/\{q_{s_{k-2}}(m)q_{s_{k-1}}(m)\}$ with integer
+polynomials of degrees $s_k=\{2k^2-1+(-1)^k\}/8$ and rational $C_k$ (an exact-structure
+statement at fixed $k$). Conjecture~2 asserts, for fixed $k\ge1$ and $m\to\infty$,
+\begin{multline}\label{eq:conj2}
+ \beta_k^{[m]}\asymp\frac{k}{12}m-\frac{k(k-1)}{20}+\frac{4k(k-1)(k-2)}{525m}
+ +\frac{2k(k-1)(k-2)(5k-9)}{2625m^2}\\
+ +\frac{2k(k-1)(k-2)(552k^2-1279k+255)}{1010625m^3}+\cdots .
+\end{multline}
+The theorem under review proves neither conjecture, and nothing here should be read as
+claiming that it does. There is, however, an exact formal consistency, which I verified by
+exact rational arithmetic. The Taylor coefficients of $F$ at $0$ are
+\begin{equation}\label{eq:Fseries}
+ F(\alpha)=\frac{\alpha}{12}-\frac{\alpha^2}{20}+\frac{4\alpha^3}{525}+\frac{2\alpha^4}{525}
+ +\frac{368\alpha^5}{336875}-\frac{544\alpha^6}{1340625}+O(\alpha^7),
+\end{equation}
+and the first five coincide with the coefficients of the top-degree monomials
+$k^jm^{2-j}$ in the five terms of \eqref{eq:conj2}; note that
+$\frac{2\cdot5}{2625}=\frac{2}{525}$ and $\frac{2\cdot552}{1010625}=\frac{368}{336875}$. This
+is what one expects if the fixed-$k$ expansion and the ratio-scaling limit match in an
+overlap regime $1\ll k\ll m$. It is a non-trivial check of both, but it does not prove
+either, because no uniformity bridging the two regimes is available. If Conjecture~2
+continues with further terms, \eqref{eq:Fseries} predicts the top-degree coefficient
+$-544/1340625$ of the next one.
+
+\textbf{(III) The two-parameter theorem.} The general mechanism, that recurrence
+coefficients are asymptotic to half the Mhaskar--Rakhmanov--Saff number, goes back to
+Freud's conjecture for fixed exponential weights \cite{lms1988}. For varying weights the
+tool is \cite{levinlubinsky2018}. The theorem is therefore a new \emph{application} of an
+established theorem, not a new general theorem. Its specific content is: the identification
+of the external field with the Cram\'er rate function $I$ of the uniform law; the uniform
+$C^2$ saddlepoint control of the cardinal B-spline family (Lemma~\ref{lem:L1}, of the
+classical type initiated by Daniels \cite{daniels1954}); and the explicit profile $F$. I
+searched the web, Springer and arXiv, starting from \cite{milovanovic2017} and Gautschi's
+companion paper \cite{gautschi2017}. I found no earlier statement of this joint limit or of
+$F$. The abstract of \cite{gautschi2017} concerns computation only; its full text was not
+accessible to me. A limited search cannot establish priority, so the result should be
+described as ``to the author's knowledge new''.
+
+\section{Formal-machine certification (Lean~4).}\label{sec:lean}
+\sloppy
+
+\textbf{Environment.} Lean \texttt{v4.35.0}, Mathlib commit
+{\small\texttt{0272bbe1c093d038d7257ab15306abd58245f9ff}}\linebreak (the same as for the certification
+repository of V478). Library \texttt{UniformLanczos} (six modules) in the repository
+\texttt{ralfanop/Certifications\_Eulerian\_polar-curve\_computations}, branch
+\texttt{hjm2026-check}, folder \texttt{lean/UniformLanczos}. Every file compiles with no
+error and no \texttt{sorry}, and no \texttt{native\_decide} is used. All 30 main
+declarations depend only on Lean's standard axioms \texttt{propext},
+\texttt{Classical.choice} and \texttt{Quot.sound} (file \texttt{lean/ULAxiomCheck.lean},
+log \texttt{lean/logs/uniform\_lanczos\_axioms.log}). A clean build of the library takes
+about 40~seconds.
+
+\textbf{What is machine-checked.} The following list gives the module and the
+main declarations for each part of the note.
+\begin{enumerate}
+\item \texttt{Cancellation}: the derivative cancellations of Lemma~1 (A5) and Legendre
+duality $I'=s$, $I''=1/v$, for arbitrary $\Lambda$ with the stated derivatives
+(\texttt{tilt\_first}, \texttt{tilt\_second}, \texttt{tilt\_cancellations},
+\texttt{legendre\_deriv}, \texttt{legendre\_second}).
+\item \texttt{Endpoint}: all of Lemma~2(c) and the monotonicity and continuity in
+Lemma~2(a)--(b), in the $\theta$-form of $H$ (\texttt{Hint\_strictMonoOn},
+\texttt{Hint\_continuousOn}, \texttt{Hint\_slope}, \texttt{Hint\_close},
+\texttt{exists\_unique\_root}, \texttt{root\_stability}, \texttt{endpoint\_lemma}).
+\item \texttt{ClassQ}: the elementary parts of Lemma~3, namely the formula for $Q'$, strict
+monotonicity, Lipschitz transfer, Lipschitz~$\Rightarrow$~H\"older and
+$[-r^*,r^*]\subset I_{N,M}$ (\texttt{Q\_hasDerivAt}, \texttt{Qprime\_strictMono},
+\texttt{Qprime\_lipschitz}, \texttt{holder\_of\_lipschitz}, \texttt{interval\_contains}).
+\item \texttt{MRS}: the equivalence of the first MRS equation (arcsine form) with the
+endpoint equation, the second MRS equation by parity, and the scaling
+$\beta=(Ma)^2A^2$ (\texttt{cos\_odd\_eq\_two\_sin}, \texttt{mrs\_first\_iff},
+\texttt{mrs\_second}, \texttt{beta\_scaling}).
+\item \texttt{Diagonal}: the uniformity argument of the theorem and the filling lemma
+(\texttt{uniform\_of\_sequential}, \texttt{fill\_ratio}).
+\item \texttt{Corollary}: $\int_0^{\pi/2}\sin^4=3\pi/16$, the expansion
+$H(a)=3a^2+\frac{27}5a^4+O(a^6)$ from that of $I'$, and the inversion to
+$F(\alpha)=\frac\alpha{12}-\frac{\alpha^2}{20}+O(\alpha^3)$
+(\texttt{Hint\_expansion}, \texttt{A\_le\_half\_alpha}, \texttt{inversion}).
+\end{enumerate}
+
+\textbf{What is \emph{not} machine-checked.} The following inputs are hypotheses of the
+formal statements, not formal theorems.
+\begin{enumerate}
+\item The analytic content of Lemma~1, i.e.\ the representation \eqref{eq:rep}, the bounds on
+$G$ and the Laplace-method estimates. Consequently the hypotheses
+$|\phi_M'-I'|\le C/M$ and $\sup|\phi_M''|<\infty$ are not formal.
+\item The facts about the concrete $\Lambda$: $\Lambda''>0$, $\Lambda'(\pm\infty)=\pm\frac12$,
+$H(a)\to\infty$, and the expansion of $I'$ at $0$.
+\item The log-concavity of B-splines (Floater).
+\item The substitution $y=\cos\theta$ in the improper MRS integrals.
+\item All potential theory, i.e.\ Remark~(b) after Definition~1.1 and Theorem~13.4 of
+Levin--Lubinsky. Neither is in Mathlib, and formalising them is far beyond the scope of
+this review.
+\end{enumerate}
+Hence the three lemmas are \emph{not} formalised in full. Lemma~2 is formalised completely
+from its stated inputs. Lemmas~1 and~3 are formalised only in their algebraic and
+elementary parts. The deduction of the theorem from them is formalised as logic, with
+Levin--Lubinsky's theorem entering as an explicit hypothesis.
+
+\section{Final recommendation.}\label{sec:rec}
+
+The theorem is, in my judgement, correct, and with the repairs of
+Section~\ref{sec:proof} it has a complete proof on paper conditional on
+\cite[Theorem~13.4]{levinlubinsky2018}. The note is not ready for incorporation as
+it stands. Before incorporation, five obligations remain:
+\begin{enumerate}
+\item replace the proof of Lemma~1 by a complete one, such as Section~\ref{sec:L1};
+\item restrict Lemma~2 to $M\ge2$, and Lemma~3 to $M\ge3$ and $N\ge N_0(K)$;
+\item correct the choice of $r^*$ (A13);
+\item make the filling of the diagonal sequence explicit (A16);
+\item describe the result as a new application of Levin--Lubinsky's theorem, with
+\cite{milovanovic2017} and \cite{gautschi2017} cited and the consistency
+\eqref{eq:Fseries} with Conjecture~2 stated as consistency only.
+\end{enumerate}
+Separately, the author's own criterion was that the three lemmas enter the manuscript only
+if they are formalised and certified. That criterion is \emph{not} met. Lemma~2 is fully
+machine-checked relative to its analytic inputs. Lemmas~1 and~3 are only partly
+machine-checked, and their remaining parts depend on Fourier analysis and potential theory
+that are not available in Mathlib. Whether to include the theorem with a paper proof and
+an explicit statement of its formal coverage, or to wait for a fuller formalisation, is the
+author's decision.
+
+\begin{thebibliography}{9}
+\bibitem{daniels1954}
+H.~E. Daniels, Saddlepoint approximations in statistics, \emph{Ann.\ Math.\ Statist.}\
+\textbf{25} (1954), 631--650.
+\bibitem{denisov2004}
+S.~A. Denisov, On Rakhmanov's theorem for Jacobi matrices, \emph{Proc.\ Amer.\ Math.\ Soc.}\
+\textbf{132} (2004), 847--852.
+\bibitem{floater2024}
+M.~S. Floater, Log-concavity of B-splines, \emph{J.\ Approx.\ Theory} \textbf{300} (2024),
+106042,\newline\mbox{\url{https://doi.org/10.1016/j.jat.2024.106042}}.
+\bibitem{gautschi2017}
+W.~Gautschi, Polynomials orthogonal with respect to cardinal B-spline weight functions,
+\emph{Numer.\ Algorithms} \textbf{76} (2017), 1099--1107,\newline\mbox{\url{https://doi.org/10.1007/s11075-017-0298-9}}.
+\bibitem{levinlubinsky2018}
+E.~Levin and D.~S. Lubinsky, \emph{Bounds and Asymptotics for Orthogonal Polynomials for
+Varying Weights}, SpringerBriefs in Mathematics, Springer, Cham, 2018,\newline\mbox{\url{https://doi.org/10.1007/978-3-319-72947-3}}.
+\bibitem{lms1988}
+D.~S. Lubinsky, H.~N. Mhaskar and E.~B. Saff, A proof of Freud's conjecture for exponential
+weights, \emph{Constr.\ Approx.}\ \textbf{4} (1988), 65--83.
+\bibitem{milovanovic2017}
+G.~V. Milovanovi\'c, Symbolic--numeric computation of orthogonal polynomials and Gaussian
+quadratures with respect to the cardinal B-spline, \emph{Numer.\ Algorithms} \textbf{76}
+(2017), 333--347,\newline\mbox{\url{https://doi.org/10.1007/s11075-016-0256-y}}.
+\end{thebibliography}
+
+\end{document}

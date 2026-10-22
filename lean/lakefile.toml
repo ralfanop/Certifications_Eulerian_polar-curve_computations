@@ -8,3 +8,6 @@ rev = "0272bbe1c093d038d7257ab15306abd58245f9ff"
 
 [[lean_lib]]
 name = "EulerianCert"
+
+[[lean_lib]]
+name = "UniformLanczos"
