@@ -201,7 +201,7 @@ centered uniform convolutions" (`reports/`). **Not part of V032/V035**; the manu
 
 ## 10. V035 Theorem 5.1 (fixed-degree Jacobi–Lanczos asymptotics): Lean 4 formalisation
 
-`lean/V035_FixedDegreeLanczos/` holds, unchanged (SHA256SUMS.txt verifies all 205 files), the
+`lean/FixedDegreeLanczos/` (formerly `lean/V035_FixedDegreeLanczos/`) holds, unchanged (SHA256SUMS.txt verifies all 205 files), the
 V033 verification package of 21 October 2026 that formalises Theorem 5.1 of V035:
 for every fixed degree j ≥ 1 there are C_j > 0 and M_j with
 |β_j^{[M]} − jM/12 + j(j−1)/20| ≤ C_j/M for all integers M ≥ M_j.
