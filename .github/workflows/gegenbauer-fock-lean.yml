@@ -1,0 +1,27 @@
+name: Gegenbauer–Fock Lean proof checks
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+  pull_request:
+    paths:
+      - 'lean/GegenbauerFock/**'
+      - '.github/workflows/gegenbauer-fock-lean.yml'
+  workflow_dispatch:
+
+jobs:
+  lean-algebraic-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: lean
+          use-mathlib-cache: true
+      - name: Check Gegenbauer kernel identities
+        working-directory: lean
+        run: lake env lean GegenbauerFock/KernelCore.lean
+      - name: Check two-mode oscillator algebra
+        working-directory: lean
+        run: lake env lean GegenbauerFock/OscillatorCore.lean
