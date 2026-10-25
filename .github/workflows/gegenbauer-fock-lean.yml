@@ -15,13 +15,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: leanprover/lean-action@v1
+
+      # The existing Eulerian repository does not track a lake-manifest.json.
+      # Install elan and the pinned Lean toolchain without lean-action's
+      # manifest-dependent automatic configuration.
+      - name: Install pinned Lean toolchain
+        uses: leanprover/lean-action@v1
         with:
           lake-package-directory: lean
-          use-mathlib-cache: true
+          auto-config: false
+          build: false
+          test: false
+          lint: false
+          use-mathlib-cache: false
+          use-github-cache: false
+
+      - name: Generate Lake manifest for existing pinned Mathlib
+        working-directory: lean
+        run: lake update
+
+      - name: Fetch Mathlib build artifacts
+        working-directory: lean
+        run: lake exe cache get
+
       - name: Check Gegenbauer kernel identities
         working-directory: lean
         run: lake env lean GegenbauerFock/KernelCore.lean
+
       - name: Check two-mode oscillator algebra
         working-directory: lean
         run: lake env lean GegenbauerFock/OscillatorCore.lean
