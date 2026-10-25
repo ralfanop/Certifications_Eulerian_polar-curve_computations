@@ -36,7 +36,7 @@ theorem hasDerivAt_left (c u v : ℝ) :
   have he : HasDerivAt (fun t : ℝ => K c t v)
       (Real.exp (c*u*v)*(c*v)) u := by
     simpa only [K, Function.comp_def] using hexp
-  convert he using 1 <;> ring
+  simpa only [K, mul_comm, mul_left_comm, mul_assoc] using he
 
 theorem deriv_left (c u v : ℝ) :
     deriv (fun t : ℝ => K c t v) u = (c*v)*K c u v :=
