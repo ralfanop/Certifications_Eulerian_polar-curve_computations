@@ -16,19 +16,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # The existing Eulerian repository does not track a lake-manifest.json.
-      # Install elan and the pinned Lean toolchain without lean-action's
-      # manifest-dependent automatic configuration.
-      - name: Install pinned Lean toolchain
-        uses: leanprover/lean-action@v1
-        with:
-          lake-package-directory: lean
-          auto-config: false
-          build: false
-          test: false
-          lint: false
-          use-mathlib-cache: false
-          use-github-cache: false
+      # The existing certification repository does not check in a
+      # lake-manifest.json. The lean-action composite itself refuses to
+      # initialize without it, even with auto-config: false; install
+      # elan directly and run lake update before requesting Mathlib cache.
+      - name: Install elan and pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lean" --version
+          "$HOME/.elan/bin/lake" --version
 
       - name: Generate Lake manifest for existing pinned Mathlib
         working-directory: lean
