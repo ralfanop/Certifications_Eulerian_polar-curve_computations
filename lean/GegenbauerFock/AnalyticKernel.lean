@@ -24,10 +24,16 @@ noncomputable def K (c u v : ℝ) : ℝ := Real.exp (c*u*v)
 theorem hasDerivAt_left (c u v : ℝ) :
     HasDerivAt (fun t : ℝ => K c t v) ((c*v)*K c u v) u := by
   have hlin : HasDerivAt (fun t : ℝ => c*t*v) (c*v) u := by
-    convert (((hasDerivAt_id u).const_mul c).mul_const v) using 1 <;> ring
+    convert (((hasDerivAt_id u).const_mul c).mul_const v) using 1 <;>
+      first
+      | funext t; dsimp; congr 1; ring
+      | ring
   have hexp := (Real.hasDerivAt_exp (c*u*v)).comp u hlin
   unfold K
-  convert hexp using 1 <;> ring
+  convert hexp using 1 <;>
+      first
+      | funext t; dsimp; congr 1; ring
+      | ring
 
 theorem deriv_left (c u v : ℝ) :
     deriv (fun t : ℝ => K c t v) u = (c*v)*K c u v :=
