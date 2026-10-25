@@ -103,3 +103,12 @@ theorem truncatedExponentialGram_nonneg
   exact div_nonneg (mul_nonneg hck hsq) (Nat.cast_nonneg _)
 
 end GegenbauerFock
+
+/-! Axiom dependency audit (printed in GitHub Actions logs). -/
+#print axioms GegenbauerFock.spheroidalFactor_swap
+#print axioms GegenbauerFock.exponentialKernel_balance
+#print axioms GegenbauerFock.ultrasphericalSymbol_difference
+#print axioms GegenbauerFock.gegenbauerFourier_symbol
+#print axioms GegenbauerFock.radialCoefficient_balance
+#print axioms GegenbauerFock.legendreJacobi_crossMultiplication
+#print axioms GegenbauerFock.truncatedExponentialGram_nonneg
