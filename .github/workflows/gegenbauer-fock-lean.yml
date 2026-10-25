@@ -45,3 +45,7 @@ jobs:
       - name: Check two-mode oscillator algebra
         working-directory: lean
         run: lake env lean GegenbauerFock/OscillatorCore.lean
+
+      - name: Check analytic exponential kernel and spheroidal identity
+        working-directory: lean
+        run: lake env lean GegenbauerFock/AnalyticKernel.lean
