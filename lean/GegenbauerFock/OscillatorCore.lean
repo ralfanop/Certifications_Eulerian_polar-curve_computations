@@ -50,11 +50,11 @@ theorem annA_annB_commute (f : TwoMode) (m n : ℕ) :
 
 theorem annA_creB_commute (f : TwoMode) (m n : ℕ) :
     annA (creB f) m n = creB (annA f) m n := by
-  cases n <;> simp [annA, creB] <;> ring
+  cases n <;> simp [annA, creB]
 
 theorem creA_annB_commute (f : TwoMode) (m n : ℕ) :
     creA (annB f) m n = annB (creA f) m n := by
-  cases m <;> simp [annB, creA] <;> ring
+  cases m <;> simp [annB, creA]
 
 theorem creA_creB_commute (f : TwoMode) (m n : ℕ) :
     creA (creB f) m n = creB (creA f) m n := by
@@ -83,3 +83,11 @@ theorem annB_jointVacuum (m n : ℕ) :
   simp [annB, jointVacuum]
 
 end GegenbauerFock
+
+/-! Axiom dependency audit (printed in GitHub Actions logs). -/
+#print axioms GegenbauerFock.annA_creA_CCR
+#print axioms GegenbauerFock.annB_creB_CCR
+#print axioms GegenbauerFock.annA_annB_commute
+#print axioms GegenbauerFock.annA_creB_commute
+#print axioms GegenbauerFock.annA_aVacuumFromB
+#print axioms GegenbauerFock.annB_jointVacuum
