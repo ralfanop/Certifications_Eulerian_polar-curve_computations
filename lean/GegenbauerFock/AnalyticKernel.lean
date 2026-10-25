@@ -21,6 +21,35 @@ namespace GegenbauerFock.AnalyticKernel
 /-- Real exponential kernel K_c(u,v) = exp(c*u*v). -/
 noncomputable def K (c u v : ℝ) : ℝ := Real.exp (c*u*v)
 
+/-- The exponential Gram kernel is everywhere strictly positive. -/
+theorem K_pos (c u v : ℝ) : 0 < K c u v := by
+  unfold K
+  exact Real.exp_pos _
+
+/-- The exponential Gram kernel is symmetric. -/
+theorem K_symm (c u v : ℝ) : K c u v = K c v u := by
+  unfold K
+  congr 1
+  ring
+
+/-- Uniform domination on the square [-1,1] × [-1,1], for c≥0. -/
+theorem K_le_exp_on_square (c u v : ℝ) (hc : 0 ≤ c)
+    (hu : |u| ≤ 1) (hv : |v| ≤ 1) :
+    K c u v ≤ Real.exp c := by
+  have habs : |u*v| ≤ 1 := by
+    rw [abs_mul]
+    have h : 0 ≤ (1 - |u|) * |v| :=
+      mul_nonneg (sub_nonneg.mpr hu) (abs_nonneg v)
+    nlinarith
+  have huv : u*v ≤ 1 := (le_abs_self (u*v)).trans habs
+  have hcuv : c*u*v ≤ c := by
+    calc
+      c*u*v = c*(u*v) := by ring
+      _ ≤ c*1 := mul_le_mul_of_nonneg_left huv hc
+      _ = c := by ring
+  unfold K
+  exact Real.exp_le_exp.mpr hcuv
+
 theorem hasDerivAt_left (c u v : ℝ) :
     HasDerivAt (fun t : ℝ => K c t v) ((c*v)*K c u v) u := by
   have hbase : HasDerivAt (fun t : ℝ => (c*v)*t) (c*v) u := by
@@ -121,6 +150,7 @@ theorem spheroidal_kernel_differential_balance (lam c u v : ℝ) :
   congr 1
   ring
 
+#print axioms GegenbauerFock.AnalyticKernel.K_le_exp_on_square
 #print axioms GegenbauerFock.AnalyticKernel.hasDerivAt_left
 #print axioms GegenbauerFock.AnalyticKernel.secondDeriv_left
 #print axioms GegenbauerFock.AnalyticKernel.spheroidal_kernel_differential_balance
