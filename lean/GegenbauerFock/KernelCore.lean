@@ -34,10 +34,10 @@ theorem ultrasphericalSymbol_difference (lam c u v : ℝ) :
 
 /-! The next theorem is a *symbol identity*, not integration by parts. -/
 
-def gegenbauerSourceSymbol (lam u z q : ℂ) : ℂ :=
+noncomputable def gegenbauerSourceSymbol (lam u z q : ℂ) : ℂ :=
   -(1-u^2) * (q*z/2)^2 + (2*lam+1)*u*(q*z/2)
 
-def gegenbauerTargetSymbol (lam u z q : ℂ) : ℂ :=
+noncomputable def gegenbauerTargetSymbol (lam u z q : ℂ) : ℂ :=
   z^2*(q*u/2)^2 + (2*lam+1)*z*(q*u/2) + z^2/4
 
 theorem gegenbauerFourier_symbol (lam u z q : ℂ)
@@ -86,7 +86,7 @@ theorem legendre_beta_3 :
 A sum-of-squares certificate for finite truncations of the kernel
 exp(c*u*v), for c ≥ 0. No passage to the infinite sum is claimed.
 -/
-def truncatedExponentialGram (m N : ℕ) (c : ℝ)
+noncomputable def truncatedExponentialGram (m N : ℕ) (c : ℝ)
     (u a : Fin m → ℝ) : ℝ :=
   ∑ k ∈ Finset.range N,
     c^k * (∑ i : Fin m, a i * (u i)^k)^2 / (Nat.factorial k : ℝ)
