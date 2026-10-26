@@ -112,6 +112,54 @@ theorem ae_mem_unit_interval (lam : ℝ) :
   unfold betaToInterval
   constructor <;> linarith [hx.1, hx.2]
 
+/-- The *unclamped original Eulerian coherent section* really
+belongs to L² of the concrete general ultraspherical probability law.
+This theorem uses the proved [-1,1] support statement rather than
+postulating an integrability hypothesis. -/
+theorem originalCoherent_memLp (lam : ℝ) (hlam : 0 < lam) (z : ℂ) :
+    MemLp (fun u : ℝ => Complex.exp (Complex.I*z*(u:ℂ)/2))
+      2 (measure lam) := by
+  letI : IsProbabilityMeasure (measure lam) := probability lam hlam
+  have hcontinuous :
+      Continuous (fun u : ℝ => Complex.exp (Complex.I*z*(u:ℂ)/2)) := by
+    fun_prop
+  apply MemLp.of_bound hcontinuous.aestronglyMeasurable
+    (Real.exp (‖z‖/2))
+  filter_upwards [ae_mem_unit_interval lam] with u hu
+  have habs : |u| ≤ 1 := abs_le.mpr ⟨hu.1, hu.2⟩
+  have hnorm : ‖(u:ℂ)‖ ≤ 1 := by simpa using habs
+  have harg : ‖Complex.I*z*(u:ℂ)/2‖ ≤ ‖z‖/2 := by
+    calc
+      ‖Complex.I*z*(u:ℂ)/2‖ = ‖z‖ * ‖(u:ℂ)‖ / 2 := by
+        simp [norm_mul, mul_comm, mul_left_comm, mul_assoc]
+      _ ≤ ‖z‖ * 1 / 2 := by gcongr
+      _ = ‖z‖/2 := by ring
+  exact (Complex.norm_exp_le_exp_norm _).trans
+    (Real.exp_le_exp.mpr harg)
+
+/-- Each z gives a genuine L² equivalence class on the beta-pushforward measure. -/
+noncomputable def originalCoherentLp (lam : ℝ) (hlam : 0 < lam) (z : ℂ) :
+    Lp ℂ 2 (measure lam) :=
+  (originalCoherent_memLp lam hlam z).toLp
+    (fun u : ℝ => Complex.exp (Complex.I*z*(u:ℂ)/2))
+
+/-- Actual bounded evaluation/coefficient functional on ultraspherical L².
+This is a scalar-valued map, not yet the full Fock-valued operator. -/
+noncomputable def fourierFunctional (lam : ℝ) (hlam : 0 < lam) (z : ℂ) :
+    Lp ℂ 2 (measure lam) →L[ℂ] ℂ :=
+  innerSL ℂ (originalCoherentLp lam hlam (-star z))
+
+theorem fourierFunctional_norm (lam : ℝ) (hlam : 0 < lam) (z : ℂ) :
+    ‖fourierFunctional lam hlam z‖ =
+      ‖originalCoherentLp lam hlam (-star z)‖ := by
+  exact innerSL_apply_norm _
+
+theorem fourierFunctional_adjoint (lam : ℝ) (hlam : 0 < lam) (z : ℂ) :
+    (fourierFunctional lam hlam z).adjoint =
+      ContinuousLinearMap.toSpanSingleton ℂ
+        (originalCoherentLp lam hlam (-star z)) := by
+  exact ContinuousLinearMap.adjoint_innerSL_apply _
+
 #print axioms GegenbauerFock.Ultraspherical.shape_pos
 #print axioms GegenbauerFock.Ultraspherical.probability
 #print axioms GegenbauerFock.Ultraspherical.measure_univ
@@ -120,5 +168,8 @@ theorem ae_mem_unit_interval (lam : ℝ) :
 #print axioms GegenbauerFock.Ultraspherical.beta_density_reflection
 #print axioms GegenbauerFock.Ultraspherical.beta_ae_unit_interval
 #print axioms GegenbauerFock.Ultraspherical.ae_mem_unit_interval
+#print axioms GegenbauerFock.Ultraspherical.originalCoherent_memLp
+#print axioms GegenbauerFock.Ultraspherical.fourierFunctional_norm
+#print axioms GegenbauerFock.Ultraspherical.fourierFunctional_adjoint
 
 end GegenbauerFock.Ultraspherical
