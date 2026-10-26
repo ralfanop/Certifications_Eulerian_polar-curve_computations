@@ -86,4 +86,48 @@ theorem gram_eq_nuclear_tsum
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramNuclearTerm_summable
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gram_eq_nuclear_tsum
 
+/-- Rank-one positivity makes the operator norm of the n-th Gram
+summand equal to the exact squared norm of the n-th Fock moment row. -/
+theorem gramNuclearTerm_norm_eq_row_sq
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (n : ℕ) :
+    ‖gramNuclearTerm lam alpha hlam ha n‖ =
+      ‖SummableRowsCompact.row (C lam alpha hlam ha) n‖ ^ 2 := by
+  letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
+    Ultraspherical.probability lam hlam
+  let r := WeightedMoments.coefficient
+    (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha n
+  change ‖r.adjoint.comp r‖ = _
+  rw [C_row_eq lam alpha hlam ha n]
+  change ‖r.adjoint.comp r‖ = ‖r‖ ^ 2
+  rw [ContinuousLinearMap.norm_adjoint_comp_self]
+  ring
+
+/-- The mass of the positive nuclear rank-one presentation is
+exactly the verified squared canonical Hilbert-Schmidt row energy. -/
+theorem gramNuclearMass_eq_rowEnergy
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    (∑' n : ℕ, ‖gramNuclearTerm lam alpha hlam ha n‖) =
+      rowEnergy lam alpha hlam ha := by
+  unfold rowEnergy
+  apply tsum_congr
+  intro n
+  exact gramNuclearTerm_norm_eq_row_sq lam alpha hlam ha n
+
+/-- Exact exponential integral for the nuclear Gram mass. This is
+the scalar trace of the positive rank-one presentation, independent
+trace-class ideal equivalence still being formalized. -/
+theorem gramNuclearMass_eq_exp_integral
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    (∑' n : ℕ, ‖gramNuclearTerm lam alpha hlam ha n‖) =
+      ∫ u : ℝ, Real.exp (u ^ 2 / (4 * alpha))
+        ∂(Ultraspherical.measure lam) := by
+  rw [gramNuclearMass_eq_rowEnergy]
+  exact rowEnergy_eq_exp_integral lam alpha hlam ha
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gramNuclearTerm_norm_eq_row_sq
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gramNuclearMass_eq_rowEnergy
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gramNuclearMass_eq_exp_integral
+
+
 end GegenbauerFock.GeneralUltrasphericalFock
