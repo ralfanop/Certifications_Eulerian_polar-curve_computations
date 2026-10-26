@@ -25,6 +25,7 @@ theorem coefficient_adjoint_explicit (alpha : ℝ) (n : ℕ) (a : ℂ) :
   apply ext_inner_right ℂ
   intro f
   rw [(WeightedMoments.coefficient μ hsupport alpha n).adjoint_inner_left f a]
+  symm
   change inner ℂ
       ((star (WeightedMoments.complexWeight alpha n) * a) •
         WeightedMoments.monomial μ hsupport n) f =
