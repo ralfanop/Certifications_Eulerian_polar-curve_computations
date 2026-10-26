@@ -11,7 +11,7 @@ finite-dimensional and the eigenspaces have dense linear span.
 These claims do not assume a finite matrix approximation.
 -/
 
-open MeasureTheory
+open MeasureTheory Module End WithLp
 open scoped InnerProduct
 
 namespace GegenbauerFock.GeneralUltrasphericalFock
