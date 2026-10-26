@@ -210,4 +210,45 @@ theorem fock_amplitude_product
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.fock_amplitude_product
 
+
+/-- Each Fock reproducing-kernel coordinate multiplied by the
+normalised Fourier coefficient has exactly the Taylor amplitude
+\((iz/2)^n/n!\), including its complex phase. -/
+theorem fock_kernel_weight
+    (alpha : ℝ) (ha : 0 < alpha) (z : ℂ) (n : ℕ) :
+    inner ℂ (FockEvaluation.kernelCoordinate alpha z n)
+      (WeightedMoments.complexWeight alpha n) =
+        (Complex.I * z / 2) ^ n / (Nat.factorial n : ℂ) := by
+  have hamp := fock_amplitude_product alpha ha n
+  have hampC :
+      (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) *
+        (Real.sqrt (WeightedMoments.squareWeight alpha n) : ℂ) =
+          (1 / 2 : ℂ) ^ n / (Nat.factorial n : ℂ) := by
+    exact_mod_cast hamp
+  change star ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) *
+      (star z) ^ n) *
+      ((Real.sqrt (WeightedMoments.squareWeight alpha n) : ℂ) *
+        Complex.I ^ n) = _
+  rw [star_mul, star_pow, star_star]
+  have hstar :
+      star (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) =
+        (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) := by simp
+  rw [hstar]
+  calc
+    z ^ n * (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) *
+        ((Real.sqrt (WeightedMoments.squareWeight alpha n) : ℂ) *
+          Complex.I ^ n) =
+      ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) *
+        (Real.sqrt (WeightedMoments.squareWeight alpha n) : ℂ)) *
+        (Complex.I * z) ^ n := by
+          rw [mul_pow]
+          ring
+    _ = ((1 / 2 : ℂ) ^ n / (Nat.factorial n : ℂ)) *
+          (Complex.I * z) ^ n := by rw [hampC]
+    _ = (Complex.I * z / 2) ^ n / (Nat.factorial n : ℂ) := by
+          simp only [div_pow, one_pow]
+          ring
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.fock_kernel_weight
+
 end GegenbauerFock.GeneralUltrasphericalFock
