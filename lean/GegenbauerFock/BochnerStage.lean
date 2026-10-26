@@ -82,4 +82,18 @@ theorem norm_transform_le_integral_norm (μ : Measure ℝ) (z : ℂ)
 #print axioms GegenbauerFock.BochnerStage.transform_one_zero
 #print axioms GegenbauerFock.BochnerStage.norm_transform_le_integral_norm
 
+
+/-- The original complex Eulerian kernel equals its convergent
+entire exponential power series at every complex frequency.
+Integrating this equality term by term requires an independent
+summable-L¹ domination theorem and is not assumed here. -/
+theorem kernel_eq_tsum (z : ℂ) (u : ℝ) :
+    kernel z u =
+      ∑' n : ℕ, (Complex.I * z * (u : ℂ) / 2) ^ n /
+        (Nat.factorial n : ℂ) := by
+  unfold kernel
+  rw [Complex.exp_eq_exp_ℂ, NormedSpace.exp_eq_tsum_div]
+
+#print axioms GegenbauerFock.BochnerStage.kernel_eq_tsum
+
 end GegenbauerFock.BochnerStage
