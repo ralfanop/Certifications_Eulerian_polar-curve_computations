@@ -75,6 +75,8 @@ theorem restrictionLp_norm_le
     filter_upwards [
       (memLp_evaluate lam alpha hlam ha F).coeFn_toLp,
       Ultraspherical.ae_mem_unit_interval lam] with u he hu
+    change ‖((memLp_evaluate lam alpha hlam ha F).toLp
+      (evaluate alpha ha F) : ℝ → ℂ) u‖ ≤ _
     rw [he]
     exact norm_evaluate_le alpha ha F u (abs_le.mpr ⟨hu.1, hu.2⟩)
   have h := Lp.norm_le_of_ae_bound
@@ -92,9 +94,9 @@ noncomputable def restrictionCLM
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
     InfiniteAnalysis.FockCoefficients →L[ℂ]
       Lp ℂ 2 (Ultraspherical.measure lam) :=
-  (⟨restrictionLp lam alpha hlam ha,
-     restrictionLp_add lam alpha hlam ha,
-     restrictionLp_smul lam alpha hlam ha⟩ :
+  ({ toFun := restrictionLp lam alpha hlam ha
+     map_add' := restrictionLp_add lam alpha hlam ha
+     map_smul' := restrictionLp_smul lam alpha hlam ha } :
        InfiniteAnalysis.FockCoefficients →ₗ[ℂ]
          Lp ℂ 2 (Ultraspherical.measure lam)).mkContinuous
       (Real.sqrt (Real.exp (1 / (4 * alpha)))) (by
