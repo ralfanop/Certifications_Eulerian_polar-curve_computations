@@ -51,6 +51,44 @@ theorem summableRows_comp_right
     (row_comp_right_norm_sq_le μ T B)
     (hT.mul_left (‖B‖ ^ 2))
 
+/-- Source-side ideal bound also for a different probability L² space.
+The source of B need not coincide with the source of T. -/
+theorem row_comp_right_norm_sq_between
+    (μ ν : Measure ℝ) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+    (T : Lp ℂ 2 μ →L[ℂ] InfiniteAnalysis.FockCoefficients)
+    (B : Lp ℂ 2 ν →L[ℂ] Lp ℂ 2 μ) (n : ℕ) :
+    ‖(coordinate n).comp (T.comp B)‖ ^ 2 ≤
+      ‖B‖ ^ 2 * ‖(coordinate n).comp T‖ ^ 2 := by
+  have heq :
+      (coordinate n).comp (T.comp B) =
+        ((coordinate n).comp T).comp B := by
+    ext f
+    rfl
+  rw [heq]
+  calc
+    ‖((coordinate n).comp T).comp B‖ ^ 2 ≤
+        (‖(coordinate n).comp T‖ * ‖B‖) ^ 2 := by
+      gcongr
+      exact ContinuousLinearMap.opNorm_comp_le _ _
+    _ = ‖B‖ ^ 2 * ‖(coordinate n).comp T‖ ^ 2 := by ring
+
+/-- The row-summable operator property is stable under arbitrary
+bounded precomposition between two possibly different probability L² spaces. -/
+theorem summableRows_comp_right_between
+    (μ ν : Measure ℝ) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+    (T : Lp ℂ 2 μ →L[ℂ] InfiniteAnalysis.FockCoefficients)
+    (hT : HasSummableRows μ T)
+    (B : Lp ℂ 2 ν →L[ℂ] Lp ℂ 2 μ) :
+    HasSummableRows ν (T.comp B) := by
+  unfold HasSummableRows at hT ⊢
+  apply Summable.of_nonneg_of_le
+    (fun n => sq_nonneg _)
+    (row_comp_right_norm_sq_between μ ν T B)
+    (hT.mul_left (‖B‖ ^ 2))
+
+#print axioms GegenbauerFock.FockEnergy.row_comp_right_norm_sq_between
+#print axioms GegenbauerFock.FockEnergy.summableRows_comp_right_between
+
 #print axioms GegenbauerFock.FockEnergy.row_comp_right_norm_sq_le
 #print axioms GegenbauerFock.FockEnergy.summableRows_comp_right
 
