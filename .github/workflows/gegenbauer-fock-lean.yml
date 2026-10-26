@@ -104,11 +104,17 @@ jobs:
           set -euo pipefail
           lake env lean GegenbauerFock/FiniteCoefficient.lean | tee /tmp/gf-finite-coeff.log
 
+      - name: Check genuine L2 coherent exponential sections
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean GegenbauerFock/CoherentL2.lean | tee /tmp/gf-coherent-l2.log
+
       - name: Audit emitted theorem axiom dependencies
         shell: bash
         run: |
           set -euo pipefail
-          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff; do
+          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2; do
             test -s "/tmp/gf-${part}.log"
           done
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-*.log; then
