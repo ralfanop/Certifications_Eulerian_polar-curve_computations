@@ -53,3 +53,7 @@ jobs:
       - name: Check Legendre probability moments
         working-directory: lean
         run: lake env lean GegenbauerFock/LegendreMoments.lean
+
+      - name: Check Eulerian Fourier integral
+        working-directory: lean
+        run: lake env lean GegenbauerFock/EulerianFourierIntegral.lean
