@@ -28,6 +28,23 @@ without the author's explicit approval.
   interval integral of the Eulerian profile
   `∫_{-1/2}^{1/2}exp(it)dt = 2sin(1/2) = sinc(1/2)`.
 
+- `UltrasphericalMeasure.lean`: for every `λ>0`, constructs a **concrete**
+  probability measure from the symmetric Mathlib Beta distribution
+  `Beta(λ+1/2, λ+1/2)` under `x ↦ 2x-1`. Proves mass one, the
+  constant-function integral, and positivity of the Beta density on
+  its natural support. The explicit Gamma-normalized density under
+  the affine pushforward is not yet a Lean theorem.
+- `BochnerStage.lean`: actually defines the **complex scalar**
+  Bochner Eulerian integral for arbitrary measure and checks linearity
+  under integrability, normalization at zero frequency for a
+  probability measure and norm domination. It does **not** construct
+  the bounded `L²(ν_λ) → Fock_α` map or its Hilbert–Schmidt adjoint.
+
+All Hilbert-space construction and proof calculations for **V007**
+are specified in `V007_HILBERT_PROOF_DOSSIER.md`, with their
+kernel-certification status explicitly separated from the mathematical
+paper-level derivations. **Nothing is to be added to or merged into V097.**
+
 The new integral theorems use Mathlib's established proofs of
 `integral_pow`, `integral_exp_mul_I_eq_sin`, and
 `integral_exp_mul_I_eq_sinc`. Each module includes explicit
@@ -35,7 +52,7 @@ The new integral theorems use Mathlib's established proofs of
 
 ## Current limitations
 
-Not yet certified: beta-integral moments at arbitrary `λ>0`, the
+Not yet certified: the classical ultraspherical Gamma density equality and beta-integral moments at arbitrary `λ>0`, the
 Bochner-valued Gegenbauer–Fock transform, the full adjoint identity,
 Hilbert–Schmidt/Schatten estimates, injectivity/dense range, operator
 domains, and the selfadjoint **integral-operator** commutation theorem.
@@ -55,7 +72,7 @@ Lean `v4.35.0-rc3`; pinned Mathlib
 cd lean
 lake update
 lake exe cache get
-for file in KernelCore OscillatorCore AnalyticKernel LegendreMoments EulerianFourierIntegral; do
+for file in KernelCore OscillatorCore AnalyticKernel LegendreMoments EulerianFourierIntegral UltrasphericalMeasure BochnerStage; do
   lake env lean "GegenbauerFock/${file}.lean"
 done
 ```
@@ -65,7 +82,7 @@ The branch-isolated GitHub Actions workflow additionally rejects
 theorem-dependency logs. This automatic audit covers the printed
 theorems, **not a claim that every imported theorem has been individually
 audited**. No `sorry` or `admit` placeholders were authored in the
-five modules.
+seven modules.
 
 A green workflow is a check of the exact branch commit recorded
 on its run page, not a blanket assertion about past failed commits.
