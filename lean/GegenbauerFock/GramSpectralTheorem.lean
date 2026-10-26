@@ -98,10 +98,9 @@ theorem gramIntegralOperator_orthogonal_eigenspaces
       (fun mu : ℂ =>
         eigenspace (gramIntegralOperator lam alpha hlam ha).toLinearMap mu)
       (fun mu =>
-        (eigenspace (gramIntegralOperator lam alpha hlam ha).toLinearMap mu)
-          .subtypeₗᵢ) := by
-  exact (gramIntegralOperator_symmetric lam alpha hlam ha)
-    .orthogonalFamily_eigenspaces
+        (eigenspace (gramIntegralOperator lam alpha hlam ha).toLinearMap mu).subtypeₗᵢ) := by
+  exact LinearMap.IsSymmetric.orthogonalFamily_eigenspaces
+    (gramIntegralOperator_symmetric lam alpha hlam ha)
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramIntegralOperator_nonnegative_form
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramIntegralOperator_orthogonal_eigenspaces
