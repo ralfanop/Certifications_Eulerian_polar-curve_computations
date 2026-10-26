@@ -1,6 +1,7 @@
 import GegenbauerFock.FockEvaluationSequence
 import GegenbauerFock.GeneralUltrasphericalFock
 import GegenbauerFock.GeneralFockNormBound
+import GegenbauerFock.BochnerTaylorInterchange
 
 /-!
 # V007: Fock point evaluation of the concrete ultraspherical Hilbert operator
