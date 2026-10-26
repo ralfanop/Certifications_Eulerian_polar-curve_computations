@@ -1,4 +1,5 @@
-import GegenbauerFock.GramSpectralTheorem
+import GegenbauerFock.GramIntegralComplete
+import GegenbauerFock.GramKernelSeries
 import GegenbauerFock.RowEnergyExpIntegral
 
 /-!
