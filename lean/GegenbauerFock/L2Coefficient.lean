@@ -24,7 +24,7 @@ variable (μ : Measure ℝ)
 /-- A genuine bounded complex-linear functional on L²(μ). -/
 noncomputable def functional (k : Lp ℂ 2 μ) :
     Lp ℂ 2 μ →L[ℂ] ℂ :=
-  InnerProductSpace.innerSL ℂ k
+  innerSL ℂ k
 
 theorem functional_apply (k f : Lp ℂ 2 μ) :
     functional μ k f = inner ℂ k f := by
@@ -32,12 +32,12 @@ theorem functional_apply (k f : Lp ℂ 2 μ) :
 
 theorem functional_norm (k : Lp ℂ 2 μ) :
     ‖functional μ k‖ = ‖k‖ := by
-  exact InnerProductSpace.innerSL_apply_norm ℂ k
+  exact innerSL_apply_norm ℂ k
 
 /-- The adjoint is the genuine synthesis map from ℂ back into L²(μ),
 not just a formal equality of symbols. -/
 theorem functional_adjoint (k : Lp ℂ 2 μ) :
-    (functional μ k).adjoint = InnerProductSpace.toSpanSingleton ℂ k := by
+    (functional μ k).adjoint = ContinuousLinearMap.toSpanSingleton ℂ k := by
   exact ContinuousLinearMap.adjoint_innerSL_apply k
 
 #print axioms GegenbauerFock.L2Coefficient.functional_apply
