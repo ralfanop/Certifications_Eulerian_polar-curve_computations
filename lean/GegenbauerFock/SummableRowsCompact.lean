@@ -123,8 +123,11 @@ theorem tail_tendsto_zero (T : E →L[ℂ] Target)
     have h := hk.sum_add_tsum_nat_add N
     unfold tail
     linarith
-  simp_rw [htail]
-  simpa using (tendsto_const_nhds.sub hsum)
+  change Tendsto (fun N => tail T N) atTop (nhds 0)
+  rw [show (fun N => tail T N) = (fun N =>
+      (∑' n : ℕ, ‖row T n‖ ^ 2) -
+        ∑ n ∈ Finset.range N, ‖row T n‖ ^ 2) from funext htail]
+  convert tendsto_const_nhds.sub hsum using 1 <;> simp
 
 theorem operator_error_norm_bound (T : E →L[ℂ] Target)
     (hk : Summable (fun n : ℕ => ‖row T n‖ ^ 2)) (N : ℕ) :
@@ -146,7 +149,8 @@ theorem operator_truncations_tendsto (T : E →L[ℂ] Target)
     Tendsto (truncation T) atTop (nhds T) := by
   have htail := tail_tendsto_zero T hk
   have hsqrt : Tendsto (fun N => Real.sqrt (tail T N)) atTop (nhds 0) := by
-    simpa using (Real.continuous_sqrt.tendsto 0).comp htail
+    change Tendsto (Real.sqrt ∘ tail T) atTop (nhds 0)
+    convert (Real.continuous_sqrt.tendsto 0).comp htail using 1 <;> simp
   have hnorm : Tendsto (fun N => ‖T - truncation T N‖) atTop (nhds 0) :=
     squeeze_zero' (Filter.Eventually.of_forall fun N => norm_nonneg _)
       (Filter.Eventually.of_forall fun N => operator_error_norm_bound T hk N)
