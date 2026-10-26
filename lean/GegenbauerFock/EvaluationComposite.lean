@@ -197,9 +197,9 @@ theorem fock_amplitude_product
               calc
                 (1 / 4 : ℝ) ^ n = ((1 / 2 : ℝ) ^ 2) ^ n := by norm_num
                 _ = ((1 / 2 : ℝ) ^ n) ^ 2 := by
-                  simp only [pow_mul]
-                  rw [mul_comm 2 n]
+                  rw [← pow_mul, mul_comm 2 n, pow_mul]
             rw [hpow, div_pow]
+            ring
   have hsq :
       (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) *
         Real.sqrt (WeightedMoments.squareWeight alpha n)) ^ 2 =
@@ -224,7 +224,19 @@ theorem fock_kernel_weight
       (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) *
         (Real.sqrt (WeightedMoments.squareWeight alpha n) : ℂ) =
           (1 / 2 : ℂ) ^ n / (Nat.factorial n : ℂ) := by
-    exact_mod_cast hamp
+    calc
+      (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) *
+          (Real.sqrt (WeightedMoments.squareWeight alpha n) : ℂ) =
+          ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) *
+            Real.sqrt (WeightedMoments.squareWeight alpha n) : ℝ) : ℂ) := by
+              push_cast
+              rfl
+      _ = (((1 / 2 : ℝ) ^ n / (Nat.factorial n : ℝ)) : ℂ) := by
+            exact congrArg (fun x : ℝ => (x : ℂ)) hamp
+      _ = (1 / 2 : ℂ) ^ n / (Nat.factorial n : ℂ) := by
+            push_cast
+            ring
+  rw [RCLike.inner_apply']
   change star ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) *
       (star z) ^ n) *
       ((Real.sqrt (WeightedMoments.squareWeight alpha n) : ℂ) *
