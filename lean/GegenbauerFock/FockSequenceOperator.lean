@@ -39,7 +39,7 @@ theorem coordinate_adjoint_exists (n : ℕ) :
 theorem fock_complete : CompleteSpace Coefficients := inferInstance
 
 /-- Mathlib equips the coefficient model with the actual complex inner product. -/
-theorem fock_innerProduct : InnerProductSpace ℂ Coefficients := inferInstance
+theorem fock_innerProduct : Nonempty (InnerProductSpace ℂ Coefficients) := ⟨inferInstance⟩
 
 #print axioms GegenbauerFock.FockSequence.coordinate_bound
 #print axioms GegenbauerFock.FockSequence.coordinate_adjoint_exists
