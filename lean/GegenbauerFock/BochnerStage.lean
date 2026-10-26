@@ -104,7 +104,7 @@ theorem l2_integrable_probability (μ : Measure ℝ) [IsProbabilityMeasure μ]
     (f : Lp ℂ 2 μ) :
     Integrable (fun u : ℝ => f u) μ := by
   exact memLp_one_iff_integrable.mp
-    ((Lp.memLp f).mono_exponent (by norm_num : (1 : ℝ≥0∞) ≤ 2))
+    ((Lp.memLp f).mono_exponent (by norm_num : (1 : ENNReal) ≤ 2))
 
 #print axioms GegenbauerFock.BochnerStage.l2_integrable_probability
 
