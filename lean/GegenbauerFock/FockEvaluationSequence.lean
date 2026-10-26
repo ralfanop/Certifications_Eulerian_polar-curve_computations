@@ -45,8 +45,10 @@ theorem kernelCoordinate_memℓp (alpha : ℝ) (ha : 0 < alpha)
     (z : ℂ) :
     Memℓp (kernelCoordinate alpha z) 2 := by
   apply memℓp_gen
-  simpa only [kernelCoordinate_norm_sq alpha ha z] using
-    Real.summable_pow_div_factorial (alpha * ‖z‖ ^ 2)
+  have hs : Summable (fun n : ℕ => ‖kernelCoordinate alpha z n‖ ^ 2) := by
+    simpa only [kernelCoordinate_norm_sq alpha ha z] using
+      Real.summable_pow_div_factorial (alpha * ‖z‖ ^ 2)
+  simpa using hs
 
 /-- Actual coherent reproducing vector in the infinite Fock Hilbert model. -/
 noncomputable def kernelVector (alpha : ℝ) (ha : 0 < alpha) (z : ℂ) :
