@@ -30,6 +30,10 @@ theorem summable_weighted_coefficients
     (F : InfiniteAnalysis.FockCoefficients) :
     Summable (fun n : ℕ =>
       ‖F n‖ * ‖WeightedMoments.complexWeight alpha n‖) := by
+  have htriple : (2 : ℝ≥0∞).HolderTriple 2 1 := by
+    rw [ENNReal.holderTriple_iff]
+    norm_num
+  letI : (2 : ℝ≥0∞).HolderTriple 2 1 := htriple
   have hholder : ((2 : ℝ≥0∞).toReal).HolderConjugate
       ((2 : ℝ≥0∞).toReal) := by
     norm_num [Real.HolderConjugate]
