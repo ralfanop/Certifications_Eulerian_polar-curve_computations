@@ -22,8 +22,6 @@ variable (μ : Measure ℝ) [IsProbabilityMeasure μ]
 variable (hsupport : ∀ᵐ u ∂μ, |u| ≤ (1 : ℝ))
 variable (alpha : ℝ) (ha : 0 < alpha)
 
-include hsupport
-
 /-- The genuine coordinate functionals on the infinite ℓ² Hilbert target. -/
 noncomputable def coordinate (n : ℕ) :
     InfiniteAnalysis.FockCoefficients →L[ℂ] ℂ :=
@@ -37,6 +35,8 @@ def HasSummableRows (T : Lp ℂ 2 μ →L[ℂ] InfiniteAnalysis.FockCoefficients
 noncomputable def squaredRowEnergy
     (T : Lp ℂ 2 μ →L[ℂ] InfiniteAnalysis.FockCoefficients) : ℝ :=
   ∑' n, ‖(coordinate n).comp T‖ ^ 2
+
+include hsupport
 
 /-- Identifies each actual Fourier-moment row of the bounded operator. -/
 theorem coordinate_comp_operator (n : ℕ) :
