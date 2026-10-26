@@ -28,7 +28,7 @@ noncomputable def gram (T : E →L[ℂ] F) : E →L[ℂ] E :=
 
 /-- Exact Gram pairing, with the complex inner product convention. -/
 theorem gram_inner (T : E →L[ℂ] F) (x y : E) :
-    ⟪gram T x, y⟫_ℂ = ⟪T x, T y⟫_ℂ := by
+    inner ℂ (gram T x) y = inner ℂ (T x) (T y) := by
   unfold gram
   exact T.adjoint_inner_left y (T x)
 
@@ -40,7 +40,7 @@ theorem gram_adjoint (T : E →L[ℂ] F) :
 
 /-- Positivity of the Gram quadratic form in the correct real part. -/
 theorem gram_re_nonneg (T : E →L[ℂ] F) (x : E) :
-    0 ≤ Complex.re (⟪gram T x, x⟫_ℂ) := by
+    0 ≤ Complex.re (inner ℂ (gram T x) x) := by
   rw [gram_inner]
   exact inner_self_nonneg
 
