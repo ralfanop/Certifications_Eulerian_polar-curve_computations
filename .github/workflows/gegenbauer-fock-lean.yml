@@ -38,6 +38,12 @@ jobs:
         working-directory: lean
         run: lake exe cache get
 
+      - name: Verify complete ultraspherical row-energy exponential integral formula
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RowEnergyExpIntegral 2>&1 | tee /tmp/gf-row-exp.log
+
       - name: Verify Gaussian exponential closed form of factorial Fock energy series
         working-directory: lean
         run: |
@@ -228,7 +234,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2 fock-sequence infinite-fock fock-truncations moment-l2 factorial compactness-bridge weighted-moments concrete-fock ultra-fock concrete-energy adjoint-basis rows-compact row-integral series-integral row-tonelli exp-series; do
+          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2 fock-sequence infinite-fock fock-truncations moment-l2 factorial compactness-bridge weighted-moments concrete-fock ultra-fock concrete-energy adjoint-basis rows-compact row-integral series-integral row-tonelli exp-series row-exp; do
             test -s "/tmp/gf-${part}.log"
           done
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-*.log; then
