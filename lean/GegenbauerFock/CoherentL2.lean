@@ -39,7 +39,10 @@ noncomputable def coherentSection (z : ℂ) (u : ℝ) : ℂ :=
 
 theorem continuous_section (z : ℂ) : Continuous (coherentSection z) := by
   unfold coherentSection
-  fun_prop
+  have hc : Continuous (fun u : ℝ => (clamp u : ℂ)) :=
+    Complex.continuous_ofReal.comp continuous_clamp
+  exact Complex.continuous_exp.comp
+    ((continuous_const.mul hc).div_const 2)
 
 theorem section_bound (z : ℂ) (u : ℝ) :
     ‖coherentSection z u‖ ≤ Real.exp (‖z‖ / 2) := by
