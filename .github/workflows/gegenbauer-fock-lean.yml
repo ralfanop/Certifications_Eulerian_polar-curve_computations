@@ -98,11 +98,17 @@ jobs:
           set -euo pipefail
           lake env lean GegenbauerFock/L2Coefficient.lean | tee /tmp/gf-l2-coeff.log
 
+      - name: Check finite-rank L2 coefficient truncations
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean GegenbauerFock/FiniteCoefficient.lean | tee /tmp/gf-finite-coeff.log
+
       - name: Audit emitted theorem axiom dependencies
         shell: bash
         run: |
           set -euo pipefail
-          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff; do
+          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff; do
             test -s "/tmp/gf-${part}.log"
           done
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-*.log; then
