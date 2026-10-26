@@ -110,11 +110,17 @@ jobs:
           set -euo pipefail
           lake env lean GegenbauerFock/CoherentL2.lean | tee /tmp/gf-coherent-l2.log
 
+      - name: Check infinite Fock coefficient Hilbert model
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean GegenbauerFock/FockSequenceOperator.lean | tee /tmp/gf-fock-sequence.log
+
       - name: Audit emitted theorem axiom dependencies
         shell: bash
         run: |
           set -euo pipefail
-          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2; do
+          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2 fock-sequence; do
             test -s "/tmp/gf-${part}.log"
           done
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-*.log; then
