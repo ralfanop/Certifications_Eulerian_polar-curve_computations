@@ -20,6 +20,8 @@ namespace GegenbauerFock.MomentL2
 variable (μ : Measure ℝ) [IsProbabilityMeasure μ]
 variable (hsupport : ∀ᵐ u ∂μ, |u| ≤ (1 : ℝ))
 
+include hsupport
+
 /-- Each monomial is genuinely L²-integrable for the probability measure. -/
 theorem monomial_memLp (n : ℕ) :
     MemLp (fun u : ℝ => (u : ℂ) ^ n) 2 μ := by
