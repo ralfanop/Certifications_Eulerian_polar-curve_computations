@@ -86,7 +86,11 @@ theorem beta_ae_unit_interval (lam : ℝ) :
     ∀ᵐ x ∂(ProbabilityTheory.betaMeasure (shape lam) (shape lam)),
       x ∈ Set.Ioo (0:ℝ) 1 := by
   unfold ProbabilityTheory.betaMeasure
-  apply (ae_withDensity_iff' (by fun_prop)).2
+  have hpdf : AEMeasurable
+      (ProbabilityTheory.betaPDF (shape lam) (shape lam)) volume :=
+    (Measurable.ennreal_ofReal
+      (ProbabilityTheory.measurable_betaPDFReal (shape lam) (shape lam))).aemeasurable
+  apply (ae_withDensity_iff' hpdf).2
   filter_upwards [] with x
   intro hx
   constructor
