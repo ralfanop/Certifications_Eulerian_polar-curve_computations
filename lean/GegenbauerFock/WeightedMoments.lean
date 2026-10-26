@@ -23,8 +23,6 @@ namespace GegenbauerFock.WeightedMoments
 variable (μ : Measure ℝ) [IsProbabilityMeasure μ]
 variable (hsupport : ∀ᵐ u ∂μ, |u| ≤ (1 : ℝ))
 
-include hsupport
-
 /-- Positive squared coherent coefficient, cⁿ/n!, c=1/(4α). -/
 noncomputable def squareWeight (alpha : ℝ) (n : ℕ) : ℝ :=
   (1 / (4 * alpha)) ^ n / (Nat.factorial n : ℝ)
@@ -49,6 +47,8 @@ theorem complexWeight_norm_sq (alpha : ℝ) (ha : 0 < alpha) (n : ℕ) :
     unfold complexWeight
     simp [norm_mul, norm_pow, Real.norm_eq_abs, abs_of_nonneg hs]
   rw [hn, Real.sq_sqrt (squareWeight_nonneg alpha ha n)]
+
+include hsupport
 
 /-- L² membership of every complex monomial on the unit interval. -/
 theorem monomial_memLp (n : ℕ) :
