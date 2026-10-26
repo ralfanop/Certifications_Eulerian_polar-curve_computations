@@ -21,7 +21,7 @@ applied to one canonical Fock coordinate, gives exactly the
 conjugated Fourier moment amplitude multiplied by the real monomial. -/
 theorem evaluation_single_imaginary (alpha : ℝ) (ha : 0 < alpha)
     (n : ℕ) (a : ℂ) (u : ℝ) :
-    evaluation alpha ha (imaginaryPoint alpha u)
+    FockEvaluation.evaluation alpha ha (imaginaryPoint alpha u)
       (lp.single 2 n a) =
       (star (WeightedMoments.complexWeight alpha n) * a) * (u : ℂ) ^ n := by
   let w : ℂ := WeightedMoments.complexWeight alpha n
@@ -51,9 +51,9 @@ theorem evaluation_single_imaginary (alpha : ℝ) (ha : 0 < alpha)
     unfold imaginaryPoint
     have hα : (alpha : ℂ) ≠ 0 := by
       exact_mod_cast (ne_of_gt ha)
-    field_simp
-    simp [Complex.I_mul_I]
-    ring
+    field_simp [hα]
+    ring_nf
+    simp
   have hfactor :
       (Complex.I * imaginaryPoint alpha u / 2) ^ n /
         (Nat.factorial n : ℂ) =
@@ -62,7 +62,7 @@ theorem evaluation_single_imaginary (alpha : ℝ) (ha : 0 < alpha)
     unfold WeightedMoments.squareWeight
     push_cast
     rw [div_pow]
-    ring
+    simp [one_div] <;> ring
   have hfromKernel := GeneralUltrasphericalFock.fock_kernel_weight
     alpha ha (imaginaryPoint alpha u) n
   rw [RCLike.inner_apply'] at hfromKernel
@@ -96,6 +96,8 @@ exactly the conjugated-weight monomial Riesz representer. -/
 theorem restrictionLp_single
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     (n : ℕ) (a : ℂ) :
+    letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
+      Ultraspherical.probability lam hlam
     restrictionLp lam alpha hlam ha (lp.single 2 n a) =
       (star (WeightedMoments.complexWeight alpha n) * a) •
         WeightedMoments.monomial
@@ -131,6 +133,8 @@ theorem restrictionCLM_eq_C_adjoint
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
     restrictionCLM lam alpha hlam ha =
       GeneralUltrasphericalFock.C_adjoint lam alpha hlam ha := by
+  letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
+    Ultraspherical.probability lam hlam
   apply lp.ext_continuousLinearMap
     (by norm_num : (2 : ℝ≥0∞) ≠ ⊤)
   intro n
