@@ -182,6 +182,12 @@ jobs:
           set -euo pipefail
           lake env lean GegenbauerFock/CompactnessBridge.lean | tee /tmp/gf-compactness-bridge.log
 
+      - name: Check compactness of the concrete ultraspherical Fock operator
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.ConcreteFockCompact 2>&1 | tee /tmp/gf-concrete-compact.log
+
       - name: Audit emitted theorem axiom dependencies
         shell: bash
         run: |
