@@ -53,6 +53,8 @@ theorem concrete_summable_rows :
   simpa only [coordinate_comp_operator μ hsupport alpha ha] using
     (WeightedMoments.coefficient_norm_sq_summable μ hsupport alpha ha)
 
+include ha
+
 /-- Exact norm formula for each single weighted moment functional. -/
 theorem coefficient_energy_exact (n : ℕ) :
     ‖WeightedMoments.coefficient μ hsupport alpha n‖ ^ 2 =
