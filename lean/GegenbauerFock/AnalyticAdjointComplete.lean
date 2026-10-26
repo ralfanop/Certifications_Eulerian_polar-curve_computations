@@ -62,7 +62,7 @@ theorem evaluation_single_imaginary (alpha : ℝ) (ha : 0 < alpha)
     unfold WeightedMoments.squareWeight
     push_cast
     rw [div_pow]
-    simp [one_div] <;> ring
+    ring_nf
   have hfromKernel := GeneralUltrasphericalFock.fock_kernel_weight
     alpha ha (imaginaryPoint alpha u) n
   rw [RCLike.inner_apply'] at hfromKernel
@@ -88,7 +88,10 @@ theorem evaluation_single_imaginary (alpha : ℝ) (ha : 0 < alpha)
   rw [lp.inner_single_right]
   change inner ℂ
     (FockEvaluation.kernelCoordinate alpha (imaginaryPoint alpha u) n) a = _
-  rw [RCLike.inner_apply', hpoint]
+  rw [RCLike.inner_apply']
+  change star (FockEvaluation.kernelCoordinate alpha
+    (imaginaryPoint alpha u) n) * a = _
+  rw [hpoint]
   ring
 
 /-- At a canonical coordinate vector, the actual L² restriction is
