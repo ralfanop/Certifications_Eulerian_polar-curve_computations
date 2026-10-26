@@ -80,4 +80,31 @@ theorem gramIntegralOperator_eigenvalue_real
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramIntegralOperator_eigenspaces_complete
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramIntegralOperator_eigenvalue_real
 
+/-- The actual exponential Gram integral operator has nonnegative
+quadratic form on every ultraspherical L² vector. -/
+theorem gramIntegralOperator_nonnegative_form
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (f : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    0 ≤ RCLike.re (inner ℂ
+      (gramIntegralOperator lam alpha hlam ha f) f) := by
+  rw [← gram_eq_gramIntegralOperator lam alpha hlam ha]
+  exact gram_positive lam alpha hlam ha f
+
+/-- Eigenspaces for distinct complex eigenvalues of the compact
+Gram integral operator are mutually orthogonal. -/
+theorem gramIntegralOperator_orthogonal_eigenspaces
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    OrthogonalFamily ℂ
+      (fun mu : ℂ =>
+        eigenspace (gramIntegralOperator lam alpha hlam ha).toLinearMap mu)
+      (fun mu =>
+        (eigenspace (gramIntegralOperator lam alpha hlam ha).toLinearMap mu)
+          .subtypeₗᵢ) := by
+  exact (gramIntegralOperator_symmetric lam alpha hlam ha)
+    .orthogonalFamily_eigenspaces
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gramIntegralOperator_nonnegative_form
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gramIntegralOperator_orthogonal_eigenspaces
+
+
 end GegenbauerFock.GeneralUltrasphericalFock
