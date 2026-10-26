@@ -51,7 +51,27 @@ theorem operator_norm_sq_le_exp (f : Lp ℂ 2 μ) :
         (sum_squared_rows_le_exp μ hsupport alpha ha)
         (sq_nonneg _)
 
+/-- Explicit Gaussian bound for the full operator norm, not just
+for its action on individual input functions. -/
+theorem operator_norm_le_sqrt_exp :
+    ‖operator μ hsupport alpha ha‖ ≤
+      Real.sqrt (Real.exp (1 / (4 * alpha))) := by
+  apply ContinuousLinearMap.opNorm_le_bound
+    _ (Real.sqrt_nonneg _)
+  intro f
+  have hsq := operator_norm_sq_le_exp μ hsupport alpha ha f
+  have hr : (Real.sqrt (Real.exp (1 / (4 * alpha)))) ^ 2 =
+      Real.exp (1 / (4 * alpha)) :=
+    Real.sq_sqrt (le_of_lt (Real.exp_pos _))
+  have hp : 0 ≤ Real.sqrt (Real.exp (1 / (4 * alpha))) * ‖f‖ :=
+    mul_nonneg (Real.sqrt_nonneg _) (norm_nonneg _)
+  have hn : 0 ≤ ‖operator μ hsupport alpha ha f‖ := norm_nonneg _
+  change ‖operator μ hsupport alpha ha f‖ ≤
+    Real.sqrt (Real.exp (1 / (4 * alpha))) * ‖f‖
+  nlinarith [sq_nonneg ‖f‖]
+
 #print axioms GegenbauerFock.ConcreteFock.sum_squared_rows_le_exp
 #print axioms GegenbauerFock.ConcreteFock.operator_norm_sq_le_exp
+#print axioms GegenbauerFock.ConcreteFock.operator_norm_le_sqrt_exp
 
 end GegenbauerFock.ConcreteFock
