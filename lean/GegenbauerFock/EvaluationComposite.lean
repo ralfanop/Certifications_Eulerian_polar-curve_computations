@@ -292,4 +292,45 @@ theorem evaluation_term_eq_integral
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.evaluation_term_eq_integral
 
+
+/-- Exact identification of the **actual bounded Gegenbauer-Fock
+coefficient-space point evaluation** with the **actual complex Bochner
+Fourier integral**, for every complex z, all λ>0 and all α>0.
+The proof invokes a kernel-checked L¹ dominated sum/integral
+interchange, not merely the Taylor identity at each input point. -/
+theorem evaluatedOperator_eq_fourier_all_z
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) (z : ℂ) :
+    evaluatedOperator lam alpha hlam ha z =
+      Ultraspherical.fourierFunctional lam hlam z := by
+  apply ContinuousLinearMap.ext
+  intro f
+  letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
+    Ultraspherical.probability lam hlam
+  have hf : Integrable (fun u : ℝ => f u) (Ultraspherical.measure lam) :=
+    BochnerStage.l2_integrable_probability (Ultraspherical.measure lam) f
+  calc
+    evaluatedOperator lam alpha hlam ha z f =
+        ∑' n : ℕ, inner ℂ (FockEvaluation.kernelCoordinate alpha z n)
+          ((C lam alpha hlam ha f) n) := by
+            change FockEvaluation.evaluation alpha ha z
+              (C lam alpha hlam ha f) = _
+            exact FockEvaluation.evaluation_eq_tsum_inner
+              alpha ha z (C lam alpha hlam ha f)
+    _ = ∑' n : ℕ, ∫ u : ℝ,
+          BochnerTaylor.term z (fun u : ℝ => f u) n u
+          ∂(Ultraspherical.measure lam) := by
+            apply tsum_congr
+            intro n
+            exact evaluation_term_eq_integral lam alpha hlam ha z n f
+    _ = ∫ u : ℝ, f u *
+          Complex.exp (Complex.I * z * (u : ℂ) / 2)
+          ∂(Ultraspherical.measure lam) :=
+            (BochnerTaylor.integral_exp_eq_tsum
+              (Ultraspherical.measure lam) (ae_abs_le_one lam)
+                z (fun u : ℝ => f u) hf).symm
+    _ = Ultraspherical.fourierFunctional lam hlam z f :=
+          (Ultraspherical.fourierFunctional_integral lam hlam z f).symm
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.evaluatedOperator_eq_fourier_all_z
+
 end GegenbauerFock.GeneralUltrasphericalFock
