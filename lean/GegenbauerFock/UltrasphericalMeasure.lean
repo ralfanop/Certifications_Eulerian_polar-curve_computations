@@ -172,7 +172,11 @@ theorem fourierFunctional_integral (lam : ℝ) (hlam : 0 < lam)
   rw [MeasureTheory.L2.inner_def]
   apply integral_congr_ae
   filter_upwards [MemLp.coeFn_toLp (originalCoherent_memLp lam hlam (-star z))] with u hu
-  rw [hu, RCLike.inner_apply']
+  have hrep :
+      (originalCoherentLp lam hlam (-star z) : ℝ → ℂ) u =
+        Complex.exp (Complex.I*(-star z)*(u:ℂ)/2) := by
+    simpa only [originalCoherentLp] using hu
+  rw [hrep, RCLike.inner_apply']
   have harg :
       Complex.conj (Complex.I * (-star z) * (u:ℂ) / 2) =
         Complex.I*z*(u:ℂ)/2 := by
