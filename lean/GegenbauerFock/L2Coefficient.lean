@@ -27,7 +27,7 @@ noncomputable def functional (k : Lp ℂ 2 μ) :
   InnerProductSpace.innerSL ℂ k
 
 theorem functional_apply (k f : Lp ℂ 2 μ) :
-    functional μ k f = ⟪k, f⟫_ℂ := by
+    functional μ k f = inner ℂ k f := by
   rfl
 
 theorem functional_norm (k : Lp ℂ 2 μ) :
