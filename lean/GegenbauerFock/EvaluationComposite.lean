@@ -261,19 +261,14 @@ infinite-series/integral exchange is a separate theorem. -/
 theorem evaluation_term_eq_integral
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     (z : ℂ) (n : ℕ) (f : Lp ℂ 2 (Ultraspherical.measure lam)) :
-    (letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
-        Ultraspherical.probability lam hlam
-      inner ℂ (FockEvaluation.kernelCoordinate alpha z n)
-        (WeightedMoments.coefficient (Ultraspherical.measure lam)
-          (ae_abs_le_one lam) alpha n f)) =
+    inner ℂ (FockEvaluation.kernelCoordinate alpha z n)
+      ((C lam alpha hlam ha f) n) =
       ∫ u : ℝ, f u *
         ((Complex.I * z * (u : ℂ) / 2) ^ n / (Nat.factorial n : ℂ))
           ∂(Ultraspherical.measure lam) := by
   letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
     Ultraspherical.probability lam hlam
-  change inner ℂ (FockEvaluation.kernelCoordinate alpha z n)
-    (WeightedMoments.coefficient (Ultraspherical.measure lam)
-      (ae_abs_le_one lam) alpha n f) = _
+  rw [C_coefficient lam alpha hlam ha f n]
   rw [WeightedMoments.coefficient_integral
     (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha n f]
   rw [RCLike.inner_apply', ← mul_assoc]
