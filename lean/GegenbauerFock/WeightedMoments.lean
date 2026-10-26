@@ -139,8 +139,7 @@ theorem coefficient_zero_integral (alpha : ℝ) (f : Lp ℂ 2 μ) :
   rw [hcoeff, MeasureTheory.L2.inner_def]
   apply integral_congr_ae
   filter_upwards [hrep] with u hu
-  simp only [hu]
-  ring
+  simp [hu, RCLike.inner_apply']
 
 #print axioms GegenbauerFock.WeightedMoments.coefficient_zero_integral
 
@@ -162,6 +161,7 @@ theorem coefficient_integral (alpha : ℝ) (n : ℕ) (f : Lp ℂ 2 μ) :
   filter_upwards [(monomial_memLp μ hsupport n).coeFn_toLp] with u hu
   change (monomial μ hsupport n : ℝ → ℂ) u = (u : ℂ) ^ n at hu
   simp [hu, RCLike.inner_apply']
+  ring
 
 #print axioms GegenbauerFock.WeightedMoments.coefficient_integral
 
