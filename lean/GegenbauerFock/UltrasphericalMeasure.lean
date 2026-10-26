@@ -152,7 +152,7 @@ noncomputable def fourierFunctional (lam : ℝ) (hlam : 0 < lam) (z : ℂ) :
 theorem fourierFunctional_norm (lam : ℝ) (hlam : 0 < lam) (z : ℂ) :
     ‖fourierFunctional lam hlam z‖ =
       ‖originalCoherentLp lam hlam (-star z)‖ := by
-  exact innerSL_apply_norm _
+  exact innerSL_apply_norm ℂ (originalCoherentLp lam hlam (-star z))
 
 theorem fourierFunctional_adjoint (lam : ℝ) (hlam : 0 < lam) (z : ℂ) :
     (fourierFunctional lam hlam z).adjoint =
