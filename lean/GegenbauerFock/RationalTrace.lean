@@ -17,21 +17,21 @@ namespace GegenbauerFock.RationalTrace
 def term (n : ℕ) : ℚ :=
   1 / ((4 : ℚ) ^ n * (Nat.factorial n : ℚ) * (((2*n+1 : ℕ) : ℚ)))
 
-def partial (N : ℕ) : ℚ :=
+def tracePartialSum (N : ℕ) : ℚ :=
   ∑ n ∈ Finset.range N, term n
 
 /-- Exact rational, not a floating point approximation. -/
 theorem partial_fifteen :
-    partial 15 =
+    tracePartialSum 15 =
       (337212679483569969430703669 : ℚ) /
         309376751206532288348160000 := by
-  norm_num [partial, term, Finset.sum_range_succ]
+  norm_num [tracePartialSum, term, Finset.sum_range_succ]
 
 /-- Exact rational upper endpoint after adding the proved-on-paper
 Taylor majorant (4/3)*4^(-15)/15!. The inequality connecting the
 infinite sum to this endpoint is still to be formalized. -/
 theorem partial_fifteen_plus_bound :
-    partial 15 + (1 : ℚ) / 1053078495820775424000 =
+    tracePartialSum 15 + (1 : ℚ) / 1053078495820775424000 =
       (142666902858433448605421999 : ℚ) /
         130890163971994429685760000 := by
   rw [partial_fifteen]
