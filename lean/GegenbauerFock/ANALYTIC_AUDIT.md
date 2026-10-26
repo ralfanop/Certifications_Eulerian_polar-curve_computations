@@ -105,6 +105,21 @@ transform, or a Fock-space Bochner operator. The next genuinely new
 operator layer requires the weighted measure, Hilbert-space integration
 and control of unbounded domains.
 
+- `UltrasphericalMeasure.lean` — probability mass one for the affine
+  image of the symmetric Beta law with parameter `λ+1/2` for every
+  `λ>0`; density positivity within the Beta support. **Verified
+  in Lean.** Explicit change-of-variables/Gamma duplication and
+  arbitrary-`λ` moments remain to be formalized.
+- `BochnerStage.lean` — scalar complex Bochner integral transform,
+  additivity/homogeneity with the hypotheses shown, zero-frequency
+  probability normalization, and a norm bound. **Verified in Lean.**
+  Full L²-to-holomorphic-Fock boundedness is not included.
+
+See `V007_HILBERT_PROOF_DOSSIER.md` for complete *mathematical*
+operator-level derivations, including explicit Hilbert–Schmidt,
+adjoint, Gram, finite-rank tail, trace and Schatten estimates.
+**These derivations are not currently Lean-verified.**
+
 The `AnalyticKernel.lean` theorem intentionally establishes the
 **pointwise differential-kernel equation**, not the weighted-integral
 commutation or Hilbert-space operator-domain result.
@@ -124,9 +139,9 @@ audited with `#print axioms`. Only `propext`,
 
 ## Verification checkpoint — 26 October 2026
 
-The five independent files are checked by
+The seven independent files are checked by
 `.github/workflows/gegenbauer-fock-lean.yml`. The workflow compiles
-all five with the pinned repository toolchain and captures the explicit
+all seven with the pinned repository toolchain and captures the explicit
 `#print axioms` output; it rejects `sorryAx` and
 `Lean.ofReduceBool` in those logs. A green workflow certifies only
 the theorems in the source files at the reported commit SHA.
@@ -134,3 +149,10 @@ the theorems in the source files at the reported commit SHA.
 The core Hilbert-space and Sturm–Liouville spectral claims in Sections
 1–8 above remain **open Lean formalisation obligations**. No claim of
 analytic full-theorem closure is justified at this checkpoint.
+
+## V007 manuscript boundary
+
+This entire research continuation belongs to independent manuscript **V007**.
+Manuscript **V097** remains fixed and is neither edited nor merged
+with V007 material. GitHub PR #16 remains a draft and must not be
+merged into main without the author's distinct approval.
