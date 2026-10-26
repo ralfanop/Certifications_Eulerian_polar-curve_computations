@@ -75,11 +75,9 @@ theorem beta_density_reflection (lam x : ℝ)
       ProbabilityTheory.betaPDFReal (shape lam) (shape lam) x := by
   have hx'0 : 0 < 1-x := by linarith
   have hx'1 : 1-x < 1 := by linarith
-  simp only [ProbabilityTheory.betaPDFReal,
-    if_pos ⟨hx'0, hx'1⟩, if_pos ⟨hx0, hx1⟩]
   have h : (1:ℝ) - (1-x) = x := by ring
-  rw [h]
-  ring
+  simp [ProbabilityTheory.betaPDFReal, hx0, hx1, hx'0, hx'1,
+    h, mul_comm, mul_left_comm, mul_assoc]
 
 #print axioms GegenbauerFock.Ultraspherical.shape_pos
 #print axioms GegenbauerFock.Ultraspherical.probability
