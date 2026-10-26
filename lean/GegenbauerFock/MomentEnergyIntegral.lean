@@ -30,7 +30,8 @@ theorem monomial_norm_sq_integral (n : ℕ) :
   calc
     ‖WeightedMoments.monomial μ hsupport n‖ ^ 2 =
         RCLike.re (inner ℂ m m) := by
-          simp [m, inner_self_eq_norm_sq_to_K]
+          rw [inner_self_eq_norm_sq_to_K]
+          norm_cast
     _ = RCLike.re (∫ u : ℝ, inner ℂ (m u) (m u) ∂μ) := by
           rw [MeasureTheory.L2.inner_def]
     _ = ∫ u : ℝ, ‖(u : ℂ) ^ n‖ ^ 2 ∂μ := by
@@ -38,7 +39,8 @@ theorem monomial_norm_sq_integral (n : ℕ) :
           apply integral_congr_ae
           filter_upwards [hrep] with u hu
           rw [hu, inner_self_eq_norm_sq_to_K]
-          simp
+          norm_cast
+          all_goals exact MeasureTheory.L2.integrable_inner m m
 
 #print axioms GegenbauerFock.MomentEnergyIntegral.monomial_norm_sq_integral
 
