@@ -34,6 +34,12 @@ without the author's explicit approval.
   constant-function integral, and positivity of the Beta density on
   its natural support. The explicit Gamma-normalized density under
   the affine pushforward is not yet a Lean theorem.
+- `RationalTrace.lean`: exact rational proof of the fifteen-term
+  `λ=1/2, α=1` scalar trace-integral Taylor sum and the exact rational
+  endpoint obtained by adding the separately proved analytic tail
+  majorant. The infinite-series inequality and the identity to
+  the Hilbert–Schmidt operator norm are **not yet Lean-certified**.
+  See `V007_RATIONAL_CERTIFICATE.md`.
 - `BochnerStage.lean`: actually defines the **complex scalar**
   Bochner Eulerian integral for arbitrary measure and checks linearity
   under integrability, normalization at zero frequency for a
@@ -72,7 +78,7 @@ Lean `v4.35.0-rc3`; pinned Mathlib
 cd lean
 lake update
 lake exe cache get
-for file in KernelCore OscillatorCore AnalyticKernel LegendreMoments EulerianFourierIntegral UltrasphericalMeasure BochnerStage; do
+for file in KernelCore OscillatorCore AnalyticKernel LegendreMoments EulerianFourierIntegral UltrasphericalMeasure BochnerStage RationalTrace; do
   lake env lean "GegenbauerFock/${file}.lean"
 done
 ```
@@ -82,7 +88,7 @@ The branch-isolated GitHub Actions workflow additionally rejects
 theorem-dependency logs. This automatic audit covers the printed
 theorems, **not a claim that every imported theorem has been individually
 audited**. No `sorry` or `admit` placeholders were authored in the
-seven modules.
+eight modules.
 
 A green workflow is a check of the exact branch commit recorded
 on its run page, not a blanket assertion about past failed commits.
