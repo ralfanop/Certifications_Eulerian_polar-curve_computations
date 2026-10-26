@@ -40,16 +40,21 @@ noncomputable def monomialLp (n : ℕ) : Lp ℂ 2 μ :=
 /-- Uniform bound on all ultraspherical-style L² moments. -/
 theorem monomialLp_norm_le_one (n : ℕ) :
     ‖monomialLp μ hsupport n‖ ≤ 1 := by
+  have hrep :
+      (monomialLp μ hsupport n : ℝ → ℂ) =ᵐ[μ]
+        (fun u : ℝ => (u : ℂ) ^ n) := by
+    simpa only [monomialLp] using
+      (monomial_memLp μ hsupport n).coeFn_toLp
   have hae : ∀ᵐ u ∂μ, ‖(monomialLp μ hsupport n : ℝ → ℂ) u‖ ≤ 1 := by
-    filter_upwards [(monomial_memLp μ hsupport n).coeFn_toLp, hsupport]
-      with u he hu
+    filter_upwards [hrep, hsupport] with u he hu
     rw [he]
     calc
       ‖(u : ℂ) ^ n‖ = |u| ^ n := by simp
       _ ≤ (1 : ℝ) ^ n := by gcongr
       _ = 1 := by simp
-  simpa using (Lp.norm_le_of_ae_bound (p := (2 : ℝ≥0∞))
-    (μ := μ) (by norm_num : (0 : ℝ) ≤ 1) hae)
+  have h := Lp.norm_le_of_ae_bound
+    (f := monomialLp μ hsupport n) (C := (1 : ℝ)) (by norm_num) hae
+  simpa using h
 
 /-- A genuine bounded Riesz moment functional on L²(μ). -/
 noncomputable def momentFunctional (n : ℕ) : Lp ℂ 2 μ →L[ℂ] ℂ :=
