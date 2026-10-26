@@ -363,4 +363,17 @@ theorem fourierIntegral_gaussian_bound
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.fourierIntegral_gaussian_bound
 
+/-- Exact complex-frequency evaluation of the Fock operator as a
+Bochner Fourier integral, for all positive parameters and all L² inputs. -/
+theorem evaluatedOperator_eq_integral
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (z : ℂ) (f : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    evaluatedOperator lam alpha hlam ha z f =
+      ∫ u : ℝ, f u * Complex.exp (Complex.I * z * (u : ℂ) / 2)
+        ∂(Ultraspherical.measure lam) := by
+  rw [evaluatedOperator_eq_fourier_all_z]
+  exact Ultraspherical.fourierFunctional_integral lam hlam z f
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.evaluatedOperator_eq_integral
+
 end GegenbauerFock.GeneralUltrasphericalFock
