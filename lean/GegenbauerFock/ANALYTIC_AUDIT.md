@@ -110,6 +110,12 @@ and control of unbounded domains.
   `λ>0`; density positivity within the Beta support. **Verified
   in Lean.** Explicit change-of-variables/Gamma duplication and
   arbitrary-`λ` moments remain to be formalized.
+- `RationalTrace.lean` — exact rational fifteen-term
+  `λ=1/2, α=1` scalar trace-series partial sum and rational upper
+  endpoint; both arithmetic identities are kernel-checked. The
+  **analytic remainder inequality** and infinite-dimensional
+  Hilbert–Schmidt norm equality still require Lean proofs.
+  `V007_RATIONAL_CERTIFICATE.md` records the mathematical derivation.
 - `BochnerStage.lean` — scalar complex Bochner integral transform,
   additivity/homogeneity with the hypotheses shown, zero-frequency
   probability normalization, and a norm bound. **Verified in Lean.**
@@ -139,9 +145,9 @@ audited with `#print axioms`. Only `propext`,
 
 ## Verification checkpoint — 26 October 2026
 
-The seven independent files are checked by
+The eight independent files are checked by
 `.github/workflows/gegenbauer-fock-lean.yml`. The workflow compiles
-all seven with the pinned repository toolchain and captures the explicit
+all eight with the pinned repository toolchain and captures the explicit
 `#print axioms` output; it rejects `sorryAx` and
 `Lean.ofReduceBool` in those logs. A green workflow certifies only
 the theorems in the source files at the reported commit SHA.
