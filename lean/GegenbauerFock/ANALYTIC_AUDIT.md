@@ -1,6 +1,6 @@
 # Gegenbauer–Fock: analytical formalisation obligations and audit
 
-Updated 25 October 2026. This is a **mathematical proof specification**, not a
+Updated 26 October 2026. This is a **mathematical proof specification**, not a
 collection of Lean theorems. The accepted V097 manuscript and the existing
 Eulerian certificates remain untouched.
 
@@ -89,9 +89,21 @@ Define, **via Bochner integration in the Fock Hilbert space**,
   finite sum-of-squares positivity.
 - `OscillatorCore.lean` — formal two-mode coefficient algebra,
   bosonic CCR and mixed commutations.
-- `AnalyticKernel.lean` — real exponential kernel derivatives and
-  pointwise spheroidal differential equation; CI and axiom audit must
-  independently succeed before this is called kernel-certified.
+- `AnalyticKernel.lean` — real exponential kernel derivatives,
+  pointwise spheroidal differential equation, kernel positivity,
+  symmetry and uniform boundedness on the unit square. Verified.
+- `LegendreMoments.lean` — **actual** interval-integral normalization and
+  all even and odd polynomial moments of `du/2` on `[-1,1]`
+  (the special Gegenbauer parameter `λ=1/2`). Verified.
+- `EulerianFourierIntegral.lean` — exact complex interval-integral
+  representation `∫_{-1/2}^{1/2} exp(it)dt = 2sin(1/2)`, and equality
+  with `sinc(1/2)`. Verified.
+
+These integral theorems do **not** supply general-`λ` Gegenbauer
+normalisation/moments, a complete frequency-dependent Paley–Wiener
+transform, or a Fock-space Bochner operator. The next genuinely new
+operator layer requires the weighted measure, Hilbert-space integration
+and control of unbounded domains.
 
 The `AnalyticKernel.lean` theorem intentionally establishes the
 **pointwise differential-kernel equation**, not the weighted-integral
@@ -109,3 +121,16 @@ Lean `v4.35.0-rc3` and Mathlib commit
 `0272bbe1c093d038d7257ab15306abd58245f9ff`, then
 audited with `#print axioms`. Only `propext`,
 `Classical.choice` and `Quot.sound` may appear.
+
+## Verification checkpoint — 26 October 2026
+
+The five independent files are checked by
+`.github/workflows/gegenbauer-fock-lean.yml`. The workflow compiles
+all five with the pinned repository toolchain and captures the explicit
+`#print axioms` output; it rejects `sorryAx` and
+`Lean.ofReduceBool` in those logs. A green workflow certifies only
+the theorems in the source files at the reported commit SHA.
+
+The core Hilbert-space and Sturm–Liouville spectral claims in Sections
+1–8 above remain **open Lean formalisation obligations**. No claim of
+analytic full-theorem closure is justified at this checkpoint.
