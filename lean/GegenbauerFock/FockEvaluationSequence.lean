@@ -65,8 +65,28 @@ theorem evaluation_norm (alpha : ℝ) (ha : 0 < alpha) (z : ℂ) :
     ‖evaluation alpha ha z‖ = ‖kernelVector alpha ha z‖ := by
   exact innerSL_apply_norm ℂ (kernelVector alpha ha z)
 
+/-- Exact Gaussian squared norm of the coherent reproducing vector. -/
+theorem kernelVector_norm_sq (alpha : ℝ) (ha : 0 < alpha) (z : ℂ) :
+    ‖kernelVector alpha ha z‖ ^ 2 = Real.exp (alpha * ‖z‖ ^ 2) := by
+  have hnorm : ‖kernelVector alpha ha z‖ ^ 2 =
+      (∑' n : ℕ, ‖(kernelVector alpha ha z) n‖ ^ 2) := by
+    simpa using (lp.norm_rpow_eq_tsum
+      (by norm_num : 0 < (2 : ℝ≥0∞).toReal)
+      (kernelVector alpha ha z))
+  rw [hnorm]
+  simp_rw [show ∀ n : ℕ, (kernelVector alpha ha z) n =
+    kernelCoordinate alpha z n from fun _ => rfl]
+  simp_rw [kernelCoordinate_norm_sq alpha ha z]
+  rw [Real.exp_eq_exp_ℝ, NormedSpace.exp_eq_tsum_div]
+
+theorem evaluation_norm_sq (alpha : ℝ) (ha : 0 < alpha) (z : ℂ) :
+    ‖evaluation alpha ha z‖ ^ 2 = Real.exp (alpha * ‖z‖ ^ 2) := by
+  rw [evaluation_norm, kernelVector_norm_sq]
+
 #print axioms GegenbauerFock.FockEvaluation.kernelCoordinate_norm_sq
 #print axioms GegenbauerFock.FockEvaluation.kernelCoordinate_memℓp
 #print axioms GegenbauerFock.FockEvaluation.evaluation_norm
+#print axioms GegenbauerFock.FockEvaluation.kernelVector_norm_sq
+#print axioms GegenbauerFock.FockEvaluation.evaluation_norm_sq
 
 end GegenbauerFock.FockEvaluation
