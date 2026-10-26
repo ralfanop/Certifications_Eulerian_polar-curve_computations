@@ -121,4 +121,27 @@ theorem coefficient_norm_sq_summable (alpha : ℝ) (ha : 0 < alpha) :
 #print axioms GegenbauerFock.WeightedMoments.coefficient_norm_sq_le
 #print axioms GegenbauerFock.WeightedMoments.coefficient_norm_sq_summable
 
+/-- The zeroth weighted Riesz coefficient is exactly the scalar
+Bochner integral of an L² function over the probability measure.
+This is a genuine base case of the Gegenbauer-Fock integral bridge. -/
+theorem coefficient_zero_integral (alpha : ℝ) (f : Lp ℂ 2 μ) :
+    coefficient μ hsupport alpha 0 f =
+      ∫ u : ℝ, f u ∂μ := by
+  have hrep :
+      (monomial μ hsupport 0 : ℝ → ℂ) =ᵐ[μ]
+        (fun _ : ℝ => (1 : ℂ)) := by
+    simpa [monomial] using
+      (monomial_memLp μ hsupport 0).coeFn_toLp
+  have hcoeff :
+      coefficient μ hsupport alpha 0 f =
+        inner ℂ (monomial μ hsupport 0) f := by
+    simp [coefficient, complexWeight, squareWeight]
+  rw [hcoeff, MeasureTheory.L2.inner_def]
+  apply integral_congr_ae
+  filter_upwards [hrep] with u hu
+  simp [hu, RCLike.inner_apply']
+
+#print axioms GegenbauerFock.WeightedMoments.coefficient_zero_integral
+
+
 end GegenbauerFock.WeightedMoments
