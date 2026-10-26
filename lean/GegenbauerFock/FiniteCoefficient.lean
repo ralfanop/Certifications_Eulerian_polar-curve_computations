@@ -1,5 +1,4 @@
 import Mathlib
-import GegenbauerFock.L2Coefficient
 
 /-!
 # V007: bounded and compact finite coefficient truncations on genuine L²
@@ -24,13 +23,13 @@ variable (μ : Measure ℝ) (N : ℕ)
 noncomputable def truncation (k : Fin N → Lp ℂ 2 μ) :
     Lp ℂ 2 μ →L[ℂ] (Fin N → ℂ) :=
   ContinuousLinearMap.pi (fun n : Fin N =>
-    GegenbauerFock.L2Coefficient.functional μ (k n))
+    InnerProductSpace.innerSL ℂ (k n))
 
 /-- The n-th coordinate is the explicit L² Riesz inner product. -/
 theorem truncation_apply (k : Fin N → Lp ℂ 2 μ)
     (f : Lp ℂ 2 μ) (n : Fin N) :
     truncation μ N k f n = inner ℂ (k n) f := by
-  simp [truncation, GegenbauerFock.L2Coefficient.functional_apply]
+  rfl
 
 /-- Every finite-coordinate bounded truncation is compact, because
 its codomain is finite-dimensional. -/
