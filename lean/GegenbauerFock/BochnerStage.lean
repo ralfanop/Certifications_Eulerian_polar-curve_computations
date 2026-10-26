@@ -96,4 +96,16 @@ theorem kernel_eq_tsum (z : ℂ) (u : ℝ) :
 
 #print axioms GegenbauerFock.BochnerStage.kernel_eq_tsum
 
+
+/-- Every genuine L² equivalence class over a probability measure has
+an integrable representative. This is the key L¹ input for the
+dominated term-by-term Eulerian exponential integration theorem. -/
+theorem l2_integrable_probability (μ : Measure ℝ) [IsProbabilityMeasure μ]
+    (f : Lp ℂ 2 μ) :
+    Integrable (fun u : ℝ => f u) μ := by
+  exact memLp_one_iff_integrable.mp
+    ((Lp.memLp f).mono_exponent (by norm_num : (1 : ℝ≥0∞) ≤ 2))
+
+#print axioms GegenbauerFock.BochnerStage.l2_integrable_probability
+
 end GegenbauerFock.BochnerStage
