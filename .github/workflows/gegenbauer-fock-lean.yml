@@ -50,6 +50,12 @@ jobs:
           set -euo pipefail
           lake build GegenbauerFock.ConcreteFockOperator 2>&1 | tee /tmp/gf-concrete-fock.log
 
+      - name: Check actual all-parameter ultraspherical L2 to Fock Hilbert operator
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GeneralUltrasphericalFock 2>&1 | tee /tmp/gf-ultra-fock.log
+
       - name: Check concrete Fock Hilbert Schmidt row-energy identity
         working-directory: lean
         run: |
@@ -168,7 +174,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2 fock-sequence infinite-fock fock-truncations moment-l2 factorial compactness-bridge weighted-moments concrete-fock concrete-energy; do
+          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2 fock-sequence infinite-fock fock-truncations moment-l2 factorial compactness-bridge weighted-moments concrete-fock ultra-fock concrete-energy; do
             test -s "/tmp/gf-${part}.log"
           done
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-*.log; then
