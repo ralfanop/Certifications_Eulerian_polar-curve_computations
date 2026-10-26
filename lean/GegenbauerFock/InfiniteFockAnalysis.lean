@@ -83,9 +83,16 @@ theorem norm_sq_le (k : ℕ → E →L[ℂ] ℂ)
       (section_sq_bound k f) (hk.mul_right (‖f‖ ^ 2))
   have hnorm : ‖linear k hk f‖ ^ 2 =
       (∑' n, ‖k n f‖ ^ 2) := by
-    convert lp.norm_rpow_eq_tsum
-      (by norm_num : 0 < (2 : ℝ≥0∞).toReal)
-      (linear k hk f) using 1 <;> norm_num
+    calc
+      ‖linear k hk f‖ ^ 2 =
+          (∑' n, ‖(linear k hk f) n‖ ^ 2) := by
+            simpa using (lp.norm_rpow_eq_tsum
+              (by norm_num : 0 < (2 : ℝ≥0∞).toReal)
+              (linear k hk f))
+      _ = (∑' n, ‖k n f‖ ^ 2) := by
+            apply tsum_congr
+            intro n
+            rfl
   rw [hnorm]
   simpa only [tsum_mul_right] using hsum
 
