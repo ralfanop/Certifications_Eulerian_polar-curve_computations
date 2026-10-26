@@ -66,10 +66,26 @@ theorem beta_density_pos (lam x : ℝ) (hlam : 0 < lam)
   ProbabilityTheory.betaPDFReal_pos hx0 hx1
     (shape_pos lam hlam) (shape_pos lam hlam)
 
+/-- Symmetry of the underlying Beta density about x = 1/2.
+This is a pointwise density lemma, not yet invariance of the
+pushforward measure under u ↦ -u. -/
+theorem beta_density_reflection (lam x : ℝ)
+    (hx0 : 0 < x) (hx1 : x < 1) :
+    ProbabilityTheory.betaPDFReal (shape lam) (shape lam) (1-x) =
+      ProbabilityTheory.betaPDFReal (shape lam) (shape lam) x := by
+  have hx'0 : 0 < 1-x := by linarith
+  have hx'1 : 1-x < 1 := by linarith
+  simp only [ProbabilityTheory.betaPDFReal,
+    if_pos ⟨hx'0, hx'1⟩, if_pos ⟨hx0, hx1⟩]
+  have h : (1:ℝ) - (1-x) = x := by ring
+  rw [h]
+  ring
+
 #print axioms GegenbauerFock.Ultraspherical.shape_pos
 #print axioms GegenbauerFock.Ultraspherical.probability
 #print axioms GegenbauerFock.Ultraspherical.measure_univ
 #print axioms GegenbauerFock.Ultraspherical.integral_one
 #print axioms GegenbauerFock.Ultraspherical.beta_density_pos
+#print axioms GegenbauerFock.Ultraspherical.beta_density_reflection
 
 end GegenbauerFock.Ultraspherical
