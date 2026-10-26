@@ -1,6 +1,6 @@
 # V007 — Gaussian Bargmann–Fock isometry, Hilbert–Schmidt trace, hypergeometric formula, and compact spectral theorem
 
-**26 October 2026.** Research-level complete mathematical arguments. **This document is NOT a Lean kernel certificate.** A theorem only becomes formally certified when a corresponding exact Lean declaration compiles, \`#print axioms\` is audited, and a green CI is tied to the precise SHA. The previously proved adjoint/Gram operator equalities are certified separately. No changes to V097; no merge of draft PR #16.
+**26 October 2026.** Research-level complete mathematical arguments. **This document is NOT a Lean kernel certificate.** A theorem only becomes formally certified when a corresponding exact Lean declaration compiles, `#print axioms` is audited, and a green CI is tied to the precise SHA. The previously proved adjoint/Gram operator equalities are certified separately. No changes to V097; no merge of draft PR #16.
 
 ## 1. Definitions and the full Gaussian holomorphic space
 
@@ -124,7 +124,7 @@ its norm is the displayed sum. Exchanging the positive
 power series of \(e^{cu^2}\) and integration gives the integral
 formula. QED.
 
-**Lean boundary B:** the existing \`rowEnergy_eq_exp_integral\`
+**Lean boundary B:** the existing `rowEnergy_eq_exp_integral`
 certifies the infinite row-energy equality; an **additional**
 theorem relating the row energies to an explicit ideal
 Hilbert–Schmidt type and its canonical norm is required before
