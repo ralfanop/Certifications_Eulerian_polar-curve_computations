@@ -37,3 +37,31 @@ theorem coefficient_adjoint_explicit (alpha : ℝ) (n : ℕ) (a : ℂ) :
 #print axioms GegenbauerFock.AdjointPolynomial.coefficient_adjoint_explicit
 
 end GegenbauerFock.AdjointPolynomial
+
+
+namespace GegenbauerFock.GeneralUltrasphericalFock
+
+/-- The adjoint of the complete infinite Gegenbauer–Fock operator
+is the L²-norm-convergent analytic monomial series. Its complex
+coefficients are exactly the conjugated Fourier weights. -/
+theorem C_adjoint_explicit_analytic_series
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (F : InfiniteAnalysis.FockCoefficients) :
+    C_adjoint lam alpha hlam ha F =
+      letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
+        Ultraspherical.probability lam hlam
+      ∑' n : ℕ,
+        (star (WeightedMoments.complexWeight alpha n) * F n) •
+          WeightedMoments.monomial
+            (Ultraspherical.measure lam) (ae_abs_le_one lam) n := by
+  letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
+    Ultraspherical.probability lam hlam
+  rw [C_adjoint_eq_tsum_rows lam alpha hlam ha F]
+  apply tsum_congr
+  intro n
+  exact AdjointPolynomial.coefficient_adjoint_explicit
+    (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha n (F n)
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_adjoint_explicit_analytic_series
+
+end GegenbauerFock.GeneralUltrasphericalFock
