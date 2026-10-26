@@ -37,7 +37,28 @@ theorem truncation_compact (k : Fin N → Lp ℂ 2 μ) :
     IsCompactOperator (truncation μ N k) := by
   exact isCompactOperator_of_locallyCompactSpace_dom (truncation μ N k)
 
+/-- The same finite truncation, now valued in the genuine
+Euclidean *Hilbert* space with the ℓ² norm rather than the product norm. -/
+noncomputable def hilbertTruncation (k : Fin N → Lp ℂ 2 μ) :
+    Lp ℂ 2 μ →L[ℂ] EuclideanSpace ℂ (Fin N) :=
+  (EuclideanSpace.equiv (Fin N) ℂ).symm.toContinuousLinearMap ∘L
+    truncation μ N k
+
+theorem hilbertTruncation_apply (k : Fin N → Lp ℂ 2 μ)
+    (f : Lp ℂ 2 μ) (n : Fin N) :
+    hilbertTruncation μ N k f n = inner ℂ (k n) f := by
+  change truncation μ N k f n = inner ℂ (k n) f
+  exact truncation_apply μ N k f n
+
+/-- All finite Hilbert-space truncations are compact. This
+assertion is about each N, NOT yet about the N → ∞ limit. -/
+theorem hilbertTruncation_compact (k : Fin N → Lp ℂ 2 μ) :
+    IsCompactOperator (hilbertTruncation μ N k) := by
+  exact isCompactOperator_of_locallyCompactSpace_dom (hilbertTruncation μ N k)
+
 #print axioms GegenbauerFock.FiniteCoefficient.truncation_apply
 #print axioms GegenbauerFock.FiniteCoefficient.truncation_compact
+#print axioms GegenbauerFock.FiniteCoefficient.hilbertTruncation_apply
+#print axioms GegenbauerFock.FiniteCoefficient.hilbertTruncation_compact
 
 end GegenbauerFock.FiniteCoefficient
