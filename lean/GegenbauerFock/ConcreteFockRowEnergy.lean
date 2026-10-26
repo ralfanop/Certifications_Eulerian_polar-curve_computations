@@ -1,4 +1,4 @@
-import GegenbauerFock.GeneralUltrasphericalFock
+import GegenbauerFock.ConcreteFockCompact
 import GegenbauerFock.SummableRowsCompact
 
 /-!
