@@ -349,4 +349,18 @@ theorem evaluatedOperator_adjoint_coherent
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.evaluatedOperator_adjoint_coherent
 
+/-- Gaussian growth bound for the genuine ultraspherical Fourier integral. -/
+theorem fourierIntegral_gaussian_bound
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (z : ℂ) (f : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    ‖∫ u : ℝ, f u * Complex.exp (Complex.I * z * (u : ℂ) / 2)
+      ∂(Ultraspherical.measure lam)‖ ≤
+      ‖FockEvaluation.kernelVector alpha ha z‖ *
+        Real.sqrt (Real.exp (1 / (4 * alpha))) * ‖f‖ := by
+  rw [← Ultraspherical.fourierFunctional_integral lam hlam z f]
+  rw [← evaluatedOperator_eq_fourier_all_z lam alpha hlam ha z]
+  exact evaluatedOperator_norm_apply_le lam alpha hlam ha z f
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.fourierIntegral_gaussian_bound
+
 end GegenbauerFock.GeneralUltrasphericalFock
