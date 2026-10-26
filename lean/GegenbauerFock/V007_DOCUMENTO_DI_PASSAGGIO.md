@@ -134,3 +134,65 @@ I dossier matematici presentano anche risultati ancora privi della formalizzazio
 Questo file è il **documento di passaggio**. Le versioni di testo scientifico del futuro manoscritto V007 e le relative impaginazioni LaTeX/PDF restano oggetti distinti: questo documento **non** è il manoscritto V007 finale.
 
 Si deve poter riaprire una sessione successiva consegnando soltanto il link a questo documento e alla PR #16.
+
+## 9. Aggiornamento certificato del 26 ottobre 2026 — aggiunto completo e Gram integrale
+
+**Questa sezione prevale sulle indicazioni precedenti relative agli
+obiettivi 3, 5 e alla formula integrale dell'obiettivo 6 della sezione
+5, che descrivevano lo stato storico della prima consegna.**
+
+**Commit del codice formalmente verificato:**
+\`444e3b80cd3e1241909ed51b5930812b1e160729\`
+
+**Workflow associato:** https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40386146429
+
+**Esito:** \`completed/success\`, incluse regressioni e audit degli
+assiomi. I log \`#print axioms\` delle nuove dichiarazioni riportano
+esclusivamente \`propext\`, \`Classical.choice\`, \`Quot.sound\`;
+nessuna dipendenza \`sorryAx\` o \`Lean.ofReduceBool\`.
+
+**Completato in Lean:**
+
+1. \`EvaluationComposite.lean\` dimostra per ogni \(z\in\mathbb C\)
+   l'uguaglianza, come funzionali lineari continui, tra
+   valutazione della trasformata Gegenbauer–Fock a coefficienti e
+   integrale di Bochner originale.
+2. \`AnalyticRestrictionCLM.lean\` costruisce l'operatore limitato
+   \(R_{\lambda,\alpha}:\ell^2\to L^2(\nu_\lambda)\) dalla restrizione
+   analitica \(F\mapsto[u\mapsto\mathcal R_\alpha F(-iu/(2\alpha))]\).
+3. \`AnalyticAdjointComplete.lean\` dimostra le formule di base
+   normalizzate e, per densità e continuità, l'identità completa
+   \[
+       \boxed{C_{\lambda,\alpha}^{*}=R_{\lambda,\alpha}}
+   \]
+   come **uguaglianza di veri operatori lineari continui**.
+   La formula vale per ogni \(F\in\ell^2\), in \(L^2(\nu_\lambda)\).
+4. \`GramIntegralComplete.lean\` costruisce l'operatore limitato
+   con nucleo integrale e certifica
+   \[
+       \boxed{
+       (C_{\lambda,\alpha}^{*}C_{\lambda,\alpha}f)(u)
+       =\int_{-1}^{1}e^{uv/(4\alpha)}f(v)\,d\nu_\lambda(v)
+       \quad \nu_\lambda\text{-q.o.}}
+   \]
+   per ogni \(f\in L^2(\nu_\lambda)\), oltre all'uguaglianza
+   dell'intero operatore \(C^*C\) con l'operatore di Bochner.
+5. \`GramKernelSeries.lean\` conserva le identità di serie
+   integrali, la forma sesquilineare e la compattezza concreta.
+
+**Ancora distinti e aperti nella formalizzazione:** modello
+olomorfo gaussiano completo e sua isometria con \(\ell^2\);
+esplicita densità Gamma e momenti generali; norma nella API
+formale dell'ideale Hilbert–Schmidt, operatore classe traccia e
+ipergemetrica \({}_1F_1\); iniettività, densità dell'immagine,
+spettro e Schatten; teoria Sturm–Liouville con domini; eventuali
+certificati intervallari di stime numeriche.
+
+Il dossier
+\`lean/GegenbauerFock/V007_ADJOINT_GRAM_COMPLETE_PROOF.md\`
+è aggiornato per registrare i nuovi teoremi, le prove matematiche
+e il confine della certificazione Lean.
+
+**Invarianti:** PR #16 Draft; non eseguire merge in \`main\`;
+non modificare V097. Ogni ulteriore modifica deve conservare il
+presente checkpoint certificato e superare nuova CI al nuovo HEAD.
