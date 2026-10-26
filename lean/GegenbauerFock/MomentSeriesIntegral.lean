@@ -22,8 +22,6 @@ variable (μ : Measure ℝ) [IsProbabilityMeasure μ]
 variable (hsupport : ∀ᵐ u ∂μ, |u| ≤ (1 : ℝ))
 variable (alpha : ℝ) (ha : 0 < alpha)
 
-include hsupport
-
 noncomputable def term (n : ℕ) (u : ℝ) : ℝ :=
   WeightedMoments.squareWeight alpha n * ‖(u : ℂ) ^ n‖ ^ 2
 
@@ -41,6 +39,8 @@ theorem term_norm_le (n : ℕ) (u : ℝ) (hu : |u| ≤ 1) :
   simpa only [term, Real.norm_eq_abs, abs_of_nonneg hterm,
     mul_one] using mul_le_mul_of_nonneg_left hnorm hw
 
+include hsupport
+
 theorem term_integrable (n : ℕ) : Integrable (term alpha n) μ := by
   have hmeas : AEStronglyMeasurable (term alpha n) μ := by
     apply Continuous.aestronglyMeasurable
@@ -53,12 +53,14 @@ theorem term_integrable (n : ℕ) : Integrable (term alpha n) μ := by
 theorem integral_norm_le_weight (n : ℕ) :
     (∫ u : ℝ, ‖term alpha n u‖ ∂μ) ≤
       WeightedMoments.squareWeight alpha n := by
+  have hae : ∀ᵐ u ∂μ, ‖term alpha n u‖ ≤
+      WeightedMoments.squareWeight alpha n := by
+    filter_upwards [hsupport] with u hu
+    exact term_norm_le alpha ha n u hu
   have h := integral_mono_ae
     (term_integrable μ hsupport alpha ha n).norm
     (integrable_const (WeightedMoments.squareWeight alpha n))
-    (Filter.Eventually.of_forall fun u => by
-      filter_upwards [hsupport] with v hv
-      exact term_norm_le alpha ha n v hv)
+    hae
   simpa using h
 
 theorem summable_integrals_norm :
