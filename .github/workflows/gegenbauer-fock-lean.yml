@@ -86,11 +86,17 @@ jobs:
           set -euo pipefail
           lake env lean GegenbauerFock/RationalTrace.lean | tee /tmp/gf-rational.log
 
+      - name: Check general Hilbert-space adjoint and Gram operator identities
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean GegenbauerFock/HilbertGram.lean | tee /tmp/gf-hilbert-gram.log
+
       - name: Audit emitted theorem axiom dependencies
         shell: bash
         run: |
           set -euo pipefail
-          for part in kernel oscillator analytic legendre fourier measure bochner rational; do
+          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram; do
             test -s "/tmp/gf-${part}.log"
           done
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-*.log; then
