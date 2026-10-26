@@ -49,3 +49,7 @@ jobs:
       - name: Check analytic exponential kernel and spheroidal identity
         working-directory: lean
         run: lake env lean GegenbauerFock/AnalyticKernel.lean
+
+      - name: Check Legendre probability moments
+        working-directory: lean
+        run: lake env lean GegenbauerFock/LegendreMoments.lean
