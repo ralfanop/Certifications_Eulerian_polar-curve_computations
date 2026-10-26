@@ -12,7 +12,7 @@ These claims do not assume a finite matrix approximation.
 -/
 
 open MeasureTheory Module End WithLp
-open scoped InnerProduct
+open scoped InnerProduct ComplexConjugate
 
 namespace GegenbauerFock.GeneralUltrasphericalFock
 
@@ -49,8 +49,8 @@ theorem gramIntegralOperator_nonzero_eigenspace_finite
     (mu : ℂ) (hmu : mu ≠ 0) :
     FiniteDimensional ℂ
       (eigenspace (gramIntegralOperator lam alpha hlam ha).toLinearMap mu) := by
-  exact (gramIntegralOperator_compact lam alpha hlam ha)
-    .finite_dimensional_eigenspace mu hmu
+  exact ContinuousLinearMap.finite_dimensional_eigenspace
+    (gramIntegralOperator_compact lam alpha hlam ha) mu hmu
 
 /-- The closed sum of all actual Gram integral eigenspaces is the
 full ultraspherical L²: spectral completeness in infinite dimension. -/
@@ -59,9 +59,9 @@ theorem gramIntegralOperator_eigenspaces_complete
     (⨆ mu : ℂ,
         eigenspace (gramIntegralOperator lam alpha hlam ha).toLinearMap mu)ᗮ =
         (⊥ : Submodule ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) := by
-  exact (gramIntegralOperator_compact lam alpha hlam ha)
-    .orthogonalComplement_iSup_eigenspaces_eq_bot
-      (gramIntegralOperator_symmetric lam alpha hlam ha)
+  exact ContinuousLinearMap.orthogonalComplement_iSup_eigenspaces_eq_bot
+    (gramIntegralOperator_compact lam alpha hlam ha)
+    (gramIntegralOperator_symmetric lam alpha hlam ha)
 
 /-- Every eigenvalue of the compact self-adjoint Gram operator
 is real in the complex-conjugation sense. -/
@@ -71,8 +71,8 @@ theorem gramIntegralOperator_eigenvalue_real
     (hmu : HasEigenvalue
       (gramIntegralOperator lam alpha hlam ha).toLinearMap mu) :
     conj mu = mu := by
-  exact (gramIntegralOperator_symmetric lam alpha hlam ha)
-    .conj_eigenvalue_eq_self hmu
+  exact LinearMap.IsSymmetric.conj_eigenvalue_eq_self
+    (gramIntegralOperator_symmetric lam alpha hlam ha) hmu
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramIntegralOperator_compact
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramIntegralOperator_selfadjoint
