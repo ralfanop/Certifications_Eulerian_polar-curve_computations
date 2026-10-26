@@ -32,8 +32,7 @@ theorem energy_series_eq_exp (alpha u : ℝ) :
     unfold MomentSeriesIntegral.term WeightedMoments.squareWeight
     rw [norm_monomial_sq]
     rw [div_pow]
-    simp only [one_div]
-    ring
+    ring_nf
   calc
     (∑' n, MomentSeriesIntegral.term alpha n u) =
         ∑' n : ℕ, (u ^ 2 / (4 * alpha)) ^ n / (Nat.factorial n : ℝ) := by
