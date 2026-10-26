@@ -68,11 +68,17 @@ jobs:
           set -euo pipefail
           lake env lean GegenbauerFock/EulerianFourierIntegral.lean | tee /tmp/gf-fourier.log
 
+      - name: Check general ultraspherical probability measure
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean GegenbauerFock/UltrasphericalMeasure.lean | tee /tmp/gf-measure.log
+
       - name: Audit emitted theorem axiom dependencies
         shell: bash
         run: |
           set -euo pipefail
-          for part in kernel oscillator analytic legendre fourier; do
+          for part in kernel oscillator analytic legendre fourier measure; do
             test -s "/tmp/gf-${part}.log"
           done
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-*.log; then
