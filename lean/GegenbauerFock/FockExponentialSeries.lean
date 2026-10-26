@@ -15,7 +15,11 @@ theorem norm_monomial_sq (u : ℝ) (n : ℕ) :
     ‖(u : ℂ) ^ n‖ ^ 2 = (u ^ 2) ^ n := by
   calc
     ‖(u : ℂ) ^ n‖ ^ 2 = (|u| ^ n) ^ 2 := by simp
-    _ = (|u| ^ 2) ^ n := by simp only [pow_mul, mul_comm]
+    _ = (|u| ^ 2) ^ n := by
+      calc
+        (|u| ^ n) ^ 2 = |u| ^ (n * 2) := by rw [pow_mul]
+        _ = |u| ^ (2 * n) := by rw [mul_comm]
+        _ = (|u| ^ 2) ^ n := by rw [pow_mul]
     _ = (u ^ 2) ^ n := by rw [sq_abs]
 
 /-- Exact pointwise identification of the nonnegative energy series. -/
@@ -28,6 +32,7 @@ theorem energy_series_eq_exp (alpha u : ℝ) :
     unfold MomentSeriesIntegral.term WeightedMoments.squareWeight
     rw [norm_monomial_sq]
     rw [div_pow]
+    simp only [one_div]
     ring
   calc
     (∑' n, MomentSeriesIntegral.term alpha n u) =
