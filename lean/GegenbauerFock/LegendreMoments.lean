@@ -25,7 +25,7 @@ theorem uniformMoment_eq (n : ℕ) :
       (1/2 : ℝ) *
       ((1 : ℝ) ^ (n+1) - (-1 : ℝ) ^ (n+1)) / ((n : ℝ)+1) := by
   unfold uniformMoment
-  rw [intervalIntegral.integral_pow]
+  rw [integral_pow]
   ring
 
 /-- The normalized Legendre weight has mass one. -/
@@ -50,7 +50,6 @@ theorem uniformMoment_even (n : ℕ) :
     simp [pow_add, pow_mul]
   rw [hpow]
   norm_num
-  ring
 
 #print axioms GegenbauerFock.Legendre.uniformMoment_eq
 #print axioms GegenbauerFock.Legendre.uniformMoment_zero
