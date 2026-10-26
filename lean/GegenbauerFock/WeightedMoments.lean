@@ -23,6 +23,8 @@ namespace GegenbauerFock.WeightedMoments
 variable (μ : Measure ℝ) [IsProbabilityMeasure μ]
 variable (hsupport : ∀ᵐ u ∂μ, |u| ≤ (1 : ℝ))
 
+include hsupport
+
 /-- Positive squared coherent coefficient, cⁿ/n!, c=1/(4α). -/
 noncomputable def squareWeight (alpha : ℝ) (n : ℕ) : ℝ :=
   (1 / (4 * alpha)) ^ n / (Nat.factorial n : ℝ)
