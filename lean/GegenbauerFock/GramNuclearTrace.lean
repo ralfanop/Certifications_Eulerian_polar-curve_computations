@@ -45,7 +45,10 @@ theorem gramNuclearTerm_norm_le
   calc
     ‖r.adjoint.comp r‖ ≤ ‖r.adjoint‖ * ‖r‖ :=
       ContinuousLinearMap.opNorm_comp_le _ _
-    _ = ‖r‖ ^ 2 := by rw [ContinuousLinearMap.norm_adjoint]; ring
+    _ = ‖r‖ ^ 2 := by
+      rw [show ‖r.adjoint‖ = ‖r‖ from
+        ContinuousLinearMap.adjointAux_norm r]
+      ring
     _ ≤ WeightedMoments.squareWeight alpha n :=
       WeightedMoments.coefficient_norm_sq_le
         (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha ha n
@@ -71,8 +74,13 @@ theorem gram_eq_nuclear_tsum
   apply ContinuousLinearMap.ext
   intro f
   rw [gram_eq_tsum_rows lam alpha hlam ha f]
-  rw [ContinuousLinearMap.tsum_apply
-    (gramNuclearTerm_summable lam alpha hlam ha)]
+  have hs := gramNuclearTerm_summable lam alpha hlam ha
+  have heval :
+      (∑' n : ℕ, gramNuclearTerm lam alpha hlam ha n) f =
+        ∑' n : ℕ, gramNuclearTerm lam alpha hlam ha n f := by
+    exact (ContinuousLinearMap.apply ℂ
+      (Lp ℂ 2 (Ultraspherical.measure lam)) f).map_tsum hs
+  rw [heval]
   apply tsum_congr
   intro n
   rfl
