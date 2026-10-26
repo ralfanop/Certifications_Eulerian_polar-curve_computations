@@ -23,20 +23,20 @@ the operator norm of that endomorphism. -/
 theorem row_comp_right_norm_sq_le
     (T : Lp ℂ 2 μ →L[ℂ] InfiniteAnalysis.FockCoefficients)
     (B : Lp ℂ 2 μ →L[ℂ] Lp ℂ 2 μ) (n : ℕ) :
-    ‖(coordinate μ n).comp (T.comp B)‖ ^ 2 ≤
-      ‖B‖ ^ 2 * ‖(coordinate μ n).comp T‖ ^ 2 := by
+    ‖(coordinate n).comp (T.comp B)‖ ^ 2 ≤
+      ‖B‖ ^ 2 * ‖(coordinate n).comp T‖ ^ 2 := by
   have heq :
-      (coordinate μ n).comp (T.comp B) =
-        ((coordinate μ n).comp T).comp B := by
+      (coordinate n).comp (T.comp B) =
+        ((coordinate n).comp T).comp B := by
     ext f
     rfl
   rw [heq]
   calc
-    ‖((coordinate μ n).comp T).comp B‖ ^ 2 ≤
-        (‖(coordinate μ n).comp T‖ * ‖B‖) ^ 2 := by
+    ‖((coordinate n).comp T).comp B‖ ^ 2 ≤
+        (‖(coordinate n).comp T‖ * ‖B‖) ^ 2 := by
       gcongr
       exact ContinuousLinearMap.opNorm_comp_le _ _
-    _ = ‖B‖ ^ 2 * ‖(coordinate μ n).comp T‖ ^ 2 := by ring
+    _ = ‖B‖ ^ 2 * ‖(coordinate n).comp T‖ ^ 2 := by ring
 
 /-- Source-side ideal theorem for actual summable Fock Hilbert rows,
 valid in the full infinite-dimensional Hilbert space. -/
