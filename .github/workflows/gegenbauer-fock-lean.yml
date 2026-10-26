@@ -38,6 +38,12 @@ jobs:
         working-directory: lean
         run: lake exe cache get
 
+      - name: Verify actual Fock evaluation of ultraspherical C as weighted moment series
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.EvaluationComposite 2>&1 | tee /tmp/gf-eval-composite.log
+
       - name: Verify explicit Gaussian norm bound for general ultraspherical Fock map
         working-directory: lean
         run: |
@@ -252,7 +258,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2 fock-sequence infinite-fock fock-truncations moment-l2 factorial compactness-bridge weighted-moments concrete-fock ultra-fock concrete-energy adjoint-basis rows-compact row-integral series-integral row-tonelli exp-series row-exp operator-bound fock-eval general-bound; do
+          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2 fock-sequence infinite-fock fock-truncations moment-l2 factorial compactness-bridge weighted-moments concrete-fock ultra-fock concrete-energy adjoint-basis rows-compact row-integral series-integral row-tonelli exp-series row-exp operator-bound fock-eval general-bound eval-composite; do
             test -s "/tmp/gf-${part}.log"
           done
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-*.log; then
