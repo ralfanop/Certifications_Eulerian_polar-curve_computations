@@ -20,7 +20,7 @@ variable (μ : Measure ℝ) [IsProbabilityMeasure μ]
 variable (hsupport : ∀ᵐ u ∂μ, |u| ≤ (1 : ℝ))
 variable (alpha : ℝ) (ha : 0 < alpha)
 
-include hsupport
+include hsupport ha
 
 theorem sum_squared_rows_le_exp :
     (∑' n, ‖WeightedMoments.coefficient μ hsupport alpha n‖ ^ 2) ≤
