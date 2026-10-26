@@ -160,9 +160,7 @@ theorem coefficient_integral (alpha : ℝ) (n : ℕ) (f : Lp ℂ 2 μ) :
   apply integral_congr_ae
   filter_upwards [(monomial_memLp μ hsupport n).coeFn_toLp] with u hu
   change (monomial μ hsupport n : ℝ → ℂ) u = (u : ℂ) ^ n at hu
-  rw [hu, RCLike.inner_apply']
-  simp only [star_pow, starRingEnd_apply, Complex.star_def, Complex.conj_ofReal]
-  ring
+  simp [hu, RCLike.inner_apply']
 
 #print axioms GegenbauerFock.WeightedMoments.coefficient_integral
 
