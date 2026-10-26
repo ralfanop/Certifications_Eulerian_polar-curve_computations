@@ -181,7 +181,9 @@ theorem fourierFunctional_integral (lam : ℝ) (hlam : 0 < lam)
       star (Complex.I * (-star z) * (u:ℂ) / 2) =
         Complex.I*z*(u:ℂ)/2 := by
     simp [map_mul, map_div₀, mul_assoc, mul_comm, mul_left_comm]
-  rw [← Complex.exp_conj, harg]
+  rw [← Complex.exp_conj]
+  simp only [starRingEnd_apply]
+  rw [harg]
   ring
 
 #print axioms GegenbauerFock.Ultraspherical.shape_pos
