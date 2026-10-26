@@ -100,4 +100,21 @@ theorem evaluation_eq_tsum_inner (alpha : ℝ) (ha : 0 < alpha)
 #print axioms GegenbauerFock.FockEvaluation.evaluation_norm_sq
 #print axioms GegenbauerFock.FockEvaluation.evaluation_eq_tsum_inner
 
+/-- Exact normalization of the coefficient-model point evaluation:
+at z=0 the evaluation functional simply extracts the zeroth coordinate.
+This is the starting point for identifying the full Eulerian integral. -/
+theorem evaluation_at_zero (alpha : ℝ) (ha : 0 < alpha)
+    (F : FockSequence.Coefficients) :
+    evaluation alpha ha 0 F = F 0 := by
+  rw [evaluation_eq_tsum_inner]
+  rw [tsum_eq_single 0]
+  · simp [kernelCoordinate]
+  · intro n hn
+    cases n with
+    | zero => contradiction
+    | succ n => simp [kernelCoordinate]
+
+#print axioms GegenbauerFock.FockEvaluation.evaluation_at_zero
+
+
 end GegenbauerFock.FockEvaluation
