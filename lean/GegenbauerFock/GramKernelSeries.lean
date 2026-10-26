@@ -1,4 +1,5 @@
 import GegenbauerFock.AnalyticAdjoint
+import GegenbauerFock.ConcreteFockCompact
 
 /-!
 # V007: exact infinite-rank Gram operator via Gegenbauer–Fock monomial rows
@@ -74,5 +75,17 @@ theorem gram_inner_eq_tsum_rows
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gram_eq_tsum_rows
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gram_inner_eq_tsum_rows
+
+/-- The actual bounded ultraspherical exponential-kernel Gram operator
+is compact in the infinite-dimensional source Hilbert space, by
+compactness of the actual coefficient map and its Hilbert adjoint. -/
+theorem gram_compact_concrete (lam alpha : ℝ)
+    (hlam : 0 < lam) (ha : 0 < alpha) :
+    IsCompactOperator (gram lam alpha hlam ha) := by
+  exact HilbertGram.gram_compact
+    (C lam alpha hlam ha) (C_compact lam alpha hlam ha)
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gram_compact_concrete
+
 
 end GegenbauerFock.GeneralUltrasphericalFock
