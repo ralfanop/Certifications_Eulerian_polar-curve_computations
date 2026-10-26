@@ -24,11 +24,44 @@ jobs:
         working-directory: lean
         shell: bash
         run: |
-          curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
-          sh /tmp/elan-init.sh -y --default-toolchain none
+          set -euo pipefail
+          # Upstream GitHub and Lean release endpoints can return transient HTTP 504.
+          # Retry downloads, but never change lean/lean-toolchain or Mathlib pins.
+          curl --proto '=https' --tlsv1.2 -fsSL \
+            --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then
+              installed=1
+              break
+            fi
+            echo "::warning::elan bootstrap failed, attempt ${attempt}/6"
+            sleep "$((attempt * 8))"
+          done
+          if [ "$installed" -ne 1 ]; then
+            echo "::error::elan bootstrap unavailable after six attempts"
+            exit 1
+          fi
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-          "$HOME/.elan/bin/lean" --version
-          "$HOME/.elan/bin/lake" --version
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            # lean --version triggers installation of the EXACT pinned
+            # toolchain (lean/lean-toolchain); some failures originate here.
+            if "$HOME/.elan/bin/lean" --version &&
+               "$HOME/.elan/bin/lake" --version; then
+              ready=1
+              break
+            fi
+            echo "::warning::pinned Lean toolchain download failed, attempt ${attempt}/6"
+            sleep "$((attempt * 8))"
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "::error::pinned Lean installation unavailable after six attempts"
+            exit 1
+          fi
 
       - name: Generate Lake manifest for existing pinned Mathlib
         working-directory: lean
