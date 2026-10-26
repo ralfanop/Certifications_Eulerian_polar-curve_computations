@@ -17,12 +17,12 @@ namespace GegenbauerFock.FockFiniteRank
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-abbrev FockCoefficients := lp (fun _ : ℕ => ℂ) 2
+abbrev FockCoefficients : Type := lp (fun _ : ℕ => ℂ) 2
 
 /-- The n-th coordinate inclusion of the complex scalar line into Fock ℓ². -/
 noncomputable def coordinateInclusion (n : ℕ) :
     ℂ →L[ℂ] FockCoefficients :=
-  lp.singleContinuousLinearMap ℂ 2 (fun _ : ℕ => ℂ) n
+  lp.singleContinuousLinearMap ℂ (fun _ : ℕ => ℂ) 2 n
 
 /-- Each scalar coordinate inclusion is a compact operator. -/
 theorem coordinateInclusion_compact (n : ℕ) :
