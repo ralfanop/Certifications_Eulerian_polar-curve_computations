@@ -251,4 +251,41 @@ theorem fock_kernel_weight
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.fock_kernel_weight
 
+
+/-- Exact identification of the nth evaluated Fock coefficient
+with the corresponding genuine complex Bochner integral.  The
+infinite-series/integral exchange is a separate theorem. -/
+theorem evaluation_term_eq_integral
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (z : ℂ) (n : ℕ) (f : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    inner ℂ (FockEvaluation.kernelCoordinate alpha z n)
+      (WeightedMoments.coefficient (Ultraspherical.measure lam)
+        (ae_abs_le_one lam) alpha n f) =
+      ∫ u : ℝ, f u *
+        ((Complex.I * z * (u : ℂ) / 2) ^ n / (Nat.factorial n : ℂ))
+          ∂(Ultraspherical.measure lam) := by
+  letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
+    Ultraspherical.probability lam hlam
+  rw [WeightedMoments.coefficient_integral
+    (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha n f]
+  rw [RCLike.inner_apply', ← mul_assoc]
+  have hw := fock_kernel_weight alpha ha z n
+  rw [RCLike.inner_apply'] at hw
+  rw [hw, ← integral_const_mul]
+  apply integral_congr_ae
+  filter_upwards [] with u
+  calc
+    ((Complex.I * z / 2) ^ n / (Nat.factorial n : ℂ)) *
+        ((u : ℂ) ^ n * f u) =
+      f u * (((Complex.I * z / 2) * (u : ℂ)) ^ n /
+        (Nat.factorial n : ℂ)) := by
+          rw [mul_pow]
+          ring
+    _ = f u * ((Complex.I * z * (u : ℂ) / 2) ^ n /
+        (Nat.factorial n : ℂ)) := by
+          congr 2
+          ring
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.evaluation_term_eq_integral
+
 end GegenbauerFock.GeneralUltrasphericalFock
