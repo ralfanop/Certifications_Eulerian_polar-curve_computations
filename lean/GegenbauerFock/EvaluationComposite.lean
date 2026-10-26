@@ -224,18 +224,9 @@ theorem fock_kernel_weight
       (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) *
         (Real.sqrt (WeightedMoments.squareWeight alpha n) : ℂ) =
           (1 / 2 : ℂ) ^ n / (Nat.factorial n : ℂ) := by
-    calc
-      (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) *
-          (Real.sqrt (WeightedMoments.squareWeight alpha n) : ℂ) =
-          ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) *
-            Real.sqrt (WeightedMoments.squareWeight alpha n) : ℝ) : ℂ) := by
-              push_cast
-              rfl
-      _ = (((1 / 2 : ℝ) ^ n / (Nat.factorial n : ℝ)) : ℂ) := by
-            exact congrArg (fun x : ℝ => (x : ℂ)) hamp
-      _ = (1 / 2 : ℂ) ^ n / (Nat.factorial n : ℂ) := by
-            push_cast
-            ring
+    have hcast := congrArg (fun x : ℝ => (x : ℂ)) hamp
+    push_cast at hcast
+    simpa using hcast
   rw [RCLike.inner_apply']
   change star ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) *
       (star z) ^ n) *
