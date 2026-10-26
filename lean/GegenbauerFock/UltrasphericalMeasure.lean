@@ -79,11 +79,42 @@ theorem beta_density_reflection (lam x : ℝ)
   simp [ProbabilityTheory.betaPDFReal, hx0, hx1, hx'0, hx'1,
     h, mul_comm, mul_left_comm, mul_assoc]
 
+/-- The symmetric Beta law has almost-everywhere support (0,1).
+The statement is a measure-theoretic fact, not merely a pointwise
+claim about its density. -/
+theorem beta_ae_unit_interval (lam : ℝ) :
+    ∀ᵐ x ∂(ProbabilityTheory.betaMeasure (shape lam) (shape lam)),
+      x ∈ Set.Ioo (0:ℝ) 1 := by
+  unfold ProbabilityTheory.betaMeasure
+  apply (ae_withDensity_iff' (by fun_prop)).2
+  filter_upwards [] with x
+  intro hx
+  constructor
+  · by_contra hn
+    exact hx (ProbabilityTheory.betaPDF_eq_zero_of_nonpos (le_of_not_gt hn))
+  · by_contra hn
+    exact hx (ProbabilityTheory.betaPDF_eq_zero_of_one_le (le_of_not_gt hn))
+
+/-- Ultraspherical measure is supported in [-1,1] for all real λ
+(for probability normalisation additionally require λ>0). -/
+theorem ae_mem_unit_interval (lam : ℝ) :
+    ∀ᵐ u ∂measure lam, u ∈ Set.Icc (-1:ℝ) 1 := by
+  have hmeas : Measurable betaToInterval := by
+    unfold betaToInterval
+    fun_prop
+  apply (ae_map_iff hmeas.aemeasurable measurableSet_Icc).2
+  filter_upwards [beta_ae_unit_interval lam] with x hx
+  change (-1:ℝ) ≤ betaToInterval x ∧ betaToInterval x ≤ 1
+  unfold betaToInterval
+  constructor <;> linarith [hx.1, hx.2]
+
 #print axioms GegenbauerFock.Ultraspherical.shape_pos
 #print axioms GegenbauerFock.Ultraspherical.probability
 #print axioms GegenbauerFock.Ultraspherical.measure_univ
 #print axioms GegenbauerFock.Ultraspherical.integral_one
 #print axioms GegenbauerFock.Ultraspherical.beta_density_pos
 #print axioms GegenbauerFock.Ultraspherical.beta_density_reflection
+#print axioms GegenbauerFock.Ultraspherical.beta_ae_unit_interval
+#print axioms GegenbauerFock.Ultraspherical.ae_mem_unit_interval
 
 end GegenbauerFock.Ultraspherical
