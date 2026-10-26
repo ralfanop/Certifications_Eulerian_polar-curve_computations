@@ -117,4 +117,28 @@ theorem evaluatedOperator_norm_apply_le
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.evaluatedOperator_norm_apply_le
 
 
+/-- The complete composed point-evaluation operator at z=0 equals
+the genuine Bochner integral of the input L² class. This is a
+kernel-level base case of the general complex-frequency identity. -/
+theorem evaluatedOperator_at_zero
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (f : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    evaluatedOperator lam alpha hlam ha 0 f =
+      ∫ u : ℝ, f u ∂(Ultraspherical.measure lam) := by
+  letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
+    Ultraspherical.probability lam hlam
+  calc
+    evaluatedOperator lam alpha hlam ha 0 f =
+        (C lam alpha hlam ha f) 0 :=
+          FockEvaluation.evaluation_at_zero alpha ha (C lam alpha hlam ha f)
+    _ = WeightedMoments.coefficient (Ultraspherical.measure lam)
+        (ae_abs_le_one lam) alpha 0 f :=
+          C_coefficient lam alpha hlam ha f 0
+    _ = ∫ u : ℝ, f u ∂(Ultraspherical.measure lam) :=
+          WeightedMoments.coefficient_zero_integral
+            (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha f
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.evaluatedOperator_at_zero
+
+
 end GegenbauerFock.GeneralUltrasphericalFock
