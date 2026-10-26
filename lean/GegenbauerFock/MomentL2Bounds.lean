@@ -54,7 +54,10 @@ theorem monomialLp_norm_le_one (n : ℕ) :
       _ = 1 := by simp
   have h := Lp.norm_le_of_ae_bound
     (f := monomialLp μ hsupport n) (C := (1 : ℝ)) (by norm_num) hae
-  simpa using h
+  have hm : measureUnivNNReal μ = 1 := by
+    unfold measureUnivNNReal
+    simp
+  simpa [hm] using h
 
 /-- A genuine bounded Riesz moment functional on L²(μ). -/
 noncomputable def momentFunctional (n : ℕ) : Lp ℂ 2 μ →L[ℂ] ℂ :=
