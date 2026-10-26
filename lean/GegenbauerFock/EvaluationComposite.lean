@@ -193,8 +193,13 @@ theorem fock_amplitude_product
       _ = (1 / 4 : ℝ) ^ n / ((Nat.factorial n : ℝ) ^ 2) := by
             rw [hfour]
       _ = ((1 / 2 : ℝ) ^ n / (Nat.factorial n : ℝ)) ^ 2 := by
-            rw [div_pow, show (1 / 4 : ℝ) = (1 / 2 : ℝ) ^ 2 by norm_num,
-              ← pow_mul, mul_comm n 2, pow_mul]
+            have hpow : (1 / 4 : ℝ) ^ n = ((1 / 2 : ℝ) ^ n) ^ 2 := by
+              calc
+                (1 / 4 : ℝ) ^ n = ((1 / 2 : ℝ) ^ 2) ^ n := by norm_num
+                _ = ((1 / 2 : ℝ) ^ n) ^ 2 := by
+                  simp only [pow_mul]
+                  rw [mul_comm 2 n]
+            rw [hpow, div_pow]
   have hsq :
       (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) *
         Real.sqrt (WeightedMoments.squareWeight alpha n)) ^ 2 =
