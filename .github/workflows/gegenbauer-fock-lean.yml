@@ -40,20 +40,43 @@ jobs:
 
       - name: Check Gegenbauer kernel identities
         working-directory: lean
-        run: lake env lean GegenbauerFock/KernelCore.lean
+        run: |
+          set -euo pipefail
+          lake env lean GegenbauerFock/KernelCore.lean | tee /tmp/gf-kernel.log
 
       - name: Check two-mode oscillator algebra
         working-directory: lean
-        run: lake env lean GegenbauerFock/OscillatorCore.lean
+        run: |
+          set -euo pipefail
+          lake env lean GegenbauerFock/OscillatorCore.lean | tee /tmp/gf-oscillator.log
 
       - name: Check analytic exponential kernel and spheroidal identity
         working-directory: lean
-        run: lake env lean GegenbauerFock/AnalyticKernel.lean
+        run: |
+          set -euo pipefail
+          lake env lean GegenbauerFock/AnalyticKernel.lean | tee /tmp/gf-analytic.log
 
       - name: Check Legendre probability moments
         working-directory: lean
-        run: lake env lean GegenbauerFock/LegendreMoments.lean
+        run: |
+          set -euo pipefail
+          lake env lean GegenbauerFock/LegendreMoments.lean | tee /tmp/gf-legendre.log
 
       - name: Check Eulerian Fourier integral
         working-directory: lean
-        run: lake env lean GegenbauerFock/EulerianFourierIntegral.lean
+        run: |
+          set -euo pipefail
+          lake env lean GegenbauerFock/EulerianFourierIntegral.lean | tee /tmp/gf-fourier.log
+
+      - name: Audit emitted theorem axiom dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          for part in kernel oscillator analytic legendre fourier; do
+            test -s "/tmp/gf-${part}.log"
+          done
+          if grep -nE 'sorryAx|Lean\\.ofReduceBool' /tmp/gf-*.log; then
+            echo '::error::A verified theorem depends on an untrusted axiom.'
+            exit 1
+          fi
+          echo 'Axiom logs contain no sorryAx or Lean.ofReduceBool.'
