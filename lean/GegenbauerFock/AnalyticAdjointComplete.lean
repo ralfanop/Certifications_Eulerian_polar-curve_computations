@@ -63,6 +63,7 @@ theorem evaluation_single_imaginary (alpha : ℝ) (ha : 0 < alpha)
     push_cast
     rw [div_pow]
     ring_nf
+    norm_num [one_div]
   have hfromKernel := GeneralUltrasphericalFock.fock_kernel_weight
     alpha ha (imaginaryPoint alpha u) n
   rw [RCLike.inner_apply'] at hfromKernel
