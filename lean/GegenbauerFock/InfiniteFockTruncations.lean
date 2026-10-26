@@ -27,7 +27,7 @@ noncomputable def coordinateInclusion (n : ℕ) :
 /-- Each scalar coordinate inclusion is a compact operator. -/
 theorem coordinateInclusion_compact (n : ℕ) :
     IsCompactOperator (coordinateInclusion n) := by
-  exact isCompactOperator_of_locallyCompactSpace_dom (coordinateInclusion n)
+  exact isCompactOperator_of_locallyCompactSpace_rng (coordinateInclusion n)
 
 /-- A single coefficient functional gives an actual compact rank-one map. -/
 theorem single_coefficient_compact (n : ℕ) (k : E →L[ℂ] ℂ) :
