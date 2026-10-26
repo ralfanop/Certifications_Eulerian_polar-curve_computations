@@ -71,6 +71,12 @@ jobs:
         working-directory: lean
         run: lake exe cache get
 
+      - name: Certify right ideal bound for Hilbert-Schmidt rows
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.HSRightIdeal 2>&1 | tee /tmp/gf-hs-ideal.log
+
       - name: Certify operator-norm nuclear Gram decomposition
         working-directory: lean
         run: |
@@ -369,7 +375,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for part in nuclear spectral gram-complete adjoint-complete analytic-clm adjoint-summability gram-moment-integral adjoint-polynomial gram-integral-l2 fock-restriction gram-integral gram-kernel analytic-adjoint kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2 fock-sequence infinite-fock fock-truncations moment-l2 factorial compactness-bridge weighted-moments concrete-fock ultra-fock concrete-energy adjoint-basis rows-compact row-integral series-integral row-tonelli exp-series row-exp operator-bound fock-eval general-bound eval-composite; do
+          for part in hs-ideal nuclear spectral gram-complete adjoint-complete analytic-clm adjoint-summability gram-moment-integral adjoint-polynomial gram-integral-l2 fock-restriction gram-integral gram-kernel analytic-adjoint kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2 fock-sequence infinite-fock fock-truncations moment-l2 factorial compactness-bridge weighted-moments concrete-fock ultra-fock concrete-energy adjoint-basis rows-compact row-integral series-integral row-tonelli exp-series row-exp operator-bound fock-eval general-bound eval-composite; do
             test -s "/tmp/gf-${part}.log"
           done
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-*.log; then
