@@ -178,7 +178,7 @@ theorem fourierFunctional_integral (lam : ℝ) (hlam : 0 < lam)
     simpa only [originalCoherentLp] using hu
   rw [hrep, RCLike.inner_apply']
   have harg :
-      Complex.conj (Complex.I * (-star z) * (u:ℂ) / 2) =
+      star (Complex.I * (-star z) * (u:ℂ) / 2) =
         Complex.I*z*(u:ℂ)/2 := by
     simp [map_mul, map_div₀, mul_assoc, mul_comm, mul_left_comm]
   rw [← Complex.exp_conj, harg]
