@@ -43,11 +43,8 @@ theorem gramNuclearTerm_norm_le
     (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha n
   change ‖r.adjoint.comp r‖ ≤ _
   calc
-    ‖r.adjoint.comp r‖ ≤ ‖r.adjoint‖ * ‖r‖ :=
-      ContinuousLinearMap.opNorm_comp_le _ _
-    _ = ‖r‖ ^ 2 := by
-      rw [show ‖r.adjoint‖ = ‖r‖ from
-        ContinuousLinearMap.adjointAux_norm r]
+    ‖r.adjoint.comp r‖ = ‖r‖ ^ 2 := by
+      rw [ContinuousLinearMap.norm_adjoint_comp_self]
       ring
     _ ≤ WeightedMoments.squareWeight alpha n :=
       WeightedMoments.coefficient_norm_sq_le
