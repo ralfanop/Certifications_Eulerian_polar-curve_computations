@@ -40,8 +40,8 @@ theorem gram_adjoint (T : E →L[ℂ] F) :
 
 /-- Positivity of the Gram quadratic form in the correct real part. -/
 theorem gram_re_nonneg (T : E →L[ℂ] F) (x : E) :
-    0 ≤ Complex.re (inner ℂ (gram T x) x) := by
-  change 0 ≤ Complex.re (inner ℂ ((T.adjoint ∘L T) x) x)
+    0 ≤ RCLike.re (inner ℂ (gram T x) x) := by
+  change 0 ≤ RCLike.re (inner ℂ ((T.adjoint ∘L T) x) x)
   rw [← T.apply_norm_sq_eq_inner_adjoint_left x]
   positivity
 
@@ -56,7 +56,7 @@ theorem gram_compact (T : E →L[ℂ] F)
 /-- The squared norm of the original bounded operator at x is
 the quadratic form of its Gram operator. -/
 theorem gram_norm_sq (T : E →L[ℂ] F) (x : E) :
-    ‖T x‖ ^ 2 = Complex.re (inner ℂ (gram T x) x) := by
+    ‖T x‖ ^ 2 = RCLike.re (inner ℂ (gram T x) x) := by
   simpa only [gram] using (T.apply_norm_sq_eq_inner_adjoint_left x)
 
 #print axioms GegenbauerFock.HilbertGram.gram_inner
