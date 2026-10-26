@@ -141,4 +141,19 @@ theorem evaluatedOperator_at_zero
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.evaluatedOperator_at_zero
 
 
+/-- Equality of the actual bounded Fourier-integral functional and
+the concrete Fock evaluation composite at zero complex frequency.
+This is a continuous-linear-map equality, not just a scalar example. -/
+theorem evaluatedOperator_zero_eq_fourier
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    evaluatedOperator lam alpha hlam ha 0 =
+      Ultraspherical.fourierFunctional lam hlam 0 := by
+  ext f
+  rw [evaluatedOperator_at_zero,
+    Ultraspherical.fourierFunctional_integral]
+  simp
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.evaluatedOperator_zero_eq_fourier
+
+
 end GegenbauerFock.GeneralUltrasphericalFock
