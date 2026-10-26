@@ -42,4 +42,26 @@ noncomputable def gramKernelIntegralLp
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramKernelIntegral_memLp
 
+/-- The true exponential-kernel Bochner integral and the
+imaginary-axis analytic Fock restriction determine the *same*
+L² equivalence class, not just pointwise scalar values. -/
+theorem gramKernelIntegralLp_eq_restriction
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (f : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    gramKernelIntegralLp lam alpha hlam ha f =
+      FockAnalyticRestriction.restrictionLp lam alpha hlam ha
+        (C lam alpha hlam ha f) := by
+  have hfun :
+      gramKernelIntegral lam alpha f =
+        FockAnalyticRestriction.evaluate alpha ha
+          (C lam alpha hlam ha f) := by
+    funext u
+    exact (evaluation_imaginary_eq_gramKernelIntegral
+      lam alpha hlam ha f u).symm
+  unfold gramKernelIntegralLp FockAnalyticRestriction.restrictionLp
+  rw [hfun]
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gramKernelIntegralLp_eq_restriction
+
+
 end GegenbauerFock.GeneralUltrasphericalFock
