@@ -11,3 +11,6 @@ name = "EulerianCert"
 
 [[lean_lib]]
 name = "UniformLanczos"
+
+[[lean_lib]]
+name = "GegenbauerFock"
