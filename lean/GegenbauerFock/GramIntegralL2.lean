@@ -58,8 +58,17 @@ theorem gramKernelIntegralLp_eq_restriction
     funext u
     exact (evaluation_imaginary_eq_gramKernelIntegral
       lam alpha hlam ha f u).symm
-  unfold gramKernelIntegralLp FockAnalyticRestriction.restrictionLp
-  rw [hfun]
+  have hcongr (g h : ℝ → ℂ)
+      (hg : MemLp g 2 (Ultraspherical.measure lam))
+      (hh : MemLp h 2 (Ultraspherical.measure lam))
+      (he : g = h) :
+      hg.toLp g = hh.toLp h := by
+    subst h
+    rfl
+  exact hcongr _ _
+    (gramKernelIntegral_memLp lam alpha hlam ha f)
+    (FockAnalyticRestriction.memLp_evaluate
+      lam alpha hlam ha (C lam alpha hlam ha f)) hfun
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramKernelIntegralLp_eq_restriction
 
