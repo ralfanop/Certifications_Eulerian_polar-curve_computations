@@ -333,4 +333,20 @@ theorem evaluatedOperator_eq_fourier_all_z
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.evaluatedOperator_eq_fourier_all_z
 
+
+/-- As a direct consequence of the all-complex-frequency Bochner
+identification, the genuine Hilbert adjoint of the **composed**
+Fock point-evaluation functional is the Riesz coherent-section map
+in the concrete ultraspherical input L² space. This is not
+mistaken for the full analytic Fock-valued adjoint formula. -/
+theorem evaluatedOperator_adjoint_coherent
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) (z : ℂ) :
+    (evaluatedOperator lam alpha hlam ha z).adjoint =
+      ContinuousLinearMap.toSpanSingleton ℂ
+        (Ultraspherical.originalCoherentLp lam hlam (-star z)) := by
+  rw [evaluatedOperator_eq_fourier_all_z]
+  exact Ultraspherical.fourierFunctional_adjoint lam hlam z
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.evaluatedOperator_adjoint_coherent
+
 end GegenbauerFock.GeneralUltrasphericalFock
