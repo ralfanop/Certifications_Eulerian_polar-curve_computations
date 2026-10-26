@@ -43,8 +43,9 @@ theorem gram_ker_eq_C_ker
     LinearMap.ker (gram lam alpha hlam ha).toLinearMap =
       LinearMap.ker (C lam alpha hlam ha).toLinearMap := by
   ext f
-  simpa only [LinearMap.mem_ker] using
-    (gram_apply_eq_zero_iff_C_eq_zero lam alpha hlam ha f)
+  change gram lam alpha hlam ha f = 0 ↔
+    C lam alpha hlam ha f = 0
+  exact gram_apply_eq_zero_iff_C_eq_zero lam alpha hlam ha f
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gram_ker_eq_C_ker
 
