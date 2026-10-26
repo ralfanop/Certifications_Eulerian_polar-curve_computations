@@ -83,10 +83,21 @@ theorem evaluation_norm_sq (alpha : ℝ) (ha : 0 < alpha) (z : ℂ) :
     ‖evaluation alpha ha z‖ ^ 2 = Real.exp (alpha * ‖z‖ ^ 2) := by
   rw [evaluation_norm, kernelVector_norm_sq]
 
+/-- Actual infinite Hilbert-series representation of Fock point evaluation,
+with norm convergence supplied by the square-summability of both vectors. -/
+theorem evaluation_eq_tsum_inner (alpha : ℝ) (ha : 0 < alpha)
+    (z : ℂ) (F : FockSequence.Coefficients) :
+    evaluation alpha ha z F =
+      ∑' n : ℕ, inner ℂ (kernelCoordinate alpha z n) (F n) := by
+  change inner ℂ (kernelVector alpha ha z) F = _
+  rw [lp.inner_eq_tsum]
+  rfl
+
 #print axioms GegenbauerFock.FockEvaluation.kernelCoordinate_norm_sq
 #print axioms GegenbauerFock.FockEvaluation.kernelCoordinate_memℓp
 #print axioms GegenbauerFock.FockEvaluation.evaluation_norm
 #print axioms GegenbauerFock.FockEvaluation.kernelVector_norm_sq
 #print axioms GegenbauerFock.FockEvaluation.evaluation_norm_sq
+#print axioms GegenbauerFock.FockEvaluation.evaluation_eq_tsum_inner
 
 end GegenbauerFock.FockEvaluation
