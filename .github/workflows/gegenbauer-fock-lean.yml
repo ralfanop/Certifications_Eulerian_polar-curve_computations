@@ -38,6 +38,12 @@ jobs:
         working-directory: lean
         run: lake exe cache get
 
+      - name: Verify concrete ultraspherical Fock row energy equals a sum of integrals
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RowEnergyIntegral 2>&1 | tee /tmp/gf-row-integral.log
+
       - name: Check concrete Gegenbauer Fock weighted L2 coefficient family
         working-directory: lean
         run: |
@@ -204,7 +210,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2 fock-sequence infinite-fock fock-truncations moment-l2 factorial compactness-bridge weighted-moments concrete-fock ultra-fock concrete-energy adjoint-basis rows-compact; do
+          for part in kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2 fock-sequence infinite-fock fock-truncations moment-l2 factorial compactness-bridge weighted-moments concrete-fock ultra-fock concrete-energy adjoint-basis rows-compact row-integral; do
             test -s "/tmp/gf-${part}.log"
           done
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-*.log; then
