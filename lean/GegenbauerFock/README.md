@@ -46,6 +46,32 @@ without the author's explicit approval.
   probability measure and norm domination. It does **not** construct
   the bounded `L²(ν_λ) → Fock_α` map or its Hilbert–Schmidt adjoint.
 
+- `HilbertGram.lean`: **genuine** generic bounded Hilbert-space
+  operator `T : E →L[ℂ] F`, its Gram `T†T`, exact quadratic form,
+  self-adjointness, positivity, and compactness of Gram **conditional
+  on compactness of T**.
+- `L2Coefficient.lean`: actual bounded Riesz coefficient functionals
+  on `Lp ℂ 2 μ`, including the exact functional norm and adjoint.
+- `FiniteCoefficient.lean`: finite-rank compact bounded operators
+  from `L²(μ)` into `EuclideanSpace ℂ (Fin N)`, with
+  `‖T_N f‖² ≤ (∑_{n<N} ‖k_n‖²) ‖f‖²`.
+- `CoherentL2.lean`: continuous globally clamped coherent exponential
+  sections and their genuine L² classes over any finite measure.
+- `UltrasphericalMeasure.lean` also addresses the actual almost
+  everywhere support and unclamped Eulerian exponential coherent
+  sections in `L²(ν_λ)`, with bounded Fourier evaluation
+  functionals and their exact abstract Riesz adjoints. The
+  corresponding complex integral identification is separately
+  kernel-checked before being claimed complete.
+
+**These are operator-theory building blocks, not the complete
+Gegenbauer–Fock operator `C_{λ,α}: L²(ν_λ) → Fock_α`.**
+In particular, the full Fock coefficient-sequence construction,
+Hilbert–Schmidt identity, explicit Fock evaluation adjoint, and
+infinite-rank compactness must still be proved in Lean. The generic
+adjoint and compact finite truncations do not imply those conclusions
+for an operator that has not yet been constructed.
+
 All Hilbert-space construction and proof calculations for **V007**
 are specified in `V007_HILBERT_PROOF_DOSSIER.md`, with their
 kernel-certification status explicitly separated from the mathematical
@@ -78,7 +104,7 @@ Lean `v4.35.0-rc3`; pinned Mathlib
 cd lean
 lake update
 lake exe cache get
-for file in KernelCore OscillatorCore AnalyticKernel LegendreMoments EulerianFourierIntegral UltrasphericalMeasure BochnerStage RationalTrace; do
+for file in KernelCore OscillatorCore AnalyticKernel LegendreMoments EulerianFourierIntegral UltrasphericalMeasure BochnerStage RationalTrace HilbertGram L2Coefficient FiniteCoefficient CoherentL2; do
   lake env lean "GegenbauerFock/${file}.lean"
 done
 ```
@@ -88,7 +114,7 @@ The branch-isolated GitHub Actions workflow additionally rejects
 theorem-dependency logs. This automatic audit covers the printed
 theorems, **not a claim that every imported theorem has been individually
 audited**. No `sorry` or `admit` placeholders were authored in the
-eight modules.
+twelve modules (pending final CI verification of the most recent additions).
 
 A green workflow is a check of the exact branch commit recorded
 on its run page, not a blanket assertion about past failed commits.
