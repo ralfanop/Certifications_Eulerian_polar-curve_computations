@@ -23,10 +23,11 @@ theorem gram_apply_eq_zero_iff_C_eq_zero
       C lam alpha hlam ha f = 0 := by
   constructor
   · intro h
-    have hs := gram_norm_sq lam alpha hlam ha f
-    rw [h] at hs
-    simp only [inner_zero_left, map_zero] at hs
+    have hs : ‖C lam alpha hlam ha f‖ ^ 2 =
+        RCLike.re (inner ℂ (gram lam alpha hlam ha f) f) :=
+      HilbertGram.gram_norm_sq (C lam alpha hlam ha) f
     have hn : ‖C lam alpha hlam ha f‖ ^ 2 = 0 := by
+      rw [h] at hs
       simpa using hs
     exact norm_eq_zero.mp (sq_eq_zero_iff.mp hn)
   · intro h
