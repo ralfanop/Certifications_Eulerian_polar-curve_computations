@@ -56,9 +56,30 @@ theorem hilbertTruncation_compact (k : Fin N → Lp ℂ 2 μ) :
     IsCompactOperator (hilbertTruncation μ N k) := by
   exact isCompactOperator_of_locallyCompactSpace_dom (hilbertTruncation μ N k)
 
+/-- Quantitative Cauchy-Schwarz bound for the finite Hilbert
+truncation. This is the exact finite-dimensional precursor of the
+Hilbert-Schmidt norm identity, not the infinite-dimensional theorem. -/
+theorem hilbertTruncation_energy_bound (k : Fin N → Lp ℂ 2 μ)
+    (f : Lp ℂ 2 μ) :
+    ‖hilbertTruncation μ N k f‖ ^ 2 ≤
+      (∑ n : Fin N, ‖k n‖ ^ 2) * ‖f‖ ^ 2 := by
+  rw [EuclideanSpace.norm_sq_eq]
+  calc
+    (∑ n : Fin N, ‖hilbertTruncation μ N k f n‖ ^ 2)
+        ≤ ∑ n : Fin N, (‖k n‖ * ‖f‖) ^ 2 := by
+          apply Finset.sum_le_sum
+          intro n hn
+          rw [hilbertTruncation_apply]
+          gcongr
+          exact norm_inner_le_norm _ _
+    _ = (∑ n : Fin N, ‖k n‖ ^ 2) * ‖f‖ ^ 2 := by
+          simp_rw [mul_pow]
+          rw [Finset.sum_mul]
+
 #print axioms GegenbauerFock.FiniteCoefficient.truncation_apply
 #print axioms GegenbauerFock.FiniteCoefficient.truncation_compact
 #print axioms GegenbauerFock.FiniteCoefficient.hilbertTruncation_apply
 #print axioms GegenbauerFock.FiniteCoefficient.hilbertTruncation_compact
+#print axioms GegenbauerFock.FiniteCoefficient.hilbertTruncation_energy_bound
 
 end GegenbauerFock.FiniteCoefficient
