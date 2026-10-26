@@ -156,4 +156,53 @@ theorem evaluatedOperator_zero_eq_fourier
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.evaluatedOperator_zero_eq_fourier
 
 
+
+/-- Exact cancellation of the two real square-root factors in the
+Gaussian Fock evaluation and ultraspherical monomial coefficient. -/
+theorem fock_amplitude_product
+    (alpha : ℝ) (ha : 0 < alpha) (n : ℕ) :
+    Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) *
+      Real.sqrt (WeightedMoments.squareWeight alpha n) =
+        (1 / 2 : ℝ) ^ n / (Nat.factorial n : ℝ) := by
+  have hα : alpha ≠ 0 := ne_of_gt ha
+  have hf : (Nat.factorial n : ℝ) ≠ 0 := by positivity
+  have harg : 0 ≤ alpha ^ n / (Nat.factorial n : ℝ) := by positivity
+  have hweight : 0 ≤ WeightedMoments.squareWeight alpha n :=
+    WeightedMoments.squareWeight_nonneg alpha ha n
+  have hleft : 0 ≤
+      Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) *
+        Real.sqrt (WeightedMoments.squareWeight alpha n) :=
+    mul_nonneg (Real.sqrt_nonneg _) (Real.sqrt_nonneg _)
+  have hright : 0 ≤ (1 / 2 : ℝ) ^ n / (Nat.factorial n : ℝ) := by
+    positivity
+  have hfour : alpha * (1 / (4 * alpha)) = (1 / 4 : ℝ) := by
+    field_simp
+    <;> ring
+  have hfactor :
+      (alpha ^ n / (Nat.factorial n : ℝ)) *
+        WeightedMoments.squareWeight alpha n =
+      ((1 / 2 : ℝ) ^ n / (Nat.factorial n : ℝ)) ^ 2 := by
+    unfold WeightedMoments.squareWeight
+    calc
+      (alpha ^ n / (Nat.factorial n : ℝ)) *
+          ((1 / (4 * alpha)) ^ n / (Nat.factorial n : ℝ)) =
+        (alpha * (1 / (4 * alpha))) ^ n /
+          ((Nat.factorial n : ℝ) ^ 2) := by
+            rw [mul_pow]
+            ring
+      _ = (1 / 4 : ℝ) ^ n / ((Nat.factorial n : ℝ) ^ 2) := by
+            rw [hfour]
+      _ = ((1 / 2 : ℝ) ^ n / (Nat.factorial n : ℝ)) ^ 2 := by
+            rw [div_pow, show (1 / 4 : ℝ) = (1 / 2 : ℝ) ^ 2 by norm_num,
+              ← pow_mul, mul_comm n 2, pow_mul]
+  have hsq :
+      (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) *
+        Real.sqrt (WeightedMoments.squareWeight alpha n)) ^ 2 =
+      ((1 / 2 : ℝ) ^ n / (Nat.factorial n : ℝ)) ^ 2 := by
+    rw [mul_pow, Real.sq_sqrt harg, Real.sq_sqrt hweight]
+    exact hfactor
+  nlinarith
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.fock_amplitude_product
+
 end GegenbauerFock.GeneralUltrasphericalFock
