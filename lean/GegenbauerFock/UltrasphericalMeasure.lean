@@ -160,6 +160,26 @@ theorem fourierFunctional_adjoint (lam : ℝ) (hlam : 0 < lam) (z : ℂ) :
         (originalCoherentLp lam hlam (-star z)) := by
   exact ContinuousLinearMap.adjoint_innerSL_apply _
 
+/-- The bounded Fourier evaluation functional is exactly the
+complex Bochner integral of the Eulerian kernel. In the Mathlib
+convention, the L² inner product is conjugate-linear in its first
+slot, hence the conjugated argument in the representer above. -/
+theorem fourierFunctional_integral (lam : ℝ) (hlam : 0 < lam)
+    (z : ℂ) (f : Lp ℂ 2 (measure lam)) :
+    fourierFunctional lam hlam z f =
+      ∫ u : ℝ, f u * Complex.exp (Complex.I*z*(u:ℂ)/2) ∂(measure lam) := by
+  change inner ℂ (originalCoherentLp lam hlam (-star z)) f = _
+  rw [MeasureTheory.L2.inner_def]
+  apply integral_congr_ae
+  filter_upwards [MemLp.coeFn_toLp (originalCoherent_memLp lam hlam (-star z))] with u hu
+  rw [hu, RCLike.inner_apply']
+  have harg :
+      Complex.conj (Complex.I * (-star z) * (u:ℂ) / 2) =
+        Complex.I*z*(u:ℂ)/2 := by
+    simp [map_mul, map_div₀, mul_assoc, mul_comm, mul_left_comm]
+  rw [← Complex.exp_conj, harg]
+  ring
+
 #print axioms GegenbauerFock.Ultraspherical.shape_pos
 #print axioms GegenbauerFock.Ultraspherical.probability
 #print axioms GegenbauerFock.Ultraspherical.measure_univ
@@ -171,5 +191,6 @@ theorem fourierFunctional_adjoint (lam : ℝ) (hlam : 0 < lam) (z : ℂ) :
 #print axioms GegenbauerFock.Ultraspherical.originalCoherent_memLp
 #print axioms GegenbauerFock.Ultraspherical.fourierFunctional_norm
 #print axioms GegenbauerFock.Ultraspherical.fourierFunctional_adjoint
+#print axioms GegenbauerFock.Ultraspherical.fourierFunctional_integral
 
 end GegenbauerFock.Ultraspherical
