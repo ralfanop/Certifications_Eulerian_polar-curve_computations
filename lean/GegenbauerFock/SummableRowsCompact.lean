@@ -28,7 +28,7 @@ namespace GegenbauerFock.SummableRowsCompact
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-abbrev Target := lp (fun _ : ℕ => ℂ) 2
+noncomputable abbrev Target := lp (fun _ : ℕ => ℂ) 2
 
 noncomputable def row (T : E →L[ℂ] Target) (n : ℕ) : E →L[ℂ] ℂ :=
   (lp.evalCLM ℂ (fun _ : ℕ => ℂ) 2 n).comp T
