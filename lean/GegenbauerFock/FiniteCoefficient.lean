@@ -23,7 +23,7 @@ variable (μ : Measure ℝ) (N : ℕ)
 noncomputable def truncation (k : Fin N → Lp ℂ 2 μ) :
     Lp ℂ 2 μ →L[ℂ] (Fin N → ℂ) :=
   ContinuousLinearMap.pi (fun n : Fin N =>
-    InnerProductSpace.innerSL ℂ (k n))
+    innerSL ℂ (k n))
 
 /-- The n-th coordinate is the explicit L² Riesz inner product. -/
 theorem truncation_apply (k : Fin N → Lp ℂ 2 μ)
