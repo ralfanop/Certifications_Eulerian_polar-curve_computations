@@ -36,6 +36,18 @@ theorem gram_apply_eq_zero_iff_C_eq_zero
     rw [h]
     simp
 
+/-- Equality of the actual closed linear kernels, not just an implication
+for individual L² vectors: ker(C†C) = ker(C). -/
+theorem gram_ker_eq_C_ker
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    LinearMap.ker (gram lam alpha hlam ha).toLinearMap =
+      LinearMap.ker (C lam alpha hlam ha).toLinearMap := by
+  ext f
+  simpa only [LinearMap.mem_ker] using
+    (gram_apply_eq_zero_iff_C_eq_zero lam alpha hlam ha f)
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gram_ker_eq_C_ker
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gram_apply_eq_zero_iff_C_eq_zero
 
 end GegenbauerFock.GeneralUltrasphericalFock
