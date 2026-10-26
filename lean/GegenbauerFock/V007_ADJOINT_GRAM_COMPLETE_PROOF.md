@@ -161,25 +161,71 @@ The last equality has a Lean certificate for the **coefficient-row
 energy**; identifying that row energy with a separately formalized
 Hilbert–Schmidt-ideal norm and trace remains a different task.
 
-## Exact Lean certification boundary
+## Lean 4 formal certification — completed 26 October 2026
 
-- The V007 branch already has a fully compiled all-complex-frequency
-  Fock-evaluation/Bochner identity.
-- AnalyticAdjoint.lean gives the real Hilbert adjoint on coherent vectors,
-  and the norm-convergent adjoint row expansion for arbitrary F∈ℓ².
-- GramKernelSeries.lean gives the exact norm-convergent Gram expansion
-  and full sesquilinear coefficient pairing.
-- GramIntegralKernel.lean identifies the imaginary-axis Fock evaluation
-  with the integral of the real exponential kernel **only if its exact
-  SHA and associated workflow have passed**.
-- The Lean equality of (4) as an equality of actual L² classes,
-  and consequently of (9) as an equality of the Gram operator and
-  the displayed integral operator, are **not yet kernel-certified**.
+**The two infinite-dimensional L² operator identities (4) and (9) are
+now fully kernel-checked in the concrete coefficient-space model.**
 
-Further Lean tasks: construct measurability and an L² bound for
-the entire-function restriction; prove that its L² class equals
-the norm-convergent series in (6); use adjoint uniqueness to
-complete (4), then obtain (9) from the all-z kernel evaluation.
-Every additional declaration needs compilation and an audit of
-its precise axiom dependencies. No sorry/admit/new axioms; no
-merge into main and no modification to V097.
+- **Certified code commit:** `444e3b80cd3e1241909ed51b5930812b1e160729`.
+- **Exact-head GitHub Actions:** [run 40386146429](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40386146429), conclusion **SUCCESS**, with all compilation/regression steps and final axiom audit passing.
+- **Kernel axiom dependencies:** every relevant declaration below has only
+  `propext`, `Classical.choice`, `Quot.sound`.
+  No `sorryAx` and no `Lean.ofReduceBool`.
+
+### Formalized analytic adjoint
+
+1. `FockAnalyticRestriction.restrictionCLM` in
+   `AnalyticRestrictionCLM.lean` constructs a **genuine bounded
+   ℂ-linear operator** from the infinite Fock coefficient Hilbert
+   space ℓ² into the concrete ultraspherical L². Its action is the
+   imaginary-axis coherent evaluation of any coefficient vector.
+2. `FockAnalyticRestriction.evaluation_single_imaginary` and
+   `FockAnalyticRestriction.restrictionLp_single` in
+   `AnalyticAdjointComplete.lean` certify the exact weighted
+   monomial basis restriction, including all complex phases.
+3. `FockAnalyticRestriction.restrictionCLM_eq_C_adjoint` proves
+   equality with **the actual adjoint of the concrete bounded
+   Gegenbauer–Fock operator** by the Mathlib canonical-ℓ²-basis
+   density theorem and continuity.
+4. `FockAnalyticRestriction.adjoint_eq_analytic_restriction`
+   specializes this equality to every F∈ℓ², as an equality of
+   actual L² equivalence classes. This is identity (4), not
+   merely an equality on finite-support coefficient sequences.
+
+### Formalized integral Gram operator
+
+1. `GeneralUltrasphericalFock.gramIntegralOperator` in
+   `GramIntegralComplete.lean` is an actual bounded ℂ-linear
+   operator L²(νλ)→L²(νλ), constructed from the verified
+   imaginary-axis Fock restriction composed with C.
+2. `gramIntegralOperator_apply` identifies its output for
+   every f∈L² with the L² class of the actual complex Bochner
+   integral of the real exponential kernel e^{uv/(4α)}.
+3. `gram_eq_gramIntegralOperator` proves **operator equality**
+   C†C=T, not only an equality of quadratic forms.
+4. `gram_eq_integralLp` proves identity (9) as an equality
+   in the concrete source L² for arbitrary f.
+
+### Certification boundary that still remains
+
+The above two operator identities are complete **for the concrete
+ℓ² coefficient model**. The following are *separate, not yet
+kernel-certified*, and must not be silently inferred from this result:
+
+- the isometric equivalence to the full Gaussian-area holomorphic
+  Bargmann–Fock Hilbert space, and the Lean holomorphy theorem for
+  unrestricted reconstructed entire functions;
+- the explicit Gamma-density equality and general ultraspherical
+  moment/hypergeometric closed forms;
+- a separately bundled Mathlib Hilbert–Schmidt-ideal or trace API,
+  Schatten class and full spectral/injective/dense-range results;
+- domain-aware Sturm–Liouville selfadjointness and kernel commutation;
+- formal interval-arithmetic certifications for numerical claims
+  where needed.
+
+The previously certified finite-rank approximation, concrete
+compactness, row-energy exponential-integral identity, all-complex-z
+Bochner series interchange, and kernel evaluations remain unchanged.
+
+**V007 only.** PR #16 remains Draft and unmerged. Approved V097 and
+the repository main branch remain unchanged.
