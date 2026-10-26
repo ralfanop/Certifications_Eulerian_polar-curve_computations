@@ -23,7 +23,7 @@ open MeasureTheory ProbabilityTheory
 namespace GegenbauerFock.Ultraspherical
 
 /-- The equal Beta shape parameters associated with ultraspherical λ. -/
-def shape (lam : ℝ) : ℝ := lam + 1 / 2
+noncomputable def shape (lam : ℝ) : ℝ := lam + 1 / 2
 
 /-- Affine change of variables transporting the beta law to [-1,1]. -/
 def betaToInterval (x : ℝ) : ℝ := 2*x - 1
