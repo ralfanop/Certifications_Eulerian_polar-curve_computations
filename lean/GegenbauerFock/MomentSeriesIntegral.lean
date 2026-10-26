@@ -25,6 +25,8 @@ variable (alpha : ℝ) (ha : 0 < alpha)
 noncomputable def term (n : ℕ) (u : ℝ) : ℝ :=
   WeightedMoments.squareWeight alpha n * ‖(u : ℂ) ^ n‖ ^ 2
 
+include ha
+
 theorem term_norm_le (n : ℕ) (u : ℝ) (hu : |u| ≤ 1) :
     ‖term alpha n u‖ ≤ WeightedMoments.squareWeight alpha n := by
   have hw := WeightedMoments.squareWeight_nonneg alpha ha n
