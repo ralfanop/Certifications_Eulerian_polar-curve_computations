@@ -75,7 +75,7 @@ jobs:
           for part in kernel oscillator analytic legendre fourier; do
             test -s "/tmp/gf-${part}.log"
           done
-          if grep -nE 'sorryAx|Lean\\.ofReduceBool' /tmp/gf-*.log; then
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-*.log; then
             echo '::error::A verified theorem depends on an untrusted axiom.'
             exit 1
           fi
