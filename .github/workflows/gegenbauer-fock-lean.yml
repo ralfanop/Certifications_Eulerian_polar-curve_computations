@@ -38,6 +38,12 @@ jobs:
         working-directory: lean
         run: lake exe cache get
 
+      - name: Check concrete Gegenbauer Fock weighted L2 coefficient family
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean GegenbauerFock/WeightedMoments.lean | tee /tmp/gf-weighted-moments.log
+
       - name: Check Gegenbauer kernel identities
         working-directory: lean
         run: |
@@ -145,12 +151,6 @@ jobs:
         run: |
           set -euo pipefail
           lake env lean GegenbauerFock/CompactnessBridge.lean | tee /tmp/gf-compactness-bridge.log
-
-      - name: Check concrete Gegenbauer Fock weighted L2 coefficient family
-        working-directory: lean
-        run: |
-          set -euo pipefail
-          lake env lean GegenbauerFock/WeightedMoments.lean | tee /tmp/gf-weighted-moments.log
 
       - name: Audit emitted theorem axiom dependencies
         shell: bash
