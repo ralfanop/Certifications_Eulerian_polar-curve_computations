@@ -89,4 +89,21 @@ theorem exp_integral_eq_kummerSeries
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.rowEnergy_eq_kummerSeries
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exp_integral_eq_kummerSeries
 
+/-- Fully explicit Gauss--Kummer hypergeometric series identity for
+the squared canonical Hilbert--Schmidt row energy of C_{λ,α}.
+The rising Pochhammer polynomials are exactly Mathlib's
+`ascPochhammer`, not a merely recursively named ratio. -/
+theorem rowEnergy_eq_pochhammerSeries
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    rowEnergy lam alpha hlam ha =
+      ∑' n : ℕ,
+        ((Polynomial.ascPochhammer ℝ n).eval (1 / 2) /
+          (Polynomial.ascPochhammer ℝ n).eval (lam + 1)) *
+          ((1 / (4 * alpha)) ^ n / (Nat.factorial n : ℝ)) := by
+  rw [rowEnergy_eq_kummerSeries lam alpha hlam ha,
+    KummerCoefficients.kummerSeries_eq_pochhammer
+      lam (1 / (4 * alpha)) hlam]
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.rowEnergy_eq_pochhammerSeries
+
 end GegenbauerFock.GeneralUltrasphericalFock
