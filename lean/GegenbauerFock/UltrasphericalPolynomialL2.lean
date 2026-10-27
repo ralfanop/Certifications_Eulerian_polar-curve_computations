@@ -46,9 +46,13 @@ theorem sourceMonomial_ae_eval (lam : ℝ) (hlam : 0 < lam) (n : ℕ) :
       (fun u : ℝ => (u : ℂ) ^ n) := by
   letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
     Ultraspherical.probability lam hlam
-  simpa only [sourceMonomial] using
-    (WeightedMoments.monomial_memLp
-      (Ultraspherical.measure lam) (ae_abs_le_one lam) n).coeFn_toLp
+  change
+    ((WeightedMoments.monomial
+      (Ultraspherical.measure lam) (ae_abs_le_one lam) n :
+        Lp ℂ 2 (Ultraspherical.measure lam)) : ℝ → ℂ)
+      =ᵐ[Ultraspherical.measure lam] (fun u : ℝ => (u : ℂ) ^ n)
+  exact (WeightedMoments.monomial_memLp
+    (Ultraspherical.measure lam) (ae_abs_le_one lam) n).coeFn_toLp
 
 /-- The L² polynomial vector genuinely represents P.eval on the
 real line, almost everywhere for ν_λ. This is the key exact
@@ -70,8 +74,8 @@ theorem sourcePolynomial_ae_eval
        sourceMonomial_ae_eval lam hlam n] with u hs hm
     simpa only [Pi.smul_apply, smul_eq_mul, hm] using hs
   have hsum := Lp.coeFn_finsetSum P.support
-    (fun n => P.coeff n • sourceMonomial lam hlam n :
-      Lp ℂ 2 (Ultraspherical.measure lam))
+    (fun n : ℕ => (P.coeff n • sourceMonomial lam hlam n :
+      Lp ℂ 2 (Ultraspherical.measure lam)))
   have hall : ∀ᵐ u ∂Ultraspherical.measure lam,
       ∀ n ∈ P.support,
         ((P.coeff n • sourceMonomial lam hlam n :
