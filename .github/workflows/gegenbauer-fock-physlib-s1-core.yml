@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/PhyslibPositiveFixedBasis.lean'
+      - 'lean/GegenbauerFock/PhyslibRankOneTrace.lean'
       - 'lean/GegenbauerFock/PhyslibTraceBasisIndependence.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassScalar.lean'
       - 'lean/GegenbauerFock/PhyslibTraceNormCore.lean'
@@ -113,7 +114,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.PhyslibTraceNormCore GegenbauerFock.PhyslibTraceClassScalar GegenbauerFock.PhyslibTraceClassPointed GegenbauerFock.PhyslibPositiveFixedBasis 2>&1 | tee /tmp/gf-physlib-s1-foundations.log
+          lake build GegenbauerFock.PhyslibTraceNormCore GegenbauerFock.PhyslibTraceClassScalar GegenbauerFock.PhyslibTraceClassPointed GegenbauerFock.PhyslibPositiveFixedBasis GegenbauerFock.PhyslibRankOneTrace 2>&1 | tee /tmp/gf-physlib-s1-foundations.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-physlib-s1-foundations.log; then
             echo '::error::Nonstandard axiom in Physlib S1 foundations.'
             exit 1
