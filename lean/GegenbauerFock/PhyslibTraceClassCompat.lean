@@ -48,7 +48,8 @@ private theorem re_inner_swap (x y : H) :
   calc
     (inner ℂ x y).re = (star (inner ℂ y x)).re := by
       exact congrArg Complex.re (inner_conj_symm (𝕜 := ℂ) x y).symm
-    _ = (inner ℂ y x).re := by simp
+    _ = (inner ℂ y x).re := by
+      simp only [Complex.star_def, Complex.conj_re]
 
 /-- For nonnegative operators the genuine CFC absolute value equals
 the operator, so a summable diagonal proves trace-class membership. -/
