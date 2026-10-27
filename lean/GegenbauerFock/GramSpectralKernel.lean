@@ -47,6 +47,19 @@ theorem gram_ker_eq_C_ker
     C lam alpha hlam ha f = 0
   exact gram_apply_eq_zero_iff_C_eq_zero lam alpha hlam ha f
 
+/-- The zero-eigenspace of the genuine compact integral Gram operator
+is exactly the kernel of the concrete Gegenbauer--Fock transform.
+This makes no unsupported assertion that the zero-eigenspace is trivial. -/
+theorem gramIntegralOperator_zero_eigenspace_eq_C_ker
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    eigenspace (gramIntegralOperator lam alpha hlam ha).toLinearMap 0 =
+      LinearMap.ker (C lam alpha hlam ha).toLinearMap := by
+  rw [eigenspace_zero]
+  rw [← gram_eq_gramIntegralOperator lam alpha hlam ha]
+  exact gram_ker_eq_C_ker lam alpha hlam ha
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gramIntegralOperator_zero_eigenspace_eq_C_ker
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gram_ker_eq_C_ker
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gram_apply_eq_zero_iff_C_eq_zero
