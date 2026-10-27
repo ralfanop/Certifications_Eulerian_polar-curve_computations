@@ -1,5 +1,4 @@
 import GegenbauerFock.GeneralUltrasphericalFock
-import GegenbauerFock.OutputGramZeroModes
 
 /-!
 # V007 — polynomial moment separation of the genuine ultraspherical Fock map
