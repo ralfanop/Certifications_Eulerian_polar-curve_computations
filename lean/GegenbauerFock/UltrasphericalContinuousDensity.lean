@@ -1,5 +1,6 @@
 import GegenbauerFock.GeneralUltrasphericalFock
 import Mathlib.MeasureTheory.Function.ContinuousMapDense
+import Mathlib.Topology.ContinuousMap.StoneWeierstrass
 
 /-!
 # V007: continuous-function density for the actual ultraspherical probability
@@ -42,7 +43,19 @@ theorem boundedContinuous_toLp_denseRange
   exact BoundedContinuousFunction.toLp_denseRange
     ℂ (measure lam) ℂ (by norm_num : (2 : ℝ≥0∞) ≠ ⊤)
 
+/-- Real polynomial functions are uniformly dense among all
+real-valued continuous functions on the *actual compact support*
+[-1,1]. This is the Weierstrass stage of the L²-density argument.
+The remaining transfer to complex-valued L² monomials is not
+claimed by this theorem. -/
+theorem polynomial_uniform_dense_on_unit_interval :
+    (ContinuousMap.polynomialFunctions (Set.Icc (-1 : ℝ) 1)).topologicalClosure =
+      ⊤ := by
+  exact ContinuousMap.polynomialFunctions.topologicalClosure
+    (Set.Icc (-1 : ℝ) 1)
+
 #print axioms GegenbauerFock.Ultraspherical.measure_weaklyRegular
 #print axioms GegenbauerFock.Ultraspherical.boundedContinuous_toLp_denseRange
+#print axioms GegenbauerFock.Ultraspherical.polynomial_uniform_dense_on_unit_interval
 
 end GegenbauerFock.Ultraspherical
