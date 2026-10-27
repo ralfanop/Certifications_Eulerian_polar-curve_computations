@@ -185,4 +185,34 @@ theorem gram_sourceBasis_trace_eq_kummer
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gram_sourceBasis_trace_eq_kummer
 
+/-- A single basis-independent equality relating the concrete Hilbert--Schmidt
+source-basis energy, the positive Gram diagonal trace, the nuclear
+rank-one norm mass, and the exactly normalized Kummer/Pochhammer
+hypergeometric sum.  No Schatten-ideal norm API is assumed. -/
+theorem C_HSEnergy_GramTrace_NuclearMass_eq_pochhammer
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    {ι : Type*}
+    (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
+    (∑' i : ι, ‖C lam alpha hlam ha (b i)‖ ^ 2) =
+        (∑' i : ι,
+          RCLike.re (inner ℂ (gram lam alpha hlam ha (b i)) (b i))) ∧
+    (∑' i : ι, ‖C lam alpha hlam ha (b i)‖ ^ 2) =
+        (∑' n : ℕ, ‖gramNuclearTerm lam alpha hlam ha n‖) ∧
+    (∑' i : ι, ‖C lam alpha hlam ha (b i)‖ ^ 2) =
+        ∑' n : ℕ,
+          ((ascPochhammer ℝ n).eval (1 / 2) /
+            (ascPochhammer ℝ n).eval (lam + 1)) *
+            ((1 / (4 * alpha)) ^ n / (Nat.factorial n : ℝ)) := by
+  have hHS := C_sourceBasis_HSEnergy_eq_kummer lam alpha hlam ha b
+  have htr := gram_sourceBasis_trace_eq_kummer lam alpha hlam ha b
+  have hmass := gramNuclearMass_eq_kummerSeries lam alpha hlam ha
+  have hp := gramNuclearMass_eq_pochhammerSeries lam alpha hlam ha
+  constructor
+  · exact hHS.trans htr.symm
+  constructor
+  · exact hHS.trans hmass.symm
+  · exact (hHS.trans hmass.symm).trans hp
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_HSEnergy_GramTrace_NuclearMass_eq_pochhammer
+
 end GegenbauerFock.GeneralUltrasphericalFock
