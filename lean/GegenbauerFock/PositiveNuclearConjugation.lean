@@ -76,58 +76,47 @@ namespace GegenbauerFock.GeneralUltrasphericalFock
 
 open MeasureTheory
 
-/-- All ultraspherical moment rows remain square-summable after
-arbitrary bounded source postprocessing. This is the genuine
-summability component of the positive Schatten S₁ ideal property. -/
+/-- All canonical ultraspherical--Fock rows remain square-summable
+after arbitrary bounded precomposition. The theorem's *statement*
+uses the genuine canonical rows to avoid a spurious probability
+instance in the proposition itself. -/
 theorem C_momentRows_comp_right_summable
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     (B : Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
       Lp ℂ 2 (Ultraspherical.measure lam)) :
     Summable (fun n : ℕ =>
-      ‖(WeightedMoments.coefficient
-        (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha n).comp B‖ ^ 2) := by
-  letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
-    Ultraspherical.probability lam hlam
+      ‖(SummableRowsCompact.row (C lam alpha hlam ha) n).comp B‖ ^ 2) := by
   exact PositiveNuclearIdeal.rows_comp_summable
-    (fun n : ℕ => WeightedMoments.coefficient
-      (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha n)
-    (WeightedMoments.coefficient_norm_sq_summable
-      (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha ha) B
+    (fun n : ℕ => SummableRowsCompact.row (C lam alpha hlam ha) n)
+    (C_rows_summable lam alpha hlam ha) B
 
-/-- Certified positive nuclear-mass inequality for bounded
-conjugation of the *actual* ultraspherical Gram. The right-hand
-constant is the exact Kummer/Schatten trace norm, not an arbitrary
-unspecified bound. -/
+/-- The positive nuclear-mass estimate for bounded source
+postprocessing of the actual ultraspherical Gram. Its exact scalar
+bound is the kernel-checked Kummer trace-norm value. -/
 theorem C_momentRows_comp_right_mass_le_kummer
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     (B : Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
       Lp ℂ 2 (Ultraspherical.measure lam)) :
     (∑' n : ℕ,
-      ‖(WeightedMoments.coefficient
-        (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha n).comp B‖ ^ 2) ≤
+      ‖(SummableRowsCompact.row (C lam alpha hlam ha) n).comp B‖ ^ 2) ≤
       ‖B‖ ^ 2 * KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) := by
-  letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
-    Ultraspherical.probability lam hlam
   have hm := PositiveNuclearIdeal.rows_comp_tsum_le
-    (fun n : ℕ => WeightedMoments.coefficient
-      (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha n)
-    (WeightedMoments.coefficient_norm_sq_summable
-      (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha ha) B
+    (fun n : ℕ => SummableRowsCompact.row (C lam alpha hlam ha) n)
+    (C_rows_summable lam alpha hlam ha) B
   have hmass :
-      (∑' n : ℕ, ‖WeightedMoments.coefficient
-        (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha n‖ ^ 2) =
+      (∑' n : ℕ, ‖SummableRowsCompact.row
+        (C lam alpha hlam ha) n‖ ^ 2) =
         KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) := by
     calc
-      (∑' n : ℕ, ‖WeightedMoments.coefficient
-        (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha n‖ ^ 2) =
-          ∑' n : ℕ, ‖gramNuclearTerm lam alpha hlam ha n‖ := by
-            apply tsum_congr
-            intro n
-            rw [gramNuclearTerm_norm_eq_row_sq lam alpha hlam ha n,
-                C_row_eq lam alpha hlam ha n]
+      (∑' n : ℕ, ‖SummableRowsCompact.row
+        (C lam alpha hlam ha) n‖ ^ 2) =
+        ∑' n : ℕ, ‖gramNuclearTerm lam alpha hlam ha n‖ := by
+          apply tsum_congr
+          intro n
+          exact (gramNuclearTerm_norm_eq_row_sq lam alpha hlam ha n).symm
       _ = KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) :=
           gramNuclearMass_eq_kummerSeries lam alpha hlam ha
-  rwa [hmass] at hm
+  exact hm.trans_eq (congrArg (fun t : ℝ => ‖B‖ ^ 2 * t) hmass)
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_momentRows_comp_right_summable
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_momentRows_comp_right_mass_le_kummer
