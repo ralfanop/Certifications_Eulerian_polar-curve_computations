@@ -92,6 +92,15 @@ jobs:
         working-directory: lean
         run: lake exe cache get
 
+      # All Lake builds inherit weakLeanArgs = ["-M16768"] from
+      # lean/lakefile.toml. Direct lake env lean invocations below
+      # receive the same flag explicitly.
+      - name: Check per-process Lean -M16768 option
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 --version
+
       - name: Certify right ideal bound for Hilbert-Schmidt rows
         working-directory: lean
         run: |
@@ -246,7 +255,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/WeightedMoments.lean | tee /tmp/gf-weighted-moments.log
+          lake env lean -M16768 GegenbauerFock/WeightedMoments.lean | tee /tmp/gf-weighted-moments.log
 
       - name: Compile the concrete bounded L2 to infinite Fock Hilbert operator
         working-directory: lean
@@ -282,109 +291,109 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/KernelCore.lean | tee /tmp/gf-kernel.log
+          lake env lean -M16768 GegenbauerFock/KernelCore.lean | tee /tmp/gf-kernel.log
 
       - name: Check two-mode oscillator algebra
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/OscillatorCore.lean | tee /tmp/gf-oscillator.log
+          lake env lean -M16768 GegenbauerFock/OscillatorCore.lean | tee /tmp/gf-oscillator.log
 
       - name: Check analytic exponential kernel and spheroidal identity
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/AnalyticKernel.lean | tee /tmp/gf-analytic.log
+          lake env lean -M16768 GegenbauerFock/AnalyticKernel.lean | tee /tmp/gf-analytic.log
 
       - name: Check Legendre probability moments
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/LegendreMoments.lean | tee /tmp/gf-legendre.log
+          lake env lean -M16768 GegenbauerFock/LegendreMoments.lean | tee /tmp/gf-legendre.log
 
       - name: Check Eulerian Fourier integral
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/EulerianFourierIntegral.lean | tee /tmp/gf-fourier.log
+          lake env lean -M16768 GegenbauerFock/EulerianFourierIntegral.lean | tee /tmp/gf-fourier.log
 
       - name: Check general ultraspherical probability measure
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/UltrasphericalMeasure.lean | tee /tmp/gf-measure.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalMeasure.lean | tee /tmp/gf-measure.log
 
       - name: Check scalar Bochner Eulerian integral layer
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/BochnerStage.lean | tee /tmp/gf-bochner.log
+          lake env lean -M16768 GegenbauerFock/BochnerStage.lean | tee /tmp/gf-bochner.log
 
       - name: Check V007 exact rational trace partial sum
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/RationalTrace.lean | tee /tmp/gf-rational.log
+          lake env lean -M16768 GegenbauerFock/RationalTrace.lean | tee /tmp/gf-rational.log
 
       - name: Check general Hilbert-space adjoint and Gram operator identities
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/HilbertGram.lean | tee /tmp/gf-hilbert-gram.log
+          lake env lean -M16768 GegenbauerFock/HilbertGram.lean | tee /tmp/gf-hilbert-gram.log
 
       - name: Check actual L2 Hilbert coefficient functional and adjoint
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/L2Coefficient.lean | tee /tmp/gf-l2-coeff.log
+          lake env lean -M16768 GegenbauerFock/L2Coefficient.lean | tee /tmp/gf-l2-coeff.log
 
       - name: Check finite-rank L2 coefficient truncations
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/FiniteCoefficient.lean | tee /tmp/gf-finite-coeff.log
+          lake env lean -M16768 GegenbauerFock/FiniteCoefficient.lean | tee /tmp/gf-finite-coeff.log
 
       - name: Check genuine L2 coherent exponential sections
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/CoherentL2.lean | tee /tmp/gf-coherent-l2.log
+          lake env lean -M16768 GegenbauerFock/CoherentL2.lean | tee /tmp/gf-coherent-l2.log
 
       - name: Check infinite Fock coefficient Hilbert model
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/FockSequenceOperator.lean | tee /tmp/gf-fock-sequence.log
+          lake env lean -M16768 GegenbauerFock/FockSequenceOperator.lean | tee /tmp/gf-fock-sequence.log
 
       - name: Check bounded infinite Fock coefficient analysis
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/InfiniteFockAnalysis.lean | tee /tmp/gf-infinite-fock.log
+          lake env lean -M16768 GegenbauerFock/InfiniteFockAnalysis.lean | tee /tmp/gf-infinite-fock.log
 
       - name: Check compact finite-rank maps into infinite Fock Hilbert space
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/InfiniteFockTruncations.lean | tee /tmp/gf-fock-truncations.log
+          lake env lean -M16768 GegenbauerFock/InfiniteFockTruncations.lean | tee /tmp/gf-fock-truncations.log
 
       - name: Check general L2 polynomial moment bounds
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/MomentL2Bounds.lean | tee /tmp/gf-moment-l2.log
+          lake env lean -M16768 GegenbauerFock/MomentL2Bounds.lean | tee /tmp/gf-moment-l2.log
 
       - name: Check factorial Fock coherent coefficient energy bounds
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/FactorialFockWeights.lean | tee /tmp/gf-factorial.log
+          lake env lean -M16768 GegenbauerFock/FactorialFockWeights.lean | tee /tmp/gf-factorial.log
 
       - name: Check compactness from operator norm convergence
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean GegenbauerFock/CompactnessBridge.lean | tee /tmp/gf-compactness-bridge.log
+          lake env lean -M16768 GegenbauerFock/CompactnessBridge.lean | tee /tmp/gf-compactness-bridge.log
 
       - name: Check compactness of the concrete ultraspherical Fock operator
         working-directory: lean
