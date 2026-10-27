@@ -124,11 +124,8 @@ private theorem momentRecurrencePrimitive_hasDerivAt
   have ha : 0 < shape lam := shape_pos lam hlam
   have hy : 0 < 1 - x := by linarith
   have hd_u : HasDerivAt betaToInterval 2 x := by
-    change HasDerivAt (fun t : ℝ => 2 * t - 1) 2 x
-    convert (((hasDerivAt_id x).const_mul (2 : ℝ)).sub_const 1) using 1
-    · funext t
-      dsimp
-      ring
+    simpa only [betaToInterval, id_eq, mul_one] using
+      (((hasDerivAt_id x).const_mul (2 : ℝ)).sub_const 1)
   have hd_pow :
       HasDerivAt (fun t : ℝ => betaToInterval t ^ (2 * n + 1))
         (((2 * n + 1 : ℕ) : ℝ) * betaToInterval x ^ (2 * n) * 2) x := by
@@ -151,7 +148,8 @@ private theorem momentRecurrencePrimitive_hasDerivAt
         (betaToInterval x ^ (2 * n + 1) * x ^ (shape lam)) *
           (-(shape lam) * (1 - x) ^ (shape lam - 1))) x := by
     unfold momentRecurrencePrimitive
-    convert ((hd_pow.mul hd_x).mul hd_y) using 1 <;> ring
+    convert ((hd_pow.mul hd_x).mul hd_y) using 1 <;>
+      simp only [Pi.mul_apply] <;> ring
   have hxa : x ^ (shape lam) = x ^ (shape lam - 1) * x := by
     calc
       x ^ (shape lam) = x ^ ((shape lam - 1) + 1) := by
@@ -227,8 +225,11 @@ private theorem momentRecurrenceIntegrand_integrable
     ((n : ℝ) + 1 / 2)
   have h2 := (evenMoment_betaPDF_integrable lam hlam (n + 1)).const_mul
     ((n : ℝ) + lam + 1)
-  simpa only [momentRecurrenceIntegrand, Pi.sub_apply] using
-    (h1.sub h2).const_mul (ProbabilityTheory.beta (shape lam) (shape lam))
+  unfold momentRecurrenceIntegrand
+  convert (h1.sub h2).const_mul
+    (ProbabilityTheory.beta (shape lam) (shape lam)) using 1
+  funext y
+  simp only [Pi.sub_apply]
 
 /-- Integrating the derivative on the full real line gives precisely
 the linear combination of the two genuine normalized Beta moments. -/
