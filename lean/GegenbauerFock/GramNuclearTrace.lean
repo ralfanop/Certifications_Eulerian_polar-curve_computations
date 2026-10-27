@@ -2,6 +2,7 @@ import GegenbauerFock.GramIntegralComplete
 import GegenbauerFock.GramKernelSeries
 import GegenbauerFock.RowEnergyExpIntegral
 import GegenbauerFock.UltrasphericalKummerBridge
+import GegenbauerFock.KummerRegularizedBridge
 
 /-!
 # V007: operator-norm summable nuclear Gram decomposition
