@@ -152,4 +152,88 @@ theorem weightedMoment_row_basis_energy
 
 #print axioms GegenbauerFock.FockEnergy.weightedMoment_row_basis_energy
 
+/-- For the genuine infinite-dimensional bounded Gegenbauer--Fock
+operator, the squared-Hilbert--Schmidt energy summed over ANY
+complete Hilbert basis of the L² source equals the canonical output
+row energy. The two sums are exchanged by a genuinely summable
+nonnegative double series, not a formal interchange. -/
+theorem concrete_sourceBasis_energy_eq_rows
+    (μ : Measure ℝ) [IsProbabilityMeasure μ]
+    (hsupport : ∀ᵐ u ∂μ, |u| ≤ (1 : ℝ))
+    (alpha : ℝ) (ha : 0 < alpha)
+    {ι : Type*} (b : HilbertBasis ι ℂ (Lp ℂ 2 μ)) :
+    (∑' i : ι,
+      ‖ConcreteFock.operator μ hsupport alpha ha (b i)‖ ^ 2) =
+      squaredRowEnergy μ (ConcreteFock.operator μ hsupport alpha ha) := by
+  let T := ConcreteFock.operator μ hsupport alpha ha
+  let w : ℕ → ι → ℝ := fun n i => ‖(T (b i)) n‖ ^ 2
+  have hpoint (n : ℕ) (i : ι) :
+      w n i =
+        ‖WeightedMoments.coefficient μ hsupport alpha n (b i)‖ ^ 2 := by
+    change ‖ConcreteFock.operator μ hsupport alpha ha (b i) n‖ ^ 2 = _
+    rw [ConcreteFock.operator_coefficient μ hsupport alpha ha (b i) n]
+  have hrow (n : ℕ) :
+      (∑' i : ι, w n i) =
+        ‖WeightedMoments.coefficient μ hsupport alpha n‖ ^ 2 := by
+    calc
+      (∑' i : ι, w n i) =
+        ∑' i : ι,
+          ‖WeightedMoments.coefficient μ hsupport alpha n (b i)‖ ^ 2 := by
+            apply tsum_congr
+            intro i
+            exact hpoint n i
+      _ = _ := weightedMoment_row_basis_energy μ hsupport alpha ha b n
+  have hs_row (n : ℕ) : Summable (w n) := by
+    let m := WeightedMoments.monomial μ hsupport n
+    let cw := WeightedMoments.complexWeight alpha n
+    have hb :
+        Summable (fun i : ι => ‖(b.repr m) i‖ ^ 2) := by
+      simpa using
+        (lp.memℓp (b.repr m)).summable
+          (by norm_num : 0 < (2 : ENNReal).toReal)
+    have hc :
+        Summable (fun i : ι => ‖cw‖ ^ 2 * ‖(b.repr m) i‖ ^ 2) :=
+      hb.mul_left (‖cw‖ ^ 2)
+    refine hc.congr ?_
+    intro i
+    symm
+    rw [hpoint n i]
+    change ‖cw * inner ℂ m (b i)‖ ^ 2 = _
+    rw [norm_mul, mul_pow, norm_inner_symm,
+      ← HilbertBasis.repr_apply_apply]
+  have hs_outer :
+      Summable (fun n : ℕ => ∑' i : ι, w n i) := by
+    exact (WeightedMoments.coefficient_norm_sq_summable
+      μ hsupport alpha ha).congr (fun n => (hrow n).symm)
+  have hdouble :
+      Summable (Function.uncurry w) := by
+    apply (summable_prod_of_nonneg
+      (f := Function.uncurry w) (fun p => sq_nonneg _)).2
+    exact ⟨hs_row, hs_outer⟩
+  have hin (i : ι) :
+      ‖T (b i)‖ ^ 2 = ∑' n : ℕ, w n i := by
+    simpa [w] using
+      (lp.norm_rpow_eq_tsum
+        (by norm_num : 0 < (2 : ENNReal).toReal) (T (b i)))
+  calc
+    (∑' i : ι, ‖ConcreteFock.operator μ hsupport alpha ha (b i)‖ ^ 2) =
+        ∑' i : ι, ∑' n : ℕ, w n i := by
+          apply tsum_congr
+          intro i
+          exact hin i
+    _ = ∑' n : ℕ, ∑' i : ι, w n i := hdouble.tsum_comm
+    _ = ∑' n : ℕ,
+          ‖WeightedMoments.coefficient μ hsupport alpha n‖ ^ 2 := by
+          apply tsum_congr
+          intro n
+          exact hrow n
+    _ = squaredRowEnergy μ
+          (ConcreteFock.operator μ hsupport alpha ha) := by
+          unfold squaredRowEnergy
+          apply tsum_congr
+          intro n
+          rw [coordinate_comp_operator μ hsupport alpha ha n]
+
+#print axioms GegenbauerFock.FockEnergy.concrete_sourceBasis_energy_eq_rows
+
 end GegenbauerFock.FockEnergy
