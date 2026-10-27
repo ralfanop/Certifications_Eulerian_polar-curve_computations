@@ -23,7 +23,7 @@ namespace GegenbauerFock.HilbertSchmidtBasis
 
 open scoped InnerProductSpace
 
-variable {E F : Type*}
+variable {E F : Type}
 variable [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
 variable [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
 
@@ -39,6 +39,7 @@ private theorem swap_real_inner
 
 /-- Equality of both Gram trace norms, even when the two
 CFC-positive diagonal summability witnesses use unrelated bases. -/
+set_option maxHeartbeats 800000 in
 theorem traceNorm_adjoint_comp_eq_comp_adjoint
     (T : E →L[ℂ] F) (hT : IsHS T)
     (hSrc : ProbabilisticTheory.IsTraceClass (T.adjoint.comp T))
@@ -68,7 +69,7 @@ theorem traceNorm_adjoint_comp_eq_comp_adjoint
         have hn' : ‖T (hSrc.choose_spec.choose i)‖ ^ 2 =
             (inner ℂ ((T.adjoint.comp T) (hSrc.choose_spec.choose i))
               (hSrc.choose_spec.choose i)).re := by
-          simpa only [GegenbauerFock.HilbertGram.gram] using hn
+          simpa only [GegenbauerFock.HilbertGram.gram, RCLike.re_eq_complex_re] using hn
         exact (swap_real_inner
           (hSrc.choose_spec.choose i)
           ((T.adjoint.comp T) (hSrc.choose_spec.choose i))).trans hn'.symm
@@ -88,7 +89,7 @@ theorem traceNorm_adjoint_comp_eq_comp_adjoint
             (inner ℂ ((T.comp T.adjoint) (hDst.choose_spec.choose j))
               (hDst.choose_spec.choose j)).re := by
           simpa only [GegenbauerFock.HilbertGram.gram,
-            ContinuousLinearMap.adjoint_adjoint] using hn
+            ContinuousLinearMap.adjoint_adjoint, RCLike.re_eq_complex_re] using hn
         exact hn'.trans (swap_real_inner
           ((T.comp T.adjoint) (hDst.choose_spec.choose j))
           (hDst.choose_spec.choose j))
