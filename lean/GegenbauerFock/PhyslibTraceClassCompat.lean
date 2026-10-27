@@ -42,6 +42,14 @@ noncomputable def traceNorm (T : H →L[ℂ] H) (h : IsTraceClass T) : ℝ :=
     (inner ℂ (h.choose_spec.choose i)
       (CFC.abs T (h.choose_spec.choose i))).re
 
+/-- Conjugate symmetry of complex inner products after taking real parts. -/
+private theorem re_inner_swap (x y : H) :
+    (inner ℂ x y).re = (inner ℂ y x).re := by
+  calc
+    (inner ℂ x y).re = (star (inner ℂ y x)).re := by
+      exact congrArg Complex.re (inner_conj_symm (𝕜 := ℂ) x y).symm
+    _ = (inner ℂ y x).re := by simp
+
 /-- For nonnegative operators the genuine CFC absolute value equals
 the operator, so a summable diagonal proves trace-class membership. -/
 theorem isTraceClass_of_nonneg_of_summable
@@ -101,10 +109,9 @@ theorem gram_isTraceClass
     have hnorm := HilbertGram.gram_norm_sq (C lam alpha hlam ha) (b i)
     have hsym :
         (inner ℂ (gram lam alpha hlam ha (b i)) (b i)).re =
-        (inner ℂ (b i) (gram lam alpha hlam ha (b i))).re := by
-      simpa using congrArg Complex.re
-        (inner_conj_symm (𝕜 := ℂ)
-          (gram lam alpha hlam ha (b i)) (b i)).symm
+        (inner ℂ (b i) (gram lam alpha hlam ha (b i))).re :=
+      ProbabilisticTheory.re_inner_swap
+        (gram lam alpha hlam ha (b i)) (b i)
     exact hnorm.trans hsym
   exact ProbabilisticTheory.isTraceClass_of_nonneg_of_summable
     (gram lam alpha hlam ha) hG b hs
@@ -129,9 +136,8 @@ theorem gram_traceNorm_eq_kummer
           (h.choose_spec.choose i)).re := by
         apply tsum_congr
         intro i
-        simpa using congrArg Complex.re
-          (inner_conj_symm (𝕜 := ℂ)
-            (G (h.choose_spec.choose i)) (h.choose_spec.choose i))
+        exact ProbabilisticTheory.re_inner_swap
+          (h.choose_spec.choose i) (G (h.choose_spec.choose i))
     _ = KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) :=
       gram_sourceBasis_trace_eq_kummer lam alpha hlam ha h.choose_spec.choose
 
