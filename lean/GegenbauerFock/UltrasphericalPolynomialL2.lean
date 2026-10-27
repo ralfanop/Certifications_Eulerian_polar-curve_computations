@@ -81,7 +81,7 @@ theorem sourcePolynomial_ae_eval
         ((P.coeff n • sourceMonomial lam hlam n :
           Lp ℂ 2 (Ultraspherical.measure lam)) : ℝ → ℂ) u =
           P.coeff n * (u : ℂ) ^ n :=
-    (eventually_all_finset P.support).mpr (fun n _ => hterm n)
+    (Filter.eventually_all_finset P.support).mpr (fun n _ => hterm n)
   filter_upwards [hsum, hall] with u hsu hu
   change (sourcePolynomial lam hlam P : ℝ → ℂ) u =
     P.eval (u : ℂ)
