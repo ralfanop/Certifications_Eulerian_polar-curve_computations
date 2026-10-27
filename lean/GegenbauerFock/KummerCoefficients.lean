@@ -7,7 +7,7 @@ identity with Mathlib's regularized complex hypergeometric function. -/
 namespace GegenbauerFock.KummerCoefficients
 
 /-- (1/2)_n/(λ+1)_n, in the standard rising-factorial recurrence. -/
-def ratio (lam : ℝ) : ℕ → ℝ
+noncomputable def ratio (lam : ℝ) : ℕ → ℝ
   | 0 => 1
   | n + 1 => ratio lam n * ((n : ℝ) + 1 / 2) / ((n : ℝ) + lam + 1)
 
