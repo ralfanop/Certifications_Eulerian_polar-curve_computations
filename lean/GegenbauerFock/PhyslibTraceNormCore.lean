@@ -38,6 +38,21 @@ theorem traceNorm_zero :
 
 namespace TraceClass
 
+/-- Canonical zero element of the genuine CFC trace-class subtype. -/
+noncomputable instance : Zero (TraceClass H) where
+  zero := ⟨0, ProbabilisticTheory.isTraceClass_zero⟩
+
+@[simp] theorem zero_operator :
+    ((0 : TraceClass H).1) = (0 : H →L[ℂ] H) := rfl
+
+/-- The subtype's actual trace norm vanishes on its zero operator. -/
+theorem traceNorm_zero :
+    traceNorm H (0 : TraceClass H) = 0 :=
+  ProbabilisticTheory.traceNorm_zero (H := H)
+
+#print axioms ProbabilisticTheory.TraceClass.zero_operator
+#print axioms ProbabilisticTheory.TraceClass.traceNorm_zero
+
 /-- The operator-subtype trace-norm function is nonnegative on
 every actual trace-class element. -/
 theorem traceNorm_nonneg (T : TraceClass H) :
