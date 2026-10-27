@@ -2,6 +2,7 @@ import GegenbauerFock.RowEnergyIntegral
 import GegenbauerFock.FockExponentialSeries
 import GegenbauerFock.UltrasphericalMomentBounds
 import GegenbauerFock.KummerPochhammer
+import GegenbauerFock.UltrasphericalBetaMoments
 
 /-!
 # V007: actual ultraspherical even-moment generating function
@@ -60,5 +61,32 @@ theorem rowEnergy_eq_kummerSeries_of_evenMoment_formula
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.rowEnergy_eq_evenMoment_series
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.rowEnergy_eq_kummerSeries_of_evenMoment_formula
+
+/-- Unconditional exact Kummer evaluation of the squared canonical
+Hilbert--Schmidt coordinate-row energy for the concrete infinite
+Gegenbauer--Fock Hilbert operator, for every λ>0 and α>0.
+
+Unlike the preceding conditional bridge, the beta moment quotient
+is now proved from the normalized symmetric beta measure. -/
+theorem rowEnergy_eq_kummerSeries
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    rowEnergy lam alpha hlam ha =
+      KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) := by
+  exact rowEnergy_eq_kummerSeries_of_evenMoment_formula
+    lam alpha hlam ha (Ultraspherical.evenMoment_eq_ratio lam hlam)
+
+/-- A genuine ultraspherical exponential integral is exactly the
+unregularized Kummer power series. This is an analytic identity,
+not an equality with an unverified regularized ₁F₁ convention. -/
+theorem exp_integral_eq_kummerSeries
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    (∫ u : ℝ, Real.exp (u ^ 2 / (4 * alpha))
+      ∂(Ultraspherical.measure lam)) =
+      KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) := by
+  rw [← rowEnergy_eq_exp_integral lam alpha hlam ha]
+  exact rowEnergy_eq_kummerSeries lam alpha hlam ha
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.rowEnergy_eq_kummerSeries
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.exp_integral_eq_kummerSeries
 
 end GegenbauerFock.GeneralUltrasphericalFock
