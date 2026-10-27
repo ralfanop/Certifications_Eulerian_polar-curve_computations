@@ -97,8 +97,8 @@ theorem rowEnergy_eq_pochhammerSeries
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
     rowEnergy lam alpha hlam ha =
       ∑' n : ℕ,
-        ((Polynomial.ascPochhammer ℝ n).eval (1 / 2) /
-          (Polynomial.ascPochhammer ℝ n).eval (lam + 1)) *
+        ((ascPochhammer ℝ n).eval (1 / 2) /
+          (ascPochhammer ℝ n).eval (lam + 1)) *
           ((1 / (4 * alpha)) ^ n / (Nat.factorial n : ℝ)) := by
   rw [rowEnergy_eq_kummerSeries lam alpha hlam ha,
     KummerCoefficients.kummerSeries_eq_pochhammer
