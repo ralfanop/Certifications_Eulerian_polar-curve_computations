@@ -38,7 +38,8 @@ theorem isTraceClass_add_of_nonneg
     (hA : 0 ≤ A) (hB : 0 ≤ B)
     (hAc : IsTraceClass A) (hBc : IsTraceClass B) :
     IsTraceClass (A + B) := by
-  obtain ⟨w, b, _⟩ := hAc
+  let w : Set H := hAc.choose
+  let b : HilbertBasis w ℂ H := hAc.choose_spec.choose
   have hsA : Summable (fun i : w =>
       (inner ℂ (b i) (A (b i))).re) :=
     positive_diagonal_summable_any_basis A hA hAc b
