@@ -28,8 +28,7 @@ theorem oddBetaIntegrand_reflection (lam : ℝ) (n : ℕ) (x : ℝ) :
   have h : betaToInterval (1 - x) = -betaToInterval x := by
     unfold betaToInterval
     ring
-  rw [h, neg_pow]
-  simp [Even, Nat.even_add_one, Nat.even_mul]
+  rw [h, Odd.neg_pow (⟨n, rfl⟩ : Odd (2 * n + 1))]
   ring
 
 /-- The Lebesgue measure on ℝ is invariant under x ↦ 1-x. -/
@@ -40,15 +39,12 @@ theorem volume_map_reflection :
       (volume : Measure ℝ) := Measure.map_neg_eq_self _
   have hshift : Measure.map (fun x : ℝ => 1 + x) (volume : Measure ℝ) =
       (volume : Measure ℝ) :=
-    Measure.IsAddLeftInvariant.map_add_left_eq_self _ (1 : ℝ)
+    Measure.IsAddLeftInvariant.map_add_left_eq_self (1 : ℝ)
   calc
     Measure.map (fun x : ℝ => 1 - x) (volume : Measure ℝ) =
         Measure.map (fun x : ℝ => 1 + x)
           (Measure.map (fun x : ℝ => -x) (volume : Measure ℝ)) := by
       rw [Measure.map_map (by fun_prop) (by fun_prop)]
-      congr 1
-      funext x
-      ring
     _ = Measure.map (fun x : ℝ => 1 + x) (volume : Measure ℝ) := by rw [hneg]
     _ = volume := hshift
 
