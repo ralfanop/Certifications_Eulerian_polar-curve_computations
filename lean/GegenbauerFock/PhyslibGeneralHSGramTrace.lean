@@ -21,6 +21,8 @@ noncomputable section
 
 namespace ProbabilisticTheory
 
+open GegenbauerFock
+
 variable {E F : Type*}
 variable [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
 variable [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
@@ -50,7 +52,7 @@ theorem isTraceClass_adjoint_comp_self_of_isHS
     intro i
     have hn : ‖T (b i)‖ ^ 2 =
         (inner ℂ ((T.adjoint.comp T) (b i)) (b i)).re := by
-      simpa only [GegenbauerFock.HilbertGram.gram] using
+      simpa only [GegenbauerFock.HilbertGram.gram, RCLike.re_eq_complex_re] using
         (GegenbauerFock.HilbertGram.gram_norm_sq T (b i))
     exact hn.trans
       (gramBridge_re_inner_swap ((T.adjoint.comp T) (b i)) (b i))
@@ -76,7 +78,7 @@ theorem traceNorm_adjoint_comp_self_eq_witness_energy
   have hn' : ‖T (h.choose_spec.choose i)‖ ^ 2 =
       (inner ℂ ((T.adjoint.comp T) (h.choose_spec.choose i))
         (h.choose_spec.choose i)).re := by
-    simpa only [GegenbauerFock.HilbertGram.gram] using hn
+    simpa only [GegenbauerFock.HilbertGram.gram, RCLike.re_eq_complex_re] using hn
   exact (gramBridge_re_inner_swap (h.choose_spec.choose i)
     ((T.adjoint.comp T) (h.choose_spec.choose i))).trans hn'.symm
 
