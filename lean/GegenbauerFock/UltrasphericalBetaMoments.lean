@@ -23,6 +23,38 @@ theorem evenMoment_eq_beta_integral (lam : ℝ) (n : ℕ) :
   rw [integral_map_of_stronglyMeasurable (by fun_prop) (by fun_prop)]
   rfl
 
+/-- Positivity of the genuine symmetric Beta probability density. -/
+theorem symmetricBetaPDFReal_nonneg (lam : ℝ) (hlam : 0 < lam)
+    (x : ℝ) :
+    0 ≤ ProbabilityTheory.betaPDFReal (shape lam) (shape lam) x := by
+  by_cases hx : 0 < x ∧ x < 1
+  · exact (ProbabilityTheory.betaPDFReal_pos hx.1 hx.2
+      (shape_pos lam hlam) (shape_pos lam hlam)).le
+  · simp [ProbabilityTheory.betaPDFReal, hx]
+
+/-- All even ultraspherical moments are literal weighted Lebesgue
+integrals of the normalized symmetric Beta density on ℝ. -/
+theorem evenMoment_eq_betaPDFReal_integral
+    (lam : ℝ) (hlam : 0 < lam) (n : ℕ) :
+    evenMoment lam n =
+      ∫ x : ℝ,
+        ProbabilityTheory.betaPDFReal (shape lam) (shape lam) x *
+          (betaToInterval x) ^ (2 * n) ∂volume := by
+  rw [evenMoment_eq_beta_integral]
+  unfold ProbabilityTheory.betaMeasure
+  rw [integral_withDensity_eq_integral_toReal_smul
+    (Measurable.ennreal_ofReal
+      (ProbabilityTheory.measurable_betaPDFReal (shape lam) (shape lam)))
+    (ae_of_all _ (fun _ => ENNReal.ofReal_lt_top))]
+  apply integral_congr_ae
+  filter_upwards [] with x
+  simp only [ProbabilityTheory.betaPDF,
+    ENNReal.toReal_ofReal (symmetricBetaPDFReal_nonneg lam hlam x),
+    smul_eq_mul]
+
+#print axioms GegenbauerFock.Ultraspherical.symmetricBetaPDFReal_nonneg
+#print axioms GegenbauerFock.Ultraspherical.evenMoment_eq_betaPDFReal_integral
+
 #print axioms GegenbauerFock.Ultraspherical.evenMoment_eq_beta_integral
 
 end GegenbauerFock.Ultraspherical
