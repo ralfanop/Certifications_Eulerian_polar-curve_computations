@@ -114,6 +114,18 @@ jobs:
           set -euo pipefail
           lake env lean -M16768 --version
 
+      # Isolate constructive rank-one S1 results from unrelated new Banach proofs.
+      - name: Certify basis-independent rank-one and finite-rank positive traces
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.PhyslibRankOneTrace GegenbauerFock.PhyslibFiniteRankPositiveTrace 2>&1 | tee /tmp/gf-physlib-rankone.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-physlib-rankone.log; then
+            echo '::error::Nonstandard axiom in rank-one or finite-rank S1 trace.'
+            exit 1
+          fi
+          echo 'Rank-one and finite-rank S1 trace: no forbidden axioms.'
+
       # Independent S1 foundation audit before newer, unrelated density proofs.
       # Keep the pinned Lean and Mathlib; this step is intentionally isolated.
       - name: Certify co-importable Physlib S1 scalar and trace-norm foundations
