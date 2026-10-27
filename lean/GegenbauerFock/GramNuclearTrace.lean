@@ -216,3 +216,113 @@ theorem C_HSEnergy_GramTrace_NuclearMass_eq_pochhammer
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_HSEnergy_GramTrace_NuclearMass_eq_pochhammer
 
 end GegenbauerFock.GeneralUltrasphericalFock
+
+
+/-!
+## Basis-defined Hilbert--Schmidt class and left operator ideal
+
+Mathlib at the pinned version has the Hilbert-space, Riesz, Parseval and
+summability APIs needed to construct a basis-formulated Schatten-S₂
+membership predicate directly. This predicate demands genuine summability
+for *every* complete source Hilbert basis; it is not merely a raw `tsum`.
+Identification with a bundled Schatten ideal type/norm is a distinct task.
+-/
+
+namespace GegenbauerFock.HilbertSchmidtBasis
+
+variable {E F G : Type*}
+variable [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
+variable [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
+variable [NormedAddCommGroup G] [InnerProductSpace ℂ G] [CompleteSpace G]
+
+/-- Abstract basis-independent Hilbert--Schmidt summability criterion
+for a bounded operator between complex Hilbert spaces. -/
+def IsHS (T : E →L[ℂ] F) : Prop :=
+  ∀ {ι : Type*} (b : HilbertBasis ι ℂ E),
+    Summable (fun i : ι => ‖T (b i)‖ ^ 2)
+
+/-- The usual square-root-of-energy expression for a specified complete
+source basis, for an operator whose energy series is summable. -/
+noncomputable def basisNorm (T : E →L[ℂ] F)
+    {ι : Type*} (b : HilbertBasis ι ℂ E) : ℝ :=
+  Real.sqrt (∑' i : ι, ‖T (b i)‖ ^ 2)
+
+/-- General target-side ideal theorem: Hilbert--Schmidt operators remain
+Hilbert--Schmidt after composition on the left by any bounded operator,
+even if the output Hilbert space changes. -/
+theorem isHS_comp_left (T : E →L[ℂ] F)
+    (hT : IsHS T) (S : F →L[ℂ] G) :
+    IsHS (S.comp T) := by
+  intro ι b
+  apply Summable.of_nonneg_of_le
+  · intro i
+    exact sq_nonneg _
+  · intro i
+    calc
+      ‖(S.comp T) (b i)‖ ^ 2 = ‖S (T (b i))‖ ^ 2 := rfl
+      _ ≤ (‖S‖ * ‖T (b i)‖) ^ 2 := by
+        gcongr
+        exact ContinuousLinearMap.le_opNorm S (T (b i))
+      _ = ‖S‖ ^ 2 * ‖T (b i)‖ ^ 2 := by ring
+  · exact (hT b).mul_left (‖S‖ ^ 2)
+
+#print axioms GegenbauerFock.HilbertSchmidtBasis.isHS_comp_left
+
+end GegenbauerFock.HilbertSchmidtBasis
+
+namespace GegenbauerFock.GeneralUltrasphericalFock
+
+/-- The concrete normalized Beta-pushforward ultraspherical--Fock
+operator satisfies the genuinely summable abstract Hilbert--Schmidt
+basis criterion for ALL source Hilbert bases. -/
+theorem C_isHilbertSchmidt
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    HilbertSchmidtBasis.IsHS (C lam alpha hlam ha) := by
+  intro ι b
+  letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
+    Ultraspherical.probability lam hlam
+  change Summable (fun i : ι =>
+    ‖ConcreteFock.operator (Ultraspherical.measure lam)
+      (ae_abs_le_one lam) alpha ha (b i)‖ ^ 2)
+  exact FockEnergy.concrete_sourceBasis_energy_summable
+    (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha ha b
+
+/-- The bona fide basis-defined Hilbert--Schmidt norm of the actual
+Gegenbauer--Fock operator is exactly sqrt of the verified Kummer value,
+for any complete source Hilbert basis. -/
+theorem C_basisHSNorm_eq_sqrt_kummer
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    {ι : Type*} (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
+    HilbertSchmidtBasis.basisNorm (C lam alpha hlam ha) b =
+      Real.sqrt (KummerCoefficients.kummerSeries lam (1 / (4 * alpha))) := by
+  unfold HilbertSchmidtBasis.basisNorm
+  rw [C_sourceBasis_HSEnergy_eq_kummer lam alpha hlam ha b]
+
+/-- Explicit independence of arbitrary choices of complete Hilbert bases
+for the sqrt-Kummer Hilbert--Schmidt energy norm. -/
+theorem C_basisHSNorm_basis_independent
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    {ι κ : Type*}
+    (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam)))
+    (c : HilbertBasis κ ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
+    HilbertSchmidtBasis.basisNorm (C lam alpha hlam ha) b =
+      HilbertSchmidtBasis.basisNorm (C lam alpha hlam ha) c := by
+  rw [C_basisHSNorm_eq_sqrt_kummer lam alpha hlam ha b,
+    C_basisHSNorm_eq_sqrt_kummer lam alpha hlam ha c]
+
+/-- Every bounded postprocessing of the actual Gegenbauer--Fock
+coefficient map remains Hilbert--Schmidt, a genuine left-ideal theorem. -/
+theorem C_comp_left_isHilbertSchmidt
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (S : InfiniteAnalysis.FockCoefficients →L[ℂ]
+      InfiniteAnalysis.FockCoefficients) :
+    HilbertSchmidtBasis.IsHS (S.comp (C lam alpha hlam ha)) :=
+  HilbertSchmidtBasis.isHS_comp_left
+    (C lam alpha hlam ha) (C_isHilbertSchmidt lam alpha hlam ha) S
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_isHilbertSchmidt
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_basisHSNorm_eq_sqrt_kummer
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_basisHSNorm_basis_independent
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_comp_left_isHilbertSchmidt
+
+end GegenbauerFock.GeneralUltrasphericalFock
