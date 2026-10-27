@@ -109,10 +109,8 @@ theorem summableRows_twoSided_basis_energy_le
       ‖A‖ ^ 2 * ‖B‖ ^ 2 *
         (∑' n : ℕ, ‖SummableRowsCompact.row T n‖ ^ 2) := by
   have hTB : Summable (fun i : ι => ‖(T.comp B) (b i)‖ ^ 2) :=
-    (summableRows_right_IsHS μ T hrows B) b
-  have hATB : Summable (fun i : ι =>
-      ‖(A.comp (T.comp B)) (b i)‖ ^ 2) :=
-    (summableRows_twoSided_IsHS μ T hrows B A) b
+    (summableRows_iff_sourceBasis_energy (T.comp B)
+      (summableRows_comp_right μ T hrows B) b).1
   have hpoint (i : ι) :
       ‖(A.comp (T.comp B)) (b i)‖ ^ 2 ≤
         ‖A‖ ^ 2 * ‖(T.comp B) (b i)‖ ^ 2 := by
@@ -123,6 +121,14 @@ theorem summableRows_twoSided_basis_energy_le
             gcongr
             exact ContinuousLinearMap.le_opNorm A ((T.comp B) (b i))
       _ = ‖A‖ ^ 2 * ‖(T.comp B) (b i)‖ ^ 2 := by ring
+  have hATB : Summable (fun i : ι =>
+      ‖(A.comp (T.comp B)) (b i)‖ ^ 2) := by
+    apply Summable.of_nonneg_of_le
+    · intro i
+      exact sq_nonneg _
+    · intro i
+      exact hpoint i
+    · exact hTB.mul_left (‖A‖ ^ 2)
   calc
     (∑' i : ι, ‖(A.comp (T.comp B)) (b i)‖ ^ 2) ≤
         ‖A‖ ^ 2 * ∑' i : ι, ‖(T.comp B) (b i)‖ ^ 2 := by
