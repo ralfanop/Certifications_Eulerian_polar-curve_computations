@@ -115,7 +115,7 @@ norm remains a separate formal obligation. -/
 theorem concreteFock_squaredRowEnergy_eq_kummerSeries
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
     (letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
-        Ultraspherical.probability lam hlam
+        Ultraspherical.probability lam hlam;
       FockEnergy.squaredRowEnergy (Ultraspherical.measure lam)
         (C lam alpha hlam ha)) =
       KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) := by
