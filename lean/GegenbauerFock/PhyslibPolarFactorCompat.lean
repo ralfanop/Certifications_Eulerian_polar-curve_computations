@@ -233,6 +233,11 @@ lemma star_polarFactor_mul_self (T : H →L[ℂ] H) : star (polarFactor T) * T =
   exact Submodule.starProjection_eq_self_iff.mpr
     (Submodule.le_topologicalClosure _ (LinearMap.mem_range_self _ x))
 
+#print axioms ProbabilisticTheory.Polar.polarFactor_mul_absOperator
+#print axioms ProbabilisticTheory.Polar.star_polarFactor_mul_self
+#print axioms ProbabilisticTheory.Polar.polarFactor_opNorm_le
+
+
 end Polar
 
 end ProbabilisticTheory
