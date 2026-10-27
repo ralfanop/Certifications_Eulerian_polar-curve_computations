@@ -70,7 +70,32 @@ theorem evenMoment_zero (lam : ℝ) (hlam : 0 < lam) :
     evenMoment lam 0 = 1 := by
   simpa [evenMoment] using integral_one lam hlam
 
+/-- For every positive ultraspherical parameter, consecutive even moments
+decrease. This uses the actual support of the Beta-pushforward law and
+the genuine Bochner integral, not the still-open closed Pochhammer formula. -/
+theorem evenMoment_succ_le (lam : ℝ) (hlam : 0 < lam) (n : ℕ) :
+    evenMoment lam (n + 1) ≤ evenMoment lam n := by
+  unfold evenMoment
+  apply integral_mono_ae
+    (evenMoment_integrable lam hlam (n + 1))
+    (evenMoment_integrable lam hlam n)
+  filter_upwards [ae_mem_unit_interval lam] with u hu
+  have h1 : 0 ≤ 1 - u := sub_nonneg.mpr hu.2
+  have h2 : 0 ≤ 1 + u := by linarith [hu.1]
+  have hu2 : u ^ 2 ≤ (1 : ℝ) := by
+    nlinarith [mul_nonneg h1 h2]
+  have hnonneg : 0 ≤ u ^ (2 * n) := by
+    rw [show 2 * n = n * 2 by omega, pow_mul]
+    positivity
+  calc
+    u ^ (2 * (n + 1)) = u ^ (2 * n) * u ^ 2 := by
+      rw [mul_add, mul_one, pow_add]
+    _ ≤ u ^ (2 * n) * 1 :=
+      mul_le_mul_of_nonneg_left hu2 hnonneg
+    _ = u ^ (2 * n) := by ring
+
 #print axioms GegenbauerFock.Ultraspherical.evenMoment_integrable
+#print axioms GegenbauerFock.Ultraspherical.evenMoment_succ_le
 #print axioms GegenbauerFock.Ultraspherical.evenMoment_bounds
 #print axioms GegenbauerFock.Ultraspherical.evenMoment_zero
 
