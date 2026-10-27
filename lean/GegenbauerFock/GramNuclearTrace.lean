@@ -238,7 +238,7 @@ variable [NormedAddCommGroup G] [InnerProductSpace ℂ G] [CompleteSpace G]
 /-- Abstract basis-independent Hilbert--Schmidt summability criterion
 for a bounded operator between complex Hilbert spaces. -/
 def IsHS (T : E →L[ℂ] F) : Prop :=
-  ∀ {ι : Type*} (b : HilbertBasis ι ℂ E),
+  ∀ {ι : Type} (b : HilbertBasis ι ℂ E),
     Summable (fun i : ι => ‖T (b i)‖ ^ 2)
 
 /-- The usual square-root-of-energy expression for a specified complete
