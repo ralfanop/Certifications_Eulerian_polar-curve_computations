@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/PhyslibHilbertSchmidtAdditive.lean'
+      - 'lean/GegenbauerFock/PhyslibHilbertSchmidtTwoSidedIdeal.lean'
       - '.github/workflows/gegenbauer-fock-physlib-hs-algebra.yml'
   workflow_dispatch:
 
@@ -104,7 +105,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.PhyslibHilbertSchmidtAdditive 2>&1 | tee /tmp/gf-physlib-s2-additive.log
+          lake build GegenbauerFock.PhyslibHilbertSchmidtAdditive GegenbauerFock.PhyslibHilbertSchmidtTwoSidedIdeal 2>&1 | tee /tmp/gf-physlib-s2-additive.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-physlib-s2-additive.log; then
             echo "::error::Nonstandard axiom in S2 additive algebra."
             exit 1
