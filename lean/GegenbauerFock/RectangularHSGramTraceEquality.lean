@@ -89,9 +89,9 @@ theorem traceNorm_adjoint_comp_eq_comp_adjoint
               (hDst.choose_spec.choose j)).re := by
           simpa only [GegenbauerFock.HilbertGram.gram,
             ContinuousLinearMap.adjoint_adjoint] using hn
-        exact (swap_real_inner
+        exact hn'.trans (swap_real_inner
           ((T.comp T.adjoint) (hDst.choose_spec.choose j))
-          (hDst.choose_spec.choose j)).trans hn'.symm
+          (hDst.choose_spec.choose j))
 
 #print axioms GegenbauerFock.HilbertSchmidtBasis.traceNorm_adjoint_comp_eq_comp_adjoint
 
