@@ -1,4 +1,4 @@
-import GegenbauerFock.PhyslibTraceClassSubtype
+import GegenbauerFock.PhyslibTraceClassScalar
 
 /-!
 # V007: foundational trace-norm axioms toward the full Physlib Banach type
@@ -21,21 +21,9 @@ namespace ProbabilisticTheory
 variable {H : Type*}
 variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
-/-- The zero operator is trace-class in any complete complex Hilbert
-space, with no finite-dimensionality assumption. -/
-theorem isTraceClass_zero : IsTraceClass (0 : H →L[ℂ] H) := by
-  obtain ⟨w, b, _⟩ := exists_hilbertBasis ℂ H
-  exact ⟨w, b, by simp [CFC.abs_zero]⟩
-
-/-- The actual CFC trace norm is nonnegative for EVERY trace-class
-endomorphism, not merely for the positive ultraspherical Gram. -/
-theorem traceNorm_nonneg (T : H →L[ℂ] H) (hT : IsTraceClass T) :
-    0 ≤ traceNorm T hT := by
-  unfold traceNorm
-  apply tsum_nonneg
-  intro i
-  exact ((ContinuousLinearMap.nonneg_iff_isPositive).1
-    (CFC.abs_nonneg T)).re_inner_nonneg_right _
+/- `isTraceClass_zero` and `traceNorm_nonneg` are imported from
+   PhyslibTraceClassScalar: defining them a second time would make the
+   two foundation modules impossible to import together. -/
 
 /-- The trace norm of the zero bounded operator is exactly zero. -/
 theorem traceNorm_zero :
@@ -55,6 +43,14 @@ every actual trace-class element. -/
 theorem traceNorm_nonneg (T : TraceClass H) :
     0 ≤ traceNorm H T :=
   ProbabilisticTheory.traceNorm_nonneg T.1 T.2
+
+/-- The witness-carrying zero operator has exactly zero trace norm. -/
+theorem traceNorm_zero :
+    traceNorm H (ofOperator H (0 : H →L[ℂ] H)
+      ProbabilisticTheory.isTraceClass_zero) = 0 := by
+  exact ProbabilisticTheory.traceNorm_zero
+
+#print axioms ProbabilisticTheory.TraceClass.traceNorm_zero
 
 #print axioms ProbabilisticTheory.TraceClass.traceNorm_nonneg
 
