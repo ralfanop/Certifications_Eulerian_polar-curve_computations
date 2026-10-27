@@ -31,6 +31,26 @@ def HasPositiveNuclearRows (T : E →L[ℂ] E) : Prop :=
     Summable (fun n => ‖rows n‖ ^ 2) ∧
       T = ∑' n, (rows n).adjoint.comp (rows n)
 
+/-- Each positive rank-one Hilbert operator has exactly the squared
+operator norm of its defining linear functional. -/
+theorem positiveRankOne_norm_eq_row_sq (r : E →L[ℂ] ℂ) :
+    ‖r.adjoint.comp r‖ = ‖r‖ ^ 2 := by
+  rw [ContinuousLinearMap.norm_adjoint_comp_self]
+  ring
+
+/-- For any sequence of Hilbert-space rows with summable squared norms,
+the positive rank-one operator series converges ABSOLUTELY in the
+Banach-space operator norm; no assumed operator-series convergence. -/
+theorem positiveRankOne_summable
+    (rows : ℕ → (E →L[ℂ] ℂ))
+    (hs : Summable (fun n : ℕ => ‖rows n‖ ^ 2)) :
+    Summable (fun n : ℕ => (rows n).adjoint.comp (rows n)) := by
+  apply Summable.of_norm
+  simpa only [positiveRankOne_norm_eq_row_sq] using hs
+
+#print axioms GegenbauerFock.PositiveNuclearIdeal.positiveRankOne_norm_eq_row_sq
+#print axioms GegenbauerFock.PositiveNuclearIdeal.positiveRankOne_summable
+
 #print axioms GegenbauerFock.PositiveNuclearIdeal.HasPositiveNuclearRows
 
 end GegenbauerFock.PositiveNuclearIdeal
