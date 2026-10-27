@@ -45,12 +45,12 @@ noncomputable def traceNorm (T : TraceClass H) : ℝ :=
 @[simp]
 theorem ofOperator_operator
     (T : H →L[ℂ] H) (h : IsTraceClass T) :
-    operator (ofOperator H T h) = T := rfl
+    operator H (ofOperator H T h) = T := rfl
 
 @[simp]
 theorem traceNorm_ofOperator
     (T : H →L[ℂ] H) (h : IsTraceClass T) :
-    traceNorm (ofOperator H T h) =
+    traceNorm H (ofOperator H T h) =
       ProbabilisticTheory.traceNorm T h := rfl
 
 #print axioms ProbabilisticTheory.TraceClass.traceNorm_ofOperator
@@ -59,6 +59,8 @@ end TraceClass
 end ProbabilisticTheory
 
 namespace GegenbauerFock.GeneralUltrasphericalFock
+
+open MeasureTheory
 
 /-- The true nontruncated ultraspherical Gram, as an element of the
 Physlib-compatible trace-class type, not merely a Prop. -/
