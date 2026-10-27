@@ -71,7 +71,7 @@ theorem C_normalized_positive_eigenspace_dist
     _ = ‖f - g‖ :=
       C_normalized_positive_eigenvector_norm
         lam alpha hlam ha mu hmu (f - g) hsub
-    _ = dist f g := (dist_eq_norm).symm
+    _ = dist f g := by rw [dist_eq_norm]
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_positive_gram_eigenvector_norm
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_normalized_positive_eigenvector_norm
