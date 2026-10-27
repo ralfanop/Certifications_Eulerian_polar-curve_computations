@@ -139,6 +139,24 @@ theorem gram_conjugated_isTraceClass
   rw [← gramAfterRight_eq_conjugated lam alpha hlam ha B]
   exact gramAfterRight_isTraceClass lam alpha hlam ha B
 
+
+/-- The ideal norm inequality stated entirely in actual
+source-compatible Physlib TRACE NORMS, not the Kummer proxy.
+For any bounded B, ||B†(C†C)B||₁ ≤ ||B||² ||C†C||₁. -/
+theorem gramAfterRight_traceNorm_le_gramTraceNorm
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (B : Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+      Lp ℂ 2 (Ultraspherical.measure lam)) :
+    ProbabilisticTheory.traceNorm (gramAfterRight lam alpha hlam ha B)
+      (gramAfterRight_isTraceClass lam alpha hlam ha B) ≤
+      ‖B‖ ^ 2 *
+        ProbabilisticTheory.traceNorm (gram lam alpha hlam ha)
+          (gram_isTraceClass lam alpha hlam ha) := by
+  rw [gram_traceNorm_eq_kummer lam alpha hlam ha]
+  exact gramAfterRight_traceNorm_le_kummer lam alpha hlam ha B
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gramAfterRight_traceNorm_le_gramTraceNorm
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramAfterRight_eq_conjugated
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramAfterRight_nonneg
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramAfterRight_isTraceClass
