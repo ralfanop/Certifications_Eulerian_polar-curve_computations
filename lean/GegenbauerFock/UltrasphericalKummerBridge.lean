@@ -2,6 +2,7 @@ import GegenbauerFock.RowEnergyExpIntegral
 import GegenbauerFock.FockExponentialSeries
 import GegenbauerFock.UltrasphericalMomentBounds
 import GegenbauerFock.KummerPochhammer
+import GegenbauerFock.KummerPositiveBounds
 import GegenbauerFock.UltrasphericalBetaMoments
 
 /-!
