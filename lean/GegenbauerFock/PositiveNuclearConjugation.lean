@@ -116,7 +116,13 @@ theorem C_momentRows_comp_right_mass_le_kummer
           exact (gramNuclearTerm_norm_eq_row_sq lam alpha hlam ha n).symm
       _ = KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) :=
           gramNuclearMass_eq_kummerSeries lam alpha hlam ha
-  exact hm.trans_eq (congrArg (fun t : ℝ => ‖B‖ ^ 2 * t) hmass)
+  calc
+    (∑' n : ℕ,
+      ‖(SummableRowsCompact.row (C lam alpha hlam ha) n).comp B‖ ^ 2) ≤
+        ‖B‖ ^ 2 * (∑' n : ℕ,
+          ‖SummableRowsCompact.row (C lam alpha hlam ha) n‖ ^ 2) := hm
+    _ = ‖B‖ ^ 2 *
+        KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) := by rw [hmass]
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_momentRows_comp_right_summable
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_momentRows_comp_right_mass_le_kummer
