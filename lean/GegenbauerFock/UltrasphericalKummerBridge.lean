@@ -57,7 +57,6 @@ theorem rowEnergy_eq_kummerSeries_of_evenMoment_formula
   apply tsum_congr
   intro n
   rw [hm n]
-  ring
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.rowEnergy_eq_evenMoment_series
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.rowEnergy_eq_kummerSeries_of_evenMoment_formula
