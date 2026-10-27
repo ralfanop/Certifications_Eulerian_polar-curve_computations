@@ -48,22 +48,22 @@ theorem complexWeierstrass_unit_interval
   intro u hu
   have hmap (q : Polynomial ℝ) :
       (q.map (algebraMap ℝ ℂ)).eval (u : ℂ) =
-        (q.eval u : ℂ) := by
+        ((Polynomial.eval u q : ℝ) : ℂ) := by
     rw [Polynomial.eval_map, Polynomial.eval₂_hom]
   have hP :
       P.eval (u : ℂ) =
-        (pRe.eval u : ℂ) + Complex.I * (pIm.eval u : ℂ) := by
+        ((Polynomial.eval u pRe : ℝ) : ℂ) + Complex.I * ((Polynomial.eval u pIm : ℝ) : ℂ) := by
     dsimp [P]
     simp only [Polynomial.eval_add, Polynomial.eval_mul, Polynomial.eval_C,
       hmap]
   have hre :
       (f u - P.eval (u : ℂ)).re =
-        (f u).re - pRe.eval u := by
+        (f u).re - Polynomial.eval u pRe := by
     rw [hP]
     simp
   have him :
       (f u - P.eval (u : ℂ)).im =
-        (f u).im - pIm.eval u := by
+        (f u).im - Polynomial.eval u pIm := by
     rw [hP]
     simp
   have hreal : |(f u - P.eval (u : ℂ)).re| < eps / 4 := by
