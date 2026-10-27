@@ -23,7 +23,7 @@ namespace ProbabilisticTheory
 
 open GegenbauerFock
 
-variable {E F : Type*}
+variable {E F : Type}
 variable [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
 variable [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
 
