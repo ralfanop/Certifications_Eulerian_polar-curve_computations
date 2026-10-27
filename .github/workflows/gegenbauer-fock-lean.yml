@@ -107,7 +107,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.PhyslibTraceNormCore 2>&1 | tee /tmp/gf-physlib-s1-foundations.log
+          lake build GegenbauerFock.PhyslibTraceNormCore GegenbauerFock.PhyslibTraceClassScalar GegenbauerFock.PhyslibTraceClassPointed 2>&1 | tee /tmp/gf-physlib-s1-foundations.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-physlib-s1-foundations.log; then
             echo '::error::Nonstandard axiom in Physlib S1 foundations.'
             exit 1
