@@ -176,6 +176,135 @@ private theorem momentRecurrencePrimitive_hasDerivAt
   unfold betaToInterval shape
   ring
 
+/-- The beta-moment primitive is continuous on the closed unit interval;
+its fractional-power factors vanish at the appropriate endpoints. -/
+private theorem momentRecurrencePrimitive_continuousOn
+    (lam : ℝ) (hlam : 0 < lam) (n : ℕ) :
+    ContinuousOn (momentRecurrencePrimitive lam n) (Set.Icc (0 : ℝ) 1) := by
+  have ha : 0 ≤ shape lam := (shape_pos lam hlam).le
+  have hp : Continuous (fun x : ℝ => betaToInterval x ^ (2 * n + 1)) := by
+    unfold betaToInterval
+    fun_prop
+  have hx : Continuous (fun x : ℝ => x ^ (shape lam)) :=
+    continuous_id.rpow_const (fun _ => Or.inr ha)
+  have hy : Continuous (fun x : ℝ => (1 - x) ^ (shape lam)) :=
+    (continuous_const.sub continuous_id).rpow_const (fun _ => Or.inr ha)
+  exact ((hp.mul hx).mul hy).continuousOn
+
+private theorem momentRecurrencePrimitive_zero
+    (lam : ℝ) (hlam : 0 < lam) (n : ℕ) :
+    momentRecurrencePrimitive lam n 0 = 0 := by
+  have ha : shape lam ≠ 0 := (shape_pos lam hlam).ne'
+  simp [momentRecurrencePrimitive, Real.zero_rpow ha]
+
+private theorem momentRecurrencePrimitive_one
+    (lam : ℝ) (hlam : 0 < lam) (n : ℕ) :
+    momentRecurrencePrimitive lam n 1 = 0 := by
+  have ha : shape lam ≠ 0 := (shape_pos lam hlam).ne'
+  simp [momentRecurrencePrimitive, Real.zero_rpow ha]
+
+/-- The derivative belongs to L¹(volume), because it is a linear
+combination of actual normalized Beta moments. -/
+private theorem momentRecurrenceIntegrand_integrable
+    (lam : ℝ) (hlam : 0 < lam) (n : ℕ) :
+    Integrable (momentRecurrenceIntegrand lam n) volume := by
+  have h1 := (evenMoment_betaPDF_integrable lam hlam n).const_mul
+    ((n : ℝ) + 1 / 2)
+  have h2 := (evenMoment_betaPDF_integrable lam hlam (n + 1)).const_mul
+    ((n : ℝ) + lam + 1)
+  simpa only [momentRecurrenceIntegrand] using
+    (h1.sub h2).const_mul (ProbabilityTheory.beta (shape lam) (shape lam))
+
+/-- Integrating the derivative on the full real line gives precisely
+the linear combination of the two genuine normalized Beta moments. -/
+private theorem momentRecurrenceIntegrand_integral
+    (lam : ℝ) (hlam : 0 < lam) (n : ℕ) :
+    (∫ x : ℝ, momentRecurrenceIntegrand lam n x ∂volume) =
+      ProbabilityTheory.beta (shape lam) (shape lam) *
+        (((n : ℝ) + 1 / 2) * evenMoment lam n -
+          ((n : ℝ) + lam + 1) * evenMoment lam (n + 1)) := by
+  have h1 := evenMoment_betaPDF_integrable lam hlam n
+  have h2 := evenMoment_betaPDF_integrable lam hlam (n + 1)
+  unfold momentRecurrenceIntegrand
+  rw [integral_const_mul,
+    integral_sub (h1.const_mul ((n : ℝ) + 1 / 2))
+      (h2.const_mul ((n : ℝ) + lam + 1)),
+    integral_const_mul, integral_const_mul]
+  rw [← evenMoment_eq_betaPDFReal_integral lam hlam n,
+    ← evenMoment_eq_betaPDFReal_integral lam hlam (n + 1)]
+
+/-- The weighted derivative vanishes outside the Beta support [0,1]. -/
+private theorem momentRecurrenceIntegrand_outside
+    (lam : ℝ) (n : ℕ) (x : ℝ)
+    (hx : x ∉ Set.Ioc (0 : ℝ) 1) :
+    momentRecurrenceIntegrand lam n x = 0 := by
+  have hs : ¬ (0 < x ∧ x < 1) := by
+    intro h
+    exact hx ⟨h.1, h.2.le⟩
+  have hpdf : ProbabilityTheory.betaPDFReal (shape lam) (shape lam) x = 0 := by
+    simp [ProbabilityTheory.betaPDFReal, hs]
+  simp [momentRecurrenceIntegrand, hpdf]
+
+/-- Since the density vanishes outside (0,1), its real integral equals
+its oriented interval integral. -/
+private theorem momentRecurrenceIntegrand_interval_eq_integral
+    (lam : ℝ) (n : ℕ) :
+    (∫ x in (0 : ℝ)..1, momentRecurrenceIntegrand lam n x ∂volume) =
+      ∫ x : ℝ, momentRecurrenceIntegrand lam n x ∂volume := by
+  rw [intervalIntegral.integral_of_le (by norm_num : (0 : ℝ) ≤ 1)]
+  rw [← integral_indicator measurableSet_Ioc]
+  apply integral_congr_ae
+  filter_upwards with x
+  by_cases hx : x ∈ Set.Ioc (0 : ℝ) 1
+  · simp [Set.indicator_of_mem hx]
+  · simp [Set.indicator_of_notMem hx, momentRecurrenceIntegrand_outside lam n x hx]
+
+/-- Full unconditioned recurrence for actual symmetric Beta even moments,
+derived by integration by parts, with no recurrence hypothesis. -/
+theorem evenMoment_recurrence
+    (lam : ℝ) (hlam : 0 < lam) (n : ℕ) :
+    evenMoment lam (n + 1) =
+      evenMoment lam n * ((n : ℝ) + 1 / 2) /
+        ((n : ℝ) + lam + 1) := by
+  have hcont := momentRecurrencePrimitive_continuousOn lam hlam n
+  have hder : ∀ x ∈ Set.Ioo (0 : ℝ) 1,
+      HasDerivAt (momentRecurrencePrimitive lam n)
+        (momentRecurrenceIntegrand lam n x) x := by
+    intro x hx
+    exact momentRecurrencePrimitive_hasDerivAt lam hlam n x hx.1 hx.2
+  have hint := (momentRecurrenceIntegrand_integrable lam hlam n).intervalIntegrable 0 1
+  have hFTC := intervalIntegral.integral_eq_sub_of_hasDerivAt_of_le
+    (by norm_num : (0 : ℝ) ≤ 1) hcont hder hint
+  have hinterval :
+      (∫ x in (0 : ℝ)..1, momentRecurrenceIntegrand lam n x ∂volume) = 0 := by
+    simpa [momentRecurrencePrimitive_zero lam hlam n,
+      momentRecurrencePrimitive_one lam hlam n] using hFTC
+  have hlin :
+      ProbabilityTheory.beta (shape lam) (shape lam) *
+        (((n : ℝ) + 1 / 2) * evenMoment lam n -
+          ((n : ℝ) + lam + 1) * evenMoment lam (n + 1)) = 0 := by
+    rw [← momentRecurrenceIntegrand_integral lam hlam n,
+      ← momentRecurrenceIntegrand_interval_eq_integral lam n]
+    exact hinterval
+  have hbeta_ne : ProbabilityTheory.beta (shape lam) (shape lam) ≠ 0 :=
+    (ProbabilityTheory.beta_pos (shape_pos lam hlam) (shape_pos lam hlam)).ne'
+  have hterm :
+      ((n : ℝ) + 1 / 2) * evenMoment lam n =
+        ((n : ℝ) + lam + 1) * evenMoment lam (n + 1) :=
+    sub_eq_zero.mp ((mul_eq_zero.mp hlin).resolve_left hbeta_ne)
+  have hden : ((n : ℝ) + lam + 1) ≠ 0 := by positivity
+  apply (eq_div_iff hden).2
+  nlinarith [hterm]
+
+/-- Unconditional exact Pochhammer-ratio evaluation of EVERY even moment
+of the concrete symmetric Beta-pushforward ultraspherical law. -/
+theorem evenMoment_eq_ratio (lam : ℝ) (hlam : 0 < lam) (n : ℕ) :
+    evenMoment lam n = KummerCoefficients.ratio lam n :=
+  evenMoment_eq_ratio_of_recurrence lam hlam
+    (evenMoment_recurrence lam hlam) n
+
+#print axioms GegenbauerFock.Ultraspherical.evenMoment_recurrence
+#print axioms GegenbauerFock.Ultraspherical.evenMoment_eq_ratio
 #print axioms GegenbauerFock.Ultraspherical.evenMoment_betaPDF_integrable
 #print axioms GegenbauerFock.Ultraspherical.symmetricBetaPDFReal_nonneg
 #print axioms GegenbauerFock.Ultraspherical.evenMoment_eq_betaPDFReal_integral
