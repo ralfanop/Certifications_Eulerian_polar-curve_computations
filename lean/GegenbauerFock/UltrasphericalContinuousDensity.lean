@@ -20,6 +20,7 @@ noncomputable section
 namespace GegenbauerFock.Ultraspherical
 
 open MeasureTheory
+open scoped ENNReal
 
 /-- The actual ultraspherical probability measure is weakly regular,
 so bounded continuous functions approximate arbitrary L² vectors. -/
@@ -61,9 +62,9 @@ real-valued continuous functions on the *actual compact support*
 The remaining transfer to complex-valued L² monomials is not
 claimed by this theorem. -/
 theorem polynomial_uniform_dense_on_unit_interval :
-    (ContinuousMap.polynomialFunctions (Set.Icc (-1 : ℝ) 1)).topologicalClosure =
+    (polynomialFunctions (Set.Icc (-1 : ℝ) 1)).topologicalClosure =
       ⊤ := by
-  exact ContinuousMap.polynomialFunctions.topologicalClosure
+  exact polynomialFunctions.topologicalClosure
     (Set.Icc (-1 : ℝ) 1)
 
 #print axioms GegenbauerFock.Ultraspherical.measure_weaklyRegular
