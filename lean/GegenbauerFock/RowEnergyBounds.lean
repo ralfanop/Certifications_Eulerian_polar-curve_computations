@@ -16,14 +16,15 @@ private theorem evenMomentWeighted_summable
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
     Summable (fun n : ℕ => Ultraspherical.evenMoment lam n *
       ((1 / (4 * alpha)) ^ n / (Nat.factorial n : ℝ))) := by
-  apply Summable.of_nonneg_of_le
-  · intro n
-    exact mul_nonneg (Ultraspherical.evenMoment_nonneg lam n) (by positivity)
-  · intro n
-    simpa using mul_le_mul_of_nonneg_right
+  refine Summable.of_nonneg_of_le
+    (f := fun n : ℕ => (1 / (4 * alpha)) ^ n / (Nat.factorial n : ℝ))
+    (fun n => mul_nonneg (Ultraspherical.evenMoment_nonneg lam n) (by positivity))
+    (fun n => ?_)
+    (Real.summable_pow_div_factorial (1 / (4 * alpha)))
+  simpa only [one_mul] using
+    (mul_le_mul_of_nonneg_right
       (Ultraspherical.evenMoment_le_one lam hlam n)
-      (by positivity : 0 ≤ (1 / (4 * alpha)) ^ n / (Nat.factorial n : ℝ))
-  · exact Real.summable_pow_div_factorial (1 / (4 * alpha))
+      (by positivity : 0 ≤ (1 / (4 * alpha)) ^ n / (Nat.factorial n : ℝ)))
 
 /-- The zeroth ultraspherical moment forces the row energy to be at least one. -/
 theorem rowEnergy_ge_one
