@@ -20,6 +20,7 @@ noncomputable section
 namespace GegenbauerFock.GeneralUltrasphericalFock
 
 open MeasureTheory
+open scoped ENNReal
 
 /-- Ordinary complex polynomial evaluation is continuous on the
 entire real line (despite potentially being unbounded there). -/
