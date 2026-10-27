@@ -108,7 +108,7 @@ theorem hilbertBasis_parseval
           rw [HilbertBasis.repr_apply_apply]
     _ = ‖b.repr x‖ ^ 2 := by
           simpa using (lp.norm_rpow_eq_tsum
-            (by norm_num : 0 < (2 : ℝ≥0∞).toReal)
+            (by norm_num : 0 < (2 : ENNReal).toReal)
             (b.repr x)).symm
     _ = ‖x‖ ^ 2 := by rw [b.repr.norm_map]
 
