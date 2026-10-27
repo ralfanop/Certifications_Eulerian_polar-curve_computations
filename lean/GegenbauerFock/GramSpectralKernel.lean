@@ -1,5 +1,6 @@
 import GegenbauerFock.GramIntegralComplete
 import GegenbauerFock.GramKernelSeries
+import GegenbauerFock.PositiveTraceClassBridge
 import Mathlib.Analysis.InnerProductSpace.Spectrum
 
 /-!
