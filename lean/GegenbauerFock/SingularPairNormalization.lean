@@ -31,9 +31,8 @@ theorem C_gram_real_eigenvector_norm_sq
       HilbertGram.gram_norm_sq (C lam alpha hlam ha) f
     _ = mu * ‖f‖ ^ 2 := by
       rw [h, inner_smul_left, inner_self_eq_norm_sq_to_K]
-      simp
-      left
-      norm_cast
+      simp only [Complex.real_mul, Complex.ofReal_re, Complex.ofReal_im,
+        mul_zero, sub_zero]
 
 /-- A unit eigenvector with positive eigenvalue μ is sent by C to a
 vector of norm sqrt μ. -/
