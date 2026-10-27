@@ -92,4 +92,26 @@ theorem summableRows_comp_right_between
 #print axioms GegenbauerFock.FockEnergy.row_comp_right_norm_sq_le
 #print axioms GegenbauerFock.FockEnergy.summableRows_comp_right
 
+/-- Parseval's exact squared-norm identity for *any* Hilbert basis
+of a complex Hilbert space. This is the basis-independent analytical
+ingredient needed to promote canonical output-row energy to a true
+input-basis Hilbert--Schmidt class norm. -/
+theorem hilbertBasis_parseval
+    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
+    {ι : Type*} (b : HilbertBasis ι ℂ E) (x : E) :
+    (∑' i : ι, ‖inner ℂ (b i) x‖ ^ 2) = ‖x‖ ^ 2 := by
+  calc
+    (∑' i : ι, ‖inner ℂ (b i) x‖ ^ 2) =
+        ∑' i : ι, ‖(b.repr x) i‖ ^ 2 := by
+          apply tsum_congr
+          intro i
+          rw [HilbertBasis.repr_apply_apply]
+    _ = ‖b.repr x‖ ^ 2 := by
+          simpa using (lp.norm_rpow_eq_tsum
+            (by norm_num : 0 < (2 : ℝ≥0∞).toReal)
+            (b.repr x)).symm
+    _ = ‖x‖ ^ 2 := by rw [b.repr.norm_map]
+
+#print axioms GegenbauerFock.FockEnergy.hilbertBasis_parseval
+
 end GegenbauerFock.FockEnergy
