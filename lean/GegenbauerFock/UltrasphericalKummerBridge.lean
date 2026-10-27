@@ -106,4 +106,23 @@ theorem rowEnergy_eq_pochhammerSeries
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.rowEnergy_eq_pochhammerSeries
 
+/-- The *concrete bounded operator* C has canonical squared
+Hilbert--Schmidt coordinate-row energy equal to the Kummer value,
+expressed directly through the independent FockEnergy API rather
+than only the specialized ultraspherical shorthand. This is a
+canonical-target-row formulation; basis-independent Schatten S₂
+norm remains a separate formal obligation. -/
+theorem concreteFock_squaredRowEnergy_eq_kummerSeries
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    (letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
+        Ultraspherical.probability lam hlam
+      FockEnergy.squaredRowEnergy (Ultraspherical.measure lam)
+        (C lam alpha hlam ha)) =
+      KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) := by
+  change rowEnergy lam alpha hlam ha =
+    KummerCoefficients.kummerSeries lam (1 / (4 * alpha))
+  exact rowEnergy_eq_kummerSeries lam alpha hlam ha
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.concreteFock_squaredRowEnergy_eq_kummerSeries
+
 end GegenbauerFock.GeneralUltrasphericalFock
