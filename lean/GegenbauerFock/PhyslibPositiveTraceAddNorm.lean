@@ -69,12 +69,12 @@ private theorem gramAfterRight_pairBasis_summable
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     (B : Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
       Lp ℂ 2 (Ultraspherical.measure lam))
-    {ι : Type*}
-    (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
-    Summable (fun i : ι =>
+    {w : Set (Lp ℂ 2 (Ultraspherical.measure lam))}
+    (b : HilbertBasis w ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
+    Summable (fun i : w =>
       (inner ℂ (b i)
         (gramAfterRight lam alpha hlam ha B (b i))).re) := by
-  have hs : Summable (fun i : ι =>
+  have hs : Summable (fun i : w =>
       ‖((C lam alpha hlam ha).comp B) (b i)‖ ^ 2) :=
     C_comp_right_isHilbertSchmidt lam alpha hlam ha B b
   apply hs.congr
