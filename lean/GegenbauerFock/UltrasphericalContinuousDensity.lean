@@ -20,6 +20,7 @@ noncomputable section
 namespace GegenbauerFock.Ultraspherical
 
 open MeasureTheory
+open ContinuousMap
 open scoped ENNReal
 
 /-- The actual ultraspherical probability measure is weakly regular,
