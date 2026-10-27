@@ -114,4 +114,42 @@ theorem hilbertBasis_parseval
 
 #print axioms GegenbauerFock.FockEnergy.hilbertBasis_parseval
 
+/-- The squared-norm sum over ANY complete complex Hilbert basis
+of the source space of a concrete weighted moment functional equals
+the squared operator norm of that functional.  This is a
+basis-independent Riesz/Parseval theorem for each individual
+Gegenbauer--Fock row (the double-series interchange is separate). -/
+theorem weightedMoment_row_basis_energy
+    (μ : Measure ℝ) [IsProbabilityMeasure μ]
+    (hsupport : ∀ᵐ u ∂μ, |u| ≤ (1 : ℝ))
+    (alpha : ℝ) (ha : 0 < alpha)
+    {ι : Type*} (b : HilbertBasis ι ℂ (Lp ℂ 2 μ)) (n : ℕ) :
+    (∑' i : ι,
+      ‖WeightedMoments.coefficient μ hsupport alpha n (b i)‖ ^ 2) =
+      ‖WeightedMoments.coefficient μ hsupport alpha n‖ ^ 2 := by
+  let m := WeightedMoments.monomial μ hsupport n
+  let cw := WeightedMoments.complexWeight alpha n
+  have ht (i : ι) :
+      ‖WeightedMoments.coefficient μ hsupport alpha n (b i)‖ ^ 2 =
+        ‖cw‖ ^ 2 * ‖inner ℂ (b i) m‖ ^ 2 := by
+    change ‖cw * inner ℂ m (b i)‖ ^ 2 = _
+    rw [norm_mul, mul_pow, norm_inner_symm]
+  calc
+    (∑' i : ι, ‖WeightedMoments.coefficient μ hsupport alpha n (b i)‖ ^ 2) =
+        ∑' i : ι, ‖cw‖ ^ 2 * ‖inner ℂ (b i) m‖ ^ 2 := by
+          apply tsum_congr
+          intro i
+          exact ht i
+    _ = ‖cw‖ ^ 2 * (∑' i : ι, ‖inner ℂ (b i) m‖ ^ 2) := by
+          rw [tsum_mul_left]
+    _ = ‖cw‖ ^ 2 * ‖m‖ ^ 2 := by
+          rw [hilbertBasis_parseval b m]
+    _ = ‖WeightedMoments.coefficient μ hsupport alpha n‖ ^ 2 := by
+          change ‖WeightedMoments.complexWeight alpha n‖ ^ 2 *
+              ‖WeightedMoments.monomial μ hsupport n‖ ^ 2 = _
+          rw [WeightedMoments.complexWeight_norm_sq alpha ha n,
+            ← coefficient_energy_exact μ hsupport alpha ha n]
+
+#print axioms GegenbauerFock.FockEnergy.weightedMoment_row_basis_energy
+
 end GegenbauerFock.FockEnergy
