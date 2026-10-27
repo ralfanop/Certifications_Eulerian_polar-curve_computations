@@ -19,9 +19,11 @@ theorem evenMoment_eq_beta_integral (lam : ℝ) (n : ℕ) :
     evenMoment lam n =
       ∫ x : ℝ, (betaToInterval x) ^ (2 * n)
         ∂(ProbabilityTheory.betaMeasure (shape lam) (shape lam)) := by
+  have hmap : Measurable betaToInterval := by
+    unfold betaToInterval
+    fun_prop
   unfold evenMoment measure
-  rw [integral_map_of_stronglyMeasurable (by fun_prop) (by fun_prop)]
-  rfl
+  rw [integral_map_of_stronglyMeasurable hmap (by fun_prop)]
 
 /-- Positivity of the genuine symmetric Beta probability density. -/
 theorem symmetricBetaPDFReal_nonneg (lam : ℝ) (hlam : 0 < lam)
