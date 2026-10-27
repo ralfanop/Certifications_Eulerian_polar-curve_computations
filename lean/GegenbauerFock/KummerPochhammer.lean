@@ -56,4 +56,21 @@ theorem ratio_eq_pochhammer (lam : ℝ) (hlam : 0 < lam)
 #print axioms GegenbauerFock.KummerCoefficients.numeratorPochhammer_pos
 #print axioms GegenbauerFock.KummerCoefficients.ratio_eq_pochhammer
 
+/-- The unregularized Kummer function of the exact parameters
+a=1/2, b=λ+1, is the Mathlib rising-Pochhammer power series.
+In particular, no regularization factor 1/Gamma(b) is introduced. -/
+theorem kummerSeries_eq_pochhammer
+    (lam z : ℝ) (hlam : 0 < lam) :
+    kummerSeries lam z =
+      ∑' n : ℕ,
+        ((ascPochhammer ℝ n).eval (1 / 2) /
+          (ascPochhammer ℝ n).eval (lam + 1)) *
+            (z ^ n / (Nat.factorial n : ℝ)) := by
+  unfold kummerSeries
+  apply tsum_congr
+  intro n
+  rw [ratio_eq_pochhammer lam hlam n]
+
+#print axioms GegenbauerFock.KummerCoefficients.kummerSeries_eq_pochhammer
+
 end GegenbauerFock.KummerCoefficients
