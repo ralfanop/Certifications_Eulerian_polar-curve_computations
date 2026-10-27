@@ -1,5 +1,5 @@
 import GegenbauerFock.GramIntegralComplete
-import Mathlib.Analysis.InnerProductSpace.Spectrum
+import Mathlib.Analysis.InnerProductSpace.Positive
 
 /-!
 # V007: actual compact self-adjoint Gram spectral theorem
@@ -41,6 +41,20 @@ theorem gramIntegralOperator_symmetric (lam alpha : ℝ)
   apply ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
   exact ContinuousLinearMap.isSelfAdjoint_iff'.mpr
     (gramIntegralOperator_selfadjoint lam alpha hlam ha)
+
+/-- Positivity of the genuine L² exponential-kernel operator as a
+Mathlib positive continuous linear map, not only nonnegativity
+of one scalar quadratic form. -/
+theorem gramIntegralOperator_isPositive
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    (gramIntegralOperator lam alpha hlam ha).IsPositive := by
+  rw [← gram_eq_gramIntegralOperator lam alpha hlam ha]
+  change ((C lam alpha hlam ha).adjoint ∘L
+    (C lam alpha hlam ha)).IsPositive
+  exact ContinuousLinearMap.isPositive_adjoint_comp_self
+    (C lam alpha hlam ha)
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gramIntegralOperator_isPositive
 
 /-- The nonzero eigenspaces of the actual compact integral Gram
 operator are finite-dimensional, for any complex eigenvalue. -/
