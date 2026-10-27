@@ -101,6 +101,19 @@ jobs:
           set -euo pipefail
           lake env lean -M16768 --version
 
+      # Independent S1 foundation audit before newer, unrelated density proofs.
+      # Keep the pinned Lean and Mathlib; this step is intentionally isolated.
+      - name: Certify co-importable Physlib S1 scalar and trace-norm foundations
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.PhyslibTraceNormCore 2>&1 | tee /tmp/gf-physlib-s1-foundations.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-physlib-s1-foundations.log; then
+            echo '::error::Nonstandard axiom in Physlib S1 foundations.'
+            exit 1
+          fi
+          echo 'Physlib S1 scalar and trace-norm foundations: no forbidden axioms.'
+
       - name: Certify bounded-continuous density in ultraspherical L2
         working-directory: lean
         run: |
