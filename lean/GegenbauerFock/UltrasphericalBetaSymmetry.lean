@@ -23,7 +23,8 @@ theorem symmetricBetaPDFReal_reflection_all
       intro h
       apply hx
       constructor <;> linarith [h.1,h.2]
-    simp [ProbabilityTheory.betaPDFReal, hx, hy]
+    unfold ProbabilityTheory.betaPDFReal
+    rw [if_neg hy, if_neg hx]
 
 #print axioms GegenbauerFock.Ultraspherical.symmetricBetaPDFReal_reflection_all
 
