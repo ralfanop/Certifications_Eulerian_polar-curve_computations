@@ -124,18 +124,30 @@ private theorem momentRecurrencePrimitive_hasDerivAt
   have ha : 0 < shape lam := shape_pos lam hlam
   have hy : 0 < 1 - x := by linarith
   have hd_u : HasDerivAt betaToInterval 2 x := by
-    convert (((hasDerivAt_id x).const_mul (2 : ℝ)).sub_const 1) using 1 <;> ring
+    change HasDerivAt (fun t : ℝ => 2 * t - 1) 2 x
+    convert (((hasDerivAt_id x).const_mul (2 : ℝ)).sub_const 1) using 1
+    · funext t
+      dsimp
+      ring
+    · ring
   have hd_pow :
       HasDerivAt (fun t : ℝ => betaToInterval t ^ (2 * n + 1))
         (((2 * n + 1 : ℕ) : ℝ) * betaToInterval x ^ (2 * n) * 2) x := by
-    simpa only [Nat.add_sub_cancel] using (hd_u.pow (2 * n + 1))
+    convert hd_u.pow (2 * n + 1) using 1
+    · funext t
+      simp only [Pi.pow_apply]
+    · simp only [Nat.add_sub_cancel]
   have hd_x : HasDerivAt (fun t : ℝ => t ^ (shape lam))
       (shape lam * x ^ (shape lam - 1)) x := by
     convert (hasDerivAt_id x).rpow_const (Or.inl hx0.ne') using 1 <;> ring
   have hd_y : HasDerivAt (fun t : ℝ => (1 - t) ^ (shape lam))
       (-(shape lam) * (1 - x) ^ (shape lam - 1)) x := by
     have hm : HasDerivAt (fun t : ℝ => (1 : ℝ) - t) (-1) x := by
-      convert (hasDerivAt_id x).const_sub 1 using 1 <;> ring
+      convert (hasDerivAt_id x).const_sub 1 using 1
+      · funext t
+        dsimp
+        ring
+      · ring
     convert hm.rpow_const (Or.inl hy.ne') using 1 <;> ring
   have hraw : HasDerivAt (momentRecurrencePrimitive lam n)
       ((((2 * n + 1 : ℕ) : ℝ) * betaToInterval x ^ (2 * n) * 2) *
@@ -147,12 +159,20 @@ private theorem momentRecurrencePrimitive_hasDerivAt
     convert ((hd_pow.mul hd_x).mul hd_y) using 1 <;>
       simp only [momentRecurrencePrimitive] <;> ring
   have hxa : x ^ (shape lam) = x ^ (shape lam - 1) * x := by
-    rw [show shape lam = (shape lam - 1) + 1 by ring,
-      Real.rpow_add hx0 (shape lam - 1) 1, Real.rpow_one]
+    calc
+      x ^ (shape lam) = x ^ ((shape lam - 1) + 1) := by
+        congr 1
+        ring
+      _ = x ^ (shape lam - 1) * x := by
+        rw [Real.rpow_add hx0 (shape lam - 1) 1, Real.rpow_one]
   have hya : (1 - x) ^ (shape lam) =
       (1 - x) ^ (shape lam - 1) * (1 - x) := by
-    rw [show shape lam = (shape lam - 1) + 1 by ring,
-      Real.rpow_add hy (shape lam - 1) 1, Real.rpow_one]
+    calc
+      (1 - x) ^ (shape lam) = (1 - x) ^ ((shape lam - 1) + 1) := by
+        congr 1
+        ring
+      _ = (1 - x) ^ (shape lam - 1) * (1 - x) := by
+        rw [Real.rpow_add hy (shape lam - 1) 1, Real.rpow_one]
   have hodd : betaToInterval x ^ (2 * n + 1) =
       betaToInterval x ^ (2 * n) * betaToInterval x := by
     rw [show 2 * n + 1 = 2 * n + 1 by rfl, pow_succ]
@@ -174,6 +194,7 @@ private theorem momentRecurrencePrimitive_hasDerivAt
   convert hraw using 1
   rw [hfactor, hxa, hya, hodd, heven]
   unfold betaToInterval shape
+  simp only [Nat.cast_add, Nat.cast_mul, Nat.cast_one]
   ring
 
 /-- The beta-moment primitive is continuous on the closed unit interval;
