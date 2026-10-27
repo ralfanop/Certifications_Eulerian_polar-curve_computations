@@ -23,6 +23,8 @@ namespace GegenbauerFock.HilbertSchmidtBasis
 
 open scoped InnerProductSpace
 
+set_option maxHeartbeats 800000
+
 variable {E F : Type}
 variable [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
 variable [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
@@ -39,7 +41,6 @@ private theorem swap_real_inner
 
 /-- Equality of both Gram trace norms, even when the two
 CFC-positive diagonal summability witnesses use unrelated bases. -/
-set_option maxHeartbeats 800000 in
 theorem traceNorm_adjoint_comp_eq_comp_adjoint
     (T : E →L[ℂ] F) (hT : IsHS T)
     (hSrc : ProbabilisticTheory.IsTraceClass (T.adjoint.comp T))
