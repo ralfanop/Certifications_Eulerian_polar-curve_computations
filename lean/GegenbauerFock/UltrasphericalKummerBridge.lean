@@ -125,4 +125,59 @@ theorem concreteFock_squaredRowEnergy_eq_kummerSeries
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.concreteFock_squaredRowEnergy_eq_kummerSeries
 
+/-- Sharp Kummer-energy bound for every input of the actual bounded
+ultraspherical Gegenbauer--Fock operator, without the older
+exp(1/(4α)) comparison majorant. -/
+theorem C_apply_norm_sq_le_kummer
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (f : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    ‖C lam alpha hlam ha f‖ ^ 2 ≤
+      KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) * ‖f‖ ^ 2 := by
+  letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
+    Ultraspherical.probability lam hlam
+  have hrows :
+      (∑' n : ℕ,
+        ‖WeightedMoments.coefficient (Ultraspherical.measure lam)
+          (ae_abs_le_one lam) alpha n‖ ^ 2) =
+        rowEnergy lam alpha hlam ha := by
+    unfold rowEnergy
+    apply tsum_congr
+    intro n
+    rw [C_row_eq lam alpha hlam ha n]
+  calc
+    ‖C lam alpha hlam ha f‖ ^ 2 ≤
+        (∑' n : ℕ,
+          ‖WeightedMoments.coefficient (Ultraspherical.measure lam)
+            (ae_abs_le_one lam) alpha n‖ ^ 2) * ‖f‖ ^ 2 := by
+      exact ConcreteFock.operator_norm_sq_bound
+        (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha ha f
+    _ = rowEnergy lam alpha hlam ha * ‖f‖ ^ 2 := by rw [hrows]
+    _ = KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) *
+        ‖f‖ ^ 2 := by rw [rowEnergy_eq_kummerSeries lam alpha hlam ha]
+
+/-- An operator-norm bound by the exact verified Kummer energy,
+strictly sharper than the previously proved exponential majorant
+whenever the moment law gives a strict coefficient comparison. -/
+theorem C_opNorm_le_sqrt_kummer
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    ‖C lam alpha hlam ha‖ ≤
+      Real.sqrt (KummerCoefficients.kummerSeries lam (1 / (4 * alpha))) := by
+  have ht : 0 ≤ (1 / (4 * alpha) : ℝ) := by positivity
+  have hpos :
+      0 ≤ KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) :=
+    (by norm_num : (0 : ℝ) ≤ 1).trans
+      (KummerCoefficients.kummerSeries_ge_one lam (1 / (4 * alpha)) hlam ht)
+  apply ContinuousLinearMap.opNorm_le_bound _ (Real.sqrt_nonneg _)
+  intro f
+  have hsq := C_apply_norm_sq_le_kummer lam alpha hlam ha f
+  have hr := Real.sq_sqrt hpos
+  have hp : 0 ≤
+      Real.sqrt (KummerCoefficients.kummerSeries lam (1 / (4 * alpha))) * ‖f‖ :=
+    mul_nonneg (Real.sqrt_nonneg _) (norm_nonneg _)
+  have hn : 0 ≤ ‖C lam alpha hlam ha f‖ := norm_nonneg _
+  nlinarith [sq_nonneg ‖f‖]
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_apply_norm_sq_le_kummer
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_opNorm_le_sqrt_kummer
+
 end GegenbauerFock.GeneralUltrasphericalFock
