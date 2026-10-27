@@ -233,7 +233,7 @@ private theorem momentRecurrenceIntegrand_integrable
     ((n : ℝ) + 1 / 2)
   have h2 := (evenMoment_betaPDF_integrable lam hlam (n + 1)).const_mul
     ((n : ℝ) + lam + 1)
-  simpa only [momentRecurrenceIntegrand] using
+  simpa only [momentRecurrenceIntegrand, Pi.sub_apply] using
     (h1.sub h2).const_mul (ProbabilityTheory.beta (shape lam) (shape lam))
 
 /-- Integrating the derivative on the full real line gives precisely
@@ -293,7 +293,8 @@ theorem evenMoment_recurrence
         (momentRecurrenceIntegrand lam n x) x := by
     intro x hx
     exact momentRecurrencePrimitive_hasDerivAt lam hlam n x hx.1 hx.2
-  have hint := (momentRecurrenceIntegrand_integrable lam hlam n).intervalIntegrable 0 1
+  have hint : IntervalIntegrable (momentRecurrenceIntegrand lam n) volume 0 1 :=
+    (momentRecurrenceIntegrand_integrable lam hlam n).intervalIntegrable
   have hFTC := intervalIntegral.integral_eq_sub_of_hasDerivAt_of_le
     (by norm_num : (0 : ℝ) ≤ 1) hcont hder hint
   have hinterval :
