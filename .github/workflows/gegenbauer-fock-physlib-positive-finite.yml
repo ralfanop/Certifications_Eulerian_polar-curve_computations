@@ -97,6 +97,16 @@ jobs:
           set -euo pipefail
           lake env lean -M16768 --version
 
+      - name: Certify exact fixed-basis finite sums with axiom audit
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.PhyslibPositiveFixedBasisFinite 2>&1 | tee /tmp/gf-positive-finite.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-positive-finite.log; then
+            echo '::error::Forbidden axiom in fixed-basis finite-family proof.'
+            exit 1
+          fi
+          echo 'Positive fixed-basis finite sum certificate: clean axioms.'
       # Isolate constructive rank-one S1 results from unrelated new Banach proofs.
       - name: Certify basis-independent rank-one and finite-rank positive traces
         working-directory: lean
@@ -110,13 +120,3 @@ jobs:
           echo 'Rank-one and finite-rank S1 trace: no forbidden axioms.'
 
 
-      - name: Certify exact fixed-basis finite sums with axiom audit
-        working-directory: lean
-        run: |
-          set -euo pipefail
-          lake build GegenbauerFock.PhyslibPositiveFixedBasisFinite 2>&1 | tee /tmp/gf-positive-finite.log
-          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-positive-finite.log; then
-            echo '::error::Forbidden axiom in fixed-basis finite-family proof.'
-            exit 1
-          fi
-          echo 'Positive fixed-basis finite sum certificate: clean axioms.'
