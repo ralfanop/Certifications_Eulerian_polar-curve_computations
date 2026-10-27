@@ -50,6 +50,26 @@ theorem isTraceClass_neg {T : H →L[ℂ] H}
   have h := isTraceClass_smul (-1 : ℂ) hT
   rwa [neg_one_smul] at h
 
+/-- The trace-norm witness proof is propositionally irrelevant; this
+is the exact elementary lemma used by upstream Physlib Banach.lean. -/
+theorem traceNorm_congr {T : H →L[ℂ] H}
+    {h₁ h₂ : IsTraceClass T} :
+    traceNorm T h₁ = traceNorm T h₂ := by
+  have hh : h₁ = h₂ := Subsingleton.elim _ _
+  rw [hh]
+
+/-- Nonnegativity of the actual functional-calculus trace norm
+is a prerequisite for constructing a normed S₁ space. -/
+theorem traceNorm_nonneg (T : H →L[ℂ] H)
+    (h : IsTraceClass T) : 0 ≤ traceNorm T h := by
+  unfold traceNorm
+  exact tsum_nonneg fun i =>
+    real_inner_nonneg_of_nonneg (CFC.abs_nonneg T)
+      (h.choose_spec.choose i)
+
+#print axioms ProbabilisticTheory.traceNorm_congr
+#print axioms ProbabilisticTheory.traceNorm_nonneg
+
 #print axioms ProbabilisticTheory.isTraceClass_zero
 #print axioms ProbabilisticTheory.isTraceClass_smul
 #print axioms ProbabilisticTheory.isTraceClass_neg
