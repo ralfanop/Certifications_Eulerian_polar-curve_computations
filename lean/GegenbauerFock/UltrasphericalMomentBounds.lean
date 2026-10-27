@@ -37,7 +37,8 @@ theorem evenMoment_nonneg (lam : ℝ) (n : ℕ) :
   unfold evenMoment
   apply integral_nonneg
   intro u
-  rw [mul_comm 2 n, pow_mul]
+  change (0 : ℝ) ≤ u ^ (2 * n)
+  rw [show 2 * n = n * 2 by omega, pow_mul]
   positivity
 
 /-- Every even ultraspherical probability moment is at most one. -/
