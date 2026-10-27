@@ -104,6 +104,21 @@ theorem gramIntegralOperator_nonnegative_form
   rw [← gram_eq_gramIntegralOperator lam alpha hlam ha]
   exact gram_positive lam alpha hlam ha f
 
+/-- Every real eigenvalue of the actual compact positive ultraspherical
+Gram integral operator is nonnegative.  This is a spectral consequence
+of the certified positivity, not an assertion of injectivity. -/
+theorem gramIntegralOperator_real_eigenvalue_nonneg
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (mu : ℝ)
+    (hmu : HasEigenvalue
+      (gramIntegralOperator lam alpha hlam ha).toLinearMap mu) :
+    0 ≤ mu := by
+  apply eigenvalue_nonneg_of_nonneg hmu
+  intro f
+  exact gramIntegralOperator_nonnegative_form lam alpha hlam ha f
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gramIntegralOperator_real_eigenvalue_nonneg
+
 /-- Eigenspaces for distinct complex eigenvalues of the compact
 Gram integral operator are mutually orthogonal. -/
 theorem gramIntegralOperator_orthogonal_eigenspaces
