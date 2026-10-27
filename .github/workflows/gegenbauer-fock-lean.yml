@@ -319,7 +319,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.SingularPairNormalization GegenbauerFock.SingularPairOutputEigen GegenbauerFock.SingularPairOrthogonality GegenbauerFock.SingularEigenspaceIsometry 2>&1 | tee /tmp/gf-singular-normalized.log
+          lake build GegenbauerFock.SingularPairNormalization GegenbauerFock.SingularPairOutputEigen GegenbauerFock.SingularPairOrthogonality GegenbauerFock.SingularEigenspaceIsometry GegenbauerFock.SingularNonzeroEigenspaceCorrespondence 2>&1 | tee /tmp/gf-singular-normalized.log
 
       - name: Certify output Gram zero modes as orthogonal complement of Fock image
         working-directory: lean
