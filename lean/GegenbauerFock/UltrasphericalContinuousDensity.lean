@@ -28,20 +28,32 @@ theorem measure_weaklyRegular (lam : ℝ) (hlam : 0 < lam) :
   letI : IsProbabilityMeasure (measure lam) := probability lam hlam
   infer_instance
 
-/-- Every L²(ν_λ) function with complex values can be approximated
-in the true L² norm by bounded continuous functions on the real line.
-No finite-dimensional or auxiliary Gaussian target is substituted. -/
+/-- The bounded-continuous-to-L² operator for the *concrete*
+ultraspherical probability measure. Constructing it with the certified
+probability instance avoids an unfulfilled finite-measure instance in
+the statement of its dense-range theorem. -/
+noncomputable def boundedContinuousToLp
+    (lam : ℝ) (hlam : 0 < lam) :
+    BoundedContinuousFunction ℝ ℂ →L[ℂ] Lp ℂ 2 (measure lam) := by
+  letI : IsProbabilityMeasure (measure lam) := probability lam hlam
+  exact BoundedContinuousFunction.toLp
+    (2 : ℝ≥0∞) (measure lam) ℂ
+
+/-- Bounded continuous complex functions have dense image under the
+actual L²(ν_λ) embedding, for every λ>0; the finite-measure
+hypothesis is discharged using the explicit Beta pushforward law. -/
 theorem boundedContinuous_toLp_denseRange
     (lam : ℝ) (hlam : 0 < lam) :
-    DenseRange
-      (BoundedContinuousFunction.toLp
-        (E := ℂ) (p := 2) (measure lam) ℂ :
-        (ℝ →ᵇ ℂ) →L[ℂ] Lp ℂ 2 (measure lam)) := by
+    DenseRange (boundedContinuousToLp lam hlam) := by
   letI : IsProbabilityMeasure (measure lam) := probability lam hlam
   letI : Measure.WeaklyRegular (measure lam) :=
     measure_weaklyRegular lam hlam
+  change DenseRange
+    (BoundedContinuousFunction.toLp
+      (2 : ℝ≥0∞) (measure lam) ℂ :
+      BoundedContinuousFunction ℝ ℂ →L[ℂ] Lp ℂ 2 (measure lam))
   exact BoundedContinuousFunction.toLp_denseRange
-    ℂ (measure lam) ℂ (by norm_num : (2 : ℝ≥0∞) ≠ ⊤)
+    ℂ (measure lam) ℂ (by norm_num)
 
 /-- Real polynomial functions are uniformly dense among all
 real-valued continuous functions on the *actual compact support*
@@ -55,6 +67,7 @@ theorem polynomial_uniform_dense_on_unit_interval :
     (Set.Icc (-1 : ℝ) 1)
 
 #print axioms GegenbauerFock.Ultraspherical.measure_weaklyRegular
+#print axioms GegenbauerFock.Ultraspherical.boundedContinuousToLp
 #print axioms GegenbauerFock.Ultraspherical.boundedContinuous_toLp_denseRange
 #print axioms GegenbauerFock.Ultraspherical.polynomial_uniform_dense_on_unit_interval
 
