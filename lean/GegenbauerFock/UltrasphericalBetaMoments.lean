@@ -69,7 +69,11 @@ theorem evenMoment_betaPDF_integrable
       (shape_pos lam hlam) (shape_pos lam hlam)
   have hp : Integrable (fun x : ℝ => (betaToInterval x) ^ (2 * n))
       (ProbabilityTheory.betaMeasure (shape lam) (shape lam)) := by
-    apply Integrable.of_bound (by fun_prop) 1
+    apply Integrable.of_bound (by
+      have hmeas : Measurable (fun x : ℝ => (betaToInterval x) ^ (2 * n)) := by
+        unfold betaToInterval
+        fun_prop
+      exact hmeas.aestronglyMeasurable) 1
     filter_upwards [beta_ae_unit_interval lam] with x hx
     have habs : |betaToInterval x| ≤ 1 := by
       apply abs_le.mpr
