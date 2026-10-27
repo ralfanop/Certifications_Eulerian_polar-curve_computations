@@ -1,4 +1,4 @@
-import GegenbauerFock.PhyslibTraceClassScalar
+import GegenbauerFock.PhyslibTraceClassSubtype
 
 /-!
 # V007: foundational trace-norm axioms toward the full Physlib Banach type
@@ -21,9 +21,19 @@ namespace ProbabilisticTheory
 variable {H : Type*}
 variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
-/- `isTraceClass_zero` and `traceNorm_nonneg` are imported from
-   PhyslibTraceClassScalar: defining them a second time would make the
-   two foundation modules impossible to import together. -/
+/-- A generic zero bounded operator is Physlib-compatible trace class. -/
+theorem isTraceClass_zero : IsTraceClass (0 : H →L[ℂ] H) := by
+  obtain ⟨w, b, _⟩ := exists_hilbertBasis ℂ H
+  exact ⟨w, b, by simp [CFC.abs_zero]⟩
+
+/-- The true functional-calculus trace norm is nonnegative. -/
+theorem traceNorm_nonneg (T : H →L[ℂ] H) (hT : IsTraceClass T) :
+    0 ≤ traceNorm T hT := by
+  unfold traceNorm
+  apply tsum_nonneg
+  intro i
+  exact ((ContinuousLinearMap.nonneg_iff_isPositive).1
+    (CFC.abs_nonneg T)).re_inner_nonneg_right _
 
 /-- The trace norm of the zero bounded operator is exactly zero. -/
 theorem traceNorm_zero :
