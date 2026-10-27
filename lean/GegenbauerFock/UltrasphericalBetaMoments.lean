@@ -54,6 +54,45 @@ theorem evenMoment_eq_betaPDFReal_integral
     ENNReal.toReal_ofReal (symmetricBetaPDFReal_nonneg lam hlam x),
     smul_eq_mul]
 
+/-- Integrability, with respect to real Lebesgue measure, of the actual
+Beta density multiplied by any even ultraspherical monomial. This is
+derived from the normalized Beta probability law, without an assumed
+moment formula. -/
+theorem evenMoment_betaPDF_integrable
+    (lam : ℝ) (hlam : 0 < lam) (n : ℕ) :
+    Integrable (fun x : ℝ =>
+      ProbabilityTheory.betaPDFReal (shape lam) (shape lam) x *
+        (betaToInterval x) ^ (2 * n)) volume := by
+  letI : IsProbabilityMeasure
+      (ProbabilityTheory.betaMeasure (shape lam) (shape lam)) :=
+    ProbabilityTheory.isProbabilityMeasureBeta
+      (shape_pos lam hlam) (shape_pos lam hlam)
+  have hp : Integrable (fun x : ℝ => (betaToInterval x) ^ (2 * n))
+      (ProbabilityTheory.betaMeasure (shape lam) (shape lam)) := by
+    apply Integrable.of_bound (by fun_prop) 1
+    filter_upwards [beta_ae_unit_interval lam] with x hx
+    have habs : |betaToInterval x| ≤ 1 := by
+      apply abs_le.mpr
+      constructor <;> unfold betaToInterval <;> linarith [hx.1, hx.2]
+    calc
+      ‖(betaToInterval x) ^ (2 * n)‖ = |betaToInterval x| ^ (2 * n) := by
+        simp [norm_pow]
+      _ ≤ (1 : ℝ) ^ (2 * n) := by gcongr
+      _ = 1 := by simp
+  change Integrable (fun x : ℝ => (betaToInterval x) ^ (2 * n))
+    (volume.withDensity (ProbabilityTheory.betaPDF (shape lam) (shape lam))) at hp
+  have h :=
+    (integrable_withDensity_iff_integrable_smul'
+      (Measurable.ennreal_ofReal
+        (ProbabilityTheory.measurable_betaPDFReal (shape lam) (shape lam)))
+      (ae_of_all _ (fun _ => ENNReal.ofReal_lt_top))).mp hp
+  convert h using 1
+  ext x
+  simp only [ProbabilityTheory.betaPDF,
+    ENNReal.toReal_ofReal (symmetricBetaPDFReal_nonneg lam hlam x),
+    smul_eq_mul]
+
+#print axioms GegenbauerFock.Ultraspherical.evenMoment_betaPDF_integrable
 #print axioms GegenbauerFock.Ultraspherical.symmetricBetaPDFReal_nonneg
 #print axioms GegenbauerFock.Ultraspherical.evenMoment_eq_betaPDFReal_integral
 
