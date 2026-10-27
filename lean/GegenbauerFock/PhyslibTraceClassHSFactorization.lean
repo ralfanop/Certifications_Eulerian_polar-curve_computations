@@ -50,7 +50,7 @@ theorem traceClass_sqrt_abs_isHS (T : H →L[ℂ] H)
         (inner ℂ (b i) (A (b i))).re) := hT.choose_spec.choose_spec
     apply hs.congr
     intro i
-    exact (hpt i).symm
+    exact hpt i
   exact ⟨hT.choose, b, hsum⟩
 
 /-- Bounded polar left multiplication preserves HS summability,
