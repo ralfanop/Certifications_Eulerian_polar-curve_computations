@@ -4,6 +4,7 @@ import GegenbauerFock.UltrasphericalMomentBounds
 import GegenbauerFock.KummerPochhammer
 import GegenbauerFock.KummerPositiveBounds
 import GegenbauerFock.ConcreteFockEnergy
+import GegenbauerFock.HSRightIdeal
 import GegenbauerFock.UltrasphericalBetaMoments
 
 /-!
@@ -179,5 +180,29 @@ theorem C_opNorm_le_sqrt_kummer
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_apply_norm_sq_le_kummer
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_opNorm_le_sqrt_kummer
+
+/-- The full squared Hilbert--Schmidt basis energy of the ACTUAL
+Gegenbauer--Fock map is independent of the chosen complete complex
+Hilbert basis of the ultraspherical L² source, and has exactly the
+unregularized Kummer closed form. Unlike a canonical-row formula,
+the left side is a sum over an arbitrary source Hilbert basis. -/
+theorem C_sourceBasis_HSEnergy_eq_kummer
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    {ι : Type*}
+    (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
+    (∑' i : ι, ‖C lam alpha hlam ha (b i)‖ ^ 2) =
+      KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) := by
+  letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
+    Ultraspherical.probability lam hlam
+  calc
+    (∑' i : ι, ‖C lam alpha hlam ha (b i)‖ ^ 2) =
+        FockEnergy.squaredRowEnergy (Ultraspherical.measure lam)
+          (C lam alpha hlam ha) := by
+          exact FockEnergy.concrete_sourceBasis_energy_eq_rows
+            (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha ha b
+    _ = KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) :=
+      concreteFock_squaredRowEnergy_eq_kummerSeries lam alpha hlam ha
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_sourceBasis_HSEnergy_eq_kummer
 
 end GegenbauerFock.GeneralUltrasphericalFock
