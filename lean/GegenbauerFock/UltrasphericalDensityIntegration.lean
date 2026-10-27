@@ -37,10 +37,37 @@ theorem integral_eq_betaPDFReal_integral
     (ae_of_all _ (fun _ => ENNReal.ofReal_lt_top))]
   apply integral_congr_ae
   filter_upwards [] with x
-  simp only [ProbabilityTheory.betaPDF,
-    ENNReal.toReal_ofReal (symmetricBetaPDFReal_nonneg lam hlam x),
+  simp only [ENNReal.toReal_ofReal (symmetricBetaPDFReal_nonneg lam hlam x),
     smul_eq_mul]
 
+/-- The full Bochner-valued test-function identity for the actual
+Beta-pushforward measure. It applies in particular to complex-valued
+Fourier kernels, without selecting an L² representative. -/
+theorem integral_bochnervalue_eq_betaPDFReal_integral
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    [CompleteSpace E]
+    (lam : ℝ) (hlam : 0 < lam)
+    (f : ℝ → E) (hf : StronglyMeasurable f) :
+    (∫ u : ℝ, f u ∂(measure lam)) =
+      ∫ x : ℝ,
+        ProbabilityTheory.betaPDFReal (shape lam) (shape lam) x •
+          f (betaToInterval x) ∂volume := by
+  have hmap : Measurable betaToInterval := by
+    unfold betaToInterval
+    fun_prop
+  unfold measure
+  rw [integral_map_of_stronglyMeasurable hmap hf]
+  unfold ProbabilityTheory.betaMeasure ProbabilityTheory.betaPDF
+  rw [integral_withDensity_eq_integral_toReal_smul
+    (Measurable.ennreal_ofReal
+      (ProbabilityTheory.measurable_betaPDFReal (shape lam) (shape lam)))
+    (ae_of_all _ (fun _ => ENNReal.ofReal_lt_top))]
+  apply integral_congr_ae
+  filter_upwards [] with x
+  simp only [ENNReal.toReal_ofReal
+    (symmetricBetaPDFReal_nonneg lam hlam x)]
+
 #print axioms GegenbauerFock.Ultraspherical.integral_eq_betaPDFReal_integral
+#print axioms GegenbauerFock.Ultraspherical.integral_bochnervalue_eq_betaPDFReal_integral
 
 end GegenbauerFock.Ultraspherical
