@@ -71,6 +71,22 @@ theorem boundedContinuous_toLp_denseRange
   exact BoundedContinuousFunction.toLp_denseRange
     ℂ (measure lam) ℂ (by norm_num)
 
+/-- A quantitative bridge between uniform approximation on [-1,1]
+and the *actual* complex L²(ν_λ) norm. For any continuous function
+on the real line, an upper bound on its absolute value over the
+support controls its L² seminorm, because ν_λ is a probability. -/
+theorem eLpNorm_le_of_uniform_bound_unit_interval
+    (lam : ℝ) (hlam : 0 < lam)
+    (f : ℝ → ℂ) (hf : Continuous f) (M : ℝ)
+    (hM : ∀ u ∈ Set.Icc (-1 : ℝ) 1, ‖f u‖ ≤ M) :
+    eLpNorm f (2 : ℝ≥0∞) (measure lam) ≤ ENNReal.ofReal M := by
+  letI : IsProbabilityMeasure (measure lam) := probability lam hlam
+  have hb : ∀ᵐ u ∂(measure lam), ‖f u‖ ≤ M :=
+    (ae_mem_unit_interval lam).mono (fun u hu => hM u hu)
+  have h := eLpNorm_le_of_ae_bound
+    (p := (2 : ℝ≥0∞)) hf.aestronglyMeasurable hb
+  simpa [measure_univ lam hlam] using h
+
 /-- Real polynomial functions are uniformly dense among all
 real-valued continuous functions on the *actual compact support*
 [-1,1]. This is the Weierstrass stage of the L²-density argument.
@@ -88,5 +104,6 @@ theorem polynomial_uniform_dense_on_unit_interval :
 #print axioms GegenbauerFock.Ultraspherical.boundedContinuousToLp
 #print axioms GegenbauerFock.Ultraspherical.boundedContinuous_toLp_denseRange
 #print axioms GegenbauerFock.Ultraspherical.polynomial_uniform_dense_on_unit_interval
+#print axioms GegenbauerFock.Ultraspherical.eLpNorm_le_of_uniform_bound_unit_interval
 
 end GegenbauerFock.Ultraspherical
