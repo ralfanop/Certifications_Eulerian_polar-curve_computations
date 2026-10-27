@@ -53,7 +53,7 @@ theorem sourceMonomialSpan_dense_of_complexWeierstrass
       Set.univ ⊆
         (D.topologicalClosure : Set (Lp ℂ 2 (Ultraspherical.measure lam))) := by
     rw [← (Ultraspherical.boundedContinuous_toLp_denseRange lam hlam).closure_range]
-    exact (Submodule.isClosed_topologicalClosure D).closure_subset hRange
+    exact (Submodule.isClosed_topologicalClosure D).closure_subset_iff.mpr hRange
   exact Submodule.eq_top_iff'.mpr fun x => hDense (Set.mem_univ x)
 
 /-- Given uniform polynomial approximation on the compact support,
