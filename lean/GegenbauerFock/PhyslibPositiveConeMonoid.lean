@@ -58,6 +58,12 @@ noncomputable instance : AddCommMonoid (PositiveFixedBasis w b) where
     change X.op + Y.op = Y.op + X.op
     exact add_comm _ _
   nsmul := nsmulRec
+  nsmul_zero := by
+    intro X
+    rfl
+  nsmul_succ := by
+    intro n X
+    rfl
 
 @[simp] theorem op_zero :
     (0 : PositiveFixedBasis w b).op = (0 : H →L[ℂ] H) := rfl
