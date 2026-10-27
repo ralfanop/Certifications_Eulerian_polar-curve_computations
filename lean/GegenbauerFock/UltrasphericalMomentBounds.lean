@@ -1,4 +1,5 @@
 import GegenbauerFock.UltrasphericalMeasure
+import GegenbauerFock.KummerCoefficients
 
 /-!
 # V007: integrability and bounds of ALL ultraspherical even moments
@@ -94,6 +95,26 @@ theorem evenMoment_succ_le (lam : ℝ) (hlam : 0 < lam) (n : ℕ) :
       mul_le_mul_of_nonneg_left hu2 hnonneg
     _ = u ^ (2 * n) := by ring
 
+/-- The exact general even-moment formula is a consequence of its
+one-step recurrence and the already certified probability normalization.
+The recurrence is an explicit hypothesis here: its Beta/Gamma proof is
+still a separate obligation, not an axiom or a claimed theorem. -/
+theorem evenMoment_eq_ratio_of_recurrence
+    (lam : ℝ) (hlam : 0 < lam)
+    (hrec : ∀ n : ℕ,
+      evenMoment lam (n + 1) =
+        evenMoment lam n * ((n : ℝ) + 1 / 2) /
+          ((n : ℝ) + lam + 1)) :
+    ∀ n : ℕ, evenMoment lam n = KummerCoefficients.ratio lam n := by
+  intro n
+  induction n with
+  | zero =>
+      simp [evenMoment_zero lam hlam]
+  | succ n ih =>
+      rw [hrec n, ih]
+      rfl
+
+#print axioms GegenbauerFock.Ultraspherical.evenMoment_eq_ratio_of_recurrence
 #print axioms GegenbauerFock.Ultraspherical.evenMoment_integrable
 #print axioms GegenbauerFock.Ultraspherical.evenMoment_succ_le
 #print axioms GegenbauerFock.Ultraspherical.evenMoment_bounds
