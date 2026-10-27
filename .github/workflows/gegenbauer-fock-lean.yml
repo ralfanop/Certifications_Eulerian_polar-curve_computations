@@ -315,6 +315,12 @@ jobs:
           set -euo pipefail
           lake build GegenbauerFock.SingularPairNormalization GegenbauerFock.SingularPairOutputEigen 2>&1 | tee /tmp/gf-singular-normalized.log
 
+      - name: Certify output Gram zero modes as orthogonal complement of Fock image
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.OutputGramZeroModes 2>&1 | tee /tmp/gf-output-zero-modes.log
+
       - name: Check imaginary-axis integral Gram kernel
         working-directory: lean
         run: |
@@ -553,7 +559,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for part in ultra-affine-jacobian ultra-measure-density ultra-gamma-density ultra-density-integration row-energy-bounds kummer-positive-bounds ultra-odd-vanishing ultra-odd-reflection ultra-beta-symmetry kummer-entire-real kummer-nuclear-bridge ultra-beta-moments ultra-kummer-bridge ultra-moment-bounds kummer-pochhammer kummer-coeff spectral-kernel singular-transfer output-gram-spectrum singular-normalized hs-ideal hs-basis hs-s2-norm hs-s2-ideal-norm nuclear spectral gram-complete adjoint-complete analytic-clm adjoint-summability gram-moment-integral adjoint-polynomial gram-integral-l2 fock-restriction gram-integral gram-kernel analytic-adjoint kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2 fock-sequence infinite-fock fock-truncations moment-l2 factorial compactness-bridge weighted-moments concrete-fock ultra-fock concrete-energy adjoint-basis rows-compact row-integral series-integral row-tonelli exp-series row-exp operator-bound fock-eval general-bound eval-composite; do
+          for part in ultra-affine-jacobian ultra-measure-density ultra-gamma-density ultra-density-integration row-energy-bounds kummer-positive-bounds ultra-odd-vanishing ultra-odd-reflection ultra-beta-symmetry kummer-entire-real kummer-nuclear-bridge ultra-beta-moments ultra-kummer-bridge ultra-moment-bounds kummer-pochhammer kummer-coeff spectral-kernel singular-transfer output-gram-spectrum singular-normalized output-zero-modes hs-ideal hs-basis hs-s2-norm hs-s2-ideal-norm nuclear spectral gram-complete adjoint-complete analytic-clm adjoint-summability gram-moment-integral adjoint-polynomial gram-integral-l2 fock-restriction gram-integral gram-kernel analytic-adjoint kernel oscillator analytic legendre fourier measure bochner rational hilbert-gram l2-coeff finite-coeff coherent-l2 fock-sequence infinite-fock fock-truncations moment-l2 factorial compactness-bridge weighted-moments concrete-fock ultra-fock concrete-energy adjoint-basis rows-compact row-integral series-integral row-tonelli exp-series row-exp operator-bound fock-eval general-bound eval-composite; do
             test -s "/tmp/gf-${part}.log"
           done
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-*.log; then
