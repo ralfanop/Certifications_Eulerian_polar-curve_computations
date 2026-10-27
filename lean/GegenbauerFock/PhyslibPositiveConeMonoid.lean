@@ -57,7 +57,12 @@ noncomputable instance : AddCommMonoid (PositiveFixedBasis w b) where
     apply ext_op b
     change X.op + Y.op = Y.op + X.op
     exact add_comm _ _
-  nsmul := nsmulRec
+  -- Use the fixed-basis constructors directly: the global Zero/Add
+  -- typeclass instances are being defined by this very declaration.
+  -- In particular, avoid invoking nsmulRec before they exist.
+  nsmul := fun n X =>
+    n.rec (PositiveFixedBasis.zero b)
+      (fun _ Y => PositiveFixedBasis.add b Y X)
   nsmul_zero := by
     intro X
     rfl
