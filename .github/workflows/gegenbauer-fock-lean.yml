@@ -101,6 +101,14 @@ jobs:
           set -euo pipefail
           lake env lean -M16768 --version
 
+      # Check the new Mathlib-complex Gamma and positive nuclear bridge early;
+      # keep the exact existing toolchain and -M16768 memory cap.
+      - name: Certify real-to-complex Kummer Gamma and positive S1 witness
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.KummerRegularizedBridge GegenbauerFock.PositiveTraceClassBridge 2>&1 | tee /tmp/gf-schatten-gamma.log
+
       # Develop new Beta/Kummer proof modules first so that short
       # iteration failures are visible before the longest spectral builds.
       - name: Certify sharp elementary bounds on general ultraspherical Fock row energy
