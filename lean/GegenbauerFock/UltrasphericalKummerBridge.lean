@@ -116,8 +116,8 @@ canonical-target-row formulation; basis-independent Schatten S₂
 norm remains a separate formal obligation. -/
 theorem concreteFock_squaredRowEnergy_eq_kummerSeries
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
-    @FockEnergy.squaredRowEnergy (Ultraspherical.measure lam)
-        (Ultraspherical.probability lam hlam) (C lam alpha hlam ha) =
+    FockEnergy.squaredRowEnergy (Ultraspherical.measure lam)
+        (C lam alpha hlam ha) =
       KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) := by
   change rowEnergy lam alpha hlam ha =
     KummerCoefficients.kummerSeries lam (1 / (4 * alpha))
