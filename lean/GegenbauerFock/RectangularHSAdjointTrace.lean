@@ -25,9 +25,28 @@ namespace GegenbauerFock.HilbertSchmidtBasis
 
 open scoped InnerProductSpace
 
-variable {E F : Type*}
+variable {E F : Type}
 variable [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
 variable [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
+
+/-- Parseval for a Hilbert basis with an arbitrary index type, not only
+an index realized as a subset of the underlying Hilbert space. -/
+private lemma hasSum_norm_sq_inner_anyBasis
+    {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
+    {ι : Type*} (b : HilbertBasis ι ℂ H) (y : H) :
+    HasSum (fun i : ι => ‖inner ℂ (b i) y‖ ^ 2) (‖y‖ ^ 2) := by
+  have h := b.hasSum_inner_mul_inner y y
+  have hpt : ∀ i : ι,
+      inner ℂ y (b i) * inner ℂ (b i) y =
+        ((‖inner ℂ (b i) y‖ ^ 2 : ℝ) : ℂ) := fun i => by
+    rw [← inner_conj_symm y (b i), RCLike.conj_mul]
+    norm_cast
+  have hval : inner ℂ y y = ((‖y‖ ^ 2 : ℝ) : ℂ) := by
+    rw [inner_self_eq_norm_sq_to_K]
+    norm_cast
+  simp_rw [hpt] at h
+  rw [hval] at h
+  exact Complex.hasSum_ofReal.mp h
 
 /-- The rectangular analogue of Parseval/Fubini for a Hilbert–Schmidt
 operator and its adjoint. The source and output bases can even be
@@ -43,7 +62,7 @@ theorem hasSum_adjoint_energy_rectangular
   have hWnonneg : 0 ≤ Function.uncurry W := fun _ => sq_nonneg _
   have hrow : ∀ i : ι, HasSum (W i) (‖T (b i)‖ ^ 2) := by
     intro i
-    exact ProbabilisticTheory.hasSum_norm_sq_inner_basis c (T (b i))
+    exact hasSum_norm_sq_inner_anyBasis c (T (b i))
   have hcol : ∀ j : κ,
       HasSum (fun i : ι => W i j) (‖T.adjoint (c j)‖ ^ 2) := by
     intro j
@@ -57,7 +76,7 @@ theorem hasSum_adjoint_energy_rectangular
       rw [e1 i, ← inner_conj_symm (b i) (T.adjoint (c j)),
         RCLike.norm_conj]
     rw [key]
-    exact ProbabilisticTheory.hasSum_norm_sq_inner_basis b (T.adjoint (c j))
+    exact hasSum_norm_sq_inner_anyBasis b (T.adjoint (c j))
   have hjoint : Summable (Function.uncurry W) := by
     rw [summable_prod_of_nonneg hWnonneg]
     refine ⟨fun i => (hrow i).summable, ?_⟩
