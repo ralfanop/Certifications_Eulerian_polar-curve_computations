@@ -45,6 +45,7 @@ theorem volume_map_reflection :
         Measure.map (fun x : ℝ => 1 + x)
           (Measure.map (fun x : ℝ => -x) (volume : Measure ℝ)) := by
       rw [Measure.map_map (by fun_prop) (by fun_prop)]
+      simp only [Function.comp_def, sub_eq_add_neg]
     _ = Measure.map (fun x : ℝ => 1 + x) (volume : Measure ℝ) := by rw [hneg]
     _ = volume := hshift
 
