@@ -1,6 +1,7 @@
 import GegenbauerFock.GramIntegralComplete
 import GegenbauerFock.GramKernelSeries
 import GegenbauerFock.RowEnergyExpIntegral
+import GegenbauerFock.UltrasphericalKummerBridge
 
 /-!
 # V007: operator-norm summable nuclear Gram decomposition
@@ -129,5 +130,18 @@ theorem gramNuclearMass_eq_exp_integral
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramNuclearMass_eq_rowEnergy
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramNuclearMass_eq_exp_integral
 
+
+/-- Unconditional Kummer closed form for the absolute rank-one
+nuclear mass of the concrete positive Gram operator C†C. The
+summands are actual norm-one-rank Hilbert operators, not merely
+formal coefficients. -/
+theorem gramNuclearMass_eq_kummerSeries
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    (∑' n : ℕ, ‖gramNuclearTerm lam alpha hlam ha n‖) =
+      KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) := by
+  rw [gramNuclearMass_eq_rowEnergy]
+  exact rowEnergy_eq_kummerSeries lam alpha hlam ha
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gramNuclearMass_eq_kummerSeries
 
 end GegenbauerFock.GeneralUltrasphericalFock
