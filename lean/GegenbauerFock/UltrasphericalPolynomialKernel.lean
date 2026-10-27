@@ -130,9 +130,31 @@ theorem C_injective_of_monomialSpan_dense
   have hzero : f - g = 0 := by simpa using hsub
   exact sub_eq_zero.mp hzero
 
+/-- The missing polynomial-density lemma is not just sufficient but
+*equivalent* to injectivity of the actual ultraspherical Fock operator.
+The reverse direction uses the complete Hilbert-space double-orthogonal
+theorem; no finite-dimensional or hypothetical density API is used. -/
+theorem C_injective_iff_monomialSpan_dense
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    Function.Injective (C lam alpha hlam ha) ↔
+      (sourceMonomialSpan lam hlam).topologicalClosure = ⊤ := by
+  constructor
+  · intro hinj
+    have hker : (C lam alpha hlam ha).ker = ⊥ :=
+      LinearMap.ker_eq_bot.mpr hinj
+    rw [C_ker_eq_monomialSpan_orthogonal lam alpha hlam ha] at hker
+    have hdouble := congrArg
+      (fun K : Submodule ℂ (Lp ℂ 2 (Ultraspherical.measure lam)) => Kᗮ) hker
+    simpa only [Submodule.orthogonal_orthogonal_eq_closure,
+      Submodule.bot_orthogonal_eq_top] using hdouble
+  · intro hdense
+    exact C_injective_of_monomialSpan_dense
+      lam alpha hlam ha hdense
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.nonzero_fock_weight
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_eq_zero_iff_monomial_moments_zero
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_ker_eq_monomialSpan_orthogonal
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_injective_of_monomialSpan_dense
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_injective_iff_monomialSpan_dense
 
 end GegenbauerFock.GeneralUltrasphericalFock
