@@ -1,5 +1,6 @@
 import GegenbauerFock.GramIntegralComplete
 import GegenbauerFock.GramKernelSeries
+import Mathlib.Analysis.InnerProductSpace.Spectrum
 
 /-!
 # V007: genuine kernel of compact positive Gram operator
