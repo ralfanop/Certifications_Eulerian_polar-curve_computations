@@ -79,6 +79,55 @@ theorem beta_density_reflection (lam x : ℝ)
   simp [ProbabilityTheory.betaPDFReal, hx0, hx1, hx'0, hx'1,
     h, mul_comm, mul_left_comm, mul_assoc]
 
+/-- The affine-Jacobian candidate density on [-1,1] obtained from the
+genuine symmetric Beta density under u = 2x - 1.  Its equality
+with the Radon--Nikodym derivative of the pushforward measure is
+a separate measure-theoretic change-of-variables obligation. -/
+noncomputable def affineDensity (lam u : ℝ) : ℝ :=
+  ProbabilityTheory.betaPDFReal (shape lam) (shape lam) ((u + 1) / 2) / 2
+
+/-- Explicit beta-normalized ultraspherical weight on the open support,
+including the correct factor 1/2 from the affine Jacobian. -/
+theorem affineDensity_eq_beta_weight (lam u : ℝ)
+    (hu0 : -1 < u) (hu1 : u < 1) :
+    affineDensity lam u =
+      ((1 / ProbabilityTheory.beta (shape lam) (shape lam)) *
+        ((u + 1) / 2) ^ (lam - 1 / 2) *
+        ((1 - u) / 2) ^ (lam - 1 / 2)) / 2 := by
+  have hx0 : 0 < (u + 1) / 2 := by linarith
+  have hx1 : (u + 1) / 2 < 1 := by linarith
+  have hshape : shape lam - 1 = lam - 1 / 2 := by
+    unfold shape
+    ring
+  have hcoord : 1 - (u + 1) / 2 = (1 - u) / 2 := by ring
+  unfold affineDensity
+  rw [ProbabilityTheory.betaPDFReal, if_pos ⟨hx0, hx1⟩]
+  rw [hshape, hcoord]
+
+/-- Strict positivity of the transported beta density throughout (-1,1). -/
+theorem affineDensity_pos (lam u : ℝ) (hlam : 0 < lam)
+    (hu0 : -1 < u) (hu1 : u < 1) :
+    0 < affineDensity lam u := by
+  unfold affineDensity
+  exact div_pos
+    (beta_density_pos lam ((u + 1) / 2) hlam
+      (by linarith) (by linarith))
+    (by norm_num)
+
+/-- The affine beta density is pointwise even on its open support. -/
+theorem affineDensity_even (lam u : ℝ)
+    (hu0 : -1 < u) (hu1 : u < 1) :
+    affineDensity lam (-u) = affineDensity lam u := by
+  have hx0 : 0 < (u + 1) / 2 := by linarith
+  have hx1 : (u + 1) / 2 < 1 := by linarith
+  have hreflect : (-u + 1) / 2 = 1 - (u + 1) / 2 := by ring
+  unfold affineDensity
+  rw [hreflect, beta_density_reflection lam ((u + 1) / 2) hx0 hx1]
+
+#print axioms GegenbauerFock.Ultraspherical.affineDensity_eq_beta_weight
+#print axioms GegenbauerFock.Ultraspherical.affineDensity_pos
+#print axioms GegenbauerFock.Ultraspherical.affineDensity_even
+
 /-- The symmetric Beta law has almost-everywhere support (0,1).
 The statement is a measure-theoretic fact, not merely a pointwise
 claim about its density. -/
