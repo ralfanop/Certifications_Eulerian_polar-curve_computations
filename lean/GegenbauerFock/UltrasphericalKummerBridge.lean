@@ -1,4 +1,4 @@
-import GegenbauerFock.RowEnergyIntegral
+import GegenbauerFock.RowEnergyExpIntegral
 import GegenbauerFock.FockExponentialSeries
 import GegenbauerFock.UltrasphericalMomentBounds
 import GegenbauerFock.KummerPochhammer
