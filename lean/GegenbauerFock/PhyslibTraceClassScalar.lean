@@ -64,7 +64,7 @@ theorem traceNorm_nonneg (T : H →L[ℂ] H)
     (h : IsTraceClass T) : 0 ≤ traceNorm T h := by
   unfold traceNorm
   exact tsum_nonneg fun i =>
-    real_inner_nonneg_of_nonneg (CFC.abs_nonneg T)
+    ((ContinuousLinearMap.nonneg_iff_isPositive).mp (CFC.abs_nonneg T)).re_inner_nonneg_right
       (h.choose_spec.choose i)
 
 #print axioms ProbabilisticTheory.traceNorm_congr
