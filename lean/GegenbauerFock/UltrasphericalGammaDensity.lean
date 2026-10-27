@@ -103,7 +103,7 @@ theorem affineDensity_eq_gammaDensity
     have hpdf :
         ProbabilityTheory.betaPDFReal (shape lam) (shape lam)
           ((u + 1) / 2) = 0 := by
-      simp [ProbabilityTheory.betaPDFReal, hx]
+      exact if_neg hx
     simp [gammaDensity, hu, affineDensity, hpdf]
 
 /-- Exact equality of the true ultraspherical probability measure with
