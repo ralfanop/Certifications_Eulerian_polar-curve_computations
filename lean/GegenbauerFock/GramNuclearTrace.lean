@@ -159,4 +159,30 @@ theorem gramNuclearMass_eq_pochhammerSeries
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramNuclearMass_eq_pochhammerSeries
 
+/-- The actual positive Gram operator has a basis-independent
+Hilbert trace in the following concrete sense: for every complete
+complex Hilbert basis of ultraspherical L², the sum of its real
+diagonal matrix elements is the same unregularized Kummer value.
+This proves the basis-sum trace identity, without postulating a
+separate Schatten S₁ norm object. -/
+theorem gram_sourceBasis_trace_eq_kummer
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    {ι : Type*}
+    (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
+    (∑' i : ι,
+        RCLike.re (inner ℂ (gram lam alpha hlam ha (b i)) (b i))) =
+      KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) := by
+  calc
+    (∑' i : ι,
+        RCLike.re (inner ℂ (gram lam alpha hlam ha (b i)) (b i))) =
+        ∑' i : ι, ‖C lam alpha hlam ha (b i)‖ ^ 2 := by
+          apply tsum_congr
+          intro i
+          exact (HilbertGram.gram_norm_sq
+            (C lam alpha hlam ha) (b i)).symm
+    _ = KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) :=
+      C_sourceBasis_HSEnergy_eq_kummer lam alpha hlam ha b
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gram_sourceBasis_trace_eq_kummer
+
 end GegenbauerFock.GeneralUltrasphericalFock
