@@ -1,0 +1,56 @@
+name: V007 Mixed Gram independent Lean certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/PhyslibMixedGramAlgebra.lean'
+      - 'lean/GegenbauerFock/PhyslibGramConjugationIdeal.lean'
+      - '.github/workflows/gegenbauer-fock-mixed-gram.yml'
+  workflow_dispatch:
+
+jobs:
+  mixed-gram:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned elan and Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt*8))"
+          done
+          test "$installed" = 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt*8))"
+          done
+          test "$ready" = 1
+      - name: Generate Lake manifest from pinned Mathlib revision
+        working-directory: lean
+        run: lake update
+      - name: Fetch precompiled Mathlib artifacts
+        working-directory: lean
+        run: lake exe cache get
+      - name: Compile mixed Gram and audit all four theorem declarations
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.PhyslibMixedGramAlgebra 2>&1 | tee /tmp/gf-mixed-gram.log
+          for theorem in gramMixed_eq_composed_adjoints gramMixed_inner gramMixed_adjoint gramMixed_self; do
+            grep -F "GegenbauerFock.GeneralUltrasphericalFock.${theorem}" /tmp/gf-mixed-gram.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-mixed-gram.log; then
+            echo '::error::Forbidden theorem axiom dependency.'
+            exit 1
+          fi
+          echo 'Four mixed-Gram theorems compile with clean axiom audit.'
