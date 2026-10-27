@@ -157,6 +157,49 @@ theorem gramAfterRight_traceNorm_le_gramTraceNorm
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramAfterRight_traceNorm_le_gramTraceNorm
 
+
+/-- EXACT formula for the CFC trace norm of the conjugated positive
+Gram B†C†CB, as the true sum of squared norms of the postcomposed
+ultraspherical moment-row functionals. The inequality above is
+therefore a genuine trace ideal estimate, not just a row estimate. -/
+theorem gramAfterRight_traceNorm_eq_composedRowMass
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (B : Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+      Lp ℂ 2 (Ultraspherical.measure lam)) :
+    ProbabilisticTheory.traceNorm (gramAfterRight lam alpha hlam ha B)
+      (gramAfterRight_isTraceClass lam alpha hlam ha B) =
+      ∑' n : ℕ,
+        ‖(SummableRowsCompact.row (C lam alpha hlam ha) n).comp B‖ ^ 2 := by
+  let G := gramAfterRight lam alpha hlam ha B
+  let h := gramAfterRight_isTraceClass lam alpha hlam ha B
+  have hp : 0 ≤ G := gramAfterRight_nonneg lam alpha hlam ha B
+  rw [ProbabilisticTheory.traceNorm_eq_diagonal_of_nonneg G hp h]
+  calc
+    (∑' i : h.choose,
+      (inner ℂ (h.choose_spec.choose i)
+        (G (h.choose_spec.choose i))).re) =
+      ∑' i : h.choose,
+        ‖((C lam alpha hlam ha).comp B) (h.choose_spec.choose i)‖ ^ 2 := by
+          apply tsum_congr
+          intro i
+          exact (real_inner_swap
+            (h.choose_spec.choose i) (G (h.choose_spec.choose i))).trans
+            (HilbertGram.gram_norm_sq
+              ((C lam alpha hlam ha).comp B) (h.choose_spec.choose i)).symm
+    _ = ∑' n : ℕ,
+        ‖SummableRowsCompact.row ((C lam alpha hlam ha).comp B) n‖ ^ 2 :=
+      (FockEnergy.summableRows_iff_sourceBasis_energy
+        ((C lam alpha hlam ha).comp B)
+        (C_comp_right_rows_summable lam alpha hlam ha B)
+        h.choose_spec.choose).2
+    _ = ∑' n : ℕ,
+        ‖(SummableRowsCompact.row (C lam alpha hlam ha) n).comp B‖ ^ 2 := by
+          apply tsum_congr
+          intro n
+          rw [C_row_comp_right lam alpha hlam ha B n]
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gramAfterRight_traceNorm_eq_composedRowMass
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramAfterRight_eq_conjugated
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramAfterRight_nonneg
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramAfterRight_isTraceClass
