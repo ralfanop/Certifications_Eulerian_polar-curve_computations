@@ -124,7 +124,8 @@ private theorem momentRecurrencePrimitive_hasDerivAt
   have ha : 0 < shape lam := shape_pos lam hlam
   have hy : 0 < 1 - x := by linarith
   have hd_u : HasDerivAt betaToInterval 2 x := by
-    simpa only [betaToInterval, id_eq, mul_one] using
+    change HasDerivAt (fun t : ℝ => 2 * t - 1) 2 x
+    simpa only [id_eq, mul_one] using
       (((hasDerivAt_id x).const_mul (2 : ℝ)).sub_const 1)
   have hd_pow :
       HasDerivAt (fun t : ℝ => betaToInterval t ^ (2 * n + 1))
@@ -228,8 +229,6 @@ private theorem momentRecurrenceIntegrand_integrable
   unfold momentRecurrenceIntegrand
   convert (h1.sub h2).const_mul
     (ProbabilityTheory.beta (shape lam) (shape lam)) using 1
-  funext y
-  simp only [Pi.sub_apply]
 
 /-- Integrating the derivative on the full real line gives precisely
 the linear combination of the two genuine normalized Beta moments. -/
