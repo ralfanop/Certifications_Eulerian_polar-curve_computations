@@ -29,6 +29,21 @@ theorem measure_weaklyRegular (lam : ℝ) (hlam : 0 < lam) :
   letI : IsProbabilityMeasure (measure lam) := probability lam hlam
   infer_instance
 
+/-- The complement of the exact compact support [-1,1] has
+zero ν_λ mass; this statement is measure-level, not merely a
+pointwise assertion about a density. -/
+theorem measure_compl_unit_interval_eq_zero (lam : ℝ) :
+    measure lam (Set.Icc (-1 : ℝ) 1)ᶜ = 0 := by
+  exact mem_ae_iff.mp (ae_mem_unit_interval lam)
+
+/-- Restriction to the compact unit interval leaves the genuine
+ultraspherical probability measure unchanged. This is the measure
+identification needed before transferring uniform polynomial
+approximation on the interval to L²(ν_λ). -/
+theorem measure_restrict_unit_interval_eq_self (lam : ℝ) :
+    (measure lam).restrict (Set.Icc (-1 : ℝ) 1) = measure lam := by
+  exact Measure.restrict_eq_self_of_ae_mem (ae_mem_unit_interval lam)
+
 /-- The bounded-continuous-to-L² operator for the *concrete*
 ultraspherical probability measure. Constructing it with the certified
 probability instance avoids an unfulfilled finite-measure instance in
@@ -68,6 +83,8 @@ theorem polynomial_uniform_dense_on_unit_interval :
     (Set.Icc (-1 : ℝ) 1)
 
 #print axioms GegenbauerFock.Ultraspherical.measure_weaklyRegular
+#print axioms GegenbauerFock.Ultraspherical.measure_compl_unit_interval_eq_zero
+#print axioms GegenbauerFock.Ultraspherical.measure_restrict_unit_interval_eq_self
 #print axioms GegenbauerFock.Ultraspherical.boundedContinuousToLp
 #print axioms GegenbauerFock.Ultraspherical.boundedContinuous_toLp_denseRange
 #print axioms GegenbauerFock.Ultraspherical.polynomial_uniform_dense_on_unit_interval
