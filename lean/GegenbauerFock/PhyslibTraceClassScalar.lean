@@ -1,4 +1,4 @@
-import GegenbauerFock.PhyslibTraceClassSubtype
+import GegenbauerFock.PhyslibTraceNormCore
 
 /-!
 # V007 — scalar-module closure of the source-compatible Physlib trace class
@@ -9,6 +9,8 @@ of the elementary algebraic closure results from Tom Ole Diem's
 PhyslibAlpha TraceClass/Banach.lean (Apache-2.0), compiled against
 V007's *unchanged* Lean v4.35.0-rc3 and pinned Mathlib.
 
+The elementary zero and nonnegativity lemmas now come from the canonical
+PhyslibTraceNormCore import, eliminating duplicate global declarations.
 This is a strict incremental step toward, not a false assertion of,
 the full additive normed Banach trace-class API: additive closure,
 norm triangle inequality, and completeness remain separate.
@@ -20,12 +22,6 @@ namespace ProbabilisticTheory
 
 variable {H : Type*}
 variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
-
-/-- The zero bounded operator is genuinely trace class under the
-CFC absolute value definition, in arbitrary Hilbert dimension. -/
-theorem isTraceClass_zero : IsTraceClass (0 : H →L[ℂ] H) := by
-  obtain ⟨w, b, _⟩ := exists_hilbertBasis ℂ H
-  exact ⟨w, b, by simp [CFC.abs_zero]⟩
 
 /-- Complex scalar multiplication preserves the full
 infinite-dimensional CFC-absolute trace-class predicate. -/
@@ -58,15 +54,6 @@ theorem traceNorm_congr {T : H →L[ℂ] H}
   have hh : h₁ = h₂ := Subsingleton.elim _ _
   rw [hh]
 
-/-- Nonnegativity of the actual functional-calculus trace norm
-is a prerequisite for constructing a normed S₁ space. -/
-theorem traceNorm_nonneg (T : H →L[ℂ] H)
-    (h : IsTraceClass T) : 0 ≤ traceNorm T h := by
-  unfold traceNorm
-  exact tsum_nonneg fun i =>
-    ((ContinuousLinearMap.nonneg_iff_isPositive).mp (CFC.abs_nonneg T)).re_inner_nonneg_right
-      (h.choose_spec.choose i)
-
 #print axioms ProbabilisticTheory.traceNorm_congr
 #print axioms ProbabilisticTheory.traceNorm_nonneg
 
@@ -85,6 +72,16 @@ variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 trace-class subtype, provided by the now-proved scalar closure. -/
 noncomputable instance : SMul ℂ (TraceClass H) where
   smul c T := ⟨c • T.1, ProbabilisticTheory.isTraceClass_smul c T.2⟩
+
+
+/-- Negation of a genuinely CFC trace-class operator, with its S₁ witness. -/
+noncomputable instance : Neg (TraceClass H) where
+  neg T := ⟨-T.1, ProbabilisticTheory.isTraceClass_neg T.2⟩
+
+@[simp] theorem neg_operator (T : TraceClass H) :
+    ((-T : TraceClass H).1) = -T.1 := rfl
+
+#print axioms ProbabilisticTheory.TraceClass.neg_operator
 
 /-- Scalar multiplication of proof-carrying trace-class operators
 agrees *definitionally* with scalar multiplication of bounded maps. -/
