@@ -129,25 +129,19 @@ private theorem momentRecurrencePrimitive_hasDerivAt
     · funext t
       dsimp
       ring
-    · ring
   have hd_pow :
       HasDerivAt (fun t : ℝ => betaToInterval t ^ (2 * n + 1))
         (((2 * n + 1 : ℕ) : ℝ) * betaToInterval x ^ (2 * n) * 2) x := by
     convert hd_u.pow (2 * n + 1) using 1
-    · funext t
-      simp only [Pi.pow_apply]
-    · simp only [Nat.add_sub_cancel]
+    simp only [Nat.add_sub_cancel]
   have hd_x : HasDerivAt (fun t : ℝ => t ^ (shape lam))
       (shape lam * x ^ (shape lam - 1)) x := by
-    convert (hasDerivAt_id x).rpow_const (Or.inl hx0.ne') using 1 <;> ring
+    simpa only [id_eq, one_mul] using
+      (hasDerivAt_id x).rpow_const (Or.inl hx0.ne')
   have hd_y : HasDerivAt (fun t : ℝ => (1 - t) ^ (shape lam))
       (-(shape lam) * (1 - x) ^ (shape lam - 1)) x := by
     have hm : HasDerivAt (fun t : ℝ => (1 : ℝ) - t) (-1) x := by
-      convert (hasDerivAt_id x).const_sub 1 using 1
-      · funext t
-        dsimp
-        ring
-      · ring
+      simpa only [id_eq] using (hasDerivAt_id x).const_sub 1
     convert hm.rpow_const (Or.inl hy.ne') using 1 <;> ring
   have hraw : HasDerivAt (momentRecurrencePrimitive lam n)
       ((((2 * n + 1 : ℕ) : ℝ) * betaToInterval x ^ (2 * n) * 2) *
@@ -156,8 +150,8 @@ private theorem momentRecurrencePrimitive_hasDerivAt
           (shape lam * x ^ (shape lam - 1))) * (1 - x) ^ (shape lam) +
         (betaToInterval x ^ (2 * n + 1) * x ^ (shape lam)) *
           (-(shape lam) * (1 - x) ^ (shape lam - 1))) x := by
-    convert ((hd_pow.mul hd_x).mul hd_y) using 1 <;>
-      simp only [momentRecurrencePrimitive] <;> ring
+    unfold momentRecurrencePrimitive
+    convert ((hd_pow.mul hd_x).mul hd_y) using 1 <;> ring
   have hxa : x ^ (shape lam) = x ^ (shape lam - 1) * x := by
     calc
       x ^ (shape lam) = x ^ ((shape lam - 1) + 1) := by
