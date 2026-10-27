@@ -74,15 +74,6 @@ noncomputable instance : SMul ℂ (TraceClass H) where
   smul c T := ⟨c • T.1, ProbabilisticTheory.isTraceClass_smul c T.2⟩
 
 
-/-- Negation of a genuinely CFC trace-class operator, with its S₁ witness. -/
-noncomputable instance : Neg (TraceClass H) where
-  neg T := ⟨-T.1, ProbabilisticTheory.isTraceClass_neg T.2⟩
-
-@[simp] theorem neg_operator (T : TraceClass H) :
-    ((-T : TraceClass H).1) = -T.1 := rfl
-
-#print axioms ProbabilisticTheory.TraceClass.neg_operator
-
 /-- Scalar multiplication of proof-carrying trace-class operators
 agrees *definitionally* with scalar multiplication of bounded maps. -/
 @[simp] theorem smul_operator (c : ℂ) (T : TraceClass H) :
