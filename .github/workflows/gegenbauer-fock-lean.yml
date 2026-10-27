@@ -313,7 +313,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.SingularPairNormalization 2>&1 | tee /tmp/gf-singular-normalized.log
+          lake build GegenbauerFock.SingularPairNormalization GegenbauerFock.SingularPairOutputEigen 2>&1 | tee /tmp/gf-singular-normalized.log
 
       - name: Check imaginary-axis integral Gram kernel
         working-directory: lean
