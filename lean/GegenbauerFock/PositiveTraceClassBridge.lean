@@ -124,6 +124,7 @@ theorem C_basisHSEnergy_eq_mathlibRegularizedKummer
       Complex.Gamma (((lam + 1 : ℝ) : ℂ)) *
         KummerCoefficients.mathlibRegularizedKummer lam
           (((1 / (4 * alpha) : ℝ) : ℂ)) := by
+  simp only [← Complex.ofReal_pow]
   rw [← Complex.ofReal_tsum]
   rw [C_sourceBasis_HSEnergy_eq_kummer lam alpha hlam ha b]
   exact KummerCoefficients.kummerSeries_eq_gamma_mul_mathlibRegularized
