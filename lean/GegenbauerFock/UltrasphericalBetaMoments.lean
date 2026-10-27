@@ -43,7 +43,7 @@ theorem evenMoment_eq_betaPDFReal_integral
         ProbabilityTheory.betaPDFReal (shape lam) (shape lam) x *
           (betaToInterval x) ^ (2 * n) ∂volume := by
   rw [evenMoment_eq_beta_integral]
-  unfold ProbabilityTheory.betaMeasure
+  unfold ProbabilityTheory.betaMeasure ProbabilityTheory.betaPDF
   rw [integral_withDensity_eq_integral_toReal_smul
     (Measurable.ennreal_ofReal
       (ProbabilityTheory.measurable_betaPDFReal (shape lam) (shape lam)))
