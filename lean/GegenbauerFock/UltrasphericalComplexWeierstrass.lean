@@ -49,7 +49,8 @@ theorem complexWeierstrass_unit_interval
   have hmap (q : Polynomial ℝ) :
       (q.map (algebraMap ℝ ℂ)).eval (u : ℂ) =
         ((Polynomial.eval u q : ℝ) : ℂ) := by
-    rw [Polynomial.eval_map, Polynomial.eval₂_hom]
+    simpa only [Polynomial.eval_map] using
+      (Polynomial.eval₂_hom (p := q) (f := algebraMap ℝ ℂ) u)
   have hP :
       P.eval (u : ℂ) =
         ((Polynomial.eval u pRe : ℝ) : ℂ) + Complex.I * ((Polynomial.eval u pIm : ℝ) : ℂ) := by
