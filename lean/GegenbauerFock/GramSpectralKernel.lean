@@ -11,7 +11,7 @@ does not assert a full spectral decomposition, eigenvalue enumeration,
 trace-class membership, or an unproved injectivity assumption.
 -/
 
-open MeasureTheory
+open MeasureTheory Module End
 
 namespace GegenbauerFock.GeneralUltrasphericalFock
 
