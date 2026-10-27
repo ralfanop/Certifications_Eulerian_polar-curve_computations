@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/PhyslibPositiveFixedBasis.lean'
+      - 'lean/GegenbauerFock/PhyslibPositiveFixedBasisFinite.lean'
       - 'lean/GegenbauerFock/PhyslibPositiveConeMonoid.lean'
       - 'lean/GegenbauerFock/PhyslibRankOneTrace.lean'
       - 'lean/GegenbauerFock/PhyslibTraceBasisIndependence.lean'
@@ -142,3 +143,14 @@ jobs:
             echo "::error::Nonstandard axiom in trace-norm homogeneity."
             exit 1
           fi
+
+      - name: Certify finite positive sums and fixed-basis trace additivity
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.PhyslibPositiveFixedBasisFinite 2>&1 | tee /tmp/gf-physlib-s1-finite.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-physlib-s1-finite.log; then
+            echo "::error::Nonstandard axiom in Physlib S1 positive finite-sum module."
+            exit 1
+          fi
+          echo 'Fixed-basis finite S1 positive-sum module: no forbidden axioms.'
