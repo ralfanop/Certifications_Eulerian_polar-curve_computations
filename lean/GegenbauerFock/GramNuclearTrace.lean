@@ -151,8 +151,8 @@ theorem gramNuclearMass_eq_pochhammerSeries
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
     (∑' n : ℕ, ‖gramNuclearTerm lam alpha hlam ha n‖) =
       ∑' n : ℕ,
-        ((Polynomial.ascPochhammer ℝ n).eval (1 / 2) /
-          (Polynomial.ascPochhammer ℝ n).eval (lam + 1)) *
+        ((ascPochhammer ℝ n).eval (1 / 2) /
+          (ascPochhammer ℝ n).eval (lam + 1)) *
           ((1 / (4 * alpha)) ^ n / (Nat.factorial n : ℝ)) := by
   rw [gramNuclearMass_eq_rowEnergy]
   exact rowEnergy_eq_pochhammerSeries lam alpha hlam ha
