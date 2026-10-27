@@ -128,6 +128,46 @@ theorem affineDensity_even (lam u : ℝ)
 #print axioms GegenbauerFock.Ultraspherical.affineDensity_pos
 #print axioms GegenbauerFock.Ultraspherical.affineDensity_even
 
+/-- Gamma duplication evaluates the normalizing Beta constant for the
+symmetric ultraspherical pushforward law.  The factor 2^(-2λ)
+is the exact affine-scaling factor; this is an identity of actual
+Mathlib Beta and Gamma special functions, not a symbolic placeholder. -/
+theorem beta_shape_gamma_duplication (lam : ℝ) (hlam : 0 < lam) :
+    ProbabilityTheory.beta (shape lam) (shape lam) =
+      Real.Gamma (shape lam) *
+        ((2 : ℝ) ^ (-2 * lam) * Real.sqrt Real.pi) /
+          Real.Gamma (lam + 1) := by
+  have hp : 0 < shape lam := shape_pos lam hlam
+  have hgamma2 : Real.Gamma (2 * shape lam) ≠ 0 :=
+    (Real.Gamma_pos_of_pos (by positivity)).ne'
+  have hgamma1 : Real.Gamma (lam + 1) ≠ 0 :=
+    (Real.Gamma_pos_of_pos (by positivity)).ne'
+  have hs : shape lam + 1 / 2 = lam + 1 := by
+    unfold shape
+    ring
+  have he : 1 - 2 * shape lam = -2 * lam := by
+    unfold shape
+    ring
+  have hdup := Real.Gamma_mul_Gamma_add_half (shape lam)
+  rw [hs, he] at hdup
+  have htwo : shape lam + shape lam = 2 * shape lam := by ring
+  unfold ProbabilityTheory.beta
+  rw [htwo]
+  apply (div_eq_div_iff hgamma2 hgamma1).2
+  calc
+    (Real.Gamma (shape lam) * Real.Gamma (shape lam)) *
+        Real.Gamma (lam + 1) =
+      (Real.Gamma (shape lam) * Real.Gamma (lam + 1)) *
+        Real.Gamma (shape lam) := by ring
+    _ = (Real.Gamma (2 * shape lam) *
+        (2 : ℝ) ^ (-2 * lam) * Real.sqrt Real.pi) *
+          Real.Gamma (shape lam) := by rw [hdup]
+    _ = (Real.Gamma (shape lam) *
+        ((2 : ℝ) ^ (-2 * lam) * Real.sqrt Real.pi)) *
+          Real.Gamma (2 * shape lam) := by ring
+
+#print axioms GegenbauerFock.Ultraspherical.beta_shape_gamma_duplication
+
 /-- The symmetric Beta law has almost-everywhere support (0,1).
 The statement is a measure-theoretic fact, not merely a pointwise
 claim about its density. -/
