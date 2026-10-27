@@ -101,7 +101,7 @@ jobs:
           set -euo pipefail
           lake env lean -M16768 --version
 
-      - name: Certify ultraspherical polynomial moments and exact Fock kernel
+      - name: Certify polynomial moment separation and conditional Fock injectivity
         working-directory: lean
         run: |
           set -euo pipefail
