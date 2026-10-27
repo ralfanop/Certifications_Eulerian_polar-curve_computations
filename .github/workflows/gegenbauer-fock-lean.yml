@@ -114,6 +114,14 @@ jobs:
           fi
           echo 'Physlib S1 scalar and trace-norm foundations: no forbidden axioms.'
 
+      # Conditional but complete spectral bridge, isolated from pending
+      # polynomial density to avoid conflating hypothesis and conclusion.
+      - name: Certify conditional completeness of nonzero source eigenspaces
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.NonzeroSourceSpectralCompleteness 2>&1 | tee /tmp/gf-nonzero-source-completeness.log
+
       - name: Certify bounded-continuous density in ultraspherical L2
         working-directory: lean
         run: |
