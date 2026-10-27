@@ -3,6 +3,7 @@ import GegenbauerFock.FockExponentialSeries
 import GegenbauerFock.UltrasphericalMomentBounds
 import GegenbauerFock.KummerPochhammer
 import GegenbauerFock.KummerPositiveBounds
+import GegenbauerFock.ConcreteFockEnergy
 import GegenbauerFock.UltrasphericalBetaMoments
 
 /-!
