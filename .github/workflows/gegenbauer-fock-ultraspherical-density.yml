@@ -9,6 +9,7 @@ on:
       - 'lean/GegenbauerFock/UltrasphericalPolynomialKernel.lean'
       - 'lean/GegenbauerFock/UltrasphericalPolynomialL2.lean'
       - 'lean/GegenbauerFock/UltrasphericalPolynomialApproximation.lean'
+      - 'lean/GegenbauerFock/UltrasphericalPolynomialDensityReduction.lean'
       - '.github/workflows/gegenbauer-fock-ultraspherical-density.yml'
   workflow_dispatch:
 
@@ -140,5 +141,15 @@ jobs:
           lake build GegenbauerFock.UltrasphericalPolynomialApproximation 2>&1 | tee /tmp/v007-ultra-polynomial-approx.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-ultra-polynomial-approx.log; then
             echo "::error::Nonstandard axiom in weighted L2 polynomial approximation."
+            exit 1
+          fi
+
+      - name: Certify final weighted polynomial-density reduction to complex Weierstrass
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalPolynomialDensityReduction 2>&1 | tee /tmp/v007-ultra-density-reduction.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-ultra-density-reduction.log; then
+            echo "::error::Nonstandard axiom in weighted polynomial density reduction."
             exit 1
           fi
