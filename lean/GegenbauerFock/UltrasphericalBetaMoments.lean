@@ -96,6 +96,86 @@ theorem evenMoment_betaPDF_integrable
     ENNReal.toReal_ofReal (symmetricBetaPDFReal_nonneg lam hlam x),
     smul_eq_mul]
 
+/-- An elementary integration-by-parts primitive for ultraspherical
+moments, defined on the original symmetric Beta coordinate. -/
+private noncomputable def momentRecurrencePrimitive
+    (lam : ℝ) (n : ℕ) (x : ℝ) : ℝ :=
+  betaToInterval x ^ (2 * n + 1) *
+    x ^ (shape lam) * (1 - x) ^ (shape lam)
+
+/-- The weighted derivative predicted by integration by parts. -/
+private noncomputable def momentRecurrenceIntegrand
+    (lam : ℝ) (n : ℕ) (x : ℝ) : ℝ :=
+  ProbabilityTheory.beta (shape lam) (shape lam) *
+    (((n : ℝ) + 1 / 2) *
+        (ProbabilityTheory.betaPDFReal (shape lam) (shape lam) x *
+          betaToInterval x ^ (2 * n)) -
+      ((n : ℝ) + lam + 1) *
+        (ProbabilityTheory.betaPDFReal (shape lam) (shape lam) x *
+          betaToInterval x ^ (2 * (n + 1))))
+
+/-- The primitive has the exact weighted moment-recursion derivative
+at each point of the open beta support (0,1). -/
+private theorem momentRecurrencePrimitive_hasDerivAt
+    (lam : ℝ) (hlam : 0 < lam) (n : ℕ)
+    (x : ℝ) (hx0 : 0 < x) (hx1 : x < 1) :
+    HasDerivAt (momentRecurrencePrimitive lam n)
+      (momentRecurrenceIntegrand lam n x) x := by
+  have ha : 0 < shape lam := shape_pos lam hlam
+  have hy : 0 < 1 - x := by linarith
+  have hd_u : HasDerivAt betaToInterval 2 x := by
+    convert (((hasDerivAt_id x).const_mul (2 : ℝ)).sub_const 1) using 1 <;> ring
+  have hd_pow :
+      HasDerivAt (fun t : ℝ => betaToInterval t ^ (2 * n + 1))
+        (((2 * n + 1 : ℕ) : ℝ) * betaToInterval x ^ (2 * n) * 2) x := by
+    simpa only [Nat.add_sub_cancel] using (hd_u.pow (2 * n + 1))
+  have hd_x : HasDerivAt (fun t : ℝ => t ^ (shape lam))
+      (shape lam * x ^ (shape lam - 1)) x := by
+    convert (hasDerivAt_id x).rpow_const (Or.inl hx0.ne') using 1 <;> ring
+  have hd_y : HasDerivAt (fun t : ℝ => (1 - t) ^ (shape lam))
+      (-(shape lam) * (1 - x) ^ (shape lam - 1)) x := by
+    have hm : HasDerivAt (fun t : ℝ => (1 : ℝ) - t) (-1) x := by
+      convert (hasDerivAt_id x).const_sub 1 using 1 <;> ring
+    convert hm.rpow_const (Or.inl hy.ne') using 1 <;> ring
+  have hraw : HasDerivAt (momentRecurrencePrimitive lam n)
+      ((((2 * n + 1 : ℕ) : ℝ) * betaToInterval x ^ (2 * n) * 2) *
+          x ^ (shape lam) * (1 - x) ^ (shape lam) +
+        (betaToInterval x ^ (2 * n + 1) *
+          (shape lam * x ^ (shape lam - 1))) * (1 - x) ^ (shape lam) +
+        (betaToInterval x ^ (2 * n + 1) * x ^ (shape lam)) *
+          (-(shape lam) * (1 - x) ^ (shape lam - 1))) x := by
+    convert ((hd_pow.mul hd_x).mul hd_y) using 1 <;>
+      simp only [momentRecurrencePrimitive] <;> ring
+  have hxa : x ^ (shape lam) = x ^ (shape lam - 1) * x := by
+    rw [show shape lam = (shape lam - 1) + 1 by ring,
+      Real.rpow_add hx0 (shape lam - 1) 1, Real.rpow_one]
+  have hya : (1 - x) ^ (shape lam) =
+      (1 - x) ^ (shape lam - 1) * (1 - x) := by
+    rw [show shape lam = (shape lam - 1) + 1 by ring,
+      Real.rpow_add hy (shape lam - 1) 1, Real.rpow_one]
+  have hodd : betaToInterval x ^ (2 * n + 1) =
+      betaToInterval x ^ (2 * n) * betaToInterval x := by
+    rw [show 2 * n + 1 = 2 * n + 1 by rfl, pow_succ]
+  have heven : betaToInterval x ^ (2 * (n + 1)) =
+      betaToInterval x ^ (2 * n) * betaToInterval x ^ 2 := by
+    rw [show 2 * (n + 1) = 2 * n + 2 by omega, pow_add]
+  have hpdf : ProbabilityTheory.beta (shape lam) (shape lam) *
+      ProbabilityTheory.betaPDFReal (shape lam) (shape lam) x =
+      x ^ (shape lam - 1) * (1 - x) ^ (shape lam - 1) := by
+    rw [ProbabilityTheory.betaPDFReal, if_pos ⟨hx0, hx1⟩]
+    field_simp [(ProbabilityTheory.beta_pos ha ha).ne']
+  have hfactor : momentRecurrenceIntegrand lam n x =
+      x ^ (shape lam - 1) * (1 - x) ^ (shape lam - 1) *
+        (((n : ℝ) + 1 / 2) * betaToInterval x ^ (2 * n) -
+          ((n : ℝ) + lam + 1) * betaToInterval x ^ (2 * (n + 1))) := by
+    unfold momentRecurrenceIntegrand
+    rw [← hpdf]
+    ring
+  convert hraw using 1
+  rw [hfactor, hxa, hya, hodd, heven]
+  unfold betaToInterval shape
+  ring
+
 #print axioms GegenbauerFock.Ultraspherical.evenMoment_betaPDF_integrable
 #print axioms GegenbauerFock.Ultraspherical.symmetricBetaPDFReal_nonneg
 #print axioms GegenbauerFock.Ultraspherical.evenMoment_eq_betaPDFReal_integral
