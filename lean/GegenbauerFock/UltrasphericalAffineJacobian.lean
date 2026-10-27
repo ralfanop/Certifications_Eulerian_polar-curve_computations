@@ -117,7 +117,7 @@ theorem affineDensity_eq_gamma_betaFactors
 measurable equivalence of the real line, with inverse x ↦ 2x-1.
 This is the change-of-variables interface needed for a measure-level
 Radon–Nikodym density proof, not just a pointwise density identity. -/
-def intervalToBetaEquiv : ℝ ≃ᵐ ℝ where
+noncomputable def intervalToBetaEquiv : ℝ ≃ᵐ ℝ where
   toEquiv := {
     toFun := fun u => (u + 1) / 2
     invFun := betaToInterval
@@ -130,7 +130,9 @@ def intervalToBetaEquiv : ℝ ≃ᵐ ℝ where
       dsimp [betaToInterval]
       ring
   }
-  measurable_toFun := by fun_prop
+  measurable_toFun := by
+    change Measurable (fun u : ℝ => (u + 1) / 2)
+    fun_prop
   measurable_invFun := by
     change Measurable betaToInterval
     unfold betaToInterval
@@ -141,7 +143,11 @@ theorem intervalToBetaEquiv_hasDerivAt (u : ℝ) :
     HasDerivAt intervalToBetaEquiv (1 / 2 : ℝ) u := by
   change HasDerivAt (fun u : ℝ => (u + 1) / 2) (1 / 2 : ℝ) u
   convert (((hasDerivAt_id u).add_const (1 : ℝ)).const_mul (1 / 2 : ℝ))
-    using 1 <;> ring
+    using 1
+  · funext x
+    simp only [id_eq]
+    ring
+  · ring
 
 /-- The transported density is everywhere nonnegative, including
 outside its open support, where it is exactly zero. -/
@@ -174,7 +180,11 @@ theorem affineDensity_integrable (lam : ℝ) (hlam : 0 < lam) :
   have hnonzero : ENNReal.ofReal (1 / 2 : ℝ) ≠ 0 := by norm_num
   have hfinite : ENNReal.ofReal (1 / 2 : ℝ) ≠ ⊤ := by norm_num
   have hreal := (integrable_smul_measure hnonzero hfinite).mp hmap
-  simpa [affineDensity] using hreal.div_const 2
+  change Integrable
+    (fun u : ℝ =>
+      ProbabilityTheory.betaPDFReal (shape lam) (shape lam) ((u + 1) / 2) / 2)
+    (volume : Measure ℝ)
+  exact hreal.div_const 2
 
 #print axioms GegenbauerFock.Ultraspherical.intervalToBetaEquiv_hasDerivAt
 #print axioms GegenbauerFock.Ultraspherical.affineDensity_nonneg
