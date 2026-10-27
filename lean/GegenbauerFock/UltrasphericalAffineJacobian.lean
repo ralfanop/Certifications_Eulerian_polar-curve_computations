@@ -57,7 +57,7 @@ theorem measure_absolutelyContinuous_volume (lam : ℝ) :
       ProbabilityTheory.betaMeasure (shape lam) (shape lam) ≪
         (volume : Measure ℝ) := by
     unfold ProbabilityTheory.betaMeasure
-    exact Measure.withDensity_absolutelyContinuous _ _
+    exact withDensity_absolutelyContinuous _ _
   have hmeas : Measurable betaToInterval := by
     unfold betaToInterval
     fun_prop
