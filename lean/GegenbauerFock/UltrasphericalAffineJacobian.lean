@@ -112,4 +112,72 @@ theorem affineDensity_eq_gamma_betaFactors
 #print axioms GegenbauerFock.Ultraspherical.measure_singleton_eq_zero
 #print axioms GegenbauerFock.Ultraspherical.affineDensity_eq_gamma_betaFactors
 
+
+/-- The inverse affine coordinate u ↦ (u+1)/2 is a genuine
+measurable equivalence of the real line, with inverse x ↦ 2x-1.
+This is the change-of-variables interface needed for a measure-level
+Radon–Nikodym density proof, not just a pointwise density identity. -/
+def intervalToBetaEquiv : ℝ ≃ᵐ ℝ where
+  toEquiv := {
+    toFun := fun u => (u + 1) / 2
+    invFun := betaToInterval
+    left_inv := by
+      intro u
+      dsimp [betaToInterval]
+      ring
+    right_inv := by
+      intro x
+      dsimp [betaToInterval]
+      ring
+  }
+  measurable_toFun := by fun_prop
+  measurable_invFun := by
+    change Measurable betaToInterval
+    unfold betaToInterval
+    fun_prop
+
+/-- Exact Jacobian derivative of the inverse affine Beta coordinate. -/
+theorem intervalToBetaEquiv_hasDerivAt (u : ℝ) :
+    HasDerivAt intervalToBetaEquiv (1 / 2 : ℝ) u := by
+  change HasDerivAt (fun u : ℝ => (u + 1) / 2) (1 / 2 : ℝ) u
+  convert (((hasDerivAt_id u).add_const (1 : ℝ)).const_mul (1 / 2 : ℝ))
+    using 1 <;> ring
+
+/-- The transported density is everywhere nonnegative, including
+outside its open support, where it is exactly zero. -/
+theorem affineDensity_nonneg (lam u : ℝ) (hlam : 0 < lam) :
+    0 ≤ affineDensity lam u := by
+  unfold affineDensity
+  exact div_nonneg (symmetricBetaPDFReal_nonneg lam hlam _) (by norm_num)
+
+/-- The actual transported affine Beta density is Lebesgue-integrable.
+This follows from the already kernel-certified integrability of the
+original normalized Beta density and the exact affine volume Jacobian. -/
+theorem affineDensity_integrable (lam : ℝ) (hlam : 0 < lam) :
+    Integrable (affineDensity lam) (volume : Measure ℝ) := by
+  have hbeta : Integrable
+      (ProbabilityTheory.betaPDFReal (shape lam) (shape lam))
+      (volume : Measure ℝ) := by
+    simpa using evenMoment_betaPDF_integrable lam hlam 0
+  let e := intervalToBetaEquiv
+  have hmap : Integrable
+      (fun u : ℝ =>
+        ProbabilityTheory.betaPDFReal (shape lam) (shape lam) (e u))
+      (Measure.map e.symm volume) := by
+    apply (integrable_map_equiv e.symm _).2
+    simpa [Function.comp_def] using hbeta
+  change Integrable
+      (fun u : ℝ =>
+        ProbabilityTheory.betaPDFReal (shape lam) (shape lam) ((u + 1) / 2))
+      (Measure.map betaToInterval volume) at hmap
+  rw [map_volume_betaToInterval] at hmap
+  have hnonzero : ENNReal.ofReal (1 / 2 : ℝ) ≠ 0 := by norm_num
+  have hfinite : ENNReal.ofReal (1 / 2 : ℝ) ≠ ⊤ := by norm_num
+  have hreal := (integrable_smul_measure hnonzero hfinite).mp hmap
+  simpa [affineDensity] using hreal.div_const 2
+
+#print axioms GegenbauerFock.Ultraspherical.intervalToBetaEquiv_hasDerivAt
+#print axioms GegenbauerFock.Ultraspherical.affineDensity_nonneg
+#print axioms GegenbauerFock.Ultraspherical.affineDensity_integrable
+
 end GegenbauerFock.Ultraspherical
