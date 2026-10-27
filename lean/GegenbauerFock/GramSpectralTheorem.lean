@@ -115,7 +115,7 @@ theorem gramIntegralOperator_real_eigenvalue_nonneg
     0 ≤ mu := by
   apply eigenvalue_nonneg_of_nonneg hmu
   intro f
-  exact gramIntegralOperator_nonnegative_form lam alpha hlam ha f
+  exact (gramIntegralOperator_isPositive lam alpha hlam ha).re_inner_nonneg_right f
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramIntegralOperator_real_eigenvalue_nonneg
 
