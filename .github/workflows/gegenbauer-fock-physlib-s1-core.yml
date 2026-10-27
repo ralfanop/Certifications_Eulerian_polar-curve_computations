@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/PhyslibPositiveFixedBasis.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceBasisIndependence.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassScalar.lean'
       - 'lean/GegenbauerFock/PhyslibTraceNormCore.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassPointed.lean'
@@ -119,3 +120,13 @@ jobs:
           fi
           echo 'Physlib S1 scalar and trace-norm foundations: no forbidden axioms.'
 
+      - name: Certify basis-independent CFC absolute diagonal and trace norm
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.PhyslibTraceBasisIndependence 2>&1 | tee /tmp/gf-physlib-s1-basis.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-physlib-s1-basis.log; then
+            echo "::error::Nonstandard axiom in Physlib S1 basis-independence module."
+            exit 1
+          fi
+          echo 'Physlib S1 basis-independence: no forbidden axioms.'
