@@ -107,7 +107,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.KummerRegularizedBridge GegenbauerFock.PositiveTraceClassBridge GegenbauerFock.PhyslibTraceClassCompat GegenbauerFock.PhyslibHilbertSchmidtCompat GegenbauerFock.PhyslibTraceClassSubtype GegenbauerFock.PositiveNuclearConjugation GegenbauerFock.HSRowBasisGeneral GegenbauerFock.PhyslibHSRightIdeal GegenbauerFock.HSOperatorIdealTwoSided GegenbauerFock.PhyslibGramConjugationIdeal GegenbauerFock.PhyslibTraceNormCore 2>&1 | tee /tmp/gf-schatten-gamma.log
+          lake build GegenbauerFock.KummerRegularizedBridge GegenbauerFock.PositiveTraceClassBridge GegenbauerFock.PhyslibTraceClassCompat GegenbauerFock.PhyslibHilbertSchmidtCompat GegenbauerFock.PhyslibTraceClassScalar GegenbauerFock.PhyslibTraceClassSubtype GegenbauerFock.PositiveNuclearConjugation GegenbauerFock.HSRowBasisGeneral GegenbauerFock.PhyslibHSRightIdeal GegenbauerFock.HSOperatorIdealTwoSided GegenbauerFock.PhyslibGramConjugationIdeal GegenbauerFock.PhyslibTraceNormCore 2>&1 | tee /tmp/gf-schatten-gamma.log
 
       # Develop new Beta/Kummer proof modules first so that short
       # iteration failures are visible before the longest spectral builds.
