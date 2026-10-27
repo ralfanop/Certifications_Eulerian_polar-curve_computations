@@ -8,6 +8,7 @@ on:
       - 'lean/GegenbauerFock/UltrasphericalContinuousDensity.lean'
       - 'lean/GegenbauerFock/UltrasphericalPolynomialKernel.lean'
       - 'lean/GegenbauerFock/UltrasphericalPolynomialL2.lean'
+      - 'lean/GegenbauerFock/UltrasphericalPolynomialApproximation.lean'
       - '.github/workflows/gegenbauer-fock-ultraspherical-density.yml'
   workflow_dispatch:
 
@@ -129,5 +130,15 @@ jobs:
           lake build GegenbauerFock.UltrasphericalPolynomialL2 2>&1 | tee /tmp/v007-ultra-polynomial-l2.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-ultra-polynomial-l2.log; then
             echo "::error::Nonstandard axiom in exact weighted polynomial evaluation."
+            exit 1
+          fi
+
+      - name: Certify weighted L2 norm approximation from complex polynomial errors
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalPolynomialApproximation 2>&1 | tee /tmp/v007-ultra-polynomial-approx.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-ultra-polynomial-approx.log; then
+            echo "::error::Nonstandard axiom in weighted L2 polynomial approximation."
             exit 1
           fi
