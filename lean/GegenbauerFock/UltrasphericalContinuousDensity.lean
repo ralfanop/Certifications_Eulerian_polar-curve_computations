@@ -87,6 +87,19 @@ theorem eLpNorm_le_of_uniform_bound_unit_interval
     (p := (2 : ℝ≥0∞)) hf.aestronglyMeasurable hb
   simpa [measure_univ lam hlam] using h
 
+/-- Uniform approximation on the real compact support gives
+an explicit error estimate for the ultraspherical L² distance
+between two arbitrary complex-valued continuous functions. -/
+theorem eLpNorm_sub_le_of_uniform_error_unit_interval
+    (lam : ℝ) (hlam : 0 < lam)
+    (f g : ℝ → ℂ) (hf : Continuous f) (hg : Continuous g)
+    (eps : ℝ)
+    (herror : ∀ u ∈ Set.Icc (-1 : ℝ) 1, ‖f u - g u‖ ≤ eps) :
+    eLpNorm (fun u => f u - g u) (2 : ℝ≥0∞) (measure lam) ≤
+      ENNReal.ofReal eps := by
+  exact eLpNorm_le_of_uniform_bound_unit_interval
+    lam hlam (fun u => f u - g u) (hf.sub hg) eps herror
+
 /-- Real polynomial functions are uniformly dense among all
 real-valued continuous functions on the *actual compact support*
 [-1,1]. This is the Weierstrass stage of the L²-density argument.
@@ -105,5 +118,6 @@ theorem polynomial_uniform_dense_on_unit_interval :
 #print axioms GegenbauerFock.Ultraspherical.boundedContinuous_toLp_denseRange
 #print axioms GegenbauerFock.Ultraspherical.polynomial_uniform_dense_on_unit_interval
 #print axioms GegenbauerFock.Ultraspherical.eLpNorm_le_of_uniform_bound_unit_interval
+#print axioms GegenbauerFock.Ultraspherical.eLpNorm_sub_le_of_uniform_error_unit_interval
 
 end GegenbauerFock.Ultraspherical
