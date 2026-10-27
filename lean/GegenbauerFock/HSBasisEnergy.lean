@@ -78,8 +78,8 @@ private theorem C_double_basis_energy_summable
       (Ultraspherical.measure lam) (ae_abs_le_one lam) n
     let cw := WeightedMoments.complexWeight alpha n
     have hrepr : Summable (fun i : ι => ‖inner ℂ (b i) m‖ ^ 2) := by
-      have h : Summable (fun i : ι => ‖(b.repr m) i‖ ^ 2) :=
-        (lp.memℓp (b.repr m)).summable
+      have h : Summable (fun i : ι => ‖(b.repr m) i‖ ^ 2) := by
+        simpa using (lp.memℓp (b.repr m)).summable
           (by norm_num : 0 < (2 : ENNReal).toReal)
       simpa only [HilbertBasis.repr_apply_apply] using h
     have hscaled := hrepr.mul_left (‖cw‖ ^ 2)
