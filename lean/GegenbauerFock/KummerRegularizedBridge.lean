@@ -125,7 +125,7 @@ theorem gamma_mul_regularizedHGFun_eq_complexSeries
   rw [← FormalMultilinearSeries.ofScalarsSum,
     FormalMultilinearSeries.ofScalars_sum_eq]
   simp only [smul_eq_mul]
-  rw [tsum_mul_left]
+  rw [← tsum_mul_left]
   apply tsum_congr
   intro n
   rw [← mul_assoc, gamma_mul_regularizedCoeff_eq_ratio lam hlam n]
