@@ -229,7 +229,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.FockS2IdealNormBounds 2>&1 | tee /tmp/gf-hs-s2-ideal-norm.log
+          lake build GegenbauerFock.FockS2IdealNormBounds GegenbauerFock.PhyslibS1S2TraceBridge 2>&1 | tee /tmp/gf-hs-s2-ideal-norm.log
 
       - name: Certify operator-norm nuclear Gram decomposition
         working-directory: lean
