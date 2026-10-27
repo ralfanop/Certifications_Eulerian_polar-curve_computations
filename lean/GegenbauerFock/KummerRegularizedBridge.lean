@@ -43,7 +43,6 @@ private theorem gamma_kummerB_ne_zero (lam : ℝ) (hlam : 0 < lam) :
     Complex.Gamma (kummerB lam) ≠ 0 := by
   apply Complex.Gamma_ne_zero_of_re_pos
   dsimp [kummerB]
-  simp only [Complex.ofReal_re]
   linarith
 
 /-- The general denominator Gamma(b+n) is nonzero. -/
@@ -52,7 +51,6 @@ private theorem gamma_kummerB_add_nat_ne_zero
     Complex.Gamma (kummerB lam + (n : ℂ)) ≠ 0 := by
   apply Complex.Gamma_ne_zero_of_re_pos
   dsimp [kummerB]
-  simp only [Complex.add_re, Complex.ofReal_re, Complex.natCast_re]
   positivity
 
 /-- The Gamma quotient equals precisely Mathlib's complex rising
@@ -66,7 +64,6 @@ private theorem gamma_quotient_eq_pochhammer
   intro k hk
   have hr := congrArg Complex.re hk
   dsimp [kummerB] at hr
-  simp only [Complex.ofReal_re, Complex.neg_re, Complex.natCast_re] at hr
   have hk0 : 0 ≤ (k : ℝ) := Nat.cast_nonneg _
   linarith
 
@@ -110,7 +107,6 @@ theorem gamma_mul_regularizedCoeff_eq_ratio
     Multiset.map_singleton, Multiset.prod_singleton]
   rw [← hq]
   field_simp [hg, hgn, hf]
-  ring
 
 /-- For any complex z, the classical unregularized Kummer series agrees
 with Gamma(b) times Mathlib's ACTUAL regularized complex function.
