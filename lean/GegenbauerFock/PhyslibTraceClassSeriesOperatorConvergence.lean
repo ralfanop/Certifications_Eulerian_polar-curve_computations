@@ -49,6 +49,24 @@ theorem operator_partial_sums_tendsto_of_traceNorm_summable
   have hcontinuous := (operator_uniformContinuous (H := H)).continuous
   exact hcontinuous.continuousAt.tendsto.comp hsum
 
+/-- Applying the absolutely convergent Schatten-S₁ series to any
+fixed Hilbert vector preserves convergence, with the same
+bounded-operator sum. No assumption on the selected vector. -/
+theorem operator_series_pointwise_tendsto
+    (T : ℕ → TraceClass H)
+    (hT : Summable (fun n => traceNorm H (T n)))
+    (x : H) :
+    Tendsto
+      (fun N => (((∑ n ∈ Finset.range N, T n) : TraceClass H).1) x)
+      atTop
+      (𝓝 ((((∑' n : ℕ, T n) : TraceClass H).1) x)) := by
+  have hop := operator_partial_sums_tendsto_of_traceNorm_summable T hT
+  have hev : Continuous (fun A : H →L[ℂ] H => A x) :=
+    (ContinuousLinearMap.apply ℂ H x).continuous
+  exact hev.continuousAt.tendsto.comp hop
+
+#print axioms ProbabilisticTheory.TraceClass.operator_series_pointwise_tendsto
+
 #print axioms ProbabilisticTheory.TraceClass.operatorNorm_series_error_le_traceNorm_series_error
 #print axioms ProbabilisticTheory.TraceClass.operator_partial_sums_tendsto_of_traceNorm_summable
 
