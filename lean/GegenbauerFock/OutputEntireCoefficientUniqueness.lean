@@ -69,8 +69,15 @@ theorem coefficients_zero_of_entire_evaluation_zero
     have h := lp.summable_inner (𝕜 := ℂ) (kernelVector alpha ha z) F
     change Summable (fun n : ℕ =>
       inner ℂ (kernelCoordinate alpha z n) (F n)) at h
-    simpa [a, inner_kernelCoordinate_eq_monomial,
-      mul_assoc, mul_comm, mul_left_comm] using h
+    have heq :
+        (fun n : ℕ => inner ℂ (kernelCoordinate alpha z n) (F n)) =
+          (fun n : ℕ => a n * z ^ n) := by
+      funext n
+      rw [inner_kernelCoordinate_eq_monomial]
+      dsimp [a]
+      ring
+    rw [heq] at h
+    exact h
   have hsumzero (z : ℂ) : (∑' n : ℕ, a n * z ^ n) = 0 := by
     calc
       (∑' n : ℕ, a n * z ^ n) = evaluation alpha ha z F := by
