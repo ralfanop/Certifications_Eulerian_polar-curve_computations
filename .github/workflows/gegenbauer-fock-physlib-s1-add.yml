@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/PhyslibTraceClassAdditionFromHS.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassAdditiveCarrier.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassHSFactorization.lean'
       - 'lean/GegenbauerFock/PhyslibGeneralHSProductTraceClass.lean'
       - 'lean/GegenbauerFock/PhyslibHilbertSchmidtTwoSidedIdeal.lean'
@@ -108,7 +109,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.PhyslibTraceClassAdditionFromHS 2>&1 | tee /tmp/gf-physlib-s1-add.log
+          lake build GegenbauerFock.PhyslibTraceClassAdditionFromHS GegenbauerFock.PhyslibTraceClassAdditiveCarrier 2>&1 | tee /tmp/gf-physlib-s1-add.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-physlib-s1-add.log; then
             echo "::error::Nonstandard axiom in general S1 additive closure theorem."
             exit 1
