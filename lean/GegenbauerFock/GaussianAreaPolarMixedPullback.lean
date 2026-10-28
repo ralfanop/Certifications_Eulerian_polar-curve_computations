@@ -38,7 +38,7 @@ theorem integral_gaussian_mixed_monomial_eq_polar
           star ((Complex.polarCoord.symm p) ^ n) *
           (Real.exp
             (-alpha * ‖Complex.polarCoord.symm p‖ ^ 2) : ℂ))) := by
-  simpa only [Complex.polarCoord_target] using
+  exact
     (Complex.integral_comp_polarCoord_symm
       (f := fun z : ℂ =>
         (z ^ m) * star (z ^ n) *
