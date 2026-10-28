@@ -35,22 +35,25 @@ def entireGaussianL2Submodule
   zero_mem' := by
     refine ⟨fun _ : ℂ => (0 : ℂ), ?_, ?_⟩
     · fun_prop
-    · filter_upwards [] with z
-      simp
+    · exact (Lp.coeFn_zero ℂ 2 (gaussianAreaMeasure alpha)).symm
   add_mem' := by
     intro x y hx hy
     obtain ⟨f, hf, hfx⟩ := hx
     obtain ⟨g, hg, hgy⟩ := hy
     refine ⟨fun z => f z + g z, hf.add hg, ?_⟩
-    filter_upwards [hfx, hgy] with z hxz hyz
-    simpa [hxz, hyz, Lp.coeFn_add]
+    filter_upwards [hfx, hgy, Lp.coeFn_add x y] with z hxz hyz hxy
+    calc
+      f z + g z = x z + y z := by rw [hxz, hyz]
+      _ = (x + y) z := by simpa only [Pi.add_apply] using hxy.symm
   smul_mem' := by
     intro c x hx
     obtain ⟨f, hf, hfx⟩ := hx
     refine ⟨fun z => c * f z, ?_, ?_⟩
     · fun_prop
-    · filter_upwards [hfx] with z hz
-      simpa [hz, smul_eq_mul, Lp.coeFn_smul]
+    · filter_upwards [hfx, Lp.coeFn_smul c x] with z hz hsmul
+      calc
+        c * f z = c • x z := by rw [hz]; simp only [smul_eq_mul]
+        _ = (c • x) z := by simpa only [Pi.smul_apply] using hsmul.symm
 
 /-- The normalized entire complex monomial is differentiable
 everywhere, with no assumption on a limiting coefficient series. -/
