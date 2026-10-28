@@ -18,6 +18,7 @@ the identity belongs to S₁, nor that T is positive or normal.
 noncomputable section
 
 namespace ProbabilisticTheory.TraceClass
+open scoped Topology
 
 variable {H : Type*}
 variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
@@ -48,7 +49,7 @@ theorem positivePowers_traceNorm_remainder_tendsto_zero
       (fun N : ℕ => traceNorm H
         ((∑' n : ℕ, positivePower T n) -
           ∑ n ∈ Finset.range N, positivePower T n))
-      Filter.atTop (nhds 0) :=
+      Filter.atTop (𝓝 0) :=
   traceNorm_partial_sum_error_tendsto_zero
     (fun n => positivePower T n)
     (positivePowers_traceNorm_summable T hsmall)
@@ -61,7 +62,7 @@ theorem positivePowers_operator_tendsto
       (fun N : ℕ =>
         ((∑ n ∈ Finset.range N, positivePower T n) : TraceClass H).1)
       Filter.atTop
-      (nhds ((∑' n : ℕ, positivePower T n : TraceClass H)).1) :=
+      (𝓝 ((∑' n : ℕ, positivePower T n : TraceClass H)).1) :=
   operator_partial_sums_tendsto_of_traceNorm_summable
     (fun n => positivePower T n)
     (positivePowers_traceNorm_summable T hsmall)
