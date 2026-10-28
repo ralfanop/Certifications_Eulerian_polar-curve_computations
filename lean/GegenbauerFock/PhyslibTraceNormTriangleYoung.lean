@@ -98,8 +98,9 @@ theorem norm_inner_contraction_tsum_le_traceNorm_young
       ∑' i : w, ‖R.adjoint (b i)‖ ^ 2 := by
     change (∑' i : w, ‖(R.adjoint.comp W) (b i)‖ ^ 2) ≤ _
     have h := HilbertSchmidt.right_basis_energy_le R.adjoint hRstar W b
-    have hWsq : ‖W‖ ^ 2 ≤ (1:ℝ) :=
-      (sq_le_sq₀ (norm_nonneg _) zero_le_one).2 hW
+    have hWsq : ‖W‖ ^ 2 ≤ (1:ℝ) := by
+      simpa only [one_pow] using
+        ((sq_le_sq₀ (norm_nonneg _) zero_le_one).2 hW)
     have hsumNonneg :
         (0:ℝ) ≤ ∑' i : w, ‖R.adjoint (b i)‖ ^ 2 :=
       tsum_nonneg (fun i => sq_nonneg _)
@@ -141,7 +142,7 @@ theorem norm_inner_contraction_tsum_le_traceNorm_young
       _ ≤ (1/2 : ℝ) *
           ((∑' i : w, ‖S (b i)‖ ^ 2) +
             (∑' i : w, ‖S (b i)‖ ^ 2)) := by
-        exact mul_le_mul_of_nonneg_left (add_le_add_right hDleS _) (by norm_num)
+        exact mul_le_mul_of_nonneg_left (add_le_add_left hDleS _) (by norm_num)
       _ = ∑' i : w, ‖S (b i)‖ ^ 2 := by ring
       _ = traceNorm T hT := (traceNorm_eq_sqrt_abs_basisEnergy T hT b).symm
 
