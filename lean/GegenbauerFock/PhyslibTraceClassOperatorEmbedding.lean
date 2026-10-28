@@ -75,6 +75,29 @@ theorem exists_operator_limit_of_traceClass_cauchySeq
   cauchySeq_tendsto_of_complete
     (operator_cauchySeq_of_traceClass_cauchySeq hu)
 
+/-- The operator-norm limit of an arbitrary S₁-Cauchy sequence
+acts as its pointwise limit on *every* Hilbert vector. In
+particular, the limit is a genuine bounded operator and not
+merely a pointwise or weakly defined linear map. -/
+theorem exists_pointwise_operator_limit_of_traceClass_cauchySeq
+    {u : ℕ → TraceClass H} (hu : CauchySeq u) :
+    ∃ T : H →L[ℂ] H,
+      ∀ x : H, Tendsto (fun n => (u n).1 x) Filter.atTop (nhds (T x)) := by
+  obtain ⟨T, hT⟩ := exists_operator_limit_of_traceClass_cauchySeq hu
+  refine ⟨T, ?_⟩
+  intro x
+  have hev : Continuous (fun A : H →L[ℂ] H => A x) :=
+    (ContinuousLinearMap.apply ℂ H x).continuous
+  exact hev.continuousAt.tendsto.comp hT
+
+/-- Operator-norm limits of the same S₁-Cauchy sequence are unique. -/
+theorem traceClass_operator_limit_unique
+    {u : ℕ → TraceClass H} {T V : H →L[ℂ] H}
+    (hT : Tendsto (fun n => (u n).1) Filter.atTop (nhds T))
+    (hV : Tendsto (fun n => (u n).1) Filter.atTop (nhds V)) :
+    T = V :=
+  tendsto_nhds_unique hT hV
+
 #print axioms ProbabilisticTheory.TraceClass.operator_norm_le_trace_norm
 #print axioms ProbabilisticTheory.TraceClass.operator_sub_norm_le_trace_sub_norm
 #print axioms ProbabilisticTheory.TraceClass.operator_dist_le_trace_dist
@@ -82,5 +105,7 @@ theorem exists_operator_limit_of_traceClass_cauchySeq
 #print axioms ProbabilisticTheory.TraceClass.operator_uniformContinuous
 #print axioms ProbabilisticTheory.TraceClass.operator_cauchySeq_of_traceClass_cauchySeq
 #print axioms ProbabilisticTheory.TraceClass.exists_operator_limit_of_traceClass_cauchySeq
+#print axioms ProbabilisticTheory.TraceClass.exists_pointwise_operator_limit_of_traceClass_cauchySeq
+#print axioms ProbabilisticTheory.TraceClass.traceClass_operator_limit_unique
 
 end ProbabilisticTheory.TraceClass
