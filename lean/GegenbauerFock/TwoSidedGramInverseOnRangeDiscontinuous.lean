@@ -50,7 +50,14 @@ private theorem inverse_on_range_discontinuous_at_zero
     exact hleft (u n)
   rw [heq] at hrec
   have hrzero : r (0 : T.range) = 0 := by
-    simpa using hleft (0 : H)
+    have hzero : (⟨T (0 : H), ⟨(0 : H), rfl⟩⟩ : T.range) = 0 := by
+      ext
+      simp
+    calc
+      r (0 : T.range) =
+          r (⟨T (0 : H), ⟨(0 : H), rfl⟩⟩ : T.range) :=
+        congrArg r hzero.symm
+      _ = 0 := hleft 0
   rw [hrzero] at hrec
   have hnormzero : Tendsto (fun n : ℕ => ‖u n‖)
       atTop (nhds (0 : ℝ)) := by
