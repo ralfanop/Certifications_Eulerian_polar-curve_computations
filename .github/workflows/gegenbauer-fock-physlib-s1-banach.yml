@@ -11,6 +11,7 @@ on:
       - 'lean/GegenbauerFock/PhyslibTraceClassSandwichWeightedTsum.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassInfinitePerturbation.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassVaryingSandwichSeries.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassVaryingSandwichTail.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassNormedSpace.lean'
       - 'lean/GegenbauerFock/PhyslibTraceNormLowerSemicontinuity.lean'
       - 'lean/GegenbauerFock/PhyslibTraceNormTriangleYoung.lean'
@@ -112,7 +113,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.PhyslibTraceClassComplete GegenbauerFock.PhyslibTraceClassInfiniteSeries GegenbauerFock.PhyslibTraceClassWeightedInfiniteSeries GegenbauerFock.PhyslibTraceClassSandwichWeightedTsum GegenbauerFock.PhyslibTraceClassInfinitePerturbation GegenbauerFock.PhyslibTraceClassVaryingSandwichSeries 2>&1 | tee /tmp/gf-s1-banach.log
+          lake build GegenbauerFock.PhyslibTraceClassComplete GegenbauerFock.PhyslibTraceClassInfiniteSeries GegenbauerFock.PhyslibTraceClassWeightedInfiniteSeries GegenbauerFock.PhyslibTraceClassSandwichWeightedTsum GegenbauerFock.PhyslibTraceClassInfinitePerturbation GegenbauerFock.PhyslibTraceClassVaryingSandwichSeries GegenbauerFock.PhyslibTraceClassVaryingSandwichTail 2>&1 | tee /tmp/gf-s1-banach.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-s1-banach.log; then
             echo '::error::Forbidden axiom in complete Schatten S1 Banach space.'
             exit 1
