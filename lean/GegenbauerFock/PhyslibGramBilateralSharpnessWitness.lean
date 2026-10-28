@@ -79,6 +79,7 @@ theorem gram_bilateral_coefficient_one_optimal
   let K : ℝ := KummerCoefficients.kummerSeries lam (1 / (4 * alpha))
   have hI := h 1 1
   rw [gram_identity_traceNorm_eq_kummer lam alpha hlam ha] at hI
+  change K ≤ c * (‖(1 : H →L[ℂ] H)‖ * ‖(1 : H →L[ℂ] H)‖ * K) at hI
   have harg : 0 ≤ (1 / (4 * alpha) : ℝ) := by positivity
   have hp : 0 < K :=
     KummerCoefficients.kummerSeries_pos lam (1 / (4 * alpha)) hlam harg
@@ -101,7 +102,6 @@ theorem gram_bilateral_coefficient_one_optimal
   · have hrhs : c * (‖(1 : H →L[ℂ] H)‖ *
         ‖(1 : H →L[ℂ] H)‖ * K) ≤ 0 :=
       mul_nonpos_of_nonpos_of_nonneg hc_nonpos hfactor
-    dsimp only [K] at hI
     linarith
   · have hcpos : 0 ≤ c := le_of_lt (lt_of_not_ge hc_nonpos)
     have hlim : K ≤ c * K := by
