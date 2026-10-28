@@ -28,8 +28,7 @@ theorem sandwich_multiplier_sub_identity
     sandwich T A B - sandwich T C D =
       sandwich T (A - C) B + sandwich T C (B - D) := by
   apply Subtype.ext
-  change A * T.1 * B - C * T.1 * D =
-    (A - C) * T.1 * B + C * T.1 * (B - D)
+  simp only [sub_operator, add_operator, sandwich_operator]
   simp only [sub_mul, mul_sub, mul_assoc]
   abel
 
