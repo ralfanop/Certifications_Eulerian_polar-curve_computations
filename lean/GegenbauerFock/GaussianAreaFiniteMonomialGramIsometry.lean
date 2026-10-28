@@ -49,11 +49,11 @@ theorem finiteMonomialGramPair_diagonal
     (alpha : ℝ) (ha : 0 < alpha)
     (s : Finset ℕ) (a : ℕ → ℂ) :
     finiteMonomialGramPair alpha s a a =
-      ∑ n ∈ s, (‖a n‖ ^ 2 : ℝ) := by
+      ∑ n ∈ s, ((‖a n‖ ^ 2 : ℝ) : ℂ) := by
   rw [finiteMonomialGramPair_eq_coefficients alpha ha]
   apply Finset.sum_congr rfl
   intro n hn
-  rw [Complex.mul_conj]
+  rw [Complex.star_def, Complex.mul_conj, Complex.normSq_eq_norm_sq]
   norm_cast
 
 #print axioms GegenbauerFock.GaussianArea.finiteMonomialGramPair_eq_coefficients
