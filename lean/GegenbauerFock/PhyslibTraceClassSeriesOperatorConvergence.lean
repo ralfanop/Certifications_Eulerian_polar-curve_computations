@@ -45,20 +45,9 @@ theorem operator_partial_sums_tendsto_of_traceNorm_summable
     (hT : Summable (fun n => traceNorm H (T n))) :
     Tendsto (fun N => ((∑ n ∈ Finset.range N, T n) : TraceClass H).1)
       atTop (𝓝 (((∑' n : ℕ, T n) : TraceClass H).1)) := by
-  have htrace := traceNorm_partial_sum_error_tendsto_zero T hT
-  have hopBound : ∀ N : ℕ,
-      ‖((∑' n : ℕ, T n) : TraceClass H).1 -
-        ((∑ n ∈ Finset.range N, T n) : TraceClass H).1‖ ≤
-        traceNorm H ((∑' n : ℕ, T n) -
-          (∑ n ∈ Finset.range N, T n)) :=
-    operatorNorm_series_error_le_traceNorm_series_error T
-  have hopZero : Tendsto
-      (fun N => ‖((∑' n : ℕ, T n) : TraceClass H).1 -
-        ((∑ n ∈ Finset.range N, T n) : TraceClass H).1‖)
-      atTop (𝓝 0) := by
-    exact squeeze_zero (fun N => norm_nonneg _) hopBound htrace
-  apply tendsto_iff_dist_tendsto_zero.mpr
-  simpa only [dist_eq_norm, norm_sub_rev] using hopZero
+  have hsum := partial_sums_tendsto_in_traceNorm T hT
+  have hcontinuous := (operator_uniformContinuous (H := H)).continuous
+  exact hcontinuous.continuousAt.tendsto.comp hsum
 
 #print axioms ProbabilisticTheory.TraceClass.operatorNorm_series_error_le_traceNorm_series_error
 #print axioms ProbabilisticTheory.TraceClass.operator_partial_sums_tendsto_of_traceNorm_summable
