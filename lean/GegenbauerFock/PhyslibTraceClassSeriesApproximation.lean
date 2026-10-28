@@ -54,7 +54,7 @@ theorem traceNorm_partial_sum_error_tendsto_zero
       _ = ‖(∑ n ∈ Finset.range N, T n) - (∑' n : ℕ, T n)‖ :=
         norm_sub_rev _ _
       _ = dist (∑ n ∈ Finset.range N, T n) (∑' n : ℕ, T n) :=
-        (dist_eq_norm).symm
+        (dist_eq_norm (∑ n ∈ Finset.range N, T n) (∑' n : ℕ, T n)).symm
   simpa only [← hpoint] using hdist
 
 #print axioms ProbabilisticTheory.TraceClass.partial_sums_tendsto_in_traceNorm
