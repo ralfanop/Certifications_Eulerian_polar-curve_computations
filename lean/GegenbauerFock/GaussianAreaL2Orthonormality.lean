@@ -60,12 +60,12 @@ theorem gaussianArea_integral_eq_volume
 ACTUAL completed Gaussian weighted L² Hilbert space. -/
 theorem inner_normalizedMonomialL2Vector
     (alpha : ℝ) (ha : 0 < alpha) (m n : ℕ) :
-    ⟪normalizedMonomialL2Vector alpha ha m,
-      normalizedMonomialL2Vector alpha ha n⟫_ℂ =
+    inner ℂ (normalizedMonomialL2Vector alpha ha m)
+      (normalizedMonomialL2Vector alpha ha n) =
       if m = n then (1 : ℂ) else 0 := by
   calc
-    ⟪normalizedMonomialL2Vector alpha ha m,
-      normalizedMonomialL2Vector alpha ha n⟫_ℂ =
+    inner ℂ (normalizedMonomialL2Vector alpha ha m)
+      (normalizedMonomialL2Vector alpha ha n) =
     (∫ z : ℂ, normalizedMonomial alpha n z *
         star (normalizedMonomial alpha m z)
         ∂gaussianAreaMeasure alpha) := by
