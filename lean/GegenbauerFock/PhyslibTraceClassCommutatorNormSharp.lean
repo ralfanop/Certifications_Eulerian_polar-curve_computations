@@ -39,19 +39,40 @@ theorem traceNorm_commutator_le
     ⟨A * T - T * A, isTraceClass_commutator A T hT⟩
   have hZ : Z = X - Y := by
     apply Subtype.ext
-    change A * T - T * A = A * T - T * A
+    rw [TraceClass.sub_operator]
     rfl
   have htriangle : ‖Z‖ ≤ ‖X‖ + ‖Y‖ := by
     rw [hZ]
     exact norm_sub_le X Y
+  -- Even on the zero Hilbert space, ‖identity‖ ≤ 1; equality
+  -- ‖identity‖ = 1 is false without a nontriviality hypothesis.
+  have hOne : ‖(1 : H →L[ℂ] H)‖ ≤ (1 : ℝ) := by
+    apply ContinuousLinearMap.opNorm_le_bound _ (by norm_num)
+    intro x
+    simp
+  have hTnonneg : 0 ≤ traceNorm T hT := traceNorm_nonneg T hT
   have hX : ‖X‖ ≤ ‖A‖ * traceNorm T hT := by
     change traceNorm (A * T) (isTraceClass_mul_left T hT A) ≤ _
-    simpa only [mul_one, norm_one, mul_one] using
-      (traceNorm_twoSided_le T A 1 hT)
+    have h := traceNorm_twoSided_le T A 1 hT
+    calc
+      traceNorm (A * T) (isTraceClass_mul_left T hT A) ≤
+          ‖A‖ * ‖(1 : H →L[ℂ] H)‖ * traceNorm T hT := by
+        simpa only [mul_one] using h
+      _ ≤ ‖A‖ * 1 * traceNorm T hT := by
+        exact mul_le_mul_of_nonneg_right
+          (mul_le_mul_of_nonneg_left hOne (norm_nonneg A)) hTnonneg
+      _ = ‖A‖ * traceNorm T hT := by ring
   have hY : ‖Y‖ ≤ ‖A‖ * traceNorm T hT := by
     change traceNorm (T * A) (isTraceClass_mul_right T hT A) ≤ _
-    simpa only [one_mul, norm_one] using
-      (traceNorm_twoSided_le T 1 A hT)
+    have h := traceNorm_twoSided_le T 1 A hT
+    calc
+      traceNorm (T * A) (isTraceClass_mul_right T hT A) ≤
+          ‖(1 : H →L[ℂ] H)‖ * ‖A‖ * traceNorm T hT := by
+        simpa only [one_mul] using h
+      _ ≤ 1 * ‖A‖ * traceNorm T hT := by
+        exact mul_le_mul_of_nonneg_right
+          (mul_le_mul_of_nonneg_right hOne (norm_nonneg A)) hTnonneg
+      _ = ‖A‖ * traceNorm T hT := by ring
   change ‖Z‖ ≤ 2 * ‖A‖ * traceNorm T hT
   nlinarith
 
