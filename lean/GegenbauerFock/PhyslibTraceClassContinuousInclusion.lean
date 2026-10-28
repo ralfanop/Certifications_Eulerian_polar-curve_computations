@@ -1,0 +1,55 @@
+import GegenbauerFock.PhyslibTraceClassNormedSpace
+
+/-!
+# V007 — bounded inclusion of the true trace-normed S1 space
+
+The identity inclusion from a trace-class operator with its genuine
+Physlib-compatible CFC trace norm to the ambient bounded Hilbert
+endomorphisms is a continuous complex-linear map of norm at most 1.
+This is the essential analytic first step in proving S1 completeness:
+an S1-Cauchy sequence is Cauchy in ambient operator norm.
+
+The construction assumes only the separately formalized S1 normed-space
+structure and the kernel-checked inequality `‖T‖op ≤ ‖T‖₁`.
+It makes no unsupported claim that S1 is already complete.
+-/
+
+noncomputable section
+
+namespace ProbabilisticTheory.TraceClass
+
+variable (H : Type*)
+variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
+
+/-- The exact underlying bounded operator of a source-compatible
+trace-class element, as a continuous complex-linear map. -/
+noncomputable def inclusion :
+    TraceClass H →L[ℂ] (H →L[ℂ] H) :=
+  ({ toFun := fun T => T.1
+     map_add' := by
+       intro T S
+       rfl
+     map_smul' := by
+       intro c T
+       rfl
+    } : TraceClass H →ₗ[ℂ] (H →L[ℂ] H)).mkContinuous 1 (by
+      intro T
+      change ‖T.1‖ ≤ 1 * ‖T‖
+      simpa only [one_mul, norm_eq_genuineTraceNorm] using
+        (ProbabilisticTheory.operatorNorm_le_traceNorm_via_sqrt_abs T.1 T.2))
+
+@[simp] theorem inclusion_apply (T : TraceClass H) :
+    inclusion H T = T.1 := rfl
+
+/-- The sharp upper bound for the inclusion operator norm. -/
+theorem inclusion_norm_le_one : ‖inclusion H‖ ≤ 1 := by
+  apply ContinuousLinearMap.opNorm_le_bound _ (by norm_num)
+  intro T
+  change ‖T.1‖ ≤ 1 * ‖T‖
+  simpa only [one_mul, norm_eq_genuineTraceNorm] using
+    (ProbabilisticTheory.operatorNorm_le_traceNorm_via_sqrt_abs T.1 T.2)
+
+#print axioms ProbabilisticTheory.TraceClass.inclusion_apply
+#print axioms ProbabilisticTheory.TraceClass.inclusion_norm_le_one
+
+end ProbabilisticTheory.TraceClass
