@@ -34,18 +34,25 @@ theorem C_unit_vector_no_lower_bound
       mul_nonneg (NNReal.coe_nonneg _) (norm_nonneg _)
     exact lt_of_le_of_lt hnonneg hf
   have h_inv_pos : 0 < (‖f‖ : ℝ)⁻¹ := inv_pos.mpr hfpos
-  let g : Lp ℂ 2 (Ultraspherical.measure lam) :=
-    ((‖f‖⁻¹ : ℝ) : ℂ) • f
-  have h_norm_scale : ‖((‖f‖⁻¹ : ℝ) : ℂ)‖ = ‖f‖⁻¹ := by
+  let z : ℂ := ((‖f‖⁻¹ : ℝ) : ℂ)
+  let g : Lp ℂ 2 (Ultraspherical.measure lam) := z • f
+  have h_norm_scale : ‖z‖ = ‖f‖⁻¹ := by
+    dsimp [z]
     rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos h_inv_pos]
   have hg_norm : ‖g‖ = 1 := by
-    dsimp [g]
-    rw [norm_smul, h_norm_scale]
-    exact inv_mul_cancel₀ (ne_of_gt hfpos)
+    change ‖z • f‖ = 1
+    calc
+      ‖z • f‖ = ‖z‖ * ‖f‖ := norm_smul z f
+      _ = ‖f‖⁻¹ * ‖f‖ := by rw [h_norm_scale]
+      _ = 1 := inv_mul_cancel₀ (ne_of_gt hfpos)
   have hg_output : ‖C lam alpha hlam ha g‖ =
       ‖f‖⁻¹ * ‖C lam alpha hlam ha f‖ := by
-    dsimp [g]
-    rw [map_smul, norm_smul, h_norm_scale]
+    change ‖C lam alpha hlam ha (z • f)‖ = _
+    calc
+      ‖C lam alpha hlam ha (z • f)‖ =
+          ‖z • C lam alpha hlam ha f‖ := by rw [map_smul]
+      _ = ‖z‖ * ‖C lam alpha hlam ha f‖ := norm_smul z _
+      _ = ‖f‖⁻¹ * ‖C lam alpha hlam ha f‖ := by rw [h_norm_scale]
   refine ⟨g, hg_norm, ?_⟩
   rw [hg_output]
   calc
@@ -67,8 +74,14 @@ theorem C_unit_approximate_null_vector
       (K := (n + 1 : ℝ≥0))
   have hnpos : (0 : ℝ) < (n : ℝ) + 1 := by positivity
   refine ⟨f, hunit, ?_⟩
+  have hcast : ((n + 1 : ℝ≥0) : ℝ) = (n : ℝ) + 1 := by
+    norm_cast
+  rw [hcast] at hbound
   apply (lt_div_iff₀ hnpos).2
-  convert hbound using 1 <;> norm_cast
+  calc
+    ‖C lam alpha hlam ha f‖ * ((n : ℝ) + 1) =
+        ((n : ℝ) + 1) * ‖C lam alpha hlam ha f‖ := by ring
+    _ < 1 := hbound
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_unit_vector_no_lower_bound
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_unit_approximate_null_vector
