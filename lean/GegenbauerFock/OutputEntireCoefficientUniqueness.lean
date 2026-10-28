@@ -51,7 +51,7 @@ theorem scalar_power_series_coeff_zero_of_sum_zero
     simpa only [hfunc] using hseries
   have hFormal : p = 0 := hzeroPS.eq_zero
   have ha : a = 0 := by
-    exact (FormalMultilinearSeries.ofScalars_series_eq_zero).mp hFormal
+    exact (FormalMultilinearSeries.ofScalars_series_eq_zero (E := ℂ) (c := a)).mp hFormal
   intro n
   exact congrFun ha n
 
@@ -66,7 +66,7 @@ theorem coefficients_zero_of_entire_evaluation_zero
   let a : ℕ → ℂ := fun n =>
     (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) * F n
   have hs (z : ℂ) : Summable (fun n : ℕ => a n * z ^ n) := by
-    have h := lp.summable_inner (kernelVector alpha ha z) F
+    have h := lp.summable_inner (𝕜 := ℂ) (kernelVector alpha ha z) F
     change Summable (fun n : ℕ =>
       inner ℂ (kernelCoordinate alpha z n) (F n)) at h
     simpa [a, inner_kernelCoordinate_eq_monomial,
