@@ -4,6 +4,7 @@ on:
   push:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
+      - 'lean/GegenbauerFock/HSRowBasisGeneral.lean'
       - 'lean/GegenbauerFock/PhyslibMixedGramSharpnessWitness.lean'
       - 'lean/GegenbauerFock/PhyslibGramBilateralSharpnessWitness.lean'
       - 'lean/GegenbauerFock/PhyslibMixedGramTraceNormSharp.lean'
