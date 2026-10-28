@@ -51,7 +51,7 @@ theorem hasFPowerSeriesAt_evaluation
       inner_kernelCoordinate_eq_monomial]
     ring
   rw [hterms]
-  exact hinner
+  simpa only [zero_add] using hinner
 
 /-- If the actual entire Fock reconstruction is identically zero,
 every (not merely finitely many) ℓ² coefficient is zero. -/
@@ -72,18 +72,14 @@ theorem coefficients_eq_zero_of_evaluation_eq_zero
         (fun n : ℕ =>
           (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) * F n)) = 0 :=
     hp.eq_zero
-  ext n
-  have hterm :
-      (FormalMultilinearSeries.ofScalars ℂ
-        (fun n : ℕ =>
-          (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) * F n)) n = 0 := by
-    rw [hseries]
-    rfl
-  have hc :
-      (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) * F n = 0 :=
-    (FormalMultilinearSeries.ofScalars_eq_zero ℂ
+  have hcoeffs :
       (fun n : ℕ =>
-        (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) * F n) n).mp hterm
+        (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) * F n) = 0 := by
+    simpa only [FormalMultilinearSeries.ofScalars_series_eq_zero] using hseries
+  ext n
+  have hc :
+      (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) * F n = 0 := by
+    simpa only [Pi.zero_apply] using congrFun hcoeffs n
   have hpos : 0 < alpha ^ n / (Nat.factorial n : ℝ) := by positivity
   have hw :
       (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) ≠ 0 := by
