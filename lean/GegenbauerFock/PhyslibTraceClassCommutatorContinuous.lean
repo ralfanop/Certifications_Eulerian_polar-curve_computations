@@ -84,7 +84,7 @@ theorem commutatorContinuous_dist_le
     dist (commutatorContinuous A T)
          (commutatorContinuous A V) ≤
       (2 * ‖A‖) * dist T V := by
-  simpa only [dist_eq_norm, map_sub] using
+  simpa only [dist_eq_norm, map_sub, norm_eq_genuineTraceNorm] using
     (commutatorContinuous_traceNorm_le A (T - V))
 
 #print axioms ProbabilisticTheory.TraceClass.commutatorContinuous_operator
