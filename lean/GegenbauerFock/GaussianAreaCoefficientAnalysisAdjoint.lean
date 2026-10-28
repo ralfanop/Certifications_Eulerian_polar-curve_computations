@@ -76,7 +76,7 @@ theorem coefficientAnalysisL2_eq_zero_iff
     rfl
   · intro hx
     apply lp.ext
-    intro n
+    funext n
     rw [coefficientAnalysisL2_apply alpha ha x n]
     exact hx n
 
