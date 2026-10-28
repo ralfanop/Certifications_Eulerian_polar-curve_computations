@@ -132,5 +132,7 @@ noncomputable instance instGenuineCompleteSpace : CompleteSpace (TraceClass H) :
   exact squeeze_zero (fun n => dist_nonneg) hbound_S htail_tendsto
 
 
+#print axioms ProbabilisticTheory.TraceClass.instGenuineCompleteSpace
+
 end TraceClass
 end ProbabilisticTheory
