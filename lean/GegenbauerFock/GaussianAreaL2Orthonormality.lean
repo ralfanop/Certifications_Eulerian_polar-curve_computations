@@ -76,7 +76,7 @@ theorem inner_normalizedMonomialL2Vector
          normalizedMonomialL2Vector_ae alpha ha n]
         with z hm hn
       rw [hm, hn]
-      simp only [RCLike.inner_apply]
+      simp only [RCLike.inner_apply, starRingEnd_apply]
     _ = (∫ z : ℂ,
       ((alpha / Real.pi : ℝ) : ℂ) *
         (normalizedMonomial alpha n z *
