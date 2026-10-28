@@ -70,6 +70,6 @@ jobs:
             output_gram_zero_continuous_spectrum \
             two_sided_gram_zero_continuous_spectrum \
             two_sided_continuous_zero_nonclosed_ranges; do
-            grep -F "${theorem} depends on axioms:" /tmp/v007-continuous-axioms.log
+            grep -F "${theorem}' depends on axioms:" /tmp/v007-continuous-axioms.log
           done
           echo 'Bilateral zero continuous-spectrum proof: compiled and cleanly audited.'
