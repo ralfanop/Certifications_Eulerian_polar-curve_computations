@@ -45,8 +45,7 @@ theorem operatorNorm_le_traceNorm_via_sqrt_abs
   have hSstar : ContinuousLinearMap.adjoint S = S :=
     (ContinuousLinearMap.star_eq_adjoint S).symm.trans hSself
   have hSum : Summable (fun i : w => ‖S (b i)‖ ^ 2) := by
-    exact HilbertSchmidt.summable_norm_sq_apply_of_hilbertBasis w b
-      (traceClass_sqrt_abs_isHS T hT)
+    exact summable_sqrt_abs_basisEnergy T hT b
   have htrEq : traceNorm T hT =
       ∑' i : w, ‖S (b i)‖ ^ 2 :=
     traceNorm_eq_sqrt_abs_basisEnergy T hT b
