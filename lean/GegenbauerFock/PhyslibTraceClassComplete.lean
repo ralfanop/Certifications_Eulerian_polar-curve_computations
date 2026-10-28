@@ -23,6 +23,7 @@ alter any previously certified checkpoints.
 
 noncomputable section
 namespace ProbabilisticTheory
+open scoped Topology Filter
 open Filter
 
 variable {H : Type*}
