@@ -59,6 +59,50 @@ theorem isTraceClass_mul_right
     IsTraceClass (T * B) := by
   simpa only [one_mul] using isTraceClass_twoSided T hT 1 B
 
+/-- Adjoint closure for the *entire* nonpositive CFC-based S1 class.
+A trace-class operator factors as R*S with R,S Hilbert--Schmidt;
+taking adjoints reverses the two genuine HS factors. -/
+theorem isTraceClass_adjoint
+    (T : H →L[ℂ] H) (hT : IsTraceClass T) :
+    IsTraceClass T.adjoint := by
+  obtain ⟨R, S, hR, hS, hRS⟩ := traceClass_exists_HS_mul_HS T hT
+  have hSstar : HilbertSchmidt.IsHilbertSchmidt S.adjoint :=
+    HilbertSchmidt.isHilbertSchmidt_adjoint S hS
+  have hRstar : HilbertSchmidt.IsHilbertSchmidt R.adjoint :=
+    HilbertSchmidt.isHilbertSchmidt_adjoint R hR
+  have hprod : IsTraceClass (S.adjoint * R.adjoint) :=
+    isTraceClass_mul_of_twoHilbertSchmidt
+      S.adjoint R.adjoint hSstar hRstar
+  have heq : T.adjoint = S.adjoint * R.adjoint := by
+    rw [← hRS]
+    change (R.comp S).adjoint = S.adjoint.comp R.adjoint
+    exact ContinuousLinearMap.adjoint_comp R S
+  rw [heq]
+  exact hprod
+
+namespace TraceClass
+
+/-- The actual subtype of nonpositive trace-class operators
+is preserved by taking the bounded Hilbert-space adjoint. -/
+noncomputable def adjoint (T : TraceClass H) : TraceClass H :=
+  ⟨T.1.adjoint, isTraceClass_adjoint T.1 T.2⟩
+
+@[simp] theorem adjoint_operator (T : TraceClass H) :
+    (adjoint T).1 = T.1.adjoint := rfl
+
+/-- The proof-carrying adjoint involution holds without
+assuming any trace-norm or Banach-space structure. -/
+@[simp] theorem adjoint_adjoint (T : TraceClass H) :
+    adjoint (adjoint T) = T := by
+  apply Subtype.ext
+  exact ContinuousLinearMap.adjoint_adjoint T.1
+
+end TraceClass
+
+#print axioms ProbabilisticTheory.isTraceClass_adjoint
+#print axioms ProbabilisticTheory.TraceClass.adjoint_operator
+#print axioms ProbabilisticTheory.TraceClass.adjoint_adjoint
+
 #print axioms ProbabilisticTheory.isTraceClass_twoSided
 #print axioms ProbabilisticTheory.isTraceClass_mul_left
 #print axioms ProbabilisticTheory.isTraceClass_mul_right
