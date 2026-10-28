@@ -30,8 +30,14 @@ theorem C_denseRange
   have hset := congrArg
     (fun S : Submodule ℂ InfiniteAnalysis.FockCoefficients =>
       (S : Set InfiniteAnalysis.FockCoefficients)) h
-  simpa only [Submodule.topologicalClosure_coe,
-    Submodule.top_coe] using hset
+  have hRange :
+      ((↑(C lam alpha hlam ha).toLinearMap.range) :
+        Set InfiniteAnalysis.FockCoefficients) =
+        Set.range (C lam alpha hlam ha) := by
+    ext x
+    simp only [SetLike.mem_coe, LinearMap.mem_range, Set.mem_range]
+  simpa only [Submodule.topologicalClosure_coe, Submodule.top_coe,
+    hRange] using hset
 
 /-- Every coefficient-space target F can be approximated arbitrarily
 closely by the image of a genuine ultraspherical L² vector. No
