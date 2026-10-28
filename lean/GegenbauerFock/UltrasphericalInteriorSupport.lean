@@ -43,7 +43,7 @@ theorem betaMeasure_Ioo_pos
     exact ProbabilityTheory.betaPDFReal_pos
       (lt_of_le_of_lt ha hx.1) (lt_of_lt_of_le hx.2 hb)
       (shape_pos lam hlam) (shape_pos lam hlam)
-  have hv : (0 : ℝ≥0∞) < volume (Set.Ioo a b) := by
+  have hv : (0 : ENNReal) < volume (Set.Ioo a b) := by
     rw [Real.volume_Ioo]
     exact ENNReal.ofReal_pos.mpr (sub_pos.mpr hab)
   exact lt_of_lt_of_le hv (measure_mono hsubset)
