@@ -59,7 +59,7 @@ private theorem compact_injective_not_surjective
   have hrange : T.range = ⊤ := LinearMap.range_eq_top.mpr hsurj
   let e : E ≃L[ℂ] F := ContinuousLinearEquiv.ofBijective T hker hrange
   have hcompact' : IsCompactOperator (T ∘ (e.symm : F →L[ℂ] E)) :=
-    hcompact.comp_clm e.symm
+    hcompact.comp_clm (e.symm : F →L[ℂ] E)
   have hcomp_id : (T ∘ (e.symm : F →L[ℂ] E)) = (id : F → F) := by
     funext y
     exact e.apply_symm_apply y
