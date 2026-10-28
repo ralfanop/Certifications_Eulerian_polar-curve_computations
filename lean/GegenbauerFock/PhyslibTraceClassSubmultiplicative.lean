@@ -70,9 +70,10 @@ theorem product_assoc (T V W : TraceClass H) :
 composition (not the ambient bounded-operator norm). -/
 theorem norm_product_le (T V : TraceClass H) :
     ‖product T V‖ ≤ ‖T‖ * ‖V‖ := by
-  change traceNorm (T.1 * V.1)
+  change ProbabilisticTheory.traceNorm (T.1 * V.1)
       (isTraceClass_mul_right T.1 T.2 V.1) ≤
-    traceNorm T.1 T.2 * traceNorm V.1 V.2
+    ProbabilisticTheory.traceNorm T.1 T.2 *
+      ProbabilisticTheory.traceNorm V.1 V.2
   exact ProbabilisticTheory.traceNorm_mul_le T.1 V.1 T.2 V.2
 
 #print axioms ProbabilisticTheory.TraceClass.product_operator
