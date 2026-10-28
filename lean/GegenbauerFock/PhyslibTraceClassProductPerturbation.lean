@@ -26,8 +26,7 @@ theorem product_sub_product (T V S W : TraceClass H) :
     product T V - product S W =
       product (T - S) V + product S (V - W) := by
   apply Subtype.ext
-  change T.1 * V.1 - S.1 * W.1 =
-    (T.1 - S.1) * V.1 + S.1 * (V.1 - W.1)
+  simp only [sub_operator, add_operator, product_operator]
   rw [sub_mul, mul_sub]
   abel
 
