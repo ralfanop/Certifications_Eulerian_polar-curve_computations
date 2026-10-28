@@ -41,7 +41,8 @@ theorem positivePower_operator (T : TraceClass H) (n : ℕ) :
       simp only [positivePower_zero, zero_add, pow_one]
   | succ n ih =>
       change (positivePower T n).1 * T.1 = T.1 ^ (n + 1 + 1)
-      rw [ih, pow_succ]
+      rw [ih]
+      exact (pow_succ T.1 (n + 1)).symm
 
 /-- Sharp coefficient-one submultiplicative estimate on every
 strictly positive CFC Schatten-S₁ power. -/
@@ -58,7 +59,7 @@ theorem norm_positivePower_le (T : TraceClass H) (n : ℕ) :
           exact norm_product_le _ _
         _ ≤ ‖T‖ ^ (n + 1) * ‖T‖ :=
           mul_le_mul_of_nonneg_right ih (norm_nonneg _)
-        _ = ‖T‖ ^ (n + 1 + 1) := by rw [pow_succ]
+        _ = ‖T‖ ^ (n + 1 + 1) := (pow_succ ‖T‖ (n + 1)).symm
 
 #print axioms ProbabilisticTheory.TraceClass.positivePower_operator
 #print axioms ProbabilisticTheory.TraceClass.norm_positivePower_le
