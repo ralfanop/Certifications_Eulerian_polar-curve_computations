@@ -29,7 +29,7 @@ theorem integral_angular_mode_zero (k : ℤ) (hk : k ≠ 0) :
     exact_mod_cast hk
   have hc : (k : ℂ) * Complex.I ≠ 0 :=
     mul_ne_zero hkC Complex.I_ne_zero
-  rw [intervalIntegral.integral_exp_mul_complex hc]
+  rw [integral_exp_mul_complex hc]
   have he :
       ((k : ℂ) * Complex.I) * ((2 * Real.pi : ℝ) : ℂ) =
         (k : ℂ) * (2 * (Real.pi : ℂ) * Complex.I) := by
