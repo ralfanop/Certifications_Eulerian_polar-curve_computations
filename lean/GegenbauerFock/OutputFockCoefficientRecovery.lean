@@ -65,7 +65,7 @@ theorem coefficients_eq_zero_of_evaluation_eq_zero
     have hv : evaluation alpha ha z F = 0 := by
       simpa using congrFun hz z
     have hseries := (evaluation_eq_tsum_monomial alpha ha z F).symm.trans hv
-    simpa only [powerCoefficient] using hseries
+    simpa only [powerCoefficient, mul_assoc, mul_comm, mul_left_comm] using hseries
   have hcoeff := complex_coefficients_zero_of_tsum_monomial_zero
     (powerCoefficient alpha F)
     (powerCoefficient_norm_summable alpha ha F) hsum
