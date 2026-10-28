@@ -42,7 +42,14 @@ theorem gramMixed_isTraceClass
       (gramMixed lam alpha hlam ha B D) := by
   have h := gram_twoSided_isTraceClass
     lam alpha hlam ha B.adjoint D
-  simpa only [gramMixed, ContinuousLinearMap.mul_def, mul_assoc] using h
+  have heq :
+      gramMixed lam alpha hlam ha B D =
+        B.adjoint * (gram lam alpha hlam ha) * D := by
+    apply ContinuousLinearMap.ext
+    intro f
+    rfl
+  rw [heq]
+  exact h
 
 /-- The mixed Gram as an actual proof-carrying trace-class element. -/
 noncomputable def gramMixedTraceClass
