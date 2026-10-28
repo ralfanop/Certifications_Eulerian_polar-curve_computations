@@ -5,6 +5,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/PhyslibGramTwoSidedTraceNormSharp.lean'
+      - 'lean/GegenbauerFock/PhyslibPositiveTraceNormTwoSidedSharp.lean'
       - 'lean/GegenbauerFock/PhyslibHSProductTraceNormHolder.lean'
       - 'lean/GegenbauerFock/PhyslibHSProductTraceNormWeightedYoung.lean'
       - 'lean/GegenbauerFock/SchattenYoungSharpReal.lean'
