@@ -36,7 +36,7 @@ theorem gramMixed_identity_traceNorm_eq_kummer
       ((gram lam alpha hlam ha) ((1 : H →L[ℂ] H) f)) =
         (gram lam alpha hlam ha) f
     rw [← ContinuousLinearMap.star_eq_adjoint, star_one]
-    rfl
+    try rfl
   obtain ⟨w, b, _⟩ := exists_hilbertBasis ℂ H
   calc
     ProbabilisticTheory.traceNorm
