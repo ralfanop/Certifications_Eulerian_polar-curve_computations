@@ -72,7 +72,7 @@ theorem entireRepresentative_smul (alpha : ℝ) (ha : 0 < alpha)
       Lp ℂ 2 (gaussianAreaMeasure alpha))
   · exact entireRepresentative_differentiable alpha (c • x)
   · change Differentiable ℂ (fun z => c * entireRepresentative alpha x z)
-    exact (differentiable_const : Differentiable ℂ (fun _ : ℂ => c)).mul
+    exact (differentiable_const c).mul
       (entireRepresentative_differentiable alpha x)
   · exact entireRepresentative_ae alpha (c • x)
   · filter_upwards [entireRepresentative_ae alpha x,
