@@ -1,0 +1,63 @@
+name: V007 bilateral positive-real Gram spectra Lean certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/TwoSidedGramPositiveSpectrum.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramSpectrumEquality.lean'
+      - '.github/workflows/gegenbauer-fock-gram-positive-spectrum.yml'
+  workflow_dispatch:
+
+jobs:
+  gram-positive-spectrum:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned Lean 4 toolchain with retries
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+
+      - name: Kernel-check full nonnegative spectra and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramPositiveSpectrum 2>&1 | tee /tmp/v007-gram-positive-spectrum.log
+          for theorem in source_gram_nonzero_spectral_value_positive_real \
+            output_gram_nonzero_spectral_value_positive_real \
+            two_sided_gram_spectra_nonnegative_real; do
+            grep -qF "${theorem}' depends on axioms:" /tmp/v007-gram-positive-spectrum.log
+          done
+          if grep 'depends on axioms:' /tmp/v007-gram-positive-spectrum.log | grep -E 'sorryAx|Lean.ofReduceBool'; then
+            echo '::error::Nonstandard Lean axioms in spectral localization theorem.'
+            exit 1
+          fi
+          echo 'Genuine two-sided Gram spectra are nonnegative real: Lean proof audit passed.'
