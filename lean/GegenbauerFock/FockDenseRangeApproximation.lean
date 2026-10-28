@@ -36,6 +36,7 @@ theorem C_denseRange
         Set.range (C lam alpha hlam ha) := by
     ext x
     simp only [SetLike.mem_coe, LinearMap.mem_range, Set.mem_range]
+    rfl
   simpa only [Submodule.topologicalClosure_coe, Submodule.top_coe,
     hRange] using hset
 
