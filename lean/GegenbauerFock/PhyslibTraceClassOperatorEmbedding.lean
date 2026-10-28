@@ -19,6 +19,8 @@ No change to existing certified modules, toolchains or V097.
 
 noncomputable section
 namespace ProbabilisticTheory.TraceClass
+open scoped Topology
+open Filter
 
 variable {H : Type*}
 variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
