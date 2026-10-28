@@ -24,7 +24,8 @@ theorem integral_exp_neg_norm_sq
       Real.pi / alpha := by
   have h := Complex.integral_exp_neg_mul_rpow
     (p := (2 : ℝ)) (b := alpha) (by norm_num) ha
-  simpa [Real.Gamma_two, Real.rpow_neg_one, div_eq_mul_inv] using h
+  simpa [one_add_one_eq_two, Real.Gamma_two, Real.rpow_neg_one,
+    div_eq_mul_inv, neg_mul] using h
 
 /-- The Gaussian area weight α/π has exactly unit mass on ℂ. -/
 theorem integral_normalized_gaussian_eq_one
