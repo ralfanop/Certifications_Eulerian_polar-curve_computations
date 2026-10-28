@@ -8,6 +8,11 @@ on:
       - 'lean/GegenbauerFock/HSRowBasisGeneral.lean'
       - 'lean/GegenbauerFock/HSRowRightIdealGeneral.lean'
       - '.github/workflows/gegenbauer-fock-hs-rectangular-general.yml'
+  pull_request:
+    paths:
+      - 'lean/GegenbauerFock/HSRowBasisGeneral.lean'
+      - 'lean/GegenbauerFock/HSRowRightIdealGeneral.lean'
+      - '.github/workflows/gegenbauer-fock-hs-rectangular-general.yml'
   workflow_dispatch:
 
 jobs:
