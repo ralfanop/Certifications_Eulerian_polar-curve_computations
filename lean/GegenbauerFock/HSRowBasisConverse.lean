@@ -84,8 +84,26 @@ theorem sourceBasis_HS_energy_eq_rows
   (summableRows_iff_sourceBasis_energy T
     (summableRows_of_sourceBasis_energy T b hb) b).2
 
+/-- True basis independence of the infinite-dimensional Schatten-S₂
+condition: finite squared energy for one complete source Hilbert basis
+implies finite squared energy for EVERY other complete Hilbert basis,
+and their sums agree exactly, even when their index types differ. -/
+theorem sourceBasis_HS_basis_independent
+    (T : E →L[ℂ] InfiniteAnalysis.FockCoefficients)
+    {ι κ : Type*}
+    (b : HilbertBasis ι ℂ E) (c : HilbertBasis κ ℂ E)
+    (hb : Summable (fun i : ι => ‖T (b i)‖ ^ 2)) :
+    Summable (fun j : κ => ‖T (c j)‖ ^ 2) ∧
+    (∑' i : ι, ‖T (b i)‖ ^ 2) =
+      ∑' j : κ, ‖T (c j)‖ ^ 2 := by
+  have hrows := summableRows_of_sourceBasis_energy T b hb
+  have hb_eq := (summableRows_iff_sourceBasis_energy T hrows b).2
+  have hc := summableRows_iff_sourceBasis_energy T hrows c
+  exact ⟨hc.1, hb_eq.trans hc.2.symm⟩
+
 #print axioms GegenbauerFock.FockEnergy.summableRows_of_sourceBasis_energy
 #print axioms GegenbauerFock.FockEnergy.sourceBasis_HS_iff_summableRows
 #print axioms GegenbauerFock.FockEnergy.sourceBasis_HS_energy_eq_rows
+#print axioms GegenbauerFock.FockEnergy.sourceBasis_HS_basis_independent
 
 end GegenbauerFock.FockEnergy
