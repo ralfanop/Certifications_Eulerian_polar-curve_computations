@@ -31,7 +31,8 @@ theorem coisometric_conjugate_injective_v007
   calc
     T = conjugate (conjugate T U) U.adjoint :=
       (coisometric_conjugate_inverse_v007 T U hUUstar).symm
-    _ = conjugate (conjugate V U) U.adjoint := by rw [h]
+    _ = conjugate (conjugate V U) U.adjoint :=
+      congrArg (fun X : TraceClass H => conjugate X U.adjoint) h
     _ = V := coisometric_conjugate_inverse_v007 V U hUUstar
 
 /-- Coisometric conjugation exactly preserves the genuine CFC
