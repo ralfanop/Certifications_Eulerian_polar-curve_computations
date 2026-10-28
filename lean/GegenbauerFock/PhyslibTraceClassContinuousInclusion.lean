@@ -34,6 +34,7 @@ noncomputable def inclusion :
        rfl
     } : TraceClass H →ₗ[ℂ] (H →L[ℂ] H)).mkContinuous 1 (by
       intro T
+      change ‖T.1‖ ≤ 1 * ‖T‖
       simpa only [one_mul, norm_eq_genuineTraceNorm,
         ProbabilisticTheory.TraceClass.traceNorm] using
         (ProbabilisticTheory.operatorNorm_le_traceNorm_via_sqrt_abs T.1 T.2))
@@ -45,6 +46,7 @@ noncomputable def inclusion :
 theorem inclusion_norm_le_one : ‖inclusion H‖ ≤ 1 := by
   apply ContinuousLinearMap.opNorm_le_bound _ (by norm_num)
   intro T
+  change ‖T.1‖ ≤ 1 * ‖T‖
   simpa only [one_mul, norm_eq_genuineTraceNorm,
     ProbabilisticTheory.TraceClass.traceNorm] using
     (ProbabilisticTheory.operatorNorm_le_traceNorm_via_sqrt_abs T.1 T.2)
