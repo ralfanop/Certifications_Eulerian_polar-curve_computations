@@ -86,7 +86,7 @@ theorem neumann_ambient_resolvent_traceNorm_le
         traceNorm H (T - U)) *
       ‖(1 : H →L[ℂ] H) + (neumannCorrection U).1‖ := by
   have hdiff : ‖T.1 - U.1‖ ≤ traceNorm H (T - U) := by
-    simpa only [sub_operator] using
+    simpa only [sub_operator, norm_eq_genuineTraceNorm] using
       (operator_norm_le_trace_norm (T - U))
   calc
     ‖(neumannCorrection T).1 - (neumannCorrection U).1‖ ≤
