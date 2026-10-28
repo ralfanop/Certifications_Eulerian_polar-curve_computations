@@ -83,7 +83,7 @@ theorem integral_normalized_complex_monomial_diagonal_ne_zero
     mul_pos hfactorial (Real.rpow_pos_of_pos ha _)
   have hreal : (Nat.factorial n : ℝ) * alpha ^ (-(n : ℝ)) ≠ 0 :=
     ne_of_gt hpositive
-  exact_mod_cast hreal
+  exact Complex.ofReal_ne_zero.mpr hreal
 
 #print axioms GegenbauerFock.GaussianArea.integral_normalized_complex_monomial_diagonal
 #print axioms GegenbauerFock.GaussianArea.integral_normalized_complex_monomial_gram
