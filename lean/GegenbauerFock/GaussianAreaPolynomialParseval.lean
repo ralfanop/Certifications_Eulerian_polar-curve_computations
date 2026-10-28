@@ -41,7 +41,8 @@ theorem gaussianPolynomialProjector_pythagoras
         (x - gaussianPolynomialProjector alpha ha x)‖ ^ 2 := by rw [hsum]
     _ = ‖gaussianPolynomialProjector alpha ha x‖ ^ 2 +
         ‖x - gaussianPolynomialProjector alpha ha x‖ ^ 2 :=
-      norm_add_sq_eq_norm_sq_add_norm_sq_of_inner_eq_zero _ _ hinner
+      (by simpa only [pow_two] using
+        norm_add_sq_eq_norm_sq_add_norm_sq_of_inner_eq_zero _ _ hinner)
 
 /-- The concrete Gaussian polynomial projection is norm-contracting
 on the whole weighted L² space. -/
