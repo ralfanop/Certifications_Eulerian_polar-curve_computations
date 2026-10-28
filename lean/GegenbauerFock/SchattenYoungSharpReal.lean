@@ -46,7 +46,6 @@ theorem all_scales_implies_sq_le_mul
         _ ≤ (n / a) ^ 2 * a + b := hspec
         _ = n ^ 2 / a + b := by
           field_simp [ha0]
-          ring
     have hh' := mul_le_mul_of_nonneg_right hh ha
     have hdiv : (n ^ 2 / a) * a = n ^ 2 :=
       div_mul_cancel₀ _ ha0
