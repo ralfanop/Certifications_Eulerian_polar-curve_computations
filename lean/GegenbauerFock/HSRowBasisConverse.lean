@@ -56,7 +56,7 @@ theorem summableRows_of_sourceBasis_energy
       (∑' i : ι, w i n) =
         ‖SummableRowsCompact.row T n‖ ^ 2 :=
     (functional_basis_energy (SummableRowsCompact.row T n) b).2
-  exact hreverse.congr (fun n => (hcolumn n).symm)
+  exact hreverse.congr (fun n => hcolumn n)
 
 /-- EXACT infinite-dimensional S₂ equivalence for bounded
 T:E → ℓ², uniformly over an arbitrary complete source Hilbert basis.
