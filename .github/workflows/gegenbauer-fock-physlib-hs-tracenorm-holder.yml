@@ -5,6 +5,8 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/PhyslibHSProductTraceNormHolder.lean'
+      - 'lean/GegenbauerFock/PhyslibHSProductTraceNormWeightedYoung.lean'
+      - 'lean/GegenbauerFock/SchattenYoungSharpReal.lean'
       - '.github/workflows/gegenbauer-fock-physlib-hs-tracenorm-holder.yml'
   workflow_dispatch:
 
