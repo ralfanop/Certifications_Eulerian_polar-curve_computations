@@ -64,11 +64,23 @@ theorem operator_cauchySeq_of_traceClass_cauchySeq
   simpa only [Function.comp_def, operator] using
     (operator_uniformContinuous (H := H)).comp_cauchySeq hu
 
+/-- Every trace-norm Cauchy sequence possesses an *operator-norm*
+limit in the complete Banach space B(H). This does NOT yet establish
+trace-class membership of that limit, which is the remaining
+lower-semicontinuity/closedness part of S₁ completeness. -/
+theorem exists_operator_limit_of_traceClass_cauchySeq
+    {u : ℕ → TraceClass H} (hu : CauchySeq u) :
+    ∃ T : H →L[ℂ] H,
+      Tendsto (fun n => (u n).1) Filter.atTop (nhds T) :=
+  cauchySeq_tendsto_of_complete
+    (operator_cauchySeq_of_traceClass_cauchySeq hu)
+
 #print axioms ProbabilisticTheory.TraceClass.operator_norm_le_trace_norm
 #print axioms ProbabilisticTheory.TraceClass.operator_sub_norm_le_trace_sub_norm
 #print axioms ProbabilisticTheory.TraceClass.operator_dist_le_trace_dist
 
 #print axioms ProbabilisticTheory.TraceClass.operator_uniformContinuous
 #print axioms ProbabilisticTheory.TraceClass.operator_cauchySeq_of_traceClass_cauchySeq
+#print axioms ProbabilisticTheory.TraceClass.exists_operator_limit_of_traceClass_cauchySeq
 
 end ProbabilisticTheory.TraceClass
