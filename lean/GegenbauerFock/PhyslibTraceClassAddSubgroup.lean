@@ -47,7 +47,7 @@ theorem isTraceClass_finset_sum
     (hT : ∀ i ∈ s, IsTraceClass (T i)) :
     IsTraceClass (∑ i ∈ s, T i) := by
   change (∑ i ∈ s, T i) ∈ traceClassAddSubgroup H
-  exact AddSubgroup.sum_mem (traceClassAddSubgroup H) s hT
+  exact (traceClassAddSubgroup H).sum_mem (fun i hi => hT i hi)
 
 #print axioms ProbabilisticTheory.mem_traceClassAddSubgroup
 #print axioms ProbabilisticTheory.isTraceClass_finset_sum
