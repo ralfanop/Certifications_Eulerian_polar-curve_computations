@@ -15,6 +15,7 @@ on:
       - 'lean/GegenbauerFock/OutputComplexHolomorphy.lean'
       - 'lean/GegenbauerFock/OutputComplexAnalyticIdentity.lean'
       - 'lean/GegenbauerFock/OutputPowerSeriesCoefficientUniqueness.lean'
+      - 'lean/GegenbauerFock/OutputFockCoefficientRecovery.lean'
       - '.github/workflows/gegenbauer-fock-output-density.yml'
   workflow_dispatch:
 
@@ -132,3 +133,16 @@ jobs:
             exit 1
           fi
           echo 'Infinite power-series coefficient uniqueness: no forbidden axioms.'
+
+      # Final analytic uniqueness bridge; this candidate cannot be
+      # called certified until Lake and the axiom audit succeed.
+      - name: Certify unconditional Fock adjoint injectivity and output completeness
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.OutputFockCoefficientRecovery 2>&1 | tee /tmp/v007-output-coefficient-recovery.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-output-coefficient-recovery.log; then
+            echo "::error::Nonstandard axiom in output adjoint injectivity or completeness."
+            exit 1
+          fi
+          echo 'Output adjoint injectivity and nonzero spectral completeness: no forbidden axioms.'
