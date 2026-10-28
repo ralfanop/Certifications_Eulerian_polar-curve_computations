@@ -23,6 +23,7 @@ alter any previously certified checkpoints.
 
 noncomputable section
 namespace ProbabilisticTheory
+open Filter
 
 variable {H : Type*}
 variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
@@ -118,7 +119,9 @@ noncomputable instance instGenuineCompleteSpace : CompleteSpace (TraceClass H) :
       exact h1.sub tendsto_const_nhds
     obtain ⟨hSTn, hSTnbound⟩ := isTraceClass_of_tendsto_of_traceNorm_bounded_v007 hVtrace hVbound
       hVtendsto
-    have heqfinal : ((ofOperator H S hS : TraceClass H) - Sn n).1 = S - Tn n := rfl
+    have heqfinal : ((ofOperator H S hS : TraceClass H) - Sn n).1 = S - Tn n := by
+      rw [sub_operator]
+      rfl
     have hnorm_eq : ‖(ofOperator H S hS : TraceClass H) - Sn n‖ = ProbabilisticTheory.traceNorm (S - Tn n) hSTn := by
       have h3 : ‖(ofOperator H S hS : TraceClass H) - Sn n‖ =
           ProbabilisticTheory.traceNorm ((ofOperator H S hS : TraceClass H) - Sn n).1
