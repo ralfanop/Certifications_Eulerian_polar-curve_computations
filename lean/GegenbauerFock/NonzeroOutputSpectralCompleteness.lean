@@ -65,9 +65,8 @@ theorem C_dense_range_iff_outputGram_zero_eigenspace_bot
         (⊤ : Submodule ℂ InfiniteAnalysis.FockCoefficients) ↔
       eigenspace (outputGram lam alpha hlam ha).toLinearMap (0 : ℂ) =
         (⊥ : Submodule ℂ InfiniteAnalysis.FockCoefficients) := by
-  rw [outputGram_zero_eigenspace_eq_C_adjoint_ker]
-  exact (C_dense_range_iff_C_adjoint_injective lam alpha hlam ha).trans
-    (LinearMap.ker_eq_bot (C_adjoint lam alpha hlam ha)).symm
+  rw [outputGram_zero_eigenspace_eq_C_adjoint_ker, LinearMap.ker_eq_bot]
+  exact C_dense_range_iff_C_adjoint_injective lam alpha hlam ha
 
 /-- Under explicitly stated injectivity of C†, the zero output Gram
 eigenspace is trivial. No analytic uniqueness theorem is presumed. -/
