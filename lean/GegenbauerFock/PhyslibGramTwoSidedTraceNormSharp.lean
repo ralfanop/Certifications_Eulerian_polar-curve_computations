@@ -120,8 +120,12 @@ theorem gram_twoSided_traceNorm_le_kummer_sharp
           ((A * Q) * (Q * B))
           (ProbabilisticTheory.isTraceClass_mul_of_twoHilbertSchmidt
             (A * Q) (Q * B) hAQ hQB) := by
-    rw [← hfactor]
-    exact ProbabilisticTheory.traceNorm_congr
+    rw [ProbabilisticTheory.traceNorm_eq_of_hilbertBasis
+        (gram_twoSided_isTraceClass lam alpha hlam ha A B) b,
+      ProbabilisticTheory.traceNorm_eq_of_hilbertBasis
+        (ProbabilisticTheory.isTraceClass_mul_of_twoHilbertSchmidt
+          (A * Q) (Q * B) hAQ hQB) b,
+      ← hfactor]
   calc
     ProbabilisticTheory.traceNorm
         (A * gram lam alpha hlam ha * B)
