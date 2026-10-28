@@ -40,7 +40,7 @@ theorem coisometric_projection_add_complement_v007
   simp only [ContinuousLinearMap.add_apply,
     coisometric_complementaryProjection_v007,
     ContinuousLinearMap.sub_apply, ContinuousLinearMap.id_apply]
-  exact add_sub_cancel_right _ _
+  abel
 
 /-- The complementary projection annihilates the image of P.
 Thus the two projections are complementary on the actual S₁ space. -/
