@@ -50,8 +50,9 @@ theorem monomial_memLp_two_gaussianArea
     convert normalized_monomial_gaussian_norm_sq_integrable alpha ha n using 1
     funext z
     rw [ENNReal.toReal_ofReal (hnonneg z)]
+    change rho z * ‖z ^ n‖ ^ 2 =
+      (alpha / Real.pi) * (‖z ^ n‖ ^ 2 * Real.exp (-alpha * ‖z‖ ^ 2))
     dsimp [rho]
-    dsimp [SMul.smul]
     ring
   have hweighted :
       Integrable (fun z : ℂ => ‖z ^ n‖ ^ 2) (gaussianAreaMeasure alpha) := by
