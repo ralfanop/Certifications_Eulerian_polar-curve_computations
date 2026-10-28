@@ -56,7 +56,6 @@ theorem positive_traceNorm_conjugation_le
   have hdiagonal (i : hB.choose) :
       (inner ℂ (b i) ((B.adjoint * T * B) (b i))).re =
         ‖(S.comp B) (b i)‖ ^ 2 := by
-    rw [hGram]
     have hinner :
         inner ℂ (b i) (((S.comp B).adjoint.comp (S.comp B)) (b i)) =
         inner ℂ ((S.comp B) (b i)) ((S.comp B) (b i)) := by
@@ -64,8 +63,14 @@ theorem positive_traceNorm_conjugation_le
         ((S.comp B).adjoint ((S.comp B) (b i))) = _
       exact ContinuousLinearMap.adjoint_inner_right
         (S.comp B) (b i) ((S.comp B) (b i))
-    rw [hinner, inner_self_eq_norm_sq_to_K]
-    norm_cast
+    calc
+      (inner ℂ (b i) ((B.adjoint * T * B) (b i))).re =
+          (inner ℂ (b i)
+            (((S.comp B).adjoint.comp (S.comp B)) (b i))).re :=
+        congrArg (fun (K : H →L[ℂ] H) => (inner ℂ (b i) (K (b i))).re) hGram
+      _ = ‖(S.comp B) (b i)‖ ^ 2 := by
+        rw [hinner, inner_self_eq_norm_sq_to_K]
+        norm_cast
   change traceNorm (B.adjoint * T * B) hB ≤ _
   calc
     traceNorm (B.adjoint * T * B) hB =
