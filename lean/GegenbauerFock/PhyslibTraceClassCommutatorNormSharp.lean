@@ -40,7 +40,6 @@ theorem traceNorm_commutator_le
   have hZ : Z = X - Y := by
     apply Subtype.ext
     rw [TraceClass.sub_operator]
-    rfl
   have htriangle : ‖Z‖ ≤ ‖X‖ + ‖Y‖ := by
     rw [hZ]
     exact norm_sub_le X Y
