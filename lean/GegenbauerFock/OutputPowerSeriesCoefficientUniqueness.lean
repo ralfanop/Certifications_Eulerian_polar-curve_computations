@@ -35,13 +35,13 @@ theorem complex_coefficients_zero_of_tsum_monomial_zero
   let p : FormalMultilinearSeries ℂ ℂ ℂ :=
     FormalMultilinearSeries.ofScalars ℂ c
   have hs' : Summable
-      (fun n : ℕ => ‖p n‖ * (((1 : ℝ≥0) : ℝ) ^ n)) := by
+      (fun n : ℕ => ‖p n‖ * (((1 : NNReal) : ℝ) ^ n)) := by
     simpa only [p, FormalMultilinearSeries.ofScalars_norm,
       NNReal.coe_one, one_pow, mul_one] using hs
-  have hr_le : (1 : ℝ≥0∞) ≤ p.radius :=
-    p.le_radius_of_summable (r := (1 : ℝ≥0)) hs'
-  have hr_pos : (0 : ℝ≥0∞) < p.radius :=
-    lt_of_lt_of_le (by norm_num : (0 : ℝ≥0∞) < 1) hr_le
+  have hr_le : (1 : ENNReal) ≤ p.radius :=
+    p.le_radius_of_summable (r := (1 : NNReal)) hs'
+  have hr_pos : (0 : ENNReal) < p.radius :=
+    lt_of_lt_of_le (by norm_num : (0 : ENNReal) < 1) hr_le
   have hsum (z : ℂ) :
       p.sum z = ∑' n : ℕ, c n * z ^ n := by
     simpa only [p, FormalMultilinearSeries.ofScalarsSum,
