@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/TwoSidedGramInverseInstability.lean'
+      - 'lean/GegenbauerFock/OutputGramApproximateZeroSpectrum.lean'
       - 'lean/GegenbauerFock/TwoSidedGramContinuousSpectrum.lean'
       - 'lean/GegenbauerFock/TwoSidedGramNonclosedRange.lean'
       - '.github/workflows/gegenbauer-fock-two-sided-gram-inverse.yml'
@@ -58,3 +59,17 @@ jobs:
             exit 1
           fi
           echo 'Both true Gram inverses unbounded on their dense ranges: kernel audit passed.'
+
+      - name: Kernel compile bilateral normalized approximate-zero Gram sequences
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.OutputGramApproximateZeroSpectrum 2>&1 | tee /tmp/v007-output-gram-approx-zero.log
+          grep -qF 'outputGram_exists_unit_approximate_zero_eigenvectors' /tmp/v007-output-gram-approx-zero.log
+          grep -qF 'two_sided_gram_normalized_approximate_zero_sequences' /tmp/v007-output-gram-approx-zero.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-output-gram-approx-zero.log; then
+            echo '::error::Forbidden proof axiom in output Gram approximate-zero certificate'
+            exit 1
+          fi
+          echo 'Normalized approximate-zero Gram sequences on both Hilbert sides: axiom audit passed.'
