@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/UltrasphericalContinuousDensity.lean'
+      - 'lean/GegenbauerFock/UltrasphericalGammaKummerComplete.lean'
       - 'lean/GegenbauerFock/UltrasphericalPolynomialKernel.lean'
       - 'lean/GegenbauerFock/UltrasphericalPolynomialL2.lean'
       - 'lean/GegenbauerFock/UltrasphericalPolynomialApproximation.lean'
@@ -177,3 +178,14 @@ jobs:
             exit 1
           fi
 
+
+      - name: Certify Gamma-density moments and exact unregularized Kummer integral
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalGammaKummerComplete 2>&1 | tee /tmp/v007-ultra-gamma-kummer.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-ultra-gamma-kummer.log; then
+            echo "::error::Nonstandard axiom in Gamma-density Kummer moment bridge."
+            exit 1
+          fi
+          echo 'Gamma-density moments and unregularized Kummer integral: no forbidden axioms.'
