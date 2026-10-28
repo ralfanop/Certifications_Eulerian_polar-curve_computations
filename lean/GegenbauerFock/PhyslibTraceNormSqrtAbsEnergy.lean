@@ -60,8 +60,10 @@ theorem summable_sqrt_abs_basisEnergy
     (T : H →L[ℂ] H) (hT : IsTraceClass T)
     {w : Set H} (b : HilbertBasis w ℂ H) :
     Summable (fun i : w => ‖(CFC.sqrt (CFC.abs T)) (b i)‖ ^ 2) := by
-  exact HilbertSchmidt.summable_norm_sq_apply_of_hilbertBasis w b
-    (traceClass_sqrt_abs_isHS T hT)
+  obtain ⟨w₀, b₀, hs⟩ := traceClass_sqrt_abs_isHS T hT
+  exact (hasSum_norm_sq_apply_of_selfAdjoint
+    (IsSelfAdjoint.of_nonneg (CFC.sqrt_nonneg (CFC.abs T)))
+    b₀ b hs).summable
 
 #print axioms ProbabilisticTheory.traceNorm_eq_sqrt_abs_basisEnergy
 #print axioms ProbabilisticTheory.summable_sqrt_abs_basisEnergy
