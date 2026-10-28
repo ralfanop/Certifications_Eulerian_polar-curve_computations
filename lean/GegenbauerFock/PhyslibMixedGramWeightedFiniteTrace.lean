@@ -34,6 +34,27 @@ noncomputable def gramMixedFiniteTraceClass
     ProbabilisticTheory.TraceClass (Lp ℂ 2 (Ultraspherical.measure lam)) :=
   ∑ i ∈ s, c i • gramMixedTraceClass lam alpha hlam ha (B i) (D i)
 
+/-- The underlying finite weighted sum of genuine mixed Grams
+belongs to the unrestricted CFC trace-class predicate, even without
+positivity or commutation assumptions. -/
+theorem gramMixedFinite_isTraceClass
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    {ι : Type*} (s : Finset ι) (c : ι → ℂ)
+    (B D : ι → Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+      Lp ℂ 2 (Ultraspherical.measure lam)) :
+    ProbabilisticTheory.IsTraceClass
+      (∑ i ∈ s, c i • gramMixed lam alpha hlam ha (B i) (D i)) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty =>
+      simpa using (ProbabilisticTheory.isTraceClass_zero
+        (H := Lp ℂ 2 (Ultraspherical.measure lam)))
+  | @insert i s hi ih =>
+      rw [Finset.sum_insert hi]
+      exact ProbabilisticTheory.isTraceClass_add_via_polarHS
+        (ProbabilisticTheory.isTraceClass_smul (c i)
+          (gramMixed_isTraceClass lam alpha hlam ha (B i) (D i))) ih
+
 /-- Finite weighted S₁ Kummer bound for nonpositive, noncommuting
 mixed Grams. No S₁ positivity or common Hilbert basis is assumed.
 This is a genuine CFC trace norm bound on a proof-carrying S₁ element. -/
@@ -72,6 +93,7 @@ theorem gramMixedFinite_traceNorm_le_kummer
       intro i _
       ring
 
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.gramMixedFinite_isTraceClass
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gramMixedFinite_traceNorm_le_kummer
 
 end GegenbauerFock.GeneralUltrasphericalFock
