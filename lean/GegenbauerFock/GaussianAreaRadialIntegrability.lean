@@ -28,7 +28,8 @@ theorem radial_gaussian_integrable_real
       (fun r : ℝ => r ^ (((m + n + 1 : ℕ) : ℝ)) *
         Real.exp (-alpha * r ^ 2)) (Set.Ioi 0) := by
   have hs : (-1 : ℝ) < (((m + n + 1 : ℕ) : ℝ)) := by
-    positivity
+    have hn : (0 : ℝ) ≤ (((m + n + 1 : ℕ) : ℝ)) := Nat.cast_nonneg _
+    linarith
   exact integrableOn_rpow_mul_exp_neg_mul_sq ha hs
 
 /-- The corresponding complex-valued radial factor in the exact
