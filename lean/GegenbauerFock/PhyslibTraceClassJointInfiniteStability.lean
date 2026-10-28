@@ -93,7 +93,7 @@ theorem traceNorm_joint_varying_sandwich_tsum_le_v007
             ‖(X - Y) + (Y - Z)‖ + ‖Z - W‖ :=
           norm_add_le _ _
         _ ≤ (‖X - Y‖ + ‖Y - Z‖) + ‖Z - W‖ :=
-          add_le_add_right (norm_add_le _ _) _
+          add_le_add (norm_add_le _ _) (le_refl _)
     _ = (traceNorm H (X - Y) + traceNorm H (Y - Z)) +
           traceNorm H (Z - W) := by
       simp only [norm_eq_genuineTraceNorm]
