@@ -78,8 +78,27 @@ theorem C_proper_dense_range
   ⟨C_dense_range_unconditional lam alpha hlam ha,
     C_not_surjective lam alpha hlam ha⟩
 
+/-- The concrete Fock transform has non-closed image: it is dense,
+but not equal to the full output Hilbert space. -/
+theorem C_range_not_closed
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    ¬ IsClosed
+      ((C lam alpha hlam ha).range :
+        Set InfiniteAnalysis.FockCoefficients) := by
+  intro hclosed
+  have htop : (C lam alpha hlam ha).range =
+      (⊤ : Submodule ℂ InfiniteAnalysis.FockCoefficients) := by
+    calc
+      (C lam alpha hlam ha).range =
+          (C lam alpha hlam ha).range.topologicalClosure :=
+        (hclosed.submodule_topologicalClosure_eq).symm
+      _ = ⊤ := C_dense_range_unconditional lam alpha hlam ha
+  exact C_not_surjective lam alpha hlam ha
+    (LinearMap.range_eq_top.mp htop)
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.fockCoefficients_not_finiteDimensional
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_not_surjective
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_proper_dense_range
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_range_not_closed
 
 end GegenbauerFock.GeneralUltrasphericalFock
