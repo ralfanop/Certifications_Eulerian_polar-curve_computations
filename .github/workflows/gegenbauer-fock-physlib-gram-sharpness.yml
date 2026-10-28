@@ -1,0 +1,56 @@
+name: V007 sharpness of exact CFC bilateral Kummer constant
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/PhyslibGramBilateralSharpnessWitness.lean'
+      - 'lean/GegenbauerFock/PhyslibGramTwoSidedTraceNormSharp.lean'
+      - '.github/workflows/gegenbauer-fock-physlib-gram-sharpness.yml'
+  workflow_dispatch:
+
+jobs:
+  verify-sharpness:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt*8))"
+          done
+          test "$installed" = 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt*8))"
+          done
+          test "$ready" = 1
+      - name: Restore fixed Mathlib manifest
+        working-directory: lean
+        run: lake update
+      - name: Fetch fixed Mathlib cache
+        working-directory: lean
+        run: lake exe cache get
+      - name: Kernel-check exact optimality and CFC saturation
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.PhyslibGramBilateralSharpnessWitness 2>&1 | tee /tmp/gf-kummer-sharpness.log
+          grep -F "GegenbauerFock.KummerCoefficients.kummerSeries_ge_one' depends on axioms:" /tmp/gf-kummer-sharpness.log
+          grep -F "GegenbauerFock.KummerCoefficients.kummerSeries_pos' depends on axioms:" /tmp/gf-kummer-sharpness.log
+          grep -F "GegenbauerFock.GeneralUltrasphericalFock.gram_identity_traceNorm_eq_kummer' depends on axioms:" /tmp/gf-kummer-sharpness.log
+          grep -F "GegenbauerFock.GeneralUltrasphericalFock.gram_bilateral_coefficient_one_optimal' depends on axioms:" /tmp/gf-kummer-sharpness.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-kummer-sharpness.log; then
+            echo '::error::Nonstandard axiom.'
+            exit 1
+          fi
+          echo 'Exact Kummer trace sharpness, saturation and minimal coefficient audited.'
