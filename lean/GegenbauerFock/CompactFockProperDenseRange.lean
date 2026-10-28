@@ -34,15 +34,11 @@ finite-dimensional over ℂ, as witnessed by the standard ℓ² basis. -/
 theorem fockCoefficients_not_finiteDimensional :
     ¬ FiniteDimensional ℂ InfiniteAnalysis.FockCoefficients := by
   intro hfinite
-  have hlin : LinearIndependent ℂ
-      (fun n : ℕ =>
-        (lp.single (2 : ℝ≥0∞) n (1 : ℂ) :
-          InfiniteAnalysis.FockCoefficients)) :=
-    lp.linearIndependent_single_one
+  let b : HilbertBasis ℕ ℂ InfiniteAnalysis.FockCoefficients := default
+  have hlin : LinearIndependent ℂ (fun n : ℕ => b n) :=
+    b.orthonormal.linearIndependent
   exact (Module.Finite.not_linearIndependent_of_infinite
-    (fun n : ℕ =>
-      (lp.single (2 : ℝ≥0∞) n (1 : ℂ) :
-        InfiniteAnalysis.FockCoefficients))) hlin
+    (fun n : ℕ => b n)) hlin
 
 /-- C has dense image but cannot be surjective. If it were onto,
 its certified injectivity and the Banach inverse theorem would give a
