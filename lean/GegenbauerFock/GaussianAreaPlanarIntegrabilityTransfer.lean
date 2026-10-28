@@ -53,7 +53,7 @@ theorem integrable_of_polar_pullback_integrable
       (Set.Ioi (0 : ℝ) ×ˢ Set.Ioo (-Real.pi) Real.pi)) :
     Integrable f (volume : Measure ℂ) := by
   refine ⟨hf, ?_⟩
-  change (∫⁻ z : ℂ, ‖f z‖ₑ) < (⊤ : ℝ≥0∞)
+  change (∫⁻ z : ℂ, ‖f z‖ₑ) < (⊤ : ENNReal)
   rw [lintegral_enorm_eq_polar f]
   exact hpolar.2
 
