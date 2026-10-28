@@ -19,6 +19,7 @@ and a proof that the closed span is exactly the holomorphic subspace.
 noncomputable section
 
 open MeasureTheory
+open scoped ComplexConjugate
 
 namespace GegenbauerFock.GaussianArea
 
@@ -35,14 +36,16 @@ theorem gaussianArea_integral_eq_volume
         (f z * (Real.exp (-alpha * ‖z‖ ^ 2) : ℂ)) ∂volume) := by
   have hmeas : Measurable (fun z : ℂ =>
       ENNReal.ofReal (gaussianDensity alpha z)) := by
+    dsimp [gaussianDensity]
     fun_prop
   have hfinite :
       ∀ᵐ z : ℂ ∂(volume : Measure ℂ),
         ENNReal.ofReal (gaussianDensity alpha z) < ⊤ := by
     filter_upwards [] with z
     simp
-  rw [gaussianAreaMeasure,
-    integral_withDensity_eq_integral_toReal_smul hmeas hfinite]
+  change (∫ z : ℂ, f z ∂(volume : Measure ℂ).withDensity
+    (fun z : ℂ => ENNReal.ofReal (gaussianDensity alpha z))) = _
+  rw [integral_withDensity_eq_integral_toReal_smul hmeas hfinite]
   apply integral_congr_ae
   filter_upwards [] with z
   have hnonneg : 0 ≤ gaussianDensity alpha z := by
