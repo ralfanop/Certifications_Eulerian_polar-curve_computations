@@ -56,7 +56,7 @@ jobs:
             two_sided_gram_spectra_nonnegative_real; do
             grep -qF "${theorem}' depends on axioms:" /tmp/v007-gram-positive-spectrum.log
           done
-          if grep 'depends on axioms:' /tmp/v007-gram-positive-spectrum.log | grep -E 'sorryAx|Lean.ofReduceBool'; then
+          if grep -nE 'sorryAx|Lean.ofReduceBool' /tmp/v007-gram-positive-spectrum.log; then
             echo '::error::Nonstandard Lean axioms in spectral localization theorem.'
             exit 1
           fi
