@@ -50,10 +50,16 @@ theorem weighted_young_traceNorm_mul_twoHilbertSchmidt
     calc
       traceNorm ((c • R) * S) hcRS =
         traceNorm (c • (R * S)) (isTraceClass_smul c hRS) := by
-          obtain ⟨w₀, b₀, _⟩ := exists_hilbertBasis ℂ H
-          rw [traceNorm_eq_of_hilbertBasis hcRS b₀,
-            traceNorm_eq_of_hilbertBasis (isTraceClass_smul c hRS) b₀,
-            hprod]
+          calc
+            traceNorm ((c • R) * S) hcRS =
+                ∑' i : w, (inner ℂ (b i)
+                  (CFC.abs ((c • R) * S) (b i))).re :=
+              traceNorm_eq_of_hilbertBasis hcRS b
+            _ = ∑' i : w, (inner ℂ (b i)
+                  (CFC.abs (c • (R * S)) (b i))).re := by
+              rw [hprod]
+            _ = traceNorm (c • (R * S)) (isTraceClass_smul c hRS) :=
+              (traceNorm_eq_of_hilbertBasis (isTraceClass_smul c hRS) b).symm
       _ = ‖c‖ * traceNorm (R * S) hRS :=
         traceNorm_smul c hRS
       _ = t * traceNorm (R * S) hRS := by rw [hc]
