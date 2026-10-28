@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/TwoSidedGramContinuousSpectrum.lean'
+      - 'lean/GegenbauerFock/SelfAdjointZeroContinuousCriterion.lean'
       - 'lean/GegenbauerFock/TwoSidedGramNonclosedRange.lean'
       - 'lean/GegenbauerFock/TwoSidedGramProperDenseRange.lean'
       - 'lean/GegenbauerFock/TwoSidedGramNotSurjective.lean'
@@ -60,8 +61,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.TwoSidedGramContinuousSpectrum 2>&1 | tee /tmp/v007-continuous-build.log
+          lake build GegenbauerFock.TwoSidedGramContinuousSpectrum GegenbauerFock.SelfAdjointZeroContinuousCriterion 2>&1 | tee /tmp/v007-continuous-build.log
           lake env lean -M16768 GegenbauerFock/TwoSidedGramContinuousSpectrum.lean 2>&1 | tee /tmp/v007-continuous-axioms.log
+          lake env lean -M16768 GegenbauerFock/SelfAdjointZeroContinuousCriterion.lean 2>&1 | tee -a /tmp/v007-continuous-axioms.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-continuous-build.log /tmp/v007-continuous-axioms.log; then
             echo "::error::Forbidden Lean axiom in bilateral continuous-spectrum certificate."
             exit 1
@@ -69,7 +71,11 @@ jobs:
           for theorem in source_gram_zero_continuous_spectrum \
             output_gram_zero_continuous_spectrum \
             two_sided_gram_zero_continuous_spectrum \
-            two_sided_continuous_zero_nonclosed_ranges; do
+            two_sided_continuous_zero_nonclosed_ranges \
+            selfadjoint_dense_range_of_injective \
+            selfadjoint_zero_continuous_of_spectral_not_eigen \
+            source_gram_zero_continuous_by_selfadjoint_criterion \
+            output_gram_zero_continuous_by_selfadjoint_criterion; do
             grep -F "${theorem}' depends on axioms:" /tmp/v007-continuous-axioms.log
           done
           echo 'Bilateral zero continuous-spectrum proof: compiled and cleanly audited.'
