@@ -27,6 +27,16 @@ namespace GegenbauerFock.GeneralUltrasphericalFock
 
 open MeasureTheory
 
+private theorem output_conjugation_re_inner_swap
+    {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
+    (x y : H) :
+    (inner ℂ x y).re = (inner ℂ y x).re := by
+  calc
+    (inner ℂ x y).re = (star (inner ℂ y x)).re :=
+      congrArg Complex.re (inner_conj_symm (𝕜 := ℂ) x y).symm
+    _ = (inner ℂ y x).re := by
+      simp only [Complex.star_def, Complex.conj_re]
+
 /-- Output Gram of the bounded postprocessed Gegenbauer--Fock map A ∘ C. -/
 noncomputable def outputGramAfterLeft
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
@@ -143,14 +153,10 @@ theorem outputGramAfterLeft_traceNorm_le_kummer
             (inner ℂ (hSrc.choose_spec.choose i)
               ((T.adjoint.comp T) (hSrc.choose_spec.choose i))).re =
               (inner ℂ ((T.adjoint.comp T) (hSrc.choose_spec.choose i))
-                (hSrc.choose_spec.choose i)).re := by
-                  rw [← Complex.conj_re
-                    (inner ℂ ((T.adjoint.comp T) (hSrc.choose_spec.choose i))
-                      (hSrc.choose_spec.choose i))]
-                  congr 1
-                  exact (inner_conj_symm (𝕜 := ℂ)
+                (hSrc.choose_spec.choose i)).re :=
+                  output_conjugation_re_inner_swap
                     (hSrc.choose_spec.choose i)
-                    ((T.adjoint.comp T) (hSrc.choose_spec.choose i)))
+                    ((T.adjoint.comp T) (hSrc.choose_spec.choose i))
             _ = ‖T (hSrc.choose_spec.choose i)‖ ^ 2 := hnormal.symm
     _ ≤ ∑' i : hSrc.choose,
           ‖A‖ ^ 2 * ‖C lam alpha hlam ha (hSrc.choose_spec.choose i)‖ ^ 2 := by
