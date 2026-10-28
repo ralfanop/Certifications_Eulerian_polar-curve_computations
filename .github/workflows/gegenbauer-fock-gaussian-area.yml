@@ -1,4 +1,4 @@
-name: V007 Gaussian Bargmann-Fock area normalization certificate
+name: V007 Gaussian Bargmann-Fock planar monomial norm certificate
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/GaussianAreaNormalization.lean'
+      - 'lean/GegenbauerFock/GaussianAreaMonomialNorm.lean'
       - '.github/workflows/gegenbauer-fock-gaussian-area.yml'
   workflow_dispatch:
 
@@ -100,11 +101,11 @@ jobs:
           set -euo pipefail
           lake env lean -M16768 --version
 
-      - name: Certify complex Gaussian area normalization and axiom audit
+      - name: Certify Gaussian area normalization and monomial diagonal norm
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.GaussianAreaNormalization 2>&1 | tee /tmp/v007-gaussian-area.log
+          lake build GegenbauerFock.GaussianAreaNormalization GegenbauerFock.GaussianAreaMonomialNorm 2>&1 | tee /tmp/v007-gaussian-area.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gaussian-area.log; then
             echo "::error::Nonstandard axiom in Gaussian-area certificate."
             exit 1
