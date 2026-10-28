@@ -54,7 +54,6 @@ theorem finiteMonomialGramPair_diagonal
   apply Finset.sum_congr rfl
   intro n hn
   rw [Complex.star_def, Complex.mul_conj, Complex.normSq_eq_norm_sq]
-  norm_cast
 
 #print axioms GegenbauerFock.GaussianArea.finiteMonomialGramPair_eq_coefficients
 #print axioms GegenbauerFock.GaussianArea.finiteMonomialGramPair_diagonal
