@@ -30,10 +30,13 @@ theorem gramMixed_identity_traceNorm_eq_kummer
   let H := Lp ℂ 2 (Ultraspherical.measure lam)
   have heq : gramMixed lam alpha hlam ha
         (1 : H →L[ℂ] H) 1 = gram lam alpha hlam ha := by
-    change (1 : H →L[ℂ] H).adjoint.comp
-      ((gram lam alpha hlam ha).comp 1) =
-        gram lam alpha hlam ha
-    simp
+    apply ContinuousLinearMap.ext
+    intro f
+    change (1 : H →L[ℂ] H).adjoint
+      ((gram lam alpha hlam ha) ((1 : H →L[ℂ] H) f)) =
+        (gram lam alpha hlam ha) f
+    rw [← ContinuousLinearMap.star_eq_adjoint, star_one]
+    rfl
   obtain ⟨w, b, _⟩ := exists_hilbertBasis ℂ H
   calc
     ProbabilisticTheory.traceNorm
