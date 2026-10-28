@@ -38,7 +38,10 @@ theorem integral_even_radial_rpow
       (2 * Real.pi / 2) *
         alpha ^ (-(2 * (n : ℝ) + 2) / 2) *
         Real.Gamma ((2 * (n : ℝ) + 2) / 2) := by
-        simpa only [Real.rpow_natCast] using h
+        have hpow (z : ℂ) :
+            ‖z‖ ^ (2 : ℝ) = ‖z‖ ^ (2 : ℕ) := by
+          simpa using (Real.rpow_natCast (‖z‖) (2 : ℕ))
+        simpa only [hpow] using h
     _ = Real.pi * alpha ^ (-((n : ℝ) + 1)) *
         (Nat.factorial n : ℝ) := by
       have he : -(2 * (n : ℝ) + 2) / 2 =
