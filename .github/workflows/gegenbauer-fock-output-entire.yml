@@ -13,6 +13,7 @@ on:
       - 'lean/GegenbauerFock/FockApproximateNullSequence.lean'
       - 'lean/GegenbauerFock/FockApproximateNullConvergence.lean'
       - 'lean/GegenbauerFock/FockApproximateNullNoStrongLimit.lean'
+      - 'lean/GegenbauerFock/FockNoContinuousReconstruction.lean'
       - '.github/workflows/gegenbauer-fock-output-entire.yml'
   workflow_dispatch:
 
@@ -208,3 +209,16 @@ jobs:
             exit 1
           fi
           echo 'Approximate-null Fock sources have no strong L2 limit: no forbidden axioms.'
+
+      # An exact left inverse on all Fock coefficient vectors cannot be
+      # continuous at zero, even without any linearity hypothesis.
+      - name: Certify impossibility of continuous global Fock reconstruction
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.FockNoContinuousReconstruction 2>&1 | tee /tmp/v007-fock-no-reconstruction.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-fock-no-reconstruction.log; then
+            echo "::error::Nonstandard axiom in Fock reconstruction obstruction."
+            exit 1
+          fi
+          echo 'No continuous global Fock reconstruction: no forbidden axioms.'
