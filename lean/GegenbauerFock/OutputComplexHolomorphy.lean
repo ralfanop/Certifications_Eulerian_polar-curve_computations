@@ -25,8 +25,7 @@ theorem inner_kernelCoordinate_eq_monomial
     (alpha : ℝ) (z : ℂ) (n : ℕ) (a : ℂ) :
     inner ℂ (kernelCoordinate alpha z n) a =
       ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) * z ^ n) * a := by
-  simp [kernelCoordinate, RCLike.inner_apply', Complex.conj_mul,
-    Complex.conj_pow, mul_assoc]
+  simp [kernelCoordinate, mul_comm, mul_left_comm, mul_assoc]
 
 /-- The true infinite coherent evaluation is a complex power series. -/
 theorem evaluation_eq_tsum_monomial
@@ -75,7 +74,7 @@ theorem differentiableOn_evaluation_complex_ball
       DifferentiableOn ℂ (fun z : ℂ => ∑' n : ℕ,
         inner ℂ (kernelCoordinate alpha z n) (F n))
         (Metric.ball (0 : ℂ) R) := by
-    apply differentiableOn_tsum_of_summable_norm hs hterm Metric.isOpen_ball
+    apply Complex.differentiableOn_tsum_of_summable_norm hs hterm Metric.isOpen_ball
     intro n z hz
     calc
       ‖inner ℂ (kernelCoordinate alpha z n) (F n)‖ ≤
@@ -96,7 +95,6 @@ theorem differentiable_evaluation_complex
     (alpha : ℝ) (ha : 0 < alpha)
     (F : FockSequence.Coefficients) :
     Differentiable ℂ (fun z : ℂ => evaluation alpha ha z F) := by
-  rw [differentiable_iff_differentiableAt]
   intro z
   let R : ℝ := ‖z‖ + 1
   have hR : 0 < R := by dsimp [R]; positivity
