@@ -27,16 +27,16 @@ theorem C_exists_approximate_null_sequence_without_strong_limit
     ∃ u : ℕ → Lp ℂ 2 (Ultraspherical.measure lam),
       (∀ n : ℕ, ‖u n‖ = 1) ∧
       Tendsto (fun n : ℕ => C lam alpha hlam ha (u n))
-        atTop (𝓝 (0 : InfiniteAnalysis.FockCoefficients)) ∧
+        atTop (nhds (0 : InfiniteAnalysis.FockCoefficients)) ∧
       (∀ f : Lp ℂ 2 (Ultraspherical.measure lam),
-        ¬ Tendsto u atTop (𝓝 f)) := by
+        ¬ Tendsto u atTop (nhds f)) := by
   obtain ⟨u, hunit, himage⟩ :=
     C_exists_normalized_approximate_null_sequence lam alpha hlam ha
   refine ⟨u, hunit, himage, ?_⟩
   intro f hconv
   have hCconv : Tendsto
       (fun n : ℕ => C lam alpha hlam ha (u n))
-      atTop (𝓝 (C lam alpha hlam ha f)) :=
+      atTop (nhds (C lam alpha hlam ha f)) :=
     (C lam alpha hlam ha).continuous.continuousAt.tendsto.comp hconv
   have hCzero : C lam alpha hlam ha f = 0 :=
     tendsto_nhds_unique hCconv himage
@@ -44,9 +44,9 @@ theorem C_exists_approximate_null_sequence_without_strong_limit
     apply C_injective lam alpha hlam ha
     simpa using hCzero
   have hnormconv : Tendsto (fun n : ℕ => ‖u n‖)
-      atTop (𝓝 ‖f‖) := hconv.norm
+      atTop (nhds ‖f‖) := hconv.norm
   have hnormunit : Tendsto (fun n : ℕ => ‖u n‖)
-      atTop (𝓝 (1 : ℝ)) := by
+      atTop (nhds (1 : ℝ)) := by
     have heq : (fun n : ℕ => ‖u n‖) =
         (fun _ : ℕ => (1 : ℝ)) := funext hunit
     rw [heq]
