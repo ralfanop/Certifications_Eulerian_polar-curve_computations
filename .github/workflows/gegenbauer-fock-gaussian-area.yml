@@ -13,6 +13,7 @@ on:
       - 'lean/GegenbauerFock/GaussianAreaPolarMixedPullback.lean'
       - 'lean/GegenbauerFock/GaussianAreaPlanarFactorizationBridge.lean'
       - 'lean/GegenbauerFock/GaussianAreaPolarAngularAlgebra.lean'
+      - 'lean/GegenbauerFock/GaussianAreaFullMonomialOrthogonality.lean'
       - '.github/workflows/gegenbauer-fock-gaussian-area.yml'
   workflow_dispatch:
 
@@ -111,7 +112,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.GaussianAreaNormalization GegenbauerFock.GaussianAreaMonomialNorm GegenbauerFock.GaussianAreaAngularOrthogonality GegenbauerFock.GaussianAreaPolarAngularOrthogonality GegenbauerFock.GaussianAreaPolarProductOrthogonality GegenbauerFock.GaussianAreaPolarMixedPullback GegenbauerFock.GaussianAreaPlanarFactorizationBridge GegenbauerFock.GaussianAreaPolarAngularAlgebra 2>&1 | tee /tmp/v007-gaussian-area.log
+          lake build GegenbauerFock.GaussianAreaNormalization GegenbauerFock.GaussianAreaMonomialNorm GegenbauerFock.GaussianAreaAngularOrthogonality GegenbauerFock.GaussianAreaPolarAngularOrthogonality GegenbauerFock.GaussianAreaPolarProductOrthogonality GegenbauerFock.GaussianAreaPolarMixedPullback GegenbauerFock.GaussianAreaPlanarFactorizationBridge GegenbauerFock.GaussianAreaPolarAngularAlgebra GegenbauerFock.GaussianAreaFullMonomialOrthogonality 2>&1 | tee /tmp/v007-gaussian-area.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gaussian-area.log; then
             echo "::error::Nonstandard axiom in Gaussian-area certificate."
             exit 1
