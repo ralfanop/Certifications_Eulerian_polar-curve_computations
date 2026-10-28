@@ -66,7 +66,7 @@ theorem traceNorm_mul_twoHilbertSchmidt_le_energy_sum
         (∑' i : w, ‖S (b i)‖ ^ 2) := hbase
     _ ≤ (‖U‖ ^ 2 * (∑' i : w, ‖R.adjoint (b i)‖ ^ 2)) +
         (∑' i : w, ‖S (b i)‖ ^ 2) :=
-      add_le_add_right hright _
+      exact add_le_add hright le_rfl
     _ = (‖U‖ ^ 2 * (∑' i : w, ‖R (b i)‖ ^ 2)) +
         (∑' i : w, ‖S (b i)‖ ^ 2) := by rw [hstar]
     _ ≤ (∑' i : w, ‖R (b i)‖ ^ 2) +
@@ -79,7 +79,7 @@ theorem traceNorm_mul_twoHilbertSchmidt_le_energy_sum
               1 * (∑' i : w, ‖R (b i)‖ ^ 2) :=
                 mul_le_mul_of_nonneg_right hU2 hR_nonneg
           _ = (∑' i : w, ‖R (b i)‖ ^ 2) := one_mul _
-      exact add_le_add_right hmul _
+      exact add_le_add hmul le_rfl
 
 #print axioms ProbabilisticTheory.traceNorm_mul_twoHilbertSchmidt_le_energy_sum
 
