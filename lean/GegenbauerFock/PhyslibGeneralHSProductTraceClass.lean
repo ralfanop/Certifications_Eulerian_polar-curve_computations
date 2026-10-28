@@ -80,8 +80,7 @@ theorem isTraceClass_mul_of_twoHilbertSchmidt
       (inner ℂ (b i) (CFC.abs T (b i))).re) := by
     apply Summable.of_nonneg_of_le
     · intro i
-      exact ((ContinuousLinearMap.nonneg_iff_isPositive).mp hpos).
-        re_inner_nonneg_right (b i)
+      exact ((ContinuousLinearMap.nonneg_iff_isPositive).mp hpos).re_inner_nonneg_right (b i)
     · exact hbound
     · exact hAsum.add hSsum
   change IsTraceClass T
