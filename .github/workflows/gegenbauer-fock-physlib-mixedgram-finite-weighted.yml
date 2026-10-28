@@ -46,6 +46,7 @@ jobs:
           lake build GegenbauerFock.PhyslibMixedGramWeightedFiniteTrace 2>&1 | tee /tmp/gf-mixed-finite-weighted.log
 
 
+          grep -F "GegenbauerFock.GeneralUltrasphericalFock.gramMixedFinite_isTraceClass' depends on axioms:" /tmp/gf-mixed-finite-weighted.log
           grep -F "GegenbauerFock.GeneralUltrasphericalFock.gramMixedFinite_traceNorm_le_kummer' depends on axioms:" /tmp/gf-mixed-finite-weighted.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-mixed-finite-weighted.log; then
             echo '::error::Nonstandard axiom.'
