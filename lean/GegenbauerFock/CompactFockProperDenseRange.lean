@@ -41,33 +41,42 @@ theorem fockCoefficients_not_finiteDimensional :
   exact (Module.Finite.not_linearIndependent_of_infinite
     (fun n : ℕ => b n)) hlin
 
+/-- General compact-injective obstruction to surjectivity with an
+infinite-dimensional codomain. This proof is formulated abstractly to
+avoid unfolding the ultraspherical integral operator while invoking
+the Banach bounded-inverse theorem. -/
+private theorem compact_injective_not_surjective
+    {E F : Type*}
+    [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
+    [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
+    (T : E →L[ℂ] F)
+    (hcompact : IsCompactOperator T)
+    (hinj : Function.Injective T)
+    (hinfinite : ¬ FiniteDimensional ℂ F) :
+    ¬ Function.Surjective T := by
+  intro hsurj
+  have hker : T.ker = ⊥ := LinearMap.ker_eq_bot.mpr hinj
+  have hrange : T.range = ⊤ := LinearMap.range_eq_top.mpr hsurj
+  let e : E ≃L[ℂ] F := ContinuousLinearEquiv.ofBijective T hker hrange
+  have hcompact' : IsCompactOperator (T ∘ (e.symm : F →L[ℂ] E)) :=
+    hcompact.comp_clm e.symm
+  have hcomp_id : (T ∘ (e.symm : F →L[ℂ] E)) = (id : F → F) := by
+    funext y
+    exact e.apply_symm_apply y
+  rw [hcomp_id] at hcompact'
+  exact hinfinite (FiniteDimensional.of_isCompactOperator_id hcompact')
+
 /-- C has dense image but cannot be surjective. If it were onto,
-its certified injectivity and the Banach inverse theorem would give a
-continuous linear inverse, making the identity on infinite ℓ² compact. -/
+the Banach inverse theorem would make the identity on ℓ² compact,
+forcing its infinite-dimensional coefficient space to be finite. -/
 theorem C_not_surjective
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
-    ¬ Function.Surjective (C lam alpha hlam ha) := by
-  intro hsurj
-  have hker : (C lam alpha hlam ha).ker = ⊥ :=
-    LinearMap.ker_eq_bot.mpr (C_injective lam alpha hlam ha)
-  have hrange : (C lam alpha hlam ha).range = ⊤ :=
-    LinearMap.range_eq_top.mpr hsurj
-  let e := ContinuousLinearEquiv.ofBijective
-    (C lam alpha hlam ha) hker hrange
-  have hcompact : IsCompactOperator
-      ((C lam alpha hlam ha) ∘
-        (e.symm : InfiniteAnalysis.FockCoefficients →L[ℂ]
-          Lp ℂ 2 (Ultraspherical.measure lam))) :=
-    (C_compact lam alpha hlam ha).comp_clm e.symm
-  have hidentity : IsCompactOperator
-      (id : InfiniteAnalysis.FockCoefficients →
-        InfiniteAnalysis.FockCoefficients) := by
-    convert hcompact using 1
-    funext F
-    exact (e.apply_symm_apply F).symm
-  have hfinite : FiniteDimensional ℂ InfiniteAnalysis.FockCoefficients :=
-    FiniteDimensional.of_isCompactOperator_id hidentity
-  exact fockCoefficients_not_finiteDimensional hfinite
+    ¬ Function.Surjective (C lam alpha hlam ha) :=
+  compact_injective_not_surjective
+    (C lam alpha hlam ha)
+    (C_compact lam alpha hlam ha)
+    (C_injective lam alpha hlam ha)
+    fockCoefficients_not_finiteDimensional
 
 /-- The actual compact quasiaffinity has a proper, dense image.
 These assertions remain different: dense does not mean closed or onto. -/
