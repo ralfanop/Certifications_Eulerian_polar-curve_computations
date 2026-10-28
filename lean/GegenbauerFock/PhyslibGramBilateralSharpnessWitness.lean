@@ -1,4 +1,5 @@
 import GegenbauerFock.PhyslibGramTwoSidedTraceNormSharp
+import GegenbauerFock.KummerPositiveBounds
 
 /-!
 # V007 — mathematical sharpness of the exact CFC bilateral Kummer bound
@@ -18,21 +19,7 @@ noncomputable section
 
 namespace GegenbauerFock.KummerCoefficients
 
-/-- The Kummer mass has positive unit vacuum contribution. -/
-theorem kummerSeries_ge_one (lam z : ℝ)
-    (hlam : 0 < lam) (hz : 0 ≤ z) :
-    (1 : ℝ) ≤ kummerSeries lam z := by
-  have hs := kummerSeries_summable lam z hlam hz
-  have hnonneg (n : ℕ) :
-      0 ≤ ratio lam n * (z ^ n / (Nat.factorial n : ℝ)) :=
-    mul_nonneg (ratio_nonneg lam hlam n) (by positivity)
-  have hprefix :
-      (∑ n ∈ Finset.range 1,
-        ratio lam n * (z ^ n / (Nat.factorial n : ℝ))) ≤
-        kummerSeries lam z := by
-    exact hs.sum_le_tsum (Finset.range 1) (fun i _ => hnonneg i)
-  simpa [kummerSeries, ratio] using hprefix
-
+/-- Strict positivity from the separately certified nonnegative Kummer series. -/
 theorem kummerSeries_pos (lam z : ℝ)
     (hlam : 0 < lam) (hz : 0 ≤ z) :
     0 < kummerSeries lam z :=
@@ -90,7 +77,7 @@ theorem gram_bilateral_coefficient_one_optimal
   intro h
   have hI := h 1 1
   rw [gram_identity_traceNorm_eq_kummer lam alpha hlam ha] at hI
-  simp only [norm_one, one_mul] at hI
+  try simp only [norm_one, one_mul] at hI
   have harg : 0 ≤ (1 / (4 * alpha) : ℝ) := by positivity
   have hp : 0 < KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) :=
     KummerCoefficients.kummerSeries_pos lam (1 / (4 * alpha)) hlam harg
