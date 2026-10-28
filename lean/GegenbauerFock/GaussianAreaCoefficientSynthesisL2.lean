@@ -43,6 +43,35 @@ theorem coefficientSynthesisL2_injective
     Function.Injective (coefficientSynthesisL2 alpha ha) :=
   (coefficientSynthesisL2 alpha ha).injective
 
+/-- The isometric synthesis is exactly the Hilbert-space sum of the
+normalized monomial vectors, for every square-summable coefficient family. -/
+theorem coefficientSynthesisL2_hasSum
+    (alpha : ℝ) (ha : 0 < alpha)
+    (a : lp (fun _ : ℕ => ℂ) 2) :
+    HasSum (fun n : ℕ =>
+      a n • normalizedMonomialL2Vector alpha ha n)
+      (coefficientSynthesisL2 alpha ha a) := by
+  simpa only [coefficientSynthesisL2, LinearIsometry.toSpanSingleton_apply] using
+    ((orthonormal_normalizedMonomialL2Vector alpha ha).orthogonalFamily).hasSum_linearIsometry a
+
+/-- The range of the genuine Gaussian L² synthesis is precisely the
+closed complex linear span of the normalized holomorphic monomials.
+This does not yet identify that span with all holomorphic L² functions. -/
+theorem coefficientSynthesisL2_range_eq_closure_span
+    (alpha : ℝ) (ha : 0 < alpha) :
+    LinearMap.range (coefficientSynthesisL2 alpha ha).toLinearMap =
+      (Submodule.span ℂ (Set.range
+        (fun n : ℕ => normalizedMonomialL2Vector alpha ha n))).topologicalClosure := by
+  classical
+  change LinearMap.range
+    (((orthonormal_normalizedMonomialL2Vector alpha ha).orthogonalFamily).linearIsometry.toLinearMap) = _
+  rw [((orthonormal_normalizedMonomialL2Vector alpha ha).orthogonalFamily).range_linearIsometry]
+  congr 1
+  simp [← LinearMap.span_singleton_eq_range, ← Submodule.span_iUnion]
+
+#print axioms GegenbauerFock.GaussianArea.coefficientSynthesisL2_hasSum
+#print axioms GegenbauerFock.GaussianArea.coefficientSynthesisL2_range_eq_closure_span
+
 #print axioms GegenbauerFock.GaussianArea.coefficientSynthesisL2_norm
 #print axioms GegenbauerFock.GaussianArea.coefficientSynthesisL2_injective
 
