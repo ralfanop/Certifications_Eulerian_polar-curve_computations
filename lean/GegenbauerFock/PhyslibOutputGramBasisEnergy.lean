@@ -79,7 +79,15 @@ theorem outputGramAfterLeft_traceNorm_eq_adjoint_basisEnergy
             (outputGramAfterLeft_isTraceClass lam alpha hlam ha A) b
     _ = ∑' j : w, (inner ℂ (b j)
           (outputGramAfterLeft lam alpha hlam ha A (b j))).re := by
-            rw [CFC.abs_of_nonneg _ hpos]
+            have hAbs :
+                CFC.abs (outputGramAfterLeft lam alpha hlam ha A) =
+                  outputGramAfterLeft lam alpha hlam ha A :=
+              CFC.abs_of_nonneg _ hpos
+            apply tsum_congr
+            intro j
+            exact congrArg (fun (K : InfiniteAnalysis.FockCoefficients →L[ℂ]
+              InfiniteAnalysis.FockCoefficients) =>
+                (inner ℂ (b j) (K (b j))).re) hAbs
     _ = ∑' j : w, ‖T.adjoint (b j)‖ ^ 2 := by
       apply tsum_congr
       intro j
