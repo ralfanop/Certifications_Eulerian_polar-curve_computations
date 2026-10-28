@@ -37,8 +37,12 @@ theorem traceClass_of_operator_limit_of_uniform_traceNorm_bound
     isTraceClass_of_tendsto_of_traceNorm_bounded_v007
       (fun n => (u n).2) hbound' htendsto
   refine ⟨⟨T, hT⟩, rfl, ?_⟩
-  simpa only [TraceClass.norm_eq_genuineTraceNorm,
-    TraceClass.traceNorm] using htr
+  calc
+    ‖(⟨T, hT⟩ : TraceClass H)‖ =
+        TraceClass.traceNorm H (⟨T, hT⟩ : TraceClass H) :=
+      TraceClass.norm_eq_genuineTraceNorm (⟨T, hT⟩ : TraceClass H)
+    _ = ProbabilisticTheory.traceNorm T hT := rfl
+    _ ≤ C := htr
 
 #print axioms ProbabilisticTheory.traceClass_of_operator_limit_of_uniform_traceNorm_bound
 
