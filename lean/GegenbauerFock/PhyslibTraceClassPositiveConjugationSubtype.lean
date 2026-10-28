@@ -40,8 +40,9 @@ theorem conjugate_traceNorm_le_of_nonneg_contraction
     (T : TraceClass H) (hT : 0 ≤ T.1)
     (B : H →L[ℂ] H) (hB : ‖B‖ ≤ 1) :
     traceNorm H (conjugate T B) ≤ traceNorm H T := by
-  have hs : ‖B‖ ^ 2 ≤ (1 : ℝ) :=
-    (sq_le_sq₀ (norm_nonneg _) zero_le_one).2 hB
+  have hs : ‖B‖ ^ 2 ≤ (1 : ℝ) := by
+    simpa only [one_pow] using
+      ((sq_le_sq₀ (norm_nonneg _) zero_le_one).2 hB)
   calc
     traceNorm H (conjugate T B) ≤
         ‖B‖ ^ 2 * traceNorm H T :=
