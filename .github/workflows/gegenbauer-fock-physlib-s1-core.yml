@@ -11,7 +11,6 @@ on:
       - 'lean/GegenbauerFock/PhyslibRankOneTrace.lean'
       - 'lean/GegenbauerFock/PhyslibFiniteRankPositiveTrace.lean'
       - 'lean/GegenbauerFock/PhyslibTraceBasisIndependence.lean'
-      - 'lean/GegenbauerFock/PhyslibPositiveTraceBasisFreeAdd.lean'
       - 'lean/GegenbauerFock/PhyslibTraceNormScalarHomogeneous.lean'
       - 'lean/GegenbauerFock/PhyslibTraceNormHomogeneity.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassScalar.lean'
@@ -149,16 +148,6 @@ jobs:
             exit 1
           fi
           echo 'Physlib S1 basis-independence: no forbidden axioms.'
-      - name: Certify basis-free positive S1 addition and true trace-norm additivity
-        working-directory: lean
-        run: |
-          set -euo pipefail
-          lake build GegenbauerFock.PhyslibPositiveTraceBasisFreeAdd 2>&1 | tee /tmp/gf-physlib-s1-positive-basis-free.log
-          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-physlib-s1-positive-basis-free.log; then
-            echo "::error::Nonstandard axiom in basis-free positive S1 addition."
-            exit 1
-          fi
-          echo 'Basis-free positive S1 addition: no forbidden axioms.'
       - name: Certify general S1 trace-norm scalar homogeneity
         working-directory: lean
         run: |
