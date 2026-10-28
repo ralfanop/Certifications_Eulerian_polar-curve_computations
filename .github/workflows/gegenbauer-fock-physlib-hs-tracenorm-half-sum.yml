@@ -1,0 +1,52 @@
+name: V007 sharp Young S2 product trace norm energy sum
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/PhyslibHSProductTraceNormHalfSumBound.lean'
+      - '.github/workflows/gegenbauer-fock-physlib-hs-tracenorm-half-sum.yml'
+  workflow_dispatch:
+
+jobs:
+  hs-tracenorm-half-sum:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt*8))"
+          done
+          test "$installed" = 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt*8))"
+          done
+          test "$ready" = 1
+      - name: Generate pinned Mathlib manifest
+        working-directory: lean
+        run: lake update
+      - name: Fetch pinned Mathlib cache
+        working-directory: lean
+        run: lake exe cache get
+      - name: Certify true CFC doubled trace norm bound
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.PhyslibHSProductTraceNormHalfSumBound 2>&1 | tee /tmp/gf-hs-trace-half-sum.log
+          grep -F "ProbabilisticTheory.two_mul_traceNorm_mul_twoHilbertSchmidt_le_energy_sum' depends on axioms:" /tmp/gf-hs-trace-half-sum.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-hs-trace-half-sum.log; then
+            echo '::error::Nonstandard axiom.'
+            exit 1
+          fi
+          echo 'Strong Young S1 product bound built and audited.'
