@@ -35,7 +35,8 @@ theorem traceNorm_reverse_triangle_v007
 trace-norm metric it induces, for arbitrary nonpositive operators. -/
 theorem traceNorm_dist_le_v007 (T V : TraceClass H) :
     dist (traceNorm H T) (traceNorm H V) ≤ dist T V := by
-  simpa only [Real.dist_eq, dist_eq_norm, norm_eq_genuineTraceNorm] using
+  simpa only [Real.dist_eq, Real.norm_eq_abs, dist_eq_norm,
+    norm_eq_genuineTraceNorm] using
     (traceNorm_reverse_triangle_v007 T V)
 
 #print axioms ProbabilisticTheory.TraceClass.traceNorm_reverse_triangle_v007
