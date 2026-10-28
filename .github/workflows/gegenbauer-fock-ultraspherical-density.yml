@@ -106,6 +106,17 @@ jobs:
           set -euo pipefail
           lake env lean -M16768 --version
 
+      - name: Early dependency check: compile unconditional source spectral completeness
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UnconditionalSourceSpectralCompleteness 2>&1 | tee /tmp/v007-unconditional-source-spectrum.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-unconditional-source-spectrum.log; then
+            echo "::error::Nonstandard axiom in unconditional source spectral completeness."
+            exit 1
+          fi
+          echo 'Unconditional nonzero source eigenspace completeness: no forbidden axioms.'
+
       - name: Compile ultraspherical continuous-density and compact-support bridges
         working-directory: lean
         run: |
@@ -166,13 +177,3 @@ jobs:
             exit 1
           fi
 
-      - name: Certify unconditional nonzero source singular spectral completeness
-        working-directory: lean
-        run: |
-          set -euo pipefail
-          lake build GegenbauerFock.UnconditionalSourceSpectralCompleteness 2>&1 | tee /tmp/v007-unconditional-source-spectrum.log
-          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-unconditional-source-spectrum.log; then
-            echo "::error::Nonstandard axiom in unconditional source spectral completeness."
-            exit 1
-          fi
-          echo 'Unconditional nonzero source eigenspace completeness: no forbidden axioms.'
