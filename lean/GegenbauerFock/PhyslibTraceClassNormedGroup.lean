@@ -63,4 +63,7 @@ theorem traceNorm_le_of_triangle (T V : TraceClass H) :
 #print axioms ProbabilisticTheory.TraceClass.norm_eq_genuineTraceNorm
 #print axioms ProbabilisticTheory.TraceClass.traceNorm_le_of_triangle
 
+#print axioms ProbabilisticTheory.TraceClass.genuineTraceAddGroupNorm
+#print axioms ProbabilisticTheory.TraceClass.instGenuineNormedAddCommGroup
+
 end ProbabilisticTheory.TraceClass
