@@ -7,7 +7,6 @@ on:
     paths:
       - 'lean/GegenbauerFock/PhyslibTraceClassNeumannQuasiregular.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassNonUnitalBanachRing.lean'
-      - 'lean/GegenbauerFock/PhyslibTraceClassNeumannQuasiregular.lean'
       - '.github/workflows/gegenbauer-fock-physlib-s1-neumann-quasiregular.yml'
   workflow_dispatch:
 
@@ -97,7 +96,6 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          grep -F "neumann_negative_quasiregular' depends on axioms:" /tmp/gf-s1-neumann-quasiregular.log
           lake env lean -M16768 --version
 
       # Check actual nonunital S1 geometric powers without changing the pinned toolchain.
@@ -113,8 +111,9 @@ jobs:
           fi
           grep -F "neumann_iterates_summable' depends on axioms:" /tmp/gf-s1-neumann-quasiregular.log
           grep -F "neumann_two_sided_identities' depends on axioms:" /tmp/gf-s1-neumann-quasiregular.log
-          lake env lean -M16768 GegenbauerFock/PhyslibTraceClassNeumannQuasiregular.lean 2>&1 | tee /tmp/gf-s1-geometric-sum-axioms.log
-          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-s1-geometric-sum-axioms.log; then
+          grep -F "neumann_negative_quasiregular' depends on axioms:" /tmp/gf-s1-neumann-quasiregular.log
+          lake env lean -M16768 GegenbauerFock/PhyslibTraceClassNeumannQuasiregular.lean 2>&1 | tee /tmp/gf-s1-neumann-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-s1-neumann-axioms.log; then
             echo '::error::Forbidden axiom from independent Lean kernel check.'
             exit 1
           fi
