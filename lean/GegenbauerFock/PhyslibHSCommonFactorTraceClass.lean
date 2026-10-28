@@ -78,6 +78,9 @@ theorem isTraceClass_finset_products_common_left_HS
   have hp : IsTraceClass (R * (∑ i ∈ s, S i)) :=
     isTraceClass_mul_of_twoHilbertSchmidt R (∑ i ∈ s, S i) hR hsum
   have heq : R * (∑ i ∈ s, S i) = ∑ i ∈ s, R * S i := by
+    -- These local witnesses depend on s; remove them from this purely
+    -- algebraic induction so its inductive hypothesis stays unconditional.
+    clear hsum hp
     induction s using Finset.induction_on with
     | empty => simp
     | @insert i s hi ih =>
