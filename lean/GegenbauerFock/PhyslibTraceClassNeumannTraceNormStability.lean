@@ -29,11 +29,8 @@ theorem neumann_resolvent_sandwich_eq
         ((1 : H →L[ℂ] H) + (neumannCorrection T).1)
         ((1 : H →L[ℂ] H) + (neumannCorrection U).1) := by
   apply Subtype.ext
-  change (neumannCorrection T).1 - (neumannCorrection U).1 =
-    ((1 : H →L[ℂ] H) + (neumannCorrection T).1) *
-    (T.1 - U.1) *
-    ((1 : H →L[ℂ] H) + (neumannCorrection U).1)
-  exact neumann_ambient_resolvent_identity T U hT hU
+  simpa only [sub_operator, sandwich_operator] using
+    (neumann_ambient_resolvent_identity T U hT hU)
 
 /-- Sharp coefficient-one bilateral ideal control of the Neumann
 correction difference in the *actual CFC trace norm*. -/
