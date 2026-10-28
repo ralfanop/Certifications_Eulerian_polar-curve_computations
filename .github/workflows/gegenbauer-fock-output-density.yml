@@ -10,6 +10,7 @@ on:
       - 'lean/GegenbauerFock/OutputInteriorUniquenessBridge.lean'
       - 'lean/GegenbauerFock/OutputInteriorContinuity.lean'
       - 'lean/GegenbauerFock/OutputAnalyticCoefficientSeed.lean'
+      - 'lean/GegenbauerFock/OutputAnalyticCoordinateSeparation.lean'
       - '.github/workflows/gegenbauer-fock-output-density.yml'
   workflow_dispatch:
 
@@ -108,7 +109,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.OutputAnalyticUniquenessReduction GegenbauerFock.OutputInteriorUniquenessBridge GegenbauerFock.OutputInteriorContinuity GegenbauerFock.OutputAnalyticCoefficientSeed 2>&1 | tee /tmp/v007-output-density.log
+          lake build GegenbauerFock.OutputAnalyticUniquenessReduction GegenbauerFock.OutputInteriorUniquenessBridge GegenbauerFock.OutputInteriorContinuity GegenbauerFock.OutputAnalyticCoefficientSeed GegenbauerFock.OutputAnalyticCoordinateSeparation 2>&1 | tee /tmp/v007-output-density.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-output-density.log; then
             echo "::error::Nonstandard axiom in output dense-range or spectral bridge."
             exit 1
