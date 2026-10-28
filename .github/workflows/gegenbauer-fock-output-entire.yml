@@ -18,6 +18,7 @@ on:
       - 'lean/GegenbauerFock/GramZeroInSpectrum.lean'
       - 'lean/GegenbauerFock/TwoSidedGramZeroSpectrum.lean'
       - 'lean/GegenbauerFock/TwoSidedGramZeroNonEigen.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramNotSurjective.lean'
       - '.github/workflows/gegenbauer-fock-output-entire.yml'
   workflow_dispatch:
 
@@ -278,3 +279,17 @@ jobs:
             exit 1
           fi
           echo 'Both Gram spectral zeros are non-eigenvalues: no forbidden axioms.'
+
+      # Neither of the two actual Hilbert Grams is surjective;
+      # source Gram uses zero spectral point and injectivity,
+      # output Gram factors through the proper range of C.
+      - name: Certify both genuine Gram ranges are proper
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramNotSurjective 2>&1 | tee /tmp/v007-gram-not-surjective.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gram-not-surjective.log; then
+            echo "::error::Nonstandard axiom in bilateral Gram non-surjectivity theorem."
+            exit 1
+          fi
+          echo 'Both genuine Grams have proper range: no forbidden axioms.'
