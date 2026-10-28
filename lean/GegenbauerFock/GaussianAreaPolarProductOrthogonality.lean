@@ -34,7 +34,7 @@ theorem setIntegral_polar_angular_mode_zero
     _ = (∫ theta : ℝ in (-Real.pi)..Real.pi,
       Complex.exp (((k : ℂ) * Complex.I) * (theta : ℂ))) :=
         (intervalIntegral.integral_of_le
-          (le_of_lt (by positivity : -Real.pi < Real.pi))).symm
+          (le_of_lt (by have hpi := Real.pi_pos; linarith : -Real.pi < Real.pi))).symm
     _ = 0 := integral_polar_angular_mode_zero k hk
 
 /-- Any radial factor annihilates a nonzero angular Fourier mode
@@ -45,8 +45,21 @@ theorem polar_radial_angular_product_zero
     (∫ p : ℝ × ℝ in Set.Ioi (0 : ℝ) ×ˢ Set.Ioo (-Real.pi) Real.pi,
       radial p.1 *
         Complex.exp (((k : ℂ) * Complex.I) * (p.2 : ℂ))) = 0 := by
-  rw [Measure.volume_eq_prod, setIntegral_prod_mul,
-    setIntegral_polar_angular_mode_zero k hk, mul_zero]
+  calc
+    (∫ p : ℝ × ℝ in Set.Ioi (0 : ℝ) ×ˢ Set.Ioo (-Real.pi) Real.pi,
+      radial p.1 *
+        Complex.exp (((k : ℂ) * Complex.I) * (p.2 : ℂ))) =
+      (∫ r : ℝ in Set.Ioi (0 : ℝ), radial r) *
+      (∫ theta : ℝ in Set.Ioo (-Real.pi) Real.pi,
+        Complex.exp (((k : ℂ) * Complex.I) * (theta : ℂ))) := by
+        simpa only [Measure.volume_eq_prod] using
+          (MeasureTheory.setIntegral_prod_mul
+            (μ := (volume : Measure ℝ)) (ν := (volume : Measure ℝ))
+            radial
+            (fun theta : ℝ =>
+              Complex.exp (((k : ℂ) * Complex.I) * (theta : ℂ)))
+            (Set.Ioi (0 : ℝ)) (Set.Ioo (-Real.pi) Real.pi))
+    _ = 0 := by rw [setIntegral_polar_angular_mode_zero k hk, mul_zero]
 
 /-- Product-integral orthogonality of angular profiles associated to
 distinct monomial degrees, with arbitrary complex radial coefficient. -/
