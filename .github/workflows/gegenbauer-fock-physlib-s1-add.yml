@@ -8,6 +8,7 @@ on:
       - 'lean/GegenbauerFock/PhyslibTraceClassAdditionFromHS.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassAdditiveCarrier.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassAddSubgroup.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassLinearSubmodule.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassAddCommGroup.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassHSFactorization.lean'
       - 'lean/GegenbauerFock/PhyslibGeneralHSProductTraceClass.lean'
@@ -111,7 +112,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.PhyslibTraceClassAdditionFromHS GegenbauerFock.PhyslibTraceClassAdditiveCarrier GegenbauerFock.PhyslibTraceClassAddSubgroup GegenbauerFock.PhyslibTraceClassAddCommGroup 2>&1 | tee /tmp/gf-physlib-s1-add.log
+          lake build GegenbauerFock.PhyslibTraceClassAdditionFromHS GegenbauerFock.PhyslibTraceClassAdditiveCarrier GegenbauerFock.PhyslibTraceClassAddSubgroup GegenbauerFock.PhyslibTraceClassAddCommGroup GegenbauerFock.PhyslibTraceClassLinearSubmodule 2>&1 | tee /tmp/gf-physlib-s1-add.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-physlib-s1-add.log; then
             echo "::error::Nonstandard axiom in general S1 additive closure theorem."
             exit 1
