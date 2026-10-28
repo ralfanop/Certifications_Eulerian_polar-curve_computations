@@ -29,7 +29,7 @@ theorem integral_normalized_complex_monomial_diagonal
       ((alpha / Real.pi : ℝ) : ℂ) *
         (z ^ n * star (z ^ n) *
           (Real.exp (-alpha * ‖z‖ ^ 2) : ℂ))) =
-      (((Nat.factorial n : ℝ) * alpha ^ (-(n : ℝ))) : ℂ) := by
+      ((((Nat.factorial n : ℝ) * alpha ^ (-(n : ℝ))) : ℝ) : ℂ) := by
   calc
     (∫ z : ℂ,
       ((alpha / Real.pi : ℝ) : ℂ) *
@@ -59,7 +59,7 @@ theorem integral_normalized_complex_monomial_gram
         (z ^ m * star (z ^ n) *
           (Real.exp (-alpha * ‖z‖ ^ 2) : ℂ))) =
       if m = n then
-        (((Nat.factorial m : ℝ) * alpha ^ (-(m : ℝ))) : ℂ)
+        ((((Nat.factorial m : ℝ) * alpha ^ (-(m : ℝ))) : ℝ) : ℂ)
       else 0 := by
   by_cases h : m = n
   · subst n
