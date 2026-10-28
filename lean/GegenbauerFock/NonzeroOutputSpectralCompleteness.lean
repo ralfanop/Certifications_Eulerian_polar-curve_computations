@@ -36,11 +36,15 @@ theorem C_dense_range_iff_C_adjoint_injective
       exact hdense
     have horth :
         (C lam alpha hlam ha).rangeᗮ =
-          (⊥ : Submodule ℂ InfiniteAnalysis.FockCoefficients) :=
-      Submodule.orthogonal_eq_top_iff.mp hdouble
-    apply LinearMap.ker_eq_bot.mp
-    rw [← (C lam alpha hlam ha).orthogonal_range]
-    exact horth
+          (⊥ : Submodule ℂ InfiniteAnalysis.FockCoefficients) := by
+      rw [Submodule.orthogonal_eq_top_iff] at hdouble
+      exact hdouble
+    have hker :
+        (C_adjoint lam alpha hlam ha).ker =
+          (⊥ : Submodule ℂ InfiniteAnalysis.FockCoefficients) := by
+      change (C lam alpha hlam ha).adjoint.ker = ⊥
+      exact (C lam alpha hlam ha).orthogonal_range.symm.trans horth
+    exact LinearMap.ker_eq_bot.mp hker
   · intro hinj
     have hker :
         (C_adjoint lam alpha hlam ha).ker =
