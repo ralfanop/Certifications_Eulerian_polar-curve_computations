@@ -75,6 +75,7 @@ jobs:
             GegenbauerFock.HSRowRightIdealGeneral 2>&1 | tee /tmp/gf-hs-converse.log
           grep -F "GegenbauerFock.FockEnergy.sourceBasis_HS_iff_summableRows' depends on axioms:" /tmp/gf-hs-converse.log
           grep -F "GegenbauerFock.FockEnergy.sourceBasis_HS_energy_eq_rows' depends on axioms:" /tmp/gf-hs-converse.log
+          grep -F "GegenbauerFock.FockEnergy.sourceBasis_HS_basis_independent' depends on axioms:" /tmp/gf-hs-converse.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-hs-converse.log; then
             echo '::error::Forbidden axiom in infinite-dimensional HS converse.'
             exit 1
