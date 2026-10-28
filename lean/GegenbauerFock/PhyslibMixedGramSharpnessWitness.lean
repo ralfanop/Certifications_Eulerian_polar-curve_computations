@@ -75,8 +75,9 @@ theorem gramMixed_coefficient_one_optimal
   have hnorm : ‖(1 : H →L[ℂ] H)‖ ≤ 1 := by
     change ‖ContinuousLinearMap.id ℂ H‖ ≤ (1 : ℝ)
     exact ContinuousLinearMap.norm_id_le
-  have hnormsq : ‖(1 : H →L[ℂ] H)‖ ^ 2 ≤ (1 : ℝ) :=
-    (sq_le_sq₀ (norm_nonneg _) (by norm_num)).2 hnorm
+  have hnormsq : ‖(1 : H →L[ℂ] H)‖ ^ 2 ≤ (1 : ℝ) := by
+    simpa only [one_pow] using
+      ((sq_le_sq₀ (norm_nonneg _) (by norm_num : 0 ≤ (1 : ℝ))).2 hnorm)
   have hscale : ‖(1 : H →L[ℂ] H)‖ *
       ‖(1 : H →L[ℂ] H)‖ * K ≤ K := by
     have hsq : ‖(1 : H →L[ℂ] H)‖ *
