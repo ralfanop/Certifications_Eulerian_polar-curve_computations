@@ -39,7 +39,7 @@ theorem C_exists_normalized_approximate_null_sequence
       (∀ n : ℕ, ‖u n‖ = 1) ∧
         Filter.Tendsto
           (fun n : ℕ => C lam alpha hlam ha (u n))
-          Filter.atTop (𝓝 (0 : InfiniteAnalysis.FockCoefficients)) := by
+          Filter.atTop (nhds (0 : InfiniteAnalysis.FockCoefficients)) := by
   obtain ⟨u, h⟩ :=
     C_exists_normalized_approximate_null_family lam alpha hlam ha
   refine ⟨u, (fun n => (h n).1), ?_⟩
