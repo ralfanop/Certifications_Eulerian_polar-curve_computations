@@ -49,6 +49,25 @@ theorem inclusion_norm_le_one : ‖inclusion H‖ ≤ 1 := by
   simpa only [one_mul, norm_eq_genuineTraceNorm] using
     (ProbabilisticTheory.operatorNorm_le_traceNorm_via_sqrt_abs T.1 T.2)
 
+/-- Quantitative ambient-operator convergence control: an S₁
+difference has no larger bounded-operator norm than its genuine
+CFC trace norm. This estimate is the Cauchy-sequence prerequisite
+for eventual Schatten S₁ Banach completeness. -/
+theorem opNorm_sub_le_traceNorm_sub (T V : TraceClass H) :
+    ‖T.1 - V.1‖ ≤ ‖T - V‖ := by
+  have h := ProbabilisticTheory.operatorNorm_le_traceNorm_via_sqrt_abs
+    (T - V).1 (T - V).2
+  simpa only [sub_operator, norm_eq_genuineTraceNorm] using h
+
+/-- The underlying-operator inclusion contracts the actual metric
+distance induced by the CFC trace norm. -/
+theorem dist_operator_le_dist (T V : TraceClass H) :
+    dist T.1 V.1 ≤ dist T V := by
+  simpa only [dist_eq_norm] using opNorm_sub_le_traceNorm_sub H T V
+
+#print axioms ProbabilisticTheory.TraceClass.opNorm_sub_le_traceNorm_sub
+#print axioms ProbabilisticTheory.TraceClass.dist_operator_le_dist
+
 #print axioms ProbabilisticTheory.TraceClass.inclusion_apply
 #print axioms ProbabilisticTheory.TraceClass.inclusion_norm_le_one
 
