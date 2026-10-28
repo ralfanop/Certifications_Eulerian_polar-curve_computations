@@ -93,7 +93,6 @@ theorem continuous_evaluate
     dsimp [R]
     constructor
     · have h := neg_le_abs u
-      dsimp [Set.mem_Ioo]
       linarith
     · have h := le_abs_self u
       linarith
