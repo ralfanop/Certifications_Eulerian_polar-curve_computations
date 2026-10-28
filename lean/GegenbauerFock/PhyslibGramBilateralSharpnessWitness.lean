@@ -75,13 +75,41 @@ theorem gram_bilateral_coefficient_one_optimal
           c * (‖A‖ * ‖B‖ *
             KummerCoefficients.kummerSeries lam (1 / (4 * alpha))) := by
   intro h
+  let H := Lp ℂ 2 (Ultraspherical.measure lam)
+  let K : ℝ := KummerCoefficients.kummerSeries lam (1 / (4 * alpha))
   have hI := h 1 1
   rw [gram_identity_traceNorm_eq_kummer lam alpha hlam ha] at hI
-  try simp only [norm_one, one_mul] at hI
   have harg : 0 ≤ (1 / (4 * alpha) : ℝ) := by positivity
-  have hp : 0 < KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) :=
+  have hp : 0 < K :=
     KummerCoefficients.kummerSeries_pos lam (1 / (4 * alpha)) hlam harg
-  nlinarith
+  have hnorm : ‖(1 : H →L[ℂ] H)‖ ≤ 1 := by
+    change ‖ContinuousLinearMap.id ℂ H‖ ≤ (1 : ℝ)
+    exact ContinuousLinearMap.norm_id_le
+  have hnormsq : ‖(1 : H →L[ℂ] H)‖ ^ 2 ≤ (1 : ℝ) :=
+    (sq_le_sq₀ (norm_nonneg _) (by norm_num)).2 hnorm
+  have hscale : ‖(1 : H →L[ℂ] H)‖ *
+      ‖(1 : H →L[ℂ] H)‖ * K ≤ K := by
+    have hsq : ‖(1 : H →L[ℂ] H)‖ *
+        ‖(1 : H →L[ℂ] H)‖ ≤ (1 : ℝ) := by
+      nlinarith [hnormsq]
+    calc
+      _ ≤ 1 * K := mul_le_mul_of_nonneg_right hsq hp.le
+      _ = K := one_mul _
+  have hfactor : 0 ≤ ‖(1 : H →L[ℂ] H)‖ *
+      ‖(1 : H →L[ℂ] H)‖ * K := by positivity
+  by_cases hc_nonpos : c ≤ 0
+  · have hrhs : c * (‖(1 : H →L[ℂ] H)‖ *
+        ‖(1 : H →L[ℂ] H)‖ * K) ≤ 0 :=
+      mul_nonpos_of_nonpos_of_nonneg hc_nonpos hfactor
+    dsimp only [K] at hI
+    linarith
+  · have hcpos : 0 ≤ c := le_of_lt (lt_of_not_ge hc_nonpos)
+    have hlim : K ≤ c * K := by
+      calc
+        K ≤ c * (‖(1 : H →L[ℂ] H)‖ *
+            ‖(1 : H →L[ℂ] H)‖ * K) := hI
+        _ ≤ c * K := mul_le_mul_of_nonneg_left hscale hcpos
+    nlinarith [mul_pos (sub_pos.mpr hc) hp]
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gram_identity_traceNorm_eq_kummer
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.gram_bilateral_coefficient_one_optimal
