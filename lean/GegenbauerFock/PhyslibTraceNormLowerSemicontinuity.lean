@@ -19,7 +19,8 @@ Separate candidate; no CompleteSpace instance and no extra axioms.
 
 noncomputable section
 namespace ProbabilisticTheory
-open scoped ComplexOrder InnerProductSpace
+open scoped ComplexOrder InnerProductSpace Topology Filter
+open Filter
 
 variable {H : Type*}
 variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
