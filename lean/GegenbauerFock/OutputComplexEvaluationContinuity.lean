@@ -43,9 +43,8 @@ theorem continuousOn_evaluation_complex_ball
         ‖kernelCoordinate alpha (R : ℂ) n‖ := by
     have hz' : ‖z‖ < R := by
       simpa [Metric.mem_ball, dist_zero_right] using hz
-    have hnorm : ‖z‖ ≤ ‖(R : ℂ)‖ := by
-      simpa [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hR] using
-        (le_of_lt hz')
+    have hnorm : ‖z‖ ≤ |R| := by
+      simpa [abs_of_pos hR] using (le_of_lt hz')
     unfold kernelCoordinate
     simp only [norm_mul, Complex.norm_real, Real.norm_eq_abs, norm_pow, norm_star]
     exact mul_le_mul_of_nonneg_left
