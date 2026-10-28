@@ -32,7 +32,7 @@ theorem row_comp_right_eq
   rfl
 
 /-- Exact row-norm estimate under arbitrary rectangular precomposition. -/
-theorem row_comp_right_norm_sq_le
+theorem row_comp_right_norm_sq_le_general
     (T : E →L[ℂ] InfiniteAnalysis.FockCoefficients)
     (B : F →L[ℂ] E) (n : ℕ) :
     ‖SummableRowsCompact.row (T.comp B) n‖ ^ 2 ≤
@@ -55,7 +55,7 @@ theorem rows_comp_right_summable
       ‖SummableRowsCompact.row (T.comp B) n‖ ^ 2) := by
   exact Summable.of_nonneg_of_le
     (fun n => sq_nonneg _)
-    (row_comp_right_norm_sq_le T B)
+    (row_comp_right_norm_sq_le_general T B)
     (hrows.mul_left (‖B‖ ^ 2))
 
 /-- The canonical row energy satisfies the square of the correct
@@ -72,7 +72,7 @@ theorem rows_comp_right_mass_le
     (∑' n : ℕ, ‖SummableRowsCompact.row (T.comp B) n‖ ^ 2) ≤
       ∑' n : ℕ, ‖B‖ ^ 2 * ‖SummableRowsCompact.row T n‖ ^ 2 :=
         (rows_comp_right_summable T hrows B).tsum_le_tsum
-          (row_comp_right_norm_sq_le T B)
+          (row_comp_right_norm_sq_le_general T B)
           (hrows.mul_left (‖B‖ ^ 2))
     _ = ‖B‖ ^ 2 *
       (∑' n : ℕ, ‖SummableRowsCompact.row T n‖ ^ 2) :=
@@ -108,7 +108,7 @@ theorem sourceBasis_HS_comp_right
         rw [← (summableRows_iff_sourceBasis_energy T hrows a).2]
 
 #print axioms GegenbauerFock.FockEnergy.row_comp_right_eq
-#print axioms GegenbauerFock.FockEnergy.row_comp_right_norm_sq_le
+#print axioms GegenbauerFock.FockEnergy.row_comp_right_norm_sq_le_general
 #print axioms GegenbauerFock.FockEnergy.rows_comp_right_summable
 #print axioms GegenbauerFock.FockEnergy.rows_comp_right_mass_le
 #print axioms GegenbauerFock.FockEnergy.sourceBasis_HS_comp_right
