@@ -37,7 +37,8 @@ theorem monomial_gaussian_norm_sq_integrable
   have h := gaussian_mixed_monomial_integrable alpha ha n n
   have hc : Integrable (fun z : ℂ =>
       ((‖z ^ n‖ ^ 2 * Real.exp (-alpha * ‖z‖ ^ 2) : ℝ) : ℂ)) := by
-    convert h using 1 with z
+    convert h using 1
+    funext z
     rw [Complex.star_def, Complex.mul_conj']
     push_cast
     ring
