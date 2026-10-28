@@ -26,7 +26,9 @@ theorem integral_even_radial_rpow
       Real.exp (-alpha * ‖z‖ ^ 2) ∂volume) =
       Real.pi * alpha ^ (-((n : ℝ) + 1)) *
         (Nat.factorial n : ℝ) := by
-  have hq : (-2 : ℝ) < 2 * (n : ℝ) := by positivity
+  have hq : (-2 : ℝ) < 2 * (n : ℝ) := by
+    have hn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+    linarith
   have h := Complex.integral_rpow_mul_exp_neg_mul_rpow
     (p := (2 : ℝ)) (q := 2 * (n : ℝ)) (b := alpha)
     (by norm_num) hq ha
@@ -35,7 +37,8 @@ theorem integral_even_radial_rpow
       Real.exp (-alpha * ‖z‖ ^ 2) ∂volume) =
       (2 * Real.pi / 2) *
         alpha ^ (-(2 * (n : ℝ) + 2) / 2) *
-        Real.Gamma ((2 * (n : ℝ) + 2) / 2) := h
+        Real.Gamma ((2 * (n : ℝ) + 2) / 2) := by
+        simpa only [Real.rpow_natCast] using h
     _ = Real.pi * alpha ^ (-((n : ℝ) + 1)) *
         (Nat.factorial n : ℝ) := by
       have he : -(2 * (n : ℝ) + 2) / 2 =
