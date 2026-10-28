@@ -31,7 +31,7 @@ theorem C_denseRange
     (fun S : Submodule ℂ InfiniteAnalysis.FockCoefficients =>
       (S : Set InfiniteAnalysis.FockCoefficients)) h
   simpa only [Submodule.topologicalClosure_coe,
-    Submodule.top_coe, ContinuousLinearMap.range_coe] using hset
+    Submodule.top_coe] using hset
 
 /-- Every coefficient-space target F can be approximated arbitrarily
 closely by the image of a genuine ultraspherical L² vector. No
