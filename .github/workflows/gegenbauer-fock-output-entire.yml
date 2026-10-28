@@ -7,6 +7,7 @@ on:
     paths:
       - 'lean/GegenbauerFock/OutputEntireCoefficientUniqueness.lean'
       - 'lean/GegenbauerFock/TwoSidedSingularSpectralCompleteness.lean'
+      - 'lean/GegenbauerFock/CompactQuasiaffinity.lean'
       - '.github/workflows/gegenbauer-fock-output-entire.yml'
   workflow_dispatch:
 
@@ -124,3 +125,16 @@ jobs:
             exit 1
           fi
           echo 'Two-sided singular spectral theorem: no forbidden axioms.'
+
+      # New independent structural corollary: actual compact operator,
+      # injective with dense but not asserted surjective range.
+      - name: Certify compact Gegenbauer-Fock quasiaffinity
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.CompactQuasiaffinity 2>&1 | tee /tmp/v007-compact-quasiaffinity.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-compact-quasiaffinity.log; then
+            echo "::error::Nonstandard axiom in compact quasiaffinity theorem."
+            exit 1
+          fi
+          echo 'Compact Fock quasiaffinity: no forbidden axioms.'
