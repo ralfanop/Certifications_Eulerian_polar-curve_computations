@@ -7,6 +7,7 @@ on:
     paths:
       - 'lean/GegenbauerFock/TwoSidedGramInverseInstability.lean'
       - 'lean/GegenbauerFock/OutputGramApproximateZeroSpectrum.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramNoContinuousReconstruction.lean'
       - 'lean/GegenbauerFock/TwoSidedGramContinuousSpectrum.lean'
       - 'lean/GegenbauerFock/TwoSidedGramNonclosedRange.lean'
       - '.github/workflows/gegenbauer-fock-two-sided-gram-inverse.yml'
@@ -73,3 +74,18 @@ jobs:
             exit 1
           fi
           echo 'Normalized approximate-zero Gram sequences on both Hilbert sides: axiom audit passed.'
+
+      - name: Certify no continuous exact reconstruction for either Gram
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramNoContinuousReconstruction 2>&1 | tee /tmp/v007-two-sided-gram-no-cont-reconstruction.log
+          grep -qF "sourceGram_no_continuous_global_left_inverse_at_zero' depends on axioms" /tmp/v007-two-sided-gram-no-cont-reconstruction.log
+          grep -qF "outputGram_no_continuous_global_left_inverse_at_zero' depends on axioms" /tmp/v007-two-sided-gram-no-cont-reconstruction.log
+          grep -qF "two_sided_gram_no_continuous_global_reconstruction' depends on axioms" /tmp/v007-two-sided-gram-no-cont-reconstruction.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-two-sided-gram-no-cont-reconstruction.log; then
+            echo '::error::Forbidden proof axiom in nonlinear Gram reconstruction obstruction'
+            exit 1
+          fi
+          echo 'No continuous exact nonlinear reconstruction for either Gram: Lean kernel audit passed.'
