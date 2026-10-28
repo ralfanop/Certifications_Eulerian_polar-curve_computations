@@ -9,6 +9,7 @@ on:
       - 'lean/GegenbauerFock/OutputGramApproximateZeroSpectrum.lean'
       - 'lean/GegenbauerFock/TwoSidedGramNoContinuousReconstruction.lean'
       - 'lean/GegenbauerFock/TwoSidedGramApproximateZeroNoStrongLimit.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramInverseOnRangeDiscontinuous.lean'
       - 'lean/GegenbauerFock/TwoSidedGramContinuousSpectrum.lean'
       - 'lean/GegenbauerFock/TwoSidedGramNonclosedRange.lean'
       - '.github/workflows/gegenbauer-fock-two-sided-gram-inverse.yml'
@@ -105,3 +106,18 @@ jobs:
             exit 1
           fi
           echo 'Both actual Grams have normalized approximate-null sequences without strong limits: audit passed.'
+
+      - name: Certify both exact Gram inverses discontinuous on their actual ranges
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramInverseOnRangeDiscontinuous 2>&1 | tee /tmp/v007-gram-inverse-range-discontinuity.log
+          grep -qF "sourceGram_inverse_on_range_discontinuous_at_zero' depends on axioms" /tmp/v007-gram-inverse-range-discontinuity.log
+          grep -qF "outputGram_inverse_on_range_discontinuous_at_zero' depends on axioms" /tmp/v007-gram-inverse-range-discontinuity.log
+          grep -qF "two_sided_gram_inverse_on_ranges_discontinuous_at_zero' depends on axioms" /tmp/v007-gram-inverse-range-discontinuity.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gram-inverse-range-discontinuity.log; then
+            echo '::error::Forbidden proof axiom in exact range-inverse discontinuity'
+            exit 1
+          fi
+          echo 'Both actual Gram range-subtype inverses are discontinuous at zero: audit passed.'
