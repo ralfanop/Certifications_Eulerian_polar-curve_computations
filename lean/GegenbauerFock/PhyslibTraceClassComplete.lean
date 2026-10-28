@@ -78,10 +78,10 @@ noncomputable instance instGenuineCompleteSpace : CompleteSpace (TraceClass H) :
     have heqop : Tn n - Tn m = -(Tn m - Tn n) := by abel
     rw [heqop, norm_neg, ← hSn_diff_coe n m]
     calc ‖((Sn m - Sn n : TraceClass H)).1‖ ≤ ‖(Sn m - Sn n : TraceClass H)‖ :=
-          operatorNorm_le_traceNorm_via_sqrt_abs (isTraceClass_coe (Sn m - Sn n))
+          operatorNorm_le_traceNorm_via_sqrt_abs ((Sn m - Sn n : TraceClass H).1) (isTraceClass_coe (Sn m - Sn n))
       _ ≤ tail n := htrace_tail_bound n m hnm
   obtain ⟨S, hStendsto⟩ := cauchySeq_tendsto_of_complete htn_cauchy
-  have hSn_bound : ∀ n, traceNorm (Sn n).1 (isTraceClass_coe (Sn n)) ≤ M := by
+  have hSn_bound : ∀ n, ProbabilisticTheory.traceNorm (Sn n).1 (isTraceClass_coe (Sn n)) ≤ M := by
     intro n
     show ‖Sn n‖ ≤ M
     calc ‖Sn n‖ ≤ ∑ i ∈ Finset.range n, ‖u i‖ := by
@@ -99,10 +99,10 @@ noncomputable instance instGenuineCompleteSpace : CompleteSpace (TraceClass H) :
       intro m
       rw [← hSn_diff_coe n (n + m)]
       exact isTraceClass_coe (Sn (n + m) - Sn n)
-    have hVbound : ∀ m, traceNorm (Tn (n + m) - Tn n) (hVtrace m) ≤ tail n := by
+    have hVbound : ∀ m, ProbabilisticTheory.traceNorm (Tn (n + m) - Tn n) (hVtrace m) ≤ tail n := by
       intro m
-      have h1 : traceNorm (Tn (n + m) - Tn n) (hVtrace m) =
-          traceNorm ((Sn (n + m) - Sn n : TraceClass H)).1
+      have h1 : ProbabilisticTheory.traceNorm (Tn (n + m) - Tn n) (hVtrace m) =
+          ProbabilisticTheory.traceNorm ((Sn (n + m) - Sn n : TraceClass H)).1
             (isTraceClass_coe (Sn (n + m) - Sn n)) := by
         have hEq : Tn (n + m) - Tn n = ((Sn (n + m) - Sn n : TraceClass H)).1 :=
           (hSn_diff_coe n (n + m)).symm
@@ -119,9 +119,9 @@ noncomputable instance instGenuineCompleteSpace : CompleteSpace (TraceClass H) :
     obtain ⟨hSTn, hSTnbound⟩ := isTraceClass_of_tendsto_of_traceNorm_bounded_v007 hVtrace hVbound
       hVtendsto
     have heqfinal : ((ofOperator H S hS : TraceClass H) - Sn n).1 = S - Tn n := rfl
-    have hnorm_eq : ‖(ofOperator H S hS : TraceClass H) - Sn n‖ = traceNorm (S - Tn n) hSTn := by
+    have hnorm_eq : ‖(ofOperator H S hS : TraceClass H) - Sn n‖ = ProbabilisticTheory.traceNorm (S - Tn n) hSTn := by
       have h3 : ‖(ofOperator H S hS : TraceClass H) - Sn n‖ =
-          traceNorm ((ofOperator H S hS : TraceClass H) - Sn n).1
+          ProbabilisticTheory.traceNorm ((ofOperator H S hS : TraceClass H) - Sn n).1
             (isTraceClass_coe ((ofOperator H S hS : TraceClass H) - Sn n)) := rfl
       rw [h3]
       exact v007_traceNorm_transport heqfinal (isTraceClass_coe ((ofOperator H S hS : TraceClass H) - Sn
