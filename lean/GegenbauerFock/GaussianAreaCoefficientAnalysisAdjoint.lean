@@ -36,11 +36,9 @@ theorem coefficientAnalysisL2_synthesis
     (alpha : ℝ) (ha : 0 < alpha)
     (a : lp (fun _ : ℕ => ℂ) 2) :
     coefficientAnalysisL2 alpha ha (coefficientSynthesisL2 alpha ha a) = a := by
-  have h := (coefficientSynthesisL2 alpha ha).adjoint_comp_self
-  have h' := congrArg
-    (fun T : lp (fun _ : ℕ => ℂ) 2 →L[ℂ]
-      lp (fun _ : ℕ => ℂ) 2 => T a) h
-  simpa [coefficientAnalysisL2] using h'
+  change ((coefficientSynthesisL2 alpha ha).toContinuousLinearMap.adjoint ∘L
+    (coefficientSynthesisL2 alpha ha).toContinuousLinearMap) a = a
+  rw [(coefficientSynthesisL2 alpha ha).adjoint_comp_self]
 
 /-- The n-th analysis coefficient of ANY Gaussian L² vector is exactly
 its Hilbert inner product against the normalized holomorphic monomial. -/
