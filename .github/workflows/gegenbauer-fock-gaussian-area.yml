@@ -1,4 +1,4 @@
-name: V007 Gaussian Bargmann-Fock angular orthogonality certificate
+name: V007 Gaussian Bargmann-Fock polar angular orthogonality certificate
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
       - 'lean/GegenbauerFock/GaussianAreaNormalization.lean'
       - 'lean/GegenbauerFock/GaussianAreaMonomialNorm.lean'
       - 'lean/GegenbauerFock/GaussianAreaAngularOrthogonality.lean'
+      - 'lean/GegenbauerFock/GaussianAreaPolarAngularOrthogonality.lean'
       - '.github/workflows/gegenbauer-fock-gaussian-area.yml'
   workflow_dispatch:
 
@@ -106,7 +107,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.GaussianAreaNormalization GegenbauerFock.GaussianAreaMonomialNorm GegenbauerFock.GaussianAreaAngularOrthogonality 2>&1 | tee /tmp/v007-gaussian-area.log
+          lake build GegenbauerFock.GaussianAreaNormalization GegenbauerFock.GaussianAreaMonomialNorm GegenbauerFock.GaussianAreaAngularOrthogonality GegenbauerFock.GaussianAreaPolarAngularOrthogonality 2>&1 | tee /tmp/v007-gaussian-area.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gaussian-area.log; then
             echo "::error::Nonstandard axiom in Gaussian-area certificate."
             exit 1
