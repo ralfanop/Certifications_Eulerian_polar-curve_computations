@@ -8,6 +8,7 @@ on:
       - 'lean/GegenbauerFock/TwoSidedGramInverseInstability.lean'
       - 'lean/GegenbauerFock/OutputGramApproximateZeroSpectrum.lean'
       - 'lean/GegenbauerFock/TwoSidedGramNoContinuousReconstruction.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramApproximateZeroNoStrongLimit.lean'
       - 'lean/GegenbauerFock/TwoSidedGramContinuousSpectrum.lean'
       - 'lean/GegenbauerFock/TwoSidedGramNonclosedRange.lean'
       - '.github/workflows/gegenbauer-fock-two-sided-gram-inverse.yml'
@@ -89,3 +90,18 @@ jobs:
             exit 1
           fi
           echo 'No continuous exact nonlinear reconstruction for either Gram: Lean kernel audit passed.'
+
+      - name: Certify bilateral approximate-zero sequences have no strong limits
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramApproximateZeroNoStrongLimit 2>&1 | tee /tmp/v007-gram-approx-zero-no-strong-limit.log
+          grep -qF "sourceGram_exists_approximate_zero_without_strong_limit' depends on axioms" /tmp/v007-gram-approx-zero-no-strong-limit.log
+          grep -qF "outputGram_exists_approximate_zero_without_strong_limit' depends on axioms" /tmp/v007-gram-approx-zero-no-strong-limit.log
+          grep -qF "two_sided_gram_approximate_zero_without_strong_limits' depends on axioms" /tmp/v007-gram-approx-zero-no-strong-limit.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gram-approx-zero-no-strong-limit.log; then
+            echo '::error::Forbidden proof axiom in bilateral no-strong-limit certificate'
+            exit 1
+          fi
+          echo 'Both actual Grams have normalized approximate-null sequences without strong limits: audit passed.'
