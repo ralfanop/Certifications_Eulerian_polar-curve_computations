@@ -34,6 +34,7 @@ finite-dimensional over ℂ, as witnessed by the standard ℓ² basis. -/
 theorem fockCoefficients_not_finiteDimensional :
     ¬ FiniteDimensional ℂ InfiniteAnalysis.FockCoefficients := by
   intro hfinite
+  letI : FiniteDimensional ℂ InfiniteAnalysis.FockCoefficients := hfinite
   let b : HilbertBasis ℕ ℂ InfiniteAnalysis.FockCoefficients := default
   have hlin : LinearIndependent ℂ (fun n : ℕ => b n) :=
     b.orthonormal.linearIndependent
