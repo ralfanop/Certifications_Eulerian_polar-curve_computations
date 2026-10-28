@@ -76,9 +76,14 @@ theorem integral_normalized_complex_monomial_diagonal_ne_zero
         (z ^ n * star (z ^ n) *
           (Real.exp (-alpha * ‖z‖ ^ 2) : ℂ))) ≠ 0 := by
   rw [integral_normalized_complex_monomial_diagonal alpha ha n]
-  exact_mod_cast (ne_of_gt (mul_pos
-    (by exact_mod_cast Nat.factorial_pos n)
-    (Real.rpow_pos_of_pos ha _)))
+  have hfactorial : (0 : ℝ) < (Nat.factorial n : ℝ) := by
+    exact_mod_cast Nat.factorial_pos n
+  have hpositive : (0 : ℝ) <
+      (Nat.factorial n : ℝ) * alpha ^ (-(n : ℝ)) :=
+    mul_pos hfactorial (Real.rpow_pos_of_pos ha _)
+  have hreal : (Nat.factorial n : ℝ) * alpha ^ (-(n : ℝ)) ≠ 0 :=
+    ne_of_gt hpositive
+  exact_mod_cast hreal
 
 #print axioms GegenbauerFock.GaussianArea.integral_normalized_complex_monomial_diagonal
 #print axioms GegenbauerFock.GaussianArea.integral_normalized_complex_monomial_gram
