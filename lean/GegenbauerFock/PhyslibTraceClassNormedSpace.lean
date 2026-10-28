@@ -37,4 +37,7 @@ noncomputable instance instGenuineComplexNormedSpace :
 
 #print axioms ProbabilisticTheory.TraceClass.traceNorm_smul_general
 
+#print axioms ProbabilisticTheory.TraceClass.instGenuineComplexModule
+#print axioms ProbabilisticTheory.TraceClass.instGenuineComplexNormedSpace
+
 end ProbabilisticTheory.TraceClass
