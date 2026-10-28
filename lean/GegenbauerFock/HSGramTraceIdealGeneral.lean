@@ -46,6 +46,17 @@ private theorem gram_diag_re_eq_norm_sq
                   simp only [Complex.star_def, Complex.conj_re]
     _ = ‖T x‖ ^ 2 := (HilbertGram.gram_norm_sq T x).symm
 
+/-- Norm-squared row estimate under bounded precomposition between
+possibly distinct complex Hilbert source spaces. -/
+private theorem row_comp_norm_sq_le_between
+    (r : E →L[ℂ] ℂ) (B : D →L[ℂ] E) :
+    ‖r.comp B‖ ^ 2 ≤ ‖B‖ ^ 2 * ‖r‖ ^ 2 := by
+  calc
+    ‖r.comp B‖ ^ 2 ≤ (‖r‖ * ‖B‖) ^ 2 := by
+      gcongr
+      exact ContinuousLinearMap.opNorm_comp_le r B
+    _ = ‖B‖ ^ 2 * ‖r‖ ^ 2 := by ring
+
 /-- Every square-summable-row operator has a TRUE trace-class
 positive Gram, in the CFC.abs summability notion of Physlib. -/
 theorem gram_isTraceClass_of_summableRows
@@ -116,7 +127,7 @@ theorem rows_summable_comp_right
     · intro n
       exact sq_nonneg _
     · intro n
-      exact (PositiveNuclearIdeal.row_comp_norm_sq_le
+      exact (row_comp_norm_sq_le_between
         (SummableRowsCompact.row T n) B)
     · exact hrows.mul_left (‖B‖ ^ 2)
   exact hs.congr (fun n => by rw [row_comp_right T B n])
@@ -146,7 +157,7 @@ theorem rowEnergy_comp_right_le
           have hbound (n : ℕ) :
               ‖(SummableRowsCompact.row T n).comp B‖ ^ 2 ≤
                 ‖B‖ ^ 2 * ‖SummableRowsCompact.row T n‖ ^ 2 :=
-              PositiveNuclearIdeal.row_comp_norm_sq_le
+              row_comp_norm_sq_le_between
                 (SummableRowsCompact.row T n) B
           calc
             (∑' n : ℕ, ‖(SummableRowsCompact.row T n).comp B‖ ^ 2) ≤
