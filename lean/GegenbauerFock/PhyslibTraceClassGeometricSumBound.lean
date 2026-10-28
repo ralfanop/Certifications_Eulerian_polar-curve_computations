@@ -36,7 +36,8 @@ theorem positivePowers_total_operatorNorm_le
     ‖((∑' n : ℕ, positivePower T n) : TraceClass H).1‖ ≤
       ‖T‖ / (1 - ‖T‖) := by
   have h := positivePowers_operatorNorm_error_le_geometric T hsmall 0
-  simpa only [Finset.range_zero, Finset.sum_empty, zero_underlying,
+  have hz : ((0 : TraceClass H).1 : H →L[ℂ] H) = 0 := rfl
+  simpa only [Finset.range_zero, Finset.sum_empty, hz,
     sub_zero, zero_add, pow_one] using h
 
 #print axioms ProbabilisticTheory.TraceClass.positivePowers_total_traceNorm_le
