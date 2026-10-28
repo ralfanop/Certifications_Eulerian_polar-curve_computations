@@ -42,7 +42,20 @@ theorem traceNorm_partial_sum_error_tendsto_zero
       atTop (𝓝 0) := by
   have hlim := partial_sums_tendsto_in_traceNorm T hT
   have hdist := tendsto_iff_dist_tendsto_zero.mp hlim
-  simpa only [dist_eq_norm, norm_sub_rev, norm_eq_genuineTraceNorm] using hdist
+  have hpoint (N : ℕ) :
+      traceNorm H ((∑' n : ℕ, T n) -
+        (∑ n ∈ Finset.range N, T n)) =
+      dist (∑ n ∈ Finset.range N, T n) (∑' n : ℕ, T n) := by
+    calc
+      traceNorm H ((∑' n : ℕ, T n) -
+          (∑ n ∈ Finset.range N, T n)) =
+          ‖(∑' n : ℕ, T n) - (∑ n ∈ Finset.range N, T n)‖ :=
+        (norm_eq_genuineTraceNorm _).symm
+      _ = ‖(∑ n ∈ Finset.range N, T n) - (∑' n : ℕ, T n)‖ :=
+        norm_sub_rev _ _
+      _ = dist (∑ n ∈ Finset.range N, T n) (∑' n : ℕ, T n) :=
+        (dist_eq_norm).symm
+  simpa only [hpoint] using hdist
 
 #print axioms ProbabilisticTheory.TraceClass.partial_sums_tendsto_in_traceNorm
 #print axioms ProbabilisticTheory.TraceClass.traceNorm_partial_sum_error_tendsto_zero
