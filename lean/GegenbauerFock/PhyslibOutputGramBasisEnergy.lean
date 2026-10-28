@@ -25,16 +25,6 @@ namespace GegenbauerFock.GeneralUltrasphericalFock
 
 open MeasureTheory
 
-private theorem outputBasis_re_inner_swap
-    {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
-    (x y : H) :
-    (inner ℂ x y).re = (inner ℂ y x).re := by
-  calc
-    (inner ℂ x y).re = (star (inner ℂ y x)).re :=
-      congrArg Complex.re (inner_conj_symm (𝕜 := ℂ) x y).symm
-    _ = (inner ℂ y x).re := by
-      simp only [Complex.star_def, Complex.conj_re]
-
 /-- The squared norm of the actual postprocessed adjoint is
 summable on ANY complete Fock output Hilbert basis. -/
 theorem outputGramAfterLeft_adjoint_basisEnergy_summable
@@ -64,36 +54,35 @@ theorem outputGramAfterLeft_traceNorm_eq_adjoint_basisEnergy
       ∑' j : w,
         ‖(A.comp (C lam alpha hlam ha)).adjoint (b j)‖ ^ 2 := by
   let T := A.comp (C lam alpha hlam ha)
-  have hpos : 0 ≤ outputGramAfterLeft lam alpha hlam ha A := by
-    change 0 ≤ T.comp T.adjoint
-    simpa only [ContinuousLinearMap.adjoint_adjoint] using
-      ((ContinuousLinearMap.nonneg_iff_isPositive).2
-        (ContinuousLinearMap.isPositive_adjoint_comp_self T.adjoint))
-  let G : InfiniteAnalysis.FockCoefficients →L[ℂ]
-      InfiniteAnalysis.FockCoefficients :=
-    outputGramAfterLeft lam alpha hlam ha A
-  let hG : ProbabilisticTheory.IsTraceClass G :=
+  have hT : HilbertSchmidtBasis.IsHS T :=
+    HilbertSchmidtBasis.isHS_comp_left
+      (C lam alpha hlam ha) (C_isHilbertSchmidt lam alpha hlam ha) A
+  let hSrc : ProbabilisticTheory.IsTraceClass (T.adjoint.comp T) :=
+    ProbabilisticTheory.isTraceClass_adjoint_comp_self_of_isHS T hT
+  let hDst : ProbabilisticTheory.IsTraceClass (T.comp T.adjoint) :=
     outputGramAfterLeft_isTraceClass lam alpha hlam ha A
-  have hTrace :
-      ProbabilisticTheory.traceNorm G hG =
-        ∑' j : w, (inner ℂ (b j) (G (b j))).re := by
-    rw [ProbabilisticTheory.traceNorm_eq_of_hilbertBasis hG b,
-      CFC.abs_of_nonneg G hpos]
-  change ProbabilisticTheory.traceNorm G hG =
+  have hSrcSum : Summable (fun i : hSrc.choose =>
+      ‖T (hSrc.choose_spec.choose i)‖ ^ 2) :=
+    hT hSrc.choose_spec.choose
+  have hGrams :
+      ProbabilisticTheory.traceNorm (T.comp T.adjoint) hDst =
+        ProbabilisticTheory.traceNorm (T.adjoint.comp T) hSrc :=
+    (HilbertSchmidtBasis.traceNorm_adjoint_comp_eq_comp_adjoint
+      T hT hSrc hDst).symm
+  have hSource :
+      ProbabilisticTheory.traceNorm (T.adjoint.comp T) hSrc =
+        ∑' i : hSrc.choose, ‖T (hSrc.choose_spec.choose i)‖ ^ 2 :=
+    ProbabilisticTheory.traceNorm_adjoint_comp_self_eq_witness_energy T hT
+  change ProbabilisticTheory.traceNorm (T.comp T.adjoint) hDst =
     ∑' j : w, ‖T.adjoint (b j)‖ ^ 2
   calc
-    ProbabilisticTheory.traceNorm G hG =
-        ∑' j : w, (inner ℂ (b j) (G (b j))).re := hTrace
-    _ = ∑' j : w, ‖T.adjoint (b j)‖ ^ 2 := by
-      apply tsum_congr
-      intro j
-      have hnorm :
-          ‖T.adjoint (b j)‖ ^ 2 =
-            (inner ℂ (G (b j)) (b j)).re := by
-        simpa only [G, outputGramAfterLeft, HilbertGram.gram,
-          ContinuousLinearMap.adjoint_adjoint, RCLike.re_eq_complex_re] using
-          (HilbertGram.gram_norm_sq T.adjoint (b j))
-      exact (outputBasis_re_inner_swap (b j) (G (b j))).trans hnorm.symm
+    ProbabilisticTheory.traceNorm (T.comp T.adjoint) hDst =
+        ProbabilisticTheory.traceNorm (T.adjoint.comp T) hSrc := hGrams
+    _ = ∑' i : hSrc.choose,
+          ‖T (hSrc.choose_spec.choose i)‖ ^ 2 := hSource
+    _ = ∑' j : w, ‖T.adjoint (b j)‖ ^ 2 :=
+      (HilbertSchmidtBasis.hasSum_adjoint_energy_rectangular
+        T hSrc.choose_spec.choose b hSrcSum).tsum_eq.symm
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.outputGramAfterLeft_adjoint_basisEnergy_summable
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.outputGramAfterLeft_traceNorm_eq_adjoint_basisEnergy
