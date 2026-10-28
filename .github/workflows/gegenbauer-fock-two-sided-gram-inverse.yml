@@ -1,0 +1,60 @@
+name: V007 two-sided Gram inverse instability Lean certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/TwoSidedGramInverseInstability.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramContinuousSpectrum.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramNonclosedRange.lean'
+      - '.github/workflows/gegenbauer-fock-two-sided-gram-inverse.yml'
+  workflow_dispatch:
+
+jobs:
+  two-sided-gram-inverse:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned elan / Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+
+      - name: Load pinned Mathlib artifacts
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+
+      - name: Kernel compile both Gram inverse-instability theorems and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramInverseInstability 2>&1 | tee /tmp/v007-two-sided-gram-inverse.log
+          grep -qF 'sourceGram_inverse_unbounded_on_range' /tmp/v007-two-sided-gram-inverse.log
+          grep -qF 'outputGram_inverse_unbounded_on_range' /tmp/v007-two-sided-gram-inverse.log
+          grep -qF 'two_sided_gram_inverse_unbounded_on_range' /tmp/v007-two-sided-gram-inverse.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-two-sided-gram-inverse.log; then
+            echo '::error::Forbidden proof axiom in two-sided Gram inverse certificate'
+            exit 1
+          fi
+          echo 'Both true Gram inverses unbounded on their dense ranges: kernel audit passed.'
