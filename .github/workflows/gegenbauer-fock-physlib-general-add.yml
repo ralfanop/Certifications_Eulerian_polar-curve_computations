@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/PhyslibTraceClassGeneralAdd.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassGeneralFinite.lean'
       - 'lean/GegenbauerFock/PhyslibHilbertSchmidtTwoSidedIdeal.lean'
       - 'lean/GegenbauerFock/PhyslibPolarFactorCompat.lean'
       - '.github/workflows/gegenbauer-fock-physlib-general-add.yml'
@@ -109,5 +110,14 @@ jobs:
           lake build GegenbauerFock.PhyslibTraceClassGeneralAdd 2>&1 | tee /tmp/gf-physlib-general-add.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-physlib-general-add.log; then
             echo "::error::Nonstandard axiom in unrestricted S1 addition."
+            exit 1
+          fi
+      - name: Certify arbitrary trace-class differences and finite sums
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.PhyslibTraceClassGeneralFinite 2>&1 | tee /tmp/gf-physlib-general-finite.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-physlib-general-finite.log; then
+            echo "::error::Nonstandard axiom in general S1 finite sums."
             exit 1
           fi
