@@ -15,6 +15,7 @@ already certified CFC trace-norm lower semicontinuity theorem.
 
 noncomputable section
 namespace ProbabilisticTheory
+open Filter
 
 variable {H : Type*}
 variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
