@@ -64,7 +64,8 @@ theorem operatorNorm_joint_varying_sandwich_tsum_le_v007
       c d A B C D T V hAT hCT hCV hDV hMult hInput hCoeff
   change ‖X.1 - W.1‖ ≤ _
   have hambient : ‖X.1 - W.1‖ ≤ traceNorm H (X - W) := by
-    simpa only [sub_operator] using operator_norm_le_trace_norm (X - W)
+    simpa only [sub_operator, norm_eq_genuineTraceNorm] using
+      operator_norm_le_trace_norm (X - W)
   exact hambient.trans hmain
 
 #print axioms ProbabilisticTheory.TraceClass.operatorNorm_joint_varying_sandwich_tsum_le_v007
