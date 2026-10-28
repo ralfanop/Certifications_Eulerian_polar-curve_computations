@@ -52,7 +52,7 @@ theorem neumann_ambient_inverse_norm_le
       ‖(1 : H →L[ℂ] H)‖ + ‖(neumannCorrection T).1‖ :=
         norm_add_le _ _
     _ ≤ ‖(1 : H →L[ℂ] H)‖ + ‖T‖ / (1 - ‖T‖) :=
-      add_le_add_left (neumannCorrection_operatorNorm_le T hsmall) _
+      add_le_add_right (neumannCorrection_operatorNorm_le T hsmall) _
 
 /-- The correction itself is exactly the difference between the
 ambient Neumann inverse and the ambient identity, with an explicit bound. -/
