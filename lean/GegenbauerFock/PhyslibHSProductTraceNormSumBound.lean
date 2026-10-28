@@ -55,26 +55,31 @@ theorem traceNorm_mul_twoHilbertSchmidt_le_energy_sum
   have hR_nonneg : 0 ≤ ∑' i : w, ‖R (b i)‖ ^ 2 :=
     tsum_nonneg (fun i => sq_nonneg _)
   have hU : ‖U‖ ≤ 1 := Polar.polarFactor_opNorm_le (R * S)
-  have hU2 : ‖U‖ ^ 2 ≤ (1 : ℝ) :=
-    by simpa only [one_pow] using
-      (sq_le_sq₀ (norm_nonneg _) zero_le_one).2 hU
+  have hU2 : ‖U‖ ^ 2 ≤ (1 : ℝ) := by
+    calc
+      ‖U‖ ^ 2 ≤ (1 : ℝ) ^ 2 :=
+        (sq_le_sq₀ (norm_nonneg _) zero_le_one).2 hU
+      _ = 1 := by norm_num
   calc
     traceNorm (R * S) (isTraceClass_mul_of_twoHilbertSchmidt R S hR hS) ≤
         (∑' i : w, ‖(R.adjoint.comp U) (b i)‖ ^ 2) +
         (∑' i : w, ‖S (b i)‖ ^ 2) := hbase
     _ ≤ (‖U‖ ^ 2 * (∑' i : w, ‖R.adjoint (b i)‖ ^ 2)) +
         (∑' i : w, ‖S (b i)‖ ^ 2) :=
-      add_le_add_left hright _
+      add_le_add_right hright _
     _ = (‖U‖ ^ 2 * (∑' i : w, ‖R (b i)‖ ^ 2)) +
         (∑' i : w, ‖S (b i)‖ ^ 2) := by rw [hstar]
     _ ≤ (∑' i : w, ‖R (b i)‖ ^ 2) +
         (∑' i : w, ‖S (b i)‖ ^ 2) := by
-      apply add_le_add_left
-      calc
-        ‖U‖ ^ 2 * (∑' i : w, ‖R (b i)‖ ^ 2) ≤
-          1 * (∑' i : w, ‖R (b i)‖ ^ 2) :=
-            mul_le_mul_of_nonneg_right hU2 hR_nonneg
-        _ = (∑' i : w, ‖R (b i)‖ ^ 2) := one_mul _
+      have hmul :
+          ‖U‖ ^ 2 * (∑' i : w, ‖R (b i)‖ ^ 2) ≤
+            ∑' i : w, ‖R (b i)‖ ^ 2 := by
+        calc
+          ‖U‖ ^ 2 * (∑' i : w, ‖R (b i)‖ ^ 2) ≤
+              1 * (∑' i : w, ‖R (b i)‖ ^ 2) :=
+                mul_le_mul_of_nonneg_right hU2 hR_nonneg
+          _ = (∑' i : w, ‖R (b i)‖ ^ 2) := one_mul _
+      exact add_le_add_right hmul _
 
 #print axioms ProbabilisticTheory.traceNorm_mul_twoHilbertSchmidt_le_energy_sum
 
