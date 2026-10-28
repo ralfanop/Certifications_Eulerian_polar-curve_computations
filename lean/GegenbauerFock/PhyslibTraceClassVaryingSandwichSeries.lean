@@ -67,7 +67,7 @@ theorem traceNorm_varying_sandwich_tsum_le_v007
       (norm_eq_genuineTraceNorm _).symm
     _ ≤ ∑' i : ι, ‖c i‖ *
           (‖A i‖ * ‖B i‖ * traceNorm H (T i)) :=
-      tsum_of_norm_bounded h
+      tsum_of_norm_bounded h.hasSum
         (fun i => norm_weighted_sandwich_le_v007
           (c i) (T i) (A i) (B i))
 
