@@ -19,6 +19,7 @@ on:
       - 'lean/GegenbauerFock/TwoSidedGramZeroSpectrum.lean'
       - 'lean/GegenbauerFock/TwoSidedGramZeroNonEigen.lean'
       - 'lean/GegenbauerFock/TwoSidedGramNotSurjective.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramProperDenseRange.lean'
       - '.github/workflows/gegenbauer-fock-output-entire.yml'
   workflow_dispatch:
 
@@ -293,3 +294,17 @@ jobs:
             exit 1
           fi
           echo 'Both genuine Grams have proper range: no forbidden axioms.'
+
+      # Zero is in the continuous (not point) spectrum on both
+      # genuinely different Hilbert spaces: both Gram ranges are dense
+      # yet proper, via orthogonal range/nullspace identity.
+      - name: Certify both Grams have proper dense Hilbert ranges
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramProperDenseRange 2>&1 | tee /tmp/v007-gram-proper-dense.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gram-proper-dense.log; then
+            echo "::error::Nonstandard axiom in Gram proper dense range theorem."
+            exit 1
+          fi
+          echo 'Both genuine Gram images are dense and proper: no forbidden axioms.'
