@@ -117,7 +117,7 @@ jobs:
           fi
           grep -F "positivePowers_traceNorm_tail_le' depends on axioms:" /tmp/gf-s1-geometric-tail.log
           grep -F "positivePowers_operatorNorm_tail_le' depends on axioms:" /tmp/gf-s1-geometric-tail.log
-          lake env lean -M16768 GegenbauerFock/PhyslibTraceClassGeometricPowers.lean 2>&1 | tee /tmp/gf-s1-geometric-axioms.log
+          lake env lean -M16768 GegenbauerFock/PhyslibTraceClassGeometricTailBound.lean 2>&1 | tee /tmp/gf-s1-geometric-axioms.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-s1-geometric-axioms.log; then
             echo '::error::Forbidden axiom from independent Lean kernel check.'
             exit 1
