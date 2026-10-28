@@ -9,6 +9,12 @@ on:
       - 'lean/GegenbauerFock/HSRowBasisConverse.lean'
       - 'lean/GegenbauerFock/HSRowRightIdealGeneral.lean'
       - '.github/workflows/gegenbauer-fock-hs-basis-converse.yml'
+  pull_request:
+    paths:
+      - 'lean/GegenbauerFock/HSRowBasisGeneral.lean'
+      - 'lean/GegenbauerFock/HSRowBasisConverse.lean'
+      - 'lean/GegenbauerFock/HSRowRightIdealGeneral.lean'
+      - '.github/workflows/gegenbauer-fock-hs-basis-converse.yml'
   workflow_dispatch:
 
 jobs:
