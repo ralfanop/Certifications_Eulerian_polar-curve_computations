@@ -24,6 +24,7 @@ on:
       - 'lean/GegenbauerFock/GaussianAreaFiniteMonomialGramIsometry.lean'
       - 'lean/GegenbauerFock/GaussianAreaMonomialL2Integrability.lean'
       - 'lean/GegenbauerFock/GaussianAreaWeightedMonomialL2.lean'
+      - 'lean/GegenbauerFock/GaussianAreaActualL2Vectors.lean'
       - '.github/workflows/gegenbauer-fock-gaussian-area.yml'
   workflow_dispatch:
 
@@ -122,7 +123,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.GaussianAreaNormalization GegenbauerFock.GaussianAreaMonomialNorm GegenbauerFock.GaussianAreaAngularOrthogonality GegenbauerFock.GaussianAreaPolarAngularOrthogonality GegenbauerFock.GaussianAreaPolarProductOrthogonality GegenbauerFock.GaussianAreaPolarMixedPullback GegenbauerFock.GaussianAreaPlanarFactorizationBridge GegenbauerFock.GaussianAreaPolarAngularAlgebra GegenbauerFock.GaussianAreaFullMonomialOrthogonality GegenbauerFock.GaussianAreaNormalizedMonomialGram GegenbauerFock.GaussianAreaRadialIntegrability GegenbauerFock.GaussianAreaPolarProductIntegrability GegenbauerFock.GaussianAreaMixedPullbackIntegrability GegenbauerFock.GaussianAreaComplexMonomialGram GegenbauerFock.GaussianAreaPlanarIntegrabilityTransfer GegenbauerFock.GaussianAreaNormalizedBasis GegenbauerFock.GaussianAreaFiniteMonomialGramIsometry GegenbauerFock.GaussianAreaMonomialL2Integrability GegenbauerFock.GaussianAreaWeightedMonomialL2 2>&1 | tee /tmp/v007-gaussian-area.log
+          lake build GegenbauerFock.GaussianAreaNormalization GegenbauerFock.GaussianAreaMonomialNorm GegenbauerFock.GaussianAreaAngularOrthogonality GegenbauerFock.GaussianAreaPolarAngularOrthogonality GegenbauerFock.GaussianAreaPolarProductOrthogonality GegenbauerFock.GaussianAreaPolarMixedPullback GegenbauerFock.GaussianAreaPlanarFactorizationBridge GegenbauerFock.GaussianAreaPolarAngularAlgebra GegenbauerFock.GaussianAreaFullMonomialOrthogonality GegenbauerFock.GaussianAreaNormalizedMonomialGram GegenbauerFock.GaussianAreaRadialIntegrability GegenbauerFock.GaussianAreaPolarProductIntegrability GegenbauerFock.GaussianAreaMixedPullbackIntegrability GegenbauerFock.GaussianAreaComplexMonomialGram GegenbauerFock.GaussianAreaPlanarIntegrabilityTransfer GegenbauerFock.GaussianAreaNormalizedBasis GegenbauerFock.GaussianAreaFiniteMonomialGramIsometry GegenbauerFock.GaussianAreaMonomialL2Integrability GegenbauerFock.GaussianAreaWeightedMonomialL2 GegenbauerFock.GaussianAreaActualL2Vectors 2>&1 | tee /tmp/v007-gaussian-area.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gaussian-area.log; then
             echo "::error::Nonstandard axiom in Gaussian-area certificate."
             exit 1
