@@ -69,39 +69,31 @@ theorem outputGramAfterLeft_traceNorm_eq_adjoint_basisEnergy
     simpa only [ContinuousLinearMap.adjoint_adjoint] using
       ((ContinuousLinearMap.nonneg_iff_isPositive).2
         (ContinuousLinearMap.isPositive_adjoint_comp_self T.adjoint))
+  let G : InfiniteAnalysis.FockCoefficients →L[ℂ]
+      InfiniteAnalysis.FockCoefficients :=
+    outputGramAfterLeft lam alpha hlam ha A
+  let hG : ProbabilisticTheory.IsTraceClass G :=
+    outputGramAfterLeft_isTraceClass lam alpha hlam ha A
+  have hTrace :
+      ProbabilisticTheory.traceNorm G hG =
+        ∑' j : w, (inner ℂ (b j) (G (b j))).re := by
+    rw [ProbabilisticTheory.traceNorm_eq_of_hilbertBasis hG b,
+      CFC.abs_of_nonneg G hpos]
+  change ProbabilisticTheory.traceNorm G hG =
+    ∑' j : w, ‖T.adjoint (b j)‖ ^ 2
   calc
-    ProbabilisticTheory.traceNorm
-        (outputGramAfterLeft lam alpha hlam ha A)
-        (outputGramAfterLeft_isTraceClass lam alpha hlam ha A) =
-      ∑' j : w, (inner ℂ (b j)
-        (CFC.abs (outputGramAfterLeft lam alpha hlam ha A) (b j))).re :=
-          ProbabilisticTheory.traceNorm_eq_of_hilbertBasis
-            (outputGramAfterLeft_isTraceClass lam alpha hlam ha A) b
-    _ = ∑' j : w, (inner ℂ (b j)
-          (outputGramAfterLeft lam alpha hlam ha A (b j))).re := by
-            have hAbs :
-                CFC.abs (outputGramAfterLeft lam alpha hlam ha A) =
-                  outputGramAfterLeft lam alpha hlam ha A :=
-              CFC.abs_of_nonneg _ hpos
-            apply tsum_congr
-            intro j
-            exact congrArg (fun (K : InfiniteAnalysis.FockCoefficients →L[ℂ]
-              InfiniteAnalysis.FockCoefficients) =>
-                (inner ℂ (b j) (K (b j))).re) hAbs
+    ProbabilisticTheory.traceNorm G hG =
+        ∑' j : w, (inner ℂ (b j) (G (b j))).re := hTrace
     _ = ∑' j : w, ‖T.adjoint (b j)‖ ^ 2 := by
       apply tsum_congr
       intro j
       have hnorm :
           ‖T.adjoint (b j)‖ ^ 2 =
-            (inner ℂ
-              (outputGramAfterLeft lam alpha hlam ha A (b j)) (b j)).re := by
-        simpa only [outputGramAfterLeft, HilbertGram.gram,
+            (inner ℂ (G (b j)) (b j)).re := by
+        simpa only [G, outputGramAfterLeft, HilbertGram.gram,
           ContinuousLinearMap.adjoint_adjoint, RCLike.re_eq_complex_re] using
           (HilbertGram.gram_norm_sq T.adjoint (b j))
-      exact (outputBasis_re_inner_swap (b j)
-        (outputGramAfterLeft lam alpha hlam ha A (b j))).trans hnorm.symm
-    _ = ∑' j : w,
-          ‖(A.comp (C lam alpha hlam ha)).adjoint (b j)‖ ^ 2 := rfl
+      exact (outputBasis_re_inner_swap (b j) (G (b j))).trans hnorm.symm
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.outputGramAfterLeft_adjoint_basisEnergy_summable
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.outputGramAfterLeft_traceNorm_eq_adjoint_basisEnergy
