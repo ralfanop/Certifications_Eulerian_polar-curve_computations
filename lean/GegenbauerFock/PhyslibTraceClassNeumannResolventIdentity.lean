@@ -1,4 +1,5 @@
 import GegenbauerFock.PhyslibTraceClassNeumannAmbientInverse
+import GegenbauerFock.PhyslibTraceClassOperatorEmbedding
 
 /-!
 # V007 — the two-point Neumann resolvent identity in ambient B(H)
@@ -54,7 +55,6 @@ theorem neumann_ambient_resolvent_identity
         (T.1 - U.1) *
         ((1 : H →L[ℂ] H) + (neumannCorrection U).1) := by
       rw [hba]
-      rfl
 
 /-- The true two-sided Neumann resolvent is locally stable in the
 ambient operator norm without commutativity or positivity. -/
