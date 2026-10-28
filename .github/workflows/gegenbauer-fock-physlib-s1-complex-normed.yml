@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/PhyslibTraceClassNormedSpace.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassFiniteNormBound.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassNormedGroup.lean'
       - 'lean/GegenbauerFock/PhyslibTraceNormTriangleYoung.lean'
       - 'lean/GegenbauerFock/PhyslibTraceNormDominatesOpNorm.lean'
@@ -109,7 +110,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.PhyslibTraceClassNormedSpace 2>&1 | tee /tmp/gf-s1-complex-normed.log
+          lake build GegenbauerFock.PhyslibTraceClassNormedSpace GegenbauerFock.PhyslibTraceClassFiniteNormBound 2>&1 | tee /tmp/gf-s1-complex-normed.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-s1-complex-normed.log; then
             echo '::error::Forbidden axiom in complex S1 normed space.'
             exit 1
