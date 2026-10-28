@@ -41,7 +41,12 @@ theorem all_scales_implies_sq_le_mul
     have hnpos : 0 < n := lt_of_le_of_ne hn (Ne.symm hn0)
     have hspec := hy (n / a) (div_pos hnpos hapos)
     have hh : 2 * (n ^ 2 / a) ≤ n ^ 2 / a + b := by
-      convert hspec using 1 <;> field_simp <;> ring
+      calc
+        2 * (n ^ 2 / a) = 2 * (n / a) * n := by ring
+        _ ≤ (n / a) ^ 2 * a + b := hspec
+        _ = n ^ 2 / a + b := by
+          field_simp [ha0]
+          ring
     have hh' := mul_le_mul_of_nonneg_right hh ha
     have hdiv : (n ^ 2 / a) * a = n ^ 2 :=
       div_mul_cancel₀ _ ha0
