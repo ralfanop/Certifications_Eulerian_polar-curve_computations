@@ -7,6 +7,7 @@ on:
     paths:
       - 'lean/GegenbauerFock/PhyslibTraceClassTwoSidedIdeal.lean'
       - 'lean/GegenbauerFock/PhyslibTraceClassHSFactorization.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassAdditionFromHS.lean'
       - 'lean/GegenbauerFock/PhyslibGeneralHSProductTraceClass.lean'
       - 'lean/GegenbauerFock/PhyslibHilbertSchmidtTwoSidedIdeal.lean'
       - 'lean/GegenbauerFock/PhyslibPolarFactorCompat.lean'
@@ -108,7 +109,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.PhyslibTraceClassTwoSidedIdeal 2>&1 | tee /tmp/gf-physlib-s1-ideal.log
+          lake build GegenbauerFock.PhyslibTraceClassTwoSidedIdeal GegenbauerFock.PhyslibTraceClassAdditionFromHS 2>&1 | tee /tmp/gf-physlib-s1-ideal.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-physlib-s1-ideal.log; then
             echo "::error::Nonstandard axiom in general two-sided S1 trace-class ideal theorem."
             exit 1
