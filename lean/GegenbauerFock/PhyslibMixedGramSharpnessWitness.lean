@@ -65,7 +65,7 @@ theorem gramMixed_coefficient_one_optimal
   intro hb
   have hI := hb 1 1
   rw [gramMixed_identity_traceNorm_eq_kummer lam alpha hlam ha] at hI
-  simp only [norm_one, one_mul] at hI
+  try simp only [norm_one, one_mul] at hI
   have hz : 0 ≤ (1 / (4 * alpha) : ℝ) := by positivity
   have hp : 0 < KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) :=
     KummerCoefficients.kummerSeries_pos lam (1 / (4 * alpha)) hlam hz
