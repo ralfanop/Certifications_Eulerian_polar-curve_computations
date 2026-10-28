@@ -59,7 +59,7 @@ theorem entireRepresentative_add (alpha : ℝ) (ha : 0 < alpha)
       entireRepresentative_ae alpha y,
       Lp.coeFn_add (x : Lp ℂ 2 (gaussianAreaMeasure alpha))
         (y : Lp ℂ 2 (gaussianAreaMeasure alpha))] with z hx hy hxy
-    simpa only [Pi.add_apply, hx, hy] using hxy.symm
+    simpa only [Pi.add_apply, hx, hy, Submodule.coe_add] using hxy.symm
 
 /-- Intrinsic entire representatives respect complex scalar
 multiplication pointwise. -/
@@ -72,12 +72,13 @@ theorem entireRepresentative_smul (alpha : ℝ) (ha : 0 < alpha)
       Lp ℂ 2 (gaussianAreaMeasure alpha))
   · exact entireRepresentative_differentiable alpha (c • x)
   · change Differentiable ℂ (fun z => c * entireRepresentative alpha x z)
-    exact differentiable_const.mul (entireRepresentative_differentiable alpha x)
+    exact (differentiable_const : Differentiable ℂ (fun _ : ℂ => c)).mul
+      (entireRepresentative_differentiable alpha x)
   · exact entireRepresentative_ae alpha (c • x)
   · filter_upwards [entireRepresentative_ae alpha x,
       Lp.coeFn_smul c (x : Lp ℂ 2 (gaussianAreaMeasure alpha))]
       with z hx hsmul
-    simpa only [Pi.smul_apply, smul_eq_mul, hx] using hsmul.symm
+    simpa only [Pi.smul_apply, smul_eq_mul, hx, Submodule.coe_smul] using hsmul.symm
 
 /-- Canonical complex-linear representative map on the intrinsic
 entire Gaussian-L² vector space. -/
@@ -109,7 +110,7 @@ noncomputable def intrinsicEntireEvaluation (alpha : ℝ) (ha : 0 < alpha)
       congrFun (entireRepresentative_add alpha ha x y) z
   map_smul' := by
     intro c x
-    simpa only [Pi.smul_apply, smul_eq_mul] using
+    simpa only [Pi.smul_apply, smul_eq_mul, RingHom.id_apply] using
       congrFun (entireRepresentative_smul alpha ha c x) z
 
 #print axioms GegenbauerFock.GaussianArea.entireRepresentative_differentiable
