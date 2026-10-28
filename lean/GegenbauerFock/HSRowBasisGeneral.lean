@@ -89,7 +89,7 @@ theorem summableRows_iff_sourceBasis_energy
       ‖T (b i)‖ ^ 2 = ∑' n : ℕ, w n i := by
     simpa [w] using
       (lp.norm_rpow_eq_tsum
-        (by norm_num : 0 < (2 : ENNReal).toReal) (T (b i)))
+        (by norm_num : 0 < (2 : ENNReal).toReal) (T (b i))).symm
   constructor
   · exact hreverse.congr (fun i => (hin i).symm)
   · calc
