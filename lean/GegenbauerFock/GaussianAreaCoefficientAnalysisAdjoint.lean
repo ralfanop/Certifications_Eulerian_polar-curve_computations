@@ -39,6 +39,7 @@ theorem coefficientAnalysisL2_synthesis
   change ((coefficientSynthesisL2 alpha ha).toContinuousLinearMap.adjoint ∘L
     (coefficientSynthesisL2 alpha ha).toContinuousLinearMap) a = a
   rw [(coefficientSynthesisL2 alpha ha).adjoint_comp_self]
+  simp
 
 /-- The n-th analysis coefficient of ANY Gaussian L² vector is exactly
 its Hilbert inner product against the normalized holomorphic monomial. -/
