@@ -43,8 +43,32 @@ theorem operator_dist_le_trace_dist (T V : TraceClass H) :
     dist T.1 V.1 ≤ dist T V := by
   simpa only [dist_eq_norm] using operator_sub_norm_le_trace_sub_norm T V
 
+/-- The forgetful map from the genuine trace-normed Schatten S₁
+space to the Banach space of bounded Hilbert operators is uniformly
+continuous; it has nonexpansive modulus δ = ε. -/
+theorem operator_uniformContinuous :
+    UniformContinuous (operator H) := by
+  apply Metric.uniformContinuous_iff.mpr
+  intro ε hε
+  refine ⟨ε, hε, ?_⟩
+  intro T V hTV
+  exact lt_of_le_of_lt (operator_dist_le_trace_dist T V) hTV
+
+/-- Any trace-norm Cauchy sequence of CFC-trace-class operators has a
+Cauchy sequence of underlying bounded operators. The existence of
+the operator-norm limit uses completeness of B(H); trace-class
+membership of that limit is a separate obligation. -/
+theorem operator_cauchySeq_of_traceClass_cauchySeq
+    {u : ℕ → TraceClass H} (hu : CauchySeq u) :
+    CauchySeq (fun n => (u n).1) := by
+  simpa only [Function.comp_def, operator] using
+    (operator_uniformContinuous (H := H)).comp_cauchySeq hu
+
 #print axioms ProbabilisticTheory.TraceClass.operator_norm_le_trace_norm
 #print axioms ProbabilisticTheory.TraceClass.operator_sub_norm_le_trace_sub_norm
 #print axioms ProbabilisticTheory.TraceClass.operator_dist_le_trace_dist
+
+#print axioms ProbabilisticTheory.TraceClass.operator_uniformContinuous
+#print axioms ProbabilisticTheory.TraceClass.operator_cauchySeq_of_traceClass_cauchySeq
 
 end ProbabilisticTheory.TraceClass
