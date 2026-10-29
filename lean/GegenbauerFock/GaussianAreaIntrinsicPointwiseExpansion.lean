@@ -1,4 +1,5 @@
 import GegenbauerFock.GaussianAreaFullIntrinsicEvaluation
+import GegenbauerFock.GaussianAreaIntrinsicEvaluationContinuous
 import GegenbauerFock.FockEvaluationSequence
 
 /-!
@@ -41,15 +42,18 @@ theorem intrinsicEntire_evaluation_at_zero_eq_coefficient_zero
   exact (intrinsicEntireEvaluation_eq_coherent_analysis alpha ha x 0).trans
     (FockEvaluation.evaluation_at_zero alpha ha _)
 
-/-- The canonically defined analytic point-evaluation linear map
-is continuous on the *entire intrinsic* Gaussian holomorphic L²
-Hilbert space, not only on the polynomial closure by assumption. -/
-noncomputable def intrinsicEntireEvaluationContinuous
-    (alpha : ℝ) (ha : 0 < alpha) (z : ℂ) :
-    entireGaussianL2Submodule alpha →L[ℂ] ℂ :=
-  (intrinsicEntireEvaluation alpha ha z).mkContinuous
-    ‖FockEvaluation.evaluation alpha ha z‖
-    (fun x => intrinsicEntireEvaluation_norm_le_full alpha ha x z)
+/-- The previously defined intrinsic continuous point-evaluation
+functional agrees with the full Hilbert coefficient reconstruction,
+without redefining the same operator. -/
+theorem intrinsicEntireEvaluationContinuous_eq_coherent_analysis
+    (alpha : ℝ) (ha : 0 < alpha)
+    (x : entireGaussianL2Submodule alpha) (z : ℂ) :
+    intrinsicEntireEvaluationContinuous alpha ha z x =
+      FockEvaluation.evaluation alpha ha z
+        (coefficientAnalysisL2 alpha ha
+          (x : Lp ℂ 2 (gaussianAreaMeasure alpha))) := by
+  rw [intrinsicEntireEvaluationContinuous_apply]
+  exact intrinsicEntireEvaluation_eq_coherent_analysis alpha ha x z
 
 /-- A pointwise squared Gaussian reproducing bound with the exact
 coherent exponential exponent, for every intrinsically entire class. -/
@@ -72,7 +76,7 @@ theorem intrinsicEntire_evaluation_sq_le_exp_norm
 
 #print axioms GegenbauerFock.GaussianArea.intrinsicEntire_evaluation_eq_coherent_tsum
 #print axioms GegenbauerFock.GaussianArea.intrinsicEntire_evaluation_at_zero_eq_coefficient_zero
-#print axioms GegenbauerFock.GaussianArea.intrinsicEntireEvaluationContinuous
+#print axioms GegenbauerFock.GaussianArea.intrinsicEntireEvaluationContinuous_eq_coherent_analysis
 #print axioms GegenbauerFock.GaussianArea.intrinsicEntire_evaluation_sq_le_exp_norm
 
 end GegenbauerFock.GaussianArea
