@@ -657,3 +657,25 @@ Gamma/Pochhammer identities. Do not transfer success between workflows.
 
 PR #16 remains Draft and unmerged. `main` and approved V097 remain
 unchanged.
+
+
+## Certified checkpoint — 29 October 2026: cofinite decay of positive singular spectrum
+
+The `CompleteSingularCofiniteDecay.lean` independent build
+**SUCCESS** at commit `4fb845c2fd8b`:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40888114039.
+It completed 9,108 Lean jobs and the direct theorem-axiom audit
+printed only `propext`, `Classical.choice`, `Quot.sound`.
+
+The multiplicity-indexed positive singular Gram eigenvalue family
+is summable and tends to zero in the **cofinite-filter** sense.
+Consequently, for every real `ε>0`, the set of singular basis indices
+with `μ_i≥ε` is **finite**. The two singular Hilbert bases are complete
+and the spectral mass equals the exact unregularized Kummer series.
+This asserts neither an artificial ordering nor a finite cutoff of
+the underlying infinite-dimensional operator.
+
+The stronger exact finite-mode counting inequality, bilateral
+weighted Parseval formula, genuine Gaussian Riesz diagonal, and
+intrinsic output Gram quadratic positivity remain subject to
+their own dedicated CI outcomes.
