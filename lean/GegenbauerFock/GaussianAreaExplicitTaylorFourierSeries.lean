@@ -49,6 +49,32 @@ theorem intrinsicEntire_scaledTaylor_monomial_hasSum
   simpa only [coefficientAnalysisL2_intrinsic_eq_scaled_taylor alpha ha x] using
     (intrinsicEntire_gaussian_monomial_hasSum alpha ha x)
 
+/-- The normalized Taylor-derivative sequence of every intrinsic
+entire Gaussian L² class is genuinely square-summable. This is an
+unconditional coefficient bound in the complete Gaussian Hilbert space. -/
+theorem intrinsicEntire_scaledTaylor_memℓp
+    (alpha : ℝ) (ha : 0 < alpha)
+    (x : entireGaussianL2Submodule alpha) :
+    Memℓp (fun n : ℕ =>
+      monomialWeight alpha n *
+        (((alpha ^ (-(n : ℝ)) : ℝ) : ℂ) *
+          iteratedDeriv n (entireRepresentative alpha x) 0)) 2 := by
+  have hcoeff :
+      (fun n : ℕ =>
+        monomialWeight alpha n *
+          (((alpha ^ (-(n : ℝ)) : ℝ) : ℂ) *
+            iteratedDeriv n (entireRepresentative alpha x) 0)) =
+      (fun n : ℕ =>
+        coefficientAnalysisL2 alpha ha
+          (x : Lp ℂ 2 (gaussianAreaMeasure alpha)) n) := by
+    funext n
+    exact (coefficientAnalysisL2_intrinsic_eq_scaled_taylor alpha ha x n).symm
+  rw [hcoeff]
+  exact (coefficientAnalysisL2 alpha ha
+    (x : Lp ℂ 2 (gaussianAreaMeasure alpha))).property
+
+#print axioms GegenbauerFock.GaussianArea.intrinsicEntire_scaledTaylor_memℓp
+
 #print axioms GegenbauerFock.GaussianArea.coefficientAnalysisL2_intrinsic_eq_scaled_taylor
 #print axioms GegenbauerFock.GaussianArea.intrinsicEntire_scaledTaylor_monomial_hasSum
 
