@@ -52,7 +52,7 @@ private theorem fredholmShift_index_zero_on_punctured_plane
       filter_upwards [fredholmShift_index_locally_constant_in_parameter
         T z (hfred z hz0)] with w hw
       exact hw.2
-    exact tendsto_const_nhds.congr' hloc.symm
+    exact tendsto_nhds_of_eventually_eq hloc
   have hconnected : IsPreconnected ({(0 : ℂ)}ᶜ) :=
     (isConnected_compl_singleton_of_one_lt_rank
       (Complex.rank_real_complex ▸ Nat.one_lt_ofNat) (0 : ℂ)).isPreconnected
