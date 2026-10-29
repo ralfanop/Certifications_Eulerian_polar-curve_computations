@@ -103,24 +103,26 @@ lemma summable_inner_abs_of_hilbertBasis {T : H →L[ℂ] H} (h : IsTraceClass T
   have hAself : IsSelfAdjoint A := .of_nonneg hAnonneg
   set S : H →L[ℂ] H := CFC.sqrt A with hSdef
   have hSself : IsSelfAdjoint S := .of_nonneg (CFC.sqrt_nonneg A)
-  have hpt : ∀ {w' : Type*} (b' : HilbertBasis w' ℂ H) (i : w'),
-      (⟪b' i, A (b' i)⟫_ℂ).re = ‖S (b' i)‖ ^ 2 := by
-    intro w' b' i
+  have hpt (x : H) :
+      (⟪x, A x⟫_ℂ).re = ‖S x‖ ^ 2 := by
     have hSS : S * S = A := CFC.sqrt_mul_sqrt_self A hAnonneg
-    have : ⟪b' i, A (b' i)⟫_ℂ = ⟪S (b' i), S (b' i)⟫_ℂ := by
-      have hSstar : ContinuousLinearMap.adjoint S = S := (ContinuousLinearMap.star_eq_adjoint
-          S).symm.trans hSself
+    have hinner : ⟪x, A x⟫_ℂ = ⟪S x, S x⟫_ℂ := by
+      have hSstar : ContinuousLinearMap.adjoint S = S :=
+        (ContinuousLinearMap.star_eq_adjoint S).symm.trans hSself
       rw [← hSS]
-      show ⟪b' i, (S * S) (b' i)⟫_ℂ = _
+      show ⟪x, (S * S) x⟫_ℂ = _
       rw [ContinuousLinearMap.mul_def, ContinuousLinearMap.comp_apply]
-      rw [← ContinuousLinearMap.adjoint_inner_left S (S (b' i)) (b' i), hSstar]
-    have hval : ⟪S (b' i), S (b' i)⟫_ℂ = ((‖S (b' i)‖ ^ 2 : ℝ) : ℂ) := by
-      rw [inner_self_eq_norm_sq_to_K]; norm_cast
-    rw [this, hval, Complex.ofReal_re]
+      rw [← ContinuousLinearMap.adjoint_inner_left S (S x) x, hSstar]
+    rw [hinner, inner_self_eq_norm_sq_to_K]
+    norm_cast
   have hb₀' : Summable (fun i : w₀ => ‖S (b₀ i)‖ ^ 2) := by
-    simpa [hpt b₀] using hb₀
-  have := hasSum_norm_sq_apply_of_selfAdjoint hSself b₀ b hb₀'
-  simpa [hpt b] using this.summable
+    apply hb₀.congr
+    intro i
+    exact hpt (b₀ i)
+  have hsum := hasSum_norm_sq_apply_of_selfAdjoint hSself b₀ b hb₀'
+  apply hsum.summable.congr
+  intro i
+  exact (hpt (b i)).symm
 
 lemma traceNorm_eq_of_hilbertBasis {T : H →L[ℂ] H} (h : IsTraceClass T) {w : Type*}
     (b : HilbertBasis w ℂ H) :
@@ -134,23 +136,22 @@ lemma traceNorm_eq_of_hilbertBasis {T : H →L[ℂ] H} (h : IsTraceClass T) {w :
   have hAself : IsSelfAdjoint A := .of_nonneg hAnonneg
   set S : H →L[ℂ] H := CFC.sqrt A with hSdef
   have hSself : IsSelfAdjoint S := .of_nonneg (CFC.sqrt_nonneg A)
-  have hpt : ∀ {w' : Type*} (b' : HilbertBasis w' ℂ H) (i : w'),
-      (⟪b' i, A (b' i)⟫_ℂ).re = ‖S (b' i)‖ ^ 2 := by
-    intro w' b' i
+  have hpt (x : H) :
+      (⟪x, A x⟫_ℂ).re = ‖S x‖ ^ 2 := by
     have hSS : S * S = A := CFC.sqrt_mul_sqrt_self A hAnonneg
-    have hinner : ⟪b' i, A (b' i)⟫_ℂ = ⟪S (b' i), S (b' i)⟫_ℂ := by
+    have hinner : ⟪x, A x⟫_ℂ = ⟪S x, S x⟫_ℂ := by
       have hSstar : ContinuousLinearMap.adjoint S = S :=
         (ContinuousLinearMap.star_eq_adjoint S).symm.trans hSself
       rw [← hSS]
-      show ⟪b' i, (S * S) (b' i)⟫_ℂ = _
+      show ⟪x, (S * S) x⟫_ℂ = _
       rw [ContinuousLinearMap.mul_def, ContinuousLinearMap.comp_apply]
-      rw [← ContinuousLinearMap.adjoint_inner_left S (S (b' i)) (b' i), hSstar]
+      rw [← ContinuousLinearMap.adjoint_inner_left S (S x) x, hSstar]
     rw [hinner, inner_self_eq_norm_sq_to_K]
     norm_cast
   have hb₀' : Summable (fun i : w₀ => ‖S (b₀ i)‖ ^ 2) := by
     apply hb₀.congr
     intro i
-    rw [hAdef, hpt]
+    exact hpt (b₀ i)
   have hnorm := hasSum_norm_sq_apply_of_selfAdjoint hSself b₀ b hb₀'
   calc
     traceNorm T h = ∑' i : w₀, (⟪b₀ i, A (b₀ i)⟫_ℂ).re := by
@@ -158,12 +159,12 @@ lemma traceNorm_eq_of_hilbertBasis {T : H →L[ℂ] H} (h : IsTraceClass T) {w :
     _ = ∑' i : w₀, ‖S (b₀ i)‖ ^ 2 := by
       apply tsum_congr
       intro i
-      exact hpt b₀ i
+      exact hpt (b₀ i)
     _ = ∑' i : w, ‖S (b i)‖ ^ 2 := hnorm.tsum_eq.symm
     _ = ∑' i : w, (⟪b i, A (b i)⟫_ℂ).re := by
       apply tsum_congr
       intro i
-      exact (hpt b i).symm
+      exact (hpt (b i)).symm
     _ = ∑' i, (⟪b i, CFC.abs T (b i)⟫_ℂ).re := by
       rfl
 
