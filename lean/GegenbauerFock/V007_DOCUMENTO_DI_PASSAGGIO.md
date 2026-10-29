@@ -196,3 +196,52 @@ e il confine della certificazione Lean.
 **Invarianti:** PR #16 Draft; non eseguire merge in `main`;
 non modificare V097. Ogni ulteriore modifica deve conservare il
 presente checkpoint certificato e superare nuova CI al nuovo HEAD.
+
+## 10. Checkpoint del 29 ottobre 2026 — ampiezza polare positiva
+
+Questa sezione aggiorna gli obiettivi spettrali storicamente aperti alla
+sezione 5; non sostituisce la verifica dei teoremi specifici nel codice Lean.
+
+- **Fattorizzazione spettrale unitaria verificata:** commit
+  `711fd13da311aa6821c09453fa0dda63df708ead`,
+  CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40905428785
+  (**SUCCESS**). Il teorema
+  `exists_unitary_positive_spectrum_factorization_kummer`
+  costruisce l'isometria lineare suriettiva `W` fra i due spazi di
+  Hilbert, l'ampiezza continua `P` e le identità puntuali
+  `C f = W (P f)` e `gram f = P (P f)`, con valori singolari
+  positivi e somma quadratica espressa dalla serie non regolarizzata
+  `KummerCoefficients.kummerSeries lam (1 / (4 * alpha))`.
+  Nessuna suriettività è asserita per il compatto `C`.
+- **Positività globale dell'ampiezza verificata:** commit
+  `0f8223fb9bb2f19681a1fce0b2500af96aa8bdbb`,
+  CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40918482559
+  (**SUCCESS**). Il teorema
+  `exists_positive_polar_amplitude_kummer` in
+  `PositivePolarAmplitude.lean` stabilisce l'autoaggiuntezza di `P`,
+  la positività della forma quadratica sull'intero spazio sorgente,
+  la sua iniettività, la diagonalizzazione sulla base di Hilbert,
+  `P²=C* C` e le identità della trasformata unitaria.
+  L'audit della CI riporta esclusivamente gli assiomi standard
+  `propext`, `Classical.choice` e `Quot.sound`; niente
+  `sorryAx` né `Lean.ofReduceBool`.
+- **Identificazione con radice CFC ancora in validazione:** la CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40918647299
+  è fallita per istanze di tipo e un passaggio di elaborazione Lean
+  nel modulo `CanonicalCFCPolarSquareRoot.lean`. Il ramo
+  contiene correzioni successive per l'azione scalare reale e
+  l'identità `P*P=gram`. La nuova CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40921575135
+  è stata avviata, ma **non va dichiarata SUCCESS senza verificare
+  la conclusione e l'audit**. Obiettivo preciso:
+  `CFC.sqrt (gram lam alpha hlam ha) = P` e
+  `C f = W (CFC.sqrt (gram lam alpha hlam ha) f)`.
+
+La serie di Kummer utilizzata nel progetto ha parametri
+`(1/2; lam+1)`, come definita dalla ricorrenza di
+`KummerCoefficients.ratio`: non sostituirla con parametri
+ipergeometrici diversi senza dimostrarne l'equivalenza.
+
+**Invarianti operativi:** PR #16 aperta in Draft, nessun merge,
+`main` e V097 immutati. Su un ramo con commit concorrenti,
+rileggere HEAD e blob SHA prima di ogni modifica.
