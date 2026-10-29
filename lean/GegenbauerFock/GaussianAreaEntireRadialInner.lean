@@ -12,7 +12,6 @@ theorem gaussian_angular_scalar_eq (alpha r : ℝ) :
     (r * ((alpha / Real.pi) * Real.exp (-alpha * r ^ 2))) * (2 * Real.pi) =
       (2 * alpha) * (r * Real.exp (-alpha * r ^ 2)) := by
   field_simp [Real.pi_ne_zero]
-  ring
 
 theorem polar_gaussian_angular_eq_radial
     (alpha r : ℝ) (hr : 0 < r) (g : ℂ → ℂ) :
