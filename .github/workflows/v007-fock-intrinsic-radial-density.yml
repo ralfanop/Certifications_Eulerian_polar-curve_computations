@@ -5,6 +5,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/GaussianAreaEntireRadialCoefficientDensity.lean'
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicIsometryViaRadial.lean'
       - 'lean/GegenbauerFock/GaussianAreaEntireFockRadialEquiv.lean'
       - 'lean/GegenbauerFock/GaussianAreaEntireRadialInner.lean'
       - 'lean/GegenbauerFock/GaussianAreaPolarAngularMoment.lean'
