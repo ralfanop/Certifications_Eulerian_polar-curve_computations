@@ -5,6 +5,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireInverseInstability.lean'
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireApproximateNullSequence.lean'
       - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireFockOperator.lean'
       - 'lean/GegenbauerFock/FockNoContinuousReconstruction.lean'
       - 'lean/GegenbauerFock/FockInverseInstability.lean'
@@ -46,12 +47,14 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.GegenbauerIntrinsicEntireInverseInstability 2>&1 | tee /tmp/v007-intrinsic-inverse.log
+          lake build GegenbauerFock.GegenbauerIntrinsicEntireInverseInstability GegenbauerFock.GegenbauerIntrinsicEntireApproximateNullSequence 2>&1 | tee /tmp/v007-intrinsic-inverse.log
           lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireInverseInstability.lean 2>&1 | tee -a /tmp/v007-intrinsic-inverse.log
+          lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireApproximateNullSequence.lean 2>&1 | tee -a /tmp/v007-intrinsic-inverse.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-intrinsic-inverse.log; then
             echo "::error::Forbidden axioms in intrinsic Gaussian Fock inverse instability"
             exit 1
           fi
           grep -F "C_intrinsicEntire_no_continuous_global_reconstruction' depends on axioms:" /tmp/v007-intrinsic-inverse.log
           grep -F "C_intrinsicEntire_no_uniform_lower_norm_bound' depends on axioms:" /tmp/v007-intrinsic-inverse.log
+          grep -F "C_intrinsicEntire_normalized_approximate_null_no_strong_limit' depends on axioms:" /tmp/v007-intrinsic-inverse.log
           echo 'Intrinsic Gaussian Fock inverse instability: Lean kernel and axioms clean.'
