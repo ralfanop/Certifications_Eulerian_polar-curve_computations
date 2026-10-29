@@ -1,4 +1,5 @@
 import GegenbauerFock.GaussianAreaExplicitTaylorFourierSeries
+import Mathlib
 import GegenbauerFock.GaussianAreaFullIntrinsicEvaluation
 
 /-!
@@ -94,10 +95,15 @@ theorem intrinsicTaylorCoefficients_tsum_norm_sq
       ‖x‖ ^ 2 := by
   change (∑' n : ℕ, ‖(intrinsicTaylorCoefficients alpha ha x) n‖ ^ 2) =
     ‖x‖ ^ 2
-  rw [← lp.norm_rpow_eq_tsum
-    (by norm_num : 0 < (2 : ℝ≥0∞).toReal)
-    (intrinsicTaylorCoefficients alpha ha x)]
-  rw [intrinsicTaylorCoefficients_norm_eq alpha ha x]
+  have hnorm :
+      ‖intrinsicTaylorCoefficients alpha ha x‖ ^ 2 =
+        ∑' n : ℕ, ‖(intrinsicTaylorCoefficients alpha ha x) n‖ ^ 2 := by
+    simpa using (lp.norm_rpow_eq_tsum
+      (by norm_num : 0 < (2 : ℝ≥0∞).toReal)
+      (intrinsicTaylorCoefficients alpha ha x))
+  calc
+    _ = ‖intrinsicTaylorCoefficients alpha ha x‖ ^ 2 := hnorm.symm
+    _ = ‖x‖ ^ 2 := by rw [intrinsicTaylorCoefficients_norm_eq alpha ha x]
 
 #print axioms GegenbauerFock.GaussianArea.intrinsicTaylorCoefficients_tsum_norm_sq
 
