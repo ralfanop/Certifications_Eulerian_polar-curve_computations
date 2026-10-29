@@ -29,10 +29,13 @@ theorem intrinsicFock_coherent_coordinate_inner
       (Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) ^ 2 =
         ((alpha ^ n / (Nat.factorial n : ℝ) : ℝ) : ℂ) := by
     exact_mod_cast Real.sq_sqrt hp
-  simp only [FockEvaluation.kernelCoordinate, RCLike.inner_apply,
-    star_mul, star_pow, star_star]
-  simp only [Complex.star_def, Complex.conj_ofReal]
-  rw [mul_pow]
+  change
+    ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) * (star w) ^ n) *
+      star ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) *
+        (star z) ^ n) =
+      ((alpha : ℂ) * z * star w) ^ n / (Nat.factorial n : ℂ)
+  simp only [star_mul, star_pow, star_star,
+    Complex.star_def, Complex.conj_ofReal, mul_pow]
   -- Both sides have the same normalized real coefficient.
   calc
     ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) * (star w) ^ n) *
