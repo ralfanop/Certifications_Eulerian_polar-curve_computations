@@ -1,4 +1,3 @@
-import GegenbauerFock.UltrasphericalSturmLiouvilleAllMonomialIntegrals
 import GegenbauerFock.UltrasphericalSturmLiouvillePolynomialIntegrability
 
 /-!
