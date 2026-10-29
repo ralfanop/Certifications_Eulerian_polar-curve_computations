@@ -367,3 +367,58 @@ Do not call it certified without a completed SUCCESS and axiom audit.
 These are distinct Lean obligations; no success is inferred across
 workflows or commits. PR #16 remains Draft and unmerged, and neither
 approved V097 nor `main` is modified.
+
+
+## Update — 29 October 2026: exact Gram norm and analytic Fock closedness certified
+
+The following **independently checked** pin-locked Lean 4 workflows have
+finished `completed/success`:
+
+1. `TwoSidedGramExactOperatorNorm.lean`: the exact C-star identities
+   `‖C†C‖ = ‖CC†‖ = ‖C‖ * ‖C‖` on the two different Hilbert spaces.
+   SHA `288a309fc016`, dedicated kernel and axiom audit:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869826883
+2. `TwoSidedGramJointSpectralBand.lean`: the **entire shared scalar spectrum**
+   lies in the real interval `[0,min(‖C†C‖,‖CC†‖)]`;
+   the two open half-planes outside this interval are in the common
+   resolvent set. SHA `088b2dc316f5`, CI:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869175172
+3. `TwoSidedGramEssentialSpectralBand.lean`: both genuine Fredholm
+   essential spectra are contained in that same real interval.
+   SHA `79a663fbdd87`, CI:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869357059
+4. `TwoSidedGramNonzeroFiniteEigenspaces.lean`: all nonzero source
+   and target Gram eigenspaces have finite geometric dimension.
+   SHA `1a909f0913ee`, CI:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40870029300
+5. `GaussianAreaFullFockClosedPolynomialDensity.lean`: the independently
+   specified entire Gaussian `L²` submodule is closed in ambient
+   Gaussian `L²`; it equals the entire coefficient synthesis range,
+   and finite holomorphic polynomials approximate all intrinsic
+   entire classes. This is not a mere definition of the subspace
+   as a polynomial closure. SHA `d1c488969f82`, CI:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869981283
+6. `GaussianArea` intrinsic Bochner Gram and compact transform have
+   independently passed their dedicated checks:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40871802263
+   and
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40871558289.
+
+**Fresh candidate, not yet independently certified:**
+`TwoSidedGramExactSpectralNormBand.lean` combines these facts to place
+the shared full spectrum in `[0,‖C‖²]` and every complex parameter
+outside this closed real segment in the common resolvent. Source
+commit `004d6a3244dc`, workflow:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40875159254.
+This candidate **must not** be called certified until this exact CI and
+axiom audit complete SUCCESS.
+
+The existence of actual global Hilbert eigenbases with a multiplicity-
+counted Kummer trace sum remains separately pending. Certified
+orthogonal Hilbert direct-sum decompositions are not themselves
+a certificate of that stronger construction. In particular, finite
+geometric multiplicity does not alone prove `σess(G)={0}`; the
+nonzero-shift Fredholm proof is a distinct open obligation.
+
+PR #16 remains Draft, open and **unmerged**; neither `main` nor approved
+manuscript V097 is modified.
