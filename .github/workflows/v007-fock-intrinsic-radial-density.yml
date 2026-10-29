@@ -50,11 +50,13 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.GaussianAreaEntireRadialCoefficientDensity GegenbauerFock.GaussianAreaEntireFockRadialEquiv 2>&1 | tee /tmp/v007-fock-radial-density.log
+          lake build GegenbauerFock.GaussianAreaEntireRadialCoefficientDensity GegenbauerFock.GaussianAreaEntireFockRadialEquiv GegenbauerFock.GaussianAreaIntrinsicIsometryViaRadial 2>&1 | tee /tmp/v007-fock-radial-density.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-fock-radial-density.log; then
             echo "::error::Forbidden axioms in V007 radial density"
             exit 1
           fi
           grep -F "intrinsicEntire_eq_polynomialClosure_via_radial_inner' depends on axioms:" /tmp/v007-fock-radial-density.log
           grep -F "coefficientIntrinsicEntireEquivViaRadial' depends on axioms:" /tmp/v007-fock-radial-density.log
-          echo 'V007 intrinsic Fock radial density and onto isometry: kernel compilation and audit clean.'
+          grep -F "coefficientSynthesisIntrinsicViaRadial_surjective' depends on axioms:" /tmp/v007-fock-radial-density.log
+          grep -F "coefficientIntrinsicFockEquivViaRadial' depends on axioms:" /tmp/v007-fock-radial-density.log
+          echo 'V007 intrinsic Fock radial density and both onto isometries: kernel compilation and audit clean.'
