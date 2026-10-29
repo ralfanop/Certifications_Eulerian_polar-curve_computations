@@ -45,7 +45,7 @@ theorem sturmPolynomial_monomial_integral_pair
     change -(2 * lam + 1) * sturmMoment lam (m + 1) =
       sturmMonomialMomentPair lam 1 m
     unfold sturmMonomialMomentPair
-    simp only [Nat.cast_one, one_sub_self, mul_zero, zero_mul,
+    simp only [Nat.cast_one, sub_self, mul_zero, zero_mul,
       zero_sub, one_mul]
     have hidx : 1 + m = m + 1 := by omega
     rw [hidx]
