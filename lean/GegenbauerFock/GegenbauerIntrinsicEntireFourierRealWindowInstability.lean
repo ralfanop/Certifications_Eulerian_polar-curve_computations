@@ -62,8 +62,9 @@ theorem ultraspherical_fourierBochner_realWindow_no_lower_constant
   intro t ht
   have hb := mul_le_mul_of_nonneg_left (le_of_lt (hsmall t ht)) hK
   have hfrac : K * (1 / (K + 1)) < 1 := by
-    rw [← div_eq_mul_inv]
-    exact (div_lt_iff₀ hK1).mpr (by linarith)
+    have hd : K / (K + 1) < 1 :=
+      (div_lt_iff₀ hK1).mpr (by linarith)
+    simpa only [div_eq_mul_inv, one_mul] using hd
   rw [hf]
   exact lt_of_le_of_lt hb hfrac
 
