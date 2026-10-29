@@ -70,15 +70,15 @@ theorem intrinsicEntire_planar_gaussian_moment_eq_scaled_derivative
       _ = _ := by rw [h]
   have hc :
       ((2 * alpha : ℝ) : ℂ) *
-        (((alpha ^ (-((n : ℝ) + 1)) * (1 / 2) *
+        ((alpha ^ (-((n : ℝ) + 1)) * (1 / 2) *
           (Nat.factorial n : ℝ) : ℝ) : ℂ) =
-        (((alpha ^ (-(n : ℝ)) *
-          (Nat.factorial n : ℝ)) : ℝ) : ℂ) := by
+        ((alpha ^ (-(n : ℝ)) *
+          (Nat.factorial n : ℝ) : ℝ) : ℂ) := by
     exact_mod_cast hscalar
   rw [← mul_assoc, hc]
   have hfac : (Nat.factorial n : ℂ) ≠ 0 := by
     exact_mod_cast (show (Nat.factorial n : ℝ) ≠ 0 by positivity)
-  push_cast
+  rw [Complex.ofReal_mul]
   field_simp [hfac]
   <;> ring
 
