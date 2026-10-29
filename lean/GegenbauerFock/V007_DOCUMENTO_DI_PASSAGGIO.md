@@ -393,3 +393,40 @@ resta valida: CI
 https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40937763994
 (**SUCCESS**), senza assiomi ulteriori. Restano invariati
 PR #16 Draft, nessun merge, nessuna modifica a `main` o V097.
+
+## 15. Compattezza, positività e immagine densa propria certificate
+
+**Nuova CI conclusa con SUCCESS il 29 ottobre 2026:**
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40943270510
+(commit del workflow `30182ec7005668b997c61d40bb6489d02835f617`).
+
+Il kernel Lean 4 ha compilato il modulo
+`CompactPositivePolarProperDenseRange.lean` (9.115 operazioni).
+L'audit di `exists_compact_positive_polar_proper_dense_range`
+ha identificato esclusivamente `propext`, `Classical.choice`,
+`Quot.sound`, senza `sorryAx` né `Lean.ofReduceBool`.
+
+È certificata l'esistenza dell'ampiezza `P` sul vero spazio sorgente,
+con compattezza, positività, autoaggiuntezza, iniettività e
+`closure (range P) = ⊤`, ma `¬ Surjective P`, nonché
+`C = W P` e `gram = P²`. Questa conclusione è più forte della
+mera iniettività della trasformata e non afferma l'esistenza di un
+inverso continuo.
+
+**Nuovo corollario separato, NON ancora certificato:**
+`CompactPositivePolarNonclosedRange.lean` dimostra come obiettivo
+`¬ IsClosed (range P)`, mediante la densità e la mancata
+suriettività appena certificate.
+
+- Commit del modulo: `59ecd7bf2824983c9c479c1fc4e787e12796f241`.
+- Commit del workflow: `99d9e37c1d4a72ee9d0cee8226a7edd830c6b284`.
+- CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40957014776
+  (avviata, da verificare con compilazione e audit).
+
+**Radice quadrata CFC:** distinta e ancora non certificata,
+nuovo percorso con strutture scalari locali nella CI
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40956634761
+(da verificare).
+
+PR #16 aperta in Draft, nessun merge, nessun intervento su
+`main` e sul manoscritto V097.
