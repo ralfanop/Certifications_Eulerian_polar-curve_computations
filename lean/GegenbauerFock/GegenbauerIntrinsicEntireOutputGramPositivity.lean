@@ -44,10 +44,22 @@ theorem C_intrinsicEntire_outputGram_re_inner_nonneg
     0 ≤ RCLike.re
       (inner ℂ (C_intrinsicEntire_outputGram lam alpha hlam ha F) F) := by
   rw [C_intrinsicEntire_outputGram_inner_eq]
-  rw [← inner_conj_symm]
-  simpa only [RCLike.re_conj] using
-    (outputGram_isPositive lam alpha hlam ha).re_inner_nonneg_right
-      ((GaussianArea.coefficientIntrinsicEntireEquiv alpha ha).symm F)
+  have hadj :
+      (C_adjoint lam alpha hlam ha).adjoint =
+        C lam alpha hlam ha := by
+    unfold C_adjoint
+    simp
+  have hgram :
+      outputGram lam alpha hlam ha =
+        HilbertGram.gram (C_adjoint lam alpha hlam ha) := by
+    change (C lam alpha hlam ha).comp (C_adjoint lam alpha hlam ha) =
+      (C_adjoint lam alpha hlam ha).adjoint ∘L
+        (C_adjoint lam alpha hlam ha)
+    rw [hadj]
+    rfl
+  rw [hgram]
+  exact HilbertGram.gram_re_nonneg (C_adjoint lam alpha hlam ha)
+    ((GaussianArea.coefficientIntrinsicEntireEquiv alpha ha).symm F)
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_outputGram_inner_eq
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_outputGram_re_inner_nonneg
