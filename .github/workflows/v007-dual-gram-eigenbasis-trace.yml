@@ -1,0 +1,65 @@
+name: V007 dual Gram real eigenbasis spectral trace certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/DualGramEigenbasisTrace.lean'
+      - 'lean/GegenbauerFock/DualGramPositiveTraceDiagonal.lean'
+      - 'lean/GegenbauerFock/PositiveTraceDiagonalSpectralBridge.lean'
+      - '.github/workflows/v007-dual-gram-eigenbasis-trace.yml'
+  workflow_dispatch:
+
+jobs:
+  eigenbasis-trace:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then
+              ok=1
+              break
+            fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build and audit both real eigenbasis trace sums
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.DualGramEigenbasisTrace 2>&1 | tee /tmp/v007-eigenbasis-build.log
+          lake env lean -M16768 GegenbauerFock/DualGramEigenbasisTrace.lean 2>&1 | tee /tmp/v007-eigenbasis-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-eigenbasis-build.log /tmp/v007-eigenbasis-axioms.log; then
+            echo '::error::Forbidden axiom in real eigenbasis spectral trace certificate.'
+            exit 1
+          fi
+          grep -F "sourceGram_realEigenvalues_summable' depends on axioms:" /tmp/v007-eigenbasis-axioms.log
+          grep -F "sourceGram_realEigenvalues_tsum_eq_kummer' depends on axioms:" /tmp/v007-eigenbasis-axioms.log
+          grep -F "outputGram_realEigenvalues_summable' depends on axioms:" /tmp/v007-eigenbasis-axioms.log
+          grep -F "outputGram_realEigenvalues_tsum_eq_kummer' depends on axioms:" /tmp/v007-eigenbasis-axioms.log
+          echo 'Both eigenbasis spectral trace transfer proofs kernel-checked and audited.'
