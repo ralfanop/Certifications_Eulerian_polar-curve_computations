@@ -1,5 +1,5 @@
 import GegenbauerFock.GaussianAreaAllMomentsTaylorFormula
-import GegenbauerFock.GaussianAreaEntireMomentInner
+import GegenbauerFock.GaussianAreaEntireMomentPolarInner
 import GegenbauerFock.GaussianAreaCoefficientAnalysisAdjoint
 
 /-!
