@@ -60,3 +60,45 @@ requiring uniform-norm control and dense-test extension.
 Because the Grams are selfadjoint, injectivity eliminates the zero point spectrum and makes their ranges dense. Since zero still lies in their spectra, neither operator is invertible on its entire Hilbert space; their ranges are proper and nonclosed. The inverses are algebraically defined on those ranges, but are unbounded there. This is not a contradiction: uniquely reconstructible does not mean stably reconstructible.
 
 These statements do **not** identify the two Hilbert spaces, prove that zero is an eigenvalue, or assert any unsupported finite-dimensional spectral truncation.
+
+
+## Update — 29 October 2026: exact bilateral spectrum
+
+The pinned Lean 4/Mathlib workflow
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40852466607
+completed **SUCCESS** for code at SHA `a25efdbad1d60d6f4c5ccd3eb16f664529f7c389`.
+
+- `TwoSidedGramSpectrumEquality.lean` proves
+  `two_sided_gram_hasEigenvalue_iff`: equal nonzero point spectra;
+  `two_sided_gram_nonzero_spectrum_iff`: equal nonzero *operator*
+  spectra by Mathlib's compact Fredholm alternative; and
+  `two_sided_gram_spectrum_eq`: equality of the **entire complex spectra**
+  of the concrete operators `C†C` and `CC†`, including zero.
+- The corresponding dedicated build and theorem-axiom checks passed.
+  This theorem does **not** identify the underlying Hilbert spaces and
+  does **not** claim that `C` is surjective.
+- `TwoSidedGramPositiveSpectrum.lean` attempts the stronger claim
+  that the common spectrum is real and nonnegative, with strictly
+  positive nonzero values. Its earlier failed run
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40852515575
+  reported an expression mismatch between `Complex.re` and
+  `RCLike.re`. The correction was committed as
+  `aabdfbc73c897973aec38fb1876953c16ed9e32a`.
+  The recheck is
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40855060907;
+  **do not claim its success unless that run actually completes SUCCESS**.
+- The independently compiled Weyl-sequence geometry and dense-range
+  testing is recorded in successful run
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40853101401.
+  The later full weak-convergence strengthening is a **separate**
+  candidate awaiting the dedicated run
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40855092208.
+
+**Independent Gaussian area work:** developments in the intrinsic
+Gaussian Bargmann–Fock (L^2) realization are on the same PR branch
+but are separate from the bilateral Gram-spectrum theorem.
+Never transfer certification from a successful Gram workflow to an
+unverified Gaussian module, or conversely.
+
+**Repository invariant:** PR #16 stays Draft and unmerged; approved V097
+and `main` remain untouched.
