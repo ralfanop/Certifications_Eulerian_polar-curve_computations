@@ -39,8 +39,10 @@ theorem C_intrinsicEntire_outputGram_zero_not_fredholm
 Bargmann–Fock output Gram contains zero. -/
 theorem C_intrinsicEntire_outputGram_zero_mem_fredholm_essential
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
-    (0 : ℂ) ∈
-      fredholmEssentialSpectrum (C_intrinsicEntire_outputGram lam alpha hlam ha) := by
+    (letI : CompleteSpace (GaussianArea.entireGaussianL2Submodule alpha) :=
+       (GaussianArea.intrinsicEntire_isClosed alpha ha).completeSpace_coe
+     (0 : ℂ) ∈
+       fredholmEssentialSpectrum (C_intrinsicEntire_outputGram lam alpha hlam ha)) := by
   letI : CompleteSpace (GaussianArea.entireGaussianL2Submodule alpha) :=
     (GaussianArea.intrinsicEntire_isClosed alpha ha).completeSpace_coe
   simpa [fredholmEssentialSpectrum] using
