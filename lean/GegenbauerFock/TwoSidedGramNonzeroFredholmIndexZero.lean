@@ -48,11 +48,11 @@ private theorem fredholmShift_index_zero_on_punctured_plane
     apply continuousOn_of_forall_continuousAt
     intro z hz
     have hz0 : z ≠ 0 := by simpa using hz
-    have hshift :
-        ContinuousAt (fun w : ℂ =>
-          T - w • (1 : H →L[ℂ] H)) z := by
-      fun_prop
-    exact (hfred z hz0).index_continuousAt.comp hshift
+    have hloc : ∀ᶠ w : ℂ in 𝓝 z, f w = f z := by
+      filter_upwards [fredholmShift_index_locally_constant_in_parameter
+        T z (hfred z hz0)] with w hw
+      exact hw.2
+    exact tendsto_const_nhds.congr' hloc.symm
   have hconnected : IsPreconnected ({(0 : ℂ)}ᶜ) :=
     (isConnected_compl_singleton_of_one_lt_rank
       (Complex.rank_real_complex ▸ Nat.one_lt_ofNat) (0 : ℂ)).isPreconnected
