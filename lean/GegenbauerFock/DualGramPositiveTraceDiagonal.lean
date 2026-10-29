@@ -25,7 +25,7 @@ namespace GegenbauerFock.GeneralUltrasphericalFock
 the true positive Gram diagonal is summable. -/
 theorem sourceGram_diagonal_summable
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
-    {w : Set (Lp ℂ 2 (Ultraspherical.measure lam))}
+    {w : Type*}
     (b : HilbertBasis w ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
     Summable (fun i : w =>
       (inner ℂ (b i) (gram lam alpha hlam ha (b i))).re) := by
@@ -38,7 +38,7 @@ theorem sourceGram_diagonal_summable
 is the unregularized Kummer mass, including its exact normalization. -/
 theorem sourceGram_diagonal_tsum_eq_kummer
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
-    {w : Set (Lp ℂ 2 (Ultraspherical.measure lam))}
+    {w : Type*}
     (b : HilbertBasis w ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
     (∑' i : w,
       (inner ℂ (b i) (gram lam alpha hlam ha (b i))).re) =
@@ -67,7 +67,7 @@ theorem outputGram_nonneg
 space, the nonnegative output Gram diagonal is summable. -/
 theorem outputGram_diagonal_summable
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
-    {w : Set InfiniteAnalysis.FockCoefficients}
+    {w : Type*}
     (b : HilbertBasis w ℂ InfiniteAnalysis.FockCoefficients) :
     Summable (fun i : w =>
       (inner ℂ (b i) (outputGram lam alpha hlam ha (b i))).re) := by
@@ -80,7 +80,7 @@ theorem outputGram_diagonal_summable
 for every complete output basis, independently of the source basis. -/
 theorem outputGram_diagonal_tsum_eq_kummer
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
-    {w : Set InfiniteAnalysis.FockCoefficients}
+    {w : Type*}
     (b : HilbertBasis w ℂ InfiniteAnalysis.FockCoefficients) :
     (∑' i : w,
       (inner ℂ (b i) (outputGram lam alpha hlam ha (b i))).re) =
