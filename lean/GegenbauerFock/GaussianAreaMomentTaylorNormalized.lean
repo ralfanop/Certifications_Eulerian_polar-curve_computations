@@ -78,7 +78,7 @@ theorem intrinsicEntire_planar_gaussian_moment_eq_scaled_derivative
   rw [← mul_assoc, hc]
   have hfac : (Nat.factorial n : ℂ) ≠ 0 := by
     exact_mod_cast (show (Nat.factorial n : ℝ) ≠ 0 by positivity)
-  rw [Complex.ofReal_mul]
+  simp only [Complex.ofReal_mul, Complex.ofReal_natCast]
   field_simp [hfac]
   <;> ring
 
