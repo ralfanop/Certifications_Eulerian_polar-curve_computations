@@ -38,7 +38,8 @@ theorem polar_gaussian_circleAverage_smul
         r • (((alpha / Real.pi) * Real.exp (-alpha * r ^ 2) : ℝ) • g z)) =
       (fun z : ℂ => c • g z) := by
     funext z
-    simp [c, smul_smul, Complex.real_smul, smul_eq_mul]
+    simp only [c, Complex.real_smul, smul_eq_mul]
+    ring
   rw [heq]
   simpa only [smul_eq_mul] using
     (Real.circleAverage_fun_smul (a := c) (f := g) (c := (0 : ℂ)) (R := r))
@@ -65,7 +66,6 @@ theorem entire_planar_moment_eq_two_alpha_radial_circle
           (r * ((alpha / Real.pi) * Real.exp (-alpha * r ^ 2))) =
         (2 * alpha) * (r * Real.exp (-alpha * r ^ 2)) := by
     field_simp [Real.pi_ne_zero]
-    ring
   calc
     (∫ z : ℂ,
       ((alpha / Real.pi) * Real.exp (-alpha * ‖z‖ ^ 2) : ℝ) •
@@ -83,6 +83,7 @@ theorem entire_planar_moment_eq_two_alpha_radial_circle
             Real.circleAverage g 0 r)) := by
       apply setIntegral_congr_fun measurableSet_Ioi
       intro r hr
+      dsimp only
       rw [polar_gaussian_circleAverage_smul]
       simp only [Complex.real_smul]
       have hc :
