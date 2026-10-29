@@ -34,7 +34,7 @@ theorem C_intrinsicEntire_outputGram_inner_eq
   rw [C_intrinsicEntire_outputGram_apply]
   have h := U.inner_map_map
     (outputGram lam alpha hlam ha (U.symm F)) (U.symm G)
-  simpa only [U.apply_symm_apply] using h.symm
+  simpa only [U.apply_symm_apply] using h
 
 /-- A genuine nonnegative quadratic form for the analytic Gaussian
 Fock output Gram, in the intrinsic complete holomorphic subspace. -/
