@@ -69,7 +69,7 @@ theorem outputGram_diagonal_summable
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     {w : Set InfiniteAnalysis.FockCoefficients}
     (b : HilbertBasis w ℂ InfiniteAnalysis.FockCoefficients) :
-    Summable (fun i : w,
+    Summable (fun i : w =>
       (inner ℂ (b i) (outputGram lam alpha hlam ha (b i))).re) := by
   exact HilbertSchmidtBasis.positiveTrace_diagonal_summable
     (outputGram lam alpha hlam ha)
