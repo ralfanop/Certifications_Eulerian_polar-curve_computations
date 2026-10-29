@@ -21,22 +21,6 @@ open MeasureTheory
 
 namespace GegenbauerFock.GeneralUltrasphericalFock
 
-/-- The actual ultraspherical-to-entire-Gaussian-L² operator belongs to
-the basis-defined Hilbert–Schmidt class. Completeness of the analytic
-target is derived from its previously proved closedness in ambient L². -/
-theorem C_intrinsicEntire_isHilbertSchmidt
-    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
-    HilbertSchmidtBasis.IsHS (C_intrinsicEntire lam alpha hlam ha) := by
-  letI : CompleteSpace (GaussianArea.entireGaussianL2Submodule alpha) :=
-    (GaussianArea.intrinsicEntire_isClosed alpha ha).completeSpace_coe
-  change HilbertSchmidtBasis.IsHS
-    (((GaussianArea.coefficientIntrinsicEntireEquiv alpha ha).toLinearIsometry.toContinuousLinearMap).comp
-      (C lam alpha hlam ha))
-  exact HilbertSchmidtBasis.isHS_comp_left
-    (C lam alpha hlam ha)
-    (C_isHilbertSchmidt lam alpha hlam ha)
-    ((GaussianArea.coefficientIntrinsicEntireEquiv alpha ha).toLinearIsometry.toContinuousLinearMap)
-
 /-- On every complete source Hilbert basis, the true holomorphic
 Gaussian L² transform has summable squared output norms. -/
 theorem C_intrinsicEntire_HS_basis_summable
@@ -97,19 +81,18 @@ theorem C_intrinsicEntire_Gram_basis_trace_eq_kummer
     _ = KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) :=
       C_intrinsicEntire_HS_energy_eq_kummer lam alpha hlam ha b
 
-/-- Genuine source-Hilbert-basis S₂ norm of the intrinsic analytic
-ultraspherical transform, identified with the square root of Kummer. -/
+/-- The source-basis S₂ norm expression for the intrinsic analytic
+ultraspherical transform equals the square root of Kummer. The
+basis-defined norm does not presume a global completeness instance. -/
 theorem C_intrinsicEntire_basisHSNorm_eq_sqrt_kummer
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     {ι : Type*}
     (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
-    HilbertSchmidtBasis.basisNorm
-      (C_intrinsicEntire lam alpha hlam ha) b =
+    Real.sqrt
+      (∑' i : ι, ‖C_intrinsicEntire lam alpha hlam ha (b i)‖ ^ 2) =
         Real.sqrt (KummerCoefficients.kummerSeries lam (1 / (4 * alpha))) := by
-  unfold HilbertSchmidtBasis.basisNorm
   rw [C_intrinsicEntire_HS_energy_eq_kummer lam alpha hlam ha b]
 
-#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_isHilbertSchmidt
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_HS_basis_summable
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_HS_energy_eq_kummer
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_basisHSNorm_eq_sqrt_kummer
