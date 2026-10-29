@@ -29,7 +29,7 @@ theorem intrinsicRieszKernel_diagonal_value
         (intrinsicRieszKernel_inner alpha ha z
           (intrinsicRieszKernel alpha ha z)).symm
     _ = (‖intrinsicRieszKernel alpha ha z‖ : ℂ) ^ 2 :=
-      inner_self_eq_norm_sq_to_K _
+      inner_self_eq_norm_sq_to_K (𝕜 := ℂ) _
     _ = (Real.exp (alpha * ‖z‖ ^ 2) : ℂ) := by
       exact_mod_cast intrinsicRieszKernel_norm_sq alpha ha z
 
@@ -38,7 +38,7 @@ theorem intrinsicRieszKernel_diagonal_ne_zero
     (alpha : ℝ) (ha : 0 < alpha) (z : ℂ) :
     entireRepresentative alpha (intrinsicRieszKernel alpha ha z) z ≠ 0 := by
   rw [intrinsicRieszKernel_diagonal_value alpha ha z]
-  exact_mod_cast (Real.exp_pos (alpha * ‖z‖ ^ 2)).ne'
+  exact Complex.ofReal_ne_zero.mpr (ne_of_gt (Real.exp_pos (alpha * ‖z‖ ^ 2)))
 
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_diagonal_value
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_diagonal_ne_zero
