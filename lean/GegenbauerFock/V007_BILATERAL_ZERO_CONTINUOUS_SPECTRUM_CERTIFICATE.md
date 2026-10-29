@@ -17,14 +17,43 @@ For every real `lam, alpha > 0`, denote the actual coefficient analysis map by `
 6. `TwoSidedGramNoContinuousReconstruction.lean`: no globally defined exact (including nonlinear) left inverse of either Gram can be continuous at zero. Kernel compilation and `#print axioms` audit: **SUCCESS**, build 9108 jobs:
    - https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40755332247
 
-The successful logs for items 4–6 report only `propext`, `Classical.choice`, `Quot.sound` in the checked declarations, and their audit rejects `sorryAx` and `Lean.ofReduceBool`. A Lean compilation SUCCESS is SHA-scoped: later source modifications are not automatically certified by earlier runs.
+The successful logs for the independently audited modules report only `propext`,
+`Classical.choice`, and `Quot.sound` in checked declarations; they reject
+`sorryAx` and `Lean.ofReduceBool`. Every claim remains SHA-scoped.
+
+7. `TwoSidedGramApproximateZeroNoStrongLimit.lean`: both normalized
+   approximate-null sequences have no strong limit. Checked in full by
+   Lean 4 plus `#print axioms`: **SUCCESS** (9108 jobs):
+   - https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40756217237
+8. `TwoSidedGramInverseOnRangeDiscontinuous.lean`: for each Gram
+   the exact inverse **on its actual range equipped with the induced
+   topology** is discontinuous at zero, with no global inverse extension
+   assumption. The first CI exposed a subtype-zero proof mismatch;
+   that issue was fixed and the source independently rechecked by Lean 4
+   plus `#print axioms`: **SUCCESS** (9108 jobs):
+   - https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40761338859
+9. `TwoSidedGramNoStronglyConvergentSubsequence.lean`: for each
+   normalized approximate-zero sequence, **every strictly increasing
+   subsequence fails to converge in norm**. Kernel compilation and
+   `#print axioms` audit: **SUCCESS** (9108 jobs):
+   - https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40852729755
 
 ## Next independently audited candidate
 
-`TwoSidedGramApproximateZeroNoStrongLimit.lean` is added to demonstrate that normalized approximate-zero sequences in both separate Hilbert spaces have no strong limit. Its isolated workflow is:
-- https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/workflows/gegenbauer-fock-two-sided-gram-inverse.yml
+`TwoSidedGramWeakOnDenseRange.lean` establishes vanishing of the
+inner products with **every test vector belonging to the range**
+of the respective selfadjoint Gram. Both images are dense, so the
+statement supplies the exact dense-test component for a later full
+weak-convergence theorem. It does not claim to have formalized
+weak-topology convergence against arbitrary Hilbert vectors.
 
-**Do not call this last candidate certified until the workflow for its exact source revision finishes SUCCESS and the axiom audit is inspected.**
+The dedicated CI is:
+- https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40853101401
+
+**Do not call this candidate kernel-certified without that exact
+workflow's positive conclusion and direct axiom-log inspection.**
+Full weak-topology convergence remains a separate Lean obligation,
+requiring uniform-norm control and dense-test extension.
 
 ## Operator-theoretic interpretation
 
