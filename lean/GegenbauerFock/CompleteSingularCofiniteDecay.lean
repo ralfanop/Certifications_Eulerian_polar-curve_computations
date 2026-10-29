@@ -28,7 +28,7 @@ theorem exists_complete_singular_cofinite_spectral_decay_kummer
       (mu : ι → ℝ),
       (∀ i, 0 < mu i) ∧
       Summable mu ∧
-      Tendsto mu Filter.cofinite (𝓝 (0 : ℝ)) ∧
+      Tendsto mu Filter.cofinite (nhds (0 : ℝ)) ∧
       (∀ eps : ℝ, 0 < eps → {i : ι | eps ≤ mu i}.Finite) ∧
       (∑' i : ι, mu i) =
         KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) ∧
@@ -39,7 +39,7 @@ theorem exists_complete_singular_cofinite_spectral_decay_kummer
   classical
   obtain ⟨ι, u, v, mu, hp, hsum, hK, hC, hAdj⟩ :=
     exists_complete_positive_singular_hilbert_bases_kummer lam alpha hlam ha
-  have hlim : Tendsto mu Filter.cofinite (𝓝 (0 : ℝ)) :=
+  have hlim : Tendsto mu Filter.cofinite (nhds (0 : ℝ)) :=
     hsum.tendsto_cofinite_zero
   have hfin (eps : ℝ) (heps : 0 < eps) :
       {i : ι | eps ≤ mu i}.Finite := by
