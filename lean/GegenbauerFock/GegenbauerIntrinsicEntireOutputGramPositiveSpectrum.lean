@@ -27,13 +27,14 @@ Gaussian L² output Gram is a strictly positive real value. -/
 theorem C_intrinsicEntire_outputGram_nonzero_spectral_value_positive_real
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     (mu : ℂ) (hmu : mu ≠ 0)
-    (hmem : (letI : CompleteSpace
-        (GaussianArea.entireGaussianL2Submodule alpha) :=
-          (GaussianArea.intrinsicEntire_isClosed alpha ha).completeSpace_coe
-      mu ∈ spectrum ℂ (C_intrinsicEntire_outputGram lam alpha hlam ha))) :
-    (mu.re : ℂ) = mu ∧ 0 < mu.re := by
+    :
+    (letI : CompleteSpace (GaussianArea.entireGaussianL2Submodule alpha) :=
+       (GaussianArea.intrinsicEntire_isClosed alpha ha).completeSpace_coe
+     mu ∈ spectrum ℂ (C_intrinsicEntire_outputGram lam alpha hlam ha) →
+       (mu.re : ℂ) = mu ∧ 0 < mu.re) := by
   letI : CompleteSpace (GaussianArea.entireGaussianL2Submodule alpha) :=
     (GaussianArea.intrinsicEntire_isClosed alpha ha).completeSpace_coe
+  intro hmem
   have hEig : HasEigenvalue
       (C_intrinsicEntire_outputGram lam alpha hlam ha).toLinearMap mu :=
     ((C_intrinsicEntire_outputGram_compact lam alpha hlam ha)
