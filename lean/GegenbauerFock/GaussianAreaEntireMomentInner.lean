@@ -60,6 +60,7 @@ theorem monomialWeight_ne_zero
     positivity
   have hroot : Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) ≠ 0 :=
     (Real.sqrt_pos.2 hratio).ne'
+  change ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ)) ≠ 0
   exact_mod_cast hroot
 
 /-- Vanishing of a true L² Gaussian coefficient is equivalent to
@@ -76,7 +77,8 @@ theorem normalizedMonomial_inner_eq_zero_iff_entire_moment_zero
   · intro hz
     exact (mul_eq_zero.mp hz).resolve_left (monomialWeight_ne_zero alpha ha n)
   · intro hz
-    simp [hz]
+    apply mul_eq_zero.mpr
+    exact Or.inr (by simpa only [star_pow] using hz)
 
 /-- Intrinsic polynomial coefficient analysis vanishes precisely when
 every genuine Gaussian integral moment of the chosen entire function
