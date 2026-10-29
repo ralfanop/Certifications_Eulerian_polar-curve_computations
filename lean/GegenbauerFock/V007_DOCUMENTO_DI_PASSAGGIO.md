@@ -310,3 +310,44 @@ aggiornamento:
 
 **Invarianti:** non eseguire alcun merge; mantenere PR #16 Draft,
 non modificare il ramo `main` né il manoscritto V097.
+
+## 13. Positività compatta e nuovi controlli operatoriali — 29 ottobre 2026
+
+**CERTIFICATO:** il teorema
+`GegenbauerFock.GeneralUltrasphericalFock.exists_compact_positive_polar_amplitude`
+del modulo `CompactPositivePolarAmplitude.lean` ha superato
+la compilazione Lean 4 e l'audit degli assiomi alla CI
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40937763994
+(**SUCCESS**) sul commit correttivo
+`0d9718186b0affcb0535bc601f43be910c341709`.
+L'audit non contiene `sorryAx` né `Lean.ofReduceBool`;
+solo `propext`, `Classical.choice`, `Quot.sound`.
+L'ampiezza `P` effettiva è compatta, positiva, autoaggiunta,
+iniettiva, con `C = W P` e `P² = C* C`.
+
+**NUOVO TEOREMA DEPOSITATO, NON ANCORA CERTIFICATO:**
+`CompactPositivePolarProperDenseRange.lean` tenta di
+mostrare che questa ampiezza compatta ha immagine densa ma propria.
+Modulo: commit `b4a413ec797889145593a37f00df9f8b7f0e544e`;
+workflow: commit `30182ec7005668b997c61d40bb6489d02835f617`;
+CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40943270510
+(in coda alla verifica). La prova della densità utilizza
+`P.adjoint = P`, `ker P = ⊥` e `orthogonal_range`;
+la non-suriettività si trasferisce da `C` attraverso l'unitario
+`W`. Non dichiarare il teorema completo fino a verifica della
+compilazione **anche** del suo import
+`CompactFockProperDenseRange.lean` e dell'audit.
+
+**CFC ancora aperta:** la CI
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40937938186
+è **FAILED**: ora la classe mancante è `IsScalarTower ℝ A A`,
+per `A = E →L[ℂ] E`. Il ramo include nuovi controlli `#synth`
+e istanze specifiche in `CanonicalCFCPolarSquareRoot.lean`,
+con CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40942913774
+avviata. Solo SUCCESS e audit pulito autorizzano a dichiarare
+formalmente `P = CFC.sqrt (C* C)`.
+
+Questa sezione aggiorna le etichette storiche “in corso” delle
+sezioni 11–12, senza riscrivere il contenuto dei checkpoint passati.
+PR #16 deve restare Draft; non eseguire merge e non modificare
+`main` o V097.
