@@ -65,7 +65,7 @@ private theorem weak_zero_of_unit_and_dense_range_tests
           ‖inner ℂ (T z) (u n)‖ := norm_add_le _ _
     _ ≤ ‖x - T z‖ * ‖u n‖ +
           ‖inner ℂ (T z) (u n)‖ :=
-        add_le_add_right (norm_inner_le_norm _ _) _
+        add_le_add (norm_inner_le_norm _ _) le_rfl
     _ = ‖x - T z‖ + ‖inner ℂ (T z) (u n)‖ := by rw [hunit n, mul_one]
     _ < ε / 2 + ε / 2 := add_lt_add hclose hn
     _ = ε := by ring
