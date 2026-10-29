@@ -24,21 +24,21 @@ theorem polar_angular_integral_eq_two_pi_circleAverage
       (2 * Real.pi) • Real.circleAverage f 0 r := by
   have hmap (theta : ℝ) :
       Complex.polarCoord.symm (r, theta) =
-        Complex.circleMap 0 r theta := by
+        circleMap 0 r theta := by
     rw [Complex.polarCoord_symm_apply]
-    simp [Complex.circleMap, Complex.exp_ofReal_mul_I]
+    simp [circleMap, Complex.exp_ofReal_mul_I]
   have hinterval :
       (∫ theta in Set.Ioo (-Real.pi) Real.pi,
-        f (Complex.circleMap 0 r theta)) =
+        f (circleMap 0 r theta)) =
       (∫ theta in (-Real.pi)..Real.pi,
-        f (Complex.circleMap 0 r theta)) := by
+        f (circleMap 0 r theta)) := by
     rw [intervalIntegral.integral_of_le (by linarith [Real.pi_pos])]
     rw [integral_Ioc_eq_integral_Ioo]
   have hshift :
       (∫ theta in (-Real.pi)..Real.pi,
-        f (Complex.circleMap 0 r theta)) =
+        f (circleMap 0 r theta)) =
       (∫ theta in (0 : ℝ)..2 * Real.pi,
-        f (Complex.circleMap 0 r (theta + (-Real.pi)))) := by
+        f (circleMap 0 r (theta + (-Real.pi)))) := by
     rw [intervalIntegral.integral_comp_add_right]
     congr 1 <;> ring
   have haverage :=
