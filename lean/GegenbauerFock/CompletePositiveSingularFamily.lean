@@ -81,10 +81,14 @@ theorem exists_orthonormal_singular_family_kummer
       (b i) (b.orthonormal.norm_eq_one i) (heig i)
   have hvortho : ∀ i j : ι, i ≠ j → inner ℂ (v i) (v j) = 0 := by
     intro i j hij
-    exact normalized_singular_targets_orthogonal
-      lam alpha hlam ha (mu i) (hp i)
-      (b i) (b j) (heig i)
-      (b.orthonormal.inner_eq_zero hij)
+    change inner ℂ
+      ((Real.sqrt (mu i) : ℂ)⁻¹ • C lam alpha hlam ha (b i))
+      ((Real.sqrt (mu j) : ℂ)⁻¹ • C lam alpha hlam ha (b j)) = 0
+    rw [inner_smul_left, inner_smul_right,
+      C_preserves_gram_eigenvector_orthogonality
+        lam alpha hlam ha (mu i) (b i) (b j)
+        (heig i) (b.orthonormal.inner_eq_zero hij)]
+    simp
   have hv : Orthonormal ℂ v := ⟨hvnorm, hvortho⟩
   refine ⟨ι, b, mu, v, hp, hv, hsum, hK, ?_, ?_⟩
   · intro i
