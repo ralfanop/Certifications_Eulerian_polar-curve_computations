@@ -430,3 +430,60 @@ https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/act
 
 PR #16 aperta in Draft, nessun merge, nessun intervento su
 `main` e sul manoscritto V097.
+
+## 16. Radice CFC canonica e immagine non chiusa — 29 ottobre 2026
+
+**CI confermata SUCCESS, compattezza e immagine non chiusa:**
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40957014776,
+sul commit `99d9e37c1d4a72ee9d0cee8226a7edd830c6b284`.
+Il modulo `CompactPositivePolarNonclosedRange.lean` e il teorema
+`exists_positive_polar_amplitude_nonclosed_range` compilano
+(9.116 operazioni) con audit limitato agli assiomi standard
+`propext`, `Classical.choice`, `Quot.sound`; senza
+`sorryAx` e senza `Lean.ofReduceBool`. L'ampiezza positiva
+`P` ha immagine densa e **non chiusa** nel suo spazio sorgente.
+
+**CI CFC COMPLETATA CON SUCCESS e audit pulito:**
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40971780153,
+commit `6c1396d48e8dfea93e2ba968201f2a0510bc0657`,
+modulo `CanonicalCFCSqrtExplicitScalarBridge.lean`.
+I teoremi Lean
+`exists_cfc_sqrt_with_explicit_scalar_commutation` e
+`exists_cfc_sqrt_full_polar_adjoint_outputGram_explicit`
+dimostrano la vera identificazione della radice del Gram
+`P = CFC.sqrt (C* C)` insieme alle identità
+`C = W P`, `C* = P W⁻¹`, `C C* = W P² W⁻¹`.
+Le classi della CFC reale (`SMulCommClass`, `IsScalarTower`
+e strutture di calcolo funzionale) sono costruite esplicitamente
+nel contesto dei teoremi, non postulate come assiomi matematici.
+Gli audit riportano solamente `propext`, `Classical.choice`
+e `Quot.sound`. Questo checkpoint sostituisce la precedente
+dicitura “CFC non certificata” delle sezioni storiche.
+
+**Nuova verifica unificata, ANCORA IN CORSO:**
+`CanonicalCFCCompactNonclosedRange.lean` formalizza direttamente
+per l'operatore canonico `CFC.sqrt (gram ...)` la compattezza,
+l'iniettività, la densità e non-chiusura dell'immagine, oltre alla
+fattorizzazione `C=W(CFC.sqrt gram)`.
+Il teorema candidato `exists_canonical_cfc_compact_nonclosed_range`
+riusa gli argomenti già certificati e il lemma `CFC.sqrt_unique`.
+
+- Commit sorgente: `576bb781f22621cc8c0ee9cc4b526ee3670c5d45`.
+- Commit workflow: `6c2ec38b1e5b7f786b54ce4883db889b9646e8d1`.
+- CI dedicata:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40972647234
+  (in coda; non dichiarare SUCCESS prima della compilazione e audit).
+
+**Percorso alternativo:** la prima CI
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40956634761
+per `LocalCFCGramSquareRoot.lean` è fallita in presenza
+della classe `NonUnitalContinuousFunctionalCalculus`;
+il commit `50c4926f617b35d344250101d227221728f7a212`
+aggiunge esplicitamente le strutture CFC in entrambe le prove,
+con verifica dedicata
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40972428658
+(ancora in corso all'ultimo controllo). Questa CI non va confusa
+con il successo già accertato del ponte CFC esplicito.
+
+**Invarianti permanenti:** PR #16 Draft e aperta, nessun merge,
+`main` e V097 immutati.
