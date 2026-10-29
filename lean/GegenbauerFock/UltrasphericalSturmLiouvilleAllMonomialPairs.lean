@@ -33,8 +33,8 @@ noncomputable def sturmMonomialMomentPair
 Beta-pushforward probability law. -/
 theorem sturmMoment_one_eq_zero (lam : ℝ) (hlam : 0 < lam) :
     sturmMoment lam 1 = 0 := by
-  simpa only [show 1 = 2 * 0 + 1 by omega,
-    sturmMoment_odd] using (oddMoment_eq_zero lam hlam 0)
+  change oddMoment lam 0 = 0
+  exact oddMoment_eq_zero lam hlam 0
 
 /-- All real monomial Gegenbauer Green matrix entries are symmetric
 for the actual ultraspherical measure, including low-degree modes. -/
@@ -59,9 +59,9 @@ theorem sturmMonomialMomentPair_symmetric
           sturmMoment lam (n + m) =
         ((n : ℝ) + (m : ℝ) - 1) *
           sturmMoment lam (n + m - 2) := by
-      convert hrec using 1 <;> push_cast <;> rw [hreal] <;> ring
-    have hadd : n + m = m + n := Nat.add_comm n m
-    rw [hadd]
+      convert hrec using 1 <;> push_cast <;> (try rw [hreal]) <;> ring
+    have hcomm : m + n = n + m := Nat.add_comm m n
+    rw [hcomm]
     linear_combination ((m : ℝ) - (n : ℝ)) * hrec'
   · have hsmall :
         (n = 0 ∧ m = 0) ∨
