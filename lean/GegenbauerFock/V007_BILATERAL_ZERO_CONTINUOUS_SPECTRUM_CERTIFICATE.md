@@ -50,10 +50,23 @@ weak-topology convergence against arbitrary Hilbert vectors.
 The dedicated CI is:
 - https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40853101401
 
-**Do not call this candidate kernel-certified without that exact
-workflow's positive conclusion and direct axiom-log inspection.**
-Full weak-topology convergence remains a separate Lean obligation,
-requiring uniform-norm control and dense-test extension.
+The dedicated workflow above completed **SUCCESS** with 9108 Lean jobs,
+and the direct `#print axioms` inspection confirms only `propext`,
+`Classical.choice`, `Quot.sound` for all three declarations. This
+certifies convergence against the two **dense range** test families,
+not yet every Hilbert test vector.
+
+Full weak convergence is formalized separately in
+`TwoSidedGramWeakConvergence.lean` using uniform unit norms and
+Cauchy–Schwarz for the dense-range extension. The first CI exposed
+three Lean elaboration errors (operator coercion and the metric
+`∃ N, ∀ n ≥ N` form); the source was corrected in SHA
+`77285f669ee30b5b6735441310daccc15e95846b`.
+The new pending kernel/audit run is:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40855929809
+
+**Do not call the full-weak-convergence candidate certified without
+a successful CI and an inspection of its actual `#print axioms` logs.**
 
 ## Operator-theoretic interpretation
 
