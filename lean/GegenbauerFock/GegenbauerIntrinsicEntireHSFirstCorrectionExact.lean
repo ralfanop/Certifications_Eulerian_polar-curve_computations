@@ -22,11 +22,11 @@ theorem Kummer_first_excited_coefficient_exact
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
     KummerCoefficients.ratio lam 1 * (1 / (4 * alpha)) =
       1 / (8 * alpha * (lam + 1)) := by
-  have hλ : lam + 1 ≠ 0 := ne_of_gt (by linarith)
+  have hdenom : lam + 1 ≠ 0 := ne_of_gt (by linarith)
   have ha' : alpha ≠ 0 := ne_of_gt ha
   simp only [KummerCoefficients.ratio_succ, KummerCoefficients.ratio_zero,
     Nat.cast_zero, zero_add, one_mul]
-  field_simp [hλ, ha']
+  field_simp [hdenom, ha']
   ring
 
 /-- Exact first nonvacuum correction lower bound on the *actual*
