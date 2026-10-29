@@ -190,3 +190,38 @@ this candidate must not be called kernel certified before a verified
 SUCCESS run and a clean theorem-axiom audit.
 
 PR #16 remains Draft/unmerged, with `main` and approved V097 untouched.
+
+## Update — 29 October 2026: Fredholm essential spectral zero certified
+
+The actual Fredholm essential-spectrum sets are defined as
+`fredholmEssentialSpectrum T = {z : ℂ | ¬ ContinuousLinearMap.IsFredholm (T - z • 1)}`.
+The two different true Hilbert-space Gram operators `G1=C†C` and
+`G2=CC†` satisfy **0∈σess(G1)∩σess(G2)**.
+
+- `TwoSidedGramZeroNotFredholm.lean`: both Grams are non-Fredholm,
+  by their previously certified nonclosed ranges.
+  **SUCCESS**, 9105 Lean jobs:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40861103876
+- `TwoSidedGramFredholmEssentialSpectrum.lean`: zero belongs to both
+  explicitly defined Fredholm essential-spectrum sets. In addition,
+  `two_sided_gram_zero_essential_and_singular_weyl` supplies
+  independently proven singular Weyl sequences in both Hilbert spaces.
+  **SUCCESS**, 9112 Lean jobs, audited SHA
+  `5b5ca5d15516418ec92010fbe1e649088cb973c9`:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40864759761
+
+Both success logs include direct `#print axioms` inspections with only
+`propext`, `Classical.choice`, `Quot.sound`; neither includes
+`sorryAx` or `Lean.ofReduceBool`.
+
+A separate proposed inclusion
+`fredholmEssentialSpectrum T ⊆ spectrum ℂ T`, with exclusion of every
+strictly negative real scalar for the two positive Grams, is deposited
+as `FredholmEssentialSpectrumResolventExclusion.lean` and is subject
+to an **independent** Lean workflow audit:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40865662295
+
+This second inclusion is *not yet certified*. Neither module claims
+the stronger equality `σess(Gi) = {0}`. Do not transfer certification
+between workflow source SHAs. PR #16 remains Draft/unmerged; `main`
+and approved V097 are untouched.
