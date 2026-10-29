@@ -1,0 +1,53 @@
+name: V007 all nonzero Gram Fredholm shifts have index zero
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/TwoSidedGramNonzeroFredholmIndexZero.lean'
+      - '.github/workflows/v007-gram-nonzero-fredholm-index-zero.yml'
+  workflow_dispatch:
+jobs:
+  nonzero-fredholm-index-zero:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+      - name: Prepare pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check all nonzero Gram Fredholm index zero identities and axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramNonzeroFredholmIndexZero 2>&1 | tee /tmp/v007-fredholm-index-zero.log
+          for theorem in sourceGram_nonzero_shift_fredholm_index_zero outputGram_nonzero_shift_fredholm_index_zero two_sided_gram_nonzero_shifts_fredholm_index_zero; do
+            grep -qF "${theorem}' depends on axioms" /tmp/v007-fredholm-index-zero.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-fredholm-index-zero.log; then
+            echo '::error::Forbidden proof axiom in all-nonzero Gram Fredholm index zero'
+            exit 1
+          fi
+          echo 'V007 all nonzero bilateral Gram shifts Fredholm with index zero: kernel-audited.'
