@@ -1,6 +1,7 @@
 import GegenbauerFock.GegenbauerIntrinsicEntireOutputGramSpectral
 import GegenbauerFock.GegenbauerIntrinsicEntireOutputGramContinuousSpectrum
-import Mathlib.Analysis.Normed.Operator.Compact.FredholmAlternative
+import GegenbauerFock.GegenbauerIntrinsicEntireTwoGramFullSpectrum
+import GegenbauerFock.TwoSidedGramPositiveSpectrum
 
 /-!
 # V007 — actual holomorphic Gaussian output Gram spectrum is nonnegative real
@@ -35,31 +36,15 @@ theorem C_intrinsicEntire_outputGram_nonzero_spectral_value_positive_real
   letI : CompleteSpace (GaussianArea.entireGaussianL2Submodule alpha) :=
     (GaussianArea.intrinsicEntire_isClosed alpha ha).completeSpace_coe
   intro hmem
-  have hEig : HasEigenvalue
-      (C_intrinsicEntire_outputGram lam alpha hlam ha).toLinearMap mu :=
-    ((C_intrinsicEntire_outputGram_compact lam alpha hlam ha)
-      .hasEigenvalue_iff_mem_spectrum hmu).mpr hmem
-  have hreal : (mu.re : ℂ) = mu := by
-    change (RCLike.re mu : ℂ) = mu
-    exact RCLike.conj_eq_iff_re.mp
-      ((C_intrinsicEntire_outputGram_symmetric lam alpha hlam ha)
-        .conj_eigenvalue_eq_self hEig)
-  have hEigReal : HasEigenvalue
-      (C_intrinsicEntire_outputGram lam alpha hlam ha).toLinearMap
-        (mu.re : ℂ) := by
-    rw [hreal]
-    exact hEig
-  have hnn : 0 ≤ mu.re :=
-    eigenvalue_nonneg_of_nonneg hEigReal
-      (fun F =>
-        (C_intrinsicEntire_outputGram_isPositive lam alpha hlam ha)
-          .toLinearMap.re_inner_nonneg_right F)
-  have hne : mu.re ≠ 0 := by
-    intro hz
-    apply hmu
-    rw [← hreal, hz]
-    simp
-  exact ⟨hreal, lt_of_le_of_ne hnn hne.symm⟩
+  have heq := C_intrinsicEntire_two_gram_full_spectrum_eq
+    lam alpha hlam ha
+  have hsource :
+      mu ∈ spectrum ℂ (C_intrinsicEntire_gram lam alpha hlam ha) := by
+    rw [heq]
+    exact hmem
+  rw [C_intrinsicEntire_gram_eq lam alpha hlam ha] at hsource
+  exact source_gram_nonzero_spectral_value_positive_real
+    lam alpha hlam ha mu hmu hsource
 
 /-- Every spectral value of the ACTUAL holomorphic Gaussian Fock
 output Gram belongs to the nonnegative real axis of ℂ. -/
