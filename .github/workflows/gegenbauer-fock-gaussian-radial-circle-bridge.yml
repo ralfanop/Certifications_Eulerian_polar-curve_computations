@@ -16,6 +16,7 @@ on:
       - 'lean/GegenbauerFock/GaussianAreaHilbertCoefficientsTaylor.lean'
       - 'lean/GegenbauerFock/GaussianAreaMomentTaylorNormalized.lean'
       - 'lean/GegenbauerFock/GaussianAreaExplicitTaylorFourierSeries.lean'
+      - 'lean/GegenbauerFock/GaussianAreaTaylorCoefficientParseval.lean'
       - 'lean/GegenbauerFock/GaussianAreaFullIntrinsicEvaluation.lean'
       - '.github/workflows/gegenbauer-fock-gaussian-radial-circle-bridge.yml'
   workflow_dispatch:
@@ -59,7 +60,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.GaussianAreaExplicitTaylorFourierSeries GegenbauerFock.GaussianAreaMomentTaylorNormalized GegenbauerFock.GaussianAreaHilbertCoefficientsTaylor GegenbauerFock.GaussianAreaAllMomentsTaylorFormula GegenbauerFock.GaussianAreaOriginMeanIdentity GegenbauerFock.GaussianAreaIntrinsicPointwiseExpansion GegenbauerFock.GaussianAreaIntrinsicFockParseval 2>&1 | tee /tmp/v007-radial-circle-build.log
+          lake build GegenbauerFock.GaussianAreaTaylorCoefficientParseval GegenbauerFock.GaussianAreaExplicitTaylorFourierSeries GegenbauerFock.GaussianAreaMomentTaylorNormalized GegenbauerFock.GaussianAreaHilbertCoefficientsTaylor GegenbauerFock.GaussianAreaAllMomentsTaylorFormula GegenbauerFock.GaussianAreaOriginMeanIdentity GegenbauerFock.GaussianAreaIntrinsicPointwiseExpansion GegenbauerFock.GaussianAreaIntrinsicFockParseval 2>&1 | tee /tmp/v007-radial-circle-build.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaPolarRadialCircleBridge.lean 2>&1 | tee /tmp/v007-radial-circle-axioms.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaCircleScalarExtraction.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaPlanarMomentUniqueness.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
@@ -72,6 +73,7 @@ jobs:
           lake env lean -M16768 GegenbauerFock/GaussianAreaHilbertCoefficientsTaylor.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaMomentTaylorNormalized.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaExplicitTaylorFourierSeries.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaTaylorCoefficientParseval.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-radial-circle-build.log /tmp/v007-radial-circle-axioms.log; then
             echo "::error::Forbidden axiom in Gaussian radial-circle bridge."
             exit 1
@@ -109,4 +111,6 @@ jobs:
           grep -F "coefficientAnalysisL2_intrinsic_eq_scaled_taylor' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           grep -F "intrinsicEntire_scaledTaylor_monomial_hasSum' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           grep -F "intrinsicEntire_scaledTaylor_memℓp' depends on axioms:" /tmp/v007-radial-circle-axioms.log
-          echo 'True intrinsic Gaussian Fock Taylor-Fourier reconstruction: kernel checked and audited.'
+          grep -F "intrinsicTaylorCoefficients_eq_analysis' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicTaylorCoefficients_norm_eq' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          echo 'True intrinsic Gaussian Taylor-Fourier and exact derivative Parseval: kernel checked and audited.'
