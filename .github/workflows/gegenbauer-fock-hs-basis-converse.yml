@@ -9,7 +9,12 @@ on:
       - 'lean/GegenbauerFock/HSRowBasisConverse.lean'
       - 'lean/GegenbauerFock/HSRowRightIdealGeneral.lean'
       - '.github/workflows/gegenbauer-fock-hs-basis-converse.yml'
+  # New commits touching these modules are checked by the path-scoped push
+  # trigger above. Recheck the entire PR at opening/reopening/readiness only;
+  # synchronize otherwise matches the FULL accumulated PR diff and reruns
+  # this costly independent certificate on every unrelated PR commit.
   pull_request:
+    types: [opened, reopened, ready_for_review]
     paths:
       - 'lean/GegenbauerFock/HSRowBasisGeneral.lean'
       - 'lean/GegenbauerFock/HSRowBasisConverse.lean'
