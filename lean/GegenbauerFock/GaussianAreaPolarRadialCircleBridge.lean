@@ -60,6 +60,7 @@ theorem entireRepresentative_planar_moment_eq_radial_circleAverage
   intro r hr
   apply setIntegral_congr_fun measurableSet_Ioo
   intro theta htheta
+  dsimp only
   rw [polar_gaussian_weight_eq alpha (r, theta) ⟨hr, htheta⟩]
 
 #print axioms GegenbauerFock.GaussianArea.iterated_polar_eq_radial_circleAverage
