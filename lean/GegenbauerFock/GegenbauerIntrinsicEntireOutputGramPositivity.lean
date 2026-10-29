@@ -56,7 +56,6 @@ theorem C_intrinsicEntire_outputGram_re_inner_nonneg
       (C_adjoint lam alpha hlam ha).adjoint ∘L
         (C_adjoint lam alpha hlam ha)
     rw [hadj]
-    rfl
   rw [hgram]
   exact HilbertGram.gram_re_nonneg (C_adjoint lam alpha hlam ha)
     ((GaussianArea.coefficientIntrinsicEntireEquiv alpha ha).symm F)
