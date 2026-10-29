@@ -57,4 +57,5 @@ jobs:
             exit 1
           fi
           grep -F "exists_cfc_sqrt_polar_unitary_kummer' depends on axioms:" /tmp/v007-cfc-polar-sqrt-axioms.log
+          grep -F "exists_cfc_sqrt_full_polar_adjoint_outputGram_kummer' depends on axioms:" /tmp/v007-cfc-polar-sqrt-axioms.log
           echo 'V007 canonical CFC polar square-root theorem verified and audited.'
