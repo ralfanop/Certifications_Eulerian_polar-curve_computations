@@ -19,16 +19,6 @@ open MeasureTheory
 
 namespace GegenbauerFock.GaussianArea
 
-/-- The normalization of every holomorphic Gaussian monomial is nonzero. -/
-theorem monomialWeight_ne_zero
-    (alpha : ℝ) (ha : 0 < alpha) (n : ℕ) :
-    monomialWeight alpha n ≠ 0 := by
-  unfold monomialWeight
-  have h : 0 < Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) := by
-    apply Real.sqrt_pos.2
-    exact div_pos (pow_pos ha n) (by positivity)
-  exact_mod_cast (ne_of_gt h)
-
 /-- The adjoint coefficient analysis of a genuinely entire Gaussian
 L² class is zero precisely when every one of its actual Gaussian-area
 integral moments against a conjugate monomial is zero. -/
