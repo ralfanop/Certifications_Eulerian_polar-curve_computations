@@ -327,3 +327,43 @@ until their exact CI is successful and the individual theorem-axiom
 logs have been checked. Do not label the singleton essential-spectrum
 equality as proved until the nonzero-shift Fredholm argument above is
 kernel-certified.** The PR remains Draft and unmerged.
+
+
+## Update — 29 October 2026: nonreal resolvent and independent operator norm candidates
+
+**Certified at SHA `fc20054c3387`:** the full complex nonreal resolvent
+theorem in `TwoSidedGramNonrealResolvent.lean` passed 9,109 Lean jobs and
+the direct `#print axioms` audit (only standard axioms):
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40868661363.
+Thus every complex scalar with nonzero imaginary part belongs to the
+resolvent of **both** genuine Grams.
+
+**Certified:** the genuine bilateral Hilbert-sum spectral decomposition
+in `DualGramHilbertSpectralSum.lean` passed its dedicated kernel build:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40868504255.
+This uses orthogonality and complete eigenspaces; it does not claim that
+the two different Hilbert spaces are identical.
+
+**New quantitative candidate:** `TwoSidedGramExactOperatorNorm.lean`
+proposes the true C-star norm identities
+`‖C†C‖ = ‖CC†‖ = ‖C‖²` for the actual analysis transform C.
+Its dedicated Lean workflow is
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869826883.
+Do not call it certified without a completed SUCCESS and axiom audit.
+
+**Proof repairs awaiting CI:**
+- `TwoSidedGramJointSpectralBand.lean`: explicit `CompleteSpace E`
+  typeclass for the spectral norm inequality used with operator
+  algebras, SHA `088b2dc316f5`, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869175172.
+- `TwoSidedGramEssentialSpectralBand.lean`: same necessary Banach
+  typeclass, SHA `79a663fbdd87`, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869357059.
+- `TwoSidedGramNonzeroFiniteEigenspaces.lean`: qualified Mathlib
+  namespace `ContinuousLinearMap.finite_dimensional_eigenspace`,
+  SHA `1a909f0913ee`, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40870029300.
+
+These are distinct Lean obligations; no success is inferred across
+workflows or commits. PR #16 remains Draft and unmerged, and neither
+approved V097 nor `main` is modified.
