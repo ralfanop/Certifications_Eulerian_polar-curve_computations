@@ -39,7 +39,8 @@ theorem C_intrinsicEntire_opNorm_eq
       ‖C lam alpha hlam ha‖ := by
   apply le_antisymm
   · apply ContinuousLinearMap.opNorm_le_bound
-      (C_intrinsicEntire lam alpha hlam ha) (norm_nonneg _)
+      (C_intrinsicEntire lam alpha hlam ha)
+      (norm_nonneg (C lam alpha hlam ha))
     intro f
     calc
       ‖C_intrinsicEntire lam alpha hlam ha f‖ =
@@ -48,7 +49,8 @@ theorem C_intrinsicEntire_opNorm_eq
       _ ≤ ‖C lam alpha hlam ha‖ * ‖f‖ :=
         (C lam alpha hlam ha).le_opNorm _
   · apply ContinuousLinearMap.opNorm_le_bound
-      (C lam alpha hlam ha) (norm_nonneg _)
+      (C lam alpha hlam ha)
+      (norm_nonneg (C_intrinsicEntire lam alpha hlam ha))
     intro f
     calc
       ‖C lam alpha hlam ha f‖ =
