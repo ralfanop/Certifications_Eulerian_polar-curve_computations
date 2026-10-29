@@ -60,7 +60,8 @@ theorem C_intrinsicEntire_opNorm_eq
           (C_intrinsicEntire lam alpha hlam ha).le_opNorm _
     exact ContinuousLinearMap.opNorm_le_bound
       (C lam alpha hlam ha)
-      (show 0 ≤ ‖C_intrinsicEntire lam alpha hlam ha‖ from norm_nonneg _)
+      (show 0 ≤ ‖C_intrinsicEntire lam alpha hlam ha‖ from
+        norm_nonneg (C_intrinsicEntire lam alpha hlam ha))
       hbound
 
 /-- The compact ultraspherical transform does NOT become surjective
