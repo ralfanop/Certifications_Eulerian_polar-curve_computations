@@ -58,8 +58,17 @@ theorem sturmPolynomial_X_pow_succ_succ (lam : ℝ) (n : ℕ) :
   have hp2 : (X : ℝ[X]) ^ (n + 2) = X ^ n * X ^ 2 := by
     rw [pow_add]
   rw [hp1, hp2]
-  push_cast
-  ring_nf
+  have hcoeff :
+      C (((n + 2 : ℕ) : ℝ) * ((n + 1 : ℕ) : ℝ)) +
+          C (2 * lam + 1) * C (((n + 2 : ℕ) : ℝ)) =
+        C (((n + 2 : ℕ) : ℝ) *
+            (((n + 2 : ℕ) : ℝ) + 2 * lam)) := by
+    rw [← C_mul, ← C_add]
+    congr 1
+    push_cast
+    ring
+  rw [← hcoeff]
+  ring
 
 #print axioms GegenbauerFock.Ultraspherical.sturmPolynomial_smul
 #print axioms GegenbauerFock.Ultraspherical.sturmPolynomial_sub
