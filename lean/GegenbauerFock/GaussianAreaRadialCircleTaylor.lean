@@ -54,7 +54,13 @@ theorem integral_radial_circleAverage_eq_taylorCoeff
         exact hpoint r hr
     _ = ((∫ r in Set.Ioi (0 : ℝ),
         r ^ (2 * n + 1) * Real.exp (-alpha * r ^ 2)) : ℂ) * c := by
-        rw [integral_mul_const, integral_complex_ofReal]
+        rw [integral_mul_const]
+        congr 1
+        simpa only [Complex.ofReal_mul, Complex.ofReal_pow] using
+          (integral_complex_ofReal
+            (μ := (volume : Measure ℝ).restrict (Set.Ioi (0 : ℝ)))
+            (f := fun r : ℝ =>
+              r ^ (2 * n + 1) * Real.exp (-alpha * r ^ 2)))
     _ = ((alpha ^ (-((n : ℝ) + 1)) * (1 / 2) *
         (Nat.factorial n : ℝ) : ℝ) : ℂ) *
         (iteratedDeriv n f 0 / (Nat.factorial n : ℂ)) := by
