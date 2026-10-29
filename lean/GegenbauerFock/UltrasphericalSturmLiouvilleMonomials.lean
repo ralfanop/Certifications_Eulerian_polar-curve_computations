@@ -59,7 +59,7 @@ theorem sturmPolynomial_X_pow_succ_succ (lam : ℝ) (n : ℕ) :
     rw [pow_add]
   rw [hp1, hp2]
   push_cast
-  ring
+  ring_nf
 
 #print axioms GegenbauerFock.Ultraspherical.sturmPolynomial_smul
 #print axioms GegenbauerFock.Ultraspherical.sturmPolynomial_sub
