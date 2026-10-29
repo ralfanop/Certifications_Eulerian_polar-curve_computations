@@ -38,8 +38,8 @@ theorem source_gram_nonzero_spectral_value_positive_real
       hmu).mpr hmem'
   have hreal : (mu.re : ℂ) = mu := by
     change (RCLike.re mu : ℂ) = mu
-    rw [← RCLike.conj_eq_iff_re]
-    exact (gramIntegralOperator_symmetric lam alpha hlam ha).conj_eigenvalue_eq_self hEig
+    exact RCLike.conj_eq_iff_re.mp
+      ((gramIntegralOperator_symmetric lam alpha hlam ha).conj_eigenvalue_eq_self hEig)
   have hEigReal : HasEigenvalue
       (gramIntegralOperator lam alpha hlam ha).toLinearMap (mu.re : ℂ) := by
     rw [hreal]
