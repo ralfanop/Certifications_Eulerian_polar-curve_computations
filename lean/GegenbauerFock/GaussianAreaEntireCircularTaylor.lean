@@ -30,8 +30,7 @@ theorem entire_circleAverage_div_pow_eq_taylorCoeff
       (∮ z in C(c, R), (1 / (z - c) ^ (n + 1)) • f z) =
         (2 * Real.pi * Complex.I / (Nat.factorial n : ℂ)) •
           iteratedDeriv n f c :=
-    (hf.differentiableOn (s := Metric.closedBall c R))
-      .circleIntegral_one_div_sub_center_pow_smul hR n
+    (hf.differentiableOn (s := Metric.closedBall c R)).circleIntegral_one_div_sub_center_pow_smul hR n
   have hkernel :
       (∮ z in C(c, R), (z - c)⁻¹ • (f z / (z - c) ^ n)) =
         (∮ z in C(c, R), (1 / (z - c) ^ (n + 1)) • f z) := by
