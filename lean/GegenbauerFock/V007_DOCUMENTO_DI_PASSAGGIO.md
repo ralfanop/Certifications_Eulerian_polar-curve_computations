@@ -245,3 +245,25 @@ ipergeometrici diversi senza dimostrarne l'equivalenza.
 **Invarianti operativi:** PR #16 aperta in Draft, nessun merge,
 `main` e V097 immutati. Su un ramo con commit concorrenti,
 rileggere HEAD e blob SHA prima di ogni modifica.
+
+## 11. Certificazione in corso — compattezza della radice polare positiva
+
+Per evitare di confondere risultati matematici dedotti e teoremi già
+certificati dal kernel, registriamo separatamente questo nuovo obbligo:
+
+- **Modulo:** `lean/GegenbauerFock/CompactPositivePolarAmplitude.lean`.
+- **Commit del modulo:** `1b75d29b014f89d0cd2c3eee9e452643fd5a1ee4`.
+- **Commit del workflow:** `78665726b8f3e836e3c7ed2726b6fe849a4912fe`.
+- **CI dedicata:**
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40923232633
+  (avviata, da verificare prima di dichiarare SUCCESS).
+- **Teorema:** `exists_compact_positive_polar_amplitude`.
+
+L'argomento matematico utilizza l'identità certificata
+`C = W ∘ P` con `W` unitario e la compattezza già certificata
+di `C`: dunque `P = W⁻¹ ∘ C` è compatto. Il nuovo file trascrive
+questo trasferimento nella API Mathlib `IsCompactOperator.clm_comp`
+senza sostituire una prova con una semplice dichiarazione.
+
+Resta distinta la CI del modulo `CanonicalCFCPolarSquareRoot.lean`,
+necessaria per l'identità letterale `P = CFC.sqrt (C* C)`.
