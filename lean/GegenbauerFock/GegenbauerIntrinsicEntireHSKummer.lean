@@ -29,9 +29,15 @@ theorem C_intrinsicEntire_HS_basis_summable
     (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
     Summable (fun i : ι =>
       ‖C_intrinsicEntire lam alpha hlam ha (b i)‖ ^ 2) := by
+  letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
+    Ultraspherical.probability lam hlam
   have h :
-      Summable (fun i : ι => ‖C lam alpha hlam ha (b i)‖ ^ 2) :=
-    (C_isHilbertSchmidt lam alpha hlam ha) b
+      Summable (fun i : ι => ‖C lam alpha hlam ha (b i)‖ ^ 2) := by
+    change Summable (fun i : ι =>
+      ‖ConcreteFock.operator (Ultraspherical.measure lam)
+        (ae_abs_le_one lam) alpha ha (b i)‖ ^ 2)
+    exact FockEnergy.concrete_sourceBasis_energy_summable
+      (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha ha b
   simpa only [C_intrinsicEntire_norm] using h
 
 /-- The exact basis-independent S₂ energy on the actual analytic
