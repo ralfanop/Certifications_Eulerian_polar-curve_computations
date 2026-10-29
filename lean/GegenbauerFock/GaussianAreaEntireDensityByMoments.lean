@@ -39,7 +39,7 @@ theorem polar_gaussian_circleAverage_smul
       (fun z : ℂ => c • g z) := by
     funext z
     simp only [c, Complex.real_smul, smul_eq_mul]
-    ring
+    ring_nf
   rw [heq]
   simpa only [smul_eq_mul] using
     (Real.circleAverage_fun_smul (a := c) (f := g) (c := (0 : ℂ)) (R := r))
