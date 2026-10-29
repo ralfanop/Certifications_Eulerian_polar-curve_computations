@@ -36,9 +36,9 @@ theorem source_gram_negative_real_mem_resolventSet
     (-(t : ℂ)) ∈ resolventSet ℂ (gram lam alpha hlam ha) := by
   have hnot : (-(t : ℂ)) ∉ spectrum ℂ (gram lam alpha hlam ha) := by
     intro hmem
-    have hnonneg :=
-      (two_sided_gram_spectra_nonnegative_real lam alpha hlam ha).1
-        (-(t : ℂ)) hmem |>.2
+    have hnonneg : 0 ≤ (-(t : ℂ)).re :=
+      ((two_sided_gram_spectra_nonnegative_real lam alpha hlam ha).1
+        (-(t : ℂ)) hmem).2
     have : 0 ≤ -t := by simpa using hnonneg
     linarith
   simpa only [spectrum, Set.mem_compl_iff, not_not] using hnot
