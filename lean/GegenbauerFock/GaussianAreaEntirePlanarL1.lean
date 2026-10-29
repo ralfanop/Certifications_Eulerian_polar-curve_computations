@@ -20,7 +20,7 @@ namespace GegenbauerFock.GaussianArea
 /-- Weighted L¹ under the true Gaussian measure transfers to
 ordinary planar L¹ after multiplying by its exact normalized density. -/
 theorem gaussianArea_integrable_weighted_volume
-    (alpha : ℝ) (f : ℂ → ℂ)
+    (alpha : ℝ) (ha : 0 < alpha) (f : ℂ → ℂ)
     (hf : Integrable f (gaussianAreaMeasure alpha)) :
     Integrable (fun z : ℂ =>
       ((alpha / Real.pi) * Real.exp (-alpha * ‖z‖ ^ 2) : ℝ) • f z)
@@ -59,7 +59,7 @@ theorem entireRepresentative_planar_weighted_moment_integrable
       ((alpha / Real.pi) * Real.exp (-alpha * ‖z‖ ^ 2) : ℝ) •
         (entireRepresentative alpha x z * star (z ^ n)))
       (volume : Measure ℂ) := by
-  exact gaussianArea_integrable_weighted_volume alpha
+  exact gaussianArea_integrable_weighted_volume alpha ha
     (fun z : ℂ => entireRepresentative alpha x z * star (z ^ n))
     (entireRepresentative_conjugate_monomial_integrable alpha ha x n)
 
