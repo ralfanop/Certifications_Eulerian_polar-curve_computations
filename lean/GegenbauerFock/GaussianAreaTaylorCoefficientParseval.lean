@@ -80,6 +80,27 @@ theorem intrinsicTaylorCoefficients_inner_eq
 
 #print axioms GegenbauerFock.GaussianArea.intrinsicTaylorCoefficients_inner_eq
 
+/-- Parseval in exact normalized derivative energy form, summing
+squared complex Hilbert magnitudes of true Gaussian Fock coefficients.
+The preceding definition makes this the weighted Taylor derivative
+sum, while the right-hand side is the genuine Gaussian L² energy. -/
+theorem intrinsicTaylorCoefficients_tsum_norm_sq
+    (alpha : ℝ) (ha : 0 < alpha)
+    (x : entireGaussianL2Submodule alpha) :
+    (∑' n : ℕ,
+      ‖monomialWeight alpha n *
+        (((alpha ^ (-(n : ℝ)) : ℝ) : ℂ) *
+          iteratedDeriv n (entireRepresentative alpha x) 0)‖ ^ 2) =
+      ‖x‖ ^ 2 := by
+  change (∑' n : ℕ, ‖(intrinsicTaylorCoefficients alpha ha x) n‖ ^ 2) =
+    ‖x‖ ^ 2
+  rw [← lp.norm_rpow_eq_tsum
+    (by norm_num : 0 < (2 : ℝ≥0∞).toReal)
+    (intrinsicTaylorCoefficients alpha ha x)]
+  rw [intrinsicTaylorCoefficients_norm_eq alpha ha x]
+
+#print axioms GegenbauerFock.GaussianArea.intrinsicTaylorCoefficients_tsum_norm_sq
+
 #print axioms GegenbauerFock.GaussianArea.intrinsicTaylorCoefficients_eq_analysis
 #print axioms GegenbauerFock.GaussianArea.intrinsicTaylorCoefficients_norm_eq
 
