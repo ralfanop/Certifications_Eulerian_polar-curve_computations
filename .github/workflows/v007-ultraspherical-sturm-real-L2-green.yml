@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealL2Green.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealPolynomialLinear.lean'
       - '.github/workflows/v007-ultraspherical-sturm-real-L2-green.yml'
   workflow_dispatch:
 
