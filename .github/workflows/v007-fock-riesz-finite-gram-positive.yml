@@ -45,4 +45,5 @@ jobs:
             exit 1
           fi
           grep -F "intrinsicRieszKernel_finite_gram_eq_inner' depends on axioms:" /tmp/v007-riesz-finite-gram.log
+          grep -F "intrinsicRieszKernel_finite_gram_nonneg' depends on axioms:" /tmp/v007-riesz-finite-gram.log
           echo 'V007 intrinsic Riesz finite Gram positivity: kernel and axioms clean.'
