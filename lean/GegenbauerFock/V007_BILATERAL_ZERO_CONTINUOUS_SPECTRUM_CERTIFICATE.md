@@ -151,3 +151,42 @@ Two further dedicated modules are deposited and must be checked separately:
 **The singular Weyl module is certified; the direct non-Fredholm
 module remains pending until its own kernel build and axiom audit
 return SUCCESS.**
+
+## Update — 29 October 2026: positive spectrum and regularized invertibility verified
+
+The following dedicated Lean 4/Mathlib runs have **completed SUCCESS**,
+including the two-standard/three-standard axiom audits with no
+`sorryAx` or `Lean.ofReduceBool`:
+
+1. `TwoSidedGramPositiveSpectrum.lean`, SHA
+   `3a8009aeefd94d5243810c43efee69a2dd7a4e5d`:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40860557124.
+   Both genuine compact Gram spectra lie on the nonnegative real axis;
+   each nonzero spectral value is a strictly positive real scalar.
+2. `TwoSidedGramNegativeResolvent.lean`, SHA
+   `b2510286a8e2438d394146b0fea0a3057afb608e`:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40860919589.
+   The entire scalar resolvent sets of the two true Grams coincide,
+   and every strictly negative real scalar lies in each resolvent:
+   both positive Tikhonov shifts `G + tI`, `t > 0`, are invertible.
+3. `TwoSidedGramZeroNotFredholm.lean`, SHA
+   `2f2c9c576e3e`:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40861103876.
+   Both genuine Grams are non-Fredholm at zero. This supersedes the
+   preceding **pending** label for the direct non-Fredholm theorem.
+4. `TwoSidedGramWeakConvergence.lean` and
+   `TwoSidedGramSingularWeylZero.lean` are separately certified by
+   runs 40860310262 and 40860754934 respectively; see the preceding
+   checkpoint for exact statement boundaries.
+
+**New quantitative candidate:**
+`TwoSidedGramJointSpectralBand.lean` combines positivity, common full
+spectrum, and the universal spectral norm bound to enclose all shared
+spectral values in the real interval from zero to the *minimum* of
+both operator norms. It also establishes a common right-halfplane
+resolvent above this minimum bound. Its dedicated workflow is
+the workflow `.github/workflows/gegenbauer-fock-gram-joint-spectral-band.yml`;
+this candidate must not be called kernel certified before a verified
+SUCCESS run and a clean theorem-axiom audit.
+
+PR #16 remains Draft/unmerged, with `main` and approved V097 untouched.
