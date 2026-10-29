@@ -50,7 +50,9 @@ jobs:
             echo "::error::Forbidden axioms in V007 intrinsic Hilbert-Schmidt Kummer formula"
             exit 1
           fi
+          grep -F "C_intrinsicEntire_isHilbertSchmidt' depends on axioms:" /tmp/v007-intrinsic-hs-kummer.log
           grep -F "C_intrinsicEntire_HS_basis_summable' depends on axioms:" /tmp/v007-intrinsic-hs-kummer.log
           grep -F "C_intrinsicEntire_HS_energy_eq_kummer' depends on axioms:" /tmp/v007-intrinsic-hs-kummer.log
+          grep -F "C_intrinsicEntire_basisHSNorm_eq_sqrt_kummer' depends on axioms:" /tmp/v007-intrinsic-hs-kummer.log
           grep -F "C_intrinsicEntire_Gram_basis_trace_eq_kummer' depends on axioms:" /tmp/v007-intrinsic-hs-kummer.log
           echo 'V007 intrinsic Gaussian Fock HS Kummer trace: kernel compilation and axiom audit clean.'
