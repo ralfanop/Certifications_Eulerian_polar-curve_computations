@@ -11,6 +11,7 @@ on:
       - 'lean/GegenbauerFock/GaussianAreaFullIntrinsicFockSurjectivity.lean'
       - 'lean/GegenbauerFock/GaussianAreaIntrinsicFockParseval.lean'
       - 'lean/GegenbauerFock/GaussianAreaIntrinsicPointwiseExpansion.lean'
+      - 'lean/GegenbauerFock/GaussianAreaOriginMeanIdentity.lean'
       - 'lean/GegenbauerFock/GaussianAreaFullIntrinsicEvaluation.lean'
       - '.github/workflows/gegenbauer-fock-gaussian-radial-circle-bridge.yml'
   workflow_dispatch:
@@ -54,7 +55,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.GaussianAreaIntrinsicPointwiseExpansion GegenbauerFock.GaussianAreaIntrinsicFockParseval 2>&1 | tee /tmp/v007-radial-circle-build.log
+          lake build GegenbauerFock.GaussianAreaOriginMeanIdentity GegenbauerFock.GaussianAreaIntrinsicPointwiseExpansion GegenbauerFock.GaussianAreaIntrinsicFockParseval 2>&1 | tee /tmp/v007-radial-circle-build.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaPolarRadialCircleBridge.lean 2>&1 | tee /tmp/v007-radial-circle-axioms.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaCircleScalarExtraction.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaPlanarMomentUniqueness.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
@@ -62,6 +63,7 @@ jobs:
           lake env lean -M16768 GegenbauerFock/GaussianAreaIntrinsicFockParseval.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaFullIntrinsicEvaluation.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaIntrinsicPointwiseExpansion.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaOriginMeanIdentity.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-radial-circle-build.log /tmp/v007-radial-circle-axioms.log; then
             echo "::error::Forbidden axiom in Gaussian radial-circle bridge."
             exit 1
@@ -88,4 +90,6 @@ jobs:
           grep -F "intrinsicEntire_evaluation_at_zero_eq_coefficient_zero' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           grep -F "intrinsicEntireEvaluationContinuous_eq_coherent_analysis' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           grep -F "intrinsicEntire_evaluation_sq_le_exp_norm' depends on axioms:" /tmp/v007-radial-circle-axioms.log
-          echo 'Full intrinsic Gaussian Fock pointwise expansion and evaluation: kernel checked and audited.'
+          grep -F "monomialWeight_zero' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_origin_eq_gaussian_mean' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          echo 'Full intrinsic Gaussian Fock pointwise expansion and vacuum mean identity: kernel checked and audited.'
