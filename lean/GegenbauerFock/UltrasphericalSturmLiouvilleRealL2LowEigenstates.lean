@@ -30,18 +30,22 @@ theorem sturmRealPolynomialLp_constant_mode
   rw [hconst, sturmEigenvalue_zero]
   change sturmRealPolynomialLinear lam hlam (0 : ℝ[X]) =
     (0 : ℝ) • sturmRealPolynomialLp lam hlam (1 : ℝ[X])
-  simp
+  simpa only [zero_smul] using
+    (map_zero (sturmRealPolynomialLinear lam hlam))
 
 /-- Degree-one true real weighted-L² eigen-relation. -/
 theorem sturmRealPolynomialLp_linear_mode
     (lam : ℝ) (hlam : 0 < lam) :
     sturmRealPolynomialLp lam hlam (sturmPolynomial lam X) =
       sturmEigenvalue lam 1 • sturmRealPolynomialLp lam hlam X := by
+  have hd : sturmEigenvalue lam 1 = -(2 * lam + 1) := by
+    unfold sturmEigenvalue
+    push_cast
+    ring
   have hlinear :
       sturmPolynomial lam X = (sturmEigenvalue lam 1) • X := by
-    rw [sturmPolynomial_X]
-    simp only [sturmEigenvalue, smul_eq_C_mul]
-    push_cast
+    rw [sturmPolynomial_X, hd]
+    simp only [smul_eq_C_mul, map_neg]
     ring
   rw [hlinear, sturmRealPolynomialLp_smul]
 
@@ -58,12 +62,9 @@ theorem sturmRealPolynomialLp_quadratic_mode
     push_cast
     ring
   rw [sturmPolynomial_quadratic_eigen, hd]
-  change sturmRealPolynomialLp lam hlam
-      ((-(4 * (lam + 1))) • sturmQuadratic lam) =
-        (-(4 * (lam + 1))) • sturmRealPolynomialLp lam hlam
-          (sturmQuadratic lam)
-  exact sturmRealPolynomialLp_smul lam hlam
-    (-(4 * (lam + 1))) (sturmQuadratic lam)
+  simpa only [smul_eq_C_mul] using
+    (sturmRealPolynomialLp_smul lam hlam
+      (-(4 * (lam + 1))) (sturmQuadratic lam))
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPolynomialLp_constant_mode
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPolynomialLp_linear_mode
