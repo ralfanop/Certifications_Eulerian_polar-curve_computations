@@ -51,7 +51,6 @@ theorem gaussian_circleAverage_scalar_normalization
   simp only [Complex.real_smul, Complex.ofReal_mul, Complex.ofReal_div]
   have hpi : (Real.pi : ℂ) ≠ 0 := by exact_mod_cast Real.pi_ne_zero
   field_simp [hpi]
-  ring
 
 #print axioms GegenbauerFock.GaussianArea.circleAverage_nested_real_smul
 #print axioms GegenbauerFock.GaussianArea.gaussian_circleAverage_scalar_normalization
