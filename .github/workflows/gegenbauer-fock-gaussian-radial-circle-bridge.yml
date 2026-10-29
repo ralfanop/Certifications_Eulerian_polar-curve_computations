@@ -1,0 +1,59 @@
+name: V007 true planar Gaussian radial-circle bridge Lean certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/GaussianAreaPolarRadialCircleBridge.lean'
+      - '.github/workflows/gegenbauer-fock-gaussian-radial-circle-bridge.yml'
+  workflow_dispatch:
+
+jobs:
+  true-planar-radial-circle:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install exact pinned Lean toolchain with retries
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then
+              ready=1
+              break
+            fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Restore exact Mathlib dependencies
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel compile and audit radial-circle Gaussian bridge
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GaussianAreaPolarRadialCircleBridge 2>&1 | tee /tmp/v007-radial-circle-build.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaPolarRadialCircleBridge.lean 2>&1 | tee /tmp/v007-radial-circle-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-radial-circle-build.log /tmp/v007-radial-circle-axioms.log; then
+            echo "::error::Forbidden axiom in Gaussian radial-circle bridge."
+            exit 1
+          fi
+          grep -F "iterated_polar_eq_radial_circleAverage' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "entireRepresentative_planar_moment_eq_radial_circleAverage' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          echo 'True Gaussian planar radial-circle bridge: kernel checked and audited.'
