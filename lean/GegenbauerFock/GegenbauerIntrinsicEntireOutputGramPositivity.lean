@@ -44,6 +44,7 @@ theorem C_intrinsicEntire_outputGram_re_inner_nonneg
     0 ≤ RCLike.re
       (inner ℂ (C_intrinsicEntire_outputGram lam alpha hlam ha F) F) := by
   rw [C_intrinsicEntire_outputGram_inner_eq]
+  rw [real_inner_comm]
   exact (outputGram_isPositive lam alpha hlam ha).re_inner_nonneg_right
     ((GaussianArea.coefficientIntrinsicEntireEquiv alpha ha).symm F)
 
