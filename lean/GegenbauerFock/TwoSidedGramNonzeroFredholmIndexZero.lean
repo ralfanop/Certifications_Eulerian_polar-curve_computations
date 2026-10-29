@@ -3,6 +3,7 @@ import GegenbauerFock.TwoSidedGramResolventFredholmIndexZero
 import GegenbauerFock.TwoSidedGramNegativeResolvent
 import Mathlib.Analysis.Normed.Module.Connected
 import Mathlib.Topology.Connected.TotallyDisconnected
+import Mathlib.LinearAlgebra.Complex.FiniteDimensional
 
 /-!
 # V007 — zero Fredholm index at every nonzero bilateral Gram spectral shift
@@ -51,10 +52,10 @@ private theorem fredholmShift_index_zero_on_punctured_plane
         ContinuousAt (fun w : ℂ =>
           T - w • (1 : H →L[ℂ] H)) z := by
       fun_prop
-    exact (hfred z hz0).index_continuousAt.comp z hshift
+    exact (hfred z hz0).index_continuousAt.comp hshift
   have hconnected : IsPreconnected ({(0 : ℂ)}ᶜ) :=
     (isConnected_compl_singleton_of_one_lt_rank
-      (rank_real_complex ▸ Nat.one_lt_ofNat) (0 : ℂ)).isPreconnected
+      (Complex.rank_real_complex ▸ Nat.one_lt_ofNat) (0 : ℂ)).isPreconnected
   have hdiscrete : IsDiscrete (Set.univ : Set ℤ) :=
     isDiscrete_univ_iff.mpr inferInstance
   have hmuS : mu ∈ ({(0 : ℂ)}ᶜ) := by simpa using hmu
