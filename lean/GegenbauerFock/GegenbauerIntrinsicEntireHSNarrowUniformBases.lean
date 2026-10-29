@@ -53,11 +53,11 @@ least that threshold, simultaneously for ALL source Hilbert bases. -/
 theorem C_intrinsicEntire_HS_narrow_above_uniform_bases
     (lam : ℝ) (hlam : 0 < lam) (bound : ℝ) :
     ∃ delta : ℝ, 0 < delta ∧ ∀ alpha : ℝ,
-      0 < alpha → alpha < delta →
+      ∀ ha : 0 < alpha, alpha < delta →
         ∀ {ι : Type*}
           (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))),
           bound ≤ ∑' i : ι,
-            ‖C_intrinsicEntire lam alpha hlam (by assumption) (b i)‖ ^ 2 := by
+            ‖C_intrinsicEntire lam alpha hlam ha (b i)‖ ^ 2 := by
   obtain ⟨delta, hdelta, hbound⟩ :=
     KummerCoefficients.kummer_gaussianScale_above_uniform_threshold
       lam hlam bound
@@ -71,12 +71,12 @@ Hilbert diagonal trace of the actual intrinsic Gaussian source Gram. -/
 theorem C_intrinsicEntire_Gram_narrow_above_uniform_bases
     (lam : ℝ) (hlam : 0 < lam) (bound : ℝ) :
     ∃ delta : ℝ, 0 < delta ∧ ∀ alpha : ℝ,
-      0 < alpha → alpha < delta →
+      ∀ ha : 0 < alpha, alpha < delta →
         ∀ {ι : Type*}
           (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))),
           bound ≤ ∑' i : ι,
             RCLike.re (inner ℂ
-              (C_intrinsicEntire_gram lam alpha hlam (by assumption) (b i)) (b i)) := by
+              (C_intrinsicEntire_gram lam alpha hlam ha (b i)) (b i)) := by
   obtain ⟨delta, hdelta, hbound⟩ :=
     KummerCoefficients.kummer_gaussianScale_above_uniform_threshold
       lam hlam bound
