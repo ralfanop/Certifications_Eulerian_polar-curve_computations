@@ -71,12 +71,12 @@ theorem exists_positive_polar_amplitude_kummer
       have hc : inner ℂ f (u i) = star (inner ℂ (u i) f) :=
         (inner_conj_symm f (u i)).symm
       rw [hc, Complex.star_def, Complex.conj_mul']
-      simp
+      norm_cast
     have hs0 : HasSum
         (fun i : ι => RCLike.re
           (inner ℂ (P f) (u i) * inner ℂ (u i) f))
         (RCLike.re (inner ℂ (P f) f)) :=
-      RCLike.hasSum_re (u.hasSum_inner_mul_inner (P f) f)
+      RCLike.hasSum_re ℂ (u.hasSum_inner_mul_inner (P f) f)
     have hs : HasSum
         (fun i : ι => Real.sqrt (mu i) * ‖inner ℂ (u i) f‖ ^ 2)
         (RCLike.re (inner ℂ (P f) f)) := by
