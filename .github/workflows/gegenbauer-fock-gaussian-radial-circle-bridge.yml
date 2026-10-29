@@ -9,6 +9,7 @@ on:
       - 'lean/GegenbauerFock/GaussianAreaCircleScalarExtraction.lean'
       - 'lean/GegenbauerFock/GaussianAreaPlanarMomentUniqueness.lean'
       - 'lean/GegenbauerFock/GaussianAreaFullIntrinsicFockSurjectivity.lean'
+      - 'lean/GegenbauerFock/GaussianAreaFullIntrinsicEvaluation.lean'
       - '.github/workflows/gegenbauer-fock-gaussian-radial-circle-bridge.yml'
   workflow_dispatch:
 
@@ -51,11 +52,12 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.GaussianAreaFullIntrinsicFockSurjectivity 2>&1 | tee /tmp/v007-radial-circle-build.log
+          lake build GegenbauerFock.GaussianAreaFullIntrinsicEvaluation 2>&1 | tee /tmp/v007-radial-circle-build.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaPolarRadialCircleBridge.lean 2>&1 | tee /tmp/v007-radial-circle-axioms.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaCircleScalarExtraction.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaPlanarMomentUniqueness.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaFullIntrinsicFockSurjectivity.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaFullIntrinsicEvaluation.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-radial-circle-build.log /tmp/v007-radial-circle-axioms.log; then
             echo "::error::Forbidden axiom in Gaussian radial-circle bridge."
             exit 1
@@ -71,4 +73,8 @@ jobs:
           grep -F "intrinsicEntire_exists_coefficient_synthesis' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           grep -F "coefficientSynthesisToIntrinsicEntire_surjective' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           grep -F "coefficientIntrinsicEntireEquiv' depends on axioms:" /tmp/v007-radial-circle-axioms.log
-          echo 'True Gaussian intrinsic Fock surjectivity: kernel checked and audited.'
+          grep -F "coefficientSynthesis_analysis_eq_intrinsic' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntireEvaluation_eq_coherent_analysis' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "coefficientAnalysisL2_norm_intrinsic' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntireEvaluation_norm_le_full' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          echo 'Full intrinsic Gaussian Fock reconstruction and evaluation: kernel checked and audited.'
