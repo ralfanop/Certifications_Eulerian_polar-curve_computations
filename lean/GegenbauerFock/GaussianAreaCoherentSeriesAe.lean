@@ -99,7 +99,7 @@ theorem coefficientSynthesisL2_ae_coherentEvaluation
           a k • normalizedMonomialL2Vector alpha ha k :
             Lp ℂ 2 (gaussianAreaMeasure alpha)) : ℂ → ℂ) z)
       atTop (𝓝 (FockEvaluation.evaluation alpha ha z a)) := by
-    simpa only [hfinz] using hpoint.comp hns
+    simpa only [Function.comp_def, hfinz] using hpoint.comp hns
   exact tendsto_nhds_unique hlimz hpoint'
 
 /-- Every synthesized ℓ² Gaussian vector has the genuine entire
