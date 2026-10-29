@@ -46,7 +46,7 @@ all complex frequency samples. Its source norm cannot be recovered
 continuously even when ALL complex frequencies are observed. -/
 theorem ultraspherical_fourierBochner_not_isEmbedding
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
-    ¬ IsEmbedding (ultraspherical_fourierBochner_function lam) := by
+    ¬ Topology.IsEmbedding (ultraspherical_fourierBochner_function lam) := by
   intro hemb
   obtain ⟨u, _hunit, hFourier, hnostrong⟩ :=
     ultraspherical_fourierBochner_productTopology_null_no_strong_source_limit
@@ -61,8 +61,7 @@ theorem ultraspherical_fourierBochner_not_isEmbedding
   have hsource :
       Tendsto u atTop
         (nhds (0 : Lp ℂ 2 (Ultraspherical.measure lam))) := by
-    apply (hemb.isInducing.tendsto_nhds_iff).2
-    simpa only [Function.comp_def] using hFourierZero
+    exact (hemb.isInducing.tendsto_nhds_iff).2 hFourierZero
   exact hnostrong 0 hsource
 
 /-- The zero Fourier function, viewed as a point of the TRUE range of
