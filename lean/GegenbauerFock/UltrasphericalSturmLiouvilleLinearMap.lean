@@ -30,7 +30,8 @@ def sturmPolynomialLinear (lam : ℝ) : ℝ[X] →ₗ[ℝ] ℝ[X] where
 
 @[simp] theorem sturmPolynomialLinear_C (lam c : ℝ) :
     sturmPolynomialLinear lam (C c) = 0 := by
-  simp
+  change sturmPolynomial lam (C c) = 0
+  exact sturmPolynomial_C lam c
 
 /-- Exact lower triangular action of the real-linear map on all
 monomials with degree at least two. -/
