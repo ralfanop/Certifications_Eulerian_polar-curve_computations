@@ -27,7 +27,7 @@ until Lean has accepted its entire source and its #print axioms audit.
 
 noncomputable section
 
-open MeasureTheory Module End
+open MeasureTheory Module End Submodule
 
 namespace GegenbauerFock.GeneralUltrasphericalFock
 
@@ -58,9 +58,12 @@ private theorem compact_symmetric_nonzero_shift_isFredholm
   let R : Q →L[ℂ] Q := T.restrict hTQ
   have hRcompact : IsCompactOperator R :=
     hcompact.restrict' hTQ
+  have hRlin : R.toLinearMap = T.toLinearMap.restrict hTQ := by
+    ext ⟨x, hx⟩
+    rfl
   have hRzero : eigenspace R.toLinearMap mu = ⊥ := by
-    simpa only [R] using
-      (eigenspace_restrict_eq_bot hTQ P.orthogonal_disjoint)
+    rw [hRlin]
+    exact eigenspace_restrict_eq_bot hTQ P.orthogonal_disjoint
   have hRnoEigen : ¬ HasEigenvalue (R : Module.End ℂ Q) mu := by
     intro heig
     exact (hasEigenvalue_iff.mp heig) hRzero
