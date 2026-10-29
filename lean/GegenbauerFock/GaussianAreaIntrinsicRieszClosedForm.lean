@@ -34,8 +34,11 @@ theorem intrinsicFock_coherent_coordinate_inner
       star ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) *
         (star z) ^ n) =
       ((alpha : ℂ) * z * star w) ^ n / (Nat.factorial n : ℂ)
-  simp only [star_mul, star_pow,
-    Complex.star_def, Complex.conj_ofReal, starRingEnd_self_apply, mul_pow]
+  have hrealStar :
+      star ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ)) =
+        ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ)) := by
+    simp
+  simp only [star_mul, star_pow, star_star, hrealStar]
   -- Both sides have the same normalized real coefficient.
   calc
     ((Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) : ℂ) * (star w) ^ n) *
