@@ -29,7 +29,8 @@ theorem sturmEigenvalue_nonpos (lam : ℝ) (hlam : 0 < lam)
   unfold sturmEigenvalue
   have h1 : 0 ≤ (n : ℝ) := Nat.cast_nonneg n
   have h2 : 0 ≤ (n : ℝ) + 2 * lam := by positivity
-  exact neg_nonpos.mpr (mul_nonneg h1 h2)
+  have hprod : 0 ≤ (n : ℝ) * ((n : ℝ) + 2 * lam) := mul_nonneg h1 h2
+  nlinarith
 
 theorem sturmEigenvalue_strictAnti (lam : ℝ) (hlam : 0 < lam) :
     StrictAnti (sturmEigenvalue lam) := by
