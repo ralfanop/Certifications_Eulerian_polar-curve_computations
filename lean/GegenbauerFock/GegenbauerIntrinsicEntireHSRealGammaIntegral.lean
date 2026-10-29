@@ -49,7 +49,43 @@ theorem C_intrinsicEntire_HS_energy_eq_pochhammer
     (KummerCoefficients.kummerSeries_eq_pochhammer
       lam (1 / (4 * alpha)) hlam)
 
+/-- The genuine intrinsic source-Gram Hilbert diagonal trace on
+every complete ultraspherical basis is the same concrete Gamma
+exponential integral, not merely a formal coefficient trace. -/
+theorem C_intrinsicEntire_Gram_trace_eq_gamma_integral
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    {ι : Type*}
+    (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
+    (∑' i : ι,
+      RCLike.re (inner ℂ
+        (C_intrinsicEntire_gram lam alpha hlam ha (b i)) (b i))) =
+      ∫ u : ℝ, Real.exp (u ^ 2 / (4 * alpha))
+        ∂((volume : Measure ℝ).withDensity
+          (fun u => ENNReal.ofReal (Ultraspherical.gammaDensity lam u))) := by
+  exact (C_intrinsicEntire_Gram_basis_trace_eq_kummer lam alpha hlam ha b).trans
+    (Ultraspherical.gammaDensity_exp_integral_eq_kummerSeries
+      lam alpha hlam ha).symm
+
+/-- Same intrinsic analytic source-Gram diagonal trace in the fully
+specified, unregularized rising-Pochhammer Kummer convention. -/
+theorem C_intrinsicEntire_Gram_trace_eq_pochhammer
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    {ι : Type*}
+    (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
+    (∑' i : ι,
+      RCLike.re (inner ℂ
+        (C_intrinsicEntire_gram lam alpha hlam ha (b i)) (b i))) =
+      ∑' n : ℕ,
+        ((ascPochhammer ℝ n).eval (1 / 2) /
+          (ascPochhammer ℝ n).eval (lam + 1)) *
+          ((1 / (4 * alpha)) ^ n / (Nat.factorial n : ℝ)) := by
+  exact (C_intrinsicEntire_Gram_basis_trace_eq_kummer lam alpha hlam ha b).trans
+    (KummerCoefficients.kummerSeries_eq_pochhammer
+      lam (1 / (4 * alpha)) hlam)
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_HS_energy_eq_gamma_integral
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_HS_energy_eq_pochhammer
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_Gram_trace_eq_gamma_integral
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_Gram_trace_eq_pochhammer
 
 end GegenbauerFock.GeneralUltrasphericalFock
