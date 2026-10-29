@@ -18,7 +18,7 @@ the continuous spectrum of each, not in either point spectrum.
 
 noncomputable section
 
-open MeasureTheory
+open MeasureTheory Module End
 
 namespace GegenbauerFock.GeneralUltrasphericalFock
 
