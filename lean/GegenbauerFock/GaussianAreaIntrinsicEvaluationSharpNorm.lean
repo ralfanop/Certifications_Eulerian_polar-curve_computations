@@ -50,7 +50,7 @@ theorem intrinsicEntireEvaluationContinuous_norm_eq
   · exact intrinsicEntireEvaluationContinuous_norm_le alpha ha z
   · apply ContinuousLinearMap.opNorm_le_bound
       (FockEvaluation.evaluation alpha ha z)
-      (norm_nonneg _)
+      (norm_nonneg (intrinsicEntireEvaluationContinuous alpha ha z))
     intro a
     calc
       ‖FockEvaluation.evaluation alpha ha z a‖ =
