@@ -679,3 +679,43 @@ The stronger exact finite-mode counting inequality, bilateral
 weighted Parseval formula, genuine Gaussian Riesz diagonal, and
 intrinsic output Gram quadratic positivity remain subject to
 their own dedicated CI outcomes.
+
+
+## Checkpoint 29 October 2026, 15:16 UTC — intrinsic sharp spectral package
+
+Dedicated exact-source SUCCESS kernel builds with audited axioms:
+
+- Positive compact spectral theorem in the **genuine holomorphic
+  output Gram**, CI 40890363413:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40890363413
+- Complete bilateral singular weighted Parseval equalities and
+  exact Kummer spectral mass, CI 40895386832:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40895386832
+- Exact bilateral diagonal coordinates in the complete singular
+  Hilbert bases, CI 40895395374:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40895395374
+- Ultraspherical Sturm--Liouville polynomial domain core,
+  CI 40890429949:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40890429949
+- Positive singular-mode threshold count bounded by exact
+  Kummer spectral mass, CI 40889135410:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40889135410
+
+**Additional independent candidate (NOT YET CERTIFIED):**
+`GegenbauerIntrinsicEntireGramSharpSpectrum.lean` combines the
+already audited operator equality for the genuine Gaussian entire
+source Gram, the exact scalar spectral enclosure `[0,‖C‖²]`,
+common resolvent outside that interval, and the complete Fredholm
+essential singleton result. A fourth theorem gives the precise
+Fredholm-shift equivalence:
+`IsFredholm (G_hol - μI) ↔ μ ≠ 0`.
+Source commits `29f3dfccbb66` and `90ac3027df9a`;
+dedicated four-theorem kernel and axiom CI at
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40900681177.
+It is not appropriate to mark the new package as certified
+before this exact CI reports SUCCESS and clean per-theorem axiom audit.
+
+Other independent full intrinsic Gaussian Fock output zero-spectrum,
+singular-Weyl, and quantitative inverse-instability workflows are
+in progress and are not promoted from historical failing runs.
+No merge. `main` and approved manuscript V097 remain untouched.
