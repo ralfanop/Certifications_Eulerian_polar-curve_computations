@@ -5,6 +5,8 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireOutputGramEssentialSpectrum.lean'
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireOutputGramSpectral.lean'
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireOutputGramContinuousSpectrum.lean'
       - '.github/workflows/v007-intrinsic-output-gram-essential-spectrum.yml'
   workflow_dispatch:
 
