@@ -267,3 +267,46 @@ senza sostituire una prova con una semplice dichiarazione.
 
 Resta distinta la CI del modulo `CanonicalCFCPolarSquareRoot.lean`,
 necessaria per l'identità letterale `P = CFC.sqrt (C* C)`.
+
+## 12. Identità polari bilaterali certificate — 29 ottobre 2026
+
+**SUCCESS:** la CI
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40922456777
+sul commit `eabb42bca4c8f4d29f448f8e743820f172c9cb08` ha compilato
+`FullUnitaryPolarAdjointOutputGram.lean` ed eseguito con successo
+l'audit degli assiomi del teorema
+`exists_full_unitary_polar_adjoint_and_outputGram_kummer`.
+Assiomi utilizzati: esclusivamente `propext`,
+`Classical.choice` e `Quot.sound`.
+
+Per la trasformata effettiva `C` e unitaria `W`, con l'ampiezza
+positiva autoaggiunta `P`, sono ora formalmente certificate
+le identità sui **due interi spazi di Hilbert**:
+
+- `C = W ∘ P` e `C* C = P²`;
+- `C* = P ∘ W⁻¹`;
+- `C C* = W ∘ P² ∘ W⁻¹`.
+
+In particolare queste formule non affermano che `C` sia suriettiva
+né che un compatto iniettivo abbia inverso limitato.
+
+**Checkpoint non ancora certificati** alla redazione di questo
+aggiornamento:
+
+- Compattezza esplicita dell'ampiezza positiva:
+  la CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40923232633
+  aveva fallito per una conversione di funzioni in un `simpa`;
+  commit correttivo `0d9718186b0affcb0535bc601f43be910c341709`,
+  nuova CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40937763994
+  avviata. Non dichiarare SUCCESS senza verifica.
+- Radice quadrata CFC: il fallimento precedente
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40921575135
+  era imputabile all'istanza
+  `SMulCommClass ℝ (E →L[ℂ] E) (E →L[ℂ] E)`.
+  È presente una nuova specializzazione alla sorgente ultrasferica
+  nel commit `f044f4c1d2a2db1b344fb9fb9624065d4258e726`,
+  con CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40937938186
+  avviata; la conclusione deve essere controllata.
+
+**Invarianti:** non eseguire alcun merge; mantenere PR #16 Draft,
+non modificare il ramo `main` né il manoscritto V097.
