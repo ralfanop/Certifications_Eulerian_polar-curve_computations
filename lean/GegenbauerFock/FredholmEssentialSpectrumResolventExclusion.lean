@@ -31,7 +31,8 @@ theorem fredholmEssentialSpectrum_subset_spectrum
     [InnerProductSpace ℂ H] [CompleteSpace H]
     (T : H →L[ℂ] H) :
     fredholmEssentialSpectrum T ⊆ spectrum ℂ T := by
-  intro z hz hnot
+  intro z hz
+  by_contra hnot
   have hres : z ∈ resolventSet ℂ T := by
     simpa only [spectrum, Set.mem_compl_iff, not_not] using hnot
   have hunit : IsUnit (z • (1 : H →L[ℂ] H) - T) := by
