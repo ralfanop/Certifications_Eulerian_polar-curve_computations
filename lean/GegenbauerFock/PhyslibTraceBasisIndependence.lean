@@ -25,7 +25,7 @@ variable {H : Type*} [NormedAddCommGroup H]
 
 omit [CompleteSpace H] in
 /-- **Parseval's identity**: `∑ᵢ |⟪eᵢ, y⟫|² = ‖y‖²` for a Hilbert basis `{eᵢ}`. -/
-lemma hasSum_norm_sq_inner_basis {w : Set H} (b : HilbertBasis w ℂ H) (y : H) :
+lemma hasSum_norm_sq_inner_basis {w : Type*} (b : HilbertBasis w ℂ H) (y : H) :
     HasSum (fun i : w => ‖⟪b i, y⟫_ℂ‖ ^ 2) (‖y‖ ^ 2) := by
   have h := b.hasSum_inner_mul_inner y y
   have hpt : ∀ i : w, ⟪y, b i⟫_ℂ * ⟪b i, y⟫_ℂ = ((‖⟪b i, y⟫_ℂ‖ ^ 2 : ℝ) : ℂ) := fun i => by
@@ -39,7 +39,7 @@ lemma hasSum_norm_sq_inner_basis {w : Set H} (b : HilbertBasis w ℂ H) (y : H) 
 
 /-- For self-adjoint `S`, the sum `∑ᵢ ‖S eᵢ‖²` does not depend on the Hilbert basis. -/
 lemma hasSum_norm_sq_apply_of_selfAdjoint {S : H →L[ℂ] H} (hS : IsSelfAdjoint S)
-    {w w' : Set H} (b : HilbertBasis w ℂ H) (c : HilbertBasis w' ℂ H)
+    {w w' : Type*} (b : HilbertBasis w ℂ H) (c : HilbertBasis w' ℂ H)
     (hb : Summable (fun i : w => ‖S (b i)‖ ^ 2)) :
     HasSum (fun j : w' => ‖S (c j)‖ ^ 2) (∑' i : w, ‖S (b i)‖ ^ 2) := by
   classical
@@ -94,7 +94,7 @@ lemma hasSum_norm_sq_apply_of_selfAdjoint {S : H →L[ℂ] H} (hS : IsSelfAdjoin
   rw [← hEq]
   exact hcolSummable.hasSum
 
-lemma summable_inner_abs_of_hilbertBasis {T : H →L[ℂ] H} (h : IsTraceClass T) {w : Set H}
+lemma summable_inner_abs_of_hilbertBasis {T : H →L[ℂ] H} (h : IsTraceClass T) {w : Type*}
     (b : HilbertBasis w ℂ H) :
     Summable (fun i => (⟪b i, CFC.abs T (b i)⟫_ℂ).re) := by
   obtain ⟨w₀, b₀, hb₀⟩ := h
@@ -103,7 +103,7 @@ lemma summable_inner_abs_of_hilbertBasis {T : H →L[ℂ] H} (h : IsTraceClass T
   have hAself : IsSelfAdjoint A := .of_nonneg hAnonneg
   set S : H →L[ℂ] H := CFC.sqrt A with hSdef
   have hSself : IsSelfAdjoint S := .of_nonneg (CFC.sqrt_nonneg A)
-  have hpt : ∀ {w' : Set H} (b' : HilbertBasis w' ℂ H) (i : w'),
+  have hpt : ∀ {w' : Type*} (b' : HilbertBasis w' ℂ H) (i : w'),
       (⟪b' i, A (b' i)⟫_ℂ).re = ‖S (b' i)‖ ^ 2 := by
     intro w' b' i
     have hSS : S * S = A := CFC.sqrt_mul_sqrt_self A hAnonneg
@@ -122,7 +122,7 @@ lemma summable_inner_abs_of_hilbertBasis {T : H →L[ℂ] H} (h : IsTraceClass T
   have := hasSum_norm_sq_apply_of_selfAdjoint hSself b₀ b hb₀'
   simpa [hpt b] using this.summable
 
-lemma traceNorm_eq_of_hilbertBasis {T : H →L[ℂ] H} (h : IsTraceClass T) {w : Set H}
+lemma traceNorm_eq_of_hilbertBasis {T : H →L[ℂ] H} (h : IsTraceClass T) {w : Type*}
     (b : HilbertBasis w ℂ H) :
     traceNorm T h = ∑' i, (⟪b i, CFC.abs T (b i)⟫_ℂ).re := by
   let w₀ : Set H := h.choose
@@ -134,7 +134,7 @@ lemma traceNorm_eq_of_hilbertBasis {T : H →L[ℂ] H} (h : IsTraceClass T) {w :
   have hAself : IsSelfAdjoint A := .of_nonneg hAnonneg
   set S : H →L[ℂ] H := CFC.sqrt A with hSdef
   have hSself : IsSelfAdjoint S := .of_nonneg (CFC.sqrt_nonneg A)
-  have hpt : ∀ {w' : Set H} (b' : HilbertBasis w' ℂ H) (i : w'),
+  have hpt : ∀ {w' : Type*} (b' : HilbertBasis w' ℂ H) (i : w'),
       (⟪b' i, A (b' i)⟫_ℂ).re = ‖S (b' i)‖ ^ 2 := by
     intro w' b' i
     have hSS : S * S = A := CFC.sqrt_mul_sqrt_self A hAnonneg
