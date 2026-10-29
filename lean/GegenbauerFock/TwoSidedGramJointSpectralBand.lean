@@ -24,7 +24,7 @@ namespace GegenbauerFock.GeneralUltrasphericalFock
 zero Hilbert space: continuous endomorphisms only have ‖1‖ ≤ 1,
 so the generic spectral bound must account for this factor. -/
 private theorem continuousEnd_spectral_norm_le
-    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E]
     (T : E →L[ℂ] E) (mu : ℂ) (h : mu ∈ spectrum ℂ T) :
     ‖mu‖ ≤ ‖T‖ := by
   have hid : ‖(1 : E →L[ℂ] E)‖ ≤ 1 := by
