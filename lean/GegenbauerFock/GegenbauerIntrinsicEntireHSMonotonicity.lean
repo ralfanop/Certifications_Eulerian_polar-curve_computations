@@ -59,7 +59,8 @@ theorem C_intrinsicEntire_HS_energy_antitone_alpha
     C_intrinsicEntire_HS_energy_eq_kummer lam alpha₁ hlam ha₁ b]
   have ht : (0 : ℝ) ≤ 1 / (4 * alpha₂) := by positivity
   have hparam : (1 / (4 * alpha₂) : ℝ) ≤ 1 / (4 * alpha₁) := by
-    gcongr
+    apply one_div_le_one_div_of_le (by positivity)
+    nlinarith [halpha]
   exact KummerCoefficients.kummerSeries_mono_of_nonneg
     lam (1 / (4 * alpha₂)) (1 / (4 * alpha₁)) hlam ht hparam
 
@@ -81,7 +82,8 @@ theorem C_intrinsicEntire_Gram_trace_antitone_alpha
     C_intrinsicEntire_Gram_basis_trace_eq_kummer lam alpha₁ hlam ha₁ b]
   have ht : (0 : ℝ) ≤ 1 / (4 * alpha₂) := by positivity
   have hparam : (1 / (4 * alpha₂) : ℝ) ≤ 1 / (4 * alpha₁) := by
-    gcongr
+    apply one_div_le_one_div_of_le (by positivity)
+    nlinarith [halpha]
   exact KummerCoefficients.kummerSeries_mono_of_nonneg
     lam (1 / (4 * alpha₂)) (1 / (4 * alpha₁)) hlam ht hparam
 
