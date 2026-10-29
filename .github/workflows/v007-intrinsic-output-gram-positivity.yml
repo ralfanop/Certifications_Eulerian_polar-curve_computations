@@ -5,6 +5,8 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireOutputGramPositivity.lean'
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireCompactQuasiaffinity.lean'
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireOutputGram.lean'
       - '.github/workflows/v007-intrinsic-output-gram-positivity.yml'
   workflow_dispatch:
 
