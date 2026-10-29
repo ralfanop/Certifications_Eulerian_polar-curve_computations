@@ -6,6 +6,7 @@ on:
     paths:
       - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireGramIdentity.lean'
       - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireGramPairing.lean'
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicCompleteSpace.lean'
       - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireFockOperator.lean'
       - '.github/workflows/v007-intrinsic-entire-gram-identity.yml'
   workflow_dispatch:
@@ -46,11 +47,13 @@ jobs:
         run: |
           set -euo pipefail
           lake build GegenbauerFock.GegenbauerIntrinsicEntireGramIdentity 2>&1 | tee /tmp/v007-intrinsic-gram-identity.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaIntrinsicCompleteSpace.lean 2>&1 | tee -a /tmp/v007-intrinsic-gram-identity.log
           lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireGramIdentity.lean 2>&1 | tee -a /tmp/v007-intrinsic-gram-identity.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-intrinsic-gram-identity.log; then
             echo "::error::Forbidden axiom in V007 intrinsic analytic Gram identification"
             exit 1
           fi
+          grep -F "intrinsicEntire_isClosed' depends on axioms:" /tmp/v007-intrinsic-gram-identity.log
           grep -F "C_intrinsicEntire_gram_eq' depends on axioms:" /tmp/v007-intrinsic-gram-identity.log
           grep -F "C_intrinsicEntire_gram_eq_integralOperator' depends on axioms:" /tmp/v007-intrinsic-gram-identity.log
           grep -F "C_intrinsicEntire_gram_eq_integralLp' depends on axioms:" /tmp/v007-intrinsic-gram-identity.log
