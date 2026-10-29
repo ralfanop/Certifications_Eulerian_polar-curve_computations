@@ -44,7 +44,7 @@ theorem exists_complete_positive_singular_hilbert_bases_kummer
     rw [Submodule.eq_bot_iff]
     intro y hy
     have hyw (i : ι) : inner ℂ (w i) y = 0 := by
-      exact (Submodule.mem_orthogonal y).mp hy (w i)
+      exact (Submodule.mem_orthogonal (Submodule.span ℂ (Set.range w)) y).mp hy (w i)
         (Submodule.subset_span ⟨i, rfl⟩)
     have hzero : C_adjoint lam alpha hlam ha y = 0 := by
       apply u.repr.injective
