@@ -31,7 +31,8 @@ theorem integral_radial_gaussian_even_power
       alpha ^ (-((n : ℝ) + 1)) * (1 / 2) *
         (Nat.factorial n : ℝ) := by
   have hq : (-1 : ℝ) < (((2 * n + 1 : ℕ) : ℝ)) := by
-    positivity
+    have hnonneg : (0 : ℝ) ≤ (((2 * n + 1 : ℕ) : ℝ)) := Nat.cast_nonneg _
+    linarith
   have h := integral_rpow_mul_exp_neg_mul_rpow
     (p := (2 : ℝ)) (q := (((2 * n + 1 : ℕ) : ℝ)))
     (b := alpha) (by norm_num) hq ha
@@ -45,7 +46,9 @@ theorem integral_radial_gaussian_even_power
     push_cast
     ring
   rw [hgamma, hexponent, Real.Gamma_nat_eq_factorial] at h
-  simpa only [Real.rpow_natCast] using h
+  have htwo (r : ℝ) : r ^ (2 : ℝ) = r ^ (2 : ℕ) := by
+    simpa using (Real.rpow_natCast r (2 : ℕ))
+  simpa only [Real.rpow_natCast, htwo] using h
 
 /-- The radial Gaussian coefficient multiplying the nth Taylor
 coefficient in the polar Fock moment formula is nonzero. -/
