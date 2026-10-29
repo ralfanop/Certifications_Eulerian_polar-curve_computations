@@ -47,7 +47,7 @@ theorem gammaDensity_integral_one
     (∫ _u : ℝ, (1 : ℝ)
       ∂((volume : Measure ℝ).withDensity
         (fun u => ENNReal.ofReal (gammaDensity lam u)))) = 1 := by
-  simpa only [pow_zero, KummerCoefficients.ratio_zero] using
+  simpa using
     (gammaDensity_evenMoment_eq_ratio lam hlam 0)
 
 /-- The Gamma-normalized ultraspherical density is strictly positive
