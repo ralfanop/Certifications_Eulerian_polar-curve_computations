@@ -513,3 +513,32 @@ axiom audit passes.
 
 PR #16 remains Draft/unmerged, and neither `main` nor approved
 manuscript V097 has been modified.
+
+
+## Update — 29 October 2026: exact Fredholm-essential norm bound certified
+
+**SUCCESS**: `TwoSidedGramExactEssentialNormBand.lean`, source
+`f3e419b0070aea5cc8e48bbe09d6867bd4b222e6`, completed
+9,119 pinned Lean 4/Mathlib jobs with independent individual
+`#print axioms` for three theorems. The only axioms printed are
+`propext`, `Classical.choice`, and `Quot.sound`;
+neither `sorryAx` nor `Lean.ofReduceBool` is required:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40879928940.
+
+Both actual Fredholm essential spectra contain zero, and each is
+contained in the closed real segment `[0,‖C‖²]`, where `C` is
+the genuine ultraspherical-to-Fock coefficient analysis operator.
+The two distinct Hilbert spaces have **not** been identified.
+
+A separate formalization of Fredholmness at every nonzero shift
+was deposited as `TwoSidedGramNonzeroShiftFredholm.lean`, and a
+consequence as `TwoSidedGramEssentialSpectrumSingleton.lean`;
+their independent workflows are:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40880474952
+and
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40880657522.
+
+**Do not claim the singleton Fredholm essential-spectrum equality
+until those runs complete successfully and their axiom audits are
+verified.** PR #16 remains open in Draft, unmerged; `main` and
+approved V097 are unchanged.
