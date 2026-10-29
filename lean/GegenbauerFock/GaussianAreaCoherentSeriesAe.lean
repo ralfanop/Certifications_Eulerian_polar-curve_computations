@@ -60,7 +60,7 @@ theorem coefficientPartialSumL2_ae_polynomial
         (a n • normalizedMonomialL2Vector alpha ha n)
       filter_upwards [ih, hlast, hadd] with z hn hlastz haddz
       simpa only [Finset.sum_range_succ, Pi.add_apply, hn, hlastz]
-        using haddz.symm
+        using haddz
 
 /-- The actual L² synthesis is represented almost everywhere by the
 entire coherent-state power series, for every square-summable vector. -/
