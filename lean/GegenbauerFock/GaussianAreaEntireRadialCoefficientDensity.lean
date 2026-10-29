@@ -58,10 +58,7 @@ theorem intrinsicEntire_analysis_injective_via_radial_inner
             0 r) = 0 := by
     simp only [Complex.real_smul] at hrad
     exact (mul_eq_zero.mp hrad).resolve_left htwo
-  convert hrad' using 1
-  apply setIntegral_congr_fun measurableSet_Ioi
-  intro r hr
-  simp only [Complex.real_smul]
+  simpa only [Complex.real_smul] using hrad'
 
 /-- The independent holomorphic Gaussian L² submodule is contained
 in the closed complex span of the genuine normalized monomials. -/
