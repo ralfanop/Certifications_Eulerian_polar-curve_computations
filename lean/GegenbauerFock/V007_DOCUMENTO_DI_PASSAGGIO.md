@@ -351,3 +351,45 @@ Questa sezione aggiorna le etichette storiche “in corso” delle
 sezioni 11–12, senza riscrivere il contenuto dei checkpoint passati.
 PR #16 deve restare Draft; non eseguire merge e non modificare
 `main` o V097.
+
+## 14. Radice CFC locale e ampiezza con immagine propria — 29 ottobre 2026
+
+Verifica diretta della CI precedente
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40942913774:
+**FAILED**, il kernel non riesce a sintetizzare le istanze
+`IsScalarTower ℝ A A` e `SMulCommClass ℝ A A` su
+`A = E →L[ℂ] E`, anche nei controlli `#synth`.
+Non attribuire a questa CI un successo né considerare il teorema
+`exists_cfc_sqrt_polar_unitary_kummer` già certificato.
+
+**Nuova strada depositata, da certificare:**
+
+- `LocalCFCGramSquareRoot.lean` introduce due costruttori di
+  strutture scalari reali `cfcComm` e `cfcTower`, riferiti allo
+  spazio ultrasferico sorgente.
+- Definisce `localCFCGramSqrt` come **esattamente**
+  `CFC.sqrt (gram lam alpha hlam ha)`, in un contesto in cui le
+  strutture scalari sono esplicitamente installate con `letI`.
+  Non si tratta di una radice quadrata posticcia o di un assioma.
+- Il teorema `exists_local_cfc_sqrt_polar_unitary_kummer`
+  identifica questa radice con l'ampiezza positiva `P` usando
+  `CFC.sqrt_unique`, preservando la fattorizzazione unitaria
+  `C = W P`, la diagonalizzazione e la somma di Kummer.
+- Commit del modulo: `50de9d8d934155aaece572b4aa278ef243f8ee6c`.
+  Commit del workflow: `10c935267c9ec8b49d833d86fd63345bdadc4fd2`.
+  CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40956634761
+  (in coda alla compilazione; **NON certificato** finché non sia
+  `SUCCESS` con audit pulito).
+
+In parallelo, la CI
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40943270510
+sul modulo `CompactPositivePolarProperDenseRange.lean` è in corso.
+Verificare anche l'import
+`CompactFockProperDenseRange.lean`; evitare conclusioni sulla
+non-suriettività dell'ampiezza prima dell'audit.
+
+La precedente certificazione della compattezza e positività di `P`
+resta valida: CI
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40937763994
+(**SUCCESS**), senza assiomi ulteriori. Restano invariati
+PR #16 Draft, nessun merge, nessuna modifica a `main` o V097.
