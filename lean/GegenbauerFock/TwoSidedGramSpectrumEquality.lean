@@ -20,7 +20,7 @@ eigenvalue for either Gram.
 
 noncomputable section
 
-open MeasureTheory
+open MeasureTheory Module End
 
 namespace GegenbauerFock.GeneralUltrasphericalFock
 
