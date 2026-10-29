@@ -28,7 +28,7 @@ theorem sturmRealPolynomialLp_add
      Lp.coeFn_add (sturmRealPolynomialLp lam hlam p)
        (sturmRealPolynomialLp lam hlam q)]
     with u hpq hp hq hadd
-  rw [hpq, hadd, hp, hq]
+  rw [hpq, hadd, Pi.add_apply, hp, hq]
   simp
 
 theorem sturmRealPolynomialLp_smul
@@ -41,7 +41,7 @@ theorem sturmRealPolynomialLp_smul
      sturmRealPolynomialLp_ae_eval lam hlam p,
      Lp.coeFn_smul c (sturmRealPolynomialLp lam hlam p)]
     with u hcp hp hsmul
-  rw [hcp, hsmul, hp]
+  rw [hcp, hsmul, Pi.smul_apply, hp]
   simp
 
 /-- True real-polynomial evaluation in L² of the genuine
