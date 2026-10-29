@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/DualGramEigenbasisTrace.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceBasisIndependence.lean'
       - 'lean/GegenbauerFock/DualGramPositiveTraceDiagonal.lean'
       - 'lean/GegenbauerFock/PositiveTraceDiagonalSpectralBridge.lean'
       - '.github/workflows/v007-dual-gram-eigenbasis-trace.yml'
