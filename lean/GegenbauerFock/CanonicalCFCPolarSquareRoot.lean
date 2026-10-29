@@ -23,17 +23,19 @@ namespace GegenbauerFock.GeneralUltrasphericalFock
 
 /- The real scalar action on complex-linear Hilbert endomorphisms
 commutes with composition, as required by the real non-unital CFC. -/
-private instance (lam : ℝ) :
-    SMulCommClass ℝ
-      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
-        Lp ℂ 2 (Ultraspherical.measure lam))
-      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
-        Lp ℂ 2 (Ultraspherical.measure lam)) where
+instance (priority := 2000) (E : Type*) [NormedAddCommGroup E]
+    [InnerProductSpace ℂ E] [CompleteSpace E] :
+    SMulCommClass ℝ (E →L[ℂ] E) (E →L[ℂ] E) where
   smul_comm r S T := by
     apply ContinuousLinearMap.ext
     intro x
     change r • S (T x) = S (r • T x)
     exact (S.map_smul_of_tower r (T x)).symm
+
+-- Make the required CFC scalar-commutation instance check explicit.
+#synth SMulCommClass ℝ
+  (InfiniteAnalysis.FockCoefficients →L[ℂ] InfiniteAnalysis.FockCoefficients)
+  (InfiniteAnalysis.FockCoefficients →L[ℂ] InfiniteAnalysis.FockCoefficients)
 
 /-- The true C admits a full-Hilbert unitary polar factorization
 C = W ∘ CFC.sqrt (C†C), and the unique positive CFC square root has
