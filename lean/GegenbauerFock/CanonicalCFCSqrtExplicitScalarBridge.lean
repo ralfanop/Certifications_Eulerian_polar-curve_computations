@@ -34,6 +34,20 @@ private def polarScalarComm (lam : ℝ) :
     change r • S (T x) = S (r • T x)
     exact (S.map_smul_of_tower r (T x)).symm
 
+/-- The same real scalar multiplication associates with composition of
+complex-linear bounded operators, a second CFC requirement. -/
+private def polarScalarTower (lam : ℝ) :
+    IsScalarTower ℝ
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam))
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam)) where
+  smul_assoc r S T := by
+    apply ContinuousLinearMap.ext
+    intro x
+    change (r • S) (T x) = r • S (T x)
+    rfl
+
 /-- On the actual full Hilbert space, the positive polar amplitude
 is the canonical CFC square root of C†C. The explicit local instance
 in the proposition avoids non-injective measure-parameter inference. -/
@@ -44,6 +58,11 @@ theorem exists_cfc_sqrt_with_explicit_scalar_commutation
           Lp ℂ 2 (Ultraspherical.measure lam))
         (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
           Lp ℂ 2 (Ultraspherical.measure lam)) := polarScalarComm lam
+     letI : IsScalarTower ℝ
+        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam))
+        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam)) := polarScalarTower lam
      ∃ P : Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
          Lp ℂ 2 (Ultraspherical.measure lam),
        0 ≤ P ∧
@@ -54,6 +73,11 @@ theorem exists_cfc_sqrt_with_explicit_scalar_commutation
         Lp ℂ 2 (Ultraspherical.measure lam))
       (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
         Lp ℂ 2 (Ultraspherical.measure lam)) := polarScalarComm lam
+  letI : IsScalarTower ℝ
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam))
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam)) := polarScalarTower lam
   classical
   obtain ⟨ι, u, mu, W, P, hp, hsum, hK, hPu, hC, hP2,
       hinj, hself, hPpos⟩ :=
