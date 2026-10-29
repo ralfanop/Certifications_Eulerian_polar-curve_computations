@@ -30,8 +30,8 @@ theorem sourceGram_nonzero_eigenspace_finiteDimensional
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     (mu : ℂ) (hmu : mu ≠ 0) :
     FiniteDimensional ℂ (eigenspace (gram lam alpha hlam ha).toLinearMap mu) :=
-  (gram_compact_concrete lam alpha hlam ha).finite_dimensional_eigenspace
-    mu hmu
+  ContinuousLinearMap.finite_dimensional_eigenspace
+    (gram_compact_concrete lam alpha hlam ha) mu hmu
 
 /-- Every nonzero eigenspace of the true Fock-output Gram is
 finite-dimensional in the full coefficient Hilbert space. -/
@@ -39,8 +39,8 @@ theorem outputGram_nonzero_eigenspace_finiteDimensional
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     (mu : ℂ) (hmu : mu ≠ 0) :
     FiniteDimensional ℂ (eigenspace (outputGram lam alpha hlam ha).toLinearMap mu) :=
-  (outputGram_compact lam alpha hlam ha).finite_dimensional_eigenspace
-    mu hmu
+  ContinuousLinearMap.finite_dimensional_eigenspace
+    (outputGram_compact lam alpha hlam ha) mu hmu
 
 /-- Finite geometric multiplicity simultaneously for both true
 Gram endomorphisms, including at all common positive eigenvalues. -/
