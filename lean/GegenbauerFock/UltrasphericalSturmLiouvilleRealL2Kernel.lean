@@ -47,17 +47,14 @@ theorem sturmRealPolynomialLp_action_well_defined
       sturmRealPolynomialLp lam hlam (sturmPolynomial lam q) := by
   have hsub :
       sturmRealPolynomialLp lam hlam (p - q) = 0 := by
-    rw [sub_eq_add_neg, sturmRealPolynomialLp_add]
-    have hneg :
-        sturmRealPolynomialLp lam hlam (-q) =
-          -sturmRealPolynomialLp lam hlam q := by
-      simpa only [neg_one_smul] using
-        sturmRealPolynomialLp_smul lam hlam (-1) q
-    rw [hneg]
+    change sturmRealPolynomialLinear lam hlam (p - q) = 0
+    rw [map_sub]
     exact sub_eq_zero.mpr hpq
   have hzero :=
     sturmRealPolynomialLp_kernel_invariant lam hlam (p - q) hsub
-  rw [sturmPolynomial_sub, sturmRealPolynomialLp_sub] at hzero
+  change sturmRealPolynomialLinear lam hlam
+    (sturmPolynomial lam (p - q)) = 0 at hzero
+  rw [sturmPolynomial_sub, map_sub] at hzero
   exact sub_eq_zero.mp hzero
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPolynomialLp_kernel_invariant
