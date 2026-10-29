@@ -108,4 +108,5 @@ jobs:
           grep -F "intrinsicEntire_planar_gaussian_moment_eq_scaled_derivative' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           grep -F "coefficientAnalysisL2_intrinsic_eq_scaled_taylor' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           grep -F "intrinsicEntire_scaledTaylor_monomial_hasSum' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_scaledTaylor_memℓp' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           echo 'True intrinsic Gaussian Fock Taylor-Fourier reconstruction: kernel checked and audited.'
