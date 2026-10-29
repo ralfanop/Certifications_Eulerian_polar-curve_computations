@@ -38,8 +38,8 @@ theorem sourceGramSpectralEquiv_symm_single
     (sourceGramSpectralEquiv lam alpha hlam ha).symm (lp.single 2 mu v) =
       (v : Lp ℂ 2 (Ultraspherical.measure lam)) := by
   classical
-  exact (sourceGram_eigenspaces_isHilbertSum lam alpha hlam ha)
-    .linearIsometryEquiv_symm_apply_single v
+  exact IsHilbertSum.linearIsometryEquiv_symm_apply_single
+    (sourceGram_eigenspaces_isHilbertSum lam alpha hlam ha) v
 
 /-- The corresponding output spectral coordinate reconstructs
 the original entire-coefficient Fock Gram eigenvector. -/
@@ -50,8 +50,8 @@ theorem outputGramSpectralEquiv_symm_single
     (outputGramSpectralEquiv lam alpha hlam ha).symm (lp.single 2 mu v) =
       (v : InfiniteAnalysis.FockCoefficients) := by
   classical
-  exact (outputGram_eigenspaces_isHilbertSum lam alpha hlam ha)
-    .linearIsometryEquiv_symm_apply_single v
+  exact IsHilbertSum.linearIsometryEquiv_symm_apply_single
+    (outputGram_eigenspaces_isHilbertSum lam alpha hlam ha) v
 
 /-- Exact source Gram eigen-equation for a genuinely reconstructed
 one-coordinate Hilbert-sum vector, with no eigenvector hypothesis. -/
