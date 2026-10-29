@@ -27,16 +27,19 @@ theorem sturmPolynomial_quadratic_eigen (lam : ℝ) :
       C (-(4 * (lam + 1))) * sturmQuadratic lam := by
   have htwo := sturmPolynomial_X_pow_succ_succ lam 0
   norm_num at htwo
-  calc
-    sturmPolynomial lam (sturmQuadratic lam)
-        = (2 * (lam + 1)) • sturmPolynomial lam (X ^ 2) := by
-            simp [sturmQuadratic, ← smul_eq_C_mul,
-              sturmPolynomial_sub, sturmPolynomial_smul,
-              sturmPolynomial_C]
-    _ = C (-(4 * (lam + 1))) * sturmQuadratic lam := by
-          rw [htwo]
-          simp only [sturmQuadratic, smul_eq_C_mul]
-          ring
+  have hone : sturmPolynomial lam (1 : ℝ[X]) = 0 := by
+    simpa using sturmPolynomial_C lam (1 : ℝ)
+  have hscale :
+      sturmPolynomial lam (C (2 * (lam + 1)) * X ^ 2) =
+        C (2 * (lam + 1)) * sturmPolynomial lam (X ^ 2) := by
+    simpa only [smul_eq_C_mul] using
+      (sturmPolynomial_smul lam (2 * (lam + 1)) (X ^ 2))
+  change sturmPolynomial lam
+    (C (2 * (lam + 1)) * X ^ 2 - (1 : ℝ[X])) =
+    C (-(4 * (lam + 1))) * (C (2 * (lam + 1)) * X ^ 2 - 1)
+  rw [sturmPolynomial_sub, hone, sub_zero, hscale, htwo]
+  norm_num [map_add, map_mul, map_neg]
+  ring
 
 #print axioms GegenbauerFock.Ultraspherical.sturmPolynomial_quadratic_eigen
 
