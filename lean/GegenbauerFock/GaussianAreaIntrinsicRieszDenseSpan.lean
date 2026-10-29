@@ -31,6 +31,15 @@ theorem intrinsicRieszKernel_span_dense
   let S : Submodule ℂ (entireGaussianL2Submodule alpha) :=
     Submodule.span ℂ (Set.range (intrinsicRieszKernel alpha ha))
   change S.topologicalClosure = ⊤
+  -- The intrinsic entire Gaussian submodule was independently proved
+  -- equal to the closed Gaussian polynomial span. Materialize its
+  -- completeness rather than searching for it through typeclass synthesis.
+  letI : CompleteSpace (entireGaussianL2Submodule alpha) := by
+    rw [intrinsicEntire_eq_gaussianPolynomialClosure alpha ha]
+    unfold gaussianPolynomialClosure
+    infer_instance
+  letI : CompleteSpace S.topologicalClosure := inferInstance
+  haveI : S.topologicalClosure.HasOrthogonalProjection := inferInstance
   apply Submodule.orthogonal_eq_bot_iff.mp
   apply (Submodule.eq_bot_iff _).mpr
   intro x hx
