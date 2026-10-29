@@ -29,7 +29,7 @@ theorem sturmPolynomial_quadratic_eigen (lam : ℝ) :
   have htwo :
       sturmPolynomial lam (X ^ 2) =
         C (2 : ℝ) - C (4 * (lam + 1)) * X ^ 2 := by
-    simpa only [Nat.zero_add, Nat.cast_ofNat, pow_zero, mul_one, hs]
+    simpa only [Nat.zero_add, Nat.cast_ofNat, Nat.cast_one, pow_zero, mul_one, hs]
       using (sturmPolynomial_X_pow_succ_succ lam 0)
   have hone : sturmPolynomial lam (1 : ℝ[X]) = 0 := by
     simpa using (sturmPolynomial_C lam 1)
