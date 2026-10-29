@@ -60,8 +60,7 @@ theorem exists_unitary_dualGram_intertwiner_kummer
   have h := congrArg
     (fun A : Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
       InfiniteAnalysis.FockCoefficients => A f) hmaps
-  simpa only [ContinuousLinearMap.comp_apply,
-    LinearIsometryEquiv.toContinuousLinearMap_apply] using h
+  simpa only [ContinuousLinearMap.comp_apply] using h
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_unitary_dualGram_intertwiner_kummer
 
