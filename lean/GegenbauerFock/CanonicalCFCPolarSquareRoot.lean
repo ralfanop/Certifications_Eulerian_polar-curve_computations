@@ -1,6 +1,7 @@
 import GegenbauerFock.PositivePolarAmplitude
 import Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Rpow.Basic
 import Mathlib.Analysis.InnerProductSpace.StarOrder
+import Mathlib.Analysis.CStarAlgebra.ContinuousLinearMap
 
 /-!
 # V007 — canonical continuous-functional-calculus square root
@@ -45,9 +46,10 @@ theorem exists_cfc_sqrt_polar_unitary_kummer
     apply ContinuousLinearMap.nonneg_iff_isPositive.mpr
     exact (ContinuousLinearMap.isPositive_toLinearMap_iff P).mp hPpos
   have hPmul : P * P = gram lam alpha hlam ha := by
-    ext f
-    change P (P f) = gram lam alpha hlam ha f
-    exact (hP2 f).symm
+    apply ContinuousLinearMap.ext
+    intro f
+    simpa only [ContinuousLinearMap.mul_def,
+      ContinuousLinearMap.comp_apply] using (hP2 f).symm
   have hCFC : CFC.sqrt (gram lam alpha hlam ha) = P :=
     CFC.sqrt_unique hPmul hPnonneg
   refine ⟨ι, u, mu, W, hp, hsum, hK, ?_, ?_⟩
