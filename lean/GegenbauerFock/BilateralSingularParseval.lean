@@ -51,7 +51,7 @@ theorem exists_bilateral_singular_parseval_kummer
             (C_adjoint_pairing lam alpha hlam ha (v i) f).symm
       _ = inner ℂ ((Real.sqrt (mu i) : ℂ) • u i) f := by rw [hAdj i]
       _ = (Real.sqrt (mu i) : ℂ) * inner ℂ (u i) f := by
-        rw [inner_smul_ofReal_left]
+        rw [InnerProductSpace.Core.inner_smul_ofReal_left]
         ring
   have houtput (i : ι) (F : InfiniteAnalysis.FockCoefficients) :
       inner ℂ (u i) (C_adjoint lam alpha hlam ha F) =
@@ -62,7 +62,7 @@ theorem exists_bilateral_singular_parseval_kummer
             (C lam alpha hlam ha).adjoint_inner_right (u i) F
       _ = inner ℂ ((Real.sqrt (mu i) : ℂ) • v i) F := by rw [hC i]
       _ = (Real.sqrt (mu i) : ℂ) * inner ℂ (v i) F := by
-        rw [inner_smul_ofReal_left]
+        rw [InnerProductSpace.Core.inner_smul_ofReal_left]
         ring
   have hweight (i : ι) (z : ℂ) :
       ‖(Real.sqrt (mu i) : ℂ) * z‖ ^ 2 =
