@@ -53,10 +53,12 @@ operators on their distinct ultraspherical and analytic Gaussian
 Hilbert spaces. -/
 theorem C_intrinsicEntire_two_gram_zero_fredholm_essential
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
-    (0 : ℂ) ∈
-      fredholmEssentialSpectrum (C_intrinsicEntire_gram lam alpha hlam ha) ∧
-    (0 : ℂ) ∈
-      fredholmEssentialSpectrum (C_intrinsicEntire_outputGram lam alpha hlam ha) := by
+    (letI : CompleteSpace (GaussianArea.entireGaussianL2Submodule alpha) :=
+       (GaussianArea.intrinsicEntire_isClosed alpha ha).completeSpace_coe
+     (0 : ℂ) ∈
+       fredholmEssentialSpectrum (C_intrinsicEntire_gram lam alpha hlam ha) ∧
+     (0 : ℂ) ∈
+       fredholmEssentialSpectrum (C_intrinsicEntire_outputGram lam alpha hlam ha)) := by
   exact ⟨C_intrinsicEntire_gram_zero_mem_fredholm_essential lam alpha hlam ha,
     C_intrinsicEntire_outputGram_zero_mem_fredholm_essential lam alpha hlam ha⟩
 
