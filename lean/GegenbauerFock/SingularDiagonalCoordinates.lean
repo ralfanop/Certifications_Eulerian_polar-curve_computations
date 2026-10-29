@@ -45,7 +45,8 @@ theorem exists_bilateral_singular_diagonal_coordinates_kummer
             (C_adjoint_pairing lam alpha hlam ha (v i) f).symm
       _ = inner ℂ ((Real.sqrt (mu i) : ℂ) • u i) f := by rw [hAdj i]
       _ = (Real.sqrt (mu i) : ℂ) * inner ℂ (u i) f := by
-        simp [inner_smul_left]
+        rw [inner_smul_ofReal_left]
+        ring
   · intro F i
     rw [u.repr_apply_apply, v.repr_apply_apply]
     calc
@@ -54,7 +55,8 @@ theorem exists_bilateral_singular_diagonal_coordinates_kummer
             (C lam alpha hlam ha).adjoint_inner_right (u i) F
       _ = inner ℂ ((Real.sqrt (mu i) : ℂ) • v i) F := by rw [hC i]
       _ = (Real.sqrt (mu i) : ℂ) * inner ℂ (v i) F := by
-        simp [inner_smul_left]
+        rw [inner_smul_ofReal_left]
+        ring
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_bilateral_singular_diagonal_coordinates_kummer
 
