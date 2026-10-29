@@ -48,11 +48,12 @@ private theorem weak_zero_of_unit_and_dense_range_tests
     (Metric.mem_closure_iff.mp hmem) (ε / 2) hhalf
   obtain ⟨z, rfl⟩ := hy
   have hclose : ‖x - T z‖ < ε / 2 := by
-    simpa only [dist_eq_norm] using hxy
-  have hsmall : ∀ᶠ n : ℕ in atTop,
-      dist (inner ℂ (T z) (u n)) (0 : ℂ) < ε / 2 :=
+    simpa [dist_eq_norm] using hxy
+  obtain ⟨N, hsmall⟩ :=
     (Metric.tendsto_atTop.mp (hrange z)) (ε / 2) hhalf
-  filter_upwards [hsmall] with n hn
+  refine ⟨N, ?_⟩
+  intro n hnN
+  have hn := hsmall n hnN
   rw [dist_zero_right] at hn ⊢
   have hdecomp : x = (x - T z) + T z := by abel
   calc
