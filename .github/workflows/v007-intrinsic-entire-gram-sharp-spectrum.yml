@@ -53,7 +53,8 @@ jobs:
           for theorem in \
             intrinsicEntire_sourceGram_spectral_value_sharp_bound \
             intrinsicEntire_sourceGram_outside_sharp_band_resolvent \
-            intrinsicEntire_sourceGram_sharp_spectrum_and_essential_zero; do
+            intrinsicEntire_sourceGram_sharp_spectrum_and_essential_zero \
+            intrinsicEntire_sourceGram_shift_fredholm_iff_nonzero; do
             grep -qF "${theorem}' depends on axioms:" /tmp/v007-intrinsic-fock-sharp.log
           done
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-intrinsic-fock-sharp.log; then
