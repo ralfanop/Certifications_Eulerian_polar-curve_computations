@@ -44,13 +44,12 @@ theorem exists_compact_realEigenHilbertBasis
     exact exists_hilbertBasis ℂ (S μ)
   choose W b hb using hchoice
   let ι : Type u := Σ μ : ℂ, W μ
-  let v : ι → H := fun a => (b a.1 a.2 : H)
+  let v : ι → H := fun a => (S a.1).subtypeₗᵢ (b a.1 a.2)
   have hfam : OrthogonalFamily ℂ
       (fun μ : ℂ => S μ) (fun μ => (S μ).subtypeₗᵢ) := by
     exact hs.orthogonalFamily_eigenspaces
   have hv : Orthonormal ℂ v := by
-    simpa only [v, S] using
-      hfam.orthonormal_sigma_orthonormal (fun μ => (b μ).orthonormal)
+    exact hfam.orthonormal_sigma_orthonormal (fun μ => (b μ).orthonormal)
   have hsub (μ : ℂ) :
       S μ ≤ (Submodule.span ℂ (Set.range v)).topologicalClosure := by
     intro x hx
@@ -58,8 +57,8 @@ theorem exists_compact_realEigenHilbertBasis
     have hsum : HasSum
         (fun i : W μ => ((b μ).repr y i) • (b μ i : H)) x := by
       have ht := ((S μ).subtypeL).hasSum ((b μ).hasSum_repr y)
-      simpa only [map_smul] using ht
-    refine mem_closure_of_tendsto hsum (Eventually.of_forall ?_)
+      simpa [Submodule.subtypeL, v] using ht
+    refine mem_closure_of_tendsto hsum (Filter.Eventually.of_forall ?_)
     intro z
     simp only [SetLike.mem_coe]
     apply Submodule.sum_mem
@@ -92,10 +91,11 @@ theorem exists_compact_realEigenHilbertBasis
     rw [hz, norm_zero] at hn
     norm_num at hn
   have hreal : ((a.1.re : ℝ) : ℂ) = a.1 := by
-    rw [← RCLike.conj_eq_iff_re]
-    exact hs.conj_eigenvalue_eq_self
-      (Module.End.hasEigenvalue_of_hasEigenvector
-        (show HasEigenvector T.toLinearMap a.1 (v a) from ⟨hmem, hne⟩))
+    change (RCLike.re a.1 : ℂ) = a.1
+    exact RCLike.conj_eq_iff_re.mp
+      (hs.conj_eigenvalue_eq_self
+        (Module.End.hasEigenvalue_of_hasEigenvector
+          (show HasEigenvector T.toLinearMap a.1 (v a) from ⟨hmem, hne⟩)))
   simpa only [B, eigenvalue, HilbertBasis.coe_mkOfOrthogonalEqBot, hreal]
     using heig
 
