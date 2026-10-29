@@ -62,6 +62,15 @@ example (lam : ℝ) :
         Lp ℂ 2 (Ultraspherical.measure lam)) :=
   inferInstance
 
+-- The second CFC algebra class must also synthesize on the actual L² source.
+example (lam : ℝ) :
+    IsScalarTower ℝ
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam))
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam)) :=
+  inferInstance
+
 /-- The true C admits a full-Hilbert unitary polar factorization
 C = W ∘ CFC.sqrt (C†C), and the unique positive CFC square root has
 strictly positive eigenvalues and Kummer squared-singular-value mass. -/
