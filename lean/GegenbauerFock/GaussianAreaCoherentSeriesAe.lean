@@ -19,6 +19,7 @@ submodule. The reverse inclusion remains a separate analytic task.
 noncomputable section
 
 open MeasureTheory Filter
+open scoped Topology
 
 namespace GegenbauerFock.GaussianArea
 
@@ -35,8 +36,8 @@ theorem coefficientPartialSumL2_ae_polynomial
           a k * normalizedMonomial alpha k z) := by
   induction n with
   | zero =>
-      simpa only [Finset.range_zero, Finset.sum_empty] using
-        (Lp.coeFn_zero ℂ 2 (gaussianAreaMeasure alpha))
+      filter_upwards [Lp.coeFn_zero ℂ 2 (gaussianAreaMeasure alpha)] with z hz
+      simpa [Finset.range_zero] using hz
   | succ n ih =>
       have hlast :
           ((a n • normalizedMonomialL2Vector alpha ha n :
