@@ -1,4 +1,5 @@
 import GegenbauerFock.GaussianAreaIntrinsicRieszSeparates
+import GegenbauerFock.GaussianAreaEntireRadialCoefficientDensity
 import Mathlib.Analysis.InnerProductSpace.Projection.Submodule
 
 /-!
@@ -35,7 +36,7 @@ theorem intrinsicRieszKernel_span_dense
   -- equal to the closed Gaussian polynomial span. Materialize its
   -- completeness rather than searching for it through typeclass synthesis.
   letI : CompleteSpace (entireGaussianL2Submodule alpha) := by
-    rw [intrinsicEntire_eq_gaussianPolynomialClosure alpha ha]
+    rw [intrinsicEntire_eq_polynomialClosure_via_radial_inner alpha ha]
     unfold gaussianPolynomialClosure
     infer_instance
   letI : CompleteSpace S.topologicalClosure := inferInstance
