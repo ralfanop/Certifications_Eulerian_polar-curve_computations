@@ -6,6 +6,8 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/CanonicalCFCPolarSquareRoot.lean'
+      - 'lean/GegenbauerFock/PositivePolarAmplitude.lean'
+      - 'lean/GegenbauerFock/SelfAdjointPolarAmplitude.lean'
       - 'lean/GegenbauerFock/CompletePositiveSingularFamily.lean'
       - '.github/workflows/v007-canonical-cfc-polar-sqrt.yml'
   workflow_dispatch:
