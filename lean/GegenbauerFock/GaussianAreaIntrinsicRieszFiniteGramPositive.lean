@@ -39,8 +39,14 @@ theorem intrinsicRieszKernel_finite_gram_eq_inner
   intro i hi
   apply Finset.sum_congr rfl
   intro j hj
-  rw [inner_smul_left, inner_smul_right,
-    intrinsicRieszKernel_pairing]
+  conv_rhs =>
+    rw [inner_smul_left
+      (intrinsicRieszKernel alpha ha (z i))
+      (c j • intrinsicRieszKernel alpha ha (z j)) (c i)]
+    rw [inner_smul_right
+      (intrinsicRieszKernel alpha ha (z i))
+      (intrinsicRieszKernel alpha ha (z j)) (c j)]
+    rw [intrinsicRieszKernel_pairing alpha ha (z i) (z j)]
   ring
 
 /-- Every finite Hermitian Gram matrix formed by intrinsic Gaussian
@@ -55,7 +61,8 @@ theorem intrinsicRieszKernel_finite_gram_nonneg
           entireRepresentative alpha
             (intrinsicRieszKernel alpha ha (z j)) (z i)) := by
   rw [intrinsicRieszKernel_finite_gram_eq_inner s z c alpha ha]
-  exact inner_self_nonneg
+  exact (inner_self_nonneg (𝕜 := ℂ)
+    (x := ∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)))
 
 /-- The real part of every finite coherent Gram quadratic form is
 exactly the squared intrinsic Gaussian-L² norm of the finite Riesz
