@@ -66,6 +66,12 @@ on:
       - 'lean/GegenbauerFock/GaussianAreaPolarAngularMoment.lean'
       - 'lean/GegenbauerFock/GaussianAreaEntireRadialInner.lean'
       - 'lean/GegenbauerFock/GaussianAreaTrueMomentKernel.lean'
+      - 'lean/GegenbauerFock/GaussianAreaPolarRadialCircleBridge.lean'
+      - 'lean/GegenbauerFock/GaussianAreaCircleScalarExtraction.lean'
+      - 'lean/GegenbauerFock/GaussianAreaPlanarMomentUniqueness.lean'
+      - 'lean/GegenbauerFock/GaussianAreaEntireDensityByMoments.lean'
+      - 'lean/GegenbauerFock/GaussianAreaEntireFockIsometricEquiv.lean'
+      - 'lean/GegenbauerFock/GaussianAreaFullIntrinsicFockSurjectivity.lean'
       - '.github/workflows/gegenbauer-fock-gaussian-area.yml'
   workflow_dispatch:
 
