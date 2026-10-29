@@ -99,7 +99,7 @@ theorem intrinsicTaylorCoefficients_tsum_norm_sq
       ‖intrinsicTaylorCoefficients alpha ha x‖ ^ 2 =
         ∑' n : ℕ, ‖(intrinsicTaylorCoefficients alpha ha x) n‖ ^ 2 := by
     simpa using (lp.norm_rpow_eq_tsum
-      (by norm_num : 0 < (2 : ℝ≥0∞).toReal)
+      (by norm_num : 0 < (2 : ENNReal).toReal)
       (intrinsicTaylorCoefficients alpha ha x))
   calc
     _ = ‖intrinsicTaylorCoefficients alpha ha x‖ ^ 2 := hnorm.symm
