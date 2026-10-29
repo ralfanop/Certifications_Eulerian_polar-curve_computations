@@ -53,7 +53,7 @@ theorem exists_selfadjoint_polar_amplitude_kummer
             by_cases hji : j = i
             · subst j
               rw [inner_smul_left, inner_smul_right]
-              simp only [map_real, conj_ofReal]
+              simp
             · rw [inner_smul_left, inner_smul_right,
                 u.orthonormal.inner_eq_zero hji]
               simp
