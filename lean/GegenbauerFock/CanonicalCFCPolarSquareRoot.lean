@@ -23,7 +23,7 @@ namespace GegenbauerFock.GeneralUltrasphericalFock
 /- The real scalar action on complex-linear Hilbert endomorphisms
 commutes with composition, as required by the real non-unital CFC. -/
 private instance (E : Type*) [NormedAddCommGroup E]
-    [InnerProductSpace ℂ E] [CompleteSpace E] :
+    [NormedSpace ℂ E] :
     SMulCommClass ℝ (E →L[ℂ] E) (E →L[ℂ] E) where
   smul_comm r S T := by
     apply ContinuousLinearMap.ext
