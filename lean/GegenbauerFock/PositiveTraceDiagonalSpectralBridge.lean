@@ -27,7 +27,7 @@ variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 is summable in any complete complex Hilbert basis. -/
 theorem positiveTrace_diagonal_summable
     (T : H →L[ℂ] H) (hT : ProbabilisticTheory.IsTraceClass T)
-    (hpos : 0 ≤ T) {w : Set H} (b : HilbertBasis w ℂ H) :
+    (hpos : 0 ≤ T) {w : Type*} (b : HilbertBasis w ℂ H) :
     Summable (fun i : w => (inner ℂ (b i) (T (b i))).re) := by
   simpa only [CFC.abs_of_nonneg T hpos] using
     (ProbabilisticTheory.summable_inner_abs_of_hilbertBasis hT b)
@@ -36,7 +36,7 @@ theorem positiveTrace_diagonal_summable
 sum in every Hilbert basis, without selecting a preferred basis. -/
 theorem positiveTrace_traceNorm_eq_diagonal_tsum
     (T : H →L[ℂ] H) (hT : ProbabilisticTheory.IsTraceClass T)
-    (hpos : 0 ≤ T) {w : Set H} (b : HilbertBasis w ℂ H) :
+    (hpos : 0 ≤ T) {w : Type*} (b : HilbertBasis w ℂ H) :
     ProbabilisticTheory.traceNorm T hT =
       ∑' i : w, (inner ℂ (b i) (T (b i))).re := by
   simpa only [CFC.abs_of_nonneg T hpos] using
@@ -47,7 +47,7 @@ orthonormal Hilbert basis is necessarily summable. The diagonal
 identification is an explicit hypothesis, not an assumed theorem. -/
 theorem positiveTrace_diagonalValues_summable
     (T : H →L[ℂ] H) (hT : ProbabilisticTheory.IsTraceClass T)
-    (hpos : 0 ≤ T) {w : Set H} (b : HilbertBasis w ℂ H)
+    (hpos : 0 ≤ T) {w : Type*} (b : HilbertBasis w ℂ H)
     (values : w → ℝ)
     (hvalues : ∀ i : w,
       (inner ℂ (b i) (T (b i))).re = values i) :
@@ -59,7 +59,7 @@ diagonal. Instantiating this for the Gram's complete eigenbasis is
 the remaining unconditional eigenvalue-enumeration step. -/
 theorem positiveTrace_diagonalValues_tsum_eq_traceNorm
     (T : H →L[ℂ] H) (hT : ProbabilisticTheory.IsTraceClass T)
-    (hpos : 0 ≤ T) {w : Set H} (b : HilbertBasis w ℂ H)
+    (hpos : 0 ≤ T) {w : Type*} (b : HilbertBasis w ℂ H)
     (values : w → ℝ)
     (hvalues : ∀ i : w,
       (inner ℂ (b i) (T (b i))).re = values i) :
