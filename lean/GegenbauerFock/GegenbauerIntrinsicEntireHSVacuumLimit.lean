@@ -36,7 +36,7 @@ theorem kummerSeries_gaussianScale_tendsto_one
   have hexp :
       Tendsto (fun alpha : ℝ => Real.exp (1 / (4 * alpha)))
         atTop (nhds (1 : ℝ)) := by
-    simpa only [Real.exp_zero] using
+    simpa only [Function.comp_def, Real.exp_zero] using
       (Real.continuous_exp.continuousAt.tendsto.comp harg)
   have hpositive : ∀ᶠ alpha : ℝ in atTop, 0 < alpha := by
     exact eventually_atTop.2 ⟨1, by intro alpha ha; linarith⟩
@@ -55,7 +55,7 @@ theorem sqrt_kummerSeries_gaussianScale_tendsto_one
       (fun alpha : ℝ =>
         Real.sqrt (kummerSeries lam (1 / (4 * alpha))))
       atTop (nhds (1 : ℝ)) := by
-  simpa only [Real.sqrt_one] using
+  simpa only [Function.comp_def, Real.sqrt_one] using
     (Real.continuous_sqrt.continuousAt.tendsto.comp
       (kummerSeries_gaussianScale_tendsto_one lam hlam))
 
@@ -81,7 +81,7 @@ theorem C_intrinsicEntire_HS_vacuum_limit_uniform_bases
           1 + eps := by
   have hlim := KummerCoefficients.kummerSeries_gaussianScale_tendsto_one lam hlam
   have hwindow : Set.Iio (1 + eps) ∈ nhds (1 : ℝ) :=
-    isOpen_Iio.mem_nhds (by dsimp; linarith)
+    isOpen_Iio.mem_nhds (show (1 : ℝ) < 1 + eps by linarith)
   obtain ⟨A, hA⟩ := eventually_atTop.1 (hlim.eventually hwindow)
   refine ⟨A, ?_⟩
   intro alpha hAlpha ha ι b
