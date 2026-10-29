@@ -464,3 +464,52 @@ certified common spectral band.
 
 PR #16 stays Draft/unmerged; neither `main` nor approved V097 is
 modified.
+
+
+## Update — 29 October 2026: independently certified compact eigenbases and Kummer sums
+
+The Hilbert-basis trace bottleneck is now resolved **without axioms of
+admitted proofs**. Exact-commit dedicated SUCCESS runs:
+
+- `PhyslibTraceBasisIndependence.lean`: invariance of the true CFC
+  absolute diagonal and trace norm in arbitrary Hilbert bases,
+  based on a square-root quadratic form and Hilbert-space Parseval.
+  SHA `45bc54527319`, CI:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40879559227.
+  The logs of the relevant theorems contain only
+  `propext`, `Classical.choice`, `Quot.sound`.
+- `DualGramEigenbasisTrace.lean`: for arbitrary actual full eigenbases
+  of either positive Gram, the real eigenvalue family is summable
+  and its sum is exactly the unregularized Kummer series, with
+  index multiplicities retained. CI:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40879620213.
+- `CompactGramEigenHilbertBasis.lean`: **unconditional existence**
+  of complete real-eigenvalue Hilbert bases for both genuine Gram
+  operators, followed by the sum-with-multiplicities identities.
+  **SUCCESS**, 9,105 Lean build jobs and individual axiom audit:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40879627683.
+  Certified:
+  `exists_compact_realEigenHilbertBasis`,
+  `exists_sourceGram_eigenHilbertBasis_kummer`,
+  `exists_outputGram_eigenHilbertBasis_kummer`.
+  The result does **not** equate the source L² and target coefficient
+  Hilbert spaces or rely on finite-rank cutoffs.
+
+A separate audit of the Physlib trace-class Hilbert–Schmidt polar
+factorization also completed SUCCESS:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40879558972.
+
+**Still not certified:** equality of the *Fredholm essential spectrum*
+with the singleton `{0}`. A complete eigenbasis and finite geometric
+eigenspaces alone do not establish the Fredholm property of every
+nonzero spectral shift. The stronger closed-range/finite-cokernel
+argument remains necessary.
+
+The new precise bound
+`TwoSidedGramExactEssentialNormBand.lean` is independently compiling:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40879928940.
+Do not attribute SUCCESS to it until its own run completes and the
+axiom audit passes.
+
+PR #16 remains Draft/unmerged, and neither `main` nor approved
+manuscript V097 has been modified.
