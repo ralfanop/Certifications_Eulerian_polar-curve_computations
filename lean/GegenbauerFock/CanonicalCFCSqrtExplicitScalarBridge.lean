@@ -217,4 +217,93 @@ theorem exists_cfc_sqrt_full_polar_adjoint_outputGram_explicit
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_cfc_sqrt_full_polar_adjoint_outputGram_explicit
 
+
+/-- The canonical CFC square root is diagonal on a complete positive
+singular Hilbert basis, with the exact Kummer squared-singular-value
+sum. This is a separate eigenbasis assertion beyond the full-space
+polar, adjoint, and output-Gram identities above. -/
+theorem exists_cfc_sqrt_eigenbasis_kummer_explicit
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    (letI : SMulCommClass ℝ
+        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam))
+        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam)) := polarScalarComm lam
+     letI : IsScalarTower ℝ
+        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam))
+        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam)) := polarScalarTower lam
+     letI : ContinuousFunctionalCalculus ℂ
+        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam)) IsStarNormal :=
+       IsStarNormal.instContinuousFunctionalCalculus
+     letI : IsometricContinuousFunctionalCalculus ℝ
+        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
+       IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
+     letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
+        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
+       IsometricContinuousFunctionalCalculus.toNonUnital
+     ∃ (ι : Type)
+       (u : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam)))
+       (mu : ι → ℝ)
+       (W : Lp ℂ 2 (Ultraspherical.measure lam) ≃ₗᵢ[ℂ]
+         InfiniteAnalysis.FockCoefficients),
+       (∀ i, 0 < mu i) ∧
+       Summable mu ∧
+       (∑' i : ι, mu i) =
+         KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) ∧
+       (∀ i, CFC.sqrt (gram lam alpha hlam ha) (u i) =
+         (Real.sqrt (mu i) : ℂ) • u i) ∧
+       (∀ f, C lam alpha hlam ha f =
+         W (CFC.sqrt (gram lam alpha hlam ha) f))) := by
+  letI : SMulCommClass ℝ
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam))
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam)) := polarScalarComm lam
+  letI : IsScalarTower ℝ
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam))
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam)) := polarScalarTower lam
+  letI : ContinuousFunctionalCalculus ℂ
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam)) IsStarNormal :=
+    IsStarNormal.instContinuousFunctionalCalculus
+  letI : IsometricContinuousFunctionalCalculus ℝ
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
+    IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
+  letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
+    IsometricContinuousFunctionalCalculus.toNonUnital
+  classical
+  obtain ⟨ι, u, mu, W, P, hp, hsum, hK, hPu, hC, hP2,
+      hinj, hself, hPpos⟩ :=
+    exists_positive_polar_amplitude_kummer lam alpha hlam ha
+  have hPnonneg : (0 : Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+      Lp ℂ 2 (Ultraspherical.measure lam)) ≤ P := by
+    apply ContinuousLinearMap.nonneg_iff_isPositive.mpr
+    exact (ContinuousLinearMap.isPositive_toLinearMap_iff P).mp hPpos
+  have hPmul : P * P = gram lam alpha hlam ha := by
+    apply ContinuousLinearMap.ext
+    intro f
+    simpa only [ContinuousLinearMap.mul_def,
+      ContinuousLinearMap.comp_apply] using (hP2 f).symm
+  have hCFC : CFC.sqrt (gram lam alpha hlam ha) = P :=
+    CFC.sqrt_unique hPmul hPnonneg
+  refine ⟨ι, u, mu, W, hp, hsum, hK, ?_, ?_⟩
+  · intro i
+    rw [hCFC]
+    exact hPu i
+  · intro f
+    rw [hCFC]
+    exact hC f
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_cfc_sqrt_eigenbasis_kummer_explicit
+
 end GegenbauerFock.GeneralUltrasphericalFock
