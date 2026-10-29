@@ -1,0 +1,56 @@
+name: V007 intrinsic Fock Kummer vacuum limit for all source bases
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireHSVacuumLimit.lean'
+      - '.github/workflows/v007-intrinsic-fock-hs-vacuum-limit.yml'
+  workflow_dispatch:
+
+jobs:
+  intrinsic-vacuum-limit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Restore pinned Mathlib and build cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit intrinsic Fock vacuum asymptotics
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GegenbauerIntrinsicEntireHSVacuumLimit 2>&1 | tee /tmp/v007-intrinsic-hs-vacuum.log
+          lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireHSVacuumLimit.lean 2>&1 | tee -a /tmp/v007-intrinsic-hs-vacuum.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-intrinsic-hs-vacuum.log; then
+            echo "::error::Forbidden axioms in intrinsic Gaussian Fock vacuum limit"
+            exit 1
+          fi
+          grep -F "kummerSeries_gaussianScale_tendsto_one' depends on axioms:" /tmp/v007-intrinsic-hs-vacuum.log
+          grep -F "sqrt_kummerSeries_gaussianScale_tendsto_one' depends on axioms:" /tmp/v007-intrinsic-hs-vacuum.log
+          grep -F "C_intrinsicEntire_HS_vacuum_limit_uniform_bases' depends on axioms:" /tmp/v007-intrinsic-hs-vacuum.log
+          grep -F "C_intrinsicEntire_Gram_trace_vacuum_limit_uniform_bases' depends on axioms:" /tmp/v007-intrinsic-hs-vacuum.log
+          echo 'V007 intrinsic S2 and actual Gram uniform vacuum limits: Lean kernel and axiom audit clean.'
