@@ -5,6 +5,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/TwoSidedGramFredholmNullityDefect.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramNonzeroFredholmIndexZero.lean'
       - '.github/workflows/v007-gram-fredholm-nullity-defect.yml'
   workflow_dispatch:
 jobs:
