@@ -29,7 +29,7 @@ namespace GegenbauerFock.GeneralUltrasphericalFock
 is zero. Continuous endomorphisms only have ‖1‖ ≤ 1, not the
 NormOneClass equality required by spectrum.norm_le_norm_of_mem. -/
 private theorem essentialBand_spectral_norm_le
-    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E]
     (T : E →L[ℂ] E) (mu : ℂ) (h : mu ∈ spectrum ℂ T) :
     ‖mu‖ ≤ ‖T‖ := by
   have hid : ‖(1 : E →L[ℂ] E)‖ ≤ 1 := by
