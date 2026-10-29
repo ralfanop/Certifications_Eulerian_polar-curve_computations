@@ -1,5 +1,6 @@
 import GegenbauerFock.GaussianAreaEntireMomentIntegrability
 import GegenbauerFock.GaussianAreaL2Orthonormality
+import GegenbauerFock.GaussianAreaCoefficientAnalysisAdjoint
 
 /-!
 # V007 — true Gaussian L² inner products are genuine entire moments
@@ -49,6 +50,53 @@ theorem normalizedMonomial_inner_entire_eq_moment
           simp only [normalizedMonomial, star_mul,
             star_monomialWeight]
           ring
+
+
+/-- The normalization of a true Gaussian monomial is nonzero for alpha>0. -/
+theorem monomialWeight_ne_zero
+    (alpha : ℝ) (ha : 0 < alpha) (n : ℕ) :
+    monomialWeight alpha n ≠ 0 := by
+  have hratio : 0 < alpha ^ n / (Nat.factorial n : ℝ) := by
+    positivity
+  have hroot : Real.sqrt (alpha ^ n / (Nat.factorial n : ℝ)) ≠ 0 :=
+    (Real.sqrt_pos.2 hratio).ne'
+  exact_mod_cast hroot
+
+/-- Vanishing of a true L² Gaussian coefficient is equivalent to
+vanishing of its actual complex integral moment. -/
+theorem normalizedMonomial_inner_eq_zero_iff_entire_moment_zero
+    (alpha : ℝ) (ha : 0 < alpha)
+    (x : entireGaussianL2Submodule alpha) (n : ℕ) :
+    inner ℂ (normalizedMonomialL2Vector alpha ha n)
+      (x : Lp ℂ 2 (gaussianAreaMeasure alpha)) = 0 ↔
+      (∫ z : ℂ, entireRepresentative alpha x z * star (z ^ n)
+        ∂gaussianAreaMeasure alpha) = 0 := by
+  rw [normalizedMonomial_inner_entire_eq_moment alpha ha x n]
+  constructor
+  · intro hz
+    exact (mul_eq_zero.mp hz).resolve_left (monomialWeight_ne_zero alpha ha n)
+  · intro hz
+    simp [hz]
+
+/-- Intrinsic polynomial coefficient analysis vanishes precisely when
+every genuine Gaussian integral moment of the chosen entire function
+vanishes. This statement is independent of polynomial density. -/
+theorem coefficientAnalysisL2_eq_zero_iff_entire_moments_zero
+    (alpha : ℝ) (ha : 0 < alpha)
+    (x : entireGaussianL2Submodule alpha) :
+    coefficientAnalysisL2 alpha ha
+      (x : Lp ℂ 2 (gaussianAreaMeasure alpha)) = 0 ↔
+    ∀ n : ℕ,
+      (∫ z : ℂ, entireRepresentative alpha x z * star (z ^ n)
+        ∂gaussianAreaMeasure alpha) = 0 := by
+  rw [coefficientAnalysisL2_eq_zero_iff alpha ha
+    (x : Lp ℂ 2 (gaussianAreaMeasure alpha))]
+  exact forall_congr' (fun n =>
+    normalizedMonomial_inner_eq_zero_iff_entire_moment_zero alpha ha x n)
+
+#print axioms GegenbauerFock.GaussianArea.monomialWeight_ne_zero
+#print axioms GegenbauerFock.GaussianArea.normalizedMonomial_inner_eq_zero_iff_entire_moment_zero
+#print axioms GegenbauerFock.GaussianArea.coefficientAnalysisL2_eq_zero_iff_entire_moments_zero
 
 #print axioms GegenbauerFock.GaussianArea.normalizedMonomial_inner_entire_eq_moment
 
