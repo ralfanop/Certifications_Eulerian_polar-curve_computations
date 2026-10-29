@@ -5,6 +5,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireOutputGramContinuousSpectrum.lean'
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireOutputGramSpectral.lean'
       - '.github/workflows/v007-intrinsic-output-gram-continuous-spectrum.yml'
   workflow_dispatch:
 
