@@ -542,3 +542,49 @@ https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/act
 until those runs complete successfully and their axiom audits are
 verified.** PR #16 remains open in Draft, unmerged; `main` and
 approved V097 are unchanged.
+
+## Update — 29 October 2026: final nonzero Fredholm shift proof candidate
+
+The three previously pending special-purpose statements are now
+independently **Lean kernel-certified** and `#print axioms` audited:
+
+- `TwoSidedGramNonzeroFiniteEigenspaces.lean`:
+  [CI 40870029300](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40870029300),
+  **SUCCESS**, 9107 jobs, standard axioms only;
+- `TwoSidedGramEssentialSpectralBand.lean`:
+  [CI 40869357059](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869357059),
+  **SUCCESS**, 9117 jobs, standard axioms only;
+- `TwoSidedGramJointSpectralBand.lean`:
+  [CI 40869175172](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869175172),
+  **SUCCESS**, 9109 jobs, standard axioms only.
+
+**Important: the proof of `σess(Gsrc)=σess(Gout)={0}` is a new
+source candidate, not a certified theorem as of this handover.**
+
+The candidate module `TwoSidedGramNonzeroShiftFredholm.lean`
+decomposes the Hilbert space into the finite-dimensional `mu`
+eigenspace of each compact symmetric Gram and its closed orthogonal
+complement `Q`. The restricted Gram is still compact and has no
+`mu` eigenvector on `Q`; the compact Fredholm alternative gives
+an inverse to the shifted restricted operator.
+`ContinuousLinearMap.IsFredholm.of_isInvertible_restrict`
+then yields Fredholmness of the original nonzero shift.
+
+Its exact-source, independent kernel-check workflows are:
+- https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40881053876
+- https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40881053866
+
+The final candidate `TwoSidedGramEssentialSpectrumSingleton.lean`
+combines the already certified non-Fredholmness at zero with
+the proposed Fredholmness of **all** nonzero shifts to prove
+`fredholmEssentialSpectrum Gsrc = {0}` and
+`fredholmEssentialSpectrum Gout = {0}`. Its CI is the latter
+singletons workflow above, and the former nonzero-shift workflow
+is a dependency.
+
+The source is edited concurrently by the V007 automation. Do not
+infer a current SHA from an earlier audit; inspect exact CI SHA and
+`#print axioms`. Until the final two workflows return SUCCESS,
+these are **unverified candidates**, not claimed Lean certificates.
+
+PR #16 stays Draft and unmerged. Approved V097 and main unchanged.
