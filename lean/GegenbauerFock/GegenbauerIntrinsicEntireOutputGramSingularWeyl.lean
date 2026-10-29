@@ -52,7 +52,8 @@ theorem C_intrinsicEntire_outputGram_singular_weyl_zero
       rw [C_intrinsicEntire_outputGram_apply, U.symm_apply_apply]
     rw [hpoint]
     have hlim := U.continuous.continuousAt.tendsto.comp hstrong
-    simpa only [Function.comp_def, map_zero] using hlim
+    have hUzero : U (0 : InfiniteAnalysis.FockCoefficients) = 0 := U.map_zero
+    simpa only [Function.comp_def, hUzero] using hlim
   · intro F
     have hp (n : ℕ) :
         inner ℂ F (U (v n)) = inner ℂ (U.symm F) (v n) := by
