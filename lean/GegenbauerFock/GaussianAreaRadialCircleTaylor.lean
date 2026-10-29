@@ -65,7 +65,6 @@ theorem integral_radial_circleAverage_eq_taylorCoeff
         (Nat.factorial n : ℝ) : ℝ) : ℂ) *
         (iteratedDeriv n f 0 / (Nat.factorial n : ℂ)) := by
         rw [integral_radial_gaussian_even_power alpha ha n]
-        rfl
 
 #print axioms GegenbauerFock.GaussianArea.integral_radial_circleAverage_eq_taylorCoeff
 
