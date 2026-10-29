@@ -22,7 +22,7 @@ namespace GegenbauerFock.GeneralUltrasphericalFock
 private theorem eigenbasis_inner_real_eq
     {H : Type*} [NormedAddCommGroup H]
     [InnerProductSpace ℂ H] [CompleteSpace H]
-    {w : Set H} (b : HilbertBasis w ℂ H)
+    {w : Type*} (b : HilbertBasis w ℂ H)
     (T : H →L[ℂ] H) (eig : w → ℝ)
     (heig : ∀ i : w, T (b i) = (eig i : ℂ) • b i) (i : w) :
     (inner ℂ (b i) (T (b i))).re = eig i := by
@@ -34,7 +34,7 @@ private theorem eigenbasis_inner_real_eq
 real eigenvalue family, with multiplicities encoded by its index set. -/
 theorem sourceGram_realEigenvalues_summable
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
-    {w : Set (Lp ℂ 2 (Ultraspherical.measure lam))}
+    {w : Type*}
     (b : HilbertBasis w ℂ (Lp ℂ 2 (Ultraspherical.measure lam)))
     (eig : w → ℝ)
     (heig : ∀ i : w,
@@ -47,7 +47,7 @@ theorem sourceGram_realEigenvalues_summable
 counted with their eigenspace multiplicities, equals the Kummer mass. -/
 theorem sourceGram_realEigenvalues_tsum_eq_kummer
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
-    {w : Set (Lp ℂ 2 (Ultraspherical.measure lam))}
+    {w : Type*}
     (b : HilbertBasis w ℂ (Lp ℂ 2 (Ultraspherical.measure lam)))
     (eig : w → ℝ)
     (heig : ∀ i : w,
@@ -69,7 +69,7 @@ theorem sourceGram_realEigenvalues_tsum_eq_kummer
 real eigenvalue family, independently of the source Gram basis. -/
 theorem outputGram_realEigenvalues_summable
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
-    {w : Set InfiniteAnalysis.FockCoefficients}
+    {w : Type*}
     (b : HilbertBasis w ℂ InfiniteAnalysis.FockCoefficients)
     (eig : w → ℝ)
     (heig : ∀ i : w,
@@ -82,7 +82,7 @@ theorem outputGram_realEigenvalues_summable
 exactly the same true trace and unregularized Kummer normalization. -/
 theorem outputGram_realEigenvalues_tsum_eq_kummer
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
-    {w : Set InfiniteAnalysis.FockCoefficients}
+    {w : Type*}
     (b : HilbertBasis w ℂ InfiniteAnalysis.FockCoefficients)
     (eig : w → ℝ)
     (heig : ∀ i : w,
