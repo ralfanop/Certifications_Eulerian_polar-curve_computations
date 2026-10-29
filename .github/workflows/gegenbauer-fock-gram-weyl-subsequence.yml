@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/TwoSidedGramNoStronglyConvergentSubsequence.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramWeakOnDenseRange.lean'
       - '.github/workflows/gegenbauer-fock-gram-weyl-subsequence.yml'
   workflow_dispatch:
 
@@ -52,3 +53,18 @@ jobs:
             exit 1
           fi
           echo 'V007 both Gram Weyl sequences have no norm-convergent subsequences: certified.'
+
+      - name: Kernel-check bilateral inner products vanish on both dense Gram ranges
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramWeakOnDenseRange 2>&1 | tee /tmp/v007-gram-weak-dense-range.log
+          for theorem in sourceGram_approx_zero_weak_on_dense_range outputGram_approx_zero_weak_on_dense_range two_sided_gram_approx_zero_weak_on_dense_ranges; do
+            grep -qF "${theorem}' depends on axioms" /tmp/v007-gram-weak-dense-range.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gram-weak-dense-range.log; then
+            echo '::error::Forbidden axiom in weak-on-dense-range Gram test'
+            exit 1
+          fi
+          echo 'V007 Gram approximate-null sequences vanish weakly on both dense Gram ranges: certified.'
