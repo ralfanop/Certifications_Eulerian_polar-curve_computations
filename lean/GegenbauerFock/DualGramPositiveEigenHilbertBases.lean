@@ -52,7 +52,7 @@ theorem positive_eigenvalue_of_ker_bot
       rw [mem_eigenspace_iff]
       simpa [hi] using (heig i)
     rw [hzero] at hmem0
-    exact hne ((Submodule.mem_bot).mp hmem0)
+    exact hne (by simpa using hmem0)
   exact lt_of_le_of_ne hnonneg hnotzero.symm
 
 #print axioms GegenbauerFock.HilbertSchmidtBasis.positive_eigenvalue_of_ker_bot
