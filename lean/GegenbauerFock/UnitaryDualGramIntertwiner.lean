@@ -48,9 +48,10 @@ theorem exists_unitary_dualGram_intertwiner_kummer
     change v.repr.symm (u.repr (u i)) = v i
     rw [u.repr_self, v.repr_symm_single]
   have hmaps :
-      (outputGram lam alpha hlam ha).comp W.toContinuousLinearMap =
-        W.toContinuousLinearMap.comp (gram lam alpha hlam ha) := by
-    apply ContinuousLinearMap.ext_on u.dense_span
+      (outputGram lam alpha hlam ha).comp W.toLinearIsometry.toContinuousLinearMap =
+        W.toLinearIsometry.toContinuousLinearMap.comp (gram lam alpha hlam ha) := by
+    apply ContinuousLinearMap.ext_on
+      (Submodule.dense_iff_topologicalClosure_eq_top.mpr u.dense_span)
     rintro _ ⟨i, rfl⟩
     change outputGram lam alpha hlam ha (W (u i)) =
       W (gram lam alpha hlam ha (u i))
