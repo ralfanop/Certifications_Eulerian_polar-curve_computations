@@ -28,8 +28,7 @@ theorem C_intrinsicEntire_compact
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
     IsCompactOperator (C_intrinsicEntire lam alpha hlam ha) := by
   have hcompact := (C_compact lam alpha hlam ha).clm_comp
-    (GaussianArea.coefficientIntrinsicEntireEquiv alpha ha)
-      .toLinearIsometry.toContinuousLinearMap
+    (GaussianArea.coefficientIntrinsicEntireEquiv alpha ha).toLinearIsometry.toContinuousLinearMap
   exact hcompact
 
 /-- Passage from ℓ² to the complete Gaussian entire Hilbert space
