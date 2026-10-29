@@ -30,38 +30,44 @@ noncomputable def outputGram_intrinsicEntire_eigenspace_linearEquiv
     eigenspace (outputGram lam alpha hlam ha).toLinearMap mu ≃ₗ[ℂ]
       eigenspace (C_intrinsicEntire_outputGram lam alpha hlam ha).toLinearMap mu := by
   let U := GaussianArea.coefficientIntrinsicEntireEquiv alpha ha
-  refine {
-    toFun := fun Fc => ⟨U Fc.1, ?_⟩
-    invFun := fun F => ⟨U.symm F.1, ?_⟩
-    left_inv := ?_
-    right_inv := ?_
-    map_add' := ?_
-    map_smul' := ?_
-  }
-  · apply mem_eigenspace_iff.mpr
-    rw [C_intrinsicEntire_outputGram_apply]
-    change U (outputGram lam alpha hlam ha (U.symm (U Fc.1))) = mu • U Fc.1
-    rw [U.symm_apply_apply, (mem_eigenspace_iff.mp Fc.2)]
-    exact map_smul U mu Fc.1
-  · apply mem_eigenspace_iff.mpr
+  let Φ :
+      eigenspace (outputGram lam alpha hlam ha).toLinearMap mu →ₗ[ℂ]
+        eigenspace (C_intrinsicEntire_outputGram lam alpha hlam ha).toLinearMap mu :=
+    { toFun := fun Fc => ⟨U Fc.1, by
+        apply mem_eigenspace_iff.mpr
+        change C_intrinsicEntire_outputGram lam alpha hlam ha (U Fc.1) =
+          mu • U Fc.1
+        rw [C_intrinsicEntire_outputGram_apply]
+        change U (outputGram lam alpha hlam ha (U.symm (U Fc.1))) =
+          mu • U Fc.1
+        rw [U.symm_apply_apply, (mem_eigenspace_iff.mp Fc.2)]
+        exact map_smul U mu Fc.1⟩
+      map_add' := by
+        intro Fc Gc
+        apply Subtype.ext
+        exact map_add U Fc.1 Gc.1
+      map_smul' := by
+        intro c Fc
+        apply Subtype.ext
+        exact map_smul U c Fc.1 }
+  apply LinearEquiv.ofBijective Φ
+  constructor
+  · intro Fc Gc h
+    apply Subtype.ext
+    apply U.injective
+    exact congrArg Subtype.val h
+  · intro F
     have hF := mem_eigenspace_iff.mp F.2
     have h := congrArg U.symm hF
     rw [C_intrinsicEntire_outputGram_apply] at h
     change U.symm (U (outputGram lam alpha hlam ha (U.symm F.1))) =
       U.symm (mu • F.1) at h
-    simpa only [U.symm_apply_apply, map_smul] using h
-  · intro Fc
-    apply Subtype.ext
-    exact U.symm_apply_apply Fc.1
-  · intro F
+    have hcoeff :
+        outputGram lam alpha hlam ha (U.symm F.1) = mu • U.symm F.1 := by
+      simpa only [U.symm_apply_apply, map_smul] using h
+    refine ⟨⟨U.symm F.1, mem_eigenspace_iff.mpr hcoeff⟩, ?_⟩
     apply Subtype.ext
     exact U.apply_symm_apply F.1
-  · intro Fc Gc
-    apply Subtype.ext
-    exact map_add U Fc.1 Gc.1
-  · intro c Fc
-    apply Subtype.ext
-    exact map_smul U c Fc.1
 
 /-- For every nonzero eigenvalue, the actual ultraspherical source
 Gram and the genuine Bargmann–Fock output Gram eigenspaces are
