@@ -34,7 +34,7 @@ theorem sturmRealPolynomialLp_kernel_invariant
       inner ℝ
         (sturmRealPolynomialLp lam hlam (sturmPolynomial lam p))
         (sturmRealPolynomialLp lam hlam (sturmPolynomial lam p)) = 0 := by
-    simpa only [hp, zero_inner] using hgreen
+    simpa [hp] using hgreen
   exact inner_self_eq_zero.mp hself
 
 /-- The genuine polynomial differential action is independent of
