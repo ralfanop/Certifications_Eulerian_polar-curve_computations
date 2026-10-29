@@ -51,9 +51,9 @@ theorem polar_angular_integral_eq_two_pi_circleAverage
     _ = (∫ theta in (0 : ℝ)..2 * Real.pi,
           f (circleMap 0 r (theta + (-Real.pi)))) := hinterval
     _ = (2 * Real.pi) • Real.circleAverage f 0 r := by
-      rw [haverage, smul_smul]
-      have hnonzero : (2 * Real.pi) ≠ 0 := by positivity
-      rw [mul_inv_cancel₀ hnonzero, one_smul]
+      rw [haverage]
+      simp [smul_smul, Real.pi_ne_zero, mul_comm, mul_left_comm, mul_assoc,
+        add_comm]
 
 #print axioms GegenbauerFock.GaussianArea.polar_angular_integral_eq_two_pi_circleAverage
 
