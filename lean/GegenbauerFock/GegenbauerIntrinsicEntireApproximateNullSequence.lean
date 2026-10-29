@@ -17,8 +17,8 @@ open MeasureTheory Filter
 namespace GegenbauerFock.GeneralUltrasphericalFock
 
 /-- Actual unit ultraspherical L² vectors with vanishing intrinsic
-holomorphic Gaussian L² images and no strongly convergent source
-subsequence. No nonzero kernel vector is asserted. -/
+holomorphic Gaussian L² images and no strong limit for the full
+source sequence. No nonzero kernel vector is asserted. -/
 theorem C_intrinsicEntire_normalized_approximate_null_no_strong_limit
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
     ∃ u : ℕ → Lp ℂ 2 (Ultraspherical.measure lam),
