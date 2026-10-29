@@ -7,8 +7,8 @@ import Mathlib.Analysis.InnerProductSpace.StarOrder
 
 For the actual Gegenbauer–Fock transform C, the polar amplitude P
 is a positive bounded complex-linear operator with P² = C†C.
-The square-root uniqueness theorem for the non-unital continuous
-functional calculus identifies P with CFC.sqrt (C†C) as an operator
+The uniqueness theorem `CFC.sqrt_unique` for the non-unital
+continuous functional calculus identifies P with CFC.sqrt (C†C) as an operator
 on the ORIGINAL infinite source L² Hilbert space.
 
 No inverse of compact C and no spectral gap are asserted.
