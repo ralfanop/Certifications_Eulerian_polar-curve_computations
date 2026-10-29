@@ -39,15 +39,17 @@ theorem polar_angular_integral_eq_two_pi_circleAverage
         f (circleMap 0 r theta)) =
       (∫ theta in (0 : ℝ)..2 * Real.pi,
         f (circleMap 0 r (theta + (-Real.pi)))) := by
-    rw [intervalIntegral.integral_comp_add_right]
-    congr 1 <;> ring
+    convert (intervalIntegral.integral_comp_add_right
+      (f := fun theta : ℝ => f (circleMap 0 r theta))
+      (a := 0) (b := 2 * Real.pi) (-Real.pi)).symm using 1 <;> ring
   have haverage :=
     Real.circleAverage_eq_integral_add
       (f := f) (c := (0 : ℂ)) (R := r) (-Real.pi)
   rw [hshift] at hinterval
   simp_rw [hmap]
   rw [hinterval, haverage]
-  simp [smul_smul, Real.pi_ne_zero]
+  simp only [smul_eq_mul]
+  field_simp [Real.pi_ne_zero] <;> ring
 
 #print axioms GegenbauerFock.GaussianArea.polar_angular_integral_eq_two_pi_circleAverage
 
