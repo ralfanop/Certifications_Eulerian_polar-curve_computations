@@ -113,4 +113,5 @@ jobs:
           grep -F "intrinsicEntire_scaledTaylor_memℓp' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           grep -F "intrinsicTaylorCoefficients_eq_analysis' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           grep -F "intrinsicTaylorCoefficients_norm_eq' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicTaylorCoefficients_inner_eq' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           echo 'True intrinsic Gaussian Taylor-Fourier and exact derivative Parseval: kernel checked and audited.'
