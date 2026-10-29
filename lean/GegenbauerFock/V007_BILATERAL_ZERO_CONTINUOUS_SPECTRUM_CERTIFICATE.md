@@ -623,3 +623,37 @@ individual CI completes SUCCESS and the axiom audit is clean.
 
 PR #16 remains open Draft, unmerged. `main` and approved V097
 are untouched.
+
+
+## Certified checkpoint — 29 October 2026: full Fredholm essential spectra {0}
+
+**The earlier statements in this dossier describing the Fredholm singleton
+proof as pending are superseded.** Dedicated pinned Lean 4/Mathlib
+SUCCESS runs verify all three statements with clean individual
+`#print axioms` (only `propext`, `Classical.choice`, `Quot.sound`):
+
+- Nonzero shifts of both actual compact Grams are Fredholm:
+  `TwoSidedGramNonzeroShiftFredholm.lean`, SHA `e7b6c6df9e1c`,
+  CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40886194258.
+- Both actual Fredholm essential spectra are exactly the singleton
+  `{0}`: `TwoSidedGramEssentialSpectrumSingleton.lean`,
+  same SHA, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40886194109.
+- The true intrinsic entire-Gaussian source Gram has the same ordinary
+  spectrum as the coefficient output Gram, and its Fredholm essential
+  spectrum is also `{0}`:
+  `GegenbauerIntrinsicEntireGramEssentialSingleton.lean`,
+  SHA `a6eccaf5214b`, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40886955697.
+
+Separate SUCCESS checks also cover the multiplicity-aware complete
+singular bases and norm-convergent singular Fourier reconstructions:
+CI 40884336683 and CI 40884568401.
+
+**Still pending independent kernel success:** any more recent
+cofinite spectral-decay/threshold-counting, Gaussian Riesz diagonal,
+holomorphic output Gram positivity, and intrinsic Fock Hilbert--Schmidt
+Gamma/Pochhammer identities. Do not transfer success between workflows.
+
+PR #16 remains Draft and unmerged. `main` and approved V097 remain
+unchanged.
