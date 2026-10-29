@@ -24,7 +24,7 @@ namespace GegenbauerFock.GaussianArea
 
 /-- Extend the exact monomial synthesis to the intrinsically defined
 holomorphic Gaussian L² Hilbert space. -/
-noncomputable def coefficientSynthesisToIntrinsicEntire
+noncomputable def coefficientSynthesisToIntrinsicEntireViaMoments
     (alpha : ℝ) (ha : 0 < alpha) :
     lp (fun _ : ℕ => ℂ) 2 →ₗᵢ[ℂ] entireGaussianL2Submodule alpha :=
   { toLinearMap :=
@@ -39,9 +39,9 @@ noncomputable def coefficientSynthesisToIntrinsicEntire
 /-- The Gaussian coefficient synthesis is onto the WHOLE independently
 defined holomorphic Gaussian L² space, not just formal coefficients
 or an unspecified closed polynomial subspace. -/
-theorem coefficientSynthesisToIntrinsicEntire_surjective
+theorem coefficientSynthesisToIntrinsicEntireViaMoments_surjective
     (alpha : ℝ) (ha : 0 < alpha) :
-    Function.Surjective (coefficientSynthesisToIntrinsicEntire alpha ha) := by
+    Function.Surjective (coefficientSynthesisToIntrinsicEntireViaMoments alpha ha) := by
   intro y
   have hy :
       (y : Lp ℂ 2 (gaussianAreaMeasure alpha)) ∈
@@ -59,13 +59,14 @@ theorem coefficientSynthesisToIntrinsicEntire_surjective
 
 /-- Full Gaussian Bargmann–Fock unitary Hilbert realization of all
 square-summable normalized Taylor coefficients. -/
-noncomputable def coefficientIntrinsicEntireEquiv
+noncomputable def coefficientIntrinsicEntireEquivViaMoments
     (alpha : ℝ) (ha : 0 < alpha) :
     lp (fun _ : ℕ => ℂ) 2 ≃ₗᵢ[ℂ] entireGaussianL2Submodule alpha :=
   LinearIsometryEquiv.ofSurjective
-    (coefficientSynthesisToIntrinsicEntire alpha ha)
-    (coefficientSynthesisToIntrinsicEntire_surjective alpha ha)
+    (coefficientSynthesisToIntrinsicEntireViaMoments alpha ha)
+    (coefficientSynthesisToIntrinsicEntireViaMoments_surjective alpha ha)
 
-#print axioms GegenbauerFock.GaussianArea.coefficientSynthesisToIntrinsicEntire_surjective
+#print axioms GegenbauerFock.GaussianArea.coefficientSynthesisToIntrinsicEntireViaMoments_surjective
+#print axioms GegenbauerFock.GaussianArea.coefficientIntrinsicEntireEquivViaMoments
 
 end GegenbauerFock.GaussianArea
