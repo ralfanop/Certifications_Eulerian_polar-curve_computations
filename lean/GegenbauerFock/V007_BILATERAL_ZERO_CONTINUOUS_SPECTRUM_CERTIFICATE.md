@@ -115,3 +115,34 @@ unverified Gaussian module, or conversely.
 
 **Repository invariant:** PR #16 stays Draft and unmerged; approved V097
 and `main` remain untouched.
+
+## Update — 29 October 2026: full weak convergence and essential-spectrum candidates
+
+The **full test-vector weak convergence** theorem is now independently
+kernel-certified at source commit `654192d18507894e043033b7143c8d5960c4fac1`:
+- `TwoSidedGramWeakConvergence.lean` —
+  `sourceGram_unit_approximate_zero_weakly_null`,
+  `outputGram_unit_approximate_zero_weakly_null`, and the bilateral theorem.
+- SUCCESS, 9109 Lean jobs, clean three-standard-axiom audit:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40860310262
+- The sequence vectors are normalized, their actual Gram images tend to
+  zero in norm, and **every** complex inner product with a Hilbert test
+  vector tends to zero. The density argument uses uniform unit norms
+  and Cauchy–Schwarz; no assertion of strong convergence of the
+  original sequences is made.
+
+Two further dedicated modules are deposited and must be checked separately:
+- `TwoSidedGramSingularWeylZero.lean` explicitly defines
+  `IsSingularWeylSequenceAtZero` by the three preceding properties,
+  with one witness in each true Hilbert space. This is a sequence-level
+  predicate, not an unproved equality with a Mathlib spectral set.
+  CI: https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40860754934
+- `TwoSidedGramZeroNotFredholm.lean` proves each actual Gram is
+  **not** `ContinuousLinearMap.IsFredholm` directly from the
+  previously certified nonclosed range, connecting to the Fredholm
+  definition of essential spectrum without relying on a separate
+  singular-Weyl/essential-spectrum API.
+  CI: https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40861103876
+
+**Do not mark either additional module as certified until its
+individual Lean kernel build and axiom audit return SUCCESS.**
