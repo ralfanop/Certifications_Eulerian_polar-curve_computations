@@ -50,10 +50,11 @@ theorem intrinsicRieszKernel_finite_gram_eq_inner
   change
     (star (c i) * c j) *
       entireRepresentative alpha (intrinsicRieszKernel alpha ha (z j)) (z i) =
-    (c j *
-      entireRepresentative alpha (intrinsicRieszKernel alpha ha (z j)) (z i)) *
-      star (c i)
-  ring
+    star (c i) *
+      (c j *
+        entireRepresentative alpha (intrinsicRieszKernel alpha ha (z j)) (z i))
+  exact mul_assoc (star (c i)) (c j)
+    (entireRepresentative alpha (intrinsicRieszKernel alpha ha (z j)) (z i))
 
 /-- Every finite Hermitian Gram matrix formed by intrinsic Gaussian
 Fock reproducing vectors is positive semidefinite, even for arbitrary
