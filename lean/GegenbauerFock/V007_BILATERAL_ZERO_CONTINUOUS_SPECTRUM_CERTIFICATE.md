@@ -225,3 +225,47 @@ This second inclusion is *not yet certified*. Neither module claims
 the stronger equality `σess(Gi) = {0}`. Do not transfer certification
 between workflow source SHAs. PR #16 remains Draft/unmerged; `main`
 and approved V097 are untouched.
+
+## Update — 29 October 2026: independently checked Fredholm inclusion and Gram trace
+
+**SUCCESS:** the Fredholm essential-spectrum inclusion and exclusion of negative
+parameters in `FredholmEssentialSpectrumResolventExclusion.lean`
+is independently certified with axiom audit:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40865662295.
+This replaces the preceding *pending* statement, but is **not** a
+proof that the entire Fredholm essential spectrum is exactly `{0}`.
+
+**SUCCESS:** the full Gram positive trace-diagonal identities in
+`DualGramPositiveTraceDiagonal.lean` passed the dedicated Lean build after
+correcting the malformed dependent lambda binder, commit
+`c9adac5f5e493d93d0c8187f728ce05a936cf664`:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40865197477.
+These are statements about summability and the diagonal trace in genuine
+Hilbert bases, not numerical spectral eigenvalue estimates.
+
+**SUCCESS:** the Gaussian radial-circle bridge also passed its isolated
+workflows, including:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40864894029
+and
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40865868626.
+
+**Pending new quantitative enclosure:** The first isolated compilation of
+`TwoSidedGramJointSpectralBand.lean`,
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40865087179,
+failed because `spectrum.norm_le_norm_of_mem` requires a
+`NormOneClass` instance that is not present for general continuous
+endomorphisms. The replacement in commit
+`f22b3bf0e18f98702eb142a2b6fdfa3a907518bd`
+uses `spectrum.norm_le_norm_mul_of_mem` and the separately verified
+operator inequality `‖id‖ ≤ 1`, without assuming nontriviality of either
+Hilbert space. The dedicated CI is:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40868388808.
+A new SUCCESS and standard-axiom audit are required before claiming it
+as kernel certified.
+
+The newly attempted enclosure uses the minimum of the **two** Gram
+operator norms because their full complex spectra are proven equal,
+not because the two operators have been identified.
+
+PR #16 remains Draft/unmerged. Neither `main` nor approved V097
+has been modified.
