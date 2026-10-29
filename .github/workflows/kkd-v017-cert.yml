@@ -1,0 +1,43 @@
+name: KKD V017 Arb certification (FLINT 3.3.1)
+
+on:
+  push:
+    branches:
+      - kkd-v017-cert
+    paths:
+      - 'numerics/kkd_tjm_cert/**'
+      - '.github/workflows/kkd-v017-cert.yml'
+  workflow_dispatch:
+
+jobs:
+  certify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install GMP and MPFR
+        run: sudo apt-get update && sudo apt-get install -y libgmp-dev libmpfr-dev
+      - name: Build FLINT 3.3.1 from the official release
+        run: |
+          curl -sSL -o flint.tar.gz https://github.com/flintlib/flint/releases/download/v3.3.1/flint-3.3.1.tar.gz
+          tar xzf flint.tar.gz
+          cd flint-3.3.1
+          ./configure --prefix=$HOME/flint --disable-static
+          make -j4
+          make install
+      - name: Compile and run the certification programs
+        working-directory: numerics/kkd_tjm_cert
+        run: |
+          FLINT=$HOME/flint
+          gcc -O2 -I$FLINT/include kkd_arb.c -o kkd_arb -L$FLINT/lib -Wl,-rpath,$FLINT/lib -lflint -lmpfr -lgmp -lm
+          gcc -O2 -I$FLINT/include kkd_arb_v017.c -o kkd_arb_v017 -L$FLINT/lib -Wl,-rpath,$FLINT/lib -lflint -lmpfr -lgmp -lm
+          ./kkd_arb 1024 > kkd_arb_rerun.log
+          ./kkd_arb_v017 1024 > kkd_arb_v017.log
+          diff kkd_arb.log kkd_arb_rerun.log && echo "TJM log reproduced identically"
+          cat kkd_arb_v017.log
+          if grep -q "NOT correctly rounded" kkd_arb_v017.log; then echo "a decimal is not certified"; exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kkd-v017-logs
+          path: |
+            numerics/kkd_tjm_cert/kkd_arb_v017.log
+            numerics/kkd_tjm_cert/kkd_arb_rerun.log
