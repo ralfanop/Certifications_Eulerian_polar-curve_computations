@@ -57,7 +57,39 @@ theorem intrinsicRieszKernel_finite_gram_nonneg
   rw [intrinsicRieszKernel_finite_gram_eq_inner s z c alpha ha]
   exact inner_self_nonneg
 
+/-- The real part of every finite coherent Gram quadratic form is
+exactly the squared intrinsic Gaussian-L² norm of the finite Riesz
+superposition. This sharpens abstract nonnegativity to an equality. -/
+theorem intrinsicRieszKernel_finite_gram_re_eq_norm_sq
+    {ι : Type*} (s : Finset ι) (z c : ι → ℂ)
+    (alpha : ℝ) (ha : 0 < alpha) :
+    Complex.re
+      (∑ i ∈ s, ∑ j ∈ s,
+        star (c i) * c j *
+          entireRepresentative alpha
+            (intrinsicRieszKernel alpha ha (z j)) (z i)) =
+    ‖∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)‖ ^ 2 := by
+  rw [intrinsicRieszKernel_finite_gram_eq_inner s z c alpha ha]
+  exact inner_self_eq_norm_sq _
+
+/-- Exact cancellation criterion for the intrinsic Gaussian Riesz Gram
+form: it vanishes if and only if the corresponding finite coherent
+Hilbert-space superposition is the zero vector. -/
+theorem intrinsicRieszKernel_finite_gram_eq_zero_iff
+    {ι : Type*} (s : Finset ι) (z c : ι → ℂ)
+    (alpha : ℝ) (ha : 0 < alpha) :
+    (∑ i ∈ s, ∑ j ∈ s,
+      star (c i) * c j *
+        entireRepresentative alpha
+          (intrinsicRieszKernel alpha ha (z j)) (z i)) = 0 ↔
+    (∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)) = 0 := by
+  rw [intrinsicRieszKernel_finite_gram_eq_inner s z c alpha ha]
+  exact inner_self_eq_zero
+
+
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_finite_gram_eq_inner
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_finite_gram_nonneg
+#print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_finite_gram_re_eq_norm_sq
+#print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_finite_gram_eq_zero_iff
 
 end GegenbauerFock.GaussianArea
