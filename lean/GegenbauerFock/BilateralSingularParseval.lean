@@ -62,7 +62,8 @@ theorem exists_bilateral_singular_parseval_kummer
             (C lam alpha hlam ha).adjoint_inner_right (u i) F
       _ = inner ℂ ((Real.sqrt (mu i) : ℂ) • v i) F := by rw [hC i]
       _ = (Real.sqrt (mu i) : ℂ) * inner ℂ (v i) F := by
-        simp [inner_smul_left]
+        rw [inner_smul_ofReal_left]
+        ring
   have hweight (i : ι) (z : ℂ) :
       ‖(Real.sqrt (mu i) : ℂ) * z‖ ^ 2 =
         mu i * ‖z‖ ^ 2 := by
