@@ -65,7 +65,7 @@ theorem sturmPolynomial_eval_product_integral
   have heval (u : ℝ) :
       p.eval u * q.eval u =
         ∑ m ∈ q.support, q.coeff m * (p.eval u * u ^ m) := by
-    rw [Polynomial.eval_eq_sum]
+    conv_lhs => rhs; rw [Polynomial.eval_eq_sum]
     simp only [Polynomial.sum, mul_sum]
     apply Finset.sum_congr rfl
     intro m hm
@@ -93,10 +93,10 @@ theorem sturmPolynomial_eval_product_integral
     _ = ∑ n ∈ p.support, ∑ m ∈ q.support,
           p.coeff n * q.coeff m * sturmMoment lam (n + m) := by
       simp_rw [sturmPolynomial_eval_mul_monomial_integral lam hlam p]
+      simp_rw [Finset.mul_sum]
       rw [Finset.sum_comm]
       apply Finset.sum_congr rfl
       intro n hn
-      rw [Finset.mul_sum]
       apply Finset.sum_congr rfl
       intro m hm
       ring
