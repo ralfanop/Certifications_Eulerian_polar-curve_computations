@@ -117,8 +117,9 @@ theorem C_intrinsicEntire_Gram_trace_vacuum_limit_uniform_bases
   refine ⟨A, ?_⟩
   intro alpha hAlpha ha ι b
   have hbound := hA alpha hAlpha ha b
-  simpa only [← C_intrinsicEntire_Gram_basis_trace_eq_kummer,
-    C_intrinsicEntire_HS_energy_eq_kummer] using hbound
+  rw [C_intrinsicEntire_HS_energy_eq_kummer lam alpha hlam ha b] at hbound
+  rw [C_intrinsicEntire_Gram_basis_trace_eq_kummer lam alpha hlam ha b]
+  exact hbound
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_HS_vacuum_limit_uniform_bases
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_Gram_trace_vacuum_limit_uniform_bases
