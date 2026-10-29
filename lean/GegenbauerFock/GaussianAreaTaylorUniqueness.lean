@@ -29,7 +29,7 @@ theorem entireFunction_eq_zero_of_iteratedDeriv_zero
     (h : ∀ n : ℕ, iteratedDeriv n f 0 = 0) :
     f = 0 := by
   funext z
-  have hs := Complex.taylorSeries_eq_of_entire' hf 0 z
+  have hs := Complex.taylorSeries_eq_of_entire' 0 z hf
   simpa [h] using hs.symm
 
 /-- The canonical entire representative of the zero Gaussian L²
