@@ -26,8 +26,10 @@ namespace GegenbauerFock.GeneralUltrasphericalFock
 intrinsic entire Gaussian L² Hilbert space. -/
 theorem C_intrinsicEntire_outputGram_selfadjoint
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
-    (C_intrinsicEntire_outputGram lam alpha hlam ha).adjoint =
-      C_intrinsicEntire_outputGram lam alpha hlam ha := by
+    (letI : CompleteSpace (GaussianArea.entireGaussianL2Submodule alpha) :=
+      (GaussianArea.intrinsicEntire_isClosed alpha ha).completeSpace_coe
+     (C_intrinsicEntire_outputGram lam alpha hlam ha).adjoint =
+       C_intrinsicEntire_outputGram lam alpha hlam ha) := by
   letI : CompleteSpace (GaussianArea.entireGaussianL2Submodule alpha) :=
     (GaussianArea.intrinsicEntire_isClosed alpha ha).completeSpace_coe
   change (((C_intrinsicEntire lam alpha hlam ha).comp
@@ -47,11 +49,13 @@ theorem C_intrinsicEntire_outputGram_isPositive
       ((C_intrinsicEntire lam alpha hlam ha).adjoint).adjoint =
         C_intrinsicEntire lam alpha hlam ha := by
     simp
-  change ((C_intrinsicEntire lam alpha hlam ha).comp
-    (C_intrinsicEntire lam alpha hlam ha).adjoint).IsPositive
-  rw [← hadj]
-  exact ContinuousLinearMap.isPositive_adjoint_comp_self
-    (C_intrinsicEntire lam alpha hlam ha).adjoint
+  have hpositive :
+      (((C_intrinsicEntire lam alpha hlam ha).adjoint).adjoint ∘L
+        (C_intrinsicEntire lam alpha hlam ha).adjoint).IsPositive :=
+    ContinuousLinearMap.isPositive_adjoint_comp_self
+      (C_intrinsicEntire lam alpha hlam ha).adjoint
+  rw [hadj] at hpositive
+  exact hpositive
 
 /-- Inner-product symmetry of the genuine analytic output Gram,
 as required by the infinite-dimensional compact spectral theorem. -/
