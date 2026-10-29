@@ -32,8 +32,8 @@ theorem C_intrinsicEntire_outputGram_inverse_unbounded_on_range
   obtain ⟨Fc, hFc⟩ :=
     outputGram_inverse_unbounded_on_range lam alpha hlam ha K
   refine ⟨U Fc, ?_⟩
-  rw [C_intrinsicEntire_outputGram_apply]
-  simpa only [U.symm_apply_apply, U.norm_map] using hFc
+  rw [C_intrinsicEntire_outputGram_apply, U.symm_apply_apply]
+  simpa only [U.norm_map] using hFc
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_outputGram_inverse_unbounded_on_range
 
