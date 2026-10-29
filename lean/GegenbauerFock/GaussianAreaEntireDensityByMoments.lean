@@ -38,8 +38,12 @@ theorem polar_gaussian_circleAverage_smul
         r • (((alpha / Real.pi) * Real.exp (-alpha * r ^ 2) : ℝ) • g z)) =
       (fun z : ℂ => c • g z) := by
     funext z
-    simp only [c, Complex.real_smul, smul_eq_mul]
-    ring_nf
+    calc
+      r • (((alpha / Real.pi) * Real.exp (-alpha * r ^ 2) : ℝ) • g z) =
+          (r * ((alpha / Real.pi) * Real.exp (-alpha * r ^ 2))) • g z := by
+        rw [smul_smul]
+      _ = c • g z := by
+        simp only [Complex.real_smul, smul_eq_mul, c]_nf
   rw [heq]
   simpa only [smul_eq_mul] using
     (Real.circleAverage_fun_smul (a := c) (f := g) (c := (0 : ℂ)) (R := r))
