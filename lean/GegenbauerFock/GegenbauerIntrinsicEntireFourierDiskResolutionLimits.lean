@@ -64,8 +64,9 @@ theorem ultraspherical_fourierBochner_no_disk_lower_stability_constant
   have hb :=
     mul_le_mul_of_nonneg_left (le_of_lt (hsmall z hz)) hK
   have hfrac : K * (1 / (K + 1)) < 1 := by
-    rw [← div_eq_mul_inv]
-    exact (div_lt_iff₀ hK1).mpr (by linarith)
+    have hd : K / (K + 1) < 1 :=
+      (div_lt_iff₀ hK1).mpr (by linarith)
+    simpa only [div_eq_mul_inv, one_mul] using hd
   rw [hf]
   exact lt_of_le_of_lt hb hfrac
 
