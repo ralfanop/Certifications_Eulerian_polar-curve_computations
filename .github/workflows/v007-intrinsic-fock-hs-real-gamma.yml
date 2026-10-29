@@ -52,4 +52,6 @@ jobs:
           fi
           grep -F "C_intrinsicEntire_HS_energy_eq_gamma_integral' depends on axioms:" /tmp/v007-real-gamma-hs.log
           grep -F "C_intrinsicEntire_HS_energy_eq_pochhammer' depends on axioms:" /tmp/v007-real-gamma-hs.log
+          grep -F "C_intrinsicEntire_Gram_trace_eq_gamma_integral' depends on axioms:" /tmp/v007-real-gamma-hs.log
+          grep -F "C_intrinsicEntire_Gram_trace_eq_pochhammer' depends on axioms:" /tmp/v007-real-gamma-hs.log
           echo 'V007 real Gaussian Fock S2 integral and Pochhammer series kernel-checked.'
