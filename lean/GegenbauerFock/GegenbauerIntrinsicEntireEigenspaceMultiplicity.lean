@@ -40,8 +40,11 @@ noncomputable def outputGram_intrinsicEntire_eigenspace_linearEquiv
         rw [C_intrinsicEntire_outputGram_apply]
         change U (outputGram lam alpha hlam ha (U.symm (U Fc.1))) =
           mu • U Fc.1
-        rw [U.symm_apply_apply, (mem_eigenspace_iff.mp Fc.2)]
-        exact map_smul U mu Fc.1⟩
+        rw [U.symm_apply_apply]
+        have hcoeff : outputGram lam alpha hlam ha Fc.1 = mu • Fc.1 :=
+          mem_eigenspace_iff.mp Fc.2
+        have hu := congrArg U hcoeff
+        exact hu.trans (map_smul U mu Fc.1)⟩
       map_add' := by
         intro Fc Gc
         apply Subtype.ext
@@ -53,12 +56,15 @@ noncomputable def outputGram_intrinsicEntire_eigenspace_linearEquiv
   apply LinearEquiv.ofBijective Φ
   constructor
   · intro Fc Gc h
-    apply Subtype.ext
-    apply U.injective
-    exact congrArg Subtype.val h
+    have hv := congrArg Subtype.val h
+    change U Fc.1 = U Gc.1 at hv
+    exact Subtype.ext (U.injective hv)
   · intro F
-    have hF := mem_eigenspace_iff.mp F.2
+    have hF : C_intrinsicEntire_outputGram lam alpha hlam ha F.1 =
+        mu • F.1 := mem_eigenspace_iff.mp F.2
     have h := congrArg U.symm hF
+    change U.symm (C_intrinsicEntire_outputGram lam alpha hlam ha F.1) =
+      U.symm (mu • F.1) at h
     rw [C_intrinsicEntire_outputGram_apply] at h
     change U.symm (U (outputGram lam alpha hlam ha (U.symm F.1))) =
       U.symm (mu • F.1) at h
