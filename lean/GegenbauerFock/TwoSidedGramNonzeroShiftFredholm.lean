@@ -62,7 +62,8 @@ private theorem compact_symmetric_nonzero_shift_isFredholm
     simpa only [R] using
       (eigenspace_restrict_eq_bot hTQ P.orthogonal_disjoint)
   have hRnoEigen : ¬ HasEigenvalue (R : Module.End ℂ Q) mu := by
-    simpa only [hasEigenvalue_iff, hRzero, ne_eq, not_false_eq_true]
+    intro heig
+    exact (hasEigenvalue_iff.mp heig) hRzero
   have hres : mu ∈ resolventSet ℂ R :=
     (hRcompact.hasEigenvalue_or_mem_resolventSet hmu).resolve_left hRnoEigen
   have hunit : IsUnit (R - mu • (1 : Q →L[ℂ] Q)) := by
@@ -80,7 +81,7 @@ private theorem compact_symmetric_nonzero_shift_isFredholm
   have hrestrInv : (S.restrict hSQ).IsInvertible := by
     rw [hrestrict]
     obtain ⟨u, hu⟩ := hunit
-    exact ⟨ContinuousLinearEquiv.ofUnit u, hu.symm⟩
+    exact ⟨ContinuousLinearEquiv.ofUnit u, hu⟩
   exact ContinuousLinearMap.IsFredholm.of_isInvertible_restrict
     P.isClosed_orthogonal P.isClosed_orthogonal hSQ hrestrInv
 
