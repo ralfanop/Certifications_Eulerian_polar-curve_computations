@@ -70,7 +70,8 @@ theorem intrinsicRieszKernel_finite_gram_re_eq_norm_sq
             (intrinsicRieszKernel alpha ha (z j)) (z i)) =
     ‖∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)‖ ^ 2 := by
   rw [intrinsicRieszKernel_finite_gram_eq_inner s z c alpha ha]
-  exact inner_self_eq_norm_sq _
+  exact inner_self_eq_norm_sq (𝕜 := ℂ)
+    (∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i))
 
 /-- Exact cancellation criterion for the intrinsic Gaussian Riesz Gram
 form: it vanishes if and only if the corresponding finite coherent
@@ -84,7 +85,8 @@ theorem intrinsicRieszKernel_finite_gram_eq_zero_iff
           (intrinsicRieszKernel alpha ha (z j)) (z i)) = 0 ↔
     (∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)) = 0 := by
   rw [intrinsicRieszKernel_finite_gram_eq_inner s z c alpha ha]
-  exact inner_self_eq_zero
+  exact (inner_self_eq_zero (𝕜 := ℂ)
+    (x := ∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)))
 
 
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_finite_gram_eq_inner
