@@ -61,14 +61,6 @@ noncomputable def localCFCGramSqrt
   letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
     (Source lam →L[ℂ] Source lam) IsSelfAdjoint :=
     IsometricContinuousFunctionalCalculus.toNonUnital
-  -- The pinned Mathlib transports the unital isometric CFC to the
-  -- non-unital real functional calculus required by CFC.sqrt.
-  letI : IsometricContinuousFunctionalCalculus ℝ
-      (Source lam →L[ℂ] Source lam) IsSelfAdjoint :=
-    IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
-  letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
-      (Source lam →L[ℂ] Source lam) IsSelfAdjoint :=
-    IsometricContinuousFunctionalCalculus.toNonUnital
   exact CFC.sqrt (gram lam alpha hlam ha)
 
 /-- The local CFC square root is the certified positive polar
@@ -112,14 +104,6 @@ theorem exists_local_cfc_sqrt_polar_unitary_kummer
     letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
       (Source lam →L[ℂ] Source lam) IsSelfAdjoint :=
       IsometricContinuousFunctionalCalculus.toNonUnital
-  -- The pinned Mathlib transports the unital isometric CFC to the
-  -- non-unital real functional calculus required by CFC.sqrt.
-  letI : IsometricContinuousFunctionalCalculus ℝ
-      (Source lam →L[ℂ] Source lam) IsSelfAdjoint :=
-    IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
-  letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
-      (Source lam →L[ℂ] Source lam) IsSelfAdjoint :=
-    IsometricContinuousFunctionalCalculus.toNonUnital
     change CFC.sqrt (gram lam alpha hlam ha) = P
     exact CFC.sqrt_unique hPmul hPnonneg
   refine ⟨ι, u, mu, W, hp, hsum, hK, ?_, ?_⟩
