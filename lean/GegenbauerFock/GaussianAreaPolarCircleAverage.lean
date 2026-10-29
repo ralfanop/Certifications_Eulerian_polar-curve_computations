@@ -48,7 +48,6 @@ theorem polar_angular_integral_eq_two_pi_circleAverage
   rw [hshift] at hinterval
   simp_rw [hmap]
   rw [hinterval, haverage]
-  simp only [smul_eq_mul]
   field_simp [Real.pi_ne_zero] <;> ring
 
 #print axioms GegenbauerFock.GaussianArea.polar_angular_integral_eq_two_pi_circleAverage
