@@ -80,13 +80,17 @@ theorem intrinsicEntireEvaluation_norm_le_full
     (x : entireGaussianL2Submodule alpha) (z : ℂ) :
     ‖intrinsicEntireEvaluation alpha ha z x‖ ≤
       ‖FockEvaluation.evaluation alpha ha z‖ * ‖x‖ := by
-  have hx :
-      (x : Lp ℂ 2 (gaussianAreaMeasure alpha)) ∈
-        gaussianPolynomialClosure alpha ha :=
-    intrinsicEntire_le_polynomialClosure_unconditional alpha ha x.property
-  simpa only [] using
-    intrinsicEntireEvaluation_norm_le_on_polynomialClosure alpha ha z
-      (x : Lp ℂ 2 (gaussianAreaMeasure alpha)) hx
+  rw [intrinsicEntireEvaluation_eq_coherent_analysis alpha ha x z]
+  calc
+    ‖FockEvaluation.evaluation alpha ha z
+        (coefficientAnalysisL2 alpha ha
+          (x : Lp ℂ 2 (gaussianAreaMeasure alpha)))‖ ≤
+      ‖FockEvaluation.evaluation alpha ha z‖ *
+        ‖coefficientAnalysisL2 alpha ha
+          (x : Lp ℂ 2 (gaussianAreaMeasure alpha))‖ :=
+      (FockEvaluation.evaluation alpha ha z).le_opNorm _
+    _ = ‖FockEvaluation.evaluation alpha ha z‖ * ‖x‖ := by
+      rw [coefficientAnalysisL2_norm_intrinsic alpha ha x]
 
 #print axioms GegenbauerFock.GaussianArea.coefficientSynthesis_analysis_eq_intrinsic
 #print axioms GegenbauerFock.GaussianArea.intrinsicEntireEvaluation_eq_coherent_analysis
