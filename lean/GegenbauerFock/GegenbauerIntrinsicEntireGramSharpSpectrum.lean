@@ -75,15 +75,16 @@ theorem intrinsicEntire_sourceGram_shift_fredholm_iff_nonzero
       (C_intrinsicEntire_gram lam alpha hlam ha -
         mu • (1 : Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
           Lp ℂ 2 (Ultraspherical.measure lam))) ↔ mu ≠ 0 := by
-  rw [C_intrinsicEntire_gram_eq lam alpha hlam ha]
-  constructor
-  · intro hfred hzero
-    subst mu
-    have hf : ContinuousLinearMap.IsFredholm (gram lam alpha hlam ha) := by
-      simpa only [zero_smul, sub_zero] using hfred
-    exact sourceGram_zero_not_fredholm lam alpha hlam ha hf
-  · intro hnonzero
-    exact sourceGram_nonzero_shift_isFredholm lam alpha hlam ha mu hnonzero
+  have hess :
+      mu ∈ fredholmEssentialSpectrum
+          (C_intrinsicEntire_gram lam alpha hlam ha) ↔ mu = 0 := by
+    rw [intrinsicEntire_sourceGram_fredholm_essential_eq_zero lam alpha hlam ha]
+    simp only [Set.mem_singleton_iff]
+  change (¬ ContinuousLinearMap.IsFredholm
+    (C_intrinsicEntire_gram lam alpha hlam ha -
+      mu • (1 : Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam)))) ↔ mu = 0 at hess
+  tauto
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.intrinsicEntire_sourceGram_spectral_value_sharp_bound
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.intrinsicEntire_sourceGram_outside_sharp_band_resolvent
