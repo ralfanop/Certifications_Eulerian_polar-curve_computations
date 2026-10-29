@@ -50,7 +50,8 @@ jobs:
           set -euo pipefail
           lake build GegenbauerFock.TwoSidedGramJointSpectralBand 2>&1 | tee /tmp/v007-joint-spectral-band.log
           for theorem in two_sided_gram_joint_spectral_band \
-            two_sided_gram_right_halfplane_resolvent; do
+            two_sided_gram_right_halfplane_resolvent \
+            two_sided_gram_left_halfplane_resolvent; do
             grep -qF "${theorem}' depends on axioms:" /tmp/v007-joint-spectral-band.log
           done
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-joint-spectral-band.log; then
