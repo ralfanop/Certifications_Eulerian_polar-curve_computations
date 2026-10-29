@@ -36,7 +36,7 @@ theorem intrinsicEntire_normalized_taylor_coefficient_norm_le
       ‖coefficientAnalysisL2 alpha ha
         (x : Lp ℂ 2 (gaussianAreaMeasure alpha))‖ :=
       lp.norm_apply_le_norm
-        (by norm_num : (2 : ℝ≥0∞) ≠ 0)
+        (by norm_num : (2 : ENNReal) ≠ 0)
         (coefficientAnalysisL2 alpha ha
           (x : Lp ℂ 2 (gaussianAreaMeasure alpha))) n
     _ = ‖x‖ := coefficientAnalysisL2_norm_intrinsic alpha ha x
