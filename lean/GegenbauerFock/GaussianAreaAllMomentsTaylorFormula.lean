@@ -64,7 +64,7 @@ theorem intrinsicEntire_planar_moment_zero_iff_taylor_deriv_zero
         (by positivity)
     exact_mod_cast (ne_of_gt hpos)
   have hfac : (Nat.factorial n : ℂ) ≠ 0 := by
-    exact_mod_cast (by positivity : (Nat.factorial n : ℝ) ≠ 0)
+    exact_mod_cast (show (Nat.factorial n : ℝ) ≠ 0 by positivity)
   constructor
   · intro hz
     have hdiv :
