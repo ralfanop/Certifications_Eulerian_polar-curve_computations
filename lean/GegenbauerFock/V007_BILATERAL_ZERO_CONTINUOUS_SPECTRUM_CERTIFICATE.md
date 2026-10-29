@@ -269,3 +269,61 @@ not because the two operators have been identified.
 
 PR #16 remains Draft/unmerged. Neither `main` nor approved V097
 has been modified.
+
+## Update — 29 October 2026: remaining Fredholm singleton step
+
+The Fredholm essential-spectrum inclusion and negative-real exclusion
+are independently kernel-certified in workflows
+[40865429368](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40865429368)
+and
+[40865662295](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40865662295).
+Each reports **SUCCESS**, 9116 Lean jobs, and only standard axioms in
+the `#print axioms` checks.
+
+**Exact remaining substantive obligation for**
+`σess(Gsrc) = {0} = σess(Gout)`:
+prove, for every `mu : ℂ` with `mu ≠ 0`, that
+`ContinuousLinearMap.IsFredholm (Gsrc - mu • 1)`
+and
+`ContinuousLinearMap.IsFredholm (Gout - mu • 1)`.
+
+Existing Mathlib ingredients (actual API names):
+- `IsCompactOperator.hasEigenvalue_or_mem_resolventSet` and
+  `IsCompactOperator.hasEigenvalue_iff_mem_spectrum`
+  in `Mathlib.Analysis.Normed.Operator.Compact.FredholmAlternative`;
+- `ContinuousLinearMap.finite_dimensional_eigenspace` in
+  `Mathlib.Analysis.InnerProductSpace.Spectrum`;
+- `LinearMap.IsSymmetric.invariant_orthogonalComplement_eigenspace`
+  in the same module, ensuring invariant orthogonal complements;
+- `ContinuousLinearMap.IsFredholm.of_isInvertible_restrict`
+  in `Mathlib.Analysis.Normed.Operator.Fredholm.Basic`.
+
+A viable formal proof must show the restriction of each shifted Gram
+to the orthogonal complement of its `mu`-eigenspace is a continuous
+linear isomorphism, then show that this complementary subspace has
+finite codimension, applying `IsFredholm.of_isInvertible_restrict`.
+The complementary restriction's invertibility follows from the compact
+Fredholm alternative once absence of `mu`-eigenvectors there is
+formally checked. **Finite dimensionality of eigenspaces alone does not
+certify Fredholmness**; closed range and finite cokernel must be proved
+through that restriction argument.
+
+New independently auditable candidates:
+- `TwoSidedGramNonzeroFiniteEigenspaces.lean` using the exact compact
+  spectral theorem, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40868644877.
+- `TwoSidedGramEssentialSpectralBand.lean` encloses both essential
+  spectra in the common real nonnegative norm interval; it relies only
+  on already independently certified positive-spectrum and Fredholm
+  inclusion lemmas. The last candidate uses
+  `spectrum.norm_le_norm_mul_of_mem` together with
+  `ContinuousLinearMap.norm_id_le` because the stronger generic
+  `spectrum.norm_le_norm_of_mem` silently requires a `NormOneClass`
+  instance unavailable for arbitrary zero-capable Hilbert spaces. CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869119820.
+
+**Do not label either of these two candidate modules kernel-certified
+until their exact CI is successful and the individual theorem-axiom
+logs have been checked. Do not label the singleton essential-spectrum
+equality as proved until the nonzero-shift Fredholm argument above is
+kernel-certified.** The PR remains Draft and unmerged.
