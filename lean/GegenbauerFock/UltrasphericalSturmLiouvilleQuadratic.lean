@@ -25,21 +25,41 @@ def sturmQuadratic (lam : ℝ) : ℝ[X] :=
 theorem sturmPolynomial_quadratic_eigen (lam : ℝ) :
     sturmPolynomial lam (sturmQuadratic lam) =
       C (-(4 * (lam + 1))) * sturmQuadratic lam := by
-  have htwo := sturmPolynomial_X_pow_succ_succ lam 0
-  norm_num at htwo
+  have hs : (2 : ℝ) * (2 + 2 * lam) = 4 * (lam + 1) := by ring
+  have htwo :
+      sturmPolynomial lam (X ^ 2) =
+        C (2 : ℝ) - C (4 * (lam + 1)) * X ^ 2 := by
+    simpa only [Nat.zero_add, Nat.cast_ofNat, pow_zero, mul_one, hs]
+      using (sturmPolynomial_X_pow_succ_succ lam 0)
   have hone : sturmPolynomial lam (1 : ℝ[X]) = 0 := by
-    simpa using sturmPolynomial_C lam (1 : ℝ)
-  have hscale :
-      sturmPolynomial lam (C (2 * (lam + 1)) * X ^ 2) =
-        C (2 * (lam + 1)) * sturmPolynomial lam (X ^ 2) := by
-    simpa only [smul_eq_C_mul] using
-      (sturmPolynomial_smul lam (2 * (lam + 1)) (X ^ 2))
-  change sturmPolynomial lam
-    (C (2 * (lam + 1)) * X ^ 2 - (1 : ℝ[X])) =
-    C (-(4 * (lam + 1))) * (C (2 * (lam + 1)) * X ^ 2 - 1)
-  rw [sturmPolynomial_sub, hone, sub_zero, hscale, htwo]
-  norm_num [map_add, map_mul, map_neg]
-  ring
+    simpa using (sturmPolynomial_C lam 1)
+  have hquad :
+      sturmQuadratic lam =
+        (2 * (lam + 1)) • (X ^ 2 : ℝ[X]) - 1 := by
+    simp only [sturmQuadratic, smul_eq_C_mul]
+  have hcoeff :
+      C (2 * (lam + 1)) * C (2 : ℝ) = C (4 * (lam + 1)) := by
+    rw [← map_mul]
+    congr 1
+    ring
+  calc
+    sturmPolynomial lam (sturmQuadratic lam) =
+        C (2 * (lam + 1)) *
+          (C (2 : ℝ) - C (4 * (lam + 1)) * X ^ 2) := by
+      rw [hquad, sturmPolynomial_sub, sturmPolynomial_smul, hone]
+      simp only [sub_zero, smul_eq_C_mul]
+      rw [htwo]
+    _ = C (-(4 * (lam + 1))) * sturmQuadratic lam := by
+      rw [sturmQuadratic, map_neg]
+      calc
+        C (2 * (lam + 1)) *
+            (C (2 : ℝ) - C (4 * (lam + 1)) * X ^ 2) =
+          C (2 * (lam + 1)) * C (2 : ℝ) -
+            (C (2 * (lam + 1)) * C (4 * (lam + 1))) * X ^ 2 := by ring
+        _ = C (4 * (lam + 1)) -
+            (C (2 * (lam + 1)) * C (4 * (lam + 1))) * X ^ 2 := by rw [hcoeff]
+        _ = -C (4 * (lam + 1)) *
+            (C (2 * (lam + 1)) * X ^ 2 - 1) := by ring
 
 #print axioms GegenbauerFock.Ultraspherical.sturmPolynomial_quadratic_eigen
 
