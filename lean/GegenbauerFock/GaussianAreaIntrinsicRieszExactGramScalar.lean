@@ -26,7 +26,7 @@ theorem intrinsicRieszKernel_exp_gram_eq_complex_norm_sq
     (∑ i ∈ s, ∑ j ∈ s,
         star (c i) * c j *
           Complex.exp ((alpha : ℂ) * z i * star (z j))) =
-      (‖∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)‖ ^ 2 : ℂ) := by
+      ((‖∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)‖ ^ 2 : ℝ) : ℂ) := by
   calc
     (∑ i ∈ s, ∑ j ∈ s,
         star (c i) * c j *
@@ -36,11 +36,11 @@ theorem intrinsicRieszKernel_exp_gram_eq_complex_norm_sq
         (∑ j ∈ s, c j • intrinsicRieszKernel alpha ha (z j)) := by
           simpa only [intrinsicRieszKernel_closed_form alpha ha] using
             (intrinsicRieszKernel_finite_gram_eq_inner s z c alpha ha)
-    _ = (‖∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)‖ ^ 2 : ℂ) := by
+    _ = ((‖∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)‖ ^ 2 : ℝ) : ℂ) := by
       apply Complex.ext
-      · simpa using (inner_self_eq_norm_sq (𝕜 := ℂ)
+      · simpa only [Complex.ofReal_re] using (inner_self_eq_norm_sq (𝕜 := ℂ)
           (∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)))
-      · simpa using (inner_self_im (𝕜 := ℂ)
+      · simpa only [Complex.ofReal_im] using (inner_self_im (𝕜 := ℂ)
           (∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)))
 
 /-- The imaginary part of every finite Gaussian exponential Gram
