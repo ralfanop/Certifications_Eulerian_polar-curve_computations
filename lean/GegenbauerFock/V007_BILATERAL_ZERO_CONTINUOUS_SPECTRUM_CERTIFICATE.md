@@ -588,3 +588,38 @@ infer a current SHA from an earlier audit; inspect exact CI SHA and
 these are **unverified candidates**, not claimed Lean certificates.
 
 PR #16 stays Draft and unmerged. Approved V097 and main unchanged.
+
+
+## Update — 29 October 2026: complete singular Hilbert bases and Fourier expansions audited
+
+Two fresh exact-source, dedicated Lean 4/Mathlib workflows completed
+**SUCCESS** and printed no `sorryAx` nor `Lean.ofReduceBool`:
+
+- `CompletePositiveSingularHilbertBasis.lean`, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40884336683
+  (9,107 build jobs). This constructs complete singular Hilbert bases
+  on the two genuine Hilbert spaces with strictly positive singular
+  values and exact Kummer mass, retaining the multiplicity count.
+- `CompleteSingularFourierExpansions.lean`, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40884568401
+  (9,108 build jobs). This proves the corresponding bilateral singular
+  Fourier expansions and norm-convergent reconstructions, rather than
+  replacing either genuine infinite-dimensional Hilbert space by a
+  finite-dimensional matrix.
+
+Both logs show only standard axioms `propext`,
+`Classical.choice`, and `Quot.sound` for the final statements.
+
+**Fredholm singleton proof is NOT yet certified.** Earlier failed
+CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40881053876
+identified an unavailable `FG.cofg_of_isCompl` namespace and an
+operator/linear-map-restriction elaboration mismatch. A repaired
+version at SHA `e7b6c6df9e1c` is being tested by
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40886194258
+and the dependent essential singleton proof by
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40886194109.
+Neither theorem should be described as kernel-certified until its
+individual CI completes SUCCESS and the axiom audit is clean.
+
+PR #16 remains open Draft, unmerged. `main` and approved V097
+are untouched.
