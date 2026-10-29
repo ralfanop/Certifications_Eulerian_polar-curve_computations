@@ -68,10 +68,6 @@ theorem exists_cfc_sqrt_with_explicit_scalar_commutation
         (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
           Lp ℂ 2 (Ultraspherical.measure lam)) IsStarNormal :=
        IsStarNormal.instContinuousFunctionalCalculus
-     letI : ContinuousFunctionalCalculus ℝ
-        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
-          Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
-       IsSelfAdjoint.instContinuousFunctionalCalculus
      letI : IsometricContinuousFunctionalCalculus ℝ
         (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
           Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
@@ -99,10 +95,6 @@ theorem exists_cfc_sqrt_with_explicit_scalar_commutation
       (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
         Lp ℂ 2 (Ultraspherical.measure lam)) IsStarNormal :=
     IsStarNormal.instContinuousFunctionalCalculus
-  letI : ContinuousFunctionalCalculus ℝ
-      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
-        Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
-    IsSelfAdjoint.instContinuousFunctionalCalculus
   letI : IsometricContinuousFunctionalCalculus ℝ
       (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
         Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
@@ -150,10 +142,6 @@ theorem exists_cfc_sqrt_full_polar_adjoint_outputGram_explicit
         (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
           Lp ℂ 2 (Ultraspherical.measure lam)) IsStarNormal :=
        IsStarNormal.instContinuousFunctionalCalculus
-     letI : ContinuousFunctionalCalculus ℝ
-        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
-          Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
-       IsSelfAdjoint.instContinuousFunctionalCalculus
      letI : IsometricContinuousFunctionalCalculus ℝ
         (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
           Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
@@ -192,10 +180,6 @@ theorem exists_cfc_sqrt_full_polar_adjoint_outputGram_explicit
       (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
         Lp ℂ 2 (Ultraspherical.measure lam)) IsStarNormal :=
     IsStarNormal.instContinuousFunctionalCalculus
-  letI : ContinuousFunctionalCalculus ℝ
-      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
-        Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
-    IsSelfAdjoint.instContinuousFunctionalCalculus
   letI : IsometricContinuousFunctionalCalculus ℝ
       (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
         Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
