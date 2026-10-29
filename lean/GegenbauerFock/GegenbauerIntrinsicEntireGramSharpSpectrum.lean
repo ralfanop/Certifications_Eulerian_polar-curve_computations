@@ -65,8 +65,29 @@ theorem intrinsicEntire_sourceGram_sharp_spectrum_and_essential_zero
   exact ⟨intrinsicEntire_sourceGram_spectral_value_sharp_bound lam alpha hlam ha,
     intrinsicEntire_sourceGram_fredholm_essential_eq_zero lam alpha hlam ha⟩
 
+/-- Exact Fredholm classification for spectral shifts of the
+genuine entire-Gaussian Fock source Gram: the shift is Fredholm
+precisely when its complex spectral parameter is not zero. -/
+theorem intrinsicEntire_sourceGram_shift_fredholm_iff_nonzero
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (mu : ℂ) :
+    ContinuousLinearMap.IsFredholm
+      (C_intrinsicEntire_gram lam alpha hlam ha -
+        mu • (1 : Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam))) ↔ mu ≠ 0 := by
+  rw [C_intrinsicEntire_gram_eq lam alpha hlam ha]
+  constructor
+  · intro hfred hzero
+    subst mu
+    have hf : ContinuousLinearMap.IsFredholm (gram lam alpha hlam ha) := by
+      simpa using hfred
+    exact sourceGram_zero_not_fredholm lam alpha hlam ha hf
+  · intro hnonzero
+    exact sourceGram_nonzero_shift_isFredholm lam alpha hlam ha mu hnonzero
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.intrinsicEntire_sourceGram_spectral_value_sharp_bound
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.intrinsicEntire_sourceGram_outside_sharp_band_resolvent
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.intrinsicEntire_sourceGram_sharp_spectrum_and_essential_zero
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.intrinsicEntire_sourceGram_shift_fredholm_iff_nonzero
 
 end GegenbauerFock.GeneralUltrasphericalFock
