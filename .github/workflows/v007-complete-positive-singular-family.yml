@@ -56,7 +56,6 @@ jobs:
             echo '::error::Forbidden axiom in unconditional positive singular system certificate.'
             exit 1
           fi
-          grep -F "exists_compact_realEigenHilbertBasis' depends on axioms:" /tmp/v007-positive-singular-axioms.log
-          grep -F "exists_sourceGram_eigenHilbertBasis_kummer' depends on axioms:" /tmp/v007-positive-singular-axioms.log
-          grep -F "exists_outputGram_eigenHilbertBasis_kummer' depends on axioms:" /tmp/v007-positive-singular-axioms.log
-          echo 'V007 complete compact Gram spectral Kummer sums kernel-checked and audited.'
+          grep -F "exists_positive_sourceGram_eigenHilbertBasis_kummer' depends on axioms:" /tmp/v007-positive-singular-axioms.log
+          grep -F "exists_orthonormal_singular_family_kummer' depends on axioms:" /tmp/v007-positive-singular-axioms.log
+          echo 'V007 positive orthonormal singular family kernel-checked and audited.'
