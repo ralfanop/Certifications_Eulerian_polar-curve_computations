@@ -80,7 +80,7 @@ theorem intrinsicEntire_sourceGram_shift_fredholm_iff_nonzero
   · intro hfred hzero
     subst mu
     have hf : ContinuousLinearMap.IsFredholm (gram lam alpha hlam ha) := by
-      simpa using hfred
+      simpa only [zero_smul, sub_zero] using hfred
     exact sourceGram_zero_not_fredholm lam alpha hlam ha hf
   · intro hnonzero
     exact sourceGram_nonzero_shift_isFredholm lam alpha hlam ha mu hnonzero
