@@ -34,20 +34,25 @@ theorem sturmPolynomial_apply_sum_monomials
       ∑ n ∈ p.support,
         C (p.coeff n) * sturmPolynomial lam (X ^ n) := by
   classical
+  have hsum (s : Finset ℕ) :
+      sturmPolynomial lam
+          (∑ n ∈ s, p.coeff n • (X ^ n : ℝ[X])) =
+        ∑ n ∈ s, C (p.coeff n) * sturmPolynomial lam (X ^ n) := by
+    induction s using Finset.induction_on with
+    | empty =>
+        simp [sturmPolynomial]
+    | @insert n s hn ih =>
+        simp only [Finset.sum_insert hn]
+        rw [sturmPolynomial_add, sturmPolynomial_smul, ih]
+        simp only [smul_eq_C_mul]
   calc
-    sturmPolynomial lam p = sturmPolynomialLinear lam p := rfl
-    _ = sturmPolynomialLinear lam
-        (∑ n ∈ p.support, p.coeff n • (X ^ n : ℝ[X])) := by
+    sturmPolynomial lam p =
+        sturmPolynomial lam
+          (∑ n ∈ p.support, p.coeff n • (X ^ n : ℝ[X])) := by
       rw [sturmPolynomial_true_monomial_expansion]
     _ = ∑ n ∈ p.support,
-          C (p.coeff n) * sturmPolynomial lam (X ^ n) := by
-      rw [map_sum]
-      apply Finset.sum_congr rfl
-      intro n hn
-      change sturmPolynomial lam ((p.coeff n) • (X ^ n)) =
-        C (p.coeff n) * sturmPolynomial lam (X ^ n)
-      simpa only [smul_eq_C_mul] using
-        (sturmPolynomial_smul lam (p.coeff n) (X ^ n))
+          C (p.coeff n) * sturmPolynomial lam (X ^ n) :=
+      hsum p.support
 
 #print axioms GegenbauerFock.Ultraspherical.sturmPolynomial_true_monomial_expansion
 #print axioms GegenbauerFock.Ultraspherical.sturmPolynomial_apply_sum_monomials
