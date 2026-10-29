@@ -86,6 +86,6 @@ jobs:
           grep -F "intrinsicEntireEvaluation_norm_le_full' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           grep -F "intrinsicEntire_evaluation_eq_coherent_tsum' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           grep -F "intrinsicEntire_evaluation_at_zero_eq_coefficient_zero' depends on axioms:" /tmp/v007-radial-circle-axioms.log
-          grep -F "intrinsicEntireEvaluationContinuous' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntireEvaluationContinuous_eq_coherent_analysis' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           grep -F "intrinsicEntire_evaluation_sq_le_exp_norm' depends on axioms:" /tmp/v007-radial-circle-axioms.log
           echo 'Full intrinsic Gaussian Fock pointwise expansion and evaluation: kernel checked and audited.'
