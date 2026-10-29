@@ -88,8 +88,10 @@ theorem C_intrinsicEntire_outputGram_zero_mem_spectrum
 output Gram: dense proper range, trivial kernel, spectral membership. -/
 theorem C_intrinsicEntire_outputGram_zero_continuous_spectrum
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
-    IsContinuousSpectralPointAtZero
-      (C_intrinsicEntire_outputGram lam alpha hlam ha) := by
+    (letI : CompleteSpace (GaussianArea.entireGaussianL2Submodule alpha) :=
+       (GaussianArea.intrinsicEntire_isClosed alpha ha).completeSpace_coe
+     IsContinuousSpectralPointAtZero
+       (C_intrinsicEntire_outputGram lam alpha hlam ha)) := by
   letI : CompleteSpace (GaussianArea.entireGaussianL2Submodule alpha) :=
     (GaussianArea.intrinsicEntire_isClosed alpha ha).completeSpace_coe
   exact ⟨C_intrinsicEntire_outputGram_zero_mem_spectrum lam alpha hlam ha,
