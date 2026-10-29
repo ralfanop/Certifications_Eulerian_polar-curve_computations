@@ -1,4 +1,5 @@
 import GegenbauerFock.GaussianAreaExplicitTaylorFourierSeries
+import GegenbauerFock.GaussianAreaFullIntrinsicEvaluation
 
 /-!
 # V007 — the exact Taylor-derivative coefficient vector and Parseval norm
@@ -47,6 +48,37 @@ theorem intrinsicTaylorCoefficients_norm_eq
     ‖intrinsicTaylorCoefficients alpha ha x‖ = ‖x‖ := by
   rw [intrinsicTaylorCoefficients_eq_analysis alpha ha x]
   exact (intrinsicEntire_gaussian_parseval_norm alpha ha x).symm
+
+/-- Polarized Parseval identity: the actual Gaussian Fock Hilbert
+inner product equals the complex ℓ² inner product of the two
+normalized Taylor-derivative coefficient vectors. -/
+theorem intrinsicTaylorCoefficients_inner_eq
+    (alpha : ℝ) (ha : 0 < alpha)
+    (x y : entireGaussianL2Submodule alpha) :
+    inner ℂ (intrinsicTaylorCoefficients alpha ha x)
+      (intrinsicTaylorCoefficients alpha ha y) = inner ℂ x y := by
+  rw [intrinsicTaylorCoefficients_eq_analysis alpha ha x,
+    intrinsicTaylorCoefficients_eq_analysis alpha ha y]
+  calc
+    inner ℂ
+        (coefficientAnalysisL2 alpha ha
+          (x : Lp ℂ 2 (gaussianAreaMeasure alpha)))
+        (coefficientAnalysisL2 alpha ha
+          (y : Lp ℂ 2 (gaussianAreaMeasure alpha))) =
+      inner ℂ
+        (coefficientSynthesisL2 alpha ha
+          (coefficientAnalysisL2 alpha ha
+            (x : Lp ℂ 2 (gaussianAreaMeasure alpha))))
+        (coefficientSynthesisL2 alpha ha
+          (coefficientAnalysisL2 alpha ha
+            (y : Lp ℂ 2 (gaussianAreaMeasure alpha)))) :=
+      ((coefficientSynthesisL2 alpha ha).inner_map_map _ _).symm
+    _ = inner ℂ x y := by
+      rw [coefficientSynthesis_analysis_eq_intrinsic alpha ha x,
+        coefficientSynthesis_analysis_eq_intrinsic alpha ha y]
+      rfl
+
+#print axioms GegenbauerFock.GaussianArea.intrinsicTaylorCoefficients_inner_eq
 
 #print axioms GegenbauerFock.GaussianArea.intrinsicTaylorCoefficients_eq_analysis
 #print axioms GegenbauerFock.GaussianArea.intrinsicTaylorCoefficients_norm_eq
