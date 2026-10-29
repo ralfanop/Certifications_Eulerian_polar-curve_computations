@@ -133,10 +133,14 @@ kernel-certified at source commit `654192d18507894e043033b7143c8d5960c4fac1`:
 
 Two further dedicated modules are deposited and must be checked separately:
 - `TwoSidedGramSingularWeylZero.lean` explicitly defines
-  `IsSingularWeylSequenceAtZero` by the three preceding properties,
-  with one witness in each true Hilbert space. This is a sequence-level
-  predicate, not an unproved equality with a Mathlib spectral set.
-  CI: https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40860754934
+  `IsSingularWeylSequenceAtZero` by unit norms, strong convergence
+  of Gram images to zero and full weak convergence of test inner
+  products, with one witness in each actual Hilbert space.
+  **SUCCESS**, 9110 jobs and clean axiom audit at SHA
+  `59d3da457ebd09fc4ce91976afcd5379b378e115`:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40860754934
+  This is a certified sequence-level predicate, not an unproved
+  equality with a Mathlib essential-spectrum set API.
 - `TwoSidedGramZeroNotFredholm.lean` proves each actual Gram is
   **not** `ContinuousLinearMap.IsFredholm` directly from the
   previously certified nonclosed range, connecting to the Fredholm
@@ -144,5 +148,6 @@ Two further dedicated modules are deposited and must be checked separately:
   singular-Weyl/essential-spectrum API.
   CI: https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40861103876
 
-**Do not mark either additional module as certified until its
-individual Lean kernel build and axiom audit return SUCCESS.**
+**The singular Weyl module is certified; the direct non-Fredholm
+module remains pending until its own kernel build and axiom audit
+return SUCCESS.**
