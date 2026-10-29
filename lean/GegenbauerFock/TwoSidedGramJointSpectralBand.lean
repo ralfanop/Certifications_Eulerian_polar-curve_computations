@@ -20,6 +20,22 @@ open MeasureTheory Module End
 
 namespace GegenbauerFock.GeneralUltrasphericalFock
 
+/-- Operator spectral norm estimate, including the possibility of the
+zero Hilbert space: continuous endomorphisms only have ‖1‖ ≤ 1,
+so the generic spectral bound must account for this factor. -/
+private theorem continuousEnd_spectral_norm_le
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    (T : E →L[ℂ] E) (mu : ℂ) (h : mu ∈ spectrum ℂ T) :
+    ‖mu‖ ≤ ‖T‖ := by
+  have hid : ‖(1 : E →L[ℂ] E)‖ ≤ 1 := by
+    change ‖ContinuousLinearMap.id ℂ E‖ ≤ 1
+    exact ContinuousLinearMap.norm_id_le
+  calc
+    ‖mu‖ ≤ ‖T‖ * ‖(1 : E →L[ℂ] E)‖ :=
+      spectrum.norm_le_norm_mul_of_mem h
+    _ ≤ ‖T‖ * 1 := mul_le_mul_of_nonneg_left hid (norm_nonneg T)
+    _ = ‖T‖ := mul_one _
+
 /-- Every spectral point shared by the two actual Grams is real and
 lies between zero and the minimum of their respective operator norms. -/
 theorem two_sided_gram_joint_spectral_band
@@ -34,9 +50,9 @@ theorem two_sided_gram_joint_spectral_band
   have hmout : mu ∈ spectrum ℂ (outputGram lam alpha hlam ha) :=
     (two_sided_gram_spectrum_eq lam alpha hlam ha) ▸ hm
   have hsrcnorm : ‖mu‖ ≤ ‖gram lam alpha hlam ha‖ :=
-    spectrum.norm_le_norm_of_mem hm
+    continuousEnd_spectral_norm_le (gram lam alpha hlam ha) mu hm
   have houtnorm : ‖mu‖ ≤ ‖outputGram lam alpha hlam ha‖ :=
-    spectrum.norm_le_norm_of_mem hmout
+    continuousEnd_spectral_norm_le (outputGram lam alpha hlam ha) mu hmout
   refine ⟨hreal, hpos, le_min ?_ ?_⟩
   · exact (Complex.re_le_norm mu).trans hsrcnorm
   · exact (Complex.re_le_norm mu).trans houtnorm
