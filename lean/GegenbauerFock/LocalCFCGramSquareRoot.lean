@@ -52,6 +52,15 @@ noncomputable def localCFCGramSqrt
     (Source lam →L[ℂ] Source lam) := cfcComm lam
   letI : IsScalarTower ℝ (Source lam →L[ℂ] Source lam)
     (Source lam →L[ℂ] Source lam) := cfcTower lam
+  letI : ContinuousFunctionalCalculus ℂ
+    (Source lam →L[ℂ] Source lam) IsStarNormal :=
+    IsStarNormal.instContinuousFunctionalCalculus
+  letI : IsometricContinuousFunctionalCalculus ℝ
+    (Source lam →L[ℂ] Source lam) IsSelfAdjoint :=
+    IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
+  letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
+    (Source lam →L[ℂ] Source lam) IsSelfAdjoint :=
+    IsometricContinuousFunctionalCalculus.toNonUnital
   -- The pinned Mathlib transports the unital isometric CFC to the
   -- non-unital real functional calculus required by CFC.sqrt.
   letI : IsometricContinuousFunctionalCalculus ℝ
@@ -94,6 +103,15 @@ theorem exists_local_cfc_sqrt_polar_unitary_kummer
       (Source lam →L[ℂ] Source lam) := cfcComm lam
     letI : IsScalarTower ℝ (Source lam →L[ℂ] Source lam)
       (Source lam →L[ℂ] Source lam) := cfcTower lam
+    letI : ContinuousFunctionalCalculus ℂ
+      (Source lam →L[ℂ] Source lam) IsStarNormal :=
+      IsStarNormal.instContinuousFunctionalCalculus
+    letI : IsometricContinuousFunctionalCalculus ℝ
+      (Source lam →L[ℂ] Source lam) IsSelfAdjoint :=
+      IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
+    letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
+      (Source lam →L[ℂ] Source lam) IsSelfAdjoint :=
+      IsometricContinuousFunctionalCalculus.toNonUnital
   -- The pinned Mathlib transports the unital isometric CFC to the
   -- non-unital real functional calculus required by CFC.sqrt.
   letI : IsometricContinuousFunctionalCalculus ℝ
