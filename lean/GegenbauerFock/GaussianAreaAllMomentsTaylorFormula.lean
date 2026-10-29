@@ -55,7 +55,7 @@ theorem intrinsicEntire_planar_moment_zero_iff_taylor_deriv_zero
     exact_mod_cast
       (mul_ne_zero (by norm_num : (2 : ℝ) ≠ 0) (ne_of_gt ha))
   have hgamma :
-      (((alpha ^ (-((n : ℝ) + 1)) * (1 / 2) *
+      ((alpha ^ (-((n : ℝ) + 1)) * (1 / 2) *
         (Nat.factorial n : ℝ) : ℝ) : ℂ) ≠ 0 := by
     have hpos : 0 <
         alpha ^ (-((n : ℝ) + 1)) * (1 / 2) *
