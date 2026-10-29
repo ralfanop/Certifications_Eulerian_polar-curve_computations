@@ -5,6 +5,8 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/TwoSidedGramFredholmDefectMultiplicity.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramFredholmNullityDefect.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramNonzeroFredholmIndexZero.lean'
       - '.github/workflows/v007-gram-fredholm-defect-multiplicity.yml'
   workflow_dispatch:
 jobs:
