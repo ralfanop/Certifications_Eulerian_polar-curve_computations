@@ -69,7 +69,7 @@ theorem ultraspherical_fourierBochner_normalized_pointwise_null_no_strong_source
     have h :=
       ((FockEvaluation.evaluation alpha ha z).continuous.tendsto
         (0 : InfiniteAnalysis.FockCoefficients)).comp hcoeff
-    simpa only [Function.comp_apply, map_zero] using h
+    simpa only [Function.comp_def, map_zero] using h
   have hpoint :
       (fun n : ℕ =>
         ∫ v : ℝ, u n v *
