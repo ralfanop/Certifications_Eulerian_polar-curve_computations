@@ -5,6 +5,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireCompactQuasiaffinity.lean'
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireDenseProperRange.lean'
       - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireFockOperator.lean'
       - 'lean/GegenbauerFock/CompactFockProperDenseRange.lean'
       - '.github/workflows/v007-gegenbauer-intrinsic-entire-compact.yml'
@@ -45,8 +46,9 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.GegenbauerIntrinsicEntireCompactQuasiaffinity 2>&1 | tee /tmp/v007-intrinsic-gegenbauer-compact.log
+          lake build GegenbauerFock.GegenbauerIntrinsicEntireCompactQuasiaffinity GegenbauerFock.GegenbauerIntrinsicEntireDenseProperRange 2>&1 | tee /tmp/v007-intrinsic-gegenbauer-compact.log
           lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireCompactQuasiaffinity.lean 2>&1 | tee -a /tmp/v007-intrinsic-gegenbauer-compact.log
+          lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireDenseProperRange.lean 2>&1 | tee -a /tmp/v007-intrinsic-gegenbauer-compact.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-intrinsic-gegenbauer-compact.log; then
             echo "::error::Forbidden axioms in V007 intrinsic compact Gegenbauer transform"
             exit 1
@@ -54,4 +56,7 @@ jobs:
           grep -F "C_intrinsicEntire_compact' depends on axioms:" /tmp/v007-intrinsic-gegenbauer-compact.log
           grep -F "C_intrinsicEntire_opNorm_eq' depends on axioms:" /tmp/v007-intrinsic-gegenbauer-compact.log
           grep -F "C_intrinsicEntire_not_surjective' depends on axioms:" /tmp/v007-intrinsic-gegenbauer-compact.log
+          grep -F "C_denseRange_as_function' depends on axioms:" /tmp/v007-intrinsic-gegenbauer-compact.log
+          grep -F "C_intrinsicEntire_denseRange' depends on axioms:" /tmp/v007-intrinsic-gegenbauer-compact.log
+          grep -F "C_intrinsicEntire_range_not_closed' depends on axioms:" /tmp/v007-intrinsic-gegenbauer-compact.log
           echo 'V007 genuine ultraspherical-to-entire Gaussian transform: compactness and norm certified.'
