@@ -60,7 +60,25 @@ theorem two_sided_gram_right_halfplane_resolvent
   exact ⟨hres,
     (two_sided_gram_resolventSet_eq lam alpha hlam ha) ▸ hres⟩
 
+/-- All complex parameters with negative real part belong to the
+common resolvent. Unlike the preceding real-axis regularization,
+this excludes an entire open complex half-plane from each spectrum. -/
+theorem two_sided_gram_left_halfplane_resolvent
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (mu : ℂ) (hmu : mu.re < 0) :
+    mu ∈ resolventSet ℂ (gram lam alpha hlam ha) ∧
+      mu ∈ resolventSet ℂ (outputGram lam alpha hlam ha) := by
+  have hnot : mu ∉ spectrum ℂ (gram lam alpha hlam ha) := by
+    intro hm
+    exact (not_le_of_gt hmu)
+      ((two_sided_gram_spectra_nonnegative_real lam alpha hlam ha).1 mu hm).2
+  have hres : mu ∈ resolventSet ℂ (gram lam alpha hlam ha) := by
+    simpa only [spectrum, Set.mem_compl_iff, not_not] using hnot
+  exact ⟨hres,
+    (two_sided_gram_resolventSet_eq lam alpha hlam ha) ▸ hres⟩
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.two_sided_gram_joint_spectral_band
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.two_sided_gram_right_halfplane_resolvent
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.two_sided_gram_left_halfplane_resolvent
 
 end GegenbauerFock.GeneralUltrasphericalFock
