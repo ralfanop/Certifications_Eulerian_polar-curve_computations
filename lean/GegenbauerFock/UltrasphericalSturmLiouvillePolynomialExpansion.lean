@@ -41,12 +41,13 @@ theorem sturmPolynomial_apply_sum_monomials
       rw [sturmPolynomial_true_monomial_expansion]
     _ = ∑ n ∈ p.support,
           C (p.coeff n) * sturmPolynomial lam (X ^ n) := by
-      simp only [map_sum, sturmPolynomialLinear_apply, smul_eq_C_mul]
+      rw [map_sum]
       apply Finset.sum_congr rfl
       intro n hn
       change sturmPolynomial lam ((p.coeff n) • (X ^ n)) =
-        (p.coeff n) • sturmPolynomial lam (X ^ n)
-      exact sturmPolynomial_smul lam (p.coeff n) (X ^ n)
+        C (p.coeff n) * sturmPolynomial lam (X ^ n)
+      simpa only [smul_eq_C_mul] using
+        (sturmPolynomial_smul lam (p.coeff n) (X ^ n))
 
 #print axioms GegenbauerFock.Ultraspherical.sturmPolynomial_true_monomial_expansion
 #print axioms GegenbauerFock.Ultraspherical.sturmPolynomial_apply_sum_monomials
