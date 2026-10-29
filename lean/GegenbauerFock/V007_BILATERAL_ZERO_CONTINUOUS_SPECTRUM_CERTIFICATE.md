@@ -422,3 +422,45 @@ nonzero-shift Fredholm proof is a distinct open obligation.
 
 PR #16 remains Draft, open and **unmerged**; neither `main` nor approved
 manuscript V097 is modified.
+
+
+## Update — 29 October 2026: sharp interval completed and exact essential band candidate
+
+The previous checkpoint's candidate is **now certified**:
+- `TwoSidedGramExactSpectralNormBand.lean`, source SHA
+  `48919709aa686c3511c1f4e8c1d4390ec219acce`,
+  CI **SUCCESS** with dedicated Lean build and forbidden-axiom check:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40875159254.
+  Thus the common full operator spectrum is contained in
+  `[0, ‖C‖²]`, and every complex parameter outside this real segment
+  is in the common scalar resolvent of both genuine Grams.
+
+The intrinsic Gaussian Fock Gram now has its own **independent**
+certification of zero spectral/non-eigen/Fredholm-essential behavior:
+- `GaussianArea` intrinsic Fock Gram spectral transfer,
+  CI **SUCCESS**:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40875161399.
+  This is a distinct realization in the intrinsic entire Gaussian L²
+  space, not merely the abstract coefficient space.
+
+**New target, not yet kernel-certified:**
+- `TwoSidedGramExactEssentialNormBand.lean`, source SHA
+  `4eeab68cb6648ed0714987125a4191ee8378da1e`.
+  This combines the *already certified* Fredholm essential norm band
+  with exact Gram norm equality, asserting both Fredholm essential
+  spectra contain zero and are bounded in `[0,‖C‖²]`. Dedicated
+  independent run:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40879928940.
+  Do not claim this candidate is certified until that run and its
+  individual `#print axioms` checks finish SUCCESS.
+
+**Remaining separate obligations:** the globally constructed compact
+eigen-Hilbert bases and *multiplicity-counted* Kummer eigenvalue
+trace sums are affected by the general trace-basis-invariance proof
+port. Its repaired source has independent CI runs underway. A
+standalone demonstration of `σess(G) = {0}` additionally requires
+Fredholmness of every nonzero shift. Neither is inferred from the
+certified common spectral band.
+
+PR #16 stays Draft/unmerged; neither `main` nor approved V097 is
+modified.
