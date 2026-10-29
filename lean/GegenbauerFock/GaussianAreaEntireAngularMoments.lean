@@ -47,11 +47,11 @@ theorem entire_circleAverage_conj_monomial_eq_taylorCoeff
       simp only [norm_pow, hnorm]
       congr 1
       rw [show 2 * n = n * 2 by omega, pow_mul]
+      norm_cast
     calc
       f z * star (z ^ n) =
           (f z * (z ^ n * star (z ^ n))) / z ^ n := by
-            field_simp [hpow]
-            ring
+            field_simp [hpow] <;> ring
       _ = f z * ((R ^ (2 * n) : ℝ) : ℂ) / z ^ n := by
         rw [hnormpow]
       _ = ((R ^ (2 * n) : ℝ) : ℂ) * (f z / z ^ n) := by
@@ -70,7 +70,9 @@ theorem entire_circleAverage_conj_monomial_eq_taylorCoeff
           (c := (0 : ℂ)) (R := R))
     _ = ((R ^ (2 * n) : ℝ) : ℂ) *
         (iteratedDeriv n f 0 / (Nat.factorial n : ℂ)) := by
-      rw [entire_circleAverage_div_pow_eq_taylorCoeff f hf 0 R hR n]
+      have h := entire_circleAverage_div_pow_eq_taylorCoeff f hf 0 R hR n
+      simpa only [sub_zero] using congrArg
+        (fun v : ℂ => ((R ^ (2 * n) : ℝ) : ℂ) * v) h
 
 /-- The same exact angular extraction formula for the intrinsic
 entire representative of any Gaussian L² holomorphic class. -/
