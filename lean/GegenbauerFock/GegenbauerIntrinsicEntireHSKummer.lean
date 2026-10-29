@@ -68,9 +68,16 @@ theorem C_intrinsicEntire_Gram_basis_trace_eq_kummer
       (∑' i : ι, ‖C_intrinsicEntire lam alpha hlam ha (b i)‖ ^ 2) := by
         apply tsum_congr
         intro i
-        rw [C_intrinsicEntire_gram_energy lam alpha hlam ha (b i)]
-        exact (HilbertGram.gram_norm_sq
-          (C lam alpha hlam ha) (b i)).symm
+        calc
+          RCLike.re (inner ℂ
+              (C_intrinsicEntire_gram lam alpha hlam ha (b i)) (b i)) =
+            RCLike.re (inner ℂ
+              (gram lam alpha hlam ha (b i)) (b i)) :=
+              C_intrinsicEntire_gram_energy lam alpha hlam ha (b i)
+          _ = ‖C lam alpha hlam ha (b i)‖ ^ 2 :=
+              (HilbertGram.gram_norm_sq (C lam alpha hlam ha) (b i)).symm
+          _ = ‖C_intrinsicEntire lam alpha hlam ha (b i)‖ ^ 2 := by
+              rw [C_intrinsicEntire_norm lam alpha hlam ha]
     _ = KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) :=
       C_intrinsicEntire_HS_energy_eq_kummer lam alpha hlam ha b
 
