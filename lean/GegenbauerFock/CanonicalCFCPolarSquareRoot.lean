@@ -37,6 +37,15 @@ instance (priority := 2000) (E : Type*) [NormedAddCommGroup E]
   (InfiniteAnalysis.FockCoefficients →L[ℂ] InfiniteAnalysis.FockCoefficients)
   (InfiniteAnalysis.FockCoefficients →L[ℂ] InfiniteAnalysis.FockCoefficients)
 
+-- Test synthesis on the *actual* L² family, not only on coefficient space.
+example (lam : ℝ) :
+    SMulCommClass ℝ
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam))
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam)) :=
+  inferInstance
+
 /-- The true C admits a full-Hilbert unitary polar factorization
 C = W ∘ CFC.sqrt (C†C), and the unique positive CFC square root has
 strictly positive eigenvalues and Kummer squared-singular-value mass. -/
