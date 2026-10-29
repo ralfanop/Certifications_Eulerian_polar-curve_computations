@@ -5,6 +5,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/GaussianAreaIntrinsicRieszKernelTwoPoint.lean'
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicRieszSeparates.lean'
       - 'lean/GegenbauerFock/GaussianAreaIntrinsicKernelHermitian.lean'
       - '.github/workflows/v007-fock-riesz-two-point.yml'
   workflow_dispatch:
@@ -44,8 +45,9 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.GaussianAreaIntrinsicRieszKernelTwoPoint 2>&1 | tee /tmp/v007-riesz-two-point.log
+          lake build GegenbauerFock.GaussianAreaIntrinsicRieszKernelTwoPoint GegenbauerFock.GaussianAreaIntrinsicRieszSeparates 2>&1 | tee /tmp/v007-riesz-two-point.log
           lake env lean -M16768 GegenbauerFock/GaussianAreaIntrinsicRieszKernelTwoPoint.lean 2>&1 | tee -a /tmp/v007-riesz-two-point.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaIntrinsicRieszSeparates.lean 2>&1 | tee -a /tmp/v007-riesz-two-point.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-riesz-two-point.log; then
             echo "::error::Forbidden axiom in intrinsic Gaussian Fock two-point kernel"
             exit 1
@@ -53,4 +55,6 @@ jobs:
           grep -F "intrinsicRieszKernel_twoPoint_norm_sq_le' depends on axioms:" /tmp/v007-riesz-two-point.log
           grep -F "intrinsicRieszKernel_pairing_norm_sq_le' depends on axioms:" /tmp/v007-riesz-two-point.log
           grep -F "intrinsicRieszKernel_ne_zero' depends on axioms:" /tmp/v007-riesz-two-point.log
-          echo 'V007 intrinsic Fock Gaussian two-point kernel verified by Lean.'
+          grep -F "intrinsicRieszKernel_pairings_separate' depends on axioms:" /tmp/v007-riesz-two-point.log
+          grep -F "intrinsicRieszKernel_pairings_zero_iff' depends on axioms:" /tmp/v007-riesz-two-point.log
+          echo 'V007 intrinsic Fock two-point kernel and total Riesz family: kernel-checked.'
