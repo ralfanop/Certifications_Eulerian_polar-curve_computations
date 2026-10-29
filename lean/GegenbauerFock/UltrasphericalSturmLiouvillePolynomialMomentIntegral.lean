@@ -65,7 +65,7 @@ theorem sturmPolynomial_eval_product_integral
       p.eval u * q.eval u =
         ∑ m ∈ q.support, q.coeff m * (p.eval u * u ^ m) := by
     conv_lhs => rhs; rw [Polynomial.eval_eq_sum]
-    simp only [Polynomial.sum, mul_sum]
+    simp only [Polynomial.sum, Finset.mul_sum]
     apply Finset.sum_congr rfl
     intro m hm
     ring
