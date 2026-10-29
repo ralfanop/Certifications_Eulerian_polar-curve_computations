@@ -1,0 +1,57 @@
+name: V007 intrinsic Gaussian Fock radial-coefficient density certificate
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/GaussianAreaEntireRadialCoefficientDensity.lean'
+      - 'lean/GegenbauerFock/GaussianAreaEntireRadialInner.lean'
+      - 'lean/GegenbauerFock/GaussianAreaPolarAngularMoment.lean'
+      - 'lean/GegenbauerFock/GaussianAreaEntireMomentInner.lean'
+      - 'lean/GegenbauerFock/GaussianAreaRadialCircleMomentUniqueness.lean'
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicResidualCriterion.lean'
+      - '.github/workflows/v007-fock-intrinsic-radial-density.yml'
+  workflow_dispatch:
+
+jobs:
+  radial-density-kernel:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean and elan
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          if [ "$installed" -ne 1 ]; then echo "::error::elan unavailable"; exit 1; fi
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          if [ "$ready" -ne 1 ]; then echo "::error::Pinned Lean unavailable"; exit 1; fi
+      - name: Resolve pinned Mathlib and fetch build cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile real Gaussian L2 radial uniqueness and audit axioms
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GaussianAreaEntireRadialCoefficientDensity 2>&1 | tee /tmp/v007-fock-radial-density.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-fock-radial-density.log; then
+            echo "::error::Forbidden axioms in V007 radial density"
+            exit 1
+          fi
+          grep -F "intrinsicEntire_eq_polynomialClosure_via_radial_inner' depends on axioms:" /tmp/v007-fock-radial-density.log
+          echo 'V007 intrinsic Fock radial density: kernel compilation and audit clean.'
