@@ -26,7 +26,7 @@ theorem Kummer_first_excited_coefficient_exact
   have ha' : alpha ≠ 0 := ne_of_gt ha
   simp only [KummerCoefficients.ratio_succ, KummerCoefficients.ratio_zero,
     Nat.cast_zero, zero_add, one_mul]
-  field_simp
+  field_simp [hλ, ha']
   ring
 
 /-- Exact first nonvacuum correction lower bound on the *actual*
