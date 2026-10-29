@@ -38,6 +38,10 @@ theorem planar_integral_eq_iterated_polar
       (fun p : ℝ × ℝ => p.1 • f (Complex.polarCoord.symm p))
       (((volume : Measure ℝ).restrict (Set.Ioi (0 : ℝ))).prod
         ((volume : Measure ℝ).restrict (Set.Ioo (-Real.pi) Real.pi))) := by
+    change Integrable
+      (fun p : ℝ × ℝ => p.1 • f (Complex.polarCoord.symm p))
+      ((volume : Measure (ℝ × ℝ)).restrict
+        (Set.Ioi (0 : ℝ) ×ˢ Set.Ioo (-Real.pi) Real.pi)) at hf
     simpa only [Measure.volume_eq_prod, ← Measure.prod_restrict] using hf
   calc
     (∫ z : ℂ, f z) =
