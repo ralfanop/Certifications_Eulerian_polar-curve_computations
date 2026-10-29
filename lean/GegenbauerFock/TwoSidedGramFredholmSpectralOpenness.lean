@@ -38,8 +38,10 @@ theorem fredholmEssentialSpectrum_isClosed
   have hpre :
       IsOpen {mu : ℂ | (T - mu • (1 : H →L[ℂ] H)).IsFredholm} := by
     exact hopen.preimage hcont
-  apply isOpen_compl_iff.mp
-  simpa [fredholmEssentialSpectrum] using hpre
+  have hclosed :
+      IsClosed ({mu : ℂ | (T - mu • (1 : H →L[ℂ] H)).IsFredholm}ᶜ) :=
+    hpre.isClosed_compl
+  simpa only [fredholmEssentialSpectrum, Set.compl_setOf] using hclosed
 
 /-- Wherever T - mu I is Fredholm, the Fredholm index is locally
 constant under changes of the complex spectral parameter mu. -/
