@@ -48,16 +48,20 @@ theorem C_intrinsicEntire_opNorm_eq
         C_intrinsicEntire_norm lam alpha hlam ha f
       _ ≤ ‖C lam alpha hlam ha‖ * ‖f‖ :=
         (C lam alpha hlam ha).le_opNorm _
-  · apply ContinuousLinearMap.opNorm_le_bound
+  · have hbound : ∀ f : Lp ℂ 2 (Ultraspherical.measure lam),
+        ‖C lam alpha hlam ha f‖ ≤
+          ‖C_intrinsicEntire lam alpha hlam ha‖ * ‖f‖ := by
+      intro f
+      calc
+        ‖C lam alpha hlam ha f‖ =
+            ‖C_intrinsicEntire lam alpha hlam ha f‖ :=
+          (C_intrinsicEntire_norm lam alpha hlam ha f).symm
+        _ ≤ ‖C_intrinsicEntire lam alpha hlam ha‖ * ‖f‖ :=
+          (C_intrinsicEntire lam alpha hlam ha).le_opNorm _
+    exact ContinuousLinearMap.opNorm_le_bound
       (C lam alpha hlam ha)
-      (norm_nonneg (C_intrinsicEntire lam alpha hlam ha))
-    intro f
-    calc
-      ‖C lam alpha hlam ha f‖ =
-          ‖C_intrinsicEntire lam alpha hlam ha f‖ :=
-        (C_intrinsicEntire_norm lam alpha hlam ha f).symm
-      _ ≤ ‖C_intrinsicEntire lam alpha hlam ha‖ * ‖f‖ :=
-        (C_intrinsicEntire lam alpha hlam ha).le_opNorm _
+      (show 0 ≤ ‖C_intrinsicEntire lam alpha hlam ha‖ from norm_nonneg _)
+      hbound
 
 /-- The compact ultraspherical transform does NOT become surjective
 when its true analytic function-space codomain replaces ℓ². -/
