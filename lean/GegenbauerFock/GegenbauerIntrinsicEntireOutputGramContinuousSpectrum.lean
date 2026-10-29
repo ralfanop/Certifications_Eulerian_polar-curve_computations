@@ -49,11 +49,8 @@ theorem C_intrinsicEntire_outputGram_not_surjective
   intro Fc
   obtain ⟨F, hF⟩ := hsurj (U Fc)
   refine ⟨U.symm F, ?_⟩
-  have h := congrArg U.symm hF
-  rw [C_intrinsicEntire_outputGram_apply] at h
-  change U.symm (U (outputGram lam alpha hlam ha (U.symm F))) = Fc at h
-  rw [U.symm_apply_apply] at h
-  exact h
+  apply U.injective
+  simpa only [C_intrinsicEntire_outputGram_apply, U.symm_apply_apply] using hF
 
 /-- The actual dense range of the holomorphic output Gram is
 nonclosed, and therefore cannot support bounded inversion. -/
