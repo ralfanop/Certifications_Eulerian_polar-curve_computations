@@ -47,7 +47,7 @@ theorem exists_unitary_positive_spectrum_factorization_kummer
       InfiniteAnalysis.FockCoefficients := u.repr.trans v.repr.symm
   let P : Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
       Lp ℂ 2 (Ultraspherical.measure lam) :=
-    W.symm.toContinuousLinearMap.comp (C lam alpha hlam ha)
+    W.symm.toLinearIsometry.toContinuousLinearMap.comp (C lam alpha hlam ha)
   have hWu (i : ι) : W (u i) = v i := by
     change v.repr.symm (u.repr (u i)) = v i
     rw [u.repr_self, v.repr_symm_single]
@@ -63,7 +63,8 @@ theorem exists_unitary_positive_spectrum_factorization_kummer
     rw [hC i, map_smul, hAdj i, smul_smul, ← pow_two, hsq i]
   have hP2 :
       P.comp P = gram lam alpha hlam ha := by
-    apply ContinuousLinearMap.ext_on u.dense_span
+    apply ContinuousLinearMap.ext_on
+      (Submodule.dense_iff_topologicalClosure_eq_top.mpr u.dense_span)
     rintro _ ⟨i, rfl⟩
     change P (P (u i)) = gram lam alpha hlam ha (u i)
     rw [hPu i, map_smul, hPu i, smul_smul, ← pow_two, hsq i, hGs i]
