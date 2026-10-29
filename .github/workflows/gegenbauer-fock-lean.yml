@@ -4,11 +4,22 @@ on:
   push:
     branches:
       - gegenbauer-fock-formalization-20261025
+  # A source change on this dedicated branch already triggers the full push
+  # audit above. PR synchronize matches the accumulated PR diff and would
+  # otherwise start a second, redundant full audit after every new commit.
   pull_request:
+    types: [opened, reopened, ready_for_review]
     paths:
       - 'lean/GegenbauerFock/**'
       - '.github/workflows/gegenbauer-fock-lean.yml'
   workflow_dispatch:
+
+# Preserve the most recent exhaustive Lean check; superseded branch-head
+# checks are redundant because exact SHA-scoped theorem workflows remain
+# separately auditable and are never changed or cancelled here.
+concurrency:
+  group: v007-full-lean-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lean-algebraic-core:
