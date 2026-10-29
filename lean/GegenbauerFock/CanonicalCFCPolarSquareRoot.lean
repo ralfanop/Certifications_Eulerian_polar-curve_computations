@@ -32,6 +32,22 @@ instance (priority := 2000) (E : Type*) [NormedAddCommGroup E]
     change r • S (T x) = S (r • T x)
     exact (S.map_smul_of_tower r (T x)).symm
 
+/- The real scalar action is also associative with composition.
+This is a separate requirement of the non-unital real CFC. -/
+instance (priority := 2000) (E : Type*) [NormedAddCommGroup E]
+    [InnerProductSpace ℂ E] [CompleteSpace E] :
+    IsScalarTower ℝ (E →L[ℂ] E) (E →L[ℂ] E) where
+  smul_assoc r S T := by
+    apply ContinuousLinearMap.ext
+    intro x
+    change (r • S) (T x) = r • S (T x)
+    rfl
+
+-- Explicitly test both scalar CFC algebra classes on Fock coefficients.
+#synth IsScalarTower ℝ
+  (InfiniteAnalysis.FockCoefficients →L[ℂ] InfiniteAnalysis.FockCoefficients)
+  (InfiniteAnalysis.FockCoefficients →L[ℂ] InfiniteAnalysis.FockCoefficients)
+
 -- Make the required CFC scalar-commutation instance check explicit.
 #synth SMulCommClass ℝ
   (InfiniteAnalysis.FockCoefficients →L[ℂ] InfiniteAnalysis.FockCoefficients)
