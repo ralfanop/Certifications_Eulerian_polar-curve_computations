@@ -46,7 +46,7 @@ private theorem compact_symmetric_nonzero_shift_isFredholm
   let Q : Submodule ℂ H := Pᗮ
   let S : H →L[ℂ] H := T - mu • (1 : H →L[ℂ] H)
   haveI : FiniteDimensional ℂ P :=
-    hcompact.finite_dimensional_eigenspace mu hmu
+    ContinuousLinearMap.finite_dimensional_eigenspace hcompact mu hmu
   haveI : CompleteSpace P :=
     (show IsClosed (P : Set H) from inferInstance).completeSpace_coe
   haveI : P.HasOrthogonalProjection := .ofCompleteSpace P
