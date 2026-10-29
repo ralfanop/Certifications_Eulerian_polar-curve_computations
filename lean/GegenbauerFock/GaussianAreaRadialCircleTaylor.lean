@@ -52,8 +52,8 @@ theorem integral_radial_circleAverage_eq_taylorCoeff
         apply setIntegral_congr_fun measurableSet_Ioi
         intro r hr
         exact hpoint r hr
-    _ = ((∫ r in Set.Ioi (0 : ℝ),
-        r ^ (2 * n + 1) * Real.exp (-alpha * r ^ 2)) : ℂ) * c := by
+    _ = (((∫ r in Set.Ioi (0 : ℝ),
+        (r ^ (2 * n + 1) * Real.exp (-alpha * r ^ 2) : ℝ)) : ℝ) : ℂ) * c := by
         rw [integral_mul_const]
         congr 1
         simpa only [Complex.ofReal_mul, Complex.ofReal_pow] using
@@ -64,26 +64,7 @@ theorem integral_radial_circleAverage_eq_taylorCoeff
     _ = ((alpha ^ (-((n : ℝ) + 1)) * (1 / 2) *
         (Nat.factorial n : ℝ) : ℝ) : ℂ) *
         (iteratedDeriv n f 0 / (Nat.factorial n : ℂ)) := by
-        have hcast :
-            (∫ r in Set.Ioi (0 : ℝ),
-              ((r ^ (2 * n + 1) * Real.exp (-alpha * r ^ 2) : ℝ) : ℂ)) =
-              ((∫ r in Set.Ioi (0 : ℝ),
-                r ^ (2 * n + 1) * Real.exp (-alpha * r ^ 2)) : ℂ) :=
-          integral_complex_ofReal
-        have hvalue :
-            (∫ r in Set.Ioi (0 : ℝ),
-              ((r ^ (2 * n + 1) * Real.exp (-alpha * r ^ 2) : ℝ) : ℂ)) =
-              ((alpha ^ (-((n : ℝ) + 1)) * (1 / 2) *
-                (Nat.factorial n : ℝ) : ℝ) : ℂ) := by
-          rw [hcast, integral_radial_gaussian_even_power alpha ha n]
-        have hvalue' :
-            (∫ r in Set.Ioi (0 : ℝ),
-              (r : ℂ) ^ (2 * n + 1) *
-                (Real.exp (-alpha * r ^ 2) : ℂ)) =
-              ((alpha ^ (-((n : ℝ) + 1)) * (1 / 2) *
-                (Nat.factorial n : ℝ) : ℝ) : ℂ) := by
-          simpa only [Complex.ofReal_mul, Complex.ofReal_pow] using hvalue
-        rw [hvalue']
+        rw [integral_radial_gaussian_even_power alpha ha n]
         rfl
 
 #print axioms GegenbauerFock.GaussianArea.integral_radial_circleAverage_eq_taylorCoeff
