@@ -49,4 +49,5 @@ jobs:
           fi
           grep -F "exists_cfc_sqrt_with_explicit_scalar_commutation' depends on axioms:" /tmp/v007-cfc-explicit-scalar.log
           grep -F "exists_cfc_sqrt_full_polar_adjoint_outputGram_explicit' depends on axioms:" /tmp/v007-cfc-explicit-scalar.log
-          echo 'V007 explicit-scalar CFC sqrt and full polar-adjoint/output-Gram proofs kernel-certified and audited.'
+          grep -F "exists_cfc_sqrt_eigenbasis_kummer_explicit' depends on axioms:" /tmp/v007-cfc-explicit-scalar.log
+          echo 'V007 canonical CFC sqrt, full polar-adjoint/output-Gram, and eigenbasis/Kummer proofs kernel-certified and audited.'
