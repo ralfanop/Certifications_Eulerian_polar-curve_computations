@@ -47,6 +47,12 @@ theorem intrinsicRieszKernel_finite_gram_eq_inner
       (intrinsicRieszKernel alpha ha (z i))
       (intrinsicRieszKernel alpha ha (z j)) (c j)]
     rw [intrinsicRieszKernel_pairing alpha ha (z i) (z j)]
+  change
+    (star (c i) * c j) *
+      entireRepresentative alpha (intrinsicRieszKernel alpha ha (z j)) (z i) =
+    (c j *
+      entireRepresentative alpha (intrinsicRieszKernel alpha ha (z j)) (z i)) *
+      star (c i)
   ring
 
 /-- Every finite Hermitian Gram matrix formed by intrinsic Gaussian
