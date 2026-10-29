@@ -1,5 +1,6 @@
 import GegenbauerFock.FredholmEssentialSpectrumResolventExclusion
-import GegenbauerFock.TwoSidedGramJointSpectralBand
+import GegenbauerFock.TwoSidedGramPositiveSpectrum
+import Mathlib.Analysis.Normed.Algebra.Spectrum
 
 /-!
 # V007 — common explicit enclosure for the bilateral Fredholm essential spectra
@@ -37,7 +38,17 @@ theorem sourceGram_essential_spectral_value_in_joint_band
   have hspec : mu ∈ spectrum ℂ (gram lam alpha hlam ha) :=
     fredholmEssentialSpectrum_subset_spectrum
       (gram lam alpha hlam ha) hmem
-  exact two_sided_gram_joint_spectral_band lam alpha hlam ha mu hspec
+  obtain ⟨hreal, hpos⟩ :=
+    (two_sided_gram_spectra_nonnegative_real lam alpha hlam ha).1 mu hspec
+  have hout : mu ∈ spectrum ℂ (outputGram lam alpha hlam ha) :=
+    (two_sided_gram_spectrum_eq lam alpha hlam ha) ▸ hspec
+  have hsrcnorm : ‖mu‖ ≤ ‖gram lam alpha hlam ha‖ :=
+    spectrum.norm_le_norm_of_mem hspec
+  have houtnorm : ‖mu‖ ≤ ‖outputGram lam alpha hlam ha‖ :=
+    spectrum.norm_le_norm_of_mem hout
+  exact ⟨hreal, hpos,
+    le_min ((Complex.re_le_norm mu).trans hsrcnorm)
+      ((Complex.re_le_norm mu).trans houtnorm)⟩
 
 /-- Every Fredholm-essential point of the genuine output Gram is also
 real and in the SAME interval even though its Hilbert space differs. -/
@@ -54,7 +65,15 @@ theorem outputGram_essential_spectral_value_in_joint_band
       (outputGram lam alpha hlam ha) hmem
   have hsrc : mu ∈ spectrum ℂ (gram lam alpha hlam ha) :=
     (two_sided_gram_spectrum_eq lam alpha hlam ha).symm ▸ hout
-  exact two_sided_gram_joint_spectral_band lam alpha hlam ha mu hsrc
+  obtain ⟨hreal, hpos⟩ :=
+    (two_sided_gram_spectra_nonnegative_real lam alpha hlam ha).1 mu hsrc
+  have hsrcnorm : ‖mu‖ ≤ ‖gram lam alpha hlam ha‖ :=
+    spectrum.norm_le_norm_of_mem hsrc
+  have houtnorm : ‖mu‖ ≤ ‖outputGram lam alpha hlam ha‖ :=
+    spectrum.norm_le_norm_of_mem hout
+  exact ⟨hreal, hpos,
+    le_min ((Complex.re_le_norm mu).trans hsrcnorm)
+      ((Complex.re_le_norm mu).trans houtnorm)⟩
 
 /-- Both separate Fredholm essential spectra are contained in the
 same nonnegative real compact spectral band. -/
