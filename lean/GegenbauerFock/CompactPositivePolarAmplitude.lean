@@ -44,12 +44,16 @@ theorem exists_compact_positive_polar_amplitude
         congrArg W.symm (hC f).symm
   have hcompactP : IsCompactOperator P := by
     have hcomp : IsCompactOperator
-        (fun f : Lp ℂ 2 (Ultraspherical.measure lam) =>
-          W.symm (C lam alpha hlam ha f)) := by
-      simpa only [Function.comp_def] using
-        ((C_compact lam alpha hlam ha).clm_comp
-          W.symm.toLinearIsometry.toContinuousLinearMap)
-    simpa only [← hPexp] using hcomp
+        (W.symm.toLinearIsometry.toContinuousLinearMap ∘
+          C lam alpha hlam ha) :=
+      (C_compact lam alpha hlam ha).clm_comp
+        W.symm.toLinearIsometry.toContinuousLinearMap
+    have hfun :
+        (W.symm.toLinearIsometry.toContinuousLinearMap ∘
+          C lam alpha hlam ha) = (P : _ → _) := by
+      funext f
+      exact (hPexp f).symm
+    exact hfun ▸ hcomp
   exact ⟨W, P, hcompactP, hinj, hself, hPos, hC, hP2⟩
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_compact_positive_polar_amplitude
