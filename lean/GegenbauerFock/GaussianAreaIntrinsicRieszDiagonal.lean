@@ -29,7 +29,11 @@ theorem intrinsicRieszKernel_diagonal_value
         (intrinsicRieszKernel_inner alpha ha z
           (intrinsicRieszKernel alpha ha z)).symm
     _ = (‖intrinsicRieszKernel alpha ha z‖ : ℂ) ^ 2 := by
-      rw [inner_self_eq_norm_sq_to_K]
+      apply Complex.ext
+      · simpa using (inner_self_eq_norm_sq (𝕜 := ℂ)
+          (intrinsicRieszKernel alpha ha z))
+      · simpa using (inner_self_im (𝕜 := ℂ)
+          (intrinsicRieszKernel alpha ha z))
     _ = (Real.exp (alpha * ‖z‖ ^ 2) : ℂ) := by
       exact_mod_cast intrinsicRieszKernel_norm_sq alpha ha z
 
