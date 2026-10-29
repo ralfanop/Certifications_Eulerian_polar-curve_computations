@@ -72,6 +72,14 @@ theorem exists_cfc_sqrt_with_explicit_scalar_commutation
         (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
           Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
        IsSelfAdjoint.instContinuousFunctionalCalculus
+     letI : IsometricContinuousFunctionalCalculus ℝ
+        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
+       IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
+     letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
+        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
+       IsometricContinuousFunctionalCalculus.toNonUnital
      ∃ P : Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
          Lp ℂ 2 (Ultraspherical.measure lam),
        0 ≤ P ∧
@@ -95,6 +103,14 @@ theorem exists_cfc_sqrt_with_explicit_scalar_commutation
       (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
         Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
     IsSelfAdjoint.instContinuousFunctionalCalculus
+  letI : IsometricContinuousFunctionalCalculus ℝ
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
+    IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
+  letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
+    IsometricContinuousFunctionalCalculus.toNonUnital
   classical
   obtain ⟨ι, u, mu, W, P, hp, hsum, hK, hPu, hC, hP2,
       hinj, hself, hPpos⟩ :=
@@ -138,6 +154,14 @@ theorem exists_cfc_sqrt_full_polar_adjoint_outputGram_explicit
         (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
           Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
        IsSelfAdjoint.instContinuousFunctionalCalculus
+     letI : IsometricContinuousFunctionalCalculus ℝ
+        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
+       IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
+     letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
+        (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
+       IsometricContinuousFunctionalCalculus.toNonUnital
      ∃ (ι : Type) (mu : ι → ℝ)
        (W : Lp ℂ 2 (Ultraspherical.measure lam) ≃ₗᵢ[ℂ]
          InfiniteAnalysis.FockCoefficients),
@@ -172,6 +196,14 @@ theorem exists_cfc_sqrt_full_polar_adjoint_outputGram_explicit
       (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
         Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
     IsSelfAdjoint.instContinuousFunctionalCalculus
+  letI : IsometricContinuousFunctionalCalculus ℝ
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
+    IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
+  letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
+      (Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+        Lp ℂ 2 (Ultraspherical.measure lam)) IsSelfAdjoint :=
+    IsometricContinuousFunctionalCalculus.toNonUnital
   classical
   obtain ⟨ι, u, mu, W, P, hp, hsum, hK, hC, hP2,
       hself, hPos, hAdj, hOut⟩ :=
