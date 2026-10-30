@@ -197,8 +197,9 @@ theorem ultraspherical_fourierBochner_uniformSamples_range_inverse_not_continuou
           ⟨u n, rfl⟩⟩) = u := by
     funext n
     exact hleft (u n)
-  rw [hsrc] at hrec
-  exact hnostrong _ hrec
+  have hrec' := hrec
+  simp only [Function.comp_def, hsrc] at hrec'
+  exact hnostrong _ hrec'
 
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.ultraspherical_fourierBochner_boundedSamples_injective
