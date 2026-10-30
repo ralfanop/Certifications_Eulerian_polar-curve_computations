@@ -174,7 +174,7 @@ theorem canonical_cfc_root_not_antilipschitz
      letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
          (PolarH lam →L[ℂ] PolarH lam) IsSelfAdjoint :=
        IsometricContinuousFunctionalCalculus.toNonUnital
-     ¬ ∃ K : ℝ≥0, AntilipschitzWith K
+     ¬ ∃ K : NNReal, AntilipschitzWith K
          (CFC.sqrt (gram lam alpha hlam ha) :
             PolarH lam →L[ℂ] PolarH lam)) := by
   letI : SMulCommClass ℝ (PolarH lam →L[ℂ] PolarH lam)
@@ -197,7 +197,7 @@ theorem canonical_cfc_root_not_antilipschitz
       PolarH lam →L[ℂ] PolarH lam).isClosed_range_iff_antilipschitz_of_injective
       hinj).mpr hbound
   apply hnotclosed
-  simpa only [LinearMap.coe_range] using hclosed
+  simpa only [LinearMap.coe_range, ContinuousLinearMap.coe_coe] using hclosed
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.canonical_cfc_root_not_antilipschitz
 
