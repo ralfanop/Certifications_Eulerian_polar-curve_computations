@@ -55,4 +55,5 @@ jobs:
             exit 1
           fi
           grep -F "exists_local_cfc_sqrt_polar_unitary_kummer' depends on axioms:" /tmp/v007-local-cfc-gram-sqrt-axioms.log
+          grep -F "exists_local_cfc_sqrt_compact_dense_nonclosed' depends on axioms:" /tmp/v007-local-cfc-gram-sqrt-axioms.log
           echo 'V007 local canonical CFC square-root theorem verified and audited.'
