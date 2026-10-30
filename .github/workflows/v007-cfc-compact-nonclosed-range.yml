@@ -48,4 +48,6 @@ jobs:
             exit 1
           fi
           grep -F "exists_canonical_cfc_compact_nonclosed_range' depends on axioms:" /tmp/v007-cfc-compact-nonclosed-range.log
-          echo 'V007 canonical compact nonclosed CFC Gram root kernel-certified and audited.'
+          grep -F "canonical_cfc_root_not_surjective' depends on axioms:" /tmp/v007-cfc-compact-nonclosed-range.log
+          grep -F "canonical_cfc_root_not_antilipschitz' depends on axioms:" /tmp/v007-cfc-compact-nonclosed-range.log
+          echo 'V007 canonical compact/nonclosed, nonsurjective and non-antilipschitz CFC theorems kernel-certified and audited.'
