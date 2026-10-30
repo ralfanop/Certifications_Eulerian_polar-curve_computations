@@ -16,6 +16,10 @@ Lean kernel and axiom audits before being called certified.
 
 noncomputable section
 
+-- Elaborating the two concrete infinite-dimensional Gram shifts can require
+-- more reduction steps than Lean's default heartbeat budget.
+set_option maxHeartbeats 2000000
+
 open MeasureTheory Module End
 
 namespace GegenbauerFock.GeneralUltrasphericalFock
@@ -46,7 +50,7 @@ theorem sourceGram_nonzero_shift_nullity_eq_defect
         Lp ℂ 2 (Ultraspherical.measure lam))
     Module.finrank ℂ S.ker =
       Module.finrank ℂ (Lp ℂ 2 (Ultraspherical.measure lam) ⧸ S.range) := by
-  dsimp
+  dsimp only
   exact fredholmIndexZero_finrank_kernel_eq_cokernel _
     (sourceGram_nonzero_shift_isFredholm lam alpha hlam ha mu hmu)
     (sourceGram_nonzero_shift_fredholm_index_zero lam alpha hlam ha mu hmu)
@@ -61,7 +65,7 @@ theorem outputGram_nonzero_shift_nullity_eq_defect
         InfiniteAnalysis.FockCoefficients)
     Module.finrank ℂ S.ker =
       Module.finrank ℂ (InfiniteAnalysis.FockCoefficients ⧸ S.range) := by
-  dsimp
+  dsimp only
   exact fredholmIndexZero_finrank_kernel_eq_cokernel _
     (outputGram_nonzero_shift_isFredholm lam alpha hlam ha mu hmu)
     (outputGram_nonzero_shift_fredholm_index_zero lam alpha hlam ha mu hmu)
