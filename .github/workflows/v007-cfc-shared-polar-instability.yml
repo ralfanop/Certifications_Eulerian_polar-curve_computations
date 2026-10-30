@@ -10,9 +10,15 @@ on:
       - '.github/workflows/v007-cfc-shared-polar-instability.yml'
   workflow_dispatch:
 
+# Bound concurrent V007 jobs per branch without stopping active theorem audits.
+concurrency:
+  group: v007-cfc-shared-polar-instability-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   positive-polar-amplitude:
     runs-on: ubuntu-24.04
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - name: Install pinned Lean toolchain
