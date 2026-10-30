@@ -8,9 +8,16 @@ on:
       - 'lean/GegenbauerFock/TwoSidedGramNonzeroFredholmIndexZero.lean'
       - '.github/workflows/v007-gram-fredholm-nullity-defect.yml'
   workflow_dispatch:
+
+# Supersede obsolete builds on this V007 branch, preserving completed SHA-scoped results.
+concurrency:
+  group: v007-fredholm-nullity-defect-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   fredholm-nullity-defect:
     runs-on: ubuntu-24.04
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - name: Install pinned Lean
