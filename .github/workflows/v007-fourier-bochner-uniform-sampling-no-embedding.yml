@@ -8,9 +8,15 @@ on:
       - '.github/workflows/v007-fourier-bochner-uniform-sampling-no-embedding.yml'
   workflow_dispatch:
 
+# At most one specialist audit runs per branch; retain running SHA-scoped proof checks.
+concurrency:
+  group: v007-fourier-uniform-sampling-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   uniform-fourier-not-embedding:
     runs-on: ubuntu-24.04
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - name: Install pinned Lean toolchain
