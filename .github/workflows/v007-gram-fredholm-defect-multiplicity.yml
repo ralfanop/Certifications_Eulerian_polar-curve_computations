@@ -9,9 +9,16 @@ on:
       - 'lean/GegenbauerFock/TwoSidedGramNonzeroFredholmIndexZero.lean'
       - '.github/workflows/v007-gram-fredholm-defect-multiplicity.yml'
   workflow_dispatch:
+
+# Allow only the most recent V007 build for this branch to keep running.
+concurrency:
+  group: v007-fredholm-defect-multiplicity-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   bilateral-fredholm-defect-multiplicity:
     runs-on: ubuntu-24.04
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - name: Install pinned Lean
