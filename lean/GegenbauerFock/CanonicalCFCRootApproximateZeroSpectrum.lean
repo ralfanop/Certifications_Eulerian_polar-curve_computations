@@ -89,7 +89,7 @@ theorem canonical_cfc_sqrt_exists_normalized_approximate_zero_vectors
     rw [hC (u n)]
     exact W.symm_apply_apply _
   rw [heq] at hW
-  simpa using hW
+  simpa only [map_zero] using hW
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.canonical_cfc_sqrt_exists_normalized_approximate_zero_vectors
 
