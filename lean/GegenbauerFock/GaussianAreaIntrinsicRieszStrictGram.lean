@@ -78,8 +78,30 @@ theorem intrinsicRieszKernel_exp_gram_re_pos_iff_ne_zero
   rw [intrinsicRieszKernel_exp_gram_re_pos_iff s z c alpha ha]
   exact (not_congr (intrinsicRieszKernel_exp_gram_eq_zero_iff s z c alpha ha)).symm
 
+/-- The genuine exponential Fock Gram energy lies on the strictly
+positive real axis exactly when its finite coherent superposition is
+nonzero, including for repeated evaluation points. -/
+theorem intrinsicRieszKernel_exp_gram_positive_real_iff
+    {ι : Type*} (s : Finset ι) (z c : ι → ℂ)
+    (alpha : ℝ) (ha : 0 < alpha) :
+    (∃ r : ℝ, 0 < r ∧
+      (∑ i ∈ s, ∑ j ∈ s,
+        star (c i) * c j *
+          Complex.exp ((alpha : ℂ) * z i * star (z j))) = (r : ℂ)) ↔
+    (∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)) ≠ 0 := by
+  constructor
+  · rintro ⟨r, hr, hgram⟩
+    apply (intrinsicRieszKernel_exp_gram_re_pos_iff s z c alpha ha).mp
+    rw [hgram]
+    simpa only [Complex.ofReal_re] using hr
+  · intro hx
+    refine ⟨‖∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)‖ ^ 2, ?_, ?_⟩
+    · exact sq_pos_of_pos (norm_pos_iff.mpr hx)
+    · exact intrinsicRieszKernel_exp_gram_eq_complex_norm_sq s z c alpha ha
+
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_pos_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_eq_zero_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_pos_iff_ne_zero
+#print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_positive_real_iff
 
 end GegenbauerFock.GaussianArea
