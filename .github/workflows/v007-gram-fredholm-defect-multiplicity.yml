@@ -10,10 +10,11 @@ on:
       - '.github/workflows/v007-gram-fredholm-defect-multiplicity.yml'
   workflow_dispatch:
 
-# Allow only the most recent V007 build for this branch to keep running.
+# Keep the current expensive Lean audit running; GitHub may supersede obsolete
+# queued builds without interrupting a kernel check already underway.
 concurrency:
   group: v007-fredholm-defect-multiplicity-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   bilateral-fredholm-defect-multiplicity:
