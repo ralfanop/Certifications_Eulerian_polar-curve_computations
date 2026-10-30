@@ -487,3 +487,62 @@ con il successo già accertato del ponte CFC esplicito.
 
 **Invarianti permanenti:** PR #16 Draft e aperta, nessun merge,
 `main` e V097 immutati.
+
+## 17. Checkpoint CFC canonico e vettori approssimativamente nulli — 30 ottobre 2026
+
+### CERTIFICAZIONI EFFETTIVE
+
+- La CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40972618536
+  si è conclusa con **SUCCESS**. Il modulo
+  `LocalCFCGramSquareRoot.lean` al commit
+  `cdfb0d870ba12cf5b192444206e5750dca0001af`
+  certifica con audit la fattorizzazione unitaria esatta
+  `C = W (localCFCGramSqrt ...)`: la radice è definita
+  mediante `CFC.sqrt` con istanze scalari esplicite locali.
+- La CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41018758518
+  si è conclusa con **SUCCESS**, commit
+  `b95d161dd1dd1f65b66d8a1feeb01eb8220e5a31`.
+  La compilazione Lean 4 (9.119 operazioni) e l'audit
+  `#print axioms` del teorema
+  `exists_canonical_cfc_compact_nonclosed_range` sono puliti
+  (`propext`, `Classical.choice`, `Quot.sound`;
+  nessun `sorryAx` o `Lean.ofReduceBool`).
+  La radice CFC canonica del Gram è **compatta, iniettiva e
+  con immagine densa ma non chiusa**, ed è il fattore esatto
+  della trasformata unitaria.
+
+### CORREZIONE SUCCESSIVA E NUOVA DIREZIONE
+
+- Una revisione successiva di
+  `CanonicalCFCCompactNonclosedRange.lean` ha introdotto
+  un corollario sulla non-suriettività. La CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40972647234
+  è fallita perché i termini `CFC.sqrt` nelle espressioni
+  `.range` erano inferiti come funzioni anziché operatori
+  lineari continui, producendo un obbligo erroneo `PartialOrder`
+  sullo spazio delle funzioni.
+  Depositata la correzione di tipizzazione esplicita nel commit
+  `b92859b7cf28f6b7a2502efd12de9b8e59abffc5`.
+  CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41025432198
+  (in corso al checkpoint). Il SUCCESS precedente rimane valido
+  per la versione esatta del commit certificato.
+- Nuovo modulo `CanonicalCFCApproximateNullFamily.lean`:
+  la trasformata `C=W P`, con `W` unitario, permette di
+  trasferire i vettori di norma 1 e immagini di norma minore
+  di `1/(n+1)` già verificati per `C` alla radice
+  CFC canonica `localCFCGramSqrt`. Contiene un teorema
+  quantitativo e uno di convergenza forte di `P u_n` a zero,
+  **senza** asserire `u_n → 0` né l'esistenza di un autovettore
+  nullo per `P`.
+  Commit sorgente `b6d6c76e798f8cb10fdff9b1d1f406101ab00703`;
+  commit workflow `956b2c45ea0f9e056d1bafa15452dce3a052a0a6`.
+  CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41025752312
+  **NON ancora certificata**: verificare build e audit prima di
+  promuovere questi due teoremi.
+
+Il lavoro procede sul ramo `gegenbauer-fock-formalization-20261025`
+della PR #16, che deve rimanere Draft e non unita a `main`.
+Non modificare V097 e non intervenire sui workflow V170.
