@@ -52,7 +52,7 @@ jobs:
         run: |
           set -euo pipefail
           lake build GegenbauerFock.TwoSidedGramFredholmDefectMultiplicity 2>&1 | tee /tmp/v007-defect-multiplicity.log
-          for theorem in continuousGramShift_kernel_eq_eigenspace two_sided_nonzero_gram_shift_kernel_finrank_eq two_sided_nonzero_gram_shift_range_defects_equal; do
+          for theorem in continuousGramShift_kernel_eq_eigenspace two_sided_nonzero_gram_shift_kernel_finrank_eq two_sided_nonzero_gram_shift_range_defects_equal sourceGram_nonzero_shift_defect_eq_eigenspace_finrank outputGram_nonzero_shift_defect_eq_eigenspace_finrank; do
             grep -qF "${theorem}' depends on axioms" /tmp/v007-defect-multiplicity.log
           done
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-defect-multiplicity.log; then
