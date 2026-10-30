@@ -1,4 +1,5 @@
 import GegenbauerFock.PositivePolarAmplitude
+import GegenbauerFock.CompactPositivePolarNonclosedRange
 import Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Rpow.Basic
 import Mathlib.Analysis.InnerProductSpace.StarOrder
 import Mathlib.Analysis.CStarAlgebra.ContinuousLinearMap
@@ -115,5 +116,53 @@ theorem exists_local_cfc_sqrt_polar_unitary_kummer
     exact hC f
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_local_cfc_sqrt_polar_unitary_kummer
+
+/-- The named canonical CFC Gram square root is a compact quasiaffinity:
+it is injective, has dense nonclosed range, and factors the actual
+Gegenbauer--Fock transform through a unitary. No extra CFC scalar
+instances are required in the statement or by its callers. -/
+theorem exists_local_cfc_sqrt_compact_dense_nonclosed
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    ∃ (W : Source lam ≃ₗᵢ[ℂ] InfiniteAnalysis.FockCoefficients),
+      IsCompactOperator (localCFCGramSqrt lam alpha hlam ha) ∧
+      Function.Injective (localCFCGramSqrt lam alpha hlam ha) ∧
+      (localCFCGramSqrt lam alpha hlam ha).range.topologicalClosure =
+        (⊤ : Submodule ℂ (Source lam)) ∧
+      ¬ IsClosed ((localCFCGramSqrt lam alpha hlam ha).range :
+        Set (Source lam)) ∧
+      (∀ f, C lam alpha hlam ha f =
+        W (localCFCGramSqrt lam alpha hlam ha f)) := by
+  classical
+  obtain ⟨W, P, hcompact, hinj, hself, hpositive,
+      hdense, hnotclosed, hC, hP2⟩ :=
+    exists_positive_polar_amplitude_nonclosed_range lam alpha hlam ha
+  have hPnonneg : (0 : Source lam →L[ℂ] Source lam) ≤ P := by
+    apply ContinuousLinearMap.nonneg_iff_isPositive.mpr
+    exact (ContinuousLinearMap.isPositive_toLinearMap_iff P).mp hpositive
+  have hPmul : P * P = gram lam alpha hlam ha := by
+    apply ContinuousLinearMap.ext
+    intro f
+    simpa only [ContinuousLinearMap.mul_def,
+      ContinuousLinearMap.comp_apply] using (hP2 f).symm
+  have hRoot : localCFCGramSqrt lam alpha hlam ha = P := by
+    letI : SMulCommClass ℝ (Source lam →L[ℂ] Source lam)
+      (Source lam →L[ℂ] Source lam) := cfcComm lam
+    letI : IsScalarTower ℝ (Source lam →L[ℂ] Source lam)
+      (Source lam →L[ℂ] Source lam) := cfcTower lam
+    letI : ContinuousFunctionalCalculus ℂ
+      (Source lam →L[ℂ] Source lam) IsStarNormal :=
+      IsStarNormal.instContinuousFunctionalCalculus
+    letI : IsometricContinuousFunctionalCalculus ℝ
+      (Source lam →L[ℂ] Source lam) IsSelfAdjoint :=
+      IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
+    letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
+      (Source lam →L[ℂ] Source lam) IsSelfAdjoint :=
+      IsometricContinuousFunctionalCalculus.toNonUnital
+    change CFC.sqrt (gram lam alpha hlam ha) = P
+    exact CFC.sqrt_unique hPmul hPnonneg
+  rw [hRoot]
+  exact ⟨W, hcompact, hinj, hdense, hnotclosed, hC⟩
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_local_cfc_sqrt_compact_dense_nonclosed
 
 end GegenbauerFock.GeneralUltrasphericalFock
