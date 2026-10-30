@@ -115,8 +115,8 @@ theorem canonical_cfc_sqrt_inverse_on_range_discontinuous_at_zero
   have hrzero : r (0 : P.range) = 0 := by
     have hzero : (⟨P (0 : RootInvH lam),
         ⟨(0 : RootInvH lam), rfl⟩⟩ : P.range) = 0 := by
-      ext
-      simp
+      apply Subtype.ext
+      exact map_zero P
     calc
       r (0 : P.range) =
           r (⟨P (0 : RootInvH lam),
