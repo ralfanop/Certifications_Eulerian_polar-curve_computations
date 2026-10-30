@@ -48,7 +48,8 @@ theorem intrinsicRieszKernel_exp_gram_re_eq_zero_iff
     (∑ i ∈ s, ∑ j ∈ s,
         star (c i) * c j *
           Complex.exp ((alpha : ℂ) * z i * star (z j))) = 0 := by
-  rw [intrinsicRieszKernel_exp_gram_re_eq_norm_sq s z c alpha ha]
+  rw [intrinsicRieszKernel_exp_gram_re_eq_norm_sq s z c alpha ha,
+    intrinsicRieszKernel_exp_gram_eq_zero_iff s z c alpha ha]
   constructor
   · intro h
     have hn :
