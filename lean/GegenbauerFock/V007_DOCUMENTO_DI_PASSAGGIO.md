@@ -546,3 +546,55 @@ con il successo già accertato del ponte CFC esplicito.
 Il lavoro procede sul ramo `gegenbauer-fock-formalization-20261025`
 della PR #16, che deve rimanere Draft e non unita a `main`.
 Non modificare V097 e non intervenire sui workflow V170.
+
+## 18. Stato certificazioni CFC e profilo di instabilità — 30 ottobre 2026
+
+**Tre conferme degli audit Lean 4, tutte SUCCESS:**
+
+1. CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41025752312
+   (commit `956b2c45ea0f9e056d1bafa15452dce3a052a0a6`):
+   `CanonicalCFCApproximateNullFamily.lean` certifica due teoremi:
+   `local_cfc_root_exists_normalized_approximate_null_family`
+   e `local_cfc_root_exists_normalized_approximate_null_sequence`.
+   Per tutti `n` si trovano `u n` di norma unitaria con
+   `‖localCFCGramSqrt (u n)‖ < 1/(n+1)`, quindi immagini
+   convergenti a zero.
+2. CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41025432198
+   (commit `b92859b7cf28f6b7a2502efd12de9b8e59abffc5`):
+   `CanonicalCFCCompactNonclosedRange.lean` certifica
+   compattezza, iniettività, densità, non-chiusura
+   dell'immagine e il corollario `canonical_cfc_root_not_surjective`.
+3. CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41026576958
+   (commit `996fcfb7097b571378fe0866a375a953449e625d`):
+   certifica anche `canonical_cfc_root_not_antilipschitz`,
+   dunque non esiste una costante globale anti-Lipschitz
+   per la radice quadrata canonica del Gram.
+
+Gli audit `#print axioms` dei teoremi segnalati contengono
+solamente `propext`, `Classical.choice`, `Quot.sound`;
+non risultano `sorryAx` né `Lean.ofReduceBool`.
+La CI `41025640083` e altre CI intermedie erano fallite
+per elaborazione dei tipi nel nuovo corollario; il successo
+successivo `41026576958` ha verificato la correzione.
+
+**Nuovo candidato quantitativo unificato, da verificare:**
+`CanonicalCFCQuantitativePolarInstability.lean` formalizza una
+stessa successione unitaria `u n` per `C` e la sua
+radice positiva canonica `P = localCFCGramSqrt`, con
+`‖C (u n)‖ = ‖P (u n)‖ < 1/(n+1)`,
+in aggiunta alla compattezza, iniettività e immagine
+densa/non chiusa di `P` e a `C = W P`.
+
+- Sorgente: commit `7fc3216e1f164f4faca155ddf1eb6e08c6c611cc`.
+- Workflow CI: commit `cc50a325e101303382998af4ed46600d4c58ce6f`.
+- CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41132692700
+  (avviata; NON dichiarare certificata senza SUCCESS e audit).
+
+**In corso di verifica indipendente:** il teorema sulla
+discontinuità dell'inversa esatta sul range, nel modulo
+`CanonicalCFCRootInverseOnRangeDiscontinuous.lean`,
+CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41132526979.
+Non attribuire SUCCESS fino all'esito.
+
+**Invarianti:** PR #16 aperta Draft, nessun merge,
+nessuna modifica su `main`, V097 o workflow V170.
