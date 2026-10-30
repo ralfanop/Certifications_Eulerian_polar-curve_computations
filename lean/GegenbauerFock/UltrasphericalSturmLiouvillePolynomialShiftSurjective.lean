@@ -46,15 +46,17 @@ def sturmShiftPolynomialLinear (lam : ℝ) : ℝ[X] →ₗ[ℝ] ℝ[X] where
 
 @[simp] theorem sturmShiftPolynomial_one (lam : ℝ) :
     sturmShiftPolynomial lam 1 = 1 := by
-  simp [sturmShiftPolynomial, sturmPolynomial_C]
+  have h : sturmPolynomial lam 1 = 0 := by
+    simpa using sturmPolynomial_C lam 1
+  simp [sturmShiftPolynomial, h]
 
 theorem sturmShiftPolynomial_X (lam : ℝ) :
     sturmShiftPolynomial lam X = C (2 * lam + 2) * X := by
   simp only [sturmShiftPolynomial, sturmPolynomial_X, sub_neg_eq_add]
-  rw [show C (2 * lam + 2) = 1 + C (2 * lam + 1) by
-    rw [← map_one, ← map_add]
-    congr 1
-    ring]
+  have hc : C (2 * lam + 2) = 1 + C (2 * lam + 1) := by
+    have hs : (2 * lam + 2 : ℝ) = 1 + (2 * lam + 1) := by ring
+    rw [hs, map_add, map_one]
+  rw [hc]
   ring
 
 /-- Exact upper diagonal coefficient 1+(n+2)(n+2+2λ) of I-L. -/
