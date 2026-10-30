@@ -5,6 +5,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/GaussianAreaIntrinsicRieszStrictGram.lean'
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicRieszExactGramScalar.lean'
       - '.github/workflows/v007-fock-riesz-strict-gram.yml'
   workflow_dispatch:
 
