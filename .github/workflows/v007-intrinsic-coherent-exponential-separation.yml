@@ -10,9 +10,15 @@ on:
       - '.github/workflows/v007-intrinsic-coherent-exponential-separation.yml'
   workflow_dispatch:
 
+# Bound concurrent V007 jobs per branch without stopping active theorem audits.
+concurrency:
+  group: v007-intrinsic-coherent-exponential-separation-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   coherent-finite-exp-uniqueness:
     runs-on: ubuntu-24.04
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - name: Install pinned Lean toolchain
