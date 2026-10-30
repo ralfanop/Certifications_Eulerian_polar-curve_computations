@@ -43,7 +43,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.GegenbauerIntrinsicEntireFourierNotTopologicalEmbedding 2>&1 | tee /tmp/v007-fourier-uniform-no-embedding-build.log
+          lake build GegenbauerFock.GegenbauerIntrinsicEntireFourierUniformSamplingNoEmbedding 2>&1 | tee /tmp/v007-fourier-uniform-no-embedding-build.log
           lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireFourierUniformSamplingNoEmbedding.lean 2>&1 | tee /tmp/v007-fourier-uniform-no-embedding-axioms.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-fourier-uniform-no-embedding-build.log /tmp/v007-fourier-uniform-no-embedding-axioms.log; then
             echo "::error::Forbidden axiom in uniform Fourier nonembedding theorem"
