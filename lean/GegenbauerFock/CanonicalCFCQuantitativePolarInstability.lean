@@ -55,6 +55,49 @@ theorem exists_shared_cfc_polar_instability_family
   rw [hC (u n)]
   exact W.norm_map _
 
+/-- A *single* normalized family tends strongly to zero under both
+the canonical CFC Gram square root and the true Fock transform.
+The inputs themselves stay on the unit sphere. -/
+theorem exists_shared_cfc_polar_strong_null_sequence
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    ∃ u : ℕ → Lp ℂ 2 (Ultraspherical.measure lam),
+      (∀ n : ℕ, ‖u n‖ = 1) ∧
+      Filter.Tendsto
+        (fun n : ℕ => localCFCGramSqrt lam alpha hlam ha (u n))
+        Filter.atTop
+        (nhds (0 : Lp ℂ 2 (Ultraspherical.measure lam))) ∧
+      Filter.Tendsto
+        (fun n : ℕ => C lam alpha hlam ha (u n))
+        Filter.atTop (nhds (0 : InfiniteAnalysis.FockCoefficients)) := by
+  classical
+  obtain ⟨W, u, hcompact, hinj, hdense, hnotclosed, hpolar, hquant⟩ :=
+    exists_shared_cfc_polar_instability_family lam alpha hlam ha
+  have hP : Filter.Tendsto
+      (fun n : ℕ => localCFCGramSqrt lam alpha hlam ha (u n))
+      Filter.atTop
+      (nhds (0 : Lp ℂ 2 (Ultraspherical.measure lam))) := by
+    apply tendsto_zero_iff_norm_tendsto_zero.mpr
+    exact squeeze_zero
+      (fun n : ℕ =>
+        norm_nonneg (localCFCGramSqrt lam alpha hlam ha (u n)))
+      (fun n : ℕ => (hquant n).2.2.le)
+      (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℝ))
+  refine ⟨u, (fun n => (hquant n).1), hP, ?_⟩
+  have hW : Filter.Tendsto
+      (fun n : ℕ => W (localCFCGramSqrt lam alpha hlam ha (u n)))
+      Filter.atTop
+      (nhds (W (0 : Lp ℂ 2 (Ultraspherical.measure lam)))) :=
+    W.continuous.continuousAt.tendsto.comp hP
+  have hseq :
+      (fun n : ℕ => C lam alpha hlam ha (u n)) =
+      (fun n : ℕ => W (localCFCGramSqrt lam alpha hlam ha (u n))) := by
+    funext n
+    exact hpolar (u n)
+  rw [hseq]
+  simpa only [map_zero] using hW
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_polar_strong_null_sequence
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_polar_instability_family
 
 end GegenbauerFock.GeneralUltrasphericalFock
