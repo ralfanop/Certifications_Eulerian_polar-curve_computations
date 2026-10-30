@@ -47,7 +47,7 @@ def sturmShiftPolynomialLinear (lam : ℝ) : ℝ[X] →ₗ[ℝ] ℝ[X] where
 @[simp] theorem sturmShiftPolynomial_one (lam : ℝ) :
     sturmShiftPolynomial lam 1 = 1 := by
   have h : sturmPolynomial lam 1 = 0 := by
-    simpa using sturmPolynomial_C lam 1
+    simpa only [map_one] using (sturmPolynomial_C lam (1 : ℝ))
   simp [sturmShiftPolynomial, h]
 
 theorem sturmShiftPolynomial_X (lam : ℝ) :
@@ -55,7 +55,8 @@ theorem sturmShiftPolynomial_X (lam : ℝ) :
   simp only [sturmShiftPolynomial, sturmPolynomial_X, sub_neg_eq_add]
   have hc : C (2 * lam + 2) = 1 + C (2 * lam + 1) := by
     have hs : (2 * lam + 2 : ℝ) = 1 + (2 * lam + 1) := by ring
-    rw [hs, map_add, map_one]
+    have hC := congrArg (fun x : ℝ => (C x : ℝ[X])) hs
+    simpa only [map_add, map_one] using hC
   rw [hc]
   ring
 
