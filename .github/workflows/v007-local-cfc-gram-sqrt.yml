@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/LocalCFCGramSquareRoot.lean'
+      - 'lean/GegenbauerFock/LocalCFCGramSquareRootContinuousSpectrum.lean'
       - 'lean/GegenbauerFock/CompletePositiveSingularFamily.lean'
       - '.github/workflows/v007-local-cfc-gram-sqrt.yml'
   workflow_dispatch:
@@ -50,10 +51,13 @@ jobs:
           set -euo pipefail
           lake build GegenbauerFock.LocalCFCGramSquareRoot 2>&1 | tee /tmp/v007-local-cfc-gram-sqrt-build.log
           lake env lean -M16768 GegenbauerFock/LocalCFCGramSquareRoot.lean 2>&1 | tee /tmp/v007-local-cfc-gram-sqrt-axioms.log
-          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-local-cfc-gram-sqrt-build.log /tmp/v007-local-cfc-gram-sqrt-axioms.log; then
+          lake build GegenbauerFock.LocalCFCGramSquareRootContinuousSpectrum 2>&1 | tee /tmp/v007-local-cfc-gram-spectrum-build.log
+          lake env lean -M16768 GegenbauerFock/LocalCFCGramSquareRootContinuousSpectrum.lean 2>&1 | tee /tmp/v007-local-cfc-gram-spectrum-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-local-cfc-gram-sqrt-build.log /tmp/v007-local-cfc-gram-sqrt-axioms.log /tmp/v007-local-cfc-gram-spectrum-build.log /tmp/v007-local-cfc-gram-spectrum-axioms.log; then
             echo '::error::Forbidden axiom in local canonical CFC Gram root.'
             exit 1
           fi
           grep -F "exists_local_cfc_sqrt_polar_unitary_kummer' depends on axioms:" /tmp/v007-local-cfc-gram-sqrt-axioms.log
           grep -F "exists_local_cfc_sqrt_compact_dense_nonclosed' depends on axioms:" /tmp/v007-local-cfc-gram-sqrt-axioms.log
+          grep -F "local_cfc_gram_sqrt_zero_continuous_spectrum' depends on axioms:" /tmp/v007-local-cfc-gram-spectrum-axioms.log
           echo 'V007 local canonical CFC square-root theorem verified and audited.'
