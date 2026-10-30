@@ -27,6 +27,8 @@ jobs:
     # TOTAL per VM/job (shared by all Lean/Lake processes in that job).
     # This cannot be interpreted as 16 GB for every concurrent process.
     runs-on: ubuntu-24.04
+    # Prevent orphaned full-suite checks from consuming a runner indefinitely.
+    timeout-minutes: 120
     steps:
       - name: Verify available 16 GB runner memory budget
         shell: bash
