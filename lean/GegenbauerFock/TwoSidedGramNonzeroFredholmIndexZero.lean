@@ -52,14 +52,16 @@ private theorem fredholmShift_index_zero_on_punctured_plane
       filter_upwards [fredholmShift_index_locally_constant_in_parameter
         T z (hfred z hz0)] with w hw
       exact hw.2
-    exact Filter.Tendsto.congr' hloc.symm tendsto_const_nhds
+    have hlocEq : f =ᶠ[𝓝 z] (fun _ : ℂ => f z) := hloc
+    exact Filter.Tendsto.congr' hlocEq.symm tendsto_const_nhds
   have hconnected : IsPreconnected ({(0 : ℂ)}ᶜ) :=
     (isConnected_compl_singleton_of_one_lt_rank
       (Complex.rank_real_complex ▸ Nat.one_lt_ofNat) (0 : ℂ)).isPreconnected
   have hdiscrete : IsDiscrete (Set.univ : Set ℤ) :=
     isDiscrete_univ_iff.mpr inferInstance
   have hmuS : mu ∈ (Set.singleton (0 : ℂ))ᶜ := by
-    simpa only [Set.mem_compl_iff, Set.mem_singleton_iff] using hmu
+    change mu ≠ (0 : ℂ)
+    exact hmu
   have hnegS : (-1 : ℂ) ∈ ({(0 : ℂ)} : Set ℂ)ᶜ := by norm_num
   have hconst : f mu = f (-1) :=
     hconnected.constant_of_mapsTo hdiscrete hcontinuous
