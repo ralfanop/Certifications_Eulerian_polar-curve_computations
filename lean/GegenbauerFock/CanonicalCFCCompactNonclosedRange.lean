@@ -65,9 +65,11 @@ theorem exists_canonical_cfc_compact_nonclosed_range
        Function.Injective
          (CFC.sqrt (gram lam alpha hlam ha) :
            PolarH lam →L[ℂ] PolarH lam) ∧
-       (CFC.sqrt (gram lam alpha hlam ha)).range.topologicalClosure =
+       ((CFC.sqrt (gram lam alpha hlam ha) :
+           PolarH lam →L[ℂ] PolarH lam)).range.topologicalClosure =
          (⊤ : Submodule ℂ (PolarH lam)) ∧
-       ¬ IsClosed ((CFC.sqrt (gram lam alpha hlam ha)).range :
+       ¬ IsClosed (((CFC.sqrt (gram lam alpha hlam ha) :
+           PolarH lam →L[ℂ] PolarH lam)).range :
          Set (PolarH lam)) ∧
        (∀ f, C lam alpha hlam ha f =
          W (CFC.sqrt (gram lam alpha hlam ha) f))) := by
@@ -142,7 +144,8 @@ theorem canonical_cfc_root_not_surjective
     exists_canonical_cfc_compact_nonclosed_range lam alpha hlam ha
   intro hsurj
   have htop :
-      (CFC.sqrt (gram lam alpha hlam ha)).range =
+      ((CFC.sqrt (gram lam alpha hlam ha) :
+           PolarH lam →L[ℂ] PolarH lam)).range =
         (⊤ : Submodule ℂ (PolarH lam)) :=
     LinearMap.range_eq_top.mpr hsurj
   apply hnotclosed
