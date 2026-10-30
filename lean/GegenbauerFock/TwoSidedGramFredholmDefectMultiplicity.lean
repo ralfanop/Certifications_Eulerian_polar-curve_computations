@@ -86,8 +86,43 @@ theorem two_sided_nonzero_gram_shift_range_defects_equal
           mu • (1 : InfiniteAnalysis.FockCoefficients →L[ℂ]
             InfiniteAnalysis.FockCoefficients)).range) := hr
 
+/-- For a nonzero complex parameter, the Fredholm range defect of the
+ultraspherical source Gram shift equals the geometric multiplicity of
+that parameter as an eigenvalue of the genuine source Gram. -/
+theorem sourceGram_nonzero_shift_defect_eq_eigenspace_finrank
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (mu : ℂ) (hmu : mu ≠ 0) :
+    Module.finrank ℂ (Lp ℂ 2 (Ultraspherical.measure lam) ⧸
+      (gram lam alpha hlam ha -
+        mu • (1 : Lp ℂ 2 (Ultraspherical.measure lam) →L[ℂ]
+          Lp ℂ 2 (Ultraspherical.measure lam))).range) =
+    Module.finrank ℂ (eigenspace (gram lam alpha hlam ha).toLinearMap mu) := by
+  have hs := sourceGram_nonzero_shift_nullity_eq_defect
+    lam alpha hlam ha mu hmu
+  dsimp only at hs
+  rw [continuousGramShift_kernel_eq_eigenspace] at hs
+  exact hs.symm
+
+/-- The corresponding Fredholm range defect of the full Gaussian-Fock
+output Gram shift equals its true nonzero eigenvalue multiplicity. -/
+theorem outputGram_nonzero_shift_defect_eq_eigenspace_finrank
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (mu : ℂ) (hmu : mu ≠ 0) :
+    Module.finrank ℂ (InfiniteAnalysis.FockCoefficients ⧸
+      (outputGram lam alpha hlam ha -
+        mu • (1 : InfiniteAnalysis.FockCoefficients →L[ℂ]
+          InfiniteAnalysis.FockCoefficients)).range) =
+    Module.finrank ℂ (eigenspace (outputGram lam alpha hlam ha).toLinearMap mu) := by
+  have hr := outputGram_nonzero_shift_nullity_eq_defect
+    lam alpha hlam ha mu hmu
+  dsimp only at hr
+  rw [continuousGramShift_kernel_eq_eigenspace] at hr
+  exact hr.symm
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.continuousGramShift_kernel_eq_eigenspace
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.two_sided_nonzero_gram_shift_kernel_finrank_eq
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.two_sided_nonzero_gram_shift_range_defects_equal
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.sourceGram_nonzero_shift_defect_eq_eigenspace_finrank
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.outputGram_nonzero_shift_defect_eq_eigenspace_finrank
 
 end GegenbauerFock.GeneralUltrasphericalFock
