@@ -198,7 +198,12 @@ theorem ultraspherical_fourierBochner_uniformSamples_range_inverse_not_continuou
     funext n
     exact hleft (u n)
   have hrec' := hrec
-  simp only [Function.comp_def, hsrc] at hrec'
+  change Tendsto (fun n : ℕ =>
+      r ⟨ultraspherical_fourierBochner_uniformSamples lam S (u n),
+        ⟨u n, rfl⟩⟩)
+    atTop (nhds (r ⟨ultraspherical_fourierBochner_uniformSamples lam S
+      (0 : Lp ℂ 2 (Ultraspherical.measure lam)), ⟨0, rfl⟩⟩)) at hrec'
+  rw [hsrc, hleft (0 : Lp ℂ 2 (Ultraspherical.measure lam))] at hrec'
   exact hnostrong _ hrec'
 
 
