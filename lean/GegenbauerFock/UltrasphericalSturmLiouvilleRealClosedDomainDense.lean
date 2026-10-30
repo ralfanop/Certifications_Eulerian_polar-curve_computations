@@ -28,7 +28,7 @@ theorem sturmRealClosedPMap_domain_dense
   have hle :
       (sturmRealPMap lam hlam).domain ≤
         (sturmRealPMap lam hlam).closure.domain :=
-    LinearPMap.domain_mono (LinearPMap.le_closure (sturmRealPMap lam hlam))
+    (LinearPMap.le_closure (sturmRealPMap lam hlam)).1
   exact closure_mono (show
     ((sturmRealPMap lam hlam).domain :
       Set (Lp ℝ 2 (measure lam))) ⊆
