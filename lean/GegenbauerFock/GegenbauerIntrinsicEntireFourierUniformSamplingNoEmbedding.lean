@@ -67,7 +67,25 @@ theorem ultraspherical_fourierBochner_uniformSamples_no_continuous_inverse_on_ra
   exact (ultraspherical_fourierBochner_uniformSamples_range_inverse_not_continuousAt_zero
     lam alpha hlam ha S R hR hbound r hleft) hcont.continuousAt
 
+
+/-- For every bounded complex sampling set with a finite accumulation point,
+the genuine Fourier–Bochner samples UNIQUELY determine the L² source,
+yet the identification is not an embedding of the Hilbert topology
+into the uniform topology of the samples. -/
+theorem ultraspherical_fourierBochner_uniformSamples_unique_but_not_embedding
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (S : Set ℂ) (w : ℂ) (R : ℝ) (hR : 0 ≤ R)
+    (hbound : ∀ z ∈ S, ‖z‖ ≤ R)
+    (hacc : w ∈ closure (S \ ({w} : Set ℂ))) :
+    Function.Injective (ultraspherical_fourierBochner_uniformSamples lam S) ∧
+      ¬ Topology.IsEmbedding (ultraspherical_fourierBochner_uniformSamples lam S) := by
+  exact ⟨ultraspherical_fourierBochner_uniformSamples_injective
+      lam alpha hlam ha S w hacc,
+    ultraspherical_fourierBochner_uniformSamples_not_isEmbedding
+      lam alpha hlam ha S R hR hbound⟩
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.ultraspherical_fourierBochner_uniformSamples_not_isEmbedding
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.ultraspherical_fourierBochner_uniformSamples_no_continuous_inverse_on_range
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.ultraspherical_fourierBochner_uniformSamples_unique_but_not_embedding
 
 end GegenbauerFock.GeneralUltrasphericalFock
