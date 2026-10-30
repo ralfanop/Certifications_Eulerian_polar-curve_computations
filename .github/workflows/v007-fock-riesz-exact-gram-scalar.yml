@@ -8,9 +8,15 @@ on:
       - '.github/workflows/v007-fock-riesz-exact-gram-scalar.yml'
   workflow_dispatch:
 
+# At most one specialist audit runs per branch; retain running SHA-scoped proof checks.
+concurrency:
+  group: v007-exact-gram-scalar-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   intrinsic-riesz-exact-gram-scalar:
     runs-on: ubuntu-24.04
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - name: Install pinned Lean toolchain
