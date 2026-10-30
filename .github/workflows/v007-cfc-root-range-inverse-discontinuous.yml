@@ -1,0 +1,51 @@
+name: V007 canonical CFC square root inverse-on-range discontinuity
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/CanonicalCFCRootInverseOnRangeDiscontinuous.lean'
+      - '.github/workflows/v007-cfc-root-range-inverse-discontinuous.yml'
+  workflow_dispatch:
+
+jobs:
+  canonical-cfc-inverse-instability:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lake" --version
+      - name: Restore pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel check and axiom audit of canonical CFC inverse obstruction
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.CanonicalCFCRootInverseOnRangeDiscontinuous 2>&1 | tee /tmp/v007-cfc-inverse-instability.log
+          lake env lean -M16768 GegenbauerFock/CanonicalCFCRootInverseOnRangeDiscontinuous.lean 2>&1 | tee -a /tmp/v007-cfc-inverse-instability.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-cfc-inverse-instability.log; then
+            echo '::error::Forbidden axiom in inverse-on-range discontinuity theorem.'
+            exit 1
+          fi
+          grep -F "canonical_cfc_sqrt_inverse_on_range_discontinuous_at_zero' depends on axioms:" /tmp/v007-cfc-inverse-instability.log
+          echo 'V007 canonical CFC root inverse-on-range discontinuity kernel-certified and audited.'
