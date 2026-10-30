@@ -1,5 +1,6 @@
 import GegenbauerFock.CanonicalCFCSqrtExplicitScalarBridge
 import GegenbauerFock.CompactPositivePolarNonclosedRange
+import Mathlib.Analysis.Normed.Operator.Banach
 
 /-!
 # V007 — the canonical CFC Gram square root is a compact quasiaffinity
@@ -153,5 +154,51 @@ theorem canonical_cfc_root_not_surjective
   exact isClosed_univ
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.canonical_cfc_root_not_surjective
+
+
+/-- The canonical compact Gram square root admits no global anti-Lipschitz
+constant on its infinite-dimensional Hilbert space. In particular, its
+inverse on its dense range is not bounded in the ambient norm. -/
+theorem canonical_cfc_root_not_antilipschitz
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    (letI : SMulCommClass ℝ (PolarH lam →L[ℂ] PolarH lam)
+        (PolarH lam →L[ℂ] PolarH lam) := polarRootComm lam
+     letI : IsScalarTower ℝ (PolarH lam →L[ℂ] PolarH lam)
+        (PolarH lam →L[ℂ] PolarH lam) := polarRootTower lam
+     letI : ContinuousFunctionalCalculus ℂ
+         (PolarH lam →L[ℂ] PolarH lam) IsStarNormal :=
+       IsStarNormal.instContinuousFunctionalCalculus
+     letI : IsometricContinuousFunctionalCalculus ℝ
+         (PolarH lam →L[ℂ] PolarH lam) IsSelfAdjoint :=
+       IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
+     letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
+         (PolarH lam →L[ℂ] PolarH lam) IsSelfAdjoint :=
+       IsometricContinuousFunctionalCalculus.toNonUnital
+     ¬ ∃ K : ℝ≥0, AntilipschitzWith K
+         (CFC.sqrt (gram lam alpha hlam ha) :
+            PolarH lam →L[ℂ] PolarH lam)) := by
+  letI : SMulCommClass ℝ (PolarH lam →L[ℂ] PolarH lam)
+    (PolarH lam →L[ℂ] PolarH lam) := polarRootComm lam
+  letI : IsScalarTower ℝ (PolarH lam →L[ℂ] PolarH lam)
+    (PolarH lam →L[ℂ] PolarH lam) := polarRootTower lam
+  letI : ContinuousFunctionalCalculus ℂ
+      (PolarH lam →L[ℂ] PolarH lam) IsStarNormal :=
+    IsStarNormal.instContinuousFunctionalCalculus
+  letI : IsometricContinuousFunctionalCalculus ℝ
+      (PolarH lam →L[ℂ] PolarH lam) IsSelfAdjoint :=
+    IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
+  letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
+      (PolarH lam →L[ℂ] PolarH lam) IsSelfAdjoint :=
+    IsometricContinuousFunctionalCalculus.toNonUnital
+  obtain ⟨W, hcompact, hinj, hdense, hnotclosed, hC⟩ :=
+    exists_canonical_cfc_compact_nonclosed_range lam alpha hlam ha
+  intro hbound
+  have hclosed := ((CFC.sqrt (gram lam alpha hlam ha) :
+      PolarH lam →L[ℂ] PolarH lam).isClosed_range_iff_antilipschitz_of_injective
+      hinj).mpr hbound
+  apply hnotclosed
+  simpa only [LinearMap.coe_range] using hclosed
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.canonical_cfc_root_not_antilipschitz
 
 end GegenbauerFock.GeneralUltrasphericalFock
