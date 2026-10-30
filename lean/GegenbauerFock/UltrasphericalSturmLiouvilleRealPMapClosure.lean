@@ -32,7 +32,8 @@ noncomputable def sturmRealPMap
 /-- The concrete real polynomial domain of the genuine PMap is dense. -/
 theorem sturmRealPMap_domain_dense
     (lam : ℝ) (hlam : 0 < lam) :
-    Dense (sturmRealPMap lam hlam).domain := by
+    Dense ((sturmRealPMap lam hlam).domain :
+      Set (Lp ℝ 2 (measure lam))) := by
   change Dense (sturmRealPolynomialDomain lam hlam :
     Set (Lp ℝ 2 (measure lam)))
   intro x
