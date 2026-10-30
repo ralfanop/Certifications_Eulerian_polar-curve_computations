@@ -58,7 +58,8 @@ private theorem fredholmShift_index_zero_on_punctured_plane
       (Complex.rank_real_complex ▸ Nat.one_lt_ofNat) (0 : ℂ)).isPreconnected
   have hdiscrete : IsDiscrete (Set.univ : Set ℤ) :=
     isDiscrete_univ_iff.mpr inferInstance
-  have hmuS : mu ∈ ({(0 : ℂ)} : Set ℂ)ᶜ := by simpa using hmu
+  have hmuS : mu ∈ (Set.singleton (0 : ℂ))ᶜ := by
+    simpa only [Set.mem_compl_iff, Set.mem_singleton_iff] using hmu
   have hnegS : (-1 : ℂ) ∈ ({(0 : ℂ)} : Set ℂ)ᶜ := by norm_num
   have hconst : f mu = f (-1) :=
     hconnected.constant_of_mapsTo hdiscrete hcontinuous
