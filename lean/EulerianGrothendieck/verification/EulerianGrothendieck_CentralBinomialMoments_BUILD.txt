@@ -1,0 +1,14 @@
+/home/claude/work/eg/EulerianGrothendieck/CentralBinomialMoments.lean:29:13: warning: This simp argument is unused:
+  zero_mul
+
+Hint: Omit it from the simp argument list.
+  simp only [zero_m̵u̵l̵,̵ ̵z̵e̵r̵o̵_̵add, smul_eq_mul]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/claude/work/eg/EulerianGrothendieck/CentralBinomialMoments.lean:29:23: warning: This simp argument is unused:
+  zero_add
+
+Hint: Omit it from the simp argument list.
+  simp only [zero_mul, z̵e̵r̵o̵_̵a̵d̵d̵,̵ ̵smul_eq_mul]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

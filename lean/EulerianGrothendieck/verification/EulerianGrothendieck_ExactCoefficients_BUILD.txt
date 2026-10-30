@@ -1,0 +1,75 @@
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:396:6: warning: 'ring' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:396:6: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:401:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:415:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:420:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:434:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:439:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:453:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:458:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:472:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:477:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:491:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:496:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:510:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:515:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:529:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:534:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:548:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:553:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:567:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:572:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:586:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:591:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:605:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExactCoefficients.lean:610:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`

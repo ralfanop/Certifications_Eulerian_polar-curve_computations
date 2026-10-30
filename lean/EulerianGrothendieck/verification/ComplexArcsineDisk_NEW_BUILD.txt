@@ -1,0 +1,15 @@
+/home/claude/work/eg/EulerianGrothendieck/ComplexArcsineDisk.lean:162:21: warning: 'ring' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/claude/work/eg/EulerianGrothendieck/ComplexArcsineDisk.lean:162:21: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/claude/work/eg/EulerianGrothendieck/ComplexArcsineDisk.lean:164:17: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ComplexArcsineDisk.lean:301:7: warning: unused variable `z`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/claude/work/eg/EulerianGrothendieck/ComplexArcsineDisk.lean:301:12: warning: unused variable `w`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`

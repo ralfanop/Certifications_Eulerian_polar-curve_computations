@@ -1,0 +1,8 @@
+/home/claude/work/eg/EulerianGrothendieck/ExplicitProjector.lean:20:62: warning: This simp argument is unused:
+  Matrix.mulVec
+
+Hint: Omit it from the simp argument list.
+  simp [̵M̵a̵t̵r̵i̵x̵.̵t̵o̵E̵u̵c̵l̵i̵d̵e̵a̵n̵L̵i̵n̵_̵a̵p̵p̵l̵y̵,̵f̵r̵a̵m̵e̵M̵a̵t̵r̵i̵x̵,̵f̵r̵a̵m̵e̵V̵e̵c̵t̵o̵r̵,̵M̵a̵t̵r̵i̵x̵.̵m̵u̵l̵V̵e̵c̵,̵
+  ̵ ̵ ̵ ̵ ̵ ̵ ̵d̵o̵t̵P̵r̵o̵d̵u̵c̵t̵,̵F̵i̵n̵.̵s̵u̵m̵_̵u̵n̵i̵v̵_̵s̵u̵c̵c̵]̵[̲M̲a̲t̲r̲i̲x̲.̲t̲o̲E̲u̲c̲l̲i̲d̲e̲a̲n̲L̲i̲n̲_̲a̲p̲p̲l̲y̲,̲ ̲f̲r̲a̲m̲e̲M̲a̲t̲r̲i̲x̲,̲ ̲f̲r̲a̲m̲e̲V̲e̲c̲t̲o̲r̲,̲ ̲d̲o̲t̲P̲r̲o̲d̲u̲c̲t̲,̲ ̲F̲i̲n̲.̲s̲u̲m̲_̲u̲n̲i̲v̲_̲s̲u̲c̲c̲]̲
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

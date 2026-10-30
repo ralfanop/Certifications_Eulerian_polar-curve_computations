@@ -1,0 +1,42 @@
+/home/claude/work/eg/EulerianGrothendieck/MomentPolynomialBridge.lean:15:6: warning: 'ring' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/claude/work/eg/EulerianGrothendieck/MomentPolynomialBridge.lean:15:6: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/claude/work/eg/EulerianGrothendieck/MomentPolynomialBridge.lean:22:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/MomentPolynomialBridge.lean:29:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/MomentPolynomialBridge.lean:36:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/MomentPolynomialBridge.lean:43:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/MomentPolynomialBridge.lean:50:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/MomentPolynomialBridge.lean:57:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/MomentPolynomialBridge.lean:64:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/MomentPolynomialBridge.lean:71:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/MomentPolynomialBridge.lean:78:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/MomentPolynomialBridge.lean:85:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/MomentPolynomialBridge.lean:92:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/MomentPolynomialBridge.lean:99:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`

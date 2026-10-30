@@ -1,0 +1,11 @@
+/home/claude/work/eg/EulerianGrothendieck/UniformFirstCorrection.lean:28:63: warning: This simp argument is unused:
+  mul_one
+
+Hint: Omit it from the simp argument list.
+  simp only [sum_insert, mem_singleton, zero_ne_one, not_false_eq_true,
+  ̵  ̵ ̵ ̵sum_singleton, Nat.sub_zero,
+  ̲  ̲ ̲ ̲Nat.add_sub_cancel, pow_zero, m̵u̵l̵_̵o̵n̵e̵,̵
+  ̵ ̵ ̵ ̵ ̵pow_one, mul_assoc, coeff_C_mul, coeff_X_mul,
+  ̲  ̲ ̲ ̲ratioRecurrenceCoefficient_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

@@ -1,0 +1,229 @@
+{
+  "status": "PASS",
+  "task": "L4 (higher coefficients of the limit profile F through alpha^7)",
+  "date": "2026-10-30",
+  "project": "UniformLanczos (separate from EulerianGrothendieck)",
+  "lean_version": "Lean (version 4.35.0-rc3, x86_64-unknown-linux-gnu, commit 470d5ce1400764999581fd26d5d72b00d990b0f4, Release)",
+  "mathlib_revision": "0272bbe1c093d038d7257ab15306abd58245f9ff",
+  "mathlib_build": "from source (cache.mathlib.org unreachable), lake build UniformLanczos --no-cache",
+  "new_module": "UniformLanczos.HigherProfileCoefficients",
+  "existing_modules_touched": [],
+  "theorem_count": 39,
+  "axioms": {
+    "UniformLanczos.E18_eq_sum": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.exp18": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.sinh_cosh_approx18": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.Wpoly_eq": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.Tpoly_bound": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.Wpoly_bounds": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.E17_identity": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.E17_bound": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.Lp_taylor13": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.sinh_bounds": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.Lpp_ge": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.Lp_slope_lower": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.abs_sub_le_of_Lp": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.LpPoly_IpPoly": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.Rcomp_bound": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.IpPoly_bounds": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.Ip_expansion13": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.wallis_step": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.integral_sin_six": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.integral_sin_eight": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.integral_sin_ten": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.integral_sin_twelve": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.integral_sin_fourteen": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.integral_sin_combo": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.Hint_IpPoly": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.Hint_expansion14": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.GPoly_PhiPoly": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.R2_bound": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.FPoly_eq": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.hasDerivAt_GPoly": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.GPolyD_bound": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.GPoly_lip_aux": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.GPoly_lipschitz": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.small8": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.inversion7": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.A_le_half_alpha7": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.F_expansion7": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.F_expansion7_explicit": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "UniformLanczos.Ip_expansion13_explicit": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ]
+  },
+  "forbidden_tokens_check": "no sorry/admit/axiom/native_decide in the new module",
+  "baseline_recheck": "ULAxiomCheck.lean re-run: 61/61 declarations with standard axioms only (logs/UL_baseline_axioms_rerun.log)",
+  "source_sha256": {
+    "UniformLanczos/HigherProfileCoefficients.lean": "8e64b7c24c2616a1cfb3d30f5869174ad2a14c8e875cf72e4707ac506ffee1fa",
+    "L4AxiomCheck.lean": "5c3c789bfeef7f08a101824ffc3a652fa9f3fe7aa559892d2827e6d5e57d0d89",
+    "lean-toolchain": "bc84812c94489d1e3e191baa1dc10d5eb684382d7fe9d2a5ab085e72c1c67e47",
+    "lakefile.toml": "34d0d5f180616929d26a4388700cabf747ebc634ffec54d23d789d992d8cba80",
+    "lake-manifest.json": "f37defd0e1909256e17c5c29968ae2da5120f5898205d0f3ee9f9af521077dc0"
+  },
+  "compiled_object_sha256": {
+    "HigherProfileCoefficients.olean": "1d30888c773d49f8feb7515da3f237ce33489f79b975a0722ad7f2b2c9c380ee"
+  },
+  "main_statements": {
+    "Lp_taylor13": "0 ≤ s ≤ 2 → |Λ′(s) − Σ_{k=1}^{7} B_{2k} s^{2k−1}/(2k)!| ≤ s^15/(2.5·10^12)",
+    "Lpp_ge": "0 < s ≤ 2 → Λ″(s) ≥ 1/32",
+    "Ip_expansion13": "0 ≤ x ≤ 1/40 → |I′(x) − (12x + 144/5 x^3 + 19008/175 x^5 + 393984/875 x^7 + 129143808/67375 x^9 + 179132166144/21896875 x^11 + 3789966163968/109484375 x^13)| ≤ 9·10^5 x^15",
+    "Hint_expansion14": "|I1 − IpPoly| ≤ C x^15 on [0,b] → |H(a) − Φ(a^2)| ≤ C a^16/2 on [0,b], Φ(A)=3A+27/5A^2+594/35A^3+1539/25A^4+2270106/9625A^5+262400634/284375A^6+2775854124/765625A^7",
+    "inversion7": "0 ≤ A ≤ 1/1600, α = Φ(A)+r, |r| ≤ 450000 A^8 → |A − G(α)| ≤ 230000 A^8",
+    "F_expansion7": "0 ≤ a ≤ 1/40, α = H(a) → |a^2/4 − (α/12 − α^2/20 + 4α^3/525 + 2α^4/525 + 368α^5/336875 − 544α^6/1340625 − 1886176α^7/2299171875)| ≤ 225 α^8"
+  }
+}

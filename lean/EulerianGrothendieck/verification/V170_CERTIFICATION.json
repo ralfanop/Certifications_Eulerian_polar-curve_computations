@@ -1,0 +1,2267 @@
+{
+  "status": "PASS",
+  "scope": "Order-13 moment and squared-moment identification for every moment index, exact norm and reciprocal coefficients, and actual uniform-product-law integral expansions with O(M^-14) remainders. Uniform all-order norm remainder for all c>=c0>1/12 is also proved. Gaussian Fock interpretation and uniform reciprocal remainders remain separate.",
+  "lean_version": "Lean (version 4.24.0, x86_64-unknown-linux-gnu, commit 797c613eb9b6d4ec95db23e3e00af9ac6657f24b, Release)",
+  "mathlib_revision": "f897ebcf72cd16f89ab4577d0c826cd14afaafc7",
+  "theorem_count": 418,
+  "source_module_count": 52,
+  "axioms": {
+    "EulerianGrothendieck.uniform_second_moment": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniform_fourth_moment": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniform_fourth_cumulant": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.standardized_fourth_cumulant": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.edgeworth_density_coefficient": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.jacobi_fourth_cumulant_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniform_jacobi_cumulant_polynomial": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.momentFactor_nonneg": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.momentFactor_le_one": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.momentFactor_two": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniform_even_moment": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniform_odd_moment": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.squared_moment_remainder": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.falling_factorial_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.moment_remainder_constant": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.inverse_second_order_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.inverse_remainder_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.global_quadratic_minimum": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.global_quadratic_lower_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.tilted_hermite_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.phase_constraints_impossible": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frame_determinant_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frame_determinant_positive": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.hermitian_offdiagonal_identification": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.quadratic_phase_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.circle_quadratic_lower": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_phase_branch": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.quadratic_circle_isLeast": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.criticalQuotient_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.criticalQuotient_continuous": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.criticalQuotient_limit": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.critical_radicand_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.critical_coefficient_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.critical_vacuum_ratio": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.critical_vacuum_ratio_limit": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.coeffConv_nonneg": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.coeffConv_mono": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.coeffPower_nonneg": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.coeffPower_mono": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.coefficient_rescaling_mono": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_coefficient_rule": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.convolution_coefficient_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.geometric_tail_factor_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_remainder_transfer": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.arcsin_disk_realpart_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.lipschitz_scale_square": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.log_coefficient_1": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.log_coefficient_2": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.log_coefficient_3": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.log_coefficient_4": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.log_coefficient_5": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.log_coefficient_6": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.log_coefficient_7": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.log_coefficient_8": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.log_coefficient_9": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.log_coefficient_10": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.log_coefficient_11": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.log_coefficient_12": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.log_coefficient_13": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.p_recurrence_1": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.squared_moment_polynomial_1": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.norm_coefficient_1": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_coefficient_1": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.p_recurrence_2": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.squared_moment_polynomial_2": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.norm_coefficient_2": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_coefficient_2": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.p_recurrence_3": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.squared_moment_polynomial_3": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.norm_coefficient_3": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_coefficient_3": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.p_recurrence_4": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.squared_moment_polynomial_4": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.norm_coefficient_4": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_coefficient_4": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.p_recurrence_5": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.squared_moment_polynomial_5": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.norm_coefficient_5": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_coefficient_5": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.p_recurrence_6": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.squared_moment_polynomial_6": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.norm_coefficient_6": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_coefficient_6": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.p_recurrence_7": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.squared_moment_polynomial_7": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.norm_coefficient_7": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_coefficient_7": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.p_recurrence_8": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.squared_moment_polynomial_8": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.norm_coefficient_8": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_coefficient_8": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.p_recurrence_9": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.squared_moment_polynomial_9": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.norm_coefficient_9": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_coefficient_9": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.p_recurrence_10": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.squared_moment_polynomial_10": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.norm_coefficient_10": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_coefficient_10": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.p_recurrence_11": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.squared_moment_polynomial_11": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.norm_coefficient_11": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_coefficient_11": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.p_recurrence_12": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.squared_moment_polynomial_12": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.norm_coefficient_12": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_coefficient_12": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.peval_add": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.peval_scale": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.peval_mul": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.peval_sub": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.peval_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.checked_equality": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.momentCombination_eval": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.checked_orthogonality": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.checked_norm_ratio": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.uniform_even_integral": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.uniform_odd_integral": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.singleMoment_even": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.singleMoment_odd": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.singleMoment_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.singleMoment_two": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.singleMoment_four": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.uniformLaw_eq_closed": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.uniform_all_moments": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.independent_add_integrable_pow": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.independent_add_moment": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.all_sum_moments": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.sumMoment_odd": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.sum_range_even": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.sumMoment_even_succ": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.evenEGF_coeff": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.evenEGF_constant": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.even_moment_coefficient": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.cumulant_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.cumulant_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.cumulant_one": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.power_derivative": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.power_coefficient_recurrence": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.scale_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "V033.UniformSum.normalizedEGFPolynomial_exact": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.momentFactor_factorial": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformEGFCoefficient_factor": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformEGFCoefficient_nonneg": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformEGFCoefficient_le_gaussian": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.coeffPower_eq_powerSeries": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.gaussianEGF_series": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.gaussianEGF_power": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformMomentRatio_nonneg": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformMomentRatio_le_one": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformEGF_series": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformMomentRatio_exact_polynomial": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_uniform_sum_moment_ratio": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.polynomial_evaluation_hasSum": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.shifted_linear_geometric_hasSum": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.polynomial_geometric_remainder": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.polynomial_large_remainder": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.small_index_scale": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.remainderMajorant_nonneg": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.polynomial_global_remainder": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.weighted_polynomial_remainder": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformEGFCoefficient_scaled": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformEGFCoefficient_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformEGFCoefficient_le_one": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformEGF_derivative_coefficient_le_one": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.standardUniformCumulant_recurrence": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.standardUniformCumulant_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.standardUniformCumulant_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.standardUniformCumulant_one": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.polyAbsEval_summable": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.polyAbsEval_nonneg": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.coeff_mul_pow_le_polyAbsEval": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.polyAbsEval_C": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.polyAbsEval_one": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.polyAbsEval_C_mul": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.polyAbsEval_X_pow_mul": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.polyAbsEval_sum_le": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.polyAbsEval_coeff_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformRatioPolynomial_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.ratioRecurrenceCoefficient_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.ratioRecurrenceCoefficient_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformRatioPolynomial_recurrence": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformRatio_abs_recurrence": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.finite_geometric_positive_tail_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformRatio_small_radius_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformRatio_coefficient_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.shifted_power_geometric_summable": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.weighted_polynomial_power_summable": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.weighted_coefficients_summable": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.weighted_remainderMajorant_summable": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.geometric_weighted_all_order_remainder": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.binomialWeight_nonneg": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.binomialWeight_le_geometric": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformSquaredPolynomial_coefficient_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformSquaredPolynomial_value": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformSquaredPolynomial_value_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformNormCoefficient_absolute_summability": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformNormSeries_all_orders": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_uniform_moment_series_all_orders": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.real_exp_hasSum": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.bounded_exp_integral_hasSum": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.bounded_product_exp_even_series": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniform_sequence_ae_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniform_sum_ae_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.standardizedUniformSum_measurable": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.standardizedUniformSum_ae_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.standardizedUniformSum_odd_moment": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.binomialWeight_moment_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniform_exponential_integral_eq_series": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniform_exponential_integral_all_orders": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.trunc_eval_eq": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.polynomial_abs_eval_le": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.polynomial_zero_low_coeff_remainder": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.truncated_inverse_low_coeff": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_all_order_remainder": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformRatio_eval_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformSquaredPolynomial_constant": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.binomialWeight_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.binomialWeight_summable": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformNormCoefficient_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformNormCoefficient_zero_ge_one": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformNormSeries_summable": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformNormSeries_ge_one": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformVacuumSeries_all_orders": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniform_vacuum_integral_all_orders": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralCoefficient_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralCoefficient_nonneg": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralCoefficient_le_one": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralCoefficient_recurrence": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralSeries_coeff": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralSeries_ode": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralSeries_square_ode": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralSeries_square_coeff": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralCoefficient_self_convolution": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralCoefficient_geometric_summable": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralBinomial_sum_square": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralBinomial_sum": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformNormCoefficient_zero_closed": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformRatioPolynomial_one": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformRatio_linear_recurrence": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformRatio_first_coefficient": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformSquaredPolynomial_first_coefficient": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralSeries_square_inverse": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralSeries_first_derivative": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralSeries_second_derivative": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.powerSeries_product_hasSum": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralSeries_power_hasSum": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralBinomial_second_factorial_moment_hasSum": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformNormCoefficient_one_closed": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.inverseSeriesCoefficient_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.inverseSeriesCoefficient_one_relation": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformVacuumCoefficient_zero_closed": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformVacuumCoefficient_one_closed": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformVacuum_first_order": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_uniform_vacuum_first_order": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.normalized_scale_mem": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.standardized_exponent_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.raw_uniform_kernel_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.raw_uniform_kernel_all_orders": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.raw_uniform_vacuum_all_orders": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.raw_uniform_vacuum_first_order": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.fallingReal_nat": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.fallingReal_rat": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_rat": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactSquaredPolynomial_rat": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.ratioRecurrenceCoefficient_eq_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformRatio_coefficient_recurrence": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_cumulant_0": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_cumulant_1": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_cumulant_2": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_cumulant_3": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_cumulant_4": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_cumulant_5": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_cumulant_6": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_cumulant_7": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_cumulant_8": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_cumulant_9": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_cumulant_10": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_cumulant_11": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_cumulant_12": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_cumulant_table": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralFactorialMoment_summable": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralFactorialMoment_recurrence": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralFactorialMoment_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.nbFactorial_recurrence_real": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.centralFactorialMoment_one_fifth": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_recurrence_0": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_recurrence_1": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_recurrence_2": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_recurrence_3": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_recurrence_4": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_recurrence_5": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_recurrence_6": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_recurrence_7": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_recurrence_8": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_recurrence_9": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_recurrence_10": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_recurrence_11": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_recurrence_12": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_recurrence": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exactMomentPolynomial_at_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_moment_coefficients_through_twelve": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exact_squared_polynomial_table": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_squared_coefficients_through_twelve": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.norm_coefficient_table": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.arithmeticParameter_properties": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.arithmetic_weight_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.arithmetic_norm_coefficient_identification": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.reciprocal_coefficient_table": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.inverseSeriesCoefficient_convolution": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.inverseSeriesCoefficient_prefix_unique": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.arithmetic_vacuum_coefficient_identification": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.normalizedVacuumCoefficient_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.normalized_uniform_vacuum_all_orders": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.actual_uniform_vacuum_twelfth_order": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.arithmetic_scale_vacuum_twelfth_order": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.complex_modulus_remainder": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.complex_modulus_squared_remainder": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frameDistance_nonneg": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frameDistance_sublevel_localization": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.sqrt_unit_loss": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frameDistance_unit_trial": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.modulus_linearized_square_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.coordinatePerturbation_split": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.coordinatePerturbation_residual": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.coordinatePerturbation_bounds": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.coordinateDistance_uniform_remainder": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.unit_mul_star": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frameDistance_rotate": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frameDistance_coordinates": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frameDistance_sublevel_coordinates": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.halfPhase_unit": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.limitingObjective_halfPhase_lower": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.limitingObjective_halfPhase_trial": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_half_parameters": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerianPhase_unit": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_limitingObjective_lower": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_limitingObjective_trial": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frameDistance_range_bddBelow": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frameInfimum_nonneg": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_frameDistance_global_lower": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_frameDistance_trial_upper": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_frameInfimum_remainder": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_frameInfimum_ratio_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_frameInfimum_ratio_limit": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_loss_ratio_limit": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_loss_limit": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_variational_ratio_limit": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.criticalVacuum_pos": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.criticalVacuum_limit": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_variational_critical_law": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exists_unit_closest": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.torusPoint_norm_sq": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.radialDistance_nonneg": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.radialDistance_le_distance": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.exists_closest_torusPoint": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.projection_residual_pythagoras": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.projection_residual_minimal": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.projectionScalarValues_nonempty": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.projectionScalarValues_bddAbove": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.projectionScalarNorm_ge": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.radialSubspaceInfimum_nonneg": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.radialSubspaceInfimum_le": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.projection_scalar_distance_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.projection_quadratic_value": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.radialDistance_frameVector": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frame_radial_infimum": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frame_projection_distance_identity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frameGrothendieckRatio_eq_variational": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_projection_loss_ratio_limit": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerian_projection_critical_law": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerianPhase_cartesian": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.eulerianPhase_fraction": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frameMatrix_apply": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frameMatrix_injective": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frameMatrix_gram_invertible": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.frameMatrix_range": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.matrixEuclidean_mul_apply": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.explicitFrameProjector_eq_projection": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.explicitFrameScalarNorm_eq": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.explicit_projector_critical_law": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.torusPoint_compact": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.projectionScalarNorm_attained": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.cumulantA_prefix": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.normB_prefix": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.vacuumD_prefix": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.pCoeff_prefix": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.qFallingCoeff_prefix": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.gPolynomial_prefix": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.qPolynomial_prefix": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.exactMomentPolynomial_prefix": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.exactSquaredPolynomial_prefix": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.exactMomentPolynomial_rat": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.exactSquaredPolynomial_rat": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.norm_coefficient_13": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.reciprocal_coefficient_13": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.exactMomentPolynomial_recurrence_13": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.squared_moment_polynomial_13": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.actual_cumulant_13": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.actual_cumulant_table": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.exactMomentPolynomial_recurrence": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.exactMomentPolynomial_at_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.actual_moment_coefficients_through_thirteen": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.exact_squared_polynomial_table": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.actual_squared_coefficients_through_thirteen": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.norm_coefficient_table": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.reciprocal_coefficient_table": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.arithmetic_norm_coefficient_identification": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.arithmetic_vacuum_coefficient_identification": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.actual_uniform_vacuum_thirteenth_order": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.arithmetic_scale_vacuum_thirteenth_order": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.actual_uniform_norm_thirteenth_order": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.Order13.arithmetic_scale_norm_thirteenth_order": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.geometric_weighted_uniform_all_order_remainder": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.binomialWeight_parameter_bound": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniformNormSeries_uniform_parameters": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.uniform_exponential_integral_uniform_parameters": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "EulerianGrothendieck.raw_uniform_kernel_uniform_parameters": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ]
+  },
+  "baseline_count": 383,
+  "new_count": 35,
+  "freshly_rebuilt_modules": [
+    "EulerianGrothendieck.Probability",
+    "EulerianGrothendieck.Remainder",
+    "EulerianGrothendieck.Geometry",
+    "EulerianGrothendieck.Critical",
+    "EulerianGrothendieck.FiniteSeries",
+    "EulerianGrothendieck.ExactCoefficients",
+    "V033Core",
+    "V033UniformIntegrals",
+    "V033UniformSumMoments",
+    "V033CumulantPolynomials",
+    "EulerianGrothendieck.UniformConvolutions",
+    "EulerianGrothendieck.SummationRemainder",
+    "EulerianGrothendieck.CumulantBounds",
+    "EulerianGrothendieck.PolynomialAbsoluteBounds",
+    "EulerianGrothendieck.UniformRatioBounds",
+    "EulerianGrothendieck.GeometricSummability",
+    "EulerianGrothendieck.UniformNormAsymptotics",
+    "EulerianGrothendieck.ExponentialKernel",
+    "EulerianGrothendieck.UniformKernel",
+    "EulerianGrothendieck.ReciprocalAsymptotics",
+    "EulerianGrothendieck.UniformVacuumAsymptotics",
+    "EulerianGrothendieck.CentralBinomialSeries",
+    "EulerianGrothendieck.UniformFirstCorrection",
+    "EulerianGrothendieck.CentralBinomialMoments",
+    "EulerianGrothendieck.FirstOrderAsymptotics",
+    "EulerianGrothendieck.RawScaleAsymptotics",
+    "EulerianGrothendieck.CoefficientIdentification",
+    "EulerianGrothendieck.CentralFactorialMoments",
+    "EulerianGrothendieck.MomentPolynomialBridge",
+    "EulerianGrothendieck.TwelfthOrderIdentification",
+    "EulerianGrothendieck.NormalizedAsymptotics",
+    "EulerianGrothendieck.TwelfthOrderAsymptotics",
+    "EulerianGrothendieck.ModulusRemainder",
+    "EulerianGrothendieck.GlobalLocalization",
+    "EulerianGrothendieck.RescaledObjective",
+    "EulerianGrothendieck.PhaseCoordinates",
+    "EulerianGrothendieck.QuadraticMinimum",
+    "EulerianGrothendieck.GlobalInfimum",
+    "EulerianGrothendieck.VariationalCriticalLaw",
+    "EulerianGrothendieck.TorusDistance",
+    "EulerianGrothendieck.ProjectionScalarNorm",
+    "EulerianGrothendieck.FrameProjection",
+    "EulerianGrothendieck.PhaseIdentification",
+    "EulerianGrothendieck.ExplicitProjector",
+    "EulerianGrothendieck.ScalarMaximum",
+    "EulerianGrothendieck.ThirteenthDefinitions",
+    "EulerianGrothendieck.ThirteenthRationalCertificates",
+    "EulerianGrothendieck.ThirteenthMomentRecurrence",
+    "EulerianGrothendieck.ThirteenthSquaredPolynomial",
+    "EulerianGrothendieck.ThirteenthIdentification",
+    "EulerianGrothendieck.ThirteenthAsymptotics",
+    "EulerianGrothendieck.UniformParameterNorm"
+  ],
+  "source_and_object_hash_reused_modules": [],
+  "source_sha256": {
+    "EulerianGrothendieck/Probability.lean": "c7ec95448f10508ee1c2637787d9fd7801f048427bb9b0bf4cb28d9b440b4c1d",
+    "EulerianGrothendieck/Remainder.lean": "614efe1e944142f5feac31526b20bcde0dfcad005688ddf023b3a378a1c20160",
+    "EulerianGrothendieck/Geometry.lean": "d52fffc5410a2032ef6a84936923334200c3ace75b65d35b52c573ac64724265",
+    "EulerianGrothendieck/Critical.lean": "d2745a3ceaf45aa75f958e2e0a8c7262d626424df18e1b96893b9031120316e8",
+    "EulerianGrothendieck/FiniteSeries.lean": "e32c79c3c7c0020390e03559d08945ad40ab1d58787f4f4086f3a548a0a7dec0",
+    "EulerianGrothendieck/ExactCoefficients.lean": "65c0ae2dfb756d0608413ee35c63e3e09bdb0b746333c7496416ed6942a0e648",
+    "V033Core.lean": "21089e46be2f098ae8e191412d297675498cdf441552825cf8d1db8f97cf403f",
+    "V033UniformIntegrals.lean": "e3e653147da8dd139b10a5dfd419db5b2bf8c16c040fc579e678be7a1fff21fe",
+    "V033UniformSumMoments.lean": "f1fd89c5582dcf505e7112796c102d21b28035cc4cbffe15b9da7b273c65a02c",
+    "V033CumulantPolynomials.lean": "109ba9a077ee36938085f69b5db7404c6094d9142c9248b5d0363157f9d037c8",
+    "EulerianGrothendieck/UniformConvolutions.lean": "327ff428f814f0a8291ff14e66886e293e2fafb369632fecf88dd3f8d1faa230",
+    "EulerianGrothendieck/SummationRemainder.lean": "fdb073a81171fa8e8115c57f6850f18a7503e1dd3f700545d79d2670d9a66d78",
+    "EulerianGrothendieck/CumulantBounds.lean": "2c37f0d71191070536bd0f2a2318f15d69bdf4b87444b902f3b3b87870f1b3f5",
+    "EulerianGrothendieck/PolynomialAbsoluteBounds.lean": "bc332c833c93f2f7dd0d8b4830d7dc7c8cefb7dc82bde5a638faf604cfacbada",
+    "EulerianGrothendieck/UniformRatioBounds.lean": "0d8cc965716d90296f983efa64c63594142f0a9613aad8fd764d12a873b233c7",
+    "EulerianGrothendieck/GeometricSummability.lean": "e9ebb2a8d31cd2d8a0061d18563b042917bdd128e8e78604a96e606df04035c8",
+    "EulerianGrothendieck/UniformNormAsymptotics.lean": "33cfc8dd5bc35818de3eea07dd7a94bb42a5d885114b3b4d1aa7c5841b4f80ad",
+    "EulerianGrothendieck/ExponentialKernel.lean": "4d6db01af7b39b0679b2a3994f9ed812336dcf43b97a896174b4ac11dc771378",
+    "EulerianGrothendieck/UniformKernel.lean": "670d855c662b4904a099ab9fedaa81541181328db987d1321f6a2bdc3b558493",
+    "EulerianGrothendieck/ReciprocalAsymptotics.lean": "c7c409a6e64041abe3554749609ee9a2697969db60d66835b2b32232b05a3d4b",
+    "EulerianGrothendieck/UniformVacuumAsymptotics.lean": "696f24b4207234e0e0b415b9414542ab24c1d45a5eade523c0c60183059b8820",
+    "EulerianGrothendieck/CentralBinomialSeries.lean": "0d85b06832ee31217d8e37cdd666ffdb430a8d5d3c64f4a42ff768fedc80750e",
+    "EulerianGrothendieck/UniformFirstCorrection.lean": "5165733bbd938921b1748bf7c1cfe1187e4144f90ffc9153a96eae637c539ace",
+    "EulerianGrothendieck/CentralBinomialMoments.lean": "9c29b7d00cdd95538002fdb4174cec114df5b01e0e01076370916b5648076d9a",
+    "EulerianGrothendieck/FirstOrderAsymptotics.lean": "1c6238a153de6dab0b2e1b0a036be6e2b03d896a66196937cf82b05f5eb38dcb",
+    "EulerianGrothendieck/RawScaleAsymptotics.lean": "879e3a5b34b072f4e72d81338ece914e8dedfd8b86778f0946b3af62972563ab",
+    "EulerianGrothendieck/CoefficientIdentification.lean": "4ed232916120f23caaab0952e54c11308f5278516cd07d4f4538eea1e94be092",
+    "EulerianGrothendieck/CentralFactorialMoments.lean": "bf1d7aa08848be664075a60557e5e842f266d303b3e8804ec6f4d80039cab3e4",
+    "EulerianGrothendieck/MomentPolynomialBridge.lean": "a3d091cdda495626ac3f9788bfa6a5023d0943953033b489e9b7399db0b08547",
+    "EulerianGrothendieck/TwelfthOrderIdentification.lean": "65572178341946b6678c7052bbeb315d125f65547bcf361cf58e9bb2d17700f8",
+    "EulerianGrothendieck/NormalizedAsymptotics.lean": "4a3736b1a0b59c5106a81bb99027592875f11a4b2be88c7b9f779e69cf4c5cf2",
+    "EulerianGrothendieck/TwelfthOrderAsymptotics.lean": "7cc3751d7f89242f94f0d66865de08f5949c4160277727a03b7c3db2935f32b7",
+    "EulerianGrothendieck/ModulusRemainder.lean": "7107fbc83d3fdb5f3134cac09c176acce338ba660a0b304431ee39f308b7aa09",
+    "EulerianGrothendieck/GlobalLocalization.lean": "c6c87e3231c9bd854b7c638c8cced8d9cbdab3d29ca3f8b03fd25782372f8ccd",
+    "EulerianGrothendieck/RescaledObjective.lean": "70d60d3e1c1c1ee7076084fea4c1182b0067960d89fdc273f5e5bbd1c18d12fc",
+    "EulerianGrothendieck/PhaseCoordinates.lean": "dca6492ad13ef53cfcf53faf2722324dba7ab2946a78a79ea8b44e4129da01a5",
+    "EulerianGrothendieck/QuadraticMinimum.lean": "0c2dbc5b401eacbfedde47952914289ed0d51332207666796338b6eda468e120",
+    "EulerianGrothendieck/GlobalInfimum.lean": "d2386620901f33893b26539814da80cfacdb50c28f42f8e3ee9a487f8a9ea19c",
+    "EulerianGrothendieck/VariationalCriticalLaw.lean": "818d387a9e2b9b12c2dd541910ead9d71fd84e7fa0f479e23ca395af306eb093",
+    "EulerianGrothendieck/TorusDistance.lean": "1d3f6557243cd6982dc4628640a7984f28e59b00c134f48f556a8ee4771aea02",
+    "EulerianGrothendieck/ProjectionScalarNorm.lean": "1b9956c9db22e0eaa8847778dde5e3fcd31646dbfac32111f64c7b1a7b17ede0",
+    "EulerianGrothendieck/FrameProjection.lean": "b64dce9afac71fdb1d12ef3671c65456f3cfba044ef9d47e964873a295b3f9f3",
+    "EulerianGrothendieck/PhaseIdentification.lean": "3bcf6a6ba0560918c6165c72ea0fd0a4f4726f496fc2a986cb757a8a97660798",
+    "EulerianGrothendieck/ExplicitProjector.lean": "030bc5f1b9141ddc31551b31019be178a8d87201ca38d7f34235a3adfe759223",
+    "EulerianGrothendieck/ScalarMaximum.lean": "bb8e5100c53a854618f56bea8d6261721c14485711da14dbbd4d4f1c6a1e56bc",
+    "EulerianGrothendieck/ThirteenthDefinitions.lean": "eca1d024477371ca34f0a6f194f5c52cdcc3b97fafc7e8f5fc0c0a5bc71015ea",
+    "EulerianGrothendieck/ThirteenthRationalCertificates.lean": "c6a0d27dee74f984854fef19b525154fd8b726b22f43c09f0f2ebce15296e2f9",
+    "EulerianGrothendieck/ThirteenthMomentRecurrence.lean": "93d53698adb91b7b0d6e7aaff64f348461ab888f1af350c0fe1a7c2f6e04dad5",
+    "EulerianGrothendieck/ThirteenthSquaredPolynomial.lean": "91e79e3e6c36d6ec5cdce8925e87dd18be360a63dda21e0a4902bf9c291b5181",
+    "EulerianGrothendieck/ThirteenthIdentification.lean": "bc22f3bf78625058d041906e3771f713856d8f12086fd83ae528e5b143dff914",
+    "EulerianGrothendieck/ThirteenthAsymptotics.lean": "91974757d053bd029ffa2000b0cbf6ad07c8a2f5e1744e031beda646e68d6daa",
+    "EulerianGrothendieck/UniformParameterNorm.lean": "71c7db3fddff34dea4afe36586761f68e43a205d1ca71c08a2c1a69766483db6"
+  },
+  "compiled_object_sha256": {
+    "EulerianGrothendieck/Probability.lean": "698ac2697b47a7e66264735b39c9f95e04a53e645d8f7fa58e0234feb0a9d2e1",
+    "EulerianGrothendieck/Remainder.lean": "77f4a02e8c968f6427977e2e9faafa268331efe149b6d9f008c41f7db480c2ba",
+    "EulerianGrothendieck/Geometry.lean": "9f8510ab0bcc6be9ed0bb88d8b54d3d26478eece4fcfa66717ca753302394b16",
+    "EulerianGrothendieck/Critical.lean": "2d3766b3e17218559861889a5b6e0edad415fdd3f6e2a18c33499a2cb4a8fc6e",
+    "EulerianGrothendieck/FiniteSeries.lean": "3d096dc9810beb0cfc57f12d2967d0b89ee9e431d95112b1ad830bd91b2db10b",
+    "EulerianGrothendieck/ExactCoefficients.lean": "437e07253b83d65afc756be39c893078275397146a6b9420812b54f9c2e18361",
+    "V033Core.lean": "966a8da19732d8a6ef5f0af56e60847b5cf504190056492f85dc760bbfce431e",
+    "V033UniformIntegrals.lean": "ef22ca6c194a727e4d6c5807057782eb6516b750f68a9e5c65f3d602d48c9f17",
+    "V033UniformSumMoments.lean": "5da0b46d0cc3b822b95d83d21f248f42fda8c154a8c2afc0dfd01c113e0af44b",
+    "V033CumulantPolynomials.lean": "a3b0aa095f493fe384ea4dd245f95105471ffe287cbaf7f76c09d91c5cb5e844",
+    "EulerianGrothendieck/UniformConvolutions.lean": "7e1a25dd6085684f85debbb5b4815dce4b20f9bb594aed0a0f88eee577bf9785",
+    "EulerianGrothendieck/SummationRemainder.lean": "a7be922ed1a3257b131d3dcadf583592341ddf9e8eb77d66483956f4fe1ca54c",
+    "EulerianGrothendieck/CumulantBounds.lean": "1cce0e9731226f0a1430bde9c31c7d83b74821c139fc3153c647d4faed4c6c7f",
+    "EulerianGrothendieck/PolynomialAbsoluteBounds.lean": "30791b1f7d4373bf2ec7b15d708e46007477d6c137e82ceeb8513a1154a349c7",
+    "EulerianGrothendieck/UniformRatioBounds.lean": "bda329e11896c22833ae07c46cdb866f97f8a2c28a64a46dd0e572ea90f91ba1",
+    "EulerianGrothendieck/GeometricSummability.lean": "eec66d9b9d70b22905e597c6e70bf73679d25c3f60e2410cab0f542e74a09d72",
+    "EulerianGrothendieck/UniformNormAsymptotics.lean": "629aa491599ef74d515bced94399894e68bffa6cd8ce5131edc0546f51684f2b",
+    "EulerianGrothendieck/ExponentialKernel.lean": "e09f27533b2db8e93e4461691bdbd0fac916199d72ed5166b48f0e589e45bbcb",
+    "EulerianGrothendieck/UniformKernel.lean": "feb4b2b0f36257afb35b85e6119c56ebb2895042046b97dcafdcc4564e23e787",
+    "EulerianGrothendieck/ReciprocalAsymptotics.lean": "97367408b788e2d2d88aad376f62a8dd2671c1d328915d1d830bd5e8fa33f797",
+    "EulerianGrothendieck/UniformVacuumAsymptotics.lean": "47a66e0db85d1b0c3f3569fd9ee82de1f9b9ebfceb85bf732aeeb3c7e4cfb09a",
+    "EulerianGrothendieck/CentralBinomialSeries.lean": "e1524231dc8a7fe735d3dc4a2a47c708e65b583f57a9abe07ed5f0ee9a2eabbd",
+    "EulerianGrothendieck/UniformFirstCorrection.lean": "81b7415034c7598d11dfa01a59f335ace140cf5817598f8bb42a3237bcd77b98",
+    "EulerianGrothendieck/CentralBinomialMoments.lean": "093f86758dfd6a1d029eaa522d10f9423393c919f17639f27fdb664ac027fd12",
+    "EulerianGrothendieck/FirstOrderAsymptotics.lean": "9f9ff325b659747d803134938e836afd698274eb394560ce49fa0bc3e7cdc90f",
+    "EulerianGrothendieck/RawScaleAsymptotics.lean": "a1d0cdb8728b9db361bf85d8d1f94134333f359fb91fdf61e393562fd7f3124d",
+    "EulerianGrothendieck/CoefficientIdentification.lean": "0ba935451b7573cdd8ba46fdb580234b3df715f960a52060ff9bcf125074b259",
+    "EulerianGrothendieck/CentralFactorialMoments.lean": "13899b984f7b1e4af8cc346545072ab684fa5a2ec7037f8e08bd071f68d77f4c",
+    "EulerianGrothendieck/MomentPolynomialBridge.lean": "5f54fc59b6a0d4e2511e25876b8e14f5364e1f535e8d27d8f19496904e9916df",
+    "EulerianGrothendieck/TwelfthOrderIdentification.lean": "4bf519e83012857ffd315baeca25816ff71cc8d17b3e775c826a8bdfbbca5e4a",
+    "EulerianGrothendieck/NormalizedAsymptotics.lean": "549e0fbc0bf1bbebff6a4a1aaa954a4121749f39fea69cf4934382f7ed0c1a82",
+    "EulerianGrothendieck/TwelfthOrderAsymptotics.lean": "264f15692596f0873a4e599680815757a77aa21aad944c0ac15669816c62abf8",
+    "EulerianGrothendieck/ModulusRemainder.lean": "c973386a27572e2a449b929195abde706d2c71c1ddeaa81ed47eefa7e38c1832",
+    "EulerianGrothendieck/GlobalLocalization.lean": "a3c55b36bd67e75ce057ad0928e362a41b6e81de55527bf82af1ebfbe54070ec",
+    "EulerianGrothendieck/RescaledObjective.lean": "912164929c2d44e9335f2b088f0c3c7814b9f1c8a2ac80e60abc31f961449d96",
+    "EulerianGrothendieck/PhaseCoordinates.lean": "5f703b87b82864ff905b501273695d4a90b8e983834f118f3561d59dc855c0fc",
+    "EulerianGrothendieck/QuadraticMinimum.lean": "c16cb0dd41a239d0c3866d5128518b45bbb81b5762f87664374d1e72b40352ea",
+    "EulerianGrothendieck/GlobalInfimum.lean": "1d0e2e1148c3401552339ecd35b0f48c34afa9bd03e347181e772cebc19a32ae",
+    "EulerianGrothendieck/VariationalCriticalLaw.lean": "a126f6025a349ceadb3f1300ba8d52ed0181f01d88642130183f1adfc6b62ad5",
+    "EulerianGrothendieck/TorusDistance.lean": "ed7da1e533cf843bbde75bece9fc9990c29f3dd97a1c85ea9c788f653cd96c17",
+    "EulerianGrothendieck/ProjectionScalarNorm.lean": "8351e5fcf584434a417ed8078b7df145fa554dadd53f0e073535699719c6f0da",
+    "EulerianGrothendieck/FrameProjection.lean": "596398b1e2c1ee003c1f28c713e2a0694d834172fb86f21c892542ad37e19958",
+    "EulerianGrothendieck/PhaseIdentification.lean": "db3149ab063ee3e14fd5f4c81947dcdfb95ccc80dd869e76b6847324ce2b0e76",
+    "EulerianGrothendieck/ExplicitProjector.lean": "5b05b1b0e514099be2722f343dac4118fe08baacec62adde65b2c4b61fab74c8",
+    "EulerianGrothendieck/ScalarMaximum.lean": "87e1aca9f5c615ffb47547e6cbd02f442d2bb5a2501eafba58f5cfca82272d97",
+    "EulerianGrothendieck/ThirteenthDefinitions.lean": "939150f6259b82a415d998971220bfcb17801b9a41ae3413d9a138848aede2a9",
+    "EulerianGrothendieck/ThirteenthRationalCertificates.lean": "aa494fb100c650fd0e342ad52e6161063283409480933b02a9b55d456dbe89be",
+    "EulerianGrothendieck/ThirteenthMomentRecurrence.lean": "7e233fbc96f80a606a567dee0e64fd810874f1c24f5db4a16613356b9e5ccb59",
+    "EulerianGrothendieck/ThirteenthSquaredPolynomial.lean": "c0ef04ead812b630ac6967eedbc27c40d96924710371cfa91e2774828a8fe664",
+    "EulerianGrothendieck/ThirteenthIdentification.lean": "77512986205c6b047f1d5a0adbea0ed23718bf7036bba4daa4e20d50d6a6cc6c",
+    "EulerianGrothendieck/ThirteenthAsymptotics.lean": "200e285385498f3eb248c87f2a9b51873e171b6f5d686d2cc6b1a295062f3ad3",
+    "EulerianGrothendieck/UniformParameterNorm.lean": "f67c6de9335a2b70ddb0b3463ba77da7f25af52d9c32105ce57985c0b5304cca"
+  },
+  "process_memory_limit_MB": 4096,
+  "concurrency": 1
+}

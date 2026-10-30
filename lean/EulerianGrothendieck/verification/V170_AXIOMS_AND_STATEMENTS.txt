@@ -1,0 +1,1792 @@
+'EulerianGrothendieck.uniform_second_moment' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniform_second_moment : EulerianGrothendieck.uniformMoment 2 = 1 / 12
+'EulerianGrothendieck.uniform_fourth_moment' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniform_fourth_moment : EulerianGrothendieck.uniformMoment 4 = 1 / 80
+'EulerianGrothendieck.uniform_fourth_cumulant' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniform_fourth_cumulant :
+  EulerianGrothendieck.uniformMoment 4 - 3 * EulerianGrothendieck.uniformMoment 2 ^ 2 = -(1 / 120)
+'EulerianGrothendieck.standardized_fourth_cumulant' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.standardized_fourth_cumulant :
+  (EulerianGrothendieck.uniformMoment 4 - 3 * EulerianGrothendieck.uniformMoment 2 ^ 2) /
+      EulerianGrothendieck.uniformMoment 2 ^ 2 =
+    -(6 / 5)
+'EulerianGrothendieck.edgeworth_density_coefficient' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.edgeworth_density_coefficient : -(6 / 5) / 24 = -(1 / 20)
+'EulerianGrothendieck.jacobi_fourth_cumulant_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.jacobi_fourth_cumulant_identity (b₁ b₂ : ℝ) : b₁ ^ 2 + b₁ * b₂ - 3 * b₁ ^ 2 = b₁ * (b₂ - 2 * b₁)
+'EulerianGrothendieck.uniform_jacobi_cumulant_polynomial' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniform_jacobi_cumulant_polynomial (M : ℝ) : M / 12 * (M / 6 - 1 / 10 - 2 * (M / 12)) = -M / 120
+'EulerianGrothendieck.momentFactor_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.momentFactor_nonneg (n : ℕ) : 0 ≤ EulerianGrothendieck.momentFactor n
+'EulerianGrothendieck.momentFactor_le_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.momentFactor_le_one (n : ℕ) : EulerianGrothendieck.momentFactor n ≤ 1
+'EulerianGrothendieck.momentFactor_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.momentFactor_two : EulerianGrothendieck.momentFactor 2 = 3 / 5
+'EulerianGrothendieck.uniform_even_moment' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniform_even_moment (k : ℕ) :
+  EulerianGrothendieck.uniformMoment (2 * k) = 1 / (2 ^ (2 * k) * (2 * ↑k + 1))
+'EulerianGrothendieck.uniform_odd_moment' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniform_odd_moment (k : ℕ) : EulerianGrothendieck.uniformMoment (2 * k + 1) = 0
+'EulerianGrothendieck.squared_moment_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.squared_moment_remainder (r x e : ℝ) (hr0 : 0 ≤ r) (hr1 : r ≤ 1) (hx : 0 ≤ x)
+  (he0 : 0 ≤ r - (1 - x)) (he : r - (1 - x) ≤ e) : 0 ≤ r ^ 2 - (1 - 2 * x) ∧ r ^ 2 - (1 - 2 * x) ≤ x ^ 2 + 2 * e
+'EulerianGrothendieck.falling_factorial_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.falling_factorial_identity (k : ℝ) :
+  k ^ 2 * (k - 1) ^ 2 = k * (k - 1) * (k - 2) * (k - 3) + 4 * k * (k - 1) * (k - 2) + 2 * k * (k - 1)
+'EulerianGrothendieck.moment_remainder_constant' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.moment_remainder_constant (k : ℝ) :
+  (k * (k - 1) / 5) ^ 2 + 2 * (k * (k - 1) / 2) ^ 2 = 27 / 50 * k ^ 2 * (k - 1) ^ 2
+'EulerianGrothendieck.inverse_second_order_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.inverse_second_order_identity (F N : ℝ) (hF : F ≠ 0) (hN : N ≠ 0) :
+  1 / N = 1 / F + (F - N) / F ^ 2 + (F - N) ^ 2 / (F ^ 2 * N)
+'EulerianGrothendieck.inverse_remainder_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.inverse_remainder_identity (F N A E M : ℝ) (hF : F ≠ 0) (hN : N ≠ 0) (hM : M ≠ 0)
+  (h : N = F - A / M + E / M ^ 2) : 1 / N - (1 / F + A / (F ^ 2 * M)) = -E / (F ^ 2 * M ^ 2) + (F - N) ^ 2 / (F ^ 2 * N)
+'EulerianGrothendieck.global_quadratic_minimum' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.global_quadratic_minimum (u v c d : ℝ) :
+  u ^ 2 + v ^ 2 + (v + c) ^ 2 + (v + d) ^ 2 = u ^ 2 + 3 * (v + (c + d) / 3) ^ 2 + c ^ 2 + d ^ 2 - (c + d) ^ 2 / 3
+'EulerianGrothendieck.global_quadratic_lower_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.global_quadratic_lower_bound (u v c d : ℝ) :
+  c ^ 2 + d ^ 2 - (c + d) ^ 2 / 3 ≤ u ^ 2 + v ^ 2 + (v + c) ^ 2 + (v + d) ^ 2
+'EulerianGrothendieck.tilted_hermite_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.tilted_hermite_identity (t : ℝ) (ht : 1 - t ^ 2 ≠ 0) :
+  3 / (1 - t ^ 2) ^ 2 - 6 / (1 - t ^ 2) + 3 = 3 * t ^ 4 / (1 - t ^ 2) ^ 2
+'EulerianGrothendieck.phase_constraints_impossible' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.phase_constraints_impossible (z u : ℂ) (hz : z.im ≠ 0) (hu : Complex.normSq u = 1) (h0 : u.re = 0)
+  (h1 : (z * u).re = 0) : False
+'EulerianGrothendieck.frame_determinant_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frame_determinant_identity (p r : ℝ) :
+  (1 + 2 * p) * (3 - 2 * p) - p * (1 - p) * (2 + 2 * r) = 3 + 2 * p * (1 - p) * (1 - r)
+'EulerianGrothendieck.frame_determinant_positive' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frame_determinant_positive (p r : ℝ) (hp0 : 0 ≤ p) (hp1 : p ≤ 1) (hr : r ≤ 1) :
+  0 < 3 + 2 * p * (1 - p) * (1 - r)
+'EulerianGrothendieck.hermitian_offdiagonal_identification' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.hermitian_offdiagonal_identification (s c t u v : ℝ) (hs : s ≠ 0) (ht : t ≠ 0) (h3 : 2 * s * u = 0)
+  (h4 : 2 * s * (c * u - t * v) = 0) : u = 0 ∧ v = 0
+'EulerianGrothendieck.quadratic_phase_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.quadratic_phase_identity (x y C S : ℝ) :
+  (x * C + y * S) ^ 2 + (x * C - y * S) ^ 2 - (x * C + y * S + (x * C - y * S)) ^ 2 / 3 =
+    2 / 3 * C ^ 2 * x ^ 2 + 2 * S ^ 2 * y ^ 2
+'EulerianGrothendieck.circle_quadratic_lower' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.circle_quadratic_lower (A B x y : ℝ) (hxy : x ^ 2 + y ^ 2 = 1) : min A B ≤ A * x ^ 2 + B * y ^ 2
+'EulerianGrothendieck.eulerian_phase_branch' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_phase_branch :
+  min (2 / 3 * Real.pi ^ 2 / (Real.pi ^ 2 + 1)) (2 / (Real.pi ^ 2 + 1)) = 2 / (Real.pi ^ 2 + 1)
+'EulerianGrothendieck.quadratic_circle_isLeast' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.quadratic_circle_isLeast (A B : ℝ) :
+  IsLeast {v | ∃ x y, x ^ 2 + y ^ 2 = 1 ∧ v = A * x ^ 2 + B * y ^ 2} (min A B)
+'EulerianGrothendieck.criticalQuotient_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.criticalQuotient_zero : EulerianGrothendieck.criticalQuotient 0 = √24
+'EulerianGrothendieck.criticalQuotient_continuous' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.criticalQuotient_continuous : ContinuousAt EulerianGrothendieck.criticalQuotient 0
+'EulerianGrothendieck.criticalQuotient_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.criticalQuotient_limit : Filter.Tendsto EulerianGrothendieck.criticalQuotient (nhds 0) (nhds √24)
+'EulerianGrothendieck.critical_radicand_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.critical_radicand_identity (h : ℝ) (hh : 1 / 12 + h ≠ 0) :
+  1 - 1 / (144 * (1 / 12 + h) ^ 2) = h * ((1 / 6 + h) / (1 / 12 + h) ^ 2)
+'EulerianGrothendieck.critical_coefficient_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.critical_coefficient_identity : √24 / (2 * (Real.pi ^ 2 + 1)) = √6 / (Real.pi ^ 2 + 1)
+'EulerianGrothendieck.critical_vacuum_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.critical_vacuum_ratio (h : ℝ) (hh : 0 < h) :
+  EulerianGrothendieck.criticalVacuum h / √h = EulerianGrothendieck.criticalQuotient h
+'EulerianGrothendieck.critical_vacuum_ratio_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.critical_vacuum_ratio_limit :
+  Filter.Tendsto (fun h => EulerianGrothendieck.criticalVacuum h / √h) (nhdsWithin 0 (Set.Ioi 0)) (nhds √24)
+'EulerianGrothendieck.coeffConv_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.coeffConv_nonneg (a b : ℕ → ℝ) (ha : ∀ (i : ℕ), 0 ≤ a i) (hb : ∀ (i : ℕ), 0 ≤ b i) (n : ℕ) :
+  0 ≤ EulerianGrothendieck.coeffConv a b n
+'EulerianGrothendieck.coeffConv_mono' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.coeffConv_mono (a b A B : ℕ → ℝ) (ha : ∀ (i : ℕ), 0 ≤ a i) (hb : ∀ (i : ℕ), 0 ≤ b i)
+  (hA : ∀ (i : ℕ), a i ≤ A i) (hB : ∀ (i : ℕ), b i ≤ B i) (n : ℕ) :
+  EulerianGrothendieck.coeffConv a b n ≤ EulerianGrothendieck.coeffConv A B n
+'EulerianGrothendieck.coeffPower_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.coeffPower_nonneg (a : ℕ → ℝ) (ha : ∀ (n : ℕ), 0 ≤ a n) (m n : ℕ) :
+  0 ≤ EulerianGrothendieck.coeffPower a m n
+'EulerianGrothendieck.coeffPower_mono' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.coeffPower_mono (a b : ℕ → ℝ) (ha : ∀ (n : ℕ), 0 ≤ a n) (hb : ∀ (n : ℕ), 0 ≤ b n)
+  (h : ∀ (n : ℕ), a n ≤ b n) (m n : ℕ) : EulerianGrothendieck.coeffPower a m n ≤ EulerianGrothendieck.coeffPower b m n
+'EulerianGrothendieck.coefficient_rescaling_mono' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.coefficient_rescaling_mono (a b : ℕ → ℝ) (c : ℝ) (hc : 0 ≤ c) (h : ∀ (n : ℕ), a n ≤ b n) (n : ℕ) :
+  a n * c ^ n ≤ b n * c ^ n
+'EulerianGrothendieck.reciprocal_coefficient_rule' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_coefficient_rule (b d : ℕ → ℚ) (n : ℕ) (hb : b 0 = 1) :
+  ∑ i ∈ Finset.range (n + 2), b i * d (n + 1 - i) = 0 ↔ d (n + 1) = -∑ j ∈ Finset.range (n + 1), b (j + 1) * d (n - j)
+'EulerianGrothendieck.convolution_coefficient_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.convolution_coefficient_bound (g : ℕ → ℝ) (A B : ℝ) (hA : 0 ≤ A) (hB : 0 ≤ B)
+  (hg : ∀ (j : ℕ), |g j| ≤ A * B ^ j) (r : ℕ) : |EulerianGrothendieck.coeffConv g g r| ≤ (↑r + 1) * A ^ 2 * B ^ r
+'EulerianGrothendieck.geometric_tail_factor_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.geometric_tail_factor_bound (R s : ℝ) (hR : 0 ≤ R) (hs : 0 ≤ s) (hs2 : s ≤ 1 / 2) :
+  (R + 2) / (1 - s) + s / (1 - s) ^ 2 ≤ 2 * R + 6
+'EulerianGrothendieck.reciprocal_remainder_transfer' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_remainder_transfer (N B D C T S η h : ℝ) (r : ℕ) (hη : 0 < η) (hN : η ≤ N) (hh : 0 ≤ h)
+  (hC : 0 ≤ C) (hT : 0 ≤ T) (hS : 0 ≤ S) (hNB : |N - B| ≤ C * h ^ r) (hBD : |1 - B * D| ≤ T * h ^ r) (hD : |D| ≤ S) :
+  |1 / N - D| ≤ (T + C * S) / η * h ^ r
+'EulerianGrothendieck.arcsin_disk_realpart_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.arcsin_disk_realpart_bound (x y : ℝ) (h : x ^ 2 + (y - 1) ^ 2 ≤ 1 / 4) :
+  5 / 4 + 2 * (y - 1 / 2) ^ 2 ≤ 1 - x ^ 2 + y ^ 2
+'EulerianGrothendieck.lipschitz_scale_square' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.lipschitz_scale_square : (2 / √5) ^ 2 = 4 / 5
+'EulerianGrothendieck.log_coefficient_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.log_coefficient_1 :
+  1 * EulerianGrothendieck.cumulantA 1 =
+    1 * EulerianGrothendieck.uniformMGFCoeff 1 -
+      ∑ j ∈ Finset.range 1, ↑j * EulerianGrothendieck.cumulantA j * EulerianGrothendieck.uniformMGFCoeff (1 - j)
+'EulerianGrothendieck.log_coefficient_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.log_coefficient_2 :
+  2 * EulerianGrothendieck.cumulantA 2 =
+    2 * EulerianGrothendieck.uniformMGFCoeff 2 -
+      ∑ j ∈ Finset.range 2, ↑j * EulerianGrothendieck.cumulantA j * EulerianGrothendieck.uniformMGFCoeff (2 - j)
+'EulerianGrothendieck.log_coefficient_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.log_coefficient_3 :
+  3 * EulerianGrothendieck.cumulantA 3 =
+    3 * EulerianGrothendieck.uniformMGFCoeff 3 -
+      ∑ j ∈ Finset.range 3, ↑j * EulerianGrothendieck.cumulantA j * EulerianGrothendieck.uniformMGFCoeff (3 - j)
+'EulerianGrothendieck.log_coefficient_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.log_coefficient_4 :
+  4 * EulerianGrothendieck.cumulantA 4 =
+    4 * EulerianGrothendieck.uniformMGFCoeff 4 -
+      ∑ j ∈ Finset.range 4, ↑j * EulerianGrothendieck.cumulantA j * EulerianGrothendieck.uniformMGFCoeff (4 - j)
+'EulerianGrothendieck.log_coefficient_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.log_coefficient_5 :
+  5 * EulerianGrothendieck.cumulantA 5 =
+    5 * EulerianGrothendieck.uniformMGFCoeff 5 -
+      ∑ j ∈ Finset.range 5, ↑j * EulerianGrothendieck.cumulantA j * EulerianGrothendieck.uniformMGFCoeff (5 - j)
+'EulerianGrothendieck.log_coefficient_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.log_coefficient_6 :
+  6 * EulerianGrothendieck.cumulantA 6 =
+    6 * EulerianGrothendieck.uniformMGFCoeff 6 -
+      ∑ j ∈ Finset.range 6, ↑j * EulerianGrothendieck.cumulantA j * EulerianGrothendieck.uniformMGFCoeff (6 - j)
+'EulerianGrothendieck.log_coefficient_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.log_coefficient_7 :
+  7 * EulerianGrothendieck.cumulantA 7 =
+    7 * EulerianGrothendieck.uniformMGFCoeff 7 -
+      ∑ j ∈ Finset.range 7, ↑j * EulerianGrothendieck.cumulantA j * EulerianGrothendieck.uniformMGFCoeff (7 - j)
+'EulerianGrothendieck.log_coefficient_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.log_coefficient_8 :
+  8 * EulerianGrothendieck.cumulantA 8 =
+    8 * EulerianGrothendieck.uniformMGFCoeff 8 -
+      ∑ j ∈ Finset.range 8, ↑j * EulerianGrothendieck.cumulantA j * EulerianGrothendieck.uniformMGFCoeff (8 - j)
+'EulerianGrothendieck.log_coefficient_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.log_coefficient_9 :
+  9 * EulerianGrothendieck.cumulantA 9 =
+    9 * EulerianGrothendieck.uniformMGFCoeff 9 -
+      ∑ j ∈ Finset.range 9, ↑j * EulerianGrothendieck.cumulantA j * EulerianGrothendieck.uniformMGFCoeff (9 - j)
+'EulerianGrothendieck.log_coefficient_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.log_coefficient_10 :
+  10 * EulerianGrothendieck.cumulantA 10 =
+    10 * EulerianGrothendieck.uniformMGFCoeff 10 -
+      ∑ j ∈ Finset.range 10, ↑j * EulerianGrothendieck.cumulantA j * EulerianGrothendieck.uniformMGFCoeff (10 - j)
+'EulerianGrothendieck.log_coefficient_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.log_coefficient_11 :
+  11 * EulerianGrothendieck.cumulantA 11 =
+    11 * EulerianGrothendieck.uniformMGFCoeff 11 -
+      ∑ j ∈ Finset.range 11, ↑j * EulerianGrothendieck.cumulantA j * EulerianGrothendieck.uniformMGFCoeff (11 - j)
+'EulerianGrothendieck.log_coefficient_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.log_coefficient_12 :
+  12 * EulerianGrothendieck.cumulantA 12 =
+    12 * EulerianGrothendieck.uniformMGFCoeff 12 -
+      ∑ j ∈ Finset.range 12, ↑j * EulerianGrothendieck.cumulantA j * EulerianGrothendieck.uniformMGFCoeff (12 - j)
+'EulerianGrothendieck.log_coefficient_13' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.log_coefficient_13 :
+  13 * EulerianGrothendieck.cumulantA 13 =
+    13 * EulerianGrothendieck.uniformMGFCoeff 13 -
+      ∑ j ∈ Finset.range 13, ↑j * EulerianGrothendieck.cumulantA j * EulerianGrothendieck.uniformMGFCoeff (13 - j)
+'EulerianGrothendieck.p_recurrence_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.p_recurrence_1 (y : ℚ) :
+  1 * EulerianGrothendieck.pPolynomial 1 y =
+    ∑ j ∈ Finset.range 1,
+      (↑j + 1) * EulerianGrothendieck.cumulantA (j + 2) * y ^ (j + 2) * EulerianGrothendieck.pPolynomial (1 - 1 - j) y
+'EulerianGrothendieck.squared_moment_polynomial_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.squared_moment_polynomial_1 (x : ℚ) :
+  ∑ j ∈ Finset.range 2, EulerianGrothendieck.gPolynomial j x * EulerianGrothendieck.gPolynomial (1 - j) x =
+    EulerianGrothendieck.qPolynomial 1 x
+'EulerianGrothendieck.norm_coefficient_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.norm_coefficient_1 :
+  EulerianGrothendieck.normB 1 =
+    ∑ q ∈ Finset.range 3, EulerianGrothendieck.qFallingCoeff 1 q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.reciprocal_coefficient_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_coefficient_1 :
+  ∑ j ∈ Finset.range 2, EulerianGrothendieck.normB j * EulerianGrothendieck.vacuumD (1 - j) = 0
+'EulerianGrothendieck.p_recurrence_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.p_recurrence_2 (y : ℚ) :
+  2 * EulerianGrothendieck.pPolynomial 2 y =
+    ∑ j ∈ Finset.range 2,
+      (↑j + 1) * EulerianGrothendieck.cumulantA (j + 2) * y ^ (j + 2) * EulerianGrothendieck.pPolynomial (2 - 1 - j) y
+'EulerianGrothendieck.squared_moment_polynomial_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.squared_moment_polynomial_2 (x : ℚ) :
+  ∑ j ∈ Finset.range 3, EulerianGrothendieck.gPolynomial j x * EulerianGrothendieck.gPolynomial (2 - j) x =
+    EulerianGrothendieck.qPolynomial 2 x
+'EulerianGrothendieck.norm_coefficient_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.norm_coefficient_2 :
+  EulerianGrothendieck.normB 2 =
+    ∑ q ∈ Finset.range 5, EulerianGrothendieck.qFallingCoeff 2 q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.reciprocal_coefficient_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_coefficient_2 :
+  ∑ j ∈ Finset.range 3, EulerianGrothendieck.normB j * EulerianGrothendieck.vacuumD (2 - j) = 0
+'EulerianGrothendieck.p_recurrence_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.p_recurrence_3 (y : ℚ) :
+  3 * EulerianGrothendieck.pPolynomial 3 y =
+    ∑ j ∈ Finset.range 3,
+      (↑j + 1) * EulerianGrothendieck.cumulantA (j + 2) * y ^ (j + 2) * EulerianGrothendieck.pPolynomial (3 - 1 - j) y
+'EulerianGrothendieck.squared_moment_polynomial_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.squared_moment_polynomial_3 (x : ℚ) :
+  ∑ j ∈ Finset.range 4, EulerianGrothendieck.gPolynomial j x * EulerianGrothendieck.gPolynomial (3 - j) x =
+    EulerianGrothendieck.qPolynomial 3 x
+'EulerianGrothendieck.norm_coefficient_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.norm_coefficient_3 :
+  EulerianGrothendieck.normB 3 =
+    ∑ q ∈ Finset.range 7, EulerianGrothendieck.qFallingCoeff 3 q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.reciprocal_coefficient_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_coefficient_3 :
+  ∑ j ∈ Finset.range 4, EulerianGrothendieck.normB j * EulerianGrothendieck.vacuumD (3 - j) = 0
+'EulerianGrothendieck.p_recurrence_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.p_recurrence_4 (y : ℚ) :
+  4 * EulerianGrothendieck.pPolynomial 4 y =
+    ∑ j ∈ Finset.range 4,
+      (↑j + 1) * EulerianGrothendieck.cumulantA (j + 2) * y ^ (j + 2) * EulerianGrothendieck.pPolynomial (4 - 1 - j) y
+'EulerianGrothendieck.squared_moment_polynomial_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.squared_moment_polynomial_4 (x : ℚ) :
+  ∑ j ∈ Finset.range 5, EulerianGrothendieck.gPolynomial j x * EulerianGrothendieck.gPolynomial (4 - j) x =
+    EulerianGrothendieck.qPolynomial 4 x
+'EulerianGrothendieck.norm_coefficient_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.norm_coefficient_4 :
+  EulerianGrothendieck.normB 4 =
+    ∑ q ∈ Finset.range 9, EulerianGrothendieck.qFallingCoeff 4 q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.reciprocal_coefficient_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_coefficient_4 :
+  ∑ j ∈ Finset.range 5, EulerianGrothendieck.normB j * EulerianGrothendieck.vacuumD (4 - j) = 0
+'EulerianGrothendieck.p_recurrence_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.p_recurrence_5 (y : ℚ) :
+  5 * EulerianGrothendieck.pPolynomial 5 y =
+    ∑ j ∈ Finset.range 5,
+      (↑j + 1) * EulerianGrothendieck.cumulantA (j + 2) * y ^ (j + 2) * EulerianGrothendieck.pPolynomial (5 - 1 - j) y
+'EulerianGrothendieck.squared_moment_polynomial_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.squared_moment_polynomial_5 (x : ℚ) :
+  ∑ j ∈ Finset.range 6, EulerianGrothendieck.gPolynomial j x * EulerianGrothendieck.gPolynomial (5 - j) x =
+    EulerianGrothendieck.qPolynomial 5 x
+'EulerianGrothendieck.norm_coefficient_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.norm_coefficient_5 :
+  EulerianGrothendieck.normB 5 =
+    ∑ q ∈ Finset.range 11, EulerianGrothendieck.qFallingCoeff 5 q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.reciprocal_coefficient_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_coefficient_5 :
+  ∑ j ∈ Finset.range 6, EulerianGrothendieck.normB j * EulerianGrothendieck.vacuumD (5 - j) = 0
+'EulerianGrothendieck.p_recurrence_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.p_recurrence_6 (y : ℚ) :
+  6 * EulerianGrothendieck.pPolynomial 6 y =
+    ∑ j ∈ Finset.range 6,
+      (↑j + 1) * EulerianGrothendieck.cumulantA (j + 2) * y ^ (j + 2) * EulerianGrothendieck.pPolynomial (6 - 1 - j) y
+'EulerianGrothendieck.squared_moment_polynomial_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.squared_moment_polynomial_6 (x : ℚ) :
+  ∑ j ∈ Finset.range 7, EulerianGrothendieck.gPolynomial j x * EulerianGrothendieck.gPolynomial (6 - j) x =
+    EulerianGrothendieck.qPolynomial 6 x
+'EulerianGrothendieck.norm_coefficient_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.norm_coefficient_6 :
+  EulerianGrothendieck.normB 6 =
+    ∑ q ∈ Finset.range 13, EulerianGrothendieck.qFallingCoeff 6 q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.reciprocal_coefficient_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_coefficient_6 :
+  ∑ j ∈ Finset.range 7, EulerianGrothendieck.normB j * EulerianGrothendieck.vacuumD (6 - j) = 0
+'EulerianGrothendieck.p_recurrence_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.p_recurrence_7 (y : ℚ) :
+  7 * EulerianGrothendieck.pPolynomial 7 y =
+    ∑ j ∈ Finset.range 7,
+      (↑j + 1) * EulerianGrothendieck.cumulantA (j + 2) * y ^ (j + 2) * EulerianGrothendieck.pPolynomial (7 - 1 - j) y
+'EulerianGrothendieck.squared_moment_polynomial_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.squared_moment_polynomial_7 (x : ℚ) :
+  ∑ j ∈ Finset.range 8, EulerianGrothendieck.gPolynomial j x * EulerianGrothendieck.gPolynomial (7 - j) x =
+    EulerianGrothendieck.qPolynomial 7 x
+'EulerianGrothendieck.norm_coefficient_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.norm_coefficient_7 :
+  EulerianGrothendieck.normB 7 =
+    ∑ q ∈ Finset.range 15, EulerianGrothendieck.qFallingCoeff 7 q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.reciprocal_coefficient_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_coefficient_7 :
+  ∑ j ∈ Finset.range 8, EulerianGrothendieck.normB j * EulerianGrothendieck.vacuumD (7 - j) = 0
+'EulerianGrothendieck.p_recurrence_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.p_recurrence_8 (y : ℚ) :
+  8 * EulerianGrothendieck.pPolynomial 8 y =
+    ∑ j ∈ Finset.range 8,
+      (↑j + 1) * EulerianGrothendieck.cumulantA (j + 2) * y ^ (j + 2) * EulerianGrothendieck.pPolynomial (8 - 1 - j) y
+'EulerianGrothendieck.squared_moment_polynomial_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.squared_moment_polynomial_8 (x : ℚ) :
+  ∑ j ∈ Finset.range 9, EulerianGrothendieck.gPolynomial j x * EulerianGrothendieck.gPolynomial (8 - j) x =
+    EulerianGrothendieck.qPolynomial 8 x
+'EulerianGrothendieck.norm_coefficient_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.norm_coefficient_8 :
+  EulerianGrothendieck.normB 8 =
+    ∑ q ∈ Finset.range 17, EulerianGrothendieck.qFallingCoeff 8 q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.reciprocal_coefficient_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_coefficient_8 :
+  ∑ j ∈ Finset.range 9, EulerianGrothendieck.normB j * EulerianGrothendieck.vacuumD (8 - j) = 0
+'EulerianGrothendieck.p_recurrence_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.p_recurrence_9 (y : ℚ) :
+  9 * EulerianGrothendieck.pPolynomial 9 y =
+    ∑ j ∈ Finset.range 9,
+      (↑j + 1) * EulerianGrothendieck.cumulantA (j + 2) * y ^ (j + 2) * EulerianGrothendieck.pPolynomial (9 - 1 - j) y
+'EulerianGrothendieck.squared_moment_polynomial_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.squared_moment_polynomial_9 (x : ℚ) :
+  ∑ j ∈ Finset.range 10, EulerianGrothendieck.gPolynomial j x * EulerianGrothendieck.gPolynomial (9 - j) x =
+    EulerianGrothendieck.qPolynomial 9 x
+'EulerianGrothendieck.norm_coefficient_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.norm_coefficient_9 :
+  EulerianGrothendieck.normB 9 =
+    ∑ q ∈ Finset.range 19, EulerianGrothendieck.qFallingCoeff 9 q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.reciprocal_coefficient_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_coefficient_9 :
+  ∑ j ∈ Finset.range 10, EulerianGrothendieck.normB j * EulerianGrothendieck.vacuumD (9 - j) = 0
+'EulerianGrothendieck.p_recurrence_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.p_recurrence_10 (y : ℚ) :
+  10 * EulerianGrothendieck.pPolynomial 10 y =
+    ∑ j ∈ Finset.range 10,
+      (↑j + 1) * EulerianGrothendieck.cumulantA (j + 2) * y ^ (j + 2) * EulerianGrothendieck.pPolynomial (10 - 1 - j) y
+'EulerianGrothendieck.squared_moment_polynomial_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.squared_moment_polynomial_10 (x : ℚ) :
+  ∑ j ∈ Finset.range 11, EulerianGrothendieck.gPolynomial j x * EulerianGrothendieck.gPolynomial (10 - j) x =
+    EulerianGrothendieck.qPolynomial 10 x
+'EulerianGrothendieck.norm_coefficient_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.norm_coefficient_10 :
+  EulerianGrothendieck.normB 10 =
+    ∑ q ∈ Finset.range 21, EulerianGrothendieck.qFallingCoeff 10 q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.reciprocal_coefficient_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_coefficient_10 :
+  ∑ j ∈ Finset.range 11, EulerianGrothendieck.normB j * EulerianGrothendieck.vacuumD (10 - j) = 0
+'EulerianGrothendieck.p_recurrence_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.p_recurrence_11 (y : ℚ) :
+  11 * EulerianGrothendieck.pPolynomial 11 y =
+    ∑ j ∈ Finset.range 11,
+      (↑j + 1) * EulerianGrothendieck.cumulantA (j + 2) * y ^ (j + 2) * EulerianGrothendieck.pPolynomial (11 - 1 - j) y
+'EulerianGrothendieck.squared_moment_polynomial_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.squared_moment_polynomial_11 (x : ℚ) :
+  ∑ j ∈ Finset.range 12, EulerianGrothendieck.gPolynomial j x * EulerianGrothendieck.gPolynomial (11 - j) x =
+    EulerianGrothendieck.qPolynomial 11 x
+'EulerianGrothendieck.norm_coefficient_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.norm_coefficient_11 :
+  EulerianGrothendieck.normB 11 =
+    ∑ q ∈ Finset.range 23, EulerianGrothendieck.qFallingCoeff 11 q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.reciprocal_coefficient_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_coefficient_11 :
+  ∑ j ∈ Finset.range 12, EulerianGrothendieck.normB j * EulerianGrothendieck.vacuumD (11 - j) = 0
+'EulerianGrothendieck.p_recurrence_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.p_recurrence_12 (y : ℚ) :
+  12 * EulerianGrothendieck.pPolynomial 12 y =
+    ∑ j ∈ Finset.range 12,
+      (↑j + 1) * EulerianGrothendieck.cumulantA (j + 2) * y ^ (j + 2) * EulerianGrothendieck.pPolynomial (12 - 1 - j) y
+'EulerianGrothendieck.squared_moment_polynomial_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.squared_moment_polynomial_12 (x : ℚ) :
+  ∑ j ∈ Finset.range 13, EulerianGrothendieck.gPolynomial j x * EulerianGrothendieck.gPolynomial (12 - j) x =
+    EulerianGrothendieck.qPolynomial 12 x
+'EulerianGrothendieck.norm_coefficient_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.norm_coefficient_12 :
+  EulerianGrothendieck.normB 12 =
+    ∑ q ∈ Finset.range 25, EulerianGrothendieck.qFallingCoeff 12 q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.reciprocal_coefficient_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_coefficient_12 :
+  ∑ j ∈ Finset.range 13, EulerianGrothendieck.normB j * EulerianGrothendieck.vacuumD (12 - j) = 0
+'V033.peval_add' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.peval_add (p q : List ℤ) (x : ℝ) : V033.peval (V033.padd p q) x = V033.peval p x + V033.peval q x
+'V033.peval_scale' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.peval_scale (a : ℤ) (p : List ℤ) (x : ℝ) : V033.peval (V033.pscale a p) x = ↑a * V033.peval p x
+'V033.peval_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.peval_mul (p q : List ℤ) (x : ℝ) : V033.peval (V033.pmul p q) x = V033.peval p x * V033.peval q x
+'V033.peval_sub' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.peval_sub (p q : List ℤ) (x : ℝ) : V033.peval (V033.psub p q) x = V033.peval p x - V033.peval q x
+'V033.peval_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.peval_zero (p : List ℤ) (h : V033.pzero p = true) (x : ℝ) : V033.peval p x = 0
+'V033.checked_equality' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.checked_equality (p q : List ℤ) (h : V033.pzero (V033.psub p q) = true) (x : ℝ) : V033.peval p x = V033.peval q x
+'V033.momentCombination_eval' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.momentCombination_eval (mu ps : List (List ℤ)) (k : ℕ) (x : ℝ) :
+  V033.peval (V033.momentCombination mu ps k) x = V033.realCombination mu x ps k
+'V033.checked_orthogonality' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.checked_orthogonality (mu ps : List (List ℤ)) (k : ℕ) (h : V033.pzero (V033.momentCombination mu ps k) = true)
+  (x : ℝ) : V033.realCombination mu x ps k = 0
+'V033.checked_norm_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.checked_norm_ratio (N D H Hprev C Cprev : List ℤ)
+  (h : V033.pzero (V033.psub (V033.pmul (V033.pmul N Hprev) C) (V033.pmul (V033.pmul D H) Cprev)) = true) (x : ℝ)
+  (hD : V033.peval D x ≠ 0) (hHprev : V033.peval Hprev x ≠ 0) (hC : V033.peval C x ≠ 0)
+  (hCprev : V033.peval Cprev x ≠ 0) :
+  V033.peval N x / V033.peval D x = V033.peval H x / V033.peval C x / (V033.peval Hprev x / V033.peval Cprev x)
+'V033.uniform_even_integral' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.uniform_even_integral (r : ℕ) : ∫ (x : ℝ) in -1 / 2..1 / 2, x ^ (2 * r) = 1 / (4 ^ r * (2 * ↑r + 1))
+'V033.uniform_odd_integral' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.uniform_odd_integral (r : ℕ) : ∫ (x : ℝ) in -1 / 2..1 / 2, x ^ (2 * r + 1) = 0
+'V033.UniformSum.singleMoment_even' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.singleMoment_even (r : ℕ) : V033.UniformSum.singleMoment (2 * r) = 1 / (4 ^ r * (2 * ↑r + 1))
+'V033.UniformSum.singleMoment_odd' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.singleMoment_odd (r : ℕ) : V033.UniformSum.singleMoment (2 * r + 1) = 0
+'V033.UniformSum.singleMoment_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.singleMoment_zero : V033.UniformSum.singleMoment 0 = 1
+'V033.UniformSum.singleMoment_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.singleMoment_two : V033.UniformSum.singleMoment 2 = 1 / 12
+'V033.UniformSum.singleMoment_four' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.singleMoment_four : V033.UniformSum.singleMoment 4 = 1 / 80
+'V033.UniformSum.uniformLaw_eq_closed' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.uniformLaw_eq_closed :
+  V033.UniformSum.uniformLaw = MeasureTheory.volume.restrict (Set.Icc (-1 / 2) (1 / 2))
+'V033.UniformSum.uniform_all_moments' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.uniform_all_moments.{u_1} {Ω : Type u_1} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω} {U : Ω → ℝ}
+  (hU : Measurable U) (hlaw : MeasureTheory.Measure.map U μ = V033.UniformSum.uniformLaw) (n : ℕ) :
+  MeasureTheory.Integrable (fun ω => U ω ^ n) μ ∧ ∫ (ω : Ω), U ω ^ n ∂μ = V033.UniformSum.singleMoment n
+'V033.UniformSum.independent_add_integrable_pow' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.independent_add_integrable_pow.{u_1} {Ω : Type u_1} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω}
+  {X Y : Ω → ℝ} (hind : ProbabilityTheory.IndepFun X Y μ)
+  (hX : ∀ (n : ℕ), MeasureTheory.Integrable (fun ω => X ω ^ n) μ)
+  (hY : ∀ (n : ℕ), MeasureTheory.Integrable (fun ω => Y ω ^ n) μ) (n : ℕ) :
+  MeasureTheory.Integrable (fun ω => (X ω + Y ω) ^ n) μ
+'V033.UniformSum.independent_add_moment' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.independent_add_moment.{u_1} {Ω : Type u_1} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω}
+  {X Y : Ω → ℝ} (hind : ProbabilityTheory.IndepFun X Y μ)
+  (hX : ∀ (n : ℕ), MeasureTheory.Integrable (fun ω => X ω ^ n) μ)
+  (hY : ∀ (n : ℕ), MeasureTheory.Integrable (fun ω => Y ω ^ n) μ) (n : ℕ) :
+  ∫ (ω : Ω), (X ω + Y ω) ^ n ∂μ =
+    ∑ k ∈ Finset.range (n + 1), ((∫ (ω : Ω), X ω ^ k ∂μ) * ∫ (ω : Ω), Y ω ^ (n - k) ∂μ) * ↑(n.choose k)
+'V033.UniformSum.all_sum_moments' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.all_sum_moments.{u_1} {Ω : Type u_1} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω}
+  [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ) (hU : ∀ (i : ℕ), Measurable (U i))
+  (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (M n : ℕ) :
+  MeasureTheory.Integrable (fun ω => (∑ i ∈ Finset.range M, U i ω) ^ n) μ ∧
+    ∫ (ω : Ω), (∑ i ∈ Finset.range M, U i ω) ^ n ∂μ = V033.UniformSum.sumMoment M n
+'V033.UniformSum.sumMoment_odd' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.sumMoment_odd (M r : ℕ) : V033.UniformSum.sumMoment M (2 * r + 1) = 0
+'V033.UniformSum.sum_range_even' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.sum_range_even (f : ℕ → ℝ) (n : ℕ) (hf : ∀ (k : ℕ), f (2 * k + 1) = 0) :
+  ∑ k ∈ Finset.range (2 * n + 1), f k = ∑ k ∈ Finset.range (n + 1), f (2 * k)
+'V033.UniformSum.sumMoment_even_succ' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.sumMoment_even_succ (M r : ℕ) :
+  V033.UniformSum.sumMoment (M + 1) (2 * r) =
+    ∑ k ∈ Finset.range (r + 1),
+      V033.UniformSum.sumMoment M (2 * k) * V033.UniformSum.singleMoment (2 * (r - k)) * ↑((2 * r).choose (2 * k))
+'V033.UniformSum.evenEGF_coeff' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.evenEGF_coeff (r : ℕ) :
+  (PowerSeries.coeff r) V033.UniformSum.evenEGF = V033.UniformSum.singleMoment (2 * r) / ↑(2 * r).factorial
+'V033.UniformSum.evenEGF_constant' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.evenEGF_constant : PowerSeries.constantCoeff V033.UniformSum.evenEGF = 1
+'V033.UniformSum.even_moment_coefficient' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.even_moment_coefficient (M r : ℕ) :
+  V033.UniformSum.sumMoment M (2 * r) = ↑(2 * r).factorial * (PowerSeries.coeff r) (V033.UniformSum.evenEGF ^ M)
+'V033.UniformSum.cumulant_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.cumulant_identity :
+  V033.UniformSum.cumulantSeries * V033.UniformSum.evenEGF = (PowerSeries.derivative ℝ) V033.UniformSum.evenEGF
+'V033.UniformSum.cumulant_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.cumulant_zero : V033.UniformSum.cumulantCoefficient 0 = 1 / 24
+'V033.UniformSum.cumulant_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.cumulant_one : V033.UniformSum.cumulantCoefficient 1 = -1 / 1440
+'V033.UniformSum.power_derivative' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.power_derivative (M : ℕ) :
+  (PowerSeries.derivative ℝ) (V033.UniformSum.evenEGF ^ M) =
+    PowerSeries.C ↑M * (V033.UniformSum.cumulantSeries * V033.UniformSum.evenEGF ^ M)
+'V033.UniformSum.power_coefficient_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.power_coefficient_recurrence (M r : ℕ) :
+  (PowerSeries.coeff (r + 1)) (V033.UniformSum.evenEGF ^ M) * (↑r + 1) =
+    ↑M *
+      ∑ k ∈ Finset.range (r + 1),
+        V033.UniformSum.cumulantCoefficient k * (PowerSeries.coeff (r - k)) (V033.UniformSum.evenEGF ^ M)
+'V033.UniformSum.scale_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.scale_identity (m : ℝ) (hm : m ≠ 0) (r k : ℕ) (hk : k ≤ r) :
+  (12 / m) ^ (r + 1) * m = 12 ^ (k + 1) * (1 / m) ^ k * (12 / m) ^ (r - k)
+'V033.UniformSum.normalizedEGFPolynomial_exact' depends on axioms: [propext, Classical.choice, Quot.sound]
+V033.UniformSum.normalizedEGFPolynomial_exact (M r : ℕ) (hM : M ≠ 0) :
+  Polynomial.eval (1 / ↑M) (V033.UniformSum.normalizedEGFPolynomial r) =
+    (12 / ↑M) ^ r * (PowerSeries.coeff r) (V033.UniformSum.evenEGF ^ M)
+'EulerianGrothendieck.momentFactor_factorial' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.momentFactor_factorial (k : ℕ) :
+  EulerianGrothendieck.momentFactor k = 6 ^ k * ↑k.factorial / ↑(2 * k + 1).factorial
+'EulerianGrothendieck.uniformEGFCoefficient_factor' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformEGFCoefficient_factor (k : ℕ) :
+  EulerianGrothendieck.uniformEGFCoefficient k =
+    EulerianGrothendieck.momentFactor k * EulerianGrothendieck.gaussianEGFCoefficient k
+'EulerianGrothendieck.uniformEGFCoefficient_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformEGFCoefficient_nonneg (k : ℕ) : 0 ≤ EulerianGrothendieck.uniformEGFCoefficient k
+'EulerianGrothendieck.uniformEGFCoefficient_le_gaussian' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformEGFCoefficient_le_gaussian (k : ℕ) :
+  EulerianGrothendieck.uniformEGFCoefficient k ≤ EulerianGrothendieck.gaussianEGFCoefficient k
+'EulerianGrothendieck.coeffPower_eq_powerSeries' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.coeffPower_eq_powerSeries (a : ℕ → ℝ) (M k : ℕ) :
+  EulerianGrothendieck.coeffPower a M k = (PowerSeries.coeff k) (PowerSeries.mk a ^ M)
+'EulerianGrothendieck.gaussianEGF_series' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.gaussianEGF_series :
+  PowerSeries.mk EulerianGrothendieck.gaussianEGFCoefficient = (PowerSeries.rescale (1 / 2)) (PowerSeries.exp ℝ)
+'EulerianGrothendieck.gaussianEGF_power' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.gaussianEGF_power (M k : ℕ) :
+  EulerianGrothendieck.coeffPower EulerianGrothendieck.gaussianEGFCoefficient M k = ↑M ^ k / (2 ^ k * ↑k.factorial)
+'EulerianGrothendieck.uniformMomentRatio_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformMomentRatio_nonneg (M k : ℕ) : 0 ≤ EulerianGrothendieck.uniformMomentRatio M k
+'EulerianGrothendieck.uniformMomentRatio_le_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformMomentRatio_le_one (M k : ℕ) (hM : M ≠ 0) : EulerianGrothendieck.uniformMomentRatio M k ≤ 1
+'EulerianGrothendieck.uniformEGF_series' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformEGF_series :
+  PowerSeries.mk EulerianGrothendieck.uniformEGFCoefficient = (PowerSeries.rescale 12) V033.UniformSum.evenEGF
+'EulerianGrothendieck.uniformMomentRatio_exact_polynomial' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformMomentRatio_exact_polynomial (M k : ℕ) (hM : M ≠ 0) :
+  EulerianGrothendieck.uniformMomentRatio M k = Polynomial.eval (1 / ↑M) (EulerianGrothendieck.uniformRatioPolynomial k)
+'EulerianGrothendieck.actual_uniform_sum_moment_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_uniform_sum_moment_ratio.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (M k : ℕ) (hM : M ≠ 0) :
+  (∫ (ω : Ω), (√(12 / ↑M) * ∑ i ∈ Finset.range M, U i ω) ^ (2 * k) ∂μ) / (↑(2 * k).factorial / (2 ^ k * ↑k.factorial)) =
+    EulerianGrothendieck.uniformMomentRatio M k
+'EulerianGrothendieck.polynomial_evaluation_hasSum' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.polynomial_evaluation_hasSum (p : Polynomial ℝ) (h : ℝ) :
+  HasSum (fun r => p.coeff r * h ^ r) (Polynomial.eval h p)
+'EulerianGrothendieck.shifted_linear_geometric_hasSum' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.shifted_linear_geometric_hasSum (s : ℝ) (R : ℕ) (hs : |s| < 1) :
+  HasSum (fun n => (↑n + ↑R + 2) * s ^ n) (s / (1 - s) ^ 2 + (↑R + 2) / (1 - s))
+'EulerianGrothendieck.polynomial_geometric_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.polynomial_geometric_remainder (p : Polynomial ℝ) (A B h : ℝ) (R : ℕ) (hA : 0 ≤ A) (hB : 0 ≤ B)
+  (hh : 0 ≤ h) (hsmall : B * h ≤ 1 / 2) (hcoeff : ∀ (r : ℕ), |p.coeff r| ≤ A * (↑r + 1) * B ^ r) :
+  |Polynomial.eval h p - ∑ r ∈ Finset.range (R + 1), p.coeff r * h ^ r| ≤ A * (2 * ↑R + 6) * (B * h) ^ (R + 1)
+'EulerianGrothendieck.polynomial_large_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.polynomial_large_remainder (p : Polynomial ℝ) (A B h : ℝ) (R : ℕ) (hA : 0 ≤ A) (hB : 0 ≤ B)
+  (hh : 0 ≤ h) (hh1 : h ≤ 1) (hp : |Polynomial.eval h p| ≤ 1) (hcoeff : ∀ (r : ℕ), |p.coeff r| ≤ A * (↑r + 1) * B ^ r) :
+  |Polynomial.eval h p - ∑ r ∈ Finset.range (R + 1), p.coeff r * h ^ r| ≤
+    1 + ∑ r ∈ Finset.range (R + 1), A * (↑r + 1) * B ^ r
+'EulerianGrothendieck.small_index_scale' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.small_index_scale (M k : ℝ) (hM : 4096 ≤ M) (hk : 0 ≤ k) (hsmall : k ^ 3 ≤ M) :
+  8 * k ^ 2 * (1 / M) ≤ 1 / 2
+'EulerianGrothendieck.remainderMajorant_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.remainderMajorant_nonneg (A B : ℝ) (R : ℕ) (hA : 0 ≤ A) (hB : 0 ≤ B) :
+  0 ≤ EulerianGrothendieck.remainderMajorant A B R
+'EulerianGrothendieck.polynomial_global_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.polynomial_global_remainder (p : Polynomial ℝ) (A B h : ℝ) (R : ℕ) (hA : 0 ≤ A) (hB : 0 ≤ B)
+  (hh : 0 ≤ h) (hh1 : h ≤ 1) (hp : |Polynomial.eval h p| ≤ 1) (hcoeff : ∀ (r : ℕ), |p.coeff r| ≤ A * (↑r + 1) * B ^ r) :
+  |Polynomial.eval h p - ∑ r ∈ Finset.range (R + 1), p.coeff r * h ^ r| ≤
+    EulerianGrothendieck.remainderMajorant A B R * h ^ (R + 1)
+'EulerianGrothendieck.weighted_polynomial_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.weighted_polynomial_remainder (P : ℕ → Polynomial ℝ) (w B : ℕ → ℝ) (A h : ℝ) (R : ℕ) (hA : 0 ≤ A)
+  (hh : 0 ≤ h) (hh1 : h ≤ 1) (hw : ∀ (k : ℕ), 0 ≤ w k) (hB : ∀ (k : ℕ), 0 ≤ B k)
+  (hvalues : ∀ (k : ℕ), |Polynomial.eval h (P k)| ≤ 1) (hcoeff : ∀ (k r : ℕ), |(P k).coeff r| ≤ A * (↑r + 1) * B k ^ r)
+  (hwSum : Summable w) (hcoeffSum : ∀ (r : ℕ), Summable fun k => w k * (P k).coeff r)
+  (hmajorant : Summable fun k => w k * EulerianGrothendieck.remainderMajorant A (B k) R) :
+  |∑' (k : ℕ), w k * Polynomial.eval h (P k) - ∑ r ∈ Finset.range (R + 1), (∑' (k : ℕ), w k * (P k).coeff r) * h ^ r| ≤
+    (∑' (k : ℕ), w k * EulerianGrothendieck.remainderMajorant A (B k) R) * h ^ (R + 1)
+'EulerianGrothendieck.uniformEGFCoefficient_scaled' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformEGFCoefficient_scaled (k : ℕ) :
+  EulerianGrothendieck.uniformEGFCoefficient k = 12 ^ k * (PowerSeries.coeff k) V033.UniformSum.evenEGF
+'EulerianGrothendieck.uniformEGFCoefficient_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformEGFCoefficient_zero : EulerianGrothendieck.uniformEGFCoefficient 0 = 1
+'EulerianGrothendieck.uniformEGFCoefficient_le_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformEGFCoefficient_le_one (j : ℕ) : EulerianGrothendieck.uniformEGFCoefficient j ≤ 1
+'EulerianGrothendieck.uniformEGF_derivative_coefficient_le_one' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.uniformEGF_derivative_coefficient_le_one (j : ℕ) :
+  (↑j + 1) * EulerianGrothendieck.uniformEGFCoefficient (j + 1) ≤ 1
+'EulerianGrothendieck.standardUniformCumulant_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.standardUniformCumulant_recurrence (n : ℕ) :
+  EulerianGrothendieck.standardUniformCumulant n +
+      ∑ j ∈ Finset.range n,
+        EulerianGrothendieck.standardUniformCumulant j * EulerianGrothendieck.uniformEGFCoefficient (n - j) =
+    (↑n + 1) * EulerianGrothendieck.uniformEGFCoefficient (n + 1)
+'EulerianGrothendieck.standardUniformCumulant_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.standardUniformCumulant_bound (n : ℕ) : |EulerianGrothendieck.standardUniformCumulant n| ≤ 2 ^ n
+'EulerianGrothendieck.standardUniformCumulant_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.standardUniformCumulant_zero : EulerianGrothendieck.standardUniformCumulant 0 = 1 / 2
+'EulerianGrothendieck.standardUniformCumulant_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.standardUniformCumulant_one : EulerianGrothendieck.standardUniformCumulant 1 = -1 / 10
+'EulerianGrothendieck.polyAbsEval_summable' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.polyAbsEval_summable (p : Polynomial ℝ) (h : ℝ) : Summable fun r => |p.coeff r| * h ^ r
+'EulerianGrothendieck.polyAbsEval_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.polyAbsEval_nonneg (p : Polynomial ℝ) (h : ℝ) (hh : 0 ≤ h) :
+  0 ≤ EulerianGrothendieck.polyAbsEval p h
+'EulerianGrothendieck.coeff_mul_pow_le_polyAbsEval' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.coeff_mul_pow_le_polyAbsEval (p : Polynomial ℝ) (h : ℝ) (hh : 0 ≤ h) (r : ℕ) :
+  |p.coeff r| * h ^ r ≤ EulerianGrothendieck.polyAbsEval p h
+'EulerianGrothendieck.polyAbsEval_C' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.polyAbsEval_C (a h : ℝ) : EulerianGrothendieck.polyAbsEval (Polynomial.C a) h = |a|
+'EulerianGrothendieck.polyAbsEval_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.polyAbsEval_one (h : ℝ) : EulerianGrothendieck.polyAbsEval 1 h = 1
+'EulerianGrothendieck.polyAbsEval_C_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.polyAbsEval_C_mul (a : ℝ) (p : Polynomial ℝ) (h : ℝ) :
+  EulerianGrothendieck.polyAbsEval (Polynomial.C a * p) h = |a| * EulerianGrothendieck.polyAbsEval p h
+'EulerianGrothendieck.polyAbsEval_X_pow_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.polyAbsEval_X_pow_mul (p : Polynomial ℝ) (j : ℕ) (h : ℝ) :
+  EulerianGrothendieck.polyAbsEval (Polynomial.X ^ j * p) h = h ^ j * EulerianGrothendieck.polyAbsEval p h
+'EulerianGrothendieck.polyAbsEval_sum_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.polyAbsEval_sum_le.{u_1} {ι : Type u_1} (s : Finset ι) (P : ι → Polynomial ℝ) (h : ℝ)
+  (hh : 0 ≤ h) : EulerianGrothendieck.polyAbsEval (∑ i ∈ s, P i) h ≤ ∑ i ∈ s, EulerianGrothendieck.polyAbsEval (P i) h
+'EulerianGrothendieck.polyAbsEval_coeff_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.polyAbsEval_coeff_bound (p : Polynomial ℝ) (H : ℝ) (hH : 0 < H)
+  (hp : EulerianGrothendieck.polyAbsEval p (1 / H) ≤ 2) (r : ℕ) : |p.coeff r| ≤ 2 * H ^ r
+'EulerianGrothendieck.uniformRatioPolynomial_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformRatioPolynomial_zero : EulerianGrothendieck.uniformRatioPolynomial 0 = 1
+'EulerianGrothendieck.ratioRecurrenceCoefficient_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.ratioRecurrenceCoefficient_zero (n : ℕ) : EulerianGrothendieck.ratioRecurrenceCoefficient n 0 = 1
+'EulerianGrothendieck.ratioRecurrenceCoefficient_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.ratioRecurrenceCoefficient_bound (n j : ℕ) :
+  |EulerianGrothendieck.ratioRecurrenceCoefficient n j| ≤ 2 * (4 * ↑n) ^ j
+'EulerianGrothendieck.uniformRatioPolynomial_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformRatioPolynomial_recurrence (n : ℕ) :
+  EulerianGrothendieck.uniformRatioPolynomial (n + 1) =
+    ∑ j ∈ Finset.range (n + 1),
+      Polynomial.C (EulerianGrothendieck.ratioRecurrenceCoefficient n j) * Polynomial.X ^ j *
+        EulerianGrothendieck.uniformRatioPolynomial (n - j)
+'EulerianGrothendieck.uniformRatio_abs_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformRatio_abs_recurrence (n : ℕ) (h : ℝ) (hh : 0 ≤ h) :
+  EulerianGrothendieck.polyAbsEval (EulerianGrothendieck.uniformRatioPolynomial (n + 1)) h ≤
+    EulerianGrothendieck.polyAbsEval (EulerianGrothendieck.uniformRatioPolynomial n) h +
+      ∑ j ∈ Finset.range n,
+        |EulerianGrothendieck.ratioRecurrenceCoefficient n (j + 1)| * h ^ (j + 1) *
+          EulerianGrothendieck.polyAbsEval (EulerianGrothendieck.uniformRatioPolynomial (n - (j + 1))) h
+'EulerianGrothendieck.finite_geometric_positive_tail_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.finite_geometric_positive_tail_bound (s : ℝ) (n : ℕ) (hs : 0 ≤ s) (hs1 : s < 1) :
+  ∑ j ∈ Finset.range n, s ^ (j + 1) ≤ s / (1 - s)
+'EulerianGrothendieck.uniformRatio_small_radius_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformRatio_small_radius_bound (K n : ℕ) (hK : 1 ≤ K) (hn : n ≤ K) :
+  EulerianGrothendieck.polyAbsEval (EulerianGrothendieck.uniformRatioPolynomial n) (1 / (128 * ↑K ^ 2)) ≤ 1 + ↑n / ↑K
+'EulerianGrothendieck.uniformRatio_coefficient_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformRatio_coefficient_bound (k r : ℕ) :
+  |(EulerianGrothendieck.uniformRatioPolynomial k).coeff r| ≤ 2 * (128 * (↑k + 1) ^ 2) ^ r
+'EulerianGrothendieck.shifted_power_geometric_summable' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.shifted_power_geometric_summable (s : ℝ) (hs0 : 0 < s) (hs1 : s < 1) (d : ℕ) :
+  Summable fun k => (↑k + 1) ^ d * s ^ k
+'EulerianGrothendieck.weighted_polynomial_power_summable' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.weighted_polynomial_power_summable (w : ℕ → ℝ) (s C : ℝ) (d r : ℕ) (hs0 : 0 < s) (hs1 : s < 1)
+  (hw : ∀ (k : ℕ), 0 ≤ w k) (hws : ∀ (k : ℕ), w k ≤ s ^ k) (hC : 0 ≤ C) : Summable fun k => w k * (C * (↑k + 1) ^ d) ^ r
+'EulerianGrothendieck.weighted_coefficients_summable' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.weighted_coefficients_summable (P : ℕ → Polynomial ℝ) (w : ℕ → ℝ) (A C s : ℝ) (d r : ℕ)
+  (hA : 0 ≤ A) (hC : 0 ≤ C) (hs0 : 0 < s) (hs1 : s < 1) (hw : ∀ (k : ℕ), 0 ≤ w k) (hws : ∀ (k : ℕ), w k ≤ s ^ k)
+  (hcoeff : ∀ (k : ℕ), |(P k).coeff r| ≤ A * (↑r + 1) * (C * (↑k + 1) ^ d) ^ r) : Summable fun k => w k * (P k).coeff r
+'EulerianGrothendieck.weighted_remainderMajorant_summable' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.weighted_remainderMajorant_summable (w : ℕ → ℝ) (A C s : ℝ) (d R : ℕ) (hA : 0 ≤ A) (hC : 0 ≤ C)
+  (hs0 : 0 < s) (hs1 : s < 1) (hw : ∀ (k : ℕ), 0 ≤ w k) (hws : ∀ (k : ℕ), w k ≤ s ^ k) :
+  Summable fun k => w k * EulerianGrothendieck.remainderMajorant A (C * (↑k + 1) ^ d) R
+'EulerianGrothendieck.geometric_weighted_all_order_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.geometric_weighted_all_order_remainder (P : ℕ → Polynomial ℝ) (w : ℕ → ℝ) (A C s : ℝ) (d R : ℕ)
+  (hA : 0 ≤ A) (hC : 0 ≤ C) (hs0 : 0 < s) (hs1 : s < 1) (hw : ∀ (k : ℕ), 0 ≤ w k) (hws : ∀ (k : ℕ), w k ≤ s ^ k)
+  (hvalues : ∀ (M : ℕ), M ≠ 0 → ∀ (k : ℕ), |Polynomial.eval (1 / ↑M) (P k)| ≤ 1)
+  (hcoeff : ∀ (k r : ℕ), |(P k).coeff r| ≤ A * (↑r + 1) * (C * (↑k + 1) ^ d) ^ r) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |∑' (k : ℕ), w k * Polynomial.eval (1 / ↑M) (P k) -
+                ∑ r ∈ Finset.range (R + 1), (∑' (k : ℕ), w k * (P k).coeff r) / ↑M ^ r| ≤
+            K / ↑M ^ (R + 1)
+'EulerianGrothendieck.binomialWeight_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.binomialWeight_nonneg (t : ℝ) (k : ℕ) : 0 ≤ EulerianGrothendieck.binomialWeight t k
+'EulerianGrothendieck.binomialWeight_le_geometric' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.binomialWeight_le_geometric (t : ℝ) (k : ℕ) : EulerianGrothendieck.binomialWeight t k ≤ (t ^ 2) ^ k
+'EulerianGrothendieck.uniformSquaredPolynomial_coefficient_bound' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.uniformSquaredPolynomial_coefficient_bound (k r : ℕ) :
+  |(EulerianGrothendieck.uniformSquaredPolynomial k).coeff r| ≤ 4 * (↑r + 1) * (128 * (↑k + 1) ^ 2) ^ r
+'EulerianGrothendieck.uniformSquaredPolynomial_value' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformSquaredPolynomial_value (M k : ℕ) (hM : M ≠ 0) :
+  Polynomial.eval (1 / ↑M) (EulerianGrothendieck.uniformSquaredPolynomial k) =
+    EulerianGrothendieck.uniformMomentRatio M k ^ 2
+'EulerianGrothendieck.uniformSquaredPolynomial_value_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformSquaredPolynomial_value_bound (M k : ℕ) (hM : M ≠ 0) :
+  |Polynomial.eval (1 / ↑M) (EulerianGrothendieck.uniformSquaredPolynomial k)| ≤ 1
+'EulerianGrothendieck.uniformNormCoefficient_absolute_summability' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.uniformNormCoefficient_absolute_summability (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1) (r : ℕ) :
+  Summable fun k =>
+    |EulerianGrothendieck.binomialWeight t k * (EulerianGrothendieck.uniformSquaredPolynomial k).coeff r|
+'EulerianGrothendieck.uniformNormSeries_all_orders' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformNormSeries_all_orders (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1) (R : ℕ) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |EulerianGrothendieck.uniformNormSeries M t -
+                ∑ r ∈ Finset.range (R + 1), EulerianGrothendieck.uniformNormCoefficient t r / ↑M ^ r| ≤
+            K / ↑M ^ (R + 1)
+'EulerianGrothendieck.actual_uniform_moment_series_all_orders' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.actual_uniform_moment_series_all_orders.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1)
+  (R : ℕ) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |∑' (k : ℕ),
+                  EulerianGrothendieck.binomialWeight t k *
+                    ((∫ (ω : Ω), (√(12 / ↑M) * ∑ i ∈ Finset.range M, U i ω) ^ (2 * k) ∂μ) /
+                        (↑(2 * k).factorial / (2 ^ k * ↑k.factorial))) ^
+                      2 -
+                ∑ r ∈ Finset.range (R + 1), EulerianGrothendieck.uniformNormCoefficient t r / ↑M ^ r| ≤
+            K / ↑M ^ (R + 1)
+'EulerianGrothendieck.real_exp_hasSum' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.real_exp_hasSum (x : ℝ) : HasSum (fun n => x ^ n / ↑n.factorial) (Real.exp x)
+'EulerianGrothendieck.bounded_exp_integral_hasSum' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.bounded_exp_integral_hasSum.{u_1} {Ω : Type u_1} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω}
+  [MeasureTheory.IsProbabilityMeasure μ] (X : Ω → ℝ) (hX : Measurable X) (B t : ℝ) (hB : 0 ≤ B)
+  (hbound : ∀ᵐ (ω : Ω) ∂μ, |X ω| ≤ B) :
+  HasSum (fun n => t ^ n / ↑n.factorial * ∫ (ω : Ω), X ω ^ n ∂μ) (∫ (ω : Ω), Real.exp (t * X ω) ∂μ)
+'EulerianGrothendieck.bounded_product_exp_even_series' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.bounded_product_exp_even_series.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (Z : Ω → ℝ) (hZ : Measurable Z) (B t : ℝ)
+  (hB : 0 ≤ B) (hbound : ∀ᵐ (ω : Ω) ∂μ, |Z ω| ≤ B) (hodd : ∀ (k : ℕ), ∫ (ω : Ω), Z ω ^ (2 * k + 1) ∂μ = 0) :
+  ∫ (xy : Ω × Ω), Real.exp (t * (Z xy.1 * Z xy.2)) ∂μ.prod μ =
+    ∑' (k : ℕ), t ^ (2 * k) / ↑(2 * k).factorial * (∫ (ω : Ω), Z ω ^ (2 * k) ∂μ) ^ 2
+'EulerianGrothendieck.uniform_sequence_ae_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniform_sequence_ae_bound.{u_1} {Ω : Type u_1} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω}
+  (U : ℕ → Ω → ℝ) (hU : ∀ (i : ℕ), Measurable (U i))
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) :
+  ∀ᵐ (ω : Ω) ∂μ, ∀ (i : ℕ), |U i ω| ≤ 1 / 2
+'EulerianGrothendieck.uniform_sum_ae_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniform_sum_ae_bound.{u_1} {Ω : Type u_1} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω}
+  (U : ℕ → Ω → ℝ) (hU : ∀ (i : ℕ), Measurable (U i))
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (M : ℕ) :
+  ∀ᵐ (ω : Ω) ∂μ, |∑ i ∈ Finset.range M, U i ω| ≤ ↑M / 2
+'EulerianGrothendieck.standardizedUniformSum_measurable' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.standardizedUniformSum_measurable.{u_1} {Ω : Type u_1} [MeasurableSpace Ω] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (M : ℕ) : Measurable (EulerianGrothendieck.standardizedUniformSum U M)
+'EulerianGrothendieck.standardizedUniformSum_ae_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.standardizedUniformSum_ae_bound.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} (U : ℕ → Ω → ℝ) (hU : ∀ (i : ℕ), Measurable (U i))
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (M : ℕ) :
+  ∀ᵐ (ω : Ω) ∂μ, |EulerianGrothendieck.standardizedUniformSum U M ω| ≤ √(12 / ↑M) * (↑M / 2)
+'EulerianGrothendieck.standardizedUniformSum_odd_moment' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.standardizedUniformSum_odd_moment.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (M k : ℕ) :
+  ∫ (ω : Ω), EulerianGrothendieck.standardizedUniformSum U M ω ^ (2 * k + 1) ∂μ = 0
+'EulerianGrothendieck.binomialWeight_moment_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.binomialWeight_moment_identity (t m : ℝ) (k : ℕ) :
+  t ^ (2 * k) / ↑(2 * k).factorial * m ^ 2 =
+    EulerianGrothendieck.binomialWeight t k * (m / (↑(2 * k).factorial / (2 ^ k * ↑k.factorial))) ^ 2
+'EulerianGrothendieck.uniform_exponential_integral_eq_series' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniform_exponential_integral_eq_series.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (M : ℕ) (hM : M ≠ 0) (t : ℝ) :
+  ∫ (xy : Ω × Ω),
+      Real.exp
+        (t *
+          (EulerianGrothendieck.standardizedUniformSum U M xy.1 *
+            EulerianGrothendieck.standardizedUniformSum U M xy.2)) ∂μ.prod μ =
+    EulerianGrothendieck.uniformNormSeries M t
+'EulerianGrothendieck.uniform_exponential_integral_all_orders' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.uniform_exponential_integral_all_orders.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1)
+  (R : ℕ) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |∫ (xy : Ω × Ω),
+                  Real.exp
+                    (t *
+                      (EulerianGrothendieck.standardizedUniformSum U M xy.1 *
+                        EulerianGrothendieck.standardizedUniformSum U M xy.2)) ∂μ.prod μ -
+                ∑ r ∈ Finset.range (R + 1), EulerianGrothendieck.uniformNormCoefficient t r / ↑M ^ r| ≤
+            K / ↑M ^ (R + 1)
+'EulerianGrothendieck.trunc_eval_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.trunc_eval_eq (f : PowerSeries ℝ) (R : ℕ) (h : ℝ) :
+  Polynomial.eval h (PowerSeries.trunc (R + 1) f) = ∑ r ∈ Finset.range (R + 1), (PowerSeries.coeff r) f * h ^ r
+'EulerianGrothendieck.polynomial_abs_eval_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.polynomial_abs_eval_le (p : Polynomial ℝ) (h : ℝ) (hh : 0 ≤ h) (hh1 : h ≤ 1) :
+  |Polynomial.eval h p| ≤ EulerianGrothendieck.polyAbsEval p 1
+'EulerianGrothendieck.polynomial_zero_low_coeff_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.polynomial_zero_low_coeff_remainder (p : Polynomial ℝ) (R : ℕ) (h : ℝ) (hh : 0 ≤ h) (hh1 : h ≤ 1)
+  (hz : ∀ r ≤ R, p.coeff r = 0) : |Polynomial.eval h p| ≤ EulerianGrothendieck.polyAbsEval p 1 * h ^ (R + 1)
+'EulerianGrothendieck.truncated_inverse_low_coeff' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.truncated_inverse_low_coeff (b : ℕ → ℝ) (hb : b 0 ≠ 0) (R r : ℕ) (hr : r ≤ R) :
+  (PowerSeries.trunc (R + 1) (PowerSeries.mk b) * PowerSeries.trunc (R + 1) (PowerSeries.mk b)⁻¹).coeff r =
+    if r = 0 then 1 else 0
+'EulerianGrothendieck.reciprocal_all_order_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_all_order_remainder (N b : ℕ → ℝ) (η : ℝ) (hη : 0 < η) (hN : ∀ (M : ℕ), M ≠ 0 → η ≤ N M)
+  (hb : b 0 ≠ 0)
+  (hrem :
+    ∀ (R : ℕ), ∃ K, 0 ≤ K ∧ ∀ (M : ℕ), M ≠ 0 → |N M - ∑ r ∈ Finset.range (R + 1), b r / ↑M ^ r| ≤ K / ↑M ^ (R + 1))
+  (R : ℕ) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |1 / N M - ∑ r ∈ Finset.range (R + 1), EulerianGrothendieck.inverseSeriesCoefficient b r / ↑M ^ r| ≤
+            K / ↑M ^ (R + 1)
+'EulerianGrothendieck.uniformRatio_eval_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformRatio_eval_zero (k : ℕ) :
+  Polynomial.eval 0 (EulerianGrothendieck.uniformRatioPolynomial k) = 1
+'EulerianGrothendieck.uniformSquaredPolynomial_constant' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformSquaredPolynomial_constant (k : ℕ) :
+  (EulerianGrothendieck.uniformSquaredPolynomial k).coeff 0 = 1
+'EulerianGrothendieck.binomialWeight_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.binomialWeight_zero (t : ℝ) : EulerianGrothendieck.binomialWeight t 0 = 1
+'EulerianGrothendieck.binomialWeight_summable' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.binomialWeight_summable (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1) :
+  Summable (EulerianGrothendieck.binomialWeight t)
+'EulerianGrothendieck.uniformNormCoefficient_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformNormCoefficient_zero (t : ℝ) :
+  EulerianGrothendieck.uniformNormCoefficient t 0 = ∑' (k : ℕ), EulerianGrothendieck.binomialWeight t k
+'EulerianGrothendieck.uniformNormCoefficient_zero_ge_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformNormCoefficient_zero_ge_one (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1) :
+  1 ≤ EulerianGrothendieck.uniformNormCoefficient t 0
+'EulerianGrothendieck.uniformNormSeries_summable' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformNormSeries_summable (M : ℕ) (hM : M ≠ 0) (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1) :
+  Summable fun k => EulerianGrothendieck.binomialWeight t k * EulerianGrothendieck.uniformMomentRatio M k ^ 2
+'EulerianGrothendieck.uniformNormSeries_ge_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformNormSeries_ge_one (M : ℕ) (hM : M ≠ 0) (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1) :
+  1 ≤ EulerianGrothendieck.uniformNormSeries M t
+'EulerianGrothendieck.uniformVacuumSeries_all_orders' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformVacuumSeries_all_orders (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1) (R : ℕ) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |1 / EulerianGrothendieck.uniformNormSeries M t -
+                ∑ r ∈ Finset.range (R + 1), EulerianGrothendieck.uniformVacuumCoefficient t r / ↑M ^ r| ≤
+            K / ↑M ^ (R + 1)
+'EulerianGrothendieck.uniform_vacuum_integral_all_orders' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniform_vacuum_integral_all_orders.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1)
+  (R : ℕ) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |1 /
+                  ∫ (xy : Ω × Ω),
+                    Real.exp
+                      (t *
+                        (EulerianGrothendieck.standardizedUniformSum U M xy.1 *
+                          EulerianGrothendieck.standardizedUniformSum U M xy.2)) ∂μ.prod μ -
+                ∑ r ∈ Finset.range (R + 1), EulerianGrothendieck.uniformVacuumCoefficient t r / ↑M ^ r| ≤
+            K / ↑M ^ (R + 1)
+'EulerianGrothendieck.centralCoefficient_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralCoefficient_zero : EulerianGrothendieck.centralCoefficient 0 = 1
+'EulerianGrothendieck.centralCoefficient_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralCoefficient_nonneg (k : ℕ) : 0 ≤ EulerianGrothendieck.centralCoefficient k
+'EulerianGrothendieck.centralCoefficient_le_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralCoefficient_le_one (k : ℕ) : EulerianGrothendieck.centralCoefficient k ≤ 1
+'EulerianGrothendieck.centralCoefficient_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralCoefficient_recurrence (k : ℕ) :
+  (↑k + 1) * EulerianGrothendieck.centralCoefficient (k + 1) = (↑k + 1 / 2) * EulerianGrothendieck.centralCoefficient k
+'EulerianGrothendieck.centralSeries_coeff' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralSeries_coeff (k : ℕ) :
+  (PowerSeries.coeff k) EulerianGrothendieck.centralSeries = EulerianGrothendieck.centralCoefficient k
+'EulerianGrothendieck.centralSeries_ode' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralSeries_ode :
+  (1 - PowerSeries.X) * (PowerSeries.derivative ℝ) EulerianGrothendieck.centralSeries =
+    PowerSeries.C (1 / 2) * EulerianGrothendieck.centralSeries
+'EulerianGrothendieck.centralSeries_square_ode' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralSeries_square_ode :
+  (1 - PowerSeries.X) * (PowerSeries.derivative ℝ) (EulerianGrothendieck.centralSeries ^ 2) =
+    EulerianGrothendieck.centralSeries ^ 2
+'EulerianGrothendieck.centralSeries_square_coeff' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralSeries_square_coeff (n : ℕ) :
+  (PowerSeries.coeff n) (EulerianGrothendieck.centralSeries ^ 2) = 1
+'EulerianGrothendieck.centralCoefficient_self_convolution' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralCoefficient_self_convolution (n : ℕ) :
+  ∑ j ∈ Finset.range (n + 1),
+      EulerianGrothendieck.centralCoefficient j * EulerianGrothendieck.centralCoefficient (n - j) =
+    1
+'EulerianGrothendieck.centralCoefficient_geometric_summable' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralCoefficient_geometric_summable (s : ℝ) (hs0 : 0 ≤ s) (hs1 : s < 1) :
+  Summable fun k => EulerianGrothendieck.centralCoefficient k * s ^ k
+'EulerianGrothendieck.centralBinomial_sum_square' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralBinomial_sum_square (s : ℝ) (hs0 : 0 ≤ s) (hs1 : s < 1) :
+  (∑' (k : ℕ), EulerianGrothendieck.centralCoefficient k * s ^ k) ^ 2 = 1 / (1 - s)
+'EulerianGrothendieck.centralBinomial_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralBinomial_sum (s : ℝ) (hs0 : 0 ≤ s) (hs1 : s < 1) :
+  ∑' (k : ℕ), EulerianGrothendieck.centralCoefficient k * s ^ k = 1 / √(1 - s)
+'EulerianGrothendieck.uniformNormCoefficient_zero_closed' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformNormCoefficient_zero_closed (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1) :
+  EulerianGrothendieck.uniformNormCoefficient t 0 = 1 / √(1 - t ^ 2)
+'EulerianGrothendieck.uniformRatioPolynomial_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformRatioPolynomial_one : EulerianGrothendieck.uniformRatioPolynomial 1 = 1
+'EulerianGrothendieck.uniformRatio_linear_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformRatio_linear_recurrence (r : ℕ) :
+  (EulerianGrothendieck.uniformRatioPolynomial (r + 2)).coeff 1 =
+    (EulerianGrothendieck.uniformRatioPolynomial (r + 1)).coeff 1 - 2 * (↑r + 1) / 5
+'EulerianGrothendieck.uniformRatio_first_coefficient' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformRatio_first_coefficient (k : ℕ) :
+  (EulerianGrothendieck.uniformRatioPolynomial k).coeff 1 = -↑k * (↑k - 1) / 5
+'EulerianGrothendieck.uniformSquaredPolynomial_first_coefficient' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.uniformSquaredPolynomial_first_coefficient (k : ℕ) :
+  (EulerianGrothendieck.uniformSquaredPolynomial k).coeff 1 = -2 * ↑k * (↑k - 1) / 5
+'EulerianGrothendieck.centralSeries_square_inverse' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralSeries_square_inverse : (1 - PowerSeries.X) * EulerianGrothendieck.centralSeries ^ 2 = 1
+'EulerianGrothendieck.centralSeries_first_derivative' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralSeries_first_derivative :
+  (PowerSeries.derivative ℝ) EulerianGrothendieck.centralSeries =
+    PowerSeries.C (1 / 2) * EulerianGrothendieck.centralSeries ^ 3
+'EulerianGrothendieck.centralSeries_second_derivative' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralSeries_second_derivative :
+  (PowerSeries.derivative ℝ) ((PowerSeries.derivative ℝ) EulerianGrothendieck.centralSeries) =
+    PowerSeries.C (3 / 4) * EulerianGrothendieck.centralSeries ^ 5
+'EulerianGrothendieck.powerSeries_product_hasSum' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.powerSeries_product_hasSum (f g : PowerSeries ℝ) (s a b : ℝ)
+  (hf : HasSum (fun n => (PowerSeries.coeff n) f * s ^ n) a)
+  (hg : HasSum (fun n => (PowerSeries.coeff n) g * s ^ n) b) :
+  HasSum (fun n => (PowerSeries.coeff n) (f * g) * s ^ n) (a * b)
+'EulerianGrothendieck.centralSeries_power_hasSum' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralSeries_power_hasSum (s : ℝ) (hs0 : 0 ≤ s) (hs1 : s < 1) (m : ℕ) :
+  HasSum (fun n => (PowerSeries.coeff n) (EulerianGrothendieck.centralSeries ^ m) * s ^ n)
+    ((∑' (k : ℕ), EulerianGrothendieck.centralCoefficient k * s ^ k) ^ m)
+'EulerianGrothendieck.centralBinomial_second_factorial_moment_hasSum' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.centralBinomial_second_factorial_moment_hasSum (s : ℝ) (hs0 : 0 ≤ s) (hs1 : s < 1) :
+  HasSum (fun k => ↑k * (↑k - 1) * EulerianGrothendieck.centralCoefficient k * s ^ k)
+    (3 / 4 * s ^ 2 * (1 / √(1 - s)) ^ 5)
+'EulerianGrothendieck.uniformNormCoefficient_one_closed' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformNormCoefficient_one_closed (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1) :
+  EulerianGrothendieck.uniformNormCoefficient t 1 = -(3 / 10) * t ^ 4 * (1 / √(1 - t ^ 2)) ^ 5
+'EulerianGrothendieck.inverseSeriesCoefficient_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.inverseSeriesCoefficient_zero (b : ℕ → ℝ) :
+  EulerianGrothendieck.inverseSeriesCoefficient b 0 = (b 0)⁻¹
+'EulerianGrothendieck.inverseSeriesCoefficient_one_relation' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.inverseSeriesCoefficient_one_relation (b : ℕ → ℝ) (hb : b 0 ≠ 0) :
+  b 0 * EulerianGrothendieck.inverseSeriesCoefficient b 1 + b 1 * EulerianGrothendieck.inverseSeriesCoefficient b 0 = 0
+'EulerianGrothendieck.uniformVacuumCoefficient_zero_closed' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformVacuumCoefficient_zero_closed (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1) :
+  EulerianGrothendieck.uniformVacuumCoefficient t 0 = √(1 - t ^ 2)
+'EulerianGrothendieck.uniformVacuumCoefficient_one_closed' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformVacuumCoefficient_one_closed (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1) :
+  EulerianGrothendieck.uniformVacuumCoefficient t 1 = 3 * t ^ 4 / (10 * √(1 - t ^ 2) ^ 3)
+'EulerianGrothendieck.uniformVacuum_first_order' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformVacuum_first_order (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |1 / EulerianGrothendieck.uniformNormSeries M t -
+                √(1 - t ^ 2) * (1 + 3 * t ^ 4 / (10 * (1 - t ^ 2) ^ 2) / ↑M)| ≤
+            K / ↑M ^ 2
+'EulerianGrothendieck.actual_uniform_vacuum_first_order' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_uniform_vacuum_first_order.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (t : ℝ) (ht0 : 0 < t)
+  (ht1 : t < 1) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |1 /
+                  ∫ (xy : Ω × Ω),
+                    Real.exp
+                      (t *
+                        (EulerianGrothendieck.standardizedUniformSum U M xy.1 *
+                          EulerianGrothendieck.standardizedUniformSum U M xy.2)) ∂μ.prod μ -
+                √(1 - t ^ 2) * (1 + 3 * t ^ 4 / (10 * (1 - t ^ 2) ^ 2) / ↑M)| ≤
+            K / ↑M ^ 2
+'EulerianGrothendieck.normalized_scale_mem' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.normalized_scale_mem (c : ℝ) (hc : 1 / 12 < c) : 0 < 1 / (12 * c) ∧ 1 / (12 * c) < 1
+'EulerianGrothendieck.standardized_exponent_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.standardized_exponent_identity (c a b : ℝ) (hc : c ≠ 0) (M : ℕ) (hM : M ≠ 0) :
+  1 / (12 * c) * (√(12 / ↑M) * a * (√(12 / ↑M) * b)) = a * b / (c * ↑M)
+'EulerianGrothendieck.raw_uniform_kernel_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.raw_uniform_kernel_identity.{u_1} {Ω : Type u_1} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω}
+  [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ) (hU : ∀ (i : ℕ), Measurable (U i))
+  (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (c : ℝ) (hc : c ≠ 0) (M : ℕ)
+  (hM : M ≠ 0) :
+  ∫ (xy : Ω × Ω), Real.exp (((∑ i ∈ Finset.range M, U i xy.1) * ∑ i ∈ Finset.range M, U i xy.2) / (c * ↑M)) ∂μ.prod μ =
+    EulerianGrothendieck.uniformNormSeries M (1 / (12 * c))
+'EulerianGrothendieck.raw_uniform_kernel_all_orders' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.raw_uniform_kernel_all_orders.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (c : ℝ) (hc : 1 / 12 < c) (R : ℕ) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |∫ (xy : Ω × Ω),
+                  Real.exp (((∑ i ∈ Finset.range M, U i xy.1) * ∑ i ∈ Finset.range M, U i xy.2) / (c * ↑M)) ∂μ.prod μ -
+                ∑ r ∈ Finset.range (R + 1), EulerianGrothendieck.uniformNormCoefficient (1 / (12 * c)) r / ↑M ^ r| ≤
+            K / ↑M ^ (R + 1)
+'EulerianGrothendieck.raw_uniform_vacuum_all_orders' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.raw_uniform_vacuum_all_orders.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (c : ℝ) (hc : 1 / 12 < c) (R : ℕ) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |1 /
+                  ∫ (xy : Ω × Ω),
+                    Real.exp
+                      (((∑ i ∈ Finset.range M, U i xy.1) * ∑ i ∈ Finset.range M, U i xy.2) / (c * ↑M)) ∂μ.prod μ -
+                ∑ r ∈ Finset.range (R + 1), EulerianGrothendieck.uniformVacuumCoefficient (1 / (12 * c)) r / ↑M ^ r| ≤
+            K / ↑M ^ (R + 1)
+'EulerianGrothendieck.raw_uniform_vacuum_first_order' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.raw_uniform_vacuum_first_order.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (c : ℝ) (hc : 1 / 12 < c) :
+  have t := 1 / (12 * c);
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |1 /
+                  ∫ (xy : Ω × Ω),
+                    Real.exp
+                      (((∑ i ∈ Finset.range M, U i xy.1) * ∑ i ∈ Finset.range M, U i xy.2) / (c * ↑M)) ∂μ.prod μ -
+                √(1 - t ^ 2) * (1 + 3 * t ^ 4 / (10 * (1 - t ^ 2) ^ 2) / ↑M)| ≤
+            K / ↑M ^ 2
+'EulerianGrothendieck.fallingReal_nat' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.fallingReal_nat (q n : ℕ) : EulerianGrothendieck.fallingReal q ↑n = ↑(n.descFactorial q)
+'EulerianGrothendieck.fallingReal_rat' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.fallingReal_rat (q : ℕ) (x : ℚ) :
+  EulerianGrothendieck.fallingReal q ↑x = ↑(EulerianGrothendieck.fallingPoly q x)
+'EulerianGrothendieck.exactMomentPolynomial_rat' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_rat (r : ℕ) (x : ℚ) :
+  EulerianGrothendieck.exactMomentPolynomial r ↑x = ↑(EulerianGrothendieck.gPolynomial r x)
+'EulerianGrothendieck.exactSquaredPolynomial_rat' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactSquaredPolynomial_rat (r : ℕ) (x : ℚ) :
+  EulerianGrothendieck.exactSquaredPolynomial r ↑x = ↑(EulerianGrothendieck.qPolynomial r x)
+'EulerianGrothendieck.ratioRecurrenceCoefficient_eq_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.ratioRecurrenceCoefficient_eq_zero (n j : ℕ) (h : n < j) :
+  EulerianGrothendieck.ratioRecurrenceCoefficient n j = 0
+'EulerianGrothendieck.uniformRatio_coefficient_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformRatio_coefficient_recurrence (n r : ℕ) :
+  (EulerianGrothendieck.uniformRatioPolynomial (n + 1)).coeff r =
+    ∑ j ∈ Finset.range (r + 1),
+      EulerianGrothendieck.ratioRecurrenceCoefficient n j *
+        (EulerianGrothendieck.uniformRatioPolynomial (n - j)).coeff (r - j)
+'EulerianGrothendieck.actual_cumulant_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_cumulant_0 : EulerianGrothendieck.standardUniformCumulant 0 = 1 / 2
+'EulerianGrothendieck.actual_cumulant_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_cumulant_1 : EulerianGrothendieck.standardUniformCumulant 1 = -1 / 10
+'EulerianGrothendieck.actual_cumulant_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_cumulant_2 : EulerianGrothendieck.standardUniformCumulant 2 = 1 / 35
+'EulerianGrothendieck.actual_cumulant_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_cumulant_3 : EulerianGrothendieck.standardUniformCumulant 3 = -3 / 350
+'EulerianGrothendieck.actual_cumulant_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_cumulant_4 : EulerianGrothendieck.standardUniformCumulant 4 = 1 / 385
+'EulerianGrothendieck.actual_cumulant_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_cumulant_5 : EulerianGrothendieck.standardUniformCumulant 5 = -691 / 875875
+'EulerianGrothendieck.actual_cumulant_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_cumulant_6 : EulerianGrothendieck.standardUniformCumulant 6 = 6 / 25025
+'EulerianGrothendieck.actual_cumulant_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_cumulant_7 : EulerianGrothendieck.standardUniformCumulant 7 = -10851 / 148898750
+'EulerianGrothendieck.actual_cumulant_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_cumulant_8 : EulerianGrothendieck.standardUniformCumulant 8 = 43867 / 1980353375
+'EulerianGrothendieck.actual_cumulant_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_cumulant_9 : EulerianGrothendieck.standardUniformCumulant 9 = -523833 / 77799596875
+'EulerianGrothendieck.actual_cumulant_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_cumulant_10 : EulerianGrothendieck.standardUniformCumulant 10 = 466098 / 227740638125
+'EulerianGrothendieck.actual_cumulant_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_cumulant_11 :
+  EulerianGrothendieck.standardUniformCumulant 11 = -709092273 / 1139841893815625
+'EulerianGrothendieck.actual_cumulant_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_cumulant_12 : EulerianGrothendieck.standardUniformCumulant 12 = 11842758 / 62628675484375
+'EulerianGrothendieck.actual_cumulant_table' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_cumulant_table (j : ℕ) (hj : j ≤ 12) :
+  EulerianGrothendieck.standardUniformCumulant j = (↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))
+'EulerianGrothendieck.centralFactorialMoment_summable' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralFactorialMoment_summable (s : ℝ) (hs0 : 0 < s) (hs1 : s < 1) (q : ℕ) :
+  Summable fun k => EulerianGrothendieck.fallingReal q ↑k * EulerianGrothendieck.centralCoefficient k * s ^ k
+'EulerianGrothendieck.centralFactorialMoment_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralFactorialMoment_recurrence (s : ℝ) (hs0 : 0 < s) (hs1 : s < 1) (q : ℕ) :
+  (1 - s) * EulerianGrothendieck.centralFactorialMoment s (q + 1) =
+    s * (↑q + 1 / 2) * EulerianGrothendieck.centralFactorialMoment s q
+'EulerianGrothendieck.centralFactorialMoment_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralFactorialMoment_zero (s : ℝ) (hs0 : 0 < s) (hs1 : s < 1) :
+  EulerianGrothendieck.centralFactorialMoment s 0 = 1 / √(1 - s)
+'EulerianGrothendieck.nbFactorial_recurrence_real' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.nbFactorial_recurrence_real (q : ℕ) :
+  ↑(EulerianGrothendieck.nbFactorial (q + 1)) = (↑q + 1 / 2) / 4 * ↑(EulerianGrothendieck.nbFactorial q)
+'EulerianGrothendieck.centralFactorialMoment_one_fifth' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.centralFactorialMoment_one_fifth (q : ℕ) :
+  EulerianGrothendieck.centralFactorialMoment (1 / 5) q = 1 / √(4 / 5) * ↑(EulerianGrothendieck.nbFactorial q)
+'EulerianGrothendieck.exactMomentPolynomial_recurrence_0' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_recurrence_0 (x : ℝ) :
+  EulerianGrothendieck.exactMomentPolynomial 0 (x + 1) =
+    ∑ j ∈ Finset.range (0 + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x * ((↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))) *
+        EulerianGrothendieck.exactMomentPolynomial (0 - j) (x - ↑j)
+'EulerianGrothendieck.exactMomentPolynomial_recurrence_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_recurrence_1 (x : ℝ) :
+  EulerianGrothendieck.exactMomentPolynomial 1 (x + 1) =
+    ∑ j ∈ Finset.range (1 + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x * ((↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))) *
+        EulerianGrothendieck.exactMomentPolynomial (1 - j) (x - ↑j)
+'EulerianGrothendieck.exactMomentPolynomial_recurrence_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_recurrence_2 (x : ℝ) :
+  EulerianGrothendieck.exactMomentPolynomial 2 (x + 1) =
+    ∑ j ∈ Finset.range (2 + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x * ((↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))) *
+        EulerianGrothendieck.exactMomentPolynomial (2 - j) (x - ↑j)
+'EulerianGrothendieck.exactMomentPolynomial_recurrence_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_recurrence_3 (x : ℝ) :
+  EulerianGrothendieck.exactMomentPolynomial 3 (x + 1) =
+    ∑ j ∈ Finset.range (3 + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x * ((↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))) *
+        EulerianGrothendieck.exactMomentPolynomial (3 - j) (x - ↑j)
+'EulerianGrothendieck.exactMomentPolynomial_recurrence_4' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_recurrence_4 (x : ℝ) :
+  EulerianGrothendieck.exactMomentPolynomial 4 (x + 1) =
+    ∑ j ∈ Finset.range (4 + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x * ((↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))) *
+        EulerianGrothendieck.exactMomentPolynomial (4 - j) (x - ↑j)
+'EulerianGrothendieck.exactMomentPolynomial_recurrence_5' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_recurrence_5 (x : ℝ) :
+  EulerianGrothendieck.exactMomentPolynomial 5 (x + 1) =
+    ∑ j ∈ Finset.range (5 + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x * ((↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))) *
+        EulerianGrothendieck.exactMomentPolynomial (5 - j) (x - ↑j)
+'EulerianGrothendieck.exactMomentPolynomial_recurrence_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_recurrence_6 (x : ℝ) :
+  EulerianGrothendieck.exactMomentPolynomial 6 (x + 1) =
+    ∑ j ∈ Finset.range (6 + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x * ((↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))) *
+        EulerianGrothendieck.exactMomentPolynomial (6 - j) (x - ↑j)
+'EulerianGrothendieck.exactMomentPolynomial_recurrence_7' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_recurrence_7 (x : ℝ) :
+  EulerianGrothendieck.exactMomentPolynomial 7 (x + 1) =
+    ∑ j ∈ Finset.range (7 + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x * ((↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))) *
+        EulerianGrothendieck.exactMomentPolynomial (7 - j) (x - ↑j)
+'EulerianGrothendieck.exactMomentPolynomial_recurrence_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_recurrence_8 (x : ℝ) :
+  EulerianGrothendieck.exactMomentPolynomial 8 (x + 1) =
+    ∑ j ∈ Finset.range (8 + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x * ((↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))) *
+        EulerianGrothendieck.exactMomentPolynomial (8 - j) (x - ↑j)
+'EulerianGrothendieck.exactMomentPolynomial_recurrence_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_recurrence_9 (x : ℝ) :
+  EulerianGrothendieck.exactMomentPolynomial 9 (x + 1) =
+    ∑ j ∈ Finset.range (9 + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x * ((↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))) *
+        EulerianGrothendieck.exactMomentPolynomial (9 - j) (x - ↑j)
+'EulerianGrothendieck.exactMomentPolynomial_recurrence_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_recurrence_10 (x : ℝ) :
+  EulerianGrothendieck.exactMomentPolynomial 10 (x + 1) =
+    ∑ j ∈ Finset.range (10 + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x * ((↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))) *
+        EulerianGrothendieck.exactMomentPolynomial (10 - j) (x - ↑j)
+'EulerianGrothendieck.exactMomentPolynomial_recurrence_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_recurrence_11 (x : ℝ) :
+  EulerianGrothendieck.exactMomentPolynomial 11 (x + 1) =
+    ∑ j ∈ Finset.range (11 + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x * ((↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))) *
+        EulerianGrothendieck.exactMomentPolynomial (11 - j) (x - ↑j)
+'EulerianGrothendieck.exactMomentPolynomial_recurrence_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_recurrence_12 (x : ℝ) :
+  EulerianGrothendieck.exactMomentPolynomial 12 (x + 1) =
+    ∑ j ∈ Finset.range (12 + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x * ((↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))) *
+        EulerianGrothendieck.exactMomentPolynomial (12 - j) (x - ↑j)
+'EulerianGrothendieck.exactMomentPolynomial_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_recurrence (r : ℕ) (hr : r ≤ 12) (x : ℝ) :
+  EulerianGrothendieck.exactMomentPolynomial r (x + 1) =
+    ∑ j ∈ Finset.range (r + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x * ((↑j + 1) * ↑(EulerianGrothendieck.cumulantA (j + 1))) *
+        EulerianGrothendieck.exactMomentPolynomial (r - j) (x - ↑j)
+'EulerianGrothendieck.exactMomentPolynomial_at_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exactMomentPolynomial_at_zero (r : ℕ) (hr : r ≤ 12) :
+  EulerianGrothendieck.exactMomentPolynomial r 0 = if r = 0 then 1 else 0
+'EulerianGrothendieck.actual_moment_coefficients_through_twelve' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.actual_moment_coefficients_through_twelve (k r : ℕ) (hr : r ≤ 12) :
+  (EulerianGrothendieck.uniformRatioPolynomial k).coeff r = EulerianGrothendieck.exactMomentPolynomial r ↑k
+'EulerianGrothendieck.exact_squared_polynomial_table' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exact_squared_polynomial_table (r : ℕ) (hr : r ≤ 12) (x : ℚ) :
+  ∑ j ∈ Finset.range (r + 1), EulerianGrothendieck.gPolynomial j x * EulerianGrothendieck.gPolynomial (r - j) x =
+    EulerianGrothendieck.qPolynomial r x
+'EulerianGrothendieck.actual_squared_coefficients_through_twelve' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.actual_squared_coefficients_through_twelve (k r : ℕ) (hr : r ≤ 12) :
+  (EulerianGrothendieck.uniformSquaredPolynomial k).coeff r = EulerianGrothendieck.exactSquaredPolynomial r ↑k
+'EulerianGrothendieck.norm_coefficient_table' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.norm_coefficient_table (r : ℕ) (hr : r ≤ 12) :
+  EulerianGrothendieck.normB r =
+    ∑ q ∈ Finset.range (2 * r + 1), EulerianGrothendieck.qFallingCoeff r q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.arithmeticParameter_properties' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.arithmeticParameter_properties :
+  0 < EulerianGrothendieck.arithmeticParameter ∧
+    EulerianGrothendieck.arithmeticParameter < 1 ∧ EulerianGrothendieck.arithmeticParameter ^ 2 = 1 / 5
+'EulerianGrothendieck.arithmetic_weight_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.arithmetic_weight_identity (k : ℕ) :
+  EulerianGrothendieck.binomialWeight EulerianGrothendieck.arithmeticParameter k =
+    EulerianGrothendieck.centralCoefficient k * (1 / 5) ^ k
+'EulerianGrothendieck.arithmetic_norm_coefficient_identification' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.arithmetic_norm_coefficient_identification (r : ℕ) (hr : r ≤ 12) :
+  EulerianGrothendieck.uniformNormCoefficient EulerianGrothendieck.arithmeticParameter r =
+    1 / √(4 / 5) * ↑(EulerianGrothendieck.normB r)
+'EulerianGrothendieck.reciprocal_coefficient_table' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.reciprocal_coefficient_table (r : ℕ) (hr : r ≤ 12) :
+  ∑ j ∈ Finset.range (r + 1), EulerianGrothendieck.normB j * EulerianGrothendieck.vacuumD (r - j) =
+    if r = 0 then 1 else 0
+'EulerianGrothendieck.inverseSeriesCoefficient_convolution' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.inverseSeriesCoefficient_convolution (b : ℕ → ℝ) (hb : b 0 ≠ 0) (r : ℕ) :
+  ∑ j ∈ Finset.range (r + 1), b j * EulerianGrothendieck.inverseSeriesCoefficient b (r - j) = if r = 0 then 1 else 0
+'EulerianGrothendieck.inverseSeriesCoefficient_prefix_unique' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.inverseSeriesCoefficient_prefix_unique (b d : ℕ → ℝ) (hb : b 0 ≠ 0) (R : ℕ)
+  (hconv : ∀ r ≤ R, ∑ j ∈ Finset.range (r + 1), b j * d (r - j) = if r = 0 then 1 else 0) (r : ℕ) (hr : r ≤ R) :
+  EulerianGrothendieck.inverseSeriesCoefficient b r = d r
+'EulerianGrothendieck.arithmetic_vacuum_coefficient_identification' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.arithmetic_vacuum_coefficient_identification (r : ℕ) (hr : r ≤ 12) :
+  EulerianGrothendieck.uniformVacuumCoefficient EulerianGrothendieck.arithmeticParameter r =
+    √(4 / 5) * ↑(EulerianGrothendieck.vacuumD r)
+'EulerianGrothendieck.normalizedVacuumCoefficient_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.normalizedVacuumCoefficient_zero (t : ℝ) (ht0 : 0 < t) (ht1 : t < 1) :
+  EulerianGrothendieck.normalizedVacuumCoefficient t 0 = 1
+'EulerianGrothendieck.normalized_uniform_vacuum_all_orders' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.normalized_uniform_vacuum_all_orders.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (c : ℝ) (hc : 1 / 12 < c) (R : ℕ) :
+  have t := 1 / (12 * c);
+  ∃ K,
+    0 < K ∧
+      ∀ (M : ℕ),
+        1 ≤ M →
+          |(1 /
+                      ∫ (xy : Ω × Ω),
+                        Real.exp
+                          (((∑ i ∈ Finset.range M, U i xy.1) * ∑ i ∈ Finset.range M, U i xy.2) / (c * ↑M)) ∂μ.prod μ) /
+                    √(1 - t ^ 2) -
+                  1 -
+                ∑ r ∈ Finset.range R, EulerianGrothendieck.normalizedVacuumCoefficient t (r + 1) / ↑M ^ (r + 1)| ≤
+            K / ↑M ^ (R + 1)
+'EulerianGrothendieck.actual_uniform_vacuum_twelfth_order' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.actual_uniform_vacuum_twelfth_order.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |1 /
+                  ∫ (xy : Ω × Ω),
+                    Real.exp
+                      (EulerianGrothendieck.arithmeticParameter *
+                        (EulerianGrothendieck.standardizedUniformSum U M xy.1 *
+                          EulerianGrothendieck.standardizedUniformSum U M xy.2)) ∂μ.prod μ -
+                √(4 / 5) * ∑ r ∈ Finset.range 13, ↑(EulerianGrothendieck.vacuumD r) / ↑M ^ r| ≤
+            K / ↑M ^ 13
+'EulerianGrothendieck.arithmetic_scale_vacuum_twelfth_order' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.arithmetic_scale_vacuum_twelfth_order.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) :
+  ∃ K,
+    0 < K ∧
+      ∀ (M : ℕ),
+        1 ≤ M →
+          |(1 /
+                    ∫ (xy : Ω × Ω),
+                      Real.exp
+                        (((∑ i ∈ Finset.range M, U i xy.1) * ∑ i ∈ Finset.range M, U i xy.2) /
+                          (√5 / 12 * ↑M)) ∂μ.prod μ) /
+                  √(4 / 5) -
+                ∑ r ∈ Finset.range 13, ↑(EulerianGrothendieck.vacuumD r) / ↑M ^ r| ≤
+            K / ↑M ^ 13
+'EulerianGrothendieck.complex_modulus_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.complex_modulus_remainder (w : ℂ) (hw : ‖w‖ ≤ 1 / 2) :
+  0 ≤ ‖1 + w‖ - 1 - w.re ∧ ‖1 + w‖ - 1 - w.re ≤ ‖w‖ ^ 2
+'EulerianGrothendieck.complex_modulus_squared_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.complex_modulus_squared_remainder (w : ℂ) (hw : ‖w‖ ≤ 1 / 2) :
+  |(‖1 + w‖ - 1) ^ 2 - w.re ^ 2| ≤ 3 * ‖w‖ ^ 3
+'EulerianGrothendieck.frameDistance_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frameDistance_nonneg (e : ℝ) (z a b : ℂ) : 0 ≤ EulerianGrothendieck.frameDistance e z a b
+'EulerianGrothendieck.frameDistance_sublevel_localization' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frameDistance_sublevel_localization (e : ℝ) (z a b : ℂ) (he : 0 ≤ e)
+  (h : EulerianGrothendieck.frameDistance e z a b ≤ 16 * e ^ 2) : |‖a‖ - 1| ≤ 4 * e ∧ |‖b‖ - 1| ≤ 4 * e
+'EulerianGrothendieck.sqrt_unit_loss' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.sqrt_unit_loss (e : ℝ) (he0 : 0 ≤ e) (he1 : e ≤ 1) : |√(1 - e ^ 2) - 1| ≤ e ^ 2
+'EulerianGrothendieck.frameDistance_unit_trial' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frameDistance_unit_trial (e : ℝ) (he0 : 0 ≤ e) (he1 : e ≤ 1) (z a b : ℂ) (hz : ‖z‖ = 1)
+  (ha : ‖a‖ = 1) (hb : ‖b‖ = 1) : EulerianGrothendieck.frameDistance e z a b ≤ 8 * e ^ 2
+'EulerianGrothendieck.modulus_linearized_square_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.modulus_linearized_square_bound (e a : ℝ) (w : ℂ) (he0 : 0 ≤ e) (he1 : e ≤ 1 / 12) (ha : |a| ≤ 5)
+  (hw : ‖w‖ ≤ 6 * e) (hlin : |w.re - e * a| ≤ 6 * e ^ 2) : |(‖1 + w‖ - 1) ^ 2 - e ^ 2 * a ^ 2| ≤ 1000 * e ^ 3
+'EulerianGrothendieck.coordinatePerturbation_split' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.coordinatePerturbation_split (e u v : ℝ) (y : ℂ) :
+  EulerianGrothendieck.coordinatePerturbation e u v y - ↑e * (↑v + y) =
+    ↑(e ^ 2 * u) * y + ↑((√(1 - e ^ 2) - 1) * (1 + e * v))
+'EulerianGrothendieck.coordinatePerturbation_residual' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.coordinatePerturbation_residual (e u v : ℝ) (y : ℂ) (he0 : 0 ≤ e) (he1 : e ≤ 1 / 12) (hu : |u| ≤ 4)
+  (hv : |v| ≤ 4) (hy : ‖y‖ = 1) : ‖EulerianGrothendieck.coordinatePerturbation e u v y - ↑e * (↑v + y)‖ ≤ 6 * e ^ 2
+'EulerianGrothendieck.coordinatePerturbation_bounds' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.coordinatePerturbation_bounds (e u v : ℝ) (y : ℂ) (he0 : 0 ≤ e) (he1 : e ≤ 1 / 12) (hu : |u| ≤ 4)
+  (hv : |v| ≤ 4) (hy : ‖y‖ = 1) :
+  ‖EulerianGrothendieck.coordinatePerturbation e u v y‖ ≤ 6 * e ∧
+    |(EulerianGrothendieck.coordinatePerturbation e u v y).re - e * (v + y.re)| ≤ 6 * e ^ 2
+'EulerianGrothendieck.coordinateDistance_uniform_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.coordinateDistance_uniform_remainder (e : ℝ) (z y : ℂ) (u v : ℝ) (he0 : 0 ≤ e) (he1 : e ≤ 1 / 12)
+  (hu : |u| ≤ 4) (hv : |v| ≤ 4) (hy : ‖y‖ = 1) (hz : ‖z‖ = 1) :
+  |EulerianGrothendieck.coordinateDistance e z u v y - e ^ 2 * EulerianGrothendieck.limitingObjective z u v y| ≤
+    2000 * e ^ 3
+'EulerianGrothendieck.unit_mul_star' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.unit_mul_star (z : ℂ) (hz : ‖z‖ = 1) : z * star z = 1
+'EulerianGrothendieck.frameDistance_rotate' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frameDistance_rotate (e : ℝ) (z a b t : ℂ) (ht : ‖t‖ = 1) :
+  EulerianGrothendieck.frameDistance e z (a * t) (b * t) = EulerianGrothendieck.frameDistance e z a b
+'EulerianGrothendieck.frameDistance_coordinates' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frameDistance_coordinates (e u v : ℝ) (z y : ℂ) (hu : 0 ≤ 1 + e * u) (hv : 0 ≤ 1 + e * v)
+  (hy : ‖y‖ = 1) (hz : ‖z‖ = 1) :
+  EulerianGrothendieck.frameDistance e z (↑(1 + e * u) * y) ↑(1 + e * v) =
+    EulerianGrothendieck.coordinateDistance e z u v y
+'EulerianGrothendieck.frameDistance_sublevel_coordinates' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frameDistance_sublevel_coordinates (e : ℝ) (z a b : ℂ) (he : 0 < e) (he1 : e ≤ 1 / 12)
+  (hz : ‖z‖ = 1) (hd : EulerianGrothendieck.frameDistance e z a b ≤ 16 * e ^ 2) :
+  ∃ u v y,
+    |u| ≤ 4 ∧
+      |v| ≤ 4 ∧ ‖y‖ = 1 ∧ EulerianGrothendieck.frameDistance e z a b = EulerianGrothendieck.coordinateDistance e z u v y
+'EulerianGrothendieck.halfPhase_unit' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.halfPhase_unit (C S : ℝ) (h : C ^ 2 + S ^ 2 = 1) : ‖EulerianGrothendieck.halfPhase C S‖ = 1
+'EulerianGrothendieck.limitingObjective_halfPhase_lower' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.limitingObjective_halfPhase_lower (C S u v : ℝ) (y : ℂ) (hCS : C ^ 2 + S ^ 2 = 1)
+  (hdom : 3 * S ^ 2 ≤ C ^ 2) (hy : ‖y‖ = 1) :
+  2 * S ^ 2 ≤ EulerianGrothendieck.limitingObjective (EulerianGrothendieck.halfPhase C S) u v y
+'EulerianGrothendieck.limitingObjective_halfPhase_trial' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.limitingObjective_halfPhase_trial (C S : ℝ) (hCS : C ^ 2 + S ^ 2 = 1) :
+  ‖↑S + ↑C * Complex.I‖ = 1 ∧
+    EulerianGrothendieck.limitingObjective (EulerianGrothendieck.halfPhase C S) 0 0 (↑S + ↑C * Complex.I) = 2 * S ^ 2
+'EulerianGrothendieck.eulerian_half_parameters' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_half_parameters :
+  EulerianGrothendieck.eulerianHalfC ^ 2 + EulerianGrothendieck.eulerianHalfS ^ 2 = 1 ∧
+    3 * EulerianGrothendieck.eulerianHalfS ^ 2 ≤ EulerianGrothendieck.eulerianHalfC ^ 2 ∧
+      2 * EulerianGrothendieck.eulerianHalfS ^ 2 = 2 / (Real.pi ^ 2 + 1)
+'EulerianGrothendieck.eulerianPhase_unit' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerianPhase_unit : ‖EulerianGrothendieck.eulerianPhase‖ = 1
+'EulerianGrothendieck.eulerian_limitingObjective_lower' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_limitingObjective_lower (u v : ℝ) (y : ℂ) (hy : ‖y‖ = 1) :
+  2 / (Real.pi ^ 2 + 1) ≤ EulerianGrothendieck.limitingObjective EulerianGrothendieck.eulerianPhase u v y
+'EulerianGrothendieck.eulerian_limitingObjective_trial' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_limitingObjective_trial :
+  ‖↑EulerianGrothendieck.eulerianHalfS + ↑EulerianGrothendieck.eulerianHalfC * Complex.I‖ = 1 ∧
+    EulerianGrothendieck.limitingObjective EulerianGrothendieck.eulerianPhase 0 0
+        (↑EulerianGrothendieck.eulerianHalfS + ↑EulerianGrothendieck.eulerianHalfC * Complex.I) =
+      2 / (Real.pi ^ 2 + 1)
+'EulerianGrothendieck.frameDistance_range_bddBelow' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frameDistance_range_bddBelow (e : ℝ) (z : ℂ) :
+  BddBelow (Set.range fun ab => EulerianGrothendieck.frameDistance e z ab.1 ab.2)
+'EulerianGrothendieck.frameInfimum_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frameInfimum_nonneg (e : ℝ) (z : ℂ) : 0 ≤ EulerianGrothendieck.frameInfimum e z
+'EulerianGrothendieck.eulerian_frameDistance_global_lower' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_frameDistance_global_lower (e : ℝ) (a b : ℂ) (he : 0 < e) (he1 : e ≤ 1 / 12) :
+  2 / (Real.pi ^ 2 + 1) * e ^ 2 - 2000 * e ^ 3 ≤
+    EulerianGrothendieck.frameDistance e EulerianGrothendieck.eulerianPhase a b
+'EulerianGrothendieck.eulerian_frameDistance_trial_upper' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_frameDistance_trial_upper (e : ℝ) (he : 0 ≤ e) (he1 : e ≤ 1 / 12) :
+  EulerianGrothendieck.frameDistance e EulerianGrothendieck.eulerianPhase
+      (↑EulerianGrothendieck.eulerianHalfS + ↑EulerianGrothendieck.eulerianHalfC * Complex.I) 1 ≤
+    2 / (Real.pi ^ 2 + 1) * e ^ 2 + 2000 * e ^ 3
+'EulerianGrothendieck.eulerian_frameInfimum_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_frameInfimum_remainder (e : ℝ) (he : 0 < e) (he1 : e ≤ 1 / 12) :
+  |EulerianGrothendieck.frameInfimum e EulerianGrothendieck.eulerianPhase - 2 / (Real.pi ^ 2 + 1) * e ^ 2| ≤
+    2000 * e ^ 3
+'EulerianGrothendieck.eulerian_frameInfimum_ratio_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_frameInfimum_ratio_bound (e : ℝ) (he : 0 < e) (he1 : e ≤ 1 / 12) :
+  |EulerianGrothendieck.frameInfimum e EulerianGrothendieck.eulerianPhase / e ^ 2 - 2 / (Real.pi ^ 2 + 1)| ≤ 2000 * e
+'EulerianGrothendieck.eulerian_frameInfimum_ratio_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_frameInfimum_ratio_limit :
+  Filter.Tendsto (fun e => EulerianGrothendieck.frameInfimum e EulerianGrothendieck.eulerianPhase / e ^ 2)
+    (nhdsWithin 0 (Set.Ioi 0)) (nhds (2 / (Real.pi ^ 2 + 1)))
+'EulerianGrothendieck.eulerian_loss_ratio_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_loss_ratio_limit :
+  Filter.Tendsto (fun p => EulerianGrothendieck.eulerianLoss p / p) (nhdsWithin 0 (Set.Ioi 0))
+    (nhds (2 / (Real.pi ^ 2 + 1)))
+'EulerianGrothendieck.eulerian_loss_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_loss_limit :
+  Filter.Tendsto EulerianGrothendieck.eulerianLoss (nhdsWithin 0 (Set.Ioi 0)) (nhds 0)
+'EulerianGrothendieck.eulerian_variational_ratio_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_variational_ratio_limit :
+  Filter.Tendsto (fun p => (EulerianGrothendieck.eulerianVariationalRatio p - 1) / p) (nhdsWithin 0 (Set.Ioi 0))
+    (nhds (1 / (2 * (Real.pi ^ 2 + 1))))
+'EulerianGrothendieck.criticalVacuum_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.criticalVacuum_pos (h : ℝ) (hh : 0 < h) : 0 < EulerianGrothendieck.criticalVacuum h
+'EulerianGrothendieck.criticalVacuum_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.criticalVacuum_limit :
+  Filter.Tendsto EulerianGrothendieck.criticalVacuum (nhdsWithin 0 (Set.Ioi 0)) (nhds 0)
+'EulerianGrothendieck.eulerian_variational_critical_law' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_variational_critical_law :
+  Filter.Tendsto
+    (fun h => (EulerianGrothendieck.eulerianVariationalRatio (EulerianGrothendieck.criticalVacuum h) - 1) / √h)
+    (nhdsWithin 0 (Set.Ioi 0)) (nhds (√6 / (Real.pi ^ 2 + 1)))
+'EulerianGrothendieck.exists_unit_closest' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exists_unit_closest (z : ℂ) : ∃ u, ‖u‖ = 1 ∧ ‖u - z‖ ^ 2 = (‖z‖ - 1) ^ 2
+'EulerianGrothendieck.torusPoint_norm_sq' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.torusPoint_norm_sq (u : EulerianGrothendieck.FourSpace)
+  (hu : EulerianGrothendieck.IsTorusPoint u) : ‖u‖ ^ 2 = 4
+'EulerianGrothendieck.radialDistance_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.radialDistance_nonneg (v : EulerianGrothendieck.FourSpace) :
+  0 ≤ EulerianGrothendieck.radialDistance v
+'EulerianGrothendieck.radialDistance_le_distance' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.radialDistance_le_distance (u v : EulerianGrothendieck.FourSpace)
+  (hu : EulerianGrothendieck.IsTorusPoint u) : EulerianGrothendieck.radialDistance v ≤ ‖u - v‖ ^ 2
+'EulerianGrothendieck.exists_closest_torusPoint' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.exists_closest_torusPoint (v : EulerianGrothendieck.FourSpace) :
+  ∃ u, EulerianGrothendieck.IsTorusPoint u ∧ ‖u - v‖ ^ 2 = EulerianGrothendieck.radialDistance v
+'EulerianGrothendieck.projection_residual_pythagoras' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.projection_residual_pythagoras (U : Submodule ℂ EulerianGrothendieck.FourSpace)
+  (u : EulerianGrothendieck.FourSpace) : ‖u - U.starProjection u‖ ^ 2 + ‖U.starProjection u‖ ^ 2 = ‖u‖ ^ 2
+'EulerianGrothendieck.projection_residual_minimal' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.projection_residual_minimal (U : Submodule ℂ EulerianGrothendieck.FourSpace)
+  (u v : EulerianGrothendieck.FourSpace) (hv : v ∈ U) : ‖u - U.starProjection u‖ ^ 2 ≤ ‖u - v‖ ^ 2
+'EulerianGrothendieck.projectionScalarValues_nonempty' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.projectionScalarValues_nonempty (U : Submodule ℂ EulerianGrothendieck.FourSpace) :
+  (EulerianGrothendieck.projectionScalarValues U).Nonempty
+'EulerianGrothendieck.projectionScalarValues_bddAbove' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.projectionScalarValues_bddAbove (U : Submodule ℂ EulerianGrothendieck.FourSpace) :
+  BddAbove (EulerianGrothendieck.projectionScalarValues U)
+'EulerianGrothendieck.projectionScalarNorm_ge' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.projectionScalarNorm_ge (U : Submodule ℂ EulerianGrothendieck.FourSpace)
+  (u : EulerianGrothendieck.FourSpace) (hu : EulerianGrothendieck.IsTorusPoint u) :
+  ‖U.starProjection u‖ ^ 2 ≤ EulerianGrothendieck.projectionScalarNorm U
+'EulerianGrothendieck.radialSubspaceInfimum_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.radialSubspaceInfimum_nonneg (U : Submodule ℂ EulerianGrothendieck.FourSpace) :
+  0 ≤ EulerianGrothendieck.radialSubspaceInfimum U
+'EulerianGrothendieck.radialSubspaceInfimum_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.radialSubspaceInfimum_le (U : Submodule ℂ EulerianGrothendieck.FourSpace)
+  (v : EulerianGrothendieck.FourSpace) (hv : v ∈ U) :
+  EulerianGrothendieck.radialSubspaceInfimum U ≤ EulerianGrothendieck.radialDistance v
+'EulerianGrothendieck.projection_scalar_distance_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.projection_scalar_distance_identity (U : Submodule ℂ EulerianGrothendieck.FourSpace) :
+  EulerianGrothendieck.radialSubspaceInfimum U = 4 - EulerianGrothendieck.projectionScalarNorm U
+'EulerianGrothendieck.projection_quadratic_value' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.projection_quadratic_value (U : Submodule ℂ EulerianGrothendieck.FourSpace)
+  (u : EulerianGrothendieck.FourSpace) : (inner ℂ u (U.starProjection u)).re = ‖U.starProjection u‖ ^ 2
+'EulerianGrothendieck.radialDistance_frameVector' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.radialDistance_frameVector (e : ℝ) (z a b : ℂ) :
+  EulerianGrothendieck.radialDistance (EulerianGrothendieck.frameVector e z a b) =
+    EulerianGrothendieck.frameDistance e z a b
+'EulerianGrothendieck.frame_radial_infimum' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frame_radial_infimum (e : ℝ) (z : ℂ) :
+  EulerianGrothendieck.radialSubspaceInfimum (EulerianGrothendieck.frameSubspace e z) =
+    EulerianGrothendieck.frameInfimum e z
+'EulerianGrothendieck.frame_projection_distance_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frame_projection_distance_identity (e : ℝ) (z : ℂ) :
+  EulerianGrothendieck.frameInfimum e z =
+    4 - EulerianGrothendieck.projectionScalarNorm (EulerianGrothendieck.frameSubspace e z)
+'EulerianGrothendieck.frameGrothendieckRatio_eq_variational' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frameGrothendieckRatio_eq_variational (p : ℝ) :
+  EulerianGrothendieck.frameGrothendieckRatio p = EulerianGrothendieck.eulerianVariationalRatio p
+'EulerianGrothendieck.eulerian_projection_loss_ratio_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_projection_loss_ratio_limit :
+  Filter.Tendsto
+    (fun p =>
+      (4 -
+          EulerianGrothendieck.projectionScalarNorm
+            (EulerianGrothendieck.frameSubspace (√p) EulerianGrothendieck.eulerianPhase)) /
+        p)
+    (nhdsWithin 0 (Set.Ioi 0)) (nhds (2 / (Real.pi ^ 2 + 1)))
+'EulerianGrothendieck.eulerian_projection_critical_law' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerian_projection_critical_law :
+  Filter.Tendsto
+    (fun h => (EulerianGrothendieck.frameGrothendieckRatio (EulerianGrothendieck.criticalVacuum h) - 1) / √h)
+    (nhdsWithin 0 (Set.Ioi 0)) (nhds (√6 / (Real.pi ^ 2 + 1)))
+'EulerianGrothendieck.eulerianPhase_cartesian' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerianPhase_cartesian :
+  EulerianGrothendieck.eulerianPhase =
+    ↑((Real.pi ^ 2 - 1) / (Real.pi ^ 2 + 1)) + ↑(2 * Real.pi / (Real.pi ^ 2 + 1)) * Complex.I
+'EulerianGrothendieck.eulerianPhase_fraction' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.eulerianPhase_fraction :
+  EulerianGrothendieck.eulerianPhase = (↑Real.pi + Complex.I) / (↑Real.pi - Complex.I)
+'EulerianGrothendieck.frameMatrix_apply' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frameMatrix_apply (e : ℝ) (z : ℂ) (x : EuclideanSpace ℂ (Fin 2)) :
+  (Matrix.toEuclideanLin (EulerianGrothendieck.frameMatrix e z)) x = EulerianGrothendieck.frameVector e z (x 0) (x 1)
+'EulerianGrothendieck.frameMatrix_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frameMatrix_injective (e : ℝ) (z : ℂ) :
+  Function.Injective (EulerianGrothendieck.frameMatrix e z).mulVec
+'EulerianGrothendieck.frameMatrix_gram_invertible' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frameMatrix_gram_invertible (e : ℝ) (z : ℂ) :
+  IsUnit ((EulerianGrothendieck.frameMatrix e z).conjTranspose * EulerianGrothendieck.frameMatrix e z).det
+'EulerianGrothendieck.frameMatrix_range' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.frameMatrix_range (e : ℝ) (z : ℂ) :
+  LinearMap.range (Matrix.toEuclideanLin (EulerianGrothendieck.frameMatrix e z)) =
+    EulerianGrothendieck.frameSubspace e z
+'EulerianGrothendieck.matrixEuclidean_mul_apply' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.matrixEuclidean_mul_apply.{u_1, u_2, u_3} {m : Type u_1} {n : Type u_2} {k : Type u_3} [Fintype m]
+  [Fintype n] [Fintype k] [DecidableEq m] [DecidableEq n] [DecidableEq k] (A : Matrix m n ℂ) (B : Matrix n k ℂ)
+  (x : EuclideanSpace ℂ k) : (Matrix.toEuclideanLin (A * B)) x = (Matrix.toEuclideanLin A) ((Matrix.toEuclideanLin B) x)
+'EulerianGrothendieck.explicitFrameProjector_eq_projection' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.explicitFrameProjector_eq_projection (e : ℝ) (z : ℂ) (u : EulerianGrothendieck.FourSpace) :
+  (Matrix.toEuclideanLin (EulerianGrothendieck.explicitFrameProjector e z)) u =
+    (EulerianGrothendieck.frameSubspace e z).starProjection u
+'EulerianGrothendieck.explicitFrameScalarNorm_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.explicitFrameScalarNorm_eq (e : ℝ) (z : ℂ) :
+  EulerianGrothendieck.explicitFrameScalarNorm e z =
+    EulerianGrothendieck.projectionScalarNorm (EulerianGrothendieck.frameSubspace e z)
+'EulerianGrothendieck.explicit_projector_critical_law' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.explicit_projector_critical_law :
+  Filter.Tendsto
+    (fun h =>
+      (4 /
+            EulerianGrothendieck.explicitFrameScalarNorm (√(EulerianGrothendieck.criticalVacuum h))
+              EulerianGrothendieck.eulerianPhase -
+          1) /
+        √h)
+    (nhdsWithin 0 (Set.Ioi 0)) (nhds (√6 / (Real.pi ^ 2 + 1)))
+'EulerianGrothendieck.torusPoint_compact' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.torusPoint_compact : IsCompact {u | EulerianGrothendieck.IsTorusPoint u}
+'EulerianGrothendieck.projectionScalarNorm_attained' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.projectionScalarNorm_attained (U : Submodule ℂ EulerianGrothendieck.FourSpace) :
+  ∃ u, EulerianGrothendieck.IsTorusPoint u ∧ EulerianGrothendieck.projectionScalarNorm U = ‖U.starProjection u‖ ^ 2
+'EulerianGrothendieck.Order13.cumulantA_prefix' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.cumulantA_prefix (r : ℕ) (hr : r ≤ 13) :
+  EulerianGrothendieck.Order13.cumulantA r = EulerianGrothendieck.cumulantA r
+'EulerianGrothendieck.Order13.normB_prefix' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.normB_prefix (r : ℕ) (hr : r ≤ 12) :
+  EulerianGrothendieck.Order13.normB r = EulerianGrothendieck.normB r
+'EulerianGrothendieck.Order13.vacuumD_prefix' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.vacuumD_prefix (r : ℕ) (hr : r ≤ 12) :
+  EulerianGrothendieck.Order13.vacuumD r = EulerianGrothendieck.vacuumD r
+'EulerianGrothendieck.Order13.pCoeff_prefix' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.pCoeff_prefix (r q : ℕ) (hr : r ≤ 12) :
+  EulerianGrothendieck.Order13.pCoeff r q = EulerianGrothendieck.pCoeff r q
+'EulerianGrothendieck.Order13.qFallingCoeff_prefix' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.qFallingCoeff_prefix (r q : ℕ) (hr : r ≤ 12) :
+  EulerianGrothendieck.Order13.qFallingCoeff r q = EulerianGrothendieck.qFallingCoeff r q
+'EulerianGrothendieck.Order13.gPolynomial_prefix' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.gPolynomial_prefix (r : ℕ) (hr : r ≤ 12) (x : ℚ) :
+  EulerianGrothendieck.Order13.gPolynomial r x = EulerianGrothendieck.gPolynomial r x
+'EulerianGrothendieck.Order13.qPolynomial_prefix' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.qPolynomial_prefix (r : ℕ) (hr : r ≤ 12) (x : ℚ) :
+  EulerianGrothendieck.Order13.qPolynomial r x = EulerianGrothendieck.qPolynomial r x
+'EulerianGrothendieck.Order13.exactMomentPolynomial_prefix' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.exactMomentPolynomial_prefix (r : ℕ) (hr : r ≤ 12) (x : ℝ) :
+  EulerianGrothendieck.Order13.exactMomentPolynomial r x = EulerianGrothendieck.exactMomentPolynomial r x
+'EulerianGrothendieck.Order13.exactSquaredPolynomial_prefix' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.exactSquaredPolynomial_prefix (r : ℕ) (hr : r ≤ 12) (x : ℝ) :
+  EulerianGrothendieck.Order13.exactSquaredPolynomial r x = EulerianGrothendieck.exactSquaredPolynomial r x
+'EulerianGrothendieck.Order13.exactMomentPolynomial_rat' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.exactMomentPolynomial_rat (r : ℕ) (x : ℚ) :
+  EulerianGrothendieck.Order13.exactMomentPolynomial r ↑x = ↑(EulerianGrothendieck.Order13.gPolynomial r x)
+'EulerianGrothendieck.Order13.exactSquaredPolynomial_rat' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.exactSquaredPolynomial_rat (r : ℕ) (x : ℚ) :
+  EulerianGrothendieck.Order13.exactSquaredPolynomial r ↑x = ↑(EulerianGrothendieck.Order13.qPolynomial r x)
+'EulerianGrothendieck.Order13.norm_coefficient_13' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.norm_coefficient_13 :
+  EulerianGrothendieck.Order13.normB 13 =
+    ∑ q ∈ Finset.range 27, EulerianGrothendieck.Order13.qFallingCoeff 13 q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.Order13.reciprocal_coefficient_13' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.reciprocal_coefficient_13 :
+  ∑ j ∈ Finset.range 14, EulerianGrothendieck.Order13.normB j * EulerianGrothendieck.Order13.vacuumD (13 - j) = 0
+'EulerianGrothendieck.Order13.exactMomentPolynomial_recurrence_13' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.Order13.exactMomentPolynomial_recurrence_13 (x : ℝ) :
+  EulerianGrothendieck.Order13.exactMomentPolynomial 13 (x + 1) =
+    ∑ j ∈ Finset.range 14,
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x *
+          ((↑j + 1) * ↑(EulerianGrothendieck.Order13.cumulantA (j + 1))) *
+        EulerianGrothendieck.Order13.exactMomentPolynomial (13 - j) (x - ↑j)
+'EulerianGrothendieck.Order13.squared_moment_polynomial_13' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.squared_moment_polynomial_13 (x : ℚ) :
+  ∑ j ∈ Finset.range 14,
+      EulerianGrothendieck.Order13.gPolynomial j x * EulerianGrothendieck.Order13.gPolynomial (13 - j) x =
+    EulerianGrothendieck.Order13.qPolynomial 13 x
+'EulerianGrothendieck.Order13.actual_cumulant_13' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.actual_cumulant_13 :
+  EulerianGrothendieck.standardUniformCumulant 13 = -6785560294 / 118055053288046875
+'EulerianGrothendieck.Order13.actual_cumulant_table' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.actual_cumulant_table (j : ℕ) (hj : j ≤ 13) :
+  EulerianGrothendieck.standardUniformCumulant j = (↑j + 1) * ↑(EulerianGrothendieck.Order13.cumulantA (j + 1))
+'EulerianGrothendieck.Order13.exactMomentPolynomial_recurrence' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.Order13.exactMomentPolynomial_recurrence (r : ℕ) (hr : r ≤ 13) (x : ℝ) :
+  EulerianGrothendieck.Order13.exactMomentPolynomial r (x + 1) =
+    ∑ j ∈ Finset.range (r + 1),
+      2 ^ (j + 1) * EulerianGrothendieck.fallingReal j x *
+          ((↑j + 1) * ↑(EulerianGrothendieck.Order13.cumulantA (j + 1))) *
+        EulerianGrothendieck.Order13.exactMomentPolynomial (r - j) (x - ↑j)
+'EulerianGrothendieck.Order13.exactMomentPolynomial_at_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.exactMomentPolynomial_at_zero (r : ℕ) (hr : r ≤ 13) :
+  EulerianGrothendieck.Order13.exactMomentPolynomial r 0 = if r = 0 then 1 else 0
+'EulerianGrothendieck.Order13.actual_moment_coefficients_through_thirteen' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.Order13.actual_moment_coefficients_through_thirteen (k r : ℕ) (hr : r ≤ 13) :
+  (EulerianGrothendieck.uniformRatioPolynomial k).coeff r = EulerianGrothendieck.Order13.exactMomentPolynomial r ↑k
+'EulerianGrothendieck.Order13.exact_squared_polynomial_table' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.exact_squared_polynomial_table (r : ℕ) (hr : r ≤ 13) (x : ℚ) :
+  ∑ j ∈ Finset.range (r + 1),
+      EulerianGrothendieck.Order13.gPolynomial j x * EulerianGrothendieck.Order13.gPolynomial (r - j) x =
+    EulerianGrothendieck.Order13.qPolynomial r x
+'EulerianGrothendieck.Order13.actual_squared_coefficients_through_thirteen' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.Order13.actual_squared_coefficients_through_thirteen (k r : ℕ) (hr : r ≤ 13) :
+  (EulerianGrothendieck.uniformSquaredPolynomial k).coeff r = EulerianGrothendieck.Order13.exactSquaredPolynomial r ↑k
+'EulerianGrothendieck.Order13.norm_coefficient_table' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.norm_coefficient_table (r : ℕ) (hr : r ≤ 13) :
+  EulerianGrothendieck.Order13.normB r =
+    ∑ q ∈ Finset.range (2 * r + 1), EulerianGrothendieck.Order13.qFallingCoeff r q * EulerianGrothendieck.nbFactorial q
+'EulerianGrothendieck.Order13.reciprocal_coefficient_table' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.Order13.reciprocal_coefficient_table (r : ℕ) (hr : r ≤ 13) :
+  ∑ j ∈ Finset.range (r + 1), EulerianGrothendieck.Order13.normB j * EulerianGrothendieck.Order13.vacuumD (r - j) =
+    if r = 0 then 1 else 0
+'EulerianGrothendieck.Order13.arithmetic_norm_coefficient_identification' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.Order13.arithmetic_norm_coefficient_identification (r : ℕ) (hr : r ≤ 13) :
+  EulerianGrothendieck.uniformNormCoefficient EulerianGrothendieck.arithmeticParameter r =
+    1 / √(4 / 5) * ↑(EulerianGrothendieck.Order13.normB r)
+'EulerianGrothendieck.Order13.arithmetic_vacuum_coefficient_identification' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.Order13.arithmetic_vacuum_coefficient_identification (r : ℕ) (hr : r ≤ 13) :
+  EulerianGrothendieck.uniformVacuumCoefficient EulerianGrothendieck.arithmeticParameter r =
+    √(4 / 5) * ↑(EulerianGrothendieck.Order13.vacuumD r)
+'EulerianGrothendieck.Order13.actual_uniform_vacuum_thirteenth_order' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.Order13.actual_uniform_vacuum_thirteenth_order.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |1 /
+                  ∫ (xy : Ω × Ω),
+                    Real.exp
+                      (EulerianGrothendieck.arithmeticParameter *
+                        (EulerianGrothendieck.standardizedUniformSum U M xy.1 *
+                          EulerianGrothendieck.standardizedUniformSum U M xy.2)) ∂μ.prod μ -
+                √(4 / 5) * ∑ r ∈ Finset.range 14, ↑(EulerianGrothendieck.Order13.vacuumD r) / ↑M ^ r| ≤
+            K / ↑M ^ 14
+'EulerianGrothendieck.Order13.arithmetic_scale_vacuum_thirteenth_order' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.Order13.arithmetic_scale_vacuum_thirteenth_order.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) :
+  ∃ K,
+    0 < K ∧
+      ∀ (M : ℕ),
+        1 ≤ M →
+          |(1 /
+                    ∫ (xy : Ω × Ω),
+                      Real.exp
+                        (((∑ i ∈ Finset.range M, U i xy.1) * ∑ i ∈ Finset.range M, U i xy.2) /
+                          (√5 / 12 * ↑M)) ∂μ.prod μ) /
+                  √(4 / 5) -
+                ∑ r ∈ Finset.range 14, ↑(EulerianGrothendieck.Order13.vacuumD r) / ↑M ^ r| ≤
+            K / ↑M ^ 14
+'EulerianGrothendieck.Order13.actual_uniform_norm_thirteenth_order' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.Order13.actual_uniform_norm_thirteenth_order.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (M : ℕ),
+        M ≠ 0 →
+          |∫ (xy : Ω × Ω),
+                  Real.exp
+                    (EulerianGrothendieck.arithmeticParameter *
+                      (EulerianGrothendieck.standardizedUniformSum U M xy.1 *
+                        EulerianGrothendieck.standardizedUniformSum U M xy.2)) ∂μ.prod μ -
+                1 / √(4 / 5) * ∑ r ∈ Finset.range 14, ↑(EulerianGrothendieck.Order13.normB r) / ↑M ^ r| ≤
+            K / ↑M ^ 14
+'EulerianGrothendieck.Order13.arithmetic_scale_norm_thirteenth_order' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.Order13.arithmetic_scale_norm_thirteenth_order.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) :
+  ∃ K,
+    0 < K ∧
+      ∀ (M : ℕ),
+        1 ≤ M →
+          |√(4 / 5) *
+                  ∫ (xy : Ω × Ω),
+                    Real.exp
+                      (((∑ i ∈ Finset.range M, U i xy.1) * ∑ i ∈ Finset.range M, U i xy.2) / (√5 / 12 * ↑M)) ∂μ.prod μ -
+                ∑ r ∈ Finset.range 14, ↑(EulerianGrothendieck.Order13.normB r) / ↑M ^ r| ≤
+            K / ↑M ^ 14
+'EulerianGrothendieck.geometric_weighted_uniform_all_order_remainder' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.geometric_weighted_uniform_all_order_remainder (P : ℕ → Polynomial ℝ) (A C s : ℝ) (d R : ℕ)
+  (hA : 0 ≤ A) (hC : 0 ≤ C) (hs0 : 0 < s) (hs1 : s < 1)
+  (hvalues : ∀ (M : ℕ), M ≠ 0 → ∀ (k : ℕ), |Polynomial.eval (1 / ↑M) (P k)| ≤ 1)
+  (hcoeff : ∀ (k r : ℕ), |(P k).coeff r| ≤ A * (↑r + 1) * (C * (↑k + 1) ^ d) ^ r) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (w : ℕ → ℝ),
+        (∀ (k : ℕ), 0 ≤ w k) →
+          (∀ (k : ℕ), w k ≤ s ^ k) →
+            ∀ (M : ℕ),
+              M ≠ 0 →
+                |∑' (k : ℕ), w k * Polynomial.eval (1 / ↑M) (P k) -
+                      ∑ r ∈ Finset.range (R + 1), (∑' (k : ℕ), w k * (P k).coeff r) / ↑M ^ r| ≤
+                  K / ↑M ^ (R + 1)
+'EulerianGrothendieck.binomialWeight_parameter_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.binomialWeight_parameter_bound (t T : ℝ) (ht : 0 ≤ t) (hT : t ≤ T) (k : ℕ) :
+  EulerianGrothendieck.binomialWeight t k ≤ (T ^ 2) ^ k
+'EulerianGrothendieck.uniformNormSeries_uniform_parameters' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.uniformNormSeries_uniform_parameters (T : ℝ) (hT0 : 0 < T) (hT1 : T < 1) (R : ℕ) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (t : ℝ),
+        0 < t →
+          t ≤ T →
+            ∀ (M : ℕ),
+              M ≠ 0 →
+                |EulerianGrothendieck.uniformNormSeries M t -
+                      ∑ r ∈ Finset.range (R + 1), EulerianGrothendieck.uniformNormCoefficient t r / ↑M ^ r| ≤
+                  K / ↑M ^ (R + 1)
+'EulerianGrothendieck.uniform_exponential_integral_uniform_parameters' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+EulerianGrothendieck.uniform_exponential_integral_uniform_parameters.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (T : ℝ) (hT0 : 0 < T) (hT1 : T < 1)
+  (R : ℕ) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (t : ℝ),
+        0 < t →
+          t ≤ T →
+            ∀ (M : ℕ),
+              M ≠ 0 →
+                |∫ (xy : Ω × Ω),
+                        Real.exp
+                          (t *
+                            (EulerianGrothendieck.standardizedUniformSum U M xy.1 *
+                              EulerianGrothendieck.standardizedUniformSum U M xy.2)) ∂μ.prod μ -
+                      ∑ r ∈ Finset.range (R + 1), EulerianGrothendieck.uniformNormCoefficient t r / ↑M ^ r| ≤
+                  K / ↑M ^ (R + 1)
+'EulerianGrothendieck.raw_uniform_kernel_uniform_parameters' depends on axioms: [propext, Classical.choice, Quot.sound]
+EulerianGrothendieck.raw_uniform_kernel_uniform_parameters.{u_1} {Ω : Type u_1} [MeasurableSpace Ω]
+  {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ] (U : ℕ → Ω → ℝ)
+  (hU : ∀ (i : ℕ), Measurable (U i)) (hind : ProbabilityTheory.iIndepFun U μ)
+  (hlaw : ∀ (i : ℕ), MeasureTheory.Measure.map (U i) μ = V033.UniformSum.uniformLaw) (c0 : ℝ) (hc0 : 1 / 12 < c0)
+  (R : ℕ) :
+  ∃ K,
+    0 ≤ K ∧
+      ∀ (c : ℝ),
+        c0 ≤ c →
+          ∀ (M : ℕ),
+            M ≠ 0 →
+              |∫ (xy : Ω × Ω),
+                      Real.exp
+                        (((∑ i ∈ Finset.range M, U i xy.1) * ∑ i ∈ Finset.range M, U i xy.2) / (c * ↑M)) ∂μ.prod μ -
+                    ∑ r ∈ Finset.range (R + 1), EulerianGrothendieck.uniformNormCoefficient (1 / (12 * c)) r / ↑M ^ r| ≤
+                K / ↑M ^ (R + 1)

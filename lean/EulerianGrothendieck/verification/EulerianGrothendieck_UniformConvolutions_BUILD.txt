@@ -1,0 +1,64 @@
+/home/claude/work/eg/EulerianGrothendieck/UniformConvolutions.lean:30:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/UniformConvolutions.lean:68:32: warning: This simp argument is unused:
+  div_pow
+
+Hint: Omit it from the simp argument list.
+  simp [gaussianEGFCoefficient, d̵i̵v̵_̵p̵o̵w̵,̵ ̵map_div₀, map_natCast, map_one]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/claude/work/eg/EulerianGrothendieck/UniformConvolutions.lean:68:41: warning: This simp argument is unused:
+  map_div₀
+
+Hint: Omit it from the simp argument list.
+  simp [gaussianEGFCoefficient, div_pow, map_d̵i̵v̵₀̵,̵ ̵m̵a̵p̵_̵natCast, map_one]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/claude/work/eg/EulerianGrothendieck/UniformConvolutions.lean:68:64: warning: This simp argument is unused:
+  map_one
+
+Hint: Omit it from the simp argument list.
+  simp [gaussianEGFCoefficient, div_pow, map_div₀, map_natCast,̵ ̵m̵a̵p̵_̵o̵n̵e̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/claude/work/eg/EulerianGrothendieck/UniformConvolutions.lean:76:8: warning: This simp argument is unused:
+  gaussianEGFCoefficient
+
+Hint: Omit it from the simp argument list.
+  simp [g̵a̵u̵s̵s̵i̵a̵n̵E̵G̵F̵C̵o̵e̵f̵f̵i̵c̵i̵e̵n̵t̵,̵ ̵mul_pow, div_pow, map_div₀, map_natCast, map_one]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/claude/work/eg/EulerianGrothendieck/UniformConvolutions.lean:76:41: warning: This simp argument is unused:
+  div_pow
+
+Hint: Omit it from the simp argument list.
+  simp [gaussianEGFCoefficient, mul_pow, d̵i̵v̵_̵p̵o̵w̵,̵ ̵map_div₀, map_natCast, map_one]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/claude/work/eg/EulerianGrothendieck/UniformConvolutions.lean:76:50: warning: This simp argument is unused:
+  map_div₀
+
+Hint: Omit it from the simp argument list.
+  simp [gaussianEGFCoefficient, mul_pow, div_pow, map_d̵i̵v̵₀̵,̵ ̵m̵a̵p̵_̵natCast, map_one]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/claude/work/eg/EulerianGrothendieck/UniformConvolutions.lean:76:73: warning: This simp argument is unused:
+  map_one
+
+Hint: Omit it from the simp argument list.
+  simp [gaussianEGFCoefficient, mul_pow, div_pow, map_div₀, map_natCast,̵ ̵m̵a̵p̵_̵o̵n̵e̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/claude/work/eg/EulerianGrothendieck/UniformConvolutions.lean:112:6: warning: 'ring' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/claude/work/eg/EulerianGrothendieck/UniformConvolutions.lean:112:6: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/claude/work/eg/EulerianGrothendieck/UniformConvolutions.lean:140:6: warning: 'ring' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/claude/work/eg/EulerianGrothendieck/UniformConvolutions.lean:140:6: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`

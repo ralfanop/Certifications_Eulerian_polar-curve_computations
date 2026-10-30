@@ -1,0 +1,21 @@
+/home/claude/work/eg/EulerianGrothendieck/ExplicitNormRemainder.lean:49:32: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExplicitNormRemainder.lean:51:28: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExplicitNormRemainder.lean:53:26: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExplicitNormRemainder.lean:118:30: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExplicitNormRemainder.lean:121:38: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/ExplicitNormRemainder.lean:223:64: warning: 'ring' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/claude/work/eg/EulerianGrothendieck/ExplicitNormRemainder.lean:223:64: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`

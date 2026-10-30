@@ -1,0 +1,7 @@
+/home/claude/work/eg/EulerianGrothendieck/ExposedCorrelation.lean:255:21: warning: This simp argument is unused:
+  Complex.star_def
+
+Hint: Omit it from the simp argument list.
+  simp [frameMatrix,̵ ̵C̵o̵m̵p̵l̵e̵x̵.̵s̵t̵a̵r̵_̵d̵e̵f̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

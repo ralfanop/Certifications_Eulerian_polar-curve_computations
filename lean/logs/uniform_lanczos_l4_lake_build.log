@@ -1,0 +1,12 @@
+⚠ [2219/2289] Replayed UniformLanczos.Lambda
+warning: UniformLanczos/Lambda.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/Lambda.lean: imports `Mathlib.Analysis.SpecialFunctions.ExpDeriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/Lambda.lean: imports `Mathlib.Analysis.Calculus.Deriv.MeanValue` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/Lambda.lean: imports `Mathlib.Analysis.Calculus.Deriv.Inv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/Lambda.lean: imports `Mathlib.Topology.Order.MonotoneContinuity` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/Lambda.lean: imports `Mathlib.Topology.Order.IntermediateValue` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [2835/2839] Replayed UniformLanczos.Endpoint
+warning: UniformLanczos/Endpoint.lean: imports `Mathlib.Analysis.SpecialFunctions.Integrals.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: UniformLanczos/Endpoint.lean: imports `Mathlib.Topology.Order.IntermediateValue` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+✔ [2839/2839] Built UniformLanczos.HigherProfileCoefficients (54s)
+Build completed successfully (2839 jobs).

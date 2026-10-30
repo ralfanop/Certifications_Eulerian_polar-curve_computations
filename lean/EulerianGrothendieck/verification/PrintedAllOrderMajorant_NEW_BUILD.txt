@@ -1,0 +1,21 @@
+/home/claude/work/eg/EulerianGrothendieck/PrintedAllOrderMajorant.lean:70:19: warning: 'ring' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/claude/work/eg/EulerianGrothendieck/PrintedAllOrderMajorant.lean:70:19: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/claude/work/eg/EulerianGrothendieck/PrintedAllOrderMajorant.lean:78:19: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/PrintedAllOrderMajorant.lean:117:17: warning: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+/home/claude/work/eg/EulerianGrothendieck/PrintedAllOrderMajorant.lean:182:53: warning: 'ring' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/claude/work/eg/EulerianGrothendieck/PrintedAllOrderMajorant.lean:182:53: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/claude/work/eg/EulerianGrothendieck/PrintedAllOrderMajorant.lean:158:70: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`

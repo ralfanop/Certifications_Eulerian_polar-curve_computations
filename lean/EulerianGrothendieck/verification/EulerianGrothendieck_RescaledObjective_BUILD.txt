@@ -1,0 +1,8 @@
+/home/claude/work/eg/EulerianGrothendieck/RescaledObjective.lean:45:73: warning: This simp argument is unused:
+  abs_mul
+
+Hint: Omit it from the simp argument list.
+  simp only [norm_mul, Complex.norm_real, Real.norm_eq_abs, hy, mul_one, abs_m̵u̵l̵p̲o̲w̲,
+      abs_p̵ow̵,̵ ̵a̵b̵s̵_̵o̵f_nonneg he0] at ht
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
