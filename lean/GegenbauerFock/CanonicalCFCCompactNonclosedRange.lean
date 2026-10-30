@@ -59,8 +59,12 @@ theorem exists_canonical_cfc_compact_nonclosed_range
          (PolarH lam →L[ℂ] PolarH lam) IsSelfAdjoint :=
        IsometricContinuousFunctionalCalculus.toNonUnital
      ∃ (W : PolarH lam ≃ₗᵢ[ℂ] InfiniteAnalysis.FockCoefficients),
-       IsCompactOperator (CFC.sqrt (gram lam alpha hlam ha)) ∧
-       Function.Injective (CFC.sqrt (gram lam alpha hlam ha)) ∧
+       IsCompactOperator
+         (CFC.sqrt (gram lam alpha hlam ha) :
+           PolarH lam →L[ℂ] PolarH lam) ∧
+       Function.Injective
+         (CFC.sqrt (gram lam alpha hlam ha) :
+           PolarH lam →L[ℂ] PolarH lam) ∧
        (CFC.sqrt (gram lam alpha hlam ha)).range.topologicalClosure =
          (⊤ : Submodule ℂ (PolarH lam)) ∧
        ¬ IsClosed ((CFC.sqrt (gram lam alpha hlam ha)).range :
