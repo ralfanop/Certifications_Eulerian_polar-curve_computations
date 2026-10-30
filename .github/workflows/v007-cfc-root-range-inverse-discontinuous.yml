@@ -8,9 +8,15 @@ on:
       - '.github/workflows/v007-cfc-root-range-inverse-discontinuous.yml'
   workflow_dispatch:
 
+# Bound concurrent V007 jobs per branch without stopping active theorem audits.
+concurrency:
+  group: v007-cfc-root-range-inverse-discontinuous-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   canonical-cfc-inverse-instability:
     runs-on: ubuntu-24.04
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - name: Install pinned Lean toolchain
