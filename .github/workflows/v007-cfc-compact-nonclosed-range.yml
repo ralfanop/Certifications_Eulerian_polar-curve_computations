@@ -8,9 +8,15 @@ on:
       - '.github/workflows/v007-cfc-compact-nonclosed-range.yml'
   workflow_dispatch:
 
+# Bound concurrent V007 jobs per branch without stopping active theorem audits.
+concurrency:
+  group: v007-cfc-compact-nonclosed-range-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   explicit-cfc-local-instance:
     runs-on: ubuntu-24.04
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - name: Install pinned Lean toolchain
