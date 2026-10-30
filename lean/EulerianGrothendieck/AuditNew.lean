@@ -1,0 +1,591 @@
+import EulerianGrothendieck.DirichletChiFive
+import EulerianGrothendieck.DirichletChiFiveLFunction
+import EulerianGrothendieck.ComplexArcsineDisk
+import EulerianGrothendieck.GaussianFockBridge
+import EulerianGrothendieck.FockVacuumProjection
+import EulerianGrothendieck.CriticalSubcriticalVacuum
+import EulerianGrothendieck.UniformParameterVacuum
+import EulerianGrothendieck.CatalanLipschitzDirichlet
+import EulerianGrothendieck.FockCorollaries
+import EulerianGrothendieck.BilinearScalarBridge
+import EulerianGrothendieck.VectorOptimum
+import EulerianGrothendieck.ExposedCorrelation
+import EulerianGrothendieck.EndpointDecompositions
+import EulerianGrothendieck.BernoulliCumulantIdentification
+import EulerianGrothendieck.ZetaCumulantIdentification
+import EulerianGrothendieck.PrintedAllOrderMajorant
+import EulerianGrothendieck.GeneralPhaseOptimization
+import EulerianGrothendieck.OccupancySharpRemainder
+import EulerianGrothendieck.ExplicitNormRemainder
+#print axioms EulerianGrothendieck.Dirichlet.chiFive_isQuadratic
+#check @EulerianGrothendieck.Dirichlet.chiFive_isQuadratic
+#print axioms EulerianGrothendieck.Dirichlet.chiFive_nontrivial
+#check @EulerianGrothendieck.Dirichlet.chiFive_nontrivial
+#print axioms EulerianGrothendieck.Dirichlet.chiFive_mod
+#check @EulerianGrothendieck.Dirichlet.chiFive_mod
+#print axioms EulerianGrothendieck.Dirichlet.chiFive_zero
+#check @EulerianGrothendieck.Dirichlet.chiFive_zero
+#print axioms EulerianGrothendieck.Dirichlet.chiFive_one
+#check @EulerianGrothendieck.Dirichlet.chiFive_one
+#print axioms EulerianGrothendieck.Dirichlet.chiFive_four
+#check @EulerianGrothendieck.Dirichlet.chiFive_four
+#print axioms EulerianGrothendieck.Dirichlet.chiFive_two
+#check @EulerianGrothendieck.Dirichlet.chiFive_two
+#print axioms EulerianGrothendieck.Dirichlet.chiFive_three
+#check @EulerianGrothendieck.Dirichlet.chiFive_three
+#print axioms EulerianGrothendieck.Dirichlet.chiFive_abs_le
+#check @EulerianGrothendieck.Dirichlet.chiFive_abs_le
+#print axioms EulerianGrothendieck.Dirichlet.chiFive_block_values
+#check @EulerianGrothendieck.Dirichlet.chiFive_block_values
+#print axioms EulerianGrothendieck.Dirichlet.inv_succ_eq_integral
+#check @EulerianGrothendieck.Dirichlet.inv_succ_eq_integral
+#print axioms EulerianGrothendieck.Dirichlet.chiFive_block
+#check @EulerianGrothendieck.Dirichlet.chiFive_block
+#print axioms EulerianGrothendieck.Dirichlet.partialSum_five_mul_eq
+#check @EulerianGrothendieck.Dirichlet.partialSum_five_mul_eq
+#print axioms EulerianGrothendieck.Dirichlet.denomPoly_pos
+#check @EulerianGrothendieck.Dirichlet.denomPoly_pos
+#print axioms EulerianGrothendieck.Dirichlet.block_geometric_identity
+#check @EulerianGrothendieck.Dirichlet.block_geometric_identity
+#print axioms EulerianGrothendieck.Dirichlet.continuousOn_pFun
+#check @EulerianGrothendieck.Dirichlet.continuousOn_pFun
+#print axioms EulerianGrothendieck.Dirichlet.partialSum_five_mul
+#check @EulerianGrothendieck.Dirichlet.partialSum_five_mul
+#print axioms EulerianGrothendieck.Dirichlet.pFun_mem
+#check @EulerianGrothendieck.Dirichlet.pFun_mem
+#print axioms EulerianGrothendieck.Dirichlet.tail_integral_bound
+#check @EulerianGrothendieck.Dirichlet.tail_integral_bound
+#print axioms EulerianGrothendieck.Dirichlet.sqrt5_sq
+#check @EulerianGrothendieck.Dirichlet.sqrt5_sq
+#print axioms EulerianGrothendieck.Dirichlet.sqrt5_pos
+#check @EulerianGrothendieck.Dirichlet.sqrt5_pos
+#print axioms EulerianGrothendieck.Dirichlet.sqrt5_lt_three
+#check @EulerianGrothendieck.Dirichlet.sqrt5_lt_three
+#print axioms EulerianGrothendieck.Dirichlet.facA_pos
+#check @EulerianGrothendieck.Dirichlet.facA_pos
+#print axioms EulerianGrothendieck.Dirichlet.facB_pos
+#check @EulerianGrothendieck.Dirichlet.facB_pos
+#print axioms EulerianGrothendieck.Dirichlet.fac_product
+#check @EulerianGrothendieck.Dirichlet.fac_product
+#print axioms EulerianGrothendieck.Dirichlet.hasDerivAt_primitiveF
+#check @EulerianGrothendieck.Dirichlet.hasDerivAt_primitiveF
+#print axioms EulerianGrothendieck.Dirichlet.integral_pFun
+#check @EulerianGrothendieck.Dirichlet.integral_pFun
+#print axioms EulerianGrothendieck.Dirichlet.partialSum_five_mul_tendsto
+#check @EulerianGrothendieck.Dirichlet.partialSum_five_mul_tendsto
+#print axioms EulerianGrothendieck.Dirichlet.dirichlet_chiFive_tendsto
+#check @EulerianGrothendieck.Dirichlet.dirichlet_chiFive_tendsto
+#print axioms EulerianGrothendieck.Dirichlet.LOneChiFive_eq
+#check @EulerianGrothendieck.Dirichlet.LOneChiFive_eq
+#print axioms EulerianGrothendieck.Dirichlet.chiFiveChar_apply
+#check @EulerianGrothendieck.Dirichlet.chiFiveChar_apply
+#print axioms EulerianGrothendieck.Dirichlet.chiFiveChar_zero
+#check @EulerianGrothendieck.Dirichlet.chiFiveChar_zero
+#print axioms EulerianGrothendieck.Dirichlet.chiFiveChar_ne_one
+#check @EulerianGrothendieck.Dirichlet.chiFiveChar_ne_one
+#print axioms EulerianGrothendieck.Dirichlet.chiPartial_zero
+#check @EulerianGrothendieck.Dirichlet.chiPartial_zero
+#print axioms EulerianGrothendieck.Dirichlet.chiFive_block_sum
+#check @EulerianGrothendieck.Dirichlet.chiFive_block_sum
+#print axioms EulerianGrothendieck.Dirichlet.chiPartial_add_five
+#check @EulerianGrothendieck.Dirichlet.chiPartial_add_five
+#print axioms EulerianGrothendieck.Dirichlet.chiPartial_mod
+#check @EulerianGrothendieck.Dirichlet.chiPartial_mod
+#print axioms EulerianGrothendieck.Dirichlet.chiPartial_abs_le
+#check @EulerianGrothendieck.Dirichlet.chiPartial_abs_le
+#print axioms EulerianGrothendieck.Dirichlet.abel_partial
+#check @EulerianGrothendieck.Dirichlet.abel_partial
+#print axioms EulerianGrothendieck.Dirichlet.summable_bound
+#check @EulerianGrothendieck.Dirichlet.summable_bound
+#print axioms EulerianGrothendieck.Dirichlet.weight_diff_le
+#check @EulerianGrothendieck.Dirichlet.weight_diff_le
+#print axioms EulerianGrothendieck.Dirichlet.term_bound
+#check @EulerianGrothendieck.Dirichlet.term_bound
+#print axioms EulerianGrothendieck.Dirichlet.abelSeries_hasSum
+#check @EulerianGrothendieck.Dirichlet.abelSeries_hasSum
+#print axioms EulerianGrothendieck.Dirichlet.partial_tendsto_abelSeries
+#check @EulerianGrothendieck.Dirichlet.partial_tendsto_abelSeries
+#print axioms EulerianGrothendieck.Dirichlet.abelSeries_one
+#check @EulerianGrothendieck.Dirichlet.abelSeries_one
+#print axioms EulerianGrothendieck.Dirichlet.term_eq
+#check @EulerianGrothendieck.Dirichlet.term_eq
+#print axioms EulerianGrothendieck.Dirichlet.LSeries_chiFive_eq
+#check @EulerianGrothendieck.Dirichlet.LSeries_chiFive_eq
+#print axioms EulerianGrothendieck.Dirichlet.LFunction_tendsto
+#check @EulerianGrothendieck.Dirichlet.LFunction_tendsto
+#print axioms EulerianGrothendieck.Dirichlet.abelSeries_tendsto_one
+#check @EulerianGrothendieck.Dirichlet.abelSeries_tendsto_one
+#print axioms EulerianGrothendieck.Dirichlet.LFunction_chiFive_one
+#check @EulerianGrothendieck.Dirichlet.LFunction_chiFive_one
+#print axioms EulerianGrothendieck.Dirichlet.LFunction_chiFive_one'
+#check @EulerianGrothendieck.Dirichlet.LFunction_chiFive_one'
+#print axioms EulerianGrothendieck.Dirichlet.LFunction_chiFive_one_eq_LOneChiFive
+#check @EulerianGrothendieck.Dirichlet.LFunction_chiFive_one_eq_LOneChiFive
+#print axioms EulerianGrothendieck.ArcsinDisk.sqrtOneSub_sq
+#check @EulerianGrothendieck.ArcsinDisk.sqrtOneSub_sq
+#print axioms EulerianGrothendieck.ArcsinDisk.cpow_half_re_nonneg
+#check @EulerianGrothendieck.ArcsinDisk.cpow_half_re_nonneg
+#print axioms EulerianGrothendieck.ArcsinDisk.one_sub_sq_re
+#check @EulerianGrothendieck.ArcsinDisk.one_sub_sq_re
+#print axioms EulerianGrothendieck.ArcsinDisk.one_sub_sq_im
+#check @EulerianGrothendieck.ArcsinDisk.one_sub_sq_im
+#print axioms EulerianGrothendieck.ArcsinDisk.one_sub_sq_mem_slitPlane
+#check @EulerianGrothendieck.ArcsinDisk.one_sub_sq_mem_slitPlane
+#print axioms EulerianGrothendieck.ArcsinDisk.sqrtOneSub_ne_zero
+#check @EulerianGrothendieck.ArcsinDisk.sqrtOneSub_ne_zero
+#print axioms EulerianGrothendieck.ArcsinDisk.branch_product
+#check @EulerianGrothendieck.ArcsinDisk.branch_product
+#print axioms EulerianGrothendieck.ArcsinDisk.branch_mem_slitPlane
+#check @EulerianGrothendieck.ArcsinDisk.branch_mem_slitPlane
+#print axioms EulerianGrothendieck.ArcsinDisk.branch_ne_zero
+#check @EulerianGrothendieck.ArcsinDisk.branch_ne_zero
+#print axioms EulerianGrothendieck.ArcsinDisk.sin_H0
+#check @EulerianGrothendieck.ArcsinDisk.sin_H0
+#print axioms EulerianGrothendieck.ArcsinDisk.hasDerivAt_H0
+#check @EulerianGrothendieck.ArcsinDisk.hasDerivAt_H0
+#print axioms EulerianGrothendieck.ArcsinDisk.diskB_im
+#check @EulerianGrothendieck.ArcsinDisk.diskB_im
+#print axioms EulerianGrothendieck.ArcsinDisk.diskB_coords
+#check @EulerianGrothendieck.ArcsinDisk.diskB_coords
+#print axioms EulerianGrothendieck.ArcsinDisk.norm_one_sub_sq_ge
+#check @EulerianGrothendieck.ArcsinDisk.norm_one_sub_sq_ge
+#print axioms EulerianGrothendieck.ArcsinDisk.norm_sqrtOneSub_sq
+#check @EulerianGrothendieck.ArcsinDisk.norm_sqrtOneSub_sq
+#print axioms EulerianGrothendieck.ArcsinDisk.sqrt5_div_two_eq
+#check @EulerianGrothendieck.ArcsinDisk.sqrt5_div_two_eq
+#print axioms EulerianGrothendieck.ArcsinDisk.norm_deriv_le
+#check @EulerianGrothendieck.ArcsinDisk.norm_deriv_le
+#print axioms EulerianGrothendieck.ArcsinDisk.half_I_mem
+#check @EulerianGrothendieck.ArcsinDisk.half_I_mem
+#print axioms EulerianGrothendieck.ArcsinDisk.sqrtOneSub_half_I
+#check @EulerianGrothendieck.ArcsinDisk.sqrtOneSub_half_I
+#print axioms EulerianGrothendieck.ArcsinDisk.norm_deriv_half_I
+#check @EulerianGrothendieck.ArcsinDisk.norm_deriv_half_I
+#print axioms EulerianGrothendieck.ArcsinDisk.deriv_H0
+#check @EulerianGrothendieck.ArcsinDisk.deriv_H0
+#print axioms EulerianGrothendieck.ArcsinDisk.sup_norm_deriv_H0
+#check @EulerianGrothendieck.ArcsinDisk.sup_norm_deriv_H0
+#print axioms EulerianGrothendieck.ArcsinDisk.sSup_norm_deriv_H0
+#check @EulerianGrothendieck.ArcsinDisk.sSup_norm_deriv_H0
+#print axioms EulerianGrothendieck.ArcsinDisk.H0_lipschitz
+#check @EulerianGrothendieck.ArcsinDisk.H0_lipschitz
+#print axioms EulerianGrothendieck.ArcsinDisk.H0_lipschitz_sharp
+#check @EulerianGrothendieck.ArcsinDisk.H0_lipschitz_sharp
+#print axioms EulerianGrothendieck.ArcsinDisk.H0_lipschitz_constant
+#check @EulerianGrothendieck.ArcsinDisk.H0_lipschitz_constant
+#print axioms EulerianGrothendieck.Fock.rE_eq_sin_div
+#check @EulerianGrothendieck.Fock.rE_eq_sin_div
+#print axioms EulerianGrothendieck.Fock.rE_zero
+#check @EulerianGrothendieck.Fock.rE_zero
+#print axioms EulerianGrothendieck.Fock.fockDensity_nonneg
+#check @EulerianGrothendieck.Fock.fockDensity_nonneg
+#print axioms EulerianGrothendieck.Fock.continuous_fockDensity
+#check @EulerianGrothendieck.Fock.continuous_fockDensity
+#print axioms EulerianGrothendieck.Fock.measurable_mk
+#check @EulerianGrothendieck.Fock.measurable_mk
+#print axioms EulerianGrothendieck.Fock.integral_complex_eq_prod
+#check @EulerianGrothendieck.Fock.integral_complex_eq_prod
+#print axioms EulerianGrothendieck.Fock.integrable_complex_iff_prod
+#check @EulerianGrothendieck.Fock.integrable_complex_iff_prod
+#print axioms EulerianGrothendieck.Fock.mk_norm_sq
+#check @EulerianGrothendieck.Fock.mk_norm_sq
+#print axioms EulerianGrothendieck.Fock.conj_mk
+#check @EulerianGrothendieck.Fock.conj_mk
+#print axioms EulerianGrothendieck.Fock.mk_eq
+#check @EulerianGrothendieck.Fock.mk_eq
+#print axioms EulerianGrothendieck.Fock.pairing_integrand_factor
+#check @EulerianGrothendieck.Fock.pairing_integrand_factor
+#print axioms EulerianGrothendieck.Fock.gaussian_pairing
+#check @EulerianGrothendieck.Fock.gaussian_pairing
+#print axioms EulerianGrothendieck.Fock.uniform_charFun
+#check @EulerianGrothendieck.Fock.uniform_charFun
+#print axioms EulerianGrothendieck.Fock.sum_charFun
+#check @EulerianGrothendieck.Fock.sum_charFun
+#print axioms EulerianGrothendieck.Fock.norm_sq_rE_pow
+#check @EulerianGrothendieck.Fock.norm_sq_rE_pow
+#print axioms EulerianGrothendieck.Fock.norm_rE_le
+#check @EulerianGrothendieck.Fock.norm_rE_le
+#print axioms EulerianGrothendieck.Fock.integrable_exp_neg_mul_sq_add_mul
+#check @EulerianGrothendieck.Fock.integrable_exp_neg_mul_sq_add_mul
+#print axioms EulerianGrothendieck.Fock.integrable_exp_abs_im_mul_fockDensity
+#check @EulerianGrothendieck.Fock.integrable_exp_abs_im_mul_fockDensity
+#print axioms EulerianGrothendieck.Fock.gaussian_fubini
+#check @EulerianGrothendieck.Fock.gaussian_fubini
+#print axioms EulerianGrothendieck.Fock.fock_norm_eq_probability_integral
+#check @EulerianGrothendieck.Fock.fock_norm_eq_probability_integral
+#print axioms EulerianGrothendieck.Fock.fock_norm_eq_moment_series
+#check @EulerianGrothendieck.Fock.fock_norm_eq_moment_series
+#print axioms EulerianGrothendieck.Fock.fock_norm_scaled_eq_uniformNormSeries
+#check @EulerianGrothendieck.Fock.fock_norm_scaled_eq_uniformNormSeries
+#print axioms EulerianGrothendieck.Fock.measurable_fockDensity_nnreal
+#check @EulerianGrothendieck.Fock.measurable_fockDensity_nnreal
+#print axioms EulerianGrothendieck.Fock.integral_fockMeasure
+#check @EulerianGrothendieck.Fock.integral_fockMeasure
+#print axioms EulerianGrothendieck.Fock.integral_fockMeasure_real
+#check @EulerianGrothendieck.Fock.integral_fockMeasure_real
+#print axioms EulerianGrothendieck.Fock.integrable_fockDensity
+#check @EulerianGrothendieck.Fock.integrable_fockDensity
+#print axioms EulerianGrothendieck.Fock.integral_fockDensity
+#check @EulerianGrothendieck.Fock.integral_fockDensity
+#print axioms EulerianGrothendieck.Fock.fockMeasure_univ
+#check @EulerianGrothendieck.Fock.fockMeasure_univ
+#print axioms EulerianGrothendieck.Fock.fockMeasure_isProbability
+#check @EulerianGrothendieck.Fock.fockMeasure_isProbability
+#print axioms EulerianGrothendieck.Fock.continuous_rE
+#check @EulerianGrothendieck.Fock.continuous_rE
+#print axioms EulerianGrothendieck.Fock.norm_rE_pow_sq_le
+#check @EulerianGrothendieck.Fock.norm_rE_pow_sq_le
+#print axioms EulerianGrothendieck.Fock.memLp_rE_pow
+#check @EulerianGrothendieck.Fock.memLp_rE_pow
+#print axioms EulerianGrothendieck.Fock.fockState_coe
+#check @EulerianGrothendieck.Fock.fockState_coe
+#print axioms EulerianGrothendieck.Fock.vacuum_coe
+#check @EulerianGrothendieck.Fock.vacuum_coe
+#print axioms EulerianGrothendieck.Fock.norm_vacuum
+#check @EulerianGrothendieck.Fock.norm_vacuum
+#print axioms EulerianGrothendieck.Fock.inner_vacuum_fockState
+#check @EulerianGrothendieck.Fock.inner_vacuum_fockState
+#print axioms EulerianGrothendieck.Fock.fockState_norm_sq
+#check @EulerianGrothendieck.Fock.fockState_norm_sq
+#print axioms EulerianGrothendieck.Fock.fock_vacuum_probability
+#check @EulerianGrothendieck.Fock.fock_vacuum_probability
+#print axioms EulerianGrothendieck.Fock.fock_vacuum_all_orders
+#check @EulerianGrothendieck.Fock.fock_vacuum_all_orders
+#print axioms EulerianGrothendieck.Fock.fock_norm_all_orders
+#check @EulerianGrothendieck.Fock.fock_norm_all_orders
+#print axioms EulerianGrothendieck.uniform_exponential_integral_hasSum
+#check @EulerianGrothendieck.uniform_exponential_integral_hasSum
+#print axioms EulerianGrothendieck.raw_uniform_kernel_hasSum
+#check @EulerianGrothendieck.raw_uniform_kernel_hasSum
+#print axioms EulerianGrothendieck.centralCoefficient_ge
+#check @EulerianGrothendieck.centralCoefficient_ge
+#print axioms EulerianGrothendieck.centralCoefficient_partial_unbounded
+#check @EulerianGrothendieck.centralCoefficient_partial_unbounded
+#print axioms EulerianGrothendieck.binomialWeight_ge_central
+#check @EulerianGrothendieck.binomialWeight_ge_central
+#print axioms EulerianGrothendieck.uniformMomentRatio_tendsto_one
+#check @EulerianGrothendieck.uniformMomentRatio_tendsto_one
+#print axioms EulerianGrothendieck.uniform_norm_lower_bound_divergence
+#check @EulerianGrothendieck.uniform_norm_lower_bound_divergence
+#print axioms EulerianGrothendieck.critical_subcritical_norm_tendsto_atTop
+#check @EulerianGrothendieck.critical_subcritical_norm_tendsto_atTop
+#print axioms EulerianGrothendieck.critical_subcritical_vacuum_tendsto_zero
+#check @EulerianGrothendieck.critical_subcritical_vacuum_tendsto_zero
+#print axioms EulerianGrothendieck.polyAbsEval_trunc
+#check @EulerianGrothendieck.polyAbsEval_trunc
+#print axioms EulerianGrothendieck.polyAbsEval_add_le
+#check @EulerianGrothendieck.polyAbsEval_add_le
+#print axioms EulerianGrothendieck.polyAbsEval_neg
+#check @EulerianGrothendieck.polyAbsEval_neg
+#print axioms EulerianGrothendieck.polyAbsEval_eq_sum_support
+#check @EulerianGrothendieck.polyAbsEval_eq_sum_support
+#print axioms EulerianGrothendieck.polyAbsEval_mul_le
+#check @EulerianGrothendieck.polyAbsEval_mul_le
+#print axioms EulerianGrothendieck.inverseSeriesCoefficient_bound
+#check @EulerianGrothendieck.inverseSeriesCoefficient_bound
+#print axioms EulerianGrothendieck.reciprocal_uniform_remainder
+#check @EulerianGrothendieck.reciprocal_uniform_remainder
+#print axioms EulerianGrothendieck.uniformNormCoefficient_uniform_bound
+#check @EulerianGrothendieck.uniformNormCoefficient_uniform_bound
+#print axioms EulerianGrothendieck.uniformVacuumSeries_uniform_parameters
+#check @EulerianGrothendieck.uniformVacuumSeries_uniform_parameters
+#print axioms EulerianGrothendieck.raw_uniform_vacuum_uniform_parameters
+#check @EulerianGrothendieck.raw_uniform_vacuum_uniform_parameters
+#print axioms EulerianGrothendieck.Catalan.coeff_theta
+#check @EulerianGrothendieck.Catalan.coeff_theta
+#print axioms EulerianGrothendieck.Catalan.coeff_catalanB
+#check @EulerianGrothendieck.Catalan.coeff_catalanB
+#print axioms EulerianGrothendieck.Catalan.central_term
+#check @EulerianGrothendieck.Catalan.central_term
+#print axioms EulerianGrothendieck.Catalan.sqrt_four_fifths
+#check @EulerianGrothendieck.Catalan.sqrt_four_fifths
+#print axioms EulerianGrothendieck.Catalan.catalanB_hasSum
+#check @EulerianGrothendieck.Catalan.catalanB_hasSum
+#print axioms EulerianGrothendieck.Catalan.catalanB_value
+#check @EulerianGrothendieck.Catalan.catalanB_value
+#print axioms EulerianGrothendieck.Catalan.catalanTheta_value
+#check @EulerianGrothendieck.Catalan.catalanTheta_value
+#print axioms EulerianGrothendieck.Catalan.cL_eq
+#check @EulerianGrothendieck.Catalan.cL_eq
+#print axioms EulerianGrothendieck.Catalan.catalan_lipschitz_dirichlet_bridge
+#check @EulerianGrothendieck.Catalan.catalan_lipschitz_dirichlet_bridge
+#print axioms EulerianGrothendieck.Catalan.uniformVacuumCoefficient_zero
+#check @EulerianGrothendieck.Catalan.uniformVacuumCoefficient_zero
+#print axioms EulerianGrothendieck.Catalan.vacuum_limit_cL
+#check @EulerianGrothendieck.Catalan.vacuum_limit_cL
+#print axioms EulerianGrothendieck.Catalan.fock_vacuum_limit_cL
+#check @EulerianGrothendieck.Catalan.fock_vacuum_limit_cL
+#print axioms EulerianGrothendieck.Fock.fockVacuumProbability_eq
+#check @EulerianGrothendieck.Fock.fockVacuumProbability_eq
+#print axioms EulerianGrothendieck.Fock.fock_vacuum_threshold_limit
+#check @EulerianGrothendieck.Fock.fock_vacuum_threshold_limit
+#print axioms EulerianGrothendieck.Fock.fock_vacuum_uniform_parameters
+#check @EulerianGrothendieck.Fock.fock_vacuum_uniform_parameters
+#print axioms EulerianGrothendieck.coordinate_unimodular_step
+#check @EulerianGrothendieck.coordinate_unimodular_step
+#print axioms EulerianGrothendieck.exists_torus_ge
+#check @EulerianGrothendieck.exists_torus_ge
+#print axioms EulerianGrothendieck.polydisk_projection_le
+#check @EulerianGrothendieck.polydisk_projection_le
+#print axioms EulerianGrothendieck.bilinear_eq_inner
+#check @EulerianGrothendieck.bilinear_eq_inner
+#print axioms EulerianGrothendieck.explicit_bilinear_value_le
+#check @EulerianGrothendieck.explicit_bilinear_value_le
+#print axioms EulerianGrothendieck.explicit_bilinearScalarValues_bddAbove
+#check @EulerianGrothendieck.explicit_bilinearScalarValues_bddAbove
+#print axioms EulerianGrothendieck.torus_value_mem_bilinear
+#check @EulerianGrothendieck.torus_value_mem_bilinear
+#print axioms EulerianGrothendieck.bilinearScalarNorm_explicit
+#check @EulerianGrothendieck.bilinearScalarNorm_explicit
+#print axioms EulerianGrothendieck.bilinearScalarNorm_explicit_attained
+#check @EulerianGrothendieck.bilinearScalarNorm_explicit_attained
+#print axioms EulerianGrothendieck.trace_eq_sum_inner
+#check @EulerianGrothendieck.trace_eq_sum_inner
+#print axioms EulerianGrothendieck.norm_starProjection_le'
+#check @EulerianGrothendieck.norm_starProjection_le'
+#print axioms EulerianGrothendieck.matrixColumn_norm_sq_sum
+#check @EulerianGrothendieck.matrixColumn_norm_sq_sum
+#print axioms EulerianGrothendieck.rowNormalized_sum_le
+#check @EulerianGrothendieck.rowNormalized_sum_le
+#print axioms EulerianGrothendieck.explicit_vector_value_le
+#check @EulerianGrothendieck.explicit_vector_value_le
+#print axioms EulerianGrothendieck.explicitFrameProjector_mul_frameMatrix
+#check @EulerianGrothendieck.explicitFrameProjector_mul_frameMatrix
+#print axioms EulerianGrothendieck.frameMatrix_row_norm_sq
+#check @EulerianGrothendieck.frameMatrix_row_norm_sq
+#print axioms EulerianGrothendieck.frameMatrix_rowNormalized
+#check @EulerianGrothendieck.frameMatrix_rowNormalized
+#print axioms EulerianGrothendieck.frameMatrix_trace_value
+#check @EulerianGrothendieck.frameMatrix_trace_value
+#print axioms EulerianGrothendieck.bilinearVectorNorm_explicit
+#check @EulerianGrothendieck.bilinearVectorNorm_explicit
+#print axioms EulerianGrothendieck.one_le_explicitFrameScalarNorm
+#check @EulerianGrothendieck.one_le_explicitFrameScalarNorm
+#print axioms EulerianGrothendieck.explicitFrameScalarNorm_pos
+#check @EulerianGrothendieck.explicitFrameScalarNorm_pos
+#print axioms EulerianGrothendieck.bilinearRatio_explicit
+#check @EulerianGrothendieck.bilinearRatio_explicit
+#print axioms EulerianGrothendieck.bilinearRatio_eulerian
+#check @EulerianGrothendieck.bilinearRatio_eulerian
+#print axioms EulerianGrothendieck.criticalVacuum_mem
+#check @EulerianGrothendieck.criticalVacuum_mem
+#print axioms EulerianGrothendieck.bilinear_ratio_critical_law
+#check @EulerianGrothendieck.bilinear_ratio_critical_law
+#print axioms EulerianGrothendieck.bilinearRatio_le_of_grothendieck
+#check @EulerianGrothendieck.bilinearRatio_le_of_grothendieck
+#print axioms EulerianGrothendieck.bilinearRatio_le_complexGrothendieckConstant
+#check @EulerianGrothendieck.bilinearRatio_le_complexGrothendieckConstant
+#print axioms EulerianGrothendieck.normSq_frame_coordinate
+#check @EulerianGrothendieck.normSq_frame_coordinate
+#print axioms EulerianGrothendieck.frameVector_coords
+#check @EulerianGrothendieck.frameVector_coords
+#print axioms EulerianGrothendieck.explicitFrameScalarNorm_lt_four
+#check @EulerianGrothendieck.explicitFrameScalarNorm_lt_four
+#print axioms EulerianGrothendieck.bilinearRatio_gt_one
+#check @EulerianGrothendieck.bilinearRatio_gt_one
+#print axioms EulerianGrothendieck.frameGram_inv_hermitian
+#check @EulerianGrothendieck.frameGram_inv_hermitian
+#print axioms EulerianGrothendieck.explicitFrameProjector_idem
+#check @EulerianGrothendieck.explicitFrameProjector_idem
+#print axioms EulerianGrothendieck.explicitFrameProjector_hermitian
+#check @EulerianGrothendieck.explicitFrameProjector_hermitian
+#print axioms EulerianGrothendieck.frameGram_trace_P
+#check @EulerianGrothendieck.frameGram_trace_P
+#print axioms EulerianGrothendieck.frameGram_diag
+#check @EulerianGrothendieck.frameGram_diag
+#print axioms EulerianGrothendieck.frameGram_mem_elliptope
+#check @EulerianGrothendieck.frameGram_mem_elliptope
+#print axioms EulerianGrothendieck.frameMatrix_rank
+#check @EulerianGrothendieck.frameMatrix_rank
+#print axioms EulerianGrothendieck.frameGram_rank
+#check @EulerianGrothendieck.frameGram_rank
+#print axioms EulerianGrothendieck.trace_P_le
+#check @EulerianGrothendieck.trace_P_le
+#print axioms EulerianGrothendieck.exposure_offdiag
+#check @EulerianGrothendieck.exposure_offdiag
+#print axioms EulerianGrothendieck.gram_entry
+#check @EulerianGrothendieck.gram_entry
+#print axioms EulerianGrothendieck.frameMatrix_entries
+#check @EulerianGrothendieck.frameMatrix_entries
+#print axioms EulerianGrothendieck.frameGram_exposed
+#check @EulerianGrothendieck.frameGram_exposed
+#print axioms EulerianGrothendieck.rankOneCorrelation_mem
+#check @EulerianGrothendieck.rankOneCorrelation_mem
+#print axioms EulerianGrothendieck.frameGram_endpoint_zero
+#check @EulerianGrothendieck.frameGram_endpoint_zero
+#print axioms EulerianGrothendieck.frameGram_endpoint_one
+#check @EulerianGrothendieck.frameGram_endpoint_one
+#print axioms EulerianGrothendieck.endpointVector0_unimodular
+#check @EulerianGrothendieck.endpointVector0_unimodular
+#print axioms EulerianGrothendieck.endpointVector1_unimodular
+#check @EulerianGrothendieck.endpointVector1_unimodular
+#print axioms EulerianGrothendieck.projectionScalarNorm_eq_four_of_mem
+#check @EulerianGrothendieck.projectionScalarNorm_eq_four_of_mem
+#print axioms EulerianGrothendieck.explicitFrameScalarNorm_endpoint_zero
+#check @EulerianGrothendieck.explicitFrameScalarNorm_endpoint_zero
+#print axioms EulerianGrothendieck.explicitFrameScalarNorm_endpoint_one
+#check @EulerianGrothendieck.explicitFrameScalarNorm_endpoint_one
+#print axioms EulerianGrothendieck.endpoint_vectors_in_range
+#check @EulerianGrothendieck.endpoint_vectors_in_range
+#print axioms EulerianGrothendieck.coeff_realBernoulliSeries
+#check @EulerianGrothendieck.coeff_realBernoulliSeries
+#print axioms EulerianGrothendieck.rescale_C'
+#check @EulerianGrothendieck.rescale_C'
+#print axioms EulerianGrothendieck.rescale_two_exp_sub_one
+#check @EulerianGrothendieck.rescale_two_exp_sub_one
+#print axioms EulerianGrothendieck.evenBernoulli_mul_sinh
+#check @EulerianGrothendieck.evenBernoulli_mul_sinh
+#print axioms EulerianGrothendieck.sinhSeries_ne_zero
+#check @EulerianGrothendieck.sinhSeries_ne_zero
+#print axioms EulerianGrothendieck.rescale_neg_sinh
+#check @EulerianGrothendieck.rescale_neg_sinh
+#print axioms EulerianGrothendieck.evenBernoulli_even
+#check @EulerianGrothendieck.evenBernoulli_even
+#print axioms EulerianGrothendieck.coeff_evenBernoulli
+#check @EulerianGrothendieck.coeff_evenBernoulli
+#print axioms EulerianGrothendieck.odd_bernoulli_identity
+#check @EulerianGrothendieck.odd_bernoulli_identity
+#print axioms EulerianGrothendieck.bernoulli_odd_zero
+#check @EulerianGrothendieck.bernoulli_odd_zero
+#print axioms EulerianGrothendieck.sum_range_two_mul
+#check @EulerianGrothendieck.sum_range_two_mul
+#print axioms EulerianGrothendieck.even_bernoulli_sum
+#check @EulerianGrothendieck.even_bernoulli_sum
+#print axioms EulerianGrothendieck.evenEGF_coeff_closed
+#check @EulerianGrothendieck.evenEGF_coeff_closed
+#print axioms EulerianGrothendieck.bernoulliCumulant_convolution
+#check @EulerianGrothendieck.bernoulliCumulant_convolution
+#print axioms EulerianGrothendieck.cumulantCoefficient_bernoulli
+#check @EulerianGrothendieck.cumulantCoefficient_bernoulli
+#print axioms EulerianGrothendieck.standardUniformCumulant_bernoulli
+#check @EulerianGrothendieck.standardUniformCumulant_bernoulli
+#print axioms EulerianGrothendieck.standardUniformCumulant_eq_mul_logCoefficient
+#check @EulerianGrothendieck.standardUniformCumulant_eq_mul_logCoefficient
+#print axioms EulerianGrothendieck.uniformLogCoefficient_two
+#check @EulerianGrothendieck.uniformLogCoefficient_two
+#print axioms EulerianGrothendieck.uniformLogCoefficient_zeta
+#check @EulerianGrothendieck.uniformLogCoefficient_zeta
+#print axioms EulerianGrothendieck.standardUniformCumulant_zeta
+#check @EulerianGrothendieck.standardUniformCumulant_zeta
+#print axioms EulerianGrothendieck.bernoulli_zeta_bound
+#check @EulerianGrothendieck.bernoulli_zeta_bound
+#print axioms EulerianGrothendieck.standardUniformCumulant_sharp_bound
+#check @EulerianGrothendieck.standardUniformCumulant_sharp_bound
+#print axioms EulerianGrothendieck.ratioRecurrenceCoefficient_sharp_bound
+#check @EulerianGrothendieck.ratioRecurrenceCoefficient_sharp_bound
+#print axioms EulerianGrothendieck.coeff_recurrence_term
+#check @EulerianGrothendieck.coeff_recurrence_term
+#print axioms EulerianGrothendieck.uniformRatio_sharp_coefficient_bound
+#check @EulerianGrothendieck.uniformRatio_sharp_coefficient_bound
+#print axioms EulerianGrothendieck.uniformSquared_sharp_coefficient_bound
+#check @EulerianGrothendieck.uniformSquared_sharp_coefficient_bound
+#print axioms EulerianGrothendieck.printedNormConstant_eq
+#check @EulerianGrothendieck.printedNormConstant_eq
+#print axioms EulerianGrothendieck.printedTerm_nonneg
+#check @EulerianGrothendieck.printedTerm_nonneg
+#print axioms EulerianGrothendieck.printedTerm_summable
+#check @EulerianGrothendieck.printedTerm_summable
+#print axioms EulerianGrothendieck.printed_all_order_norm_remainder
+#check @EulerianGrothendieck.printed_all_order_norm_remainder
+#print axioms EulerianGrothendieck.limitingObjective_halfPhase_identity
+#check @EulerianGrothendieck.limitingObjective_halfPhase_identity
+#print axioms EulerianGrothendieck.limitingObjective_general_lower
+#check @EulerianGrothendieck.limitingObjective_general_lower
+#print axioms EulerianGrothendieck.limitingObjective_general_trial
+#check @EulerianGrothendieck.limitingObjective_general_trial
+#print axioms EulerianGrothendieck.phaseLambda_le_two
+#check @EulerianGrothendieck.phaseLambda_le_two
+#print axioms EulerianGrothendieck.general_frameDistance_global_lower
+#check @EulerianGrothendieck.general_frameDistance_global_lower
+#print axioms EulerianGrothendieck.general_frameDistance_trial_upper
+#check @EulerianGrothendieck.general_frameDistance_trial_upper
+#print axioms EulerianGrothendieck.general_frameInfimum_remainder
+#check @EulerianGrothendieck.general_frameInfimum_remainder
+#print axioms EulerianGrothendieck.exp_I_eq_halfPhase
+#check @EulerianGrothendieck.exp_I_eq_halfPhase
+#print axioms EulerianGrothendieck.general_phase_loss
+#check @EulerianGrothendieck.general_phase_loss
+#print axioms EulerianGrothendieck.general_phase_loss_limit
+#check @EulerianGrothendieck.general_phase_loss_limit
+#print axioms EulerianGrothendieck.Occupancy.derivative_finset_prod
+#check @EulerianGrothendieck.Occupancy.derivative_finset_prod
+#print axioms EulerianGrothendieck.Occupancy.occ_cons
+#check @EulerianGrothendieck.Occupancy.occ_cons
+#print axioms EulerianGrothendieck.Occupancy.coeff_egf_shift
+#check @EulerianGrothendieck.Occupancy.coeff_egf_shift
+#print axioms EulerianGrothendieck.Occupancy.sum_prod_occ
+#check @EulerianGrothendieck.Occupancy.sum_prod_occ
+#print axioms EulerianGrothendieck.Occupancy.uniformMomentRatio_occupancy
+#check @EulerianGrothendieck.Occupancy.uniformMomentRatio_occupancy
+#print axioms EulerianGrothendieck.Occupancy.mem_offDiag'
+#check @EulerianGrothendieck.Occupancy.mem_offDiag'
+#print axioms EulerianGrothendieck.Occupancy.card_offDiag
+#check @EulerianGrothendieck.Occupancy.card_offDiag
+#print axioms EulerianGrothendieck.Occupancy.sum_coll_all
+#check @EulerianGrothendieck.Occupancy.sum_coll_all
+#print axioms EulerianGrothendieck.Occupancy.sum_occ
+#check @EulerianGrothendieck.Occupancy.sum_occ
+#print axioms EulerianGrothendieck.Occupancy.collisions_eq
+#check @EulerianGrothendieck.Occupancy.collisions_eq
+#print axioms EulerianGrothendieck.Occupancy.update_eq_splitAt
+#check @EulerianGrothendieck.Occupancy.update_eq_splitAt
+#print axioms EulerianGrothendieck.Occupancy.sum_update
+#check @EulerianGrothendieck.Occupancy.sum_update
+#print axioms EulerianGrothendieck.Occupancy.expect_coll
+#check @EulerianGrothendieck.Occupancy.expect_coll
+#print axioms EulerianGrothendieck.Occupancy.coll_mul_self
+#check @EulerianGrothendieck.Occupancy.coll_mul_self
+#print axioms EulerianGrothendieck.Occupancy.coll_swap
+#check @EulerianGrothendieck.Occupancy.coll_swap
+#print axioms EulerianGrothendieck.Occupancy.expect_coll_mul
+#check @EulerianGrothendieck.Occupancy.expect_coll_mul
+#print axioms EulerianGrothendieck.Occupancy.expect_add_mul
+#check @EulerianGrothendieck.Occupancy.expect_add_mul
+#print axioms EulerianGrothendieck.Occupancy.expect_sum
+#check @EulerianGrothendieck.Occupancy.expect_sum
+#print axioms EulerianGrothendieck.Occupancy.expect_mono
+#check @EulerianGrothendieck.Occupancy.expect_mono
+#print axioms EulerianGrothendieck.Occupancy.expect_const
+#check @EulerianGrothendieck.Occupancy.expect_const
+#print axioms EulerianGrothendieck.Occupancy.expect_orderedCollisions
+#check @EulerianGrothendieck.Occupancy.expect_orderedCollisions
+#print axioms EulerianGrothendieck.Occupancy.filter_pair
+#check @EulerianGrothendieck.Occupancy.filter_pair
+#print axioms EulerianGrothendieck.Occupancy.expect_orderedCollisions_sq
+#check @EulerianGrothendieck.Occupancy.expect_orderedCollisions_sq
+#print axioms EulerianGrothendieck.Occupancy.expect_collisions
+#check @EulerianGrothendieck.Occupancy.expect_collisions
+#print axioms EulerianGrothendieck.Occupancy.expect_collisions_falling
+#check @EulerianGrothendieck.Occupancy.expect_collisions_falling
+#print axioms EulerianGrothendieck.Occupancy.momentFactor_le_three_fifths
+#check @EulerianGrothendieck.Occupancy.momentFactor_le_three_fifths
+#print axioms EulerianGrothendieck.Occupancy.one_sub_momentFactor_le
+#check @EulerianGrothendieck.Occupancy.one_sub_momentFactor_le
+#print axioms EulerianGrothendieck.Occupancy.one_sub_prod_le
+#check @EulerianGrothendieck.Occupancy.one_sub_prod_le
+#print axioms EulerianGrothendieck.Occupancy.occupancy_pointwise
+#check @EulerianGrothendieck.Occupancy.occupancy_pointwise
+#print axioms EulerianGrothendieck.Occupancy.occupancy_moment_bound
+#check @EulerianGrothendieck.Occupancy.occupancy_moment_bound
+#print axioms EulerianGrothendieck.Occupancy.occupancy_square_bound
+#check @EulerianGrothendieck.Occupancy.occupancy_square_bound
+#print axioms EulerianGrothendieck.centralFactorialMoment_closed
+#check @EulerianGrothendieck.centralFactorialMoment_closed
+#print axioms EulerianGrothendieck.fallingReal_two
+#check @EulerianGrothendieck.fallingReal_two
+#print axioms EulerianGrothendieck.fallingReal_three
+#check @EulerianGrothendieck.fallingReal_three
+#print axioms EulerianGrothendieck.fallingReal_four
+#check @EulerianGrothendieck.fallingReal_four
+#print axioms EulerianGrothendieck.binomialWeight_eq_central
+#check @EulerianGrothendieck.binomialWeight_eq_central
+#print axioms EulerianGrothendieck.weighted_falling_hasSum
+#check @EulerianGrothendieck.weighted_falling_hasSum
+#print axioms EulerianGrothendieck.explicit_norm_remainder_aux
+#check @EulerianGrothendieck.explicit_norm_remainder_aux
+#print axioms EulerianGrothendieck.explicit_norm_remainder
+#check @EulerianGrothendieck.explicit_norm_remainder
+#print axioms EulerianGrothendieck.explicit_vacuum_remainder_aux
+#check @EulerianGrothendieck.explicit_vacuum_remainder_aux
+#print axioms EulerianGrothendieck.explicit_vacuum_remainder
+#check @EulerianGrothendieck.explicit_vacuum_remainder

@@ -1,0 +1,7 @@
+/home/claude/work/eg/EulerianGrothendieck/GlobalLocalization.lean:59:40: warning: This simp argument is unused:
+  norm_mul
+
+Hint: Omit it from the simp argument list.
+  simp [n̵o̵r̵m̵_̵m̵u̵l̵,̵ ̵hz, hb]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

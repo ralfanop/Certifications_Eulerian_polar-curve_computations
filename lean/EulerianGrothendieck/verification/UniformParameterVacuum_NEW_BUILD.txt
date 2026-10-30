@@ -1,0 +1,7 @@
+/home/claude/work/eg/EulerianGrothendieck/UniformParameterVacuum.lean:103:19: warning: This simp argument is unused:
+  Prod.fst_swap
+
+Hint: Omit it from the simp argument list.
+  simp only [̵P̵r̵o̵d̵.̵f̵s̵t̵_̵s̵w̵a̵p̵,̵ ̵P̵r̵o̵d̵.̵s̵n̵d̵_̵s̵w̵a̵p̵]̵[̲P̲r̲o̲d̲.̲s̲n̲d̲_̲s̲w̲a̲p̲]̲
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

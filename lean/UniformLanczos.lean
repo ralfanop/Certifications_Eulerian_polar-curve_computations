@@ -8,3 +8,4 @@ import UniformLanczos.Lambda
 import UniformLanczos.Arcsine
 import UniformLanczos.EndpointConcrete
 import UniformLanczos.Expansion
+import UniformLanczos.HigherProfileCoefficients

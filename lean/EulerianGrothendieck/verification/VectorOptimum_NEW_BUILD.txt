@@ -1,0 +1,25 @@
+/home/claude/work/eg/EulerianGrothendieck/VectorOptimum.lean:47:65: warning: This simp argument is unused:
+  Finset.mul_sum
+
+Hint: Omit it from the simp argument list.
+  simp only [Matrix.diag_apply, Matrix.mul_apply, Matrix.conjTranspose_apply, matrixColumn,
+      Matrix.toEuclideanLin_apply, WithLp.ofLp_toLp, PiLp.toLp_apply, RCLike.inner_apply,
+      Matrix.mulVec, dotProduct, Complex.star_def, Finset.sum_mul,̵ ̵F̵i̵n̵s̵e̵t̵.̵m̵u̵l̵_̵s̵u̵m̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/claude/work/eg/EulerianGrothendieck/VectorOptimum.lean:113:6: warning: This simp argument is unused:
+  norm_mul
+
+Hint: Omit it from the simp argument list.
+  simp [frameMatrix, Fin.sum_univ_succ, Complex.norm_real, Real.norm_eq_abs, sq_abs, hs, hz,
+        n̵o̵r̵m_̵m̵ul,̵ ̵m̵u̵l̵_pow]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/claude/work/eg/EulerianGrothendieck/VectorOptimum.lean:113:16: warning: This simp argument is unused:
+  mul_pow
+
+Hint: Omit it from the simp argument list.
+  simp [frameMatrix, Fin.sum_univ_succ, Complex.norm_real, Real.norm_eq_abs, sq_abs, hs, hz,
+        norm_mul,̵ ̵m̵u̵l̵_̵p̵o̵w̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

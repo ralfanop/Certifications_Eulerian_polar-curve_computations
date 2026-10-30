@@ -1,0 +1,18 @@
+/home/claude/work/eg/EulerianGrothendieck/FiniteSeries.lean:35:25: warning: unused variable `hb`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/claude/work/eg/EulerianGrothendieck/FiniteSeries.lean:77:5: warning: unused variable `hs`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/claude/work/eg/EulerianGrothendieck/FiniteSeries.lean:105:47: warning: 'ring' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/claude/work/eg/EulerianGrothendieck/FiniteSeries.lean:110:47: warning: 'ring' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/claude/work/eg/EulerianGrothendieck/FiniteSeries.lean:105:47: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/claude/work/eg/EulerianGrothendieck/FiniteSeries.lean:110:47: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`

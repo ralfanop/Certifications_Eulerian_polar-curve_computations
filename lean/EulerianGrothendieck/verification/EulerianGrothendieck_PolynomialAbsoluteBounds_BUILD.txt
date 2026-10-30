@@ -1,0 +1,4 @@
+/home/claude/work/eg/EulerianGrothendieck/PolynomialAbsoluteBounds.lean:16:6: warning: `Polynomial.not_mem_support_iff` has been deprecated: Use `Polynomial.notMem_support_iff` instead
+/home/claude/work/eg/EulerianGrothendieck/PolynomialAbsoluteBounds.lean:20:44: warning: unused variable `r`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`

@@ -1,0 +1,6 @@
+/home/claude/work/eg/EulerianGrothendieck/GeometricSummability.lean:30:27: warning: unused variable `hA`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/claude/work/eg/EulerianGrothendieck/GeometricSummability.lean:43:5: warning: unused variable `hA`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`

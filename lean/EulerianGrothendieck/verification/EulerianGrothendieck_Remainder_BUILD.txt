@@ -1,0 +1,12 @@
+/home/claude/work/eg/EulerianGrothendieck/Remainder.lean:12:5: warning: unused variable `hr0`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/claude/work/eg/EulerianGrothendieck/Remainder.lean:30:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/Remainder.lean:41:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/claude/work/eg/EulerianGrothendieck/Remainder.lean:56:2: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`

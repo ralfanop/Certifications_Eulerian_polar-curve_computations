@@ -1,0 +1,7 @@
+/home/claude/work/eg/EulerianGrothendieck/CentralFactorialMoments.lean:29:58: warning: This simp argument is unused:
+  Nat.zero_descFactorial_succ
+
+Hint: Omit it from the simp argument list.
+  simp [f, fallingReal_nat,̵ ̵N̵a̵t̵.̵z̵e̵r̵o̵_̵d̵e̵s̵c̵F̵a̵c̵t̵o̵r̵i̵a̵l̵_̵s̵u̵c̵c̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

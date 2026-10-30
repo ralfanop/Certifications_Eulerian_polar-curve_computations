@@ -1,0 +1,3 @@
+/home/claude/work/eg/EulerianGrothendieck/ExponentialKernel.lean:21:47: warning: unused variable `hB`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
