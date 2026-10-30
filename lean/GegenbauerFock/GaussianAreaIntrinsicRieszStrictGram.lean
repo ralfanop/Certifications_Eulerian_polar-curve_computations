@@ -48,8 +48,19 @@ theorem intrinsicRieszKernel_exp_gram_re_eq_zero_iff
     (∑ i ∈ s, ∑ j ∈ s,
         star (c i) * c j *
           Complex.exp ((alpha : ℂ) * z i * star (z j))) = 0 := by
-  rw [intrinsicRieszKernel_exp_gram_eq_complex_norm_sq s z c alpha ha]
-  simp
+  rw [intrinsicRieszKernel_exp_gram_re_eq_norm_sq s z c alpha ha]
+  constructor
+  · intro h
+    have hn :
+        ‖∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)‖ = 0 := by
+      have hnonneg :
+          0 ≤ ‖∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)‖ :=
+        norm_nonneg _
+      nlinarith
+    exact norm_eq_zero.mp hn
+  · intro h
+    rw [h]
+    simp
 
 /-- A nonzero finite exponential Gram scalar has strictly positive
 real part: it cannot be purely imaginary or negative. -/
