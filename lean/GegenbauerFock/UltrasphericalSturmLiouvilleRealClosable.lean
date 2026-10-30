@@ -26,8 +26,7 @@ private abbrev SturmH (lam : ℝ) := Lp ℝ 2 (measure lam)
 theorem sturmRealPolynomialDomain_dense_set
     (lam : ℝ) (hlam : 0 < lam) :
     Dense (sturmRealPolynomialDomain lam hlam : Set (SturmH lam)) := by
-  change closure (sturmRealPolynomialDomain lam hlam : Set (SturmH lam)) =
-    Set.univ
+  rw [dense_iff_closure_eq]
   have hc :
       closure (sturmRealPolynomialDomain lam hlam : Set (SturmH lam)) =
         ((sturmRealPolynomialDomain lam hlam).topologicalClosure :
