@@ -94,6 +94,9 @@ theorem canonical_cfc_sqrt_inverse_on_range_discontinuous_at_zero
       exact W.symm_apply_apply (P (u n))
     rw [heq] at hW
     simpa using hW
+  change ∀ (r : P.range → RootInvH lam),
+      (∀ x : RootInvH lam, r ⟨P x, ⟨x, rfl⟩⟩ = x) →
+      ¬ ContinuousAt r (0 : P.range)
   intro r hleft hcont
   have hsub : Tendsto
       (fun n : ℕ => (⟨P (u n), ⟨u n, rfl⟩⟩ : P.range))
