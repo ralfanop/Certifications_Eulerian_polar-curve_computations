@@ -103,4 +103,52 @@ theorem exists_canonical_cfc_compact_nonclosed_range
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_canonical_cfc_compact_nonclosed_range
 
+
+/-- The canonical CFC square root is not onto the complete ultraspherical
+Hilbert space.  Its dense nonclosed range rules out an everywhere-defined
+bounded linear inverse; no spectral gap is used. -/
+theorem canonical_cfc_root_not_surjective
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    (letI : SMulCommClass ℝ (PolarH lam →L[ℂ] PolarH lam)
+        (PolarH lam →L[ℂ] PolarH lam) := polarRootComm lam
+     letI : IsScalarTower ℝ (PolarH lam →L[ℂ] PolarH lam)
+        (PolarH lam →L[ℂ] PolarH lam) := polarRootTower lam
+     letI : ContinuousFunctionalCalculus ℂ
+         (PolarH lam →L[ℂ] PolarH lam) IsStarNormal :=
+       IsStarNormal.instContinuousFunctionalCalculus
+     letI : IsometricContinuousFunctionalCalculus ℝ
+         (PolarH lam →L[ℂ] PolarH lam) IsSelfAdjoint :=
+       IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
+     letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
+         (PolarH lam →L[ℂ] PolarH lam) IsSelfAdjoint :=
+       IsometricContinuousFunctionalCalculus.toNonUnital
+     ¬ Function.Surjective
+         (CFC.sqrt (gram lam alpha hlam ha) :
+            PolarH lam →L[ℂ] PolarH lam)) := by
+  letI : SMulCommClass ℝ (PolarH lam →L[ℂ] PolarH lam)
+    (PolarH lam →L[ℂ] PolarH lam) := polarRootComm lam
+  letI : IsScalarTower ℝ (PolarH lam →L[ℂ] PolarH lam)
+    (PolarH lam →L[ℂ] PolarH lam) := polarRootTower lam
+  letI : ContinuousFunctionalCalculus ℂ
+      (PolarH lam →L[ℂ] PolarH lam) IsStarNormal :=
+    IsStarNormal.instContinuousFunctionalCalculus
+  letI : IsometricContinuousFunctionalCalculus ℝ
+      (PolarH lam →L[ℂ] PolarH lam) IsSelfAdjoint :=
+    IsSelfAdjoint.instIsometricContinuousFunctionalCalculus
+  letI : NonUnitalIsometricContinuousFunctionalCalculus ℝ
+      (PolarH lam →L[ℂ] PolarH lam) IsSelfAdjoint :=
+    IsometricContinuousFunctionalCalculus.toNonUnital
+  obtain ⟨W, hcompact, hinj, hdense, hnotclosed, hC⟩ :=
+    exists_canonical_cfc_compact_nonclosed_range lam alpha hlam ha
+  intro hsurj
+  have htop :
+      (CFC.sqrt (gram lam alpha hlam ha)).range =
+        (⊤ : Submodule ℂ (PolarH lam)) :=
+    LinearMap.range_eq_top.mpr hsurj
+  apply hnotclosed
+  rw [htop]
+  exact isClosed_univ
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.canonical_cfc_root_not_surjective
+
 end GegenbauerFock.GeneralUltrasphericalFock
