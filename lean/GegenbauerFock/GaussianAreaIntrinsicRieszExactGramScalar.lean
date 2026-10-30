@@ -38,9 +38,9 @@ theorem intrinsicRieszKernel_exp_gram_eq_complex_norm_sq
             (intrinsicRieszKernel_finite_gram_eq_inner s z c alpha ha)
     _ = ((‖∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)‖ ^ 2 : ℝ) : ℂ) := by
       apply Complex.ext
-      · simpa only [Complex.ofReal_re] using (inner_self_eq_norm_sq (𝕜 := ℂ)
+      · simpa only [RCLike.re_to_complex, Complex.ofReal_re] using (inner_self_eq_norm_sq (𝕜 := ℂ)
           (∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)))
-      · simpa only [Complex.ofReal_im] using (inner_self_im (𝕜 := ℂ)
+      · simpa only [RCLike.im_to_complex, Complex.ofReal_im] using (inner_self_im (𝕜 := ℂ)
           (∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)))
 
 /-- The imaginary part of every finite Gaussian exponential Gram
@@ -53,7 +53,7 @@ theorem intrinsicRieszKernel_exp_gram_im_zero
         star (c i) * c j *
           Complex.exp ((alpha : ℂ) * z i * star (z j))) = 0 := by
   rw [intrinsicRieszKernel_exp_gram_eq_complex_norm_sq s z c alpha ha]
-  simp
+  exact Complex.ofReal_im _
 
 /-- Every finite Gaussian exponential Gram energy is a genuinely
 nonnegative real number embedded in the complex scalars. -/
