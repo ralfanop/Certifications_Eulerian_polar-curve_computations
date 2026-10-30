@@ -55,7 +55,7 @@ jobs:
             echo "::error::Forbidden axiom in uniform Fourier nonembedding theorem"
             exit 1
           fi
-          for name in ultraspherical_fourierBochner_uniformSamples_not_isEmbedding ultraspherical_fourierBochner_uniformSamples_no_continuous_inverse_on_range; do
+          for name in ultraspherical_fourierBochner_uniformSamples_not_isEmbedding ultraspherical_fourierBochner_uniformSamples_no_continuous_inverse_on_range ultraspherical_fourierBochner_uniformSamples_unique_but_not_embedding; do
             grep -F "${name}' depends on axioms:" /tmp/v007-fourier-uniform-no-embedding-axioms.log
           done
           echo 'V007 uniform Fourier sampling nonembedding and range inverse audit successful.'
