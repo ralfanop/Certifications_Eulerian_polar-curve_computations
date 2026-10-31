@@ -54,7 +54,7 @@ theorem sturmRealClosed_kernel_vector_eq_scalar_zero_mode
     b.repr (x : SturmH lam) = lp.single 2 0 c := hsingle
     _ = c • lp.single 2 0 (1 : ℝ) := by
       simpa only [mul_one] using
-        (lp.single_smul (E := (fun _ : ℕ => ℝ)) 2 0 c (1 : ℝ)).symm
+        (lp.single_smul (E := (fun _ : ℕ => ℝ)) 2 0 c (1 : ℝ))
     _ = b.repr (c • b 0) := by
       rw [map_smul, HilbertBasis.repr_self]
 
