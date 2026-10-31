@@ -31,6 +31,8 @@ theorem kummerSeries_mixed_coordinate_noisy_recovery
     lam₂ - lam₁ ≤ 8 * A * (L + 1) ^ 2 * (eps₁ + eps₂) ∧
     alpha₂ - alpha₁ ≤ 8 * (L + 1) * A ^ 2 * (eps₁ + eps₂) := by
   have hlam₂ : 0 < lam₂ := lt_of_lt_of_le hlam₁ hleL
+  have hLam1pos : 0 < lam₁ + 1 := by linarith
+  have hLam2pos : 0 < lam₂ + 1 := by linarith
   have hdenL : 0 < 8 * alpha₁ * (lam₁ + 1) * (lam₂ + 1) := by
     positivity
   have hdenA : 0 < 8 * (lam₂ + 1) * alpha₁ * alpha₂ := by
