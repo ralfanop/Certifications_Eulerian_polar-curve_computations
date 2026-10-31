@@ -39,7 +39,7 @@ theorem opNorm_id_sub_reconstruction_ge_one_of_unit_null
   have hR : Filter.Tendsto (fun n : ℕ => R (T (u n)))
       Filter.atTop (nhds (0 : H)) := by
     have h := R.continuous.continuousAt.tendsto.comp hzero
-    simpa only [map_zero] using h
+    simpa only [Function.comp_def, map_zero] using h
   have hnorm : Filter.Tendsto
       (fun n : ℕ => ‖E‖ + ‖R (T (u n))‖)
       Filter.atTop (nhds ‖E‖) := by
@@ -56,7 +56,7 @@ theorem opNorm_id_sub_reconstruction_ge_one_of_unit_null
       (1 : ℝ) = ‖u n‖ := (hunit n).symm
       _ ≤ ‖E (u n)‖ + ‖R (T (u n))‖ := htri
       _ ≤ ‖E‖ * ‖u n‖ + ‖R (T (u n))‖ :=
-        add_le_add_right hlin _
+        add_le_add_left hlin _
       _ = ‖E‖ + ‖R (T (u n))‖ := by rw [hunit n]; ring
   exact ge_of_tendsto' hnorm hbound
 
