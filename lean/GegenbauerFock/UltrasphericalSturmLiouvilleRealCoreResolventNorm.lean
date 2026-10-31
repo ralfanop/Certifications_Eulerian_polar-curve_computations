@@ -48,7 +48,9 @@ theorem sturmRealCorePositiveResolvent_norm_le
     (sturmRealPartialOperator_nonpositive lam hlam)
     (u : (sturmRealPartialOperator lam hlam).domain)
   rw [hu] at hb
-  exact (le_div_iff₀ ht).2 hb
+  have hb' : ‖(u : SturmH lam)‖ * t ≤ ‖(f : SturmH lam)‖ := by
+    nlinarith [hb]
+  exact (le_div_iff₀ ht).2 hb'
 
 /-- Quantitative Lipschitz bound for the inverse of tI-L
 on the TRUE polynomial-image L² domain. -/
