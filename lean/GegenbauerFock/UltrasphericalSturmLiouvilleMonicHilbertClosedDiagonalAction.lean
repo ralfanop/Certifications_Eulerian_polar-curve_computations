@@ -62,7 +62,7 @@ theorem sturmRealClosed_monicHilbert_diagonal_action
         (b.repr (A x)) n := by
     dsimp [f]
     rw [map_sub, map_smul]
-    simp only [Pi.sub_apply, Pi.smul_apply, smul_eq_mul]
+    rfl
   change (b.repr (A x)) n =
     (-(n : ℝ) * ((n : ℝ) + 2 * lam)) *
       (b.repr (x : SturmH lam)) n
@@ -70,8 +70,7 @@ theorem sturmRealClosed_monicHilbert_diagonal_action
     (b.repr (A x)) n =
         t * (b.repr (x : SturmH lam)) n -
           w * (b.repr (x : SturmH lam)) n := by
-            rw [hweighted] at hlinear
-            linarith
+            linarith [hweighted, hlinear]
     _ = (-(n : ℝ) * ((n : ℝ) + 2 * lam)) *
           (b.repr (x : SturmH lam)) n := by
             dsimp [w]
