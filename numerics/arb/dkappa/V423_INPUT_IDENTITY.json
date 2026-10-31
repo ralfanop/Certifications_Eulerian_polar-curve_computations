@@ -1,0 +1,16 @@
+{
+  "applies_to_version": "V423",
+  "manuscript_sources": {
+    "Path_Borsuk_Ulam_Complementary_Filomat_Roberto_Alfano_V423.tex": "9b46008c98bf6eca68815af3937c1b71d6cfa07f13531e345ff300cdd4fd01e3",
+    "Path_Borsuk_Ulam_Complementary_Roberto_Alfano_V423_Clean.tex": "7070ea21538dd09725d28b98a49e8467430ad433b28784e1fa3066dad5ef7365"
+  },
+  "D_kappa_definition_label": "eq:Dkappa",
+  "displayed_value": "0.203783759536049443826081",
+  "normalisation": "Both full arcs start at theta=-pi and follow increasing theta to pi.",
+  "unchanged_certification_files": {
+    "D_K_CERTIFICATE_40_128.json": "042d91d3161da7a0523fb0e0ed1ba8a246afce6962fb79e2d120dc9e48dd5bd6",
+    "certify_dk.py": "9f438eaba926a3fa7c2291e5d44856fcad9b187e8848645c19417533e549250c",
+    "D_K_CERTIFICATE_32_64.json": "666dc400c42373469504eefba966e9709eb542d91bc43b674ae9ba7051fc110d"
+  },
+  "numerical_change_from_V422": false
+}

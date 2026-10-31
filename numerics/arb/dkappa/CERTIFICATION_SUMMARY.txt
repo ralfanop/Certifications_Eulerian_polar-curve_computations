@@ -1,0 +1,15 @@
+D_K CERTIFICATION FOR V423
+==========================
+
+Correctly rounded to 24 decimal places:
+  0.203783759536049443826081
+
+Rigorous widened enclosure, unchanged from the V422 certification:
+  0.203783759536049443826080629422606828 < D_kappa
+  D_kappa < 0.203783759536049443826080629422606829
+
+The executable, interval records and independent reference data are unchanged.
+The proof note identifies V423. The exact record checker passes. The numerical
+quantity and its arclength normalisation are unchanged and are now explicit in
+the manuscript. The certificate includes arclength and inversion errors and the
+outer integration remainder. It excludes concentrated corner turning.

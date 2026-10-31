@@ -1,0 +1,299 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+\usepackage{microtype}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newcommand{\dd}{\,\mathrm d}
+\newcommand{\Si}{\operatorname{Si}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\title{Interval certification of the smooth-arc\\curvature discrepancy}
+\author{Computational supplement to manuscript V423}
+\date{23 September 2026}
+\begin{document}
+\maketitle
+
+\textbf{Result.} The value already printed in V423 is correctly rounded to
+24 decimal places:
+\[
+\boxed{D_\kappa\approx0.203783759536049443826081
+       \quad\text{(correctly rounded to 24 decimal places).}}
+\]
+This is a correctly rounded approximation, not an exact finite decimal representation. The following rigorous enclosure is deliberately widened from
+the full computational output:
+\begin{equation}\label{eq:enclosure}
+\begin{split}
+0.203783759536049443826080629422606828
+&<D_\kappa\\
+&<0.203783759536049443826080629422606829.
+\end{split}
+\end{equation}
+Both bounds lie strictly inside the rounding cell
+\[
+\bigl(
+0.2037837595360494438260805,\,
+0.2037837595360494438260815
+\bigr).
+\]
+Thus the decimal retained in V423 is certified
+without changing any of its 24 digits. This certificate concerns the smooth-arc
+diagnostic only; it does not include the atom of turning at the Eulerian corner.
+
+\section{The quantity and its normalisation}
+Use the continuous extension at zero in
+\[
+r_E(\theta)=\frac{2\sin(\theta/2)}{\theta},\qquad
+r_L(\theta)=b+a\cos\theta,
+\]
+where
+\[
+b=\frac{2}{\pi}\Si(\pi/2),\qquad
+a=\frac{2}{\pi}\bigl(\Si(3\pi/2)-\Si(\pi/2)\bigr).
+\]
+Primes below denote differentiation with respect to \(\theta\). Define
+\[
+v_i(\theta)=\sqrt{r_i(\theta)^2+r_i'(\theta)^2},\qquad
+k_i(\theta)=
+\frac{r_i^2+2(r_i')^2-r_i r_i''}
+     {(r_i^2+(r_i')^2)^{3/2}},
+\quad i\in\{E,L\}.
+\]
+The signed numerator is positive on each smooth arc, so this formula equals the
+unsigned curvature used in the manuscript. For the Eulerian curve, it equals
+\[
+\frac{3\theta\sin^2(\theta/2)+2(\theta-\sin\theta)}{\theta^3}>0
+\quad(0<\theta\leq\pi),
+\]
+with limiting value \(13/12\) at zero. For the lima\c{c}on, its minimum is
+\((b-a)(b-2a)>0\); the program verifies \(b>2a>0\).
+
+For definiteness, both full-arc normalised arclength parameters start at
+\(\theta=-\pi\) and follow increasing \(\theta\) to \(\pi\).
+The profiles and speeds are even. On the positive half-arc put
+\[
+x=\theta/\pi,\qquad H_i(x)=\pi v_i(\pi x),\qquad
+A_i(x)=\int_0^x H_i(t)\dd t,\qquad \ell_i=A_i(1).
+\]
+Let \(x_i(v)\) be the unique solution of \(A_i(x)=v\ell_i\), for
+\(0\leq v\leq1\). Symmetry of the original full-arc integral gives exactly
+\begin{equation}\label{eq:reduced}
+D_\kappa^2=\int_0^1
+\bigl[k_E(\pi x_E(v))-k_L(\pi x_L(v))\bigr]^2\dd v.
+\end{equation}
+There is no omitted factor of two: the two half-arcs contribute equally and
+\(v=2u-1\) on the second half of the original parameter interval.
+
+\begin{lemma}[Uniform inverse bound]\label{lem:inverse}
+For \(0\leq x\leq1\), one has \(H_E(x)\geq2\) and \(H_L(x)>2\).
+Consequently, for every exact trial point \(g\in[0,1]\),
+\begin{equation}\label{eq:residual}
+|x_i(v)-g|\leq\frac{|A_i(g)-v\ell_i|}{2},
+\qquad
+|x_i(v)-x_i(c)|\leq\frac{\ell_i}{2}|v-c|.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Concavity of sine on \([0,\pi/2]\) gives \(r_E\geq2/\pi\), so
+\(H_E\geq\pi r_E\geq2\).
+For the lima\c{c}on, \(r_L\geq b-a>0\). Outward-rounded evaluation verifies
+\(\pi(b-a)>2\), whence \(H_L\geq\pi(b-a)>2\).
+The functions \(A_i\) therefore increase strictly from \(0\) to \(\ell_i\).
+The first inequality follows from the mean value theorem; the second follows
+from \(x_i'(v)=\ell_i/H_i(x_i(v))\).
+\end{proof}
+
+Newton iteration is used only to obtain an accurate trial point.
+The interval residual and Lemma~\ref{lem:inverse}, rather than the iteration's
+stopping rule, establish the inverse enclosure.
+
+\section{Enclosing the removable singularity and all derivatives}
+The numerical computation avoids cancellation in the sinc formula at zero.
+It uses the entire series
+\[
+r_E(\theta)=\sum_{k=0}^{\infty}
+  \frac{(-1)^k\theta^{2k}}{2^{2k}(2k+1)!}.
+\]
+Let \(R_m\) retain \(k=0,\ldots,m\), and set \(n=2m+2\).
+For \(|\theta|\leq4\) and \(0\leq j<n\), define
+\[
+q_j=\frac{4}{(n+2-j)(n+1-j)}.
+\]
+When \(q_j<1\), absolute summation of the differentiated tail gives
+\begin{equation}\label{eq:sinc-tail}
+\frac{|(r_E-R_m)^{(j)}(\theta)|}{j!}
+\leq
+\frac{4^{\,n-j}}
+ {2^n(n+1)(n-j)!\,j!}\,\frac{1}{1-q_j}.
+\end{equation}
+Indeed, the ratio of successive absolute differentiated terms is at most
+\[
+\frac{\theta^2}{4}
+\frac{n+1}{n+3}
+\frac{1}{(n+2-j)(n+1-j)}
+\leq q_j,
+\]
+and this upper bound decreases along the tail.
+
+The implementation uses \(m=80\). It shifts the finite polynomial to the real
+point or interval under consideration and adds the bound
+\eqref{eq:sinc-tail} to each derivative coefficient.
+The coefficients for \(r_E'\) and \(r_E''\) follow by differentiation, including
+the corresponding tail bounds. All evaluation centres are checked to satisfy
+\(|\theta|<4\).
+
+Real ball arithmetic then encloses the Taylor coefficients of \(H_i\) and \(k_i\)
+under addition, multiplication, division and the positive square root.
+Every speed denominator is checked to have a strictly positive enclosure.
+For the lima\c{c}on, sine and cosine power-series operations supply the
+coefficients directly.
+The series truncation symbol alone is not used as an error estimate:
+\eqref{eq:sinc-tail} and the explicit quadrature remainders below provide the
+required bounds.
+
+\section{Validated arclength and outer quadrature}
+Fix an even order \(p\) and a dyadic partition of \([0,1]\) into \(N\) panels.
+The principal run uses \(p=32\), \(N=64\), and 256-bit midpoint precision.
+
+\textbf{Arclength integration.}
+For a panel \([a,a+h]\), interval series evaluation over the whole panel encloses
+\(H_i^{(p)}(\xi)/p!\). If its absolute value is bounded by \(B\), then for
+\(0\leq d\leq h\),
+\begin{equation}\label{eq:inner}
+A_i(a+d)-A_i(a)
+\in
+\sum_{j=0}^{p-1}\frac{H_i^{(j)}(a)}{j!}\frac{d^{j+1}}{j+1}
++
+\left[-\frac{B d^{p+1}}{p+1},\frac{B d^{p+1}}{p+1}\right].
+\end{equation}
+Accumulating these enclosures gives both \(A_i(g)\) and \(\ell_i\).
+Coefficient rounding errors and all previous-panel errors remain in the balls.
+
+\textbf{Inverse derivatives.}
+At a base point \(x_0\), form the series
+\[
+F_i(s)=\frac{A_i(x_0+s)-A_i(x_0)}{\ell_i}.
+\]
+Its constant term is exactly zero and its linear coefficient is positive.
+Formal series reversion therefore gives the derivatives of
+\(x_i(v_0+s)-x_0\), where \(v_0=A_i(x_0)/\ell_i\).
+Composing with the curvature series gives derivatives of
+\(k_i(\pi x_i(v))\).
+For interval \(x_0\), the same ball operations enclose these derivatives for
+every base point in the interval.
+The residual enclosure determines \(x_0\) at the panel centre.
+The second bound in \eqref{eq:residual} covers all inverse images of the panel.
+
+\textbf{Outer integration.}
+Write \(f(v)\) for the squared difference in \eqref{eq:reduced}.
+On a symmetric panel \([c-h,c+h]\), let \(a_j\) enclose \(f^{(j)}(c)/j!\),
+and let \(B_p\) bound \(|f^{(p)}(v)|/p!\) throughout the panel.
+Taylor's theorem gives
+\begin{equation}\label{eq:outer}
+\int_{c-h}^{c+h}f(v)\dd v
+\in
+\sum_{\substack{0\leq j<p\\j\ {\rm even}}}
+  a_j\,\frac{2h^{j+1}}{j+1}
++
+\left[-\frac{2B_p h^{p+1}}{p+1},
+       \frac{2B_p h^{p+1}}{p+1}\right].
+\end{equation}
+The interval inverse series on the whole panel supplies \(B_p\).
+Summing \eqref{eq:outer} encloses \(D_\kappa^2\); the positive square root
+encloses \(D_\kappa\).
+
+\begin{proposition}[Certification criterion]
+Under the checked positivity and domain conditions above, the interval returned
+by the supplied program contains the value in \eqref{eq:reduced}.
+If that interval lies strictly inside a decimal's nearest-rounding cell, the
+decimal is correctly rounded.
+\end{proposition}
+\begin{proof}
+The entire-series bound encloses the radial derivatives.
+Ball arithmetic propagates those inclusions through the speed and curvature
+formulae. Equation~\eqref{eq:inner} encloses every arclength evaluation,
+Lemma~\ref{lem:inverse} encloses every inverse value, and series reversion
+encloses its derivatives. Equation~\eqref{eq:outer} includes the complete
+quadrature remainder. Summation and the monotone square root preserve inclusion.
+Strict containment in a rounding cell excludes either possible rounding boundary.
+\end{proof}
+
+\section{Computed certificate and checks}
+The principal run returns the following enclosure for \(D_\kappa\):
+\begin{align*}
+L={}&0.203783759536049443826080629422606828470494451196624581353928,\\
+U={}&0.203783759536049443826080629422606828474246989273842126201317.
+\end{align*}
+The machine-readable record contains the complete enclosure for the square,
+the two half-lengths, the numerical parameters and the exact program hash.
+The wider interval \eqref{eq:enclosure} follows immediately.
+
+\begin{center}
+\begin{tabular}{lrrr}
+\toprule
+Run & Precision (bits) & Order \(p\) & Panels \(N\)\\
+\midrule
+Principal certificate & 256 & 32 & 64\\
+Finer certificate & 320 & 40 & 128\\
+\bottomrule
+\end{tabular}
+\end{center}
+The finer enclosure is contained in the principal enclosure. Both certify the
+same 24-place value, and both also pass the program's 36-place rounding test.
+The certificate is the enclosure and its error argument, not agreement between runs.
+
+An independent 60-decimal-place computation uses direct Gauss--Legendre
+quadrature and Newton inversion of separately integrated arclength functions.
+Increasing the outer quadrature order from 32 to 48 to 64 converges towards the
+certified value; its order-64 estimate lies inside the principal enclosure.
+This is supplementary numerical corroboration, not an interval certificate.
+An exploratory ordinary ODE solver did not attain its requested accuracy and was
+rejected as evidence.
+
+The manuscript's existing decimal therefore needs no numerical change.
+Its accompanying accuracy statement can now cite validated arclength inversion
+and Taylor quadrature. The normalisation should explicitly identify the common
+starting angle and orientation.
+
+\section{Reproduction and scope}
+The primary dependency is \texttt{python-flint==0.9.0}, which supplies FLINT/Arb
+ball and power-series arithmetic~\cite{arb,series}.
+The optional independent check uses \texttt{mpmath==1.4.1}.
+The certificate was run with Python 3.12.14.
+
+From the supplement directory:
+\begin{verbatim}
+python3 certify_dk.py --order 32 --panels 64 \
+  --output D_K_CERTIFICATE_32_64.json
+python3 certify_dk.py --bits 320 --order 40 --panels 128 \
+  --output D_K_CERTIFICATE_40_128.json
+python3 verify_certificate.py
+\end{verbatim}
+The first two commands fail if the returned enclosure cannot certify the
+manuscript's 24-place value. The last command checks the recorded enclosures,
+their rounding-cell inclusion, the independent comparison, and the program hash.
+
+This is a rigorous numerical certificate conditional on the documented
+floating-point ball-arithmetic implementation and its standard software/hardware
+assumptions; it is not a proof-assistant formalisation.
+It certifies the stated smooth-arc scalar diagnostic, not a global equality of
+curvature measures and not the entire manuscript.
+The numerical definitions and displayed values are unchanged in V423;
+its accompanying accuracy statements now refer to this certificate.
+
+\begin{thebibliography}{9}
+\bibitem{arb}
+F. Johansson, \emph{Arb: Efficient Arbitrary-Precision Midpoint-Radius Interval
+Arithmetic}, arXiv:1611.02831.
+\url{https://arxiv.org/abs/1611.02831}.
+See also the current FLINT documentation:
+\url{https://flintlib.org/doc/index_arb.html}.
+\bibitem{series}
+\emph{python-flint 0.9.0 documentation: arb and arb\_series}.
+\url{https://python-flint.readthedocs.io/en/latest/arb.html};
+\url{https://python-flint.readthedocs.io/en/latest/arb_series.html}.
+\end{thebibliography}
+\end{document}

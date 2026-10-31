@@ -1,0 +1,42 @@
+{
+  "version": "V423",
+  "result": "24 decimal places certified, unchanged",
+  "value": "0.203783759536049443826081",
+  "original_program_and_intervals_byte_identical": true,
+  "interval_rounding_checker": "PASS",
+  "computation_rerun_for_V423": false,
+  "reason": "The mathematical quantity, parameters and printed value are unchanged. The original rigorous interval records are reused and their exact checker was rerun.",
+  "source_identity": "V423_INPUT_IDENTITY.json",
+  "pdf": {
+    "pages": 4,
+    "sha256": "c13d3287f9e894850972c085bdb64a63a84e66ecd02ee2d803e89516c299b739",
+    "all_fonts_embedded": true,
+    "fonts": {
+      "/IHAIZV+LMRoman17-Regular": true,
+      "/BZIVMZ+LMRoman12-Regular": true,
+      "/IXFAWU+LMRoman10-Bold": true,
+      "/TQTHRL+LMRoman10-Regular": true,
+      "/YEUUOC+LMMathItalic10-Regular": true,
+      "/AKHCZK+LMMathItalic7-Regular": true,
+      "/VDVGTR+LMMathSymbols10-Regular": true,
+      "/CAFSZL+LMRoman10-Regular": true,
+      "/DDIEWW+LMMathExtension10-Regular": true,
+      "/FKPJSN+LMRoman12-Bold": true,
+      "/PVTTLK+LMRoman7-Regular": true,
+      "/JAGKKY+LMMathSymbols7-Regular": true,
+      "/NOMARO+LMRoman10-Italic": true,
+      "/KPXLOM+LMMono10-Regular": true
+    }
+  },
+  "visual_inspection": {
+    "pages": 4,
+    "sha256": "c13d3287f9e894850972c085bdb64a63a84e66ecd02ee2d803e89516c299b739",
+    "pages_reviewed": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "scope": "Smooth-arc curvature discrepancy with common starting angle theta=-pi and increasing theta; excludes the corner turning atom."
+}
