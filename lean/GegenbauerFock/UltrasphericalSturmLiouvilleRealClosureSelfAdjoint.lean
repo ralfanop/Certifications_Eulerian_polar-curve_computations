@@ -1,4 +1,5 @@
-import GegenbauerFock.UltrasphericalSturmLiouvilleRealFullResolventSelfAdjoint
+import GegenbauerFock.UltrasphericalSturmLiouvilleRealClosedFullResolvent
+import GegenbauerFock.UltrasphericalSturmLiouvilleRealClosedSymmetry
 import Mathlib.Analysis.InnerProductSpace.LinearPMap
 
 /-!
