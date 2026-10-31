@@ -48,12 +48,11 @@ jobs:
         run: |
           set -euo pipefail
           lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealFullResolventNorm 2>&1 | tee /tmp/v007-true-closed-full-res-norm-build.log
-          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealClosedFullResolvent.lean 2>&1 | tee /tmp/v007-true-closed-full-res-norm-axioms.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealFullResolventNorm.lean 2>&1 | tee /tmp/v007-true-closed-full-res-norm-axioms.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-true-closed-full-res-norm-build.log /tmp/v007-true-closed-full-res-norm-axioms.log; then
             echo '::error::Forbidden axiom in true closed real Sturm full-L2 resolvent.'
             exit 1
           fi
           grep -F "sturmRealPositiveResolventFullCLM_norm_le' depends on axioms:" /tmp/v007-true-closed-full-res-norm-axioms.log
-          grep -F "sturmRealPositiveResolventFullCLM_opNorm_le' depends on axioms:" /tmp/v007-true-closed-full-res-norm-axioms.log
           grep -F "sturmRealPositiveResolventFullCLM_opNorm_le' depends on axioms:" /tmp/v007-true-closed-full-res-norm-axioms.log
           echo 'V007 sharp full real Sturm positive resolvent operator norm kernel-certified.'
