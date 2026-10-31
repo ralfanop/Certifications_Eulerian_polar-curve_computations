@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleSpectralClosureUniqueness.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleSpectralClosureNonpositive.lean'
       - '.github/workflows/v007-ultraspherical-sturm-spectral-closure-uniqueness.yml'
   workflow_dispatch:
 
@@ -48,12 +49,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.UltrasphericalSturmLiouvilleSpectralClosureUniqueness 2>&1 | tee /tmp/v007-spectral-closure-build.log
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleSpectralClosureUniqueness GegenbauerFock.UltrasphericalSturmLiouvilleSpectralClosureNonpositive 2>&1 | tee /tmp/v007-spectral-closure-build.log
           lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleSpectralClosureUniqueness.lean 2>&1 | tee /tmp/v007-spectral-closure-axioms.log
-          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-spectral-closure-build.log /tmp/v007-spectral-closure-axioms.log; then
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleSpectralClosureNonpositive.lean 2>&1 | tee /tmp/v007-spectral-closure-nonpositive-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-spectral-closure-build.log /tmp/v007-spectral-closure-axioms.log /tmp/v007-spectral-closure-nonpositive-axioms.log; then
             echo '::error::Forbidden axiom in Sturm spectral closure uniqueness.'
             exit 1
           fi
           grep -F "sturmRealPartialOperator_spectral_eq_closure_of_shift_graph_bound' depends on axioms:" /tmp/v007-spectral-closure-axioms.log
           grep -F "sturmRealPartialOperator_spectral_domain_eq_of_shift_graph_bound' depends on axioms:" /tmp/v007-spectral-closure-axioms.log
+          grep -F "sturmReal_closed_nonpositive_shift_graph_bound' depends on axioms:" /tmp/v007-spectral-closure-nonpositive-axioms.log
+          grep -F "sturmRealPartialOperator_spectral_eq_closure_of_nonpositive' depends on axioms:" /tmp/v007-spectral-closure-nonpositive-axioms.log
+          grep -F "sturmRealPartialOperator_spectral_domain_eq_of_nonpositive' depends on axioms:" /tmp/v007-spectral-closure-nonpositive-axioms.log
           echo 'V007 Sturm polynomial-to-spectral closure uniqueness kernel-certified.'
