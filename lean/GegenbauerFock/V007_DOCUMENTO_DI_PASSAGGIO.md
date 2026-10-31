@@ -811,3 +811,42 @@ CI [41229325167](https://github.com/ralfanop/Certifications_Eulerian_polar-curve
 La CI topologica precedente [41229048881](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41229048881)
 è stata cancellata; la nuova CI include i medesimi teoremi.
 Mantenere PR #16 Draft, senza merge né modifiche a main, V097 o V170.
+
+## 25. Equivalenza topologica dei dati congiunti e dati Fock — 31 ottobre 2026
+
+**Certificazione completata:** GitHub Actions
+[41228991732](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41228991732)
+e
+[41229325167](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41229325167)
+sono entrambe **SUCCESS**.
+Il log della seconda mostra gli audit `#print axioms` puliti di:
+
+- `joint_cfc_fock_gram_no_homeomorphism_to_actual_range`;
+- `joint_cfc_fock_gram_measurements_continuous_injective`;
+- `joint_fock_gram_norm_control_by_cfc_root`;
+- `joint_fock_gram_difference_control_by_cfc_root`.
+
+Dipendenze assiomatiche: soltanto `propext`,
+`Classical.choice` e `Quot.sound`; nessun
+`sorryAx` né `Lean.ofReduceBool`.
+
+**Due nuovi teoremi depositati, certificazione PENDENTE:**
+
+1. `exists_joint_fock_data_graph_factorization` mostra che per
+   una isometria unitaria certificata `W`, il dato congiunto
+   `(P f, C f, G f)` coincide con
+   `(W.symm (C f), C f, C_adjoint (C f))`. Il grafico rispetto
+   alla coordinata Fock è continuo.
+2. `joint_cfc_fock_gram_data_convergence_iff_fock` esprime
+   l'equivalenza tra convergenza di `C (u n)` a `C f`
+   e convergenza delle tre osservazioni congiunte ai dati di `f`.
+
+Sorgente commit `e5466483d1bcf7d77d2857c8f1a08f3aaf1651f2`;
+audit workflow commit `0038cb218b5796c3fe573842820f2f0e4b356012`.
+CI
+[41243242871](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41243242871)
+deve terminare con SUCCESS e `#print axioms` puliti
+prima di considerare i due nuovi enunciati certificati.
+
+**Invarianti:** PR #16 Draft, nessun merge;
+non modificare `main`, V097 o i workflow V170.
