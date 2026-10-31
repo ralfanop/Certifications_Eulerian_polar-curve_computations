@@ -136,3 +136,8 @@ open EulerianCert
 #print axioms EulerianCert.HausdorffAttain.hausdorff_envelope
 #print axioms EulerianCert.HausdorffAttain.hausdorff_attained
 #print axioms EulerianCert.HausdorffAttain.hausdorff_isLeast
+#print axioms EulerianCert.HausdorffAttain.variational
+#print axioms EulerianCert.HausdorffAttain.nearest_unique
+#print axioms EulerianCert.HausdorffAttain.minimiser_unique
+#print axioms EulerianCert.HausdorffAttain.Q_εrad_lt
+#print axioms EulerianCert.HausdorffAttain.hstar_lt_εrad
