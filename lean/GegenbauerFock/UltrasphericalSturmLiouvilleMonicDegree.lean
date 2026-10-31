@@ -24,6 +24,8 @@ theorem sturmMonicEigenCandidate_coeff_top
   rw [Finset.sum_eq_single_of_mem 0 (by simp)]
   · simp [sturmMonicCoeff_zero]
   · intro k hk hk0
+    have hbound : k < n/2+1 := Finset.mem_range.mp hk
+    have hkpos : 0 < k := Nat.pos_of_ne_zero hk0
     have hne : n ≠ n - 2*k := by omega
     simp [hne]
 
