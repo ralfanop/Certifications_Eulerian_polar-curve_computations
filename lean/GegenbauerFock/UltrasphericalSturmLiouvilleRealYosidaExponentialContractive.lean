@@ -55,7 +55,7 @@ theorem sturmRealYosidaExponential_opNorm_le_one
       (-(s*t)) • ContinuousLinearMap.id ℝ (SturmH lam) +
         (s*t) • (t • R)
     rw [smul_smul, smul_sub]
-    simp only [neg_smul, sub_eq_add_neg]
+    simp only [sub_eq_add_neg, smul_smul]
     abel
   have hcomm : Commute
       ((-c) • (1 : SturmH lam →L[ℝ] SturmH lam)) (c • B) := by
