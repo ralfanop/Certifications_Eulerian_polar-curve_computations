@@ -598,3 +598,47 @@ Non attribuire SUCCESS fino all'esito.
 
 **Invarianti:** PR #16 aperta Draft, nessun merge,
 nessuna modifica su `main`, V097 o workflow V170.
+
+## 19. Chiusura verificata del blocco CFC–Fock–Gram — 31 ottobre 2026
+
+Le seguenti quattro CI, precedentemente in corso, sono ora **SUCCESS**:
+
+- [41132692700](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41132692700):
+  `exists_shared_cfc_polar_instability_family`.
+- [41132526979](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41132526979):
+  `canonical_cfc_sqrt_inverse_on_range_discontinuous_at_zero`.
+- [41132531941](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41132531941):
+  `canonical_cfc_sqrt_exists_normalized_approximate_zero_vectors`.
+- [41133223286](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41133223286):
+  `exists_shared_cfc_polar_strong_null_sequence`.
+
+Ulteriori verifiche compiute:
+
+- [41208546359](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41208546359):
+  **SUCCESS** del teorema `exists_shared_cfc_fock_gram_strong_null_sequence`.
+- [41208719236](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41208719236):
+  **SUCCESS** dei quattro teoremi riuniti in
+  `CanonicalCFCQuantitativePolarInstability.lean`, inclusa
+  `exists_shared_cfc_fock_gram_quantitative_family`.
+  Gli audit dei quattro enunciati dipendono soltanto da
+  `propext`, `Classical.choice` e `Quot.sound`,
+  senza `sorryAx` né `Lean.ofReduceBool`.
+
+Per una stessa successione `u n` di norma uno valgono
+`‖C (u n)‖ = ‖P (u n)‖ < 1/(n+1)` e
+`‖gram (u n)‖ ≤ ‖C_adjoint‖/(n+1)`, con convergenza forte
+di tutte le tre immagini verso zero. In particolare zero è un valore
+spettrale approssimato ma non un autovalore della radice canonica,
+che resta iniettiva; l'inversa esatta sul range è discontinua in zero.
+
+**Estensione successiva depositata, non ancora promossa a certificata:**
+`exists_shared_cfc_fock_gram_everywhere_instability`,
+commit `22ac0b4bbba96ca07e08aada70aaeb4f2cad8065`;
+workflow di audit aggiornato al commit
+`99b48f1493aacfff11e5e0d96359672981770c2a`,
+CI [41209682954](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41209682954).
+Richiedere SUCCESS e `#print axioms` del nuovo enunciato
+prima di dichiararne la certificazione.
+
+**Invarianti:** mantenere PR #16 in Draft, senza merge,
+senza modifiche a `main`, V097 o processi V170.
