@@ -233,6 +233,47 @@ theorem intrinsicRieszKernel_exp_sum_coefficient_perturbation_disk_bound
     (intrinsicRieszKernel_exp_sum_uniform_disk_bound
       s z (fun i => c i - d i) alpha ha R hR w hw)
 
+/-- The uniform disk perturbation bound in its useful norm form:
+the interpolation error is at most the square root of the exact
+Gaussian Gram energy of the coefficient perturbation, times the
+positive disk exponential weight. -/
+theorem intrinsicRieszKernel_exp_sum_coefficient_perturbation_disk_norm_le_sqrt_gram
+    {ι : Type*} (s : Finset ι) (z c d : ι → ℂ)
+    (alpha : ℝ) (ha : 0 < alpha)
+    (R : ℝ) (hR : 0 ≤ R) (w : ℂ) (hw : ‖w‖ ≤ R) :
+    ‖(∑ i ∈ s, c i *
+        Complex.exp ((alpha : ℂ) * w * star (z i))) -
+      (∑ i ∈ s, d i *
+        Complex.exp ((alpha : ℂ) * w * star (z i)))‖ ≤
+      Real.sqrt (Real.exp (alpha * R ^ 2) *
+        Complex.re (∑ i ∈ s, ∑ j ∈ s,
+          star (c i - d i) * (c j - d j) *
+            Complex.exp ((alpha : ℂ) * z i * star (z j)))) := by
+  have hgram : 0 ≤ Complex.re (∑ i ∈ s, ∑ j ∈ s,
+      star (c i - d i) * (c j - d j) *
+        Complex.exp ((alpha : ℂ) * z i * star (z j))) :=
+    intrinsicRieszKernel_exp_gram_nonneg
+      s z (fun i => c i - d i) alpha ha
+  have hnonneg : 0 ≤ Real.exp (alpha * R ^ 2) *
+      Complex.re (∑ i ∈ s, ∑ j ∈ s,
+        star (c i - d i) * (c j - d j) *
+          Complex.exp ((alpha : ℂ) * z i * star (z j))) :=
+    mul_nonneg (le_of_lt (Real.exp_pos _)) hgram
+  have hsq := intrinsicRieszKernel_exp_sum_coefficient_perturbation_disk_bound
+    s z c d alpha ha R hR w hw
+  have hsqrt := Real.sq_sqrt hnonneg
+  have hnon := norm_nonneg
+    ((∑ i ∈ s, c i *
+        Complex.exp ((alpha : ℂ) * w * star (z i))) -
+      (∑ i ∈ s, d i *
+        Complex.exp ((alpha : ℂ) * w * star (z i))))
+  have hsqrt_nonneg := Real.sqrt_nonneg
+    (Real.exp (alpha * R ^ 2) *
+      Complex.re (∑ i ∈ s, ∑ j ∈ s,
+        star (c i - d i) * (c j - d j) *
+          Complex.exp ((alpha : ℂ) * z i * star (z j))))
+  nlinarith
+
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_pos_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_eq_zero_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_pos_iff_ne_zero
@@ -243,5 +284,6 @@ theorem intrinsicRieszKernel_exp_sum_coefficient_perturbation_disk_bound
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_ge_origin_coeff_sum
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_sum_uniform_disk_bound
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_sum_coefficient_perturbation_disk_bound
+#print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_sum_coefficient_perturbation_disk_norm_le_sqrt_gram
 
 end GegenbauerFock.GaussianArea
