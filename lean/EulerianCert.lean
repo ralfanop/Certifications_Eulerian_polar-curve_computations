@@ -34,3 +34,4 @@ import EulerianCert.Corner
 import EulerianCert.Combinatorics
 import EulerianCert.MontgomeryTaylor
 import EulerianCert.Cyclohedral
+import EulerianCert.FourierModes

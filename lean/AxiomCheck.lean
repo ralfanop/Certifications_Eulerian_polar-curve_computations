@@ -77,3 +77,13 @@ open EulerianCert
 -- §3.11, Montgomery–Taylor constants (EulerianCert.MontgomeryTaylor)
 #print axioms EulerianCert.MontgomeryTaylor.coth_imaginary
 #print axioms EulerianCert.MontgomeryTaylor.z0_coth_z0
+-- V001 Proposition 3.1 and Definition 2.1 (module FourierModes)
+#print axioms EulerianCert.FourierModes.A_eq_Si
+#print axioms EulerianCert.FourierModes.A_zero
+#print axioms EulerianCert.FourierModes.A_succ_eq_Si
+#print axioms EulerianCert.FourierModes.A_eq_sign_integral
+#print axioms EulerianCert.FourierModes.A_sign
+#print axioms EulerianCert.FourierModes.abs_A_strictAnti
+#print axioms EulerianCert.FourierModes.abs_A_bounds
+#print axioms EulerianCert.FourierModes.summable_abs_A
+#print axioms EulerianCert.FourierModes.A_asymptotic

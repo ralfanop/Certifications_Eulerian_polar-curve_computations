@@ -1,0 +1,69 @@
+name: EulerianCert (V001) Lean proof checks
+
+on:
+  push:
+    branches:
+      - v001-formalisation
+    paths:
+      - 'lean/EulerianCert/**'
+      - 'lean/EulerianCert.lean'
+      - 'lean/AxiomCheck.lean'
+      - '.github/workflows/eulerian-cert-v001.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: eulerian-cert-v001-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elan and the pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lean" --version
+
+      - name: Generate the Lake manifest for the pinned Mathlib
+        working-directory: lean
+        run: lake update
+
+      - name: Fetch Mathlib build artifacts
+        working-directory: lean
+        run: lake exe cache get
+
+      - name: Build EulerianCert
+        working-directory: lean
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build EulerianCert 2>&1 | tee /tmp/eulerian_cert_build.log
+
+      - name: Axiom report (no sorryAx, no Lean.ofReduceBool)
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean AxiomCheck.lean 2>&1 | tee /tmp/eulerian_cert_axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/eulerian_cert_axioms.log; then
+            echo '::error::Nonstandard axiom in EulerianCert.'
+            exit 1
+          fi
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eulerian-cert-v001-logs
+          path: |
+            /tmp/eulerian_cert_build.log
+            /tmp/eulerian_cert_axioms.log
