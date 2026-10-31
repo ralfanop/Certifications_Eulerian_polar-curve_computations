@@ -503,6 +503,83 @@ theorem joint_cfc_fock_gram_data_convergence_iff_fock
     exact hprojection
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_joint_fock_data_graph_factorization
+/-- The *actual measurement ranges*, equipped with their subtype
+topologies, are homeomorphic: adjoining the canonical CFC root and
+source Gram coordinates to the genuine Fock measurement does not
+change the data space topologically. The homeomorphism is precisely
+the canonical joint-data graph. -/
+theorem exists_homeomorphism_between_fock_range_and_joint_cfc_fock_gram_range
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    ∃ e : Set.range (C lam alpha hlam ha) ≃ₜ
+      Set.range (jointCFCFockGramMeasurements lam alpha hlam ha),
+      ∀ f : Lp ℂ 2 (Ultraspherical.measure lam),
+        e ⟨C lam alpha hlam ha f, ⟨f, rfl⟩⟩ =
+          ⟨jointCFCFockGramMeasurements lam alpha hlam ha f,
+            ⟨f, rfl⟩⟩ := by
+  obtain ⟨W, hfactor, hcontinuous⟩ :=
+    exists_joint_fock_data_graph_factorization lam alpha hlam ha
+  let graph : InfiniteAnalysis.FockCoefficients →
+      Lp ℂ 2 (Ultraspherical.measure lam) ×
+        (InfiniteAnalysis.FockCoefficients ×
+          Lp ℂ 2 (Ultraspherical.measure lam)) :=
+    fun F => (W.symm F, (F, C_adjoint lam alpha hlam ha F))
+  have hgraph : ∀ f : Lp ℂ 2 (Ultraspherical.measure lam),
+      jointCFCFockGramMeasurements lam alpha hlam ha f =
+        graph (C lam alpha hlam ha f) := hfactor
+  have hgraphcont : Continuous graph := hcontinuous
+  let forward :
+      Set.range (C lam alpha hlam ha) →
+      Set.range (jointCFCFockGramMeasurements lam alpha hlam ha) :=
+    fun F => ⟨graph F.val, by
+      rcases F.property with ⟨f, hf⟩
+      refine ⟨f, ?_⟩
+      change jointCFCFockGramMeasurements lam alpha hlam ha f =
+        graph F.val
+      rw [← hf]
+      exact hgraph f⟩
+  let backward :
+      Set.range (jointCFCFockGramMeasurements lam alpha hlam ha) →
+      Set.range (C lam alpha hlam ha) :=
+    fun v => ⟨v.val.2.1, by
+      rcases v.property with ⟨f, hf⟩
+      refine ⟨f, ?_⟩
+      exact congrArg (fun z => z.2.1) hf⟩
+  have hleft : ∀ F, backward (forward F) = F := by
+    intro F
+    apply Subtype.ext
+    rfl
+  have hright : ∀ v, forward (backward v) = v := by
+    intro v
+    apply Subtype.ext
+    change graph v.val.2.1 = v.val
+    obtain ⟨f, hf⟩ := v.property
+    rw [← hf]
+    exact (hgraph f).symm
+  have hfcont : Continuous forward := by
+    dsimp [forward]
+    exact (hgraphcont.comp continuous_subtype_val).subtype_mk _
+  have hbcont : Continuous backward := by
+    dsimp [backward]
+    exact ((continuous_fst.comp continuous_snd).comp
+      continuous_subtype_val).subtype_mk _
+  let e : Set.range (C lam alpha hlam ha) ≃ₜ
+      Set.range (jointCFCFockGramMeasurements lam alpha hlam ha) :=
+    { toEquiv :=
+        { toFun := forward
+          invFun := backward
+          left_inv := hleft
+          right_inv := hright }
+      continuous_toFun := hfcont
+      continuous_invFun := hbcont }
+  refine ⟨e, ?_⟩
+  intro f
+  apply Subtype.ext
+  change graph (C lam alpha hlam ha f) =
+    jointCFCFockGramMeasurements lam alpha hlam ha f
+  exact (hgraph f).symm
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_homeomorphism_between_fock_range_and_joint_cfc_fock_gram_range
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.joint_cfc_fock_gram_data_convergence_iff_fock
 
 /-- The joint data map is continuous and one-to-one, even though
