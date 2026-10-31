@@ -133,6 +133,42 @@ theorem exists_shared_cfc_fock_gram_strong_null_sequence
     (C_adjoint lam alpha hlam ha).continuous.continuousAt.tendsto.comp hC
   simpa only [map_zero] using hG
 
+/-- A single unit sequence simultaneously controls the canonical
+positive polar amplitude, the Fock transform and its source Gram.
+The Gram estimate follows from the adjoint operator norm, not from
+an assumed spectral gap. -/
+theorem exists_shared_cfc_fock_gram_quantitative_family
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    ∃ u : ℕ → Lp ℂ 2 (Ultraspherical.measure lam),
+      ∀ n : ℕ,
+        ‖u n‖ = 1 ∧
+        ‖localCFCGramSqrt lam alpha hlam ha (u n)‖ <
+          1 / ((n : ℝ) + 1) ∧
+        ‖C lam alpha hlam ha (u n)‖ =
+          ‖localCFCGramSqrt lam alpha hlam ha (u n)‖ ∧
+        ‖gram lam alpha hlam ha (u n)‖ ≤
+          ‖C_adjoint lam alpha hlam ha‖ * (1 / ((n : ℝ) + 1)) := by
+  classical
+  obtain ⟨W, u, hcompact, hinj, hdense, hnotclosed, hpolar, hquant⟩ :=
+    exists_shared_cfc_polar_instability_family lam alpha hlam ha
+  refine ⟨u, ?_⟩
+  intro n
+  refine ⟨(hquant n).1, (hquant n).2.2, (hquant n).2.1, ?_⟩
+  have hCbound : ‖C lam alpha hlam ha (u n)‖ ≤
+      1 / ((n : ℝ) + 1) := by
+    rw [(hquant n).2.1]
+    exact (hquant n).2.2.le
+  calc
+    ‖gram lam alpha hlam ha (u n)‖ =
+        ‖C_adjoint lam alpha hlam ha (C lam alpha hlam ha (u n))‖ := rfl
+    _ ≤ ‖C_adjoint lam alpha hlam ha‖ *
+        ‖C lam alpha hlam ha (u n)‖ :=
+      (C_adjoint lam alpha hlam ha).le_opNorm _
+    _ ≤ ‖C_adjoint lam alpha hlam ha‖ * (1 / ((n : ℝ) + 1)) :=
+      mul_le_mul_of_nonneg_left hCbound (norm_nonneg _)
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_fock_gram_quantitative_family
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_fock_gram_strong_null_sequence
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_polar_strong_null_sequence
