@@ -28,6 +28,37 @@ theorem sturmRealPositiveResolventFullCLM_isSelfAdjoint
   exact sturmRealPositiveResolventFullCLM_inner_symmetric
     lam t hlam ht f g
 
+
+/-- The full real weighted-L² Sturm resolvent has no kernel:
+if two right-hand sides have the same resolvent image, the closed graph
+forces the right-hand sides themselves to coincide. -/
+theorem sturmRealPositiveResolventFullCLM_injective
+    (lam t : ℝ) (hlam : 0 < lam) (ht : 0 < t) :
+    Function.Injective (sturmRealPositiveResolventFullCLM lam t hlam ht) := by
+  let A := sturmRealPartialOperator lam hlam
+  let R := sturmRealPositiveResolventFullCLM lam t hlam ht
+  intro f g hfg
+  obtain ⟨x, hx⟩ := (A.closure.mem_graph_iff').mp
+    (sturmRealPositiveResolventFullCLM_closed_graph lam t hlam ht f)
+  obtain ⟨y, hy⟩ := (A.closure.mem_graph_iff').mp
+    (sturmRealPositiveResolventFullCLM_closed_graph lam t hlam ht g)
+  have hx1 : (x : Lp ℝ 2 (measure lam)) = R f :=
+    congrArg Prod.fst hx
+  have hy1 : (y : Lp ℝ 2 (measure lam)) = R g :=
+    congrArg Prod.fst hy
+  have hxy : x = y := by
+    apply Subtype.ext
+    exact hx1.trans (hfg.trans hy1.symm)
+  have hx2 : A.closure x = t • R f - f :=
+    congrArg Prod.snd hx
+  have hy2 : A.closure y = t • R g - g :=
+    congrArg Prod.snd hy
+  rw [hxy, hfg] at hx2
+  have hsame : t • R g - f = t • R g - g :=
+    hx2.symm.trans hy2
+  simpa only [sub_left_inj] using hsame
+
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_isSelfAdjoint
+#print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_injective
 
 end GegenbauerFock.Ultraspherical
