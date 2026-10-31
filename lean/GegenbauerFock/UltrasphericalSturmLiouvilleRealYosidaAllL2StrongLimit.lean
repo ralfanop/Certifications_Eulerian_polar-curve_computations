@@ -61,9 +61,9 @@ theorem sturmRealYosidaExponential_allL2_strong_limit_exists
     ext x
     constructor
     · rintro ⟨n, rfl⟩
-      exact ⟨n, hb n⟩
-    · rintro ⟨n, rfl⟩
       exact ⟨n, (hb n).symm⟩
+    · rintro ⟨n, rfl⟩
+      exact ⟨n, hb n⟩
   have hdense : Dense (S : Set (SturmH lam)) := by
     apply Submodule.dense_iff_topologicalClosure_eq_top.mpr
     change (Submodule.span ℝ (Set.range v)).topologicalClosure = ⊤
