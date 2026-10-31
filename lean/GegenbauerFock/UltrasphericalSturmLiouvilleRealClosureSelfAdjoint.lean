@@ -68,7 +68,7 @@ theorem sturmRealPartialOperator_closure_isSelfAdjoint
           rw [← hform, ← hsymw]
           ring
         rw [hidentity, hx']
-        exact sub_self _
+        simp
       have hyx : y = (x : SturmH lam) := by
         apply ext_inner_right ℝ
         intro z
