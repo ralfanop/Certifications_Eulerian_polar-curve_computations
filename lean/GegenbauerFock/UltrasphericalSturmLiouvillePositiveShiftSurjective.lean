@@ -35,8 +35,9 @@ theorem sturmPositiveShiftPolynomial_add (lam t : ℝ) (p q : ℝ[X]) :
 theorem sturmPositiveShiftPolynomial_smul (lam t c : ℝ) (p : ℝ[X]) :
     sturmPositiveShiftPolynomial lam t (c • p) =
       c • sturmPositiveShiftPolynomial lam t p := by
-  simp only [sturmPositiveShiftPolynomial, sturmPolynomial_smul, smul_sub,
-    smul_eq_C_mul]
+  unfold sturmPositiveShiftPolynomial
+  rw [sturmPolynomial_smul]
+  simp only [smul_sub, smul_eq_C_mul]
   ring
 
 def sturmPositiveShiftPolynomialLinear (lam t : ℝ) : ℝ[X] →ₗ[ℝ] ℝ[X] where
@@ -51,14 +52,20 @@ def sturmPositiveShiftPolynomialLinear (lam t : ℝ) : ℝ[X] →ₗ[ℝ] ℝ[X]
 
 @[simp] theorem sturmPositiveShiftPolynomial_one (lam t : ℝ) :
     sturmPositiveShiftPolynomial lam t 1 = C t := by
-  simp [sturmPositiveShiftPolynomial, sturmPolynomial_C]
+  have h0 : sturmPolynomial lam (1 : ℝ[X]) = 0 := by
+    simpa using (sturmPolynomial_C lam (1 : ℝ))
+  simp [sturmPositiveShiftPolynomial, h0]
 
 theorem sturmPositiveShiftPolynomial_X (lam t : ℝ) :
     sturmPositiveShiftPolynomial lam t X =
       C (t + 2 * lam + 1) * X := by
-  rw [sturmPositiveShiftPolynomial, sturmPolynomial_X]
+  unfold sturmPositiveShiftPolynomial
+  rw [sturmPolynomial_X]
   simp only [sub_neg_eq_add]
-  rw [← add_mul, ← map_add]
+  have hC : (C (t + 2 * lam + 1) : ℝ[X]) =
+      C t + C (2 * lam + 1) := by
+    rw [show t + 2 * lam + 1 = t + (2 * lam + 1) by ring, map_add]
+  rw [hC]
   ring
 
 theorem sturmPositiveShiftPolynomial_X_pow_succ_succ
@@ -69,7 +76,7 @@ theorem sturmPositiveShiftPolynomial_X_pow_succ_succ
       C ((((n + 2 : ℕ) : ℝ) * ((n + 1 : ℕ) : ℝ))) * X ^ n := by
   unfold sturmPositiveShiftPolynomial
   rw [sturmPolynomial_X_pow_succ_succ]
-  rw [← sub_add_eq_add_sub]
+  rw [map_add]
   ring
 
 /-- Each monomial has a FINITE polynomial preimage under tI-L. -/
