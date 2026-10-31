@@ -83,7 +83,38 @@ theorem sturmRealPositiveResolventFullCLM_zero_not_eigenvalue
   rw [← hn] at hpos
   exact (lt_irrefl (0 : ℝ)) hpos
 
+/-- The genuine closed Sturm positive resolvent is injective on
+the entire weighted-real-L² Hilbert space. It cannot annihilate any
+nonzero source, although its eigenvalues accumulate at zero. -/
+theorem sturmRealPositiveResolventFullCLM_injective
+    (lam t : ℝ) (hlam : 0 < lam) (ht : 0 < t) :
+    Function.Injective (sturmRealPositiveResolventFullCLM lam t hlam ht) := by
+  intro f g hfg
+  let R := sturmRealPositiveResolventFullCLM lam t hlam ht
+  by_contra hne
+  have hdiff : f - g ≠ (0 : H lam) := by
+    intro hz
+    exact hne (sub_eq_zero.mp hz)
+  have hzero : R (f - g) = 0 := by
+    rw [map_sub, hfg, sub_self]
+  exact (sturmRealPositiveResolventFullCLM_zero_not_eigenvalue
+    lam t hlam ht) ⟨f - g, hdiff, hzero⟩
+
+/-- Every real point eigenvalue of the genuine closed Sturm
+positive resolvent is strictly positive. -/
+theorem sturmRealPositiveResolventFullCLM_point_eigenvalue_pos
+    (lam t : ℝ) (hlam : 0 < lam) (ht : 0 < t) (r : ℝ)
+    (hpoint : ∃ f : H lam, f ≠ 0 ∧
+      sturmRealPositiveResolventFullCLM lam t hlam ht f = r • f) :
+    0 < r := by
+  obtain ⟨n, rfl⟩ :=
+    (sturmRealPositiveResolventFullCLM_point_eigenvalue_iff
+      lam t hlam ht r).mp hpoint
+  exact sturmResolventMultiplier_pos lam t hlam ht n
+
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_point_eigenvalue_iff
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_zero_not_eigenvalue
+#print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_injective
+#print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_point_eigenvalue_pos
 
 end GegenbauerFock.Ultraspherical
