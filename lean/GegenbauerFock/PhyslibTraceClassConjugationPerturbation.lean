@@ -93,9 +93,31 @@ theorem conjugationContinuous_contractions_dist_le_v007
       mul_le_mul_of_nonneg_right (by linarith : ‖U‖ + ‖V‖ ≤ 2)
         (norm_nonneg _)
 
+/-- The pointwise S₁ perturbation inequality specializes to two
+contractions, with the explicit sharp uniform coefficient two.
+No positivity, normality, or coisometry assumption on T is needed. -/
+theorem conjugation_traceNorm_contractions_dist_le_v007
+    (U V : H →L[ℂ] H) (T : TraceClass H)
+    (hU : ‖U‖ ≤ (1 : ℝ))
+    (hV : ‖V‖ ≤ (1 : ℝ)) :
+    traceNorm H (conjugate T U - conjugate T V) ≤
+      2 * ‖U - V‖ * traceNorm H T := by
+  change ‖conjugate T U - conjugate T V‖ ≤
+    2 * ‖U - V‖ * ‖T‖
+  calc
+    ‖conjugate T U - conjugate T V‖ ≤
+        (‖U‖ + ‖V‖) * ‖U - V‖ * ‖T‖ :=
+      conjugation_traceNorm_multiplier_dist_le_v007 U V T
+    _ ≤ 2 * ‖U - V‖ * ‖T‖ := by
+      apply mul_le_mul_of_nonneg_right
+      · exact mul_le_mul_of_nonneg_right
+          (by linarith : ‖U‖ + ‖V‖ ≤ 2) (norm_nonneg _)
+      · exact norm_nonneg _
+
 #print axioms ProbabilisticTheory.TraceClass.conjugation_adjoint_sub_norm_eq_v007
 #print axioms ProbabilisticTheory.TraceClass.conjugationContinuous_multiplier_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.conjugation_traceNorm_multiplier_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.conjugationContinuous_contractions_dist_le_v007
+#print axioms ProbabilisticTheory.TraceClass.conjugation_traceNorm_contractions_dist_le_v007
 
 end ProbabilisticTheory.TraceClass
