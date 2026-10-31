@@ -63,6 +63,7 @@ theorem ultraspherical_fourierBochner_canonicalSampleInverse_graph_closed
       have heq :
           (⟨F p.2, ⟨p.2, rfl⟩⟩ : Set.range F) = p.1 :=
         Subtype.ext hp
+      change r p.1 = p.2
       rw [← heq]
       exact ultraspherical_fourierBochner_canonicalSampleInverse_left
         lam alpha hlam ha S w hacc p.2
