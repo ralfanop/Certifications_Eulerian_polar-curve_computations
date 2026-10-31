@@ -5,6 +5,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicClosedDirichletPoincare.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicInfiniteSpectralPoincare.lean'
       - '.github/workflows/v007-ultraspherical-sturm-closed-dirichlet-poincare.yml'
   workflow_dispatch:
 
