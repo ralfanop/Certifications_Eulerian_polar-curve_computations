@@ -107,7 +107,14 @@ theorem ultraspherical_fourierBochner_uniformSamples_continuous
         (UniformFun.toFun (ultraspherical_fourierBochner_uniformSamples lam S f) z) <
         ε :=
     lt_of_le_of_lt (le_trans (by simpa only [K] using hb) hscaled) hstrict
-  simpa only [Function.comp_apply] using hfinal
+  have hswap :
+      dist
+        (UniformFun.toFun (ultraspherical_fourierBochner_uniformSamples lam S f) z)
+        (UniformFun.toFun (ultraspherical_fourierBochner_uniformSamples lam S g) z) <
+        ε := by
+    rw [dist_comm]
+    exact hfinal
+  simpa only [Function.comp_apply] using hswap
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.ultraspherical_fourierBochner_uniformSamples_forward_dist_le
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.ultraspherical_fourierBochner_uniformSamples_continuous
