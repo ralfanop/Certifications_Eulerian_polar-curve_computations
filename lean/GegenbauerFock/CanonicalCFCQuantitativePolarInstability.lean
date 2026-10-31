@@ -233,6 +233,56 @@ theorem exists_shared_cfc_fock_gram_quantitative_everywhere_instability
   · simpa only [map_add, add_sub_cancel_right] using (hquant n).2.2.1
   · simpa only [map_add, add_sub_cancel_right] using (hquant n).2.2.2
 
+/-- At any source and for any prescribed positive measurement error,
+there exists a perturbation of norm exactly one whose three measured
+changes (the canonical CFC root, Fock transform, and genuine source
+Gram) are all smaller than that error. -/
+theorem exists_unit_perturbation_with_arbitrarily_small_joint_measurements
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (f : Lp ℂ 2 (Ultraspherical.measure lam))
+    (eps : ℝ) (heps : 0 < eps) :
+    ∃ v : Lp ℂ 2 (Ultraspherical.measure lam),
+      ‖v - f‖ = 1 ∧
+      ‖localCFCGramSqrt lam alpha hlam ha v -
+        localCFCGramSqrt lam alpha hlam ha f‖ < eps ∧
+      ‖C lam alpha hlam ha v - C lam alpha hlam ha f‖ < eps ∧
+      ‖gram lam alpha hlam ha v - gram lam alpha hlam ha f‖ < eps := by
+  obtain ⟨v, hunit, hP, hC, hG⟩ :=
+    exists_shared_cfc_fock_gram_everywhere_instability
+      lam alpha hlam ha f
+  have hIio : Set.Iio eps ∈ nhds (0 : ℝ) :=
+    isOpen_Iio.mem_nhds heps
+  have hPsmall : ∀ᶠ n in Filter.atTop,
+      ‖localCFCGramSqrt lam alpha hlam ha (v n) -
+        localCFCGramSqrt lam alpha hlam ha f‖ < eps := by
+    have hnorm : Filter.Tendsto
+        (fun n : ℕ =>
+          ‖localCFCGramSqrt lam alpha hlam ha (v n) -
+            localCFCGramSqrt lam alpha hlam ha f‖)
+        Filter.atTop (nhds (0 : ℝ)) := by
+      simpa using hP.norm
+    simpa only [Set.mem_Iio] using hnorm.eventually hIio
+  have hCsmall : ∀ᶠ n in Filter.atTop,
+      ‖C lam alpha hlam ha (v n) - C lam alpha hlam ha f‖ < eps := by
+    have hnorm : Filter.Tendsto
+        (fun n : ℕ =>
+          ‖C lam alpha hlam ha (v n) - C lam alpha hlam ha f‖)
+        Filter.atTop (nhds (0 : ℝ)) := by
+      simpa using hC.norm
+    simpa only [Set.mem_Iio] using hnorm.eventually hIio
+  have hGsmall : ∀ᶠ n in Filter.atTop,
+      ‖gram lam alpha hlam ha (v n) - gram lam alpha hlam ha f‖ < eps := by
+    have hnorm : Filter.Tendsto
+        (fun n : ℕ =>
+          ‖gram lam alpha hlam ha (v n) - gram lam alpha hlam ha f‖)
+        Filter.atTop (nhds (0 : ℝ)) := by
+      simpa using hG.norm
+    simpa only [Set.mem_Iio] using hnorm.eventually hIio
+  obtain ⟨n, hn⟩ := (hPsmall.and (hCsmall.and hGsmall)).exists
+  exact ⟨v n, hunit n, hn.1, hn.2.1, hn.2.2⟩
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_unit_perturbation_with_arbitrarily_small_joint_measurements
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_fock_gram_quantitative_everywhere_instability
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_fock_gram_everywhere_instability
