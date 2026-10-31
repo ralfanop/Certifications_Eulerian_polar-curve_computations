@@ -8,6 +8,9 @@ on:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatLimitCLM.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatLimitProductPrinciple.lean'
       - '.github/workflows/v007-sturm-heat-limit-semigroup-law.yml'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaFiniteSpanLimit.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaStrongLimitDensityPrinciple.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaAllL2StrongLimit.lean'
   workflow_dispatch:
 
 jobs:
