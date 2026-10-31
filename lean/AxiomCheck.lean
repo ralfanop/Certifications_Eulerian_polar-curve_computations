@@ -183,3 +183,11 @@ open EulerianCert
 #print axioms EulerianCert.CurvatureMeasures.tangent_jump
 #print axioms EulerianCert.CurvatureMeasures.vector_distribution
 #print axioms EulerianCert.CurvatureMeasures.KE_atom
+-- V001 Lemma 3.14, Eq. (79), first equality (module CubeSlabs)
+#print axioms EulerianCert.CubeSlabs.integral_tp
+#print axioms EulerianCert.CubeSlabs.pascal_shift
+#print axioms EulerianCert.CubeSlabs.volume_S
+#print axioms EulerianCert.CubeSlabs.U_succ
+#print axioms EulerianCert.CubeSlabs.E_eq_U
+#print axioms EulerianCert.CubeSlabs.volume_L
+#print axioms EulerianCert.CubeSlabs.volume_slab
