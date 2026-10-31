@@ -21,15 +21,18 @@ theorem sturmPolynomial_X_pow_diagonal_lower
       C ((j : ℝ) * ((j : ℝ) - 1)) * X ^ (j-2) +
         C (sturmEigenvalue lam j) * X ^ j := by
   rcases j with _ | j
-  · simp [sturmPolynomial_C, sturmEigenvalue]
+  · simp [sturmPolynomial, sturmEigenvalue]
   rcases j with _ | n
   · simp [sturmPolynomial_X, sturmEigenvalue, sub_eq_add_neg]
     ring
-  · have h := sturmPolynomial_X_pow_succ_succ lam n
-    convert h using 1 <;>
-      simp only [Nat.succ_eq_add_one, Nat.add_sub_cancel] <;>
-      push_cast <;> simp [sturmEigenvalue, sub_eq_add_neg] <;>
-      ring
+  · have hj : Nat.succ (Nat.succ n) = n+2 := by omega
+    rw [hj, sturmPolynomial_X_pow_succ_succ]
+    have hlo : n+2-2=n := by omega
+    rw [hlo]
+    simp only [sturmEigenvalue]
+    push_cast
+    simp only [map_neg, neg_mul]
+    ring
 
 /-- The differential operator acts termwise on the actual finite
 monic Gegenbauer candidate; no infinite interchange occurs. -/
