@@ -45,13 +45,14 @@ theorem sturmRealPartialOperator_closure_isSelfAdjoint
     LinearPMap.adjoint_isFormalAdjoint hdense
   apply LinearPMap.isSelfAdjoint_def.mpr
   apply le_antisymm
-  · exact hle
   · refine ⟨?_, ?_⟩
     · intro y hy
       let ya : A.adjoint.domain := ⟨y, hy⟩
       obtain ⟨x, hx⟩ :=
         sturmRealClosedPositiveShift_surjective lam 1 hlam one_pos
           (y - A.adjoint ya)
+      have hx' : (x : SturmH lam) - A x = y - A.adjoint ya := by
+        simpa only [one_smul] using hx
       have hshift_inner (w : A.domain) :
           inner ℝ (y - (x : SturmH lam))
             ((w : SturmH lam) - A w) = 0 := by
@@ -65,23 +66,23 @@ theorem sturmRealPartialOperator_closure_isSelfAdjoint
           simp only [inner_sub_left, inner_sub_right]
           rw [← hform, ← hsymw]
           ring
-        rw [hidentity, hx]
+        rw [hidentity, hx']
         exact sub_self _
       have hyx : y = (x : SturmH lam) := by
         apply ext_inner_right ℝ
         intro z
         obtain ⟨w, hw⟩ :=
           sturmRealClosedPositiveShift_surjective lam 1 hlam one_pos z
+        have hw' : (w : SturmH lam) - A w = z := by
+          simpa only [one_smul] using hw
         have h := hshift_inner w
-        simpa only [one_smul] using
-          (show inner ℝ y z = inner ℝ (x : SturmH lam) z by
-            rw [← hw]
-            exact sub_eq_zero.mp (by
-              simpa only [inner_sub_left] using h))
+        rw [← hw']
+        exact sub_eq_zero.mp (by
+          simpa only [inner_sub_left] using h)
       rw [hyx]
       exact x.property
-    · intro y z hyz
-      exact (hle.2 hyz.symm).symm
+  · exact hle
+
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPartialOperator_closure_isSelfAdjoint
 
