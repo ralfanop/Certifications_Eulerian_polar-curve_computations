@@ -1,5 +1,6 @@
 import GegenbauerFock.GaussianAreaFiniteCoherentVandermonde
 import GegenbauerFock.FockEvaluationSequence
+import Mathlib.LinearAlgebra.LinearIndependent.Defs
 
 /-!
 # V007 — linear independence of finite coefficient Fock coherent kernels
@@ -62,6 +63,21 @@ theorem finiteFockCoherentKernel_zero_coefficients
     exact (mul_eq_zero.mp hzeroCoord).resolve_left hsqrt
   exact finite_conjugate_vandermonde_moments_zero_coefficients
     n z c hz hpower
+
+/-- Finite Gaussian Fock kernel vectors at distinct complex nodes form
+a linearly independent family in the genuine complex Hilbert coefficient
+space. -/
+theorem finiteFockCoherentKernel_linearIndependent
+    (n : ℕ) (alpha : ℝ) (ha : 0 < alpha)
+    (z : Fin n → ℂ) (hz : Function.Injective z) :
+    LinearIndependent ℂ (fun i : Fin n =>
+      FockEvaluation.kernelVector alpha ha (z i)) := by
+  classical
+  apply Fintype.linearIndependent_iff.mpr
+  intro c hc i
+  exact finiteFockCoherentKernel_zero_coefficients n alpha ha z c hz hc i
+
+#print axioms GegenbauerFock.GaussianArea.finiteFockCoherentKernel_linearIndependent
 
 #print axioms GegenbauerFock.GaussianArea.finiteFockCoherentKernel_zero_coefficients
 

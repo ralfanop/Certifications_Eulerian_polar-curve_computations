@@ -51,4 +51,5 @@ jobs:
             exit 1
           fi
           grep -F "finiteFockCoherentKernel_zero_coefficients' depends on axioms:" /tmp/v007-fock-finite-independent.log
+          grep -F "finiteFockCoherentKernel_linearIndependent' depends on axioms:" /tmp/v007-fock-finite-independent.log
           echo 'V007 finite coherent Fock kernel independence: audit clean.'
