@@ -41,9 +41,8 @@ theorem sturmRealDomainPositiveShift_injective
           sturmRealPartialOperator lam hlam x =
         t • (y : SturmH lam) -
           sturmRealPartialOperator lam hlam y := by
-    simpa only [sturmRealDomainPositiveShift,
-      LinearMap.sub_apply, LinearMap.smul_apply,
-      LinearMap.id_apply, sturmRealPartialOperator_apply] using hv
+    simpa [sturmRealDomainPositiveShift,
+      sturmRealPartialOperator_apply] using hv
   exact sturmRealPartialPositiveShift_injective lam t hlam ht hshift
 
 theorem sturmRealDomainPositiveShift_surjective
