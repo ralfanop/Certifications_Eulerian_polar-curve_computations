@@ -1,5 +1,6 @@
 import GegenbauerFock.UltrasphericalSturmLiouvilleMonicEigenPolynomial
 import GegenbauerFock.UltrasphericalSturmLiouvilleRealResolventPolynomialEigenmode
+import GegenbauerFock.UltrasphericalSturmLiouvilleRealEigenOrthogonality
 
 /-!
 # V007 — explicit all-degree Gegenbauer eigenmodes of the true closed Sturm operator
@@ -45,7 +46,23 @@ theorem sturmRealPositiveResolventFullCLM_monic_all_degree_eigenmode
       lam t hlam ht (sturmMonicEigenCandidate lam n) n
       (sturmMonicEigenCandidate_eigen lam hlam n))
 
+/-- Constructed Gegenbauer eigenmodes of distinct natural degrees are
+orthogonal in the genuine real weighted-L² space. No completeness
+assumption is used. -/
+theorem sturmRealMonicEigenCandidate_orthogonal
+    (lam : ℝ) (hlam : 0 < lam) (n m : ℕ) (hnm : n ≠ m) :
+    inner ℝ
+      (sturmRealPolynomialLp lam hlam (sturmMonicEigenCandidate lam n))
+      (sturmRealPolynomialLp lam hlam (sturmMonicEigenCandidate lam m)) = 0 := by
+  exact sturmRealPolynomial_eigen_orthogonal
+    lam hlam
+    (sturmMonicEigenCandidate lam n)
+    (sturmMonicEigenCandidate lam m) n m
+    (sturmMonicEigenCandidate_eigen lam hlam n)
+    (sturmMonicEigenCandidate_eigen lam hlam m) hnm
+
 #print axioms GegenbauerFock.Ultraspherical.sturmRealClosed_monic_all_degree_eigenmode
+#print axioms GegenbauerFock.Ultraspherical.sturmRealMonicEigenCandidate_orthogonal
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_monic_all_degree_eigenmode
 
 end GegenbauerFock.Ultraspherical
