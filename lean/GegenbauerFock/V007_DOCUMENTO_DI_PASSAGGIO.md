@@ -680,3 +680,44 @@ di dichiarare SUCCESS.
 
 Invarianti permanenti: PR #16 in Draft, senza merge;
 `main`, V097 e le CI V170 non devono essere modificati.
+
+## 21. Instabilità congiunta epsilon e inverse esatte — 31 ottobre 2026
+
+**SUCCESS verificato:** CI
+[41211075456](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41211075456),
+commit `a0942833321142672c5befe5f3c8d1f1580f9c26`.
+Il teorema
+`exists_unit_perturbation_with_arbitrarily_small_joint_measurements`
+è compilato e controllato dal kernel senza assiomi vietati.
+Per ogni sorgente `f` e ogni `eps > 0`, esiste `v`
+con `‖v-f‖=1` e variazioni sotto `C`, `P` e `gram`
+tutte strettamente inferiori a `eps`.
+
+**CI fallita da NON attribuire a teoremi certificati:**
+[41211431919](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41211431919),
+commit `b48cde948e040604673fda7960c1390431c734ec`.
+Il log indica errori di elaborazione di
+`Function.comp_def` e filtri prodotto `nhds`,
+nelle prove dei teoremi
+`joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere`
+e
+`joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere`.
+In presenza di errori, gli output `#print axioms`
+comprendono `sorryAx`: non usarli come certificati.
+
+Correzioni depositate:
+- Commit `2c286e769453e99a0b4188fbdf539ec30bda0ff1`:
+  normalizzazione esplicita `Function.comp_def`.
+- Commit `945571ba17a2da74a871db380a107a160793e2aa`:
+  impiego del lemma Mathlib `Filter.Tendsto.prodMk_nhds`
+  anziché una conversione non dimostrata tra filtri prodotto.
+
+Le CI correttive
+[41212551801](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41212551801)
+e
+[41212575882](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41212575882)
+devono concludersi con SUCCESS e audit dei rispettivi
+enunciati senza `sorryAx` prima della promozione a certificati.
+
+**Invarianti:** PR #16 resta Draft; nessun merge, nessuna
+modifica a `main`, V097 o ai processi V170.
