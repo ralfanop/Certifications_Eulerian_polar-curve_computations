@@ -205,3 +205,12 @@ open EulerianCert
 #print axioms EulerianCert.EulerianFourier.eulerian_fourier_inversion
 #print axioms EulerianCert.EulerianFourier.eulerian_symmetry
 #print axioms EulerianCert.EulerianFourier.central_slope_integral
+-- V001 §3.11, Eqs. (82)-(83) (module LocalLimit)
+#print axioms EulerianCert.LocalLimit.sin_ge
+#print axioms EulerianCert.LocalLimit.cos_le
+#print axioms EulerianCert.LocalLimit.sin_le
+#print axioms EulerianCert.LocalLimit.pointwise
+#print axioms EulerianCert.LocalLimit.gauss_cos
+#print axioms EulerianCert.LocalLimit.error_bound
+#print axioms EulerianCert.LocalLimit.local_limit_rate
+#print axioms EulerianCert.LocalLimit.local_limit

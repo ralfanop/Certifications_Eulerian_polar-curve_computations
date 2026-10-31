@@ -51,3 +51,4 @@ import EulerianCert.CurvatureMeasures
 import EulerianCert.CubeSlabs
 import EulerianCert.CubeSection
 import EulerianCert.EulerianFourier
+import EulerianCert.LocalLimit
