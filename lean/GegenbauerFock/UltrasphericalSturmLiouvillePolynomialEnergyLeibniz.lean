@@ -30,6 +30,8 @@ theorem sturmPolynomial_square_leibniz
           derivative p * derivative p := by
   unfold sturmPolynomial
   simp only [derivative_mul, derivative_add]
+  have htwo : (C (2 : ℝ) : ℝ[X]) = 2 := by norm_num
+  rw [htwo]
   ring
 
 /-- Every actual weighted ultraspherical probability integral of the
