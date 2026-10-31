@@ -56,4 +56,5 @@ jobs:
           fi
           grep -F "sturmRealClosed_monic_all_degree_eigenmode' depends on axioms:" /tmp/v007-monic-full-l2-axioms.log
           grep -F "sturmRealPositiveResolventFullCLM_monic_all_degree_eigenmode' depends on axioms:" /tmp/v007-monic-full-l2-axioms.log
+          grep -F "sturmRealMonicEigenCandidate_orthogonal' depends on axioms:" /tmp/v007-monic-full-l2-axioms.log
           echo 'Explicit all-degree monic full-L2 closed Sturm and resolvent eigenmodes kernel-certified.'
