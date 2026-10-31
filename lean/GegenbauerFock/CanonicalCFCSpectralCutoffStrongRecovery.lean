@@ -17,7 +17,7 @@ proved impossible). It makes no assertion of a bounded exact inverse.
 
 noncomputable section
 
-open MeasureTheory Filter
+open MeasureTheory Filter InnerProductSpace
 
 namespace GegenbauerFock.GeneralUltrasphericalFock
 
