@@ -107,7 +107,8 @@ Prop. 3.1, together with the identity f_c = r_E (Fejér). These are proved in th
 in Lean. Likewise `Limacon` and `Corner` take as hypotheses the inputs that come from analysis
 outside their scope, for example the bounds on a_E, b_E and the antitonicity of Q.
 
-**Not formalised:**
+**Not formalised** (in the original V478 library of this section; all items except the last are
+formalised in the V001 extension, §5a):
 * the Fourier coefficient formulas and signs of Prop. 3.1 (Mathlib has no convenient sine-integral
   API) and the identification of r_E with its Fourier series;
 * Prop. 3.10 (Lebesgue-constant growth);
@@ -150,7 +151,7 @@ V478 Eq. (91) is V001 Eq. (93)). Same toolchain and Mathlib commit as §5; no `s
 **Status (V001 numbering).** Def. 2.1 (complex argument), Props 3.1, 3.7 and 3.10, Theorems 3.12 and
 3.13, Lemmas 3.14 and 3.15, and Eqs. (80)–(92) of §3.11 are now formalised. Two intermediate
 estimates of the proof of Lemma 3.15 are proved in an equivalent form rather than verbatim: the
-tail bound (88) (the formal proof uses `\|r_E\| ≤ 24/25` on `\|t\| ≥ 1` with a fixed cut-off instead of
+tail bound (88) (the formal proof uses `|r_E| ≤ 24/25` on `|t| ≥ 1` with a fixed cut-off instead of
 `δ = D^{−2/5}`) and the expansions (89)–(90) (proved as two-sided exponential bounds for `r_E` with an
 explicit sixth-order constant). Not formalised: the printed decimals, which remain certified by interval
 arithmetic (§2), and the classical combinatorial meaning of `E(n,k)` (permutations with `k` ascents);
