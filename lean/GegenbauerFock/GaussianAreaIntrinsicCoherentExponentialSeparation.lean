@@ -31,7 +31,7 @@ theorem intrinsicRieszKernel_finite_coherent_pairing_exp
   rw [inner_sum]
   apply Finset.sum_congr rfl
   intro i hi
-  rw [inner_smul_right]
+  rw [inner_smul_right (𝕜 := ℂ)]
   rw [intrinsicRieszKernel_pairing_exp]
 
 /-- A finite coherent combination is the zero Hilbert vector exactly
