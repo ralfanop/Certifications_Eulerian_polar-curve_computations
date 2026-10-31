@@ -1,0 +1,61 @@
+name: V007 bilateral Gram nonzero Fredholm nullity equals defect
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/TwoSidedGramFredholmNullityDefect.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramNonzeroFredholmIndexZero.lean'
+      - '.github/workflows/v007-gram-fredholm-nullity-defect.yml'
+  workflow_dispatch:
+
+# Supersede obsolete builds on this V007 branch, preserving completed SHA-scoped results.
+concurrency:
+  group: v007-fredholm-nullity-defect-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fredholm-nullity-defect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+      - name: Prepare pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check finite Fredholm nullity defect and axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramFredholmNullityDefect 2>&1 | tee /tmp/v007-fredholm-nullity-defect.log
+          for theorem in fredholmIndexZero_finrank_kernel_eq_cokernel sourceGram_nonzero_shift_nullity_eq_defect outputGram_nonzero_shift_nullity_eq_defect two_sided_gram_nonzero_shift_nullity_defect_eq; do
+            grep -qF "${theorem}' depends on axioms" /tmp/v007-fredholm-nullity-defect.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-fredholm-nullity-defect.log; then
+            echo '::error::Forbidden axiom in Fredholm nullity and defect equality'
+            exit 1
+          fi
+          echo 'V007 bilateral Gram all-nonzero nullity equals Fredholm defect: kernel-audited.'

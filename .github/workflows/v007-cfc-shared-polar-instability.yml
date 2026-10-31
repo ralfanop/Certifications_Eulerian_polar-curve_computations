@@ -1,0 +1,75 @@
+name: V007 shared canonical CFC and Fock polar quantitative instability
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/CanonicalCFCQuantitativePolarInstability.lean'
+      - 'lean/GegenbauerFock/CompletePositiveSingularFamily.lean'
+      - '.github/workflows/v007-cfc-shared-polar-instability.yml'
+  workflow_dispatch:
+
+# Bound concurrent V007 jobs per branch without stopping active theorem audits.
+concurrency:
+  group: v007-cfc-shared-polar-instability-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  positive-polar-amplitude:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit CFC Gram root approximate-null vectors
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.CanonicalCFCQuantitativePolarInstability 2>&1 | tee /tmp/v007-cfc-shared-polar-instability-build.log
+          lake env lean -M16768 GegenbauerFock/CanonicalCFCQuantitativePolarInstability.lean 2>&1 | tee /tmp/v007-cfc-shared-polar-instability-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-cfc-shared-polar-instability-build.log /tmp/v007-cfc-shared-polar-instability-axioms.log; then
+            echo '::error::Forbidden axiom in CFC Gram root approximate-null vectors.'
+            exit 1
+          fi
+          for theorem in \
+            exists_shared_cfc_polar_instability_family \
+            exists_shared_cfc_polar_strong_null_sequence \
+            exists_shared_cfc_fock_gram_strong_null_sequence \
+            exists_shared_cfc_fock_gram_quantitative_family \
+            exists_shared_cfc_fock_gram_everywhere_instability \
+            exists_shared_cfc_fock_gram_quantitative_everywhere_instability \
+            exists_unit_perturbation_with_arbitrarily_small_joint_measurements \
+            joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere \
+            joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere; do
+            grep -F "$theorem' depends on axioms:" /tmp/v007-cfc-shared-polar-instability-axioms.log
+          done
+          echo 'V007 shared exact CFC-Fock polar quantitative instability audited.'

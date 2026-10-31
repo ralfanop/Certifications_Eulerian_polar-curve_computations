@@ -1,0 +1,123 @@
+name: V007 two-sided Gram inverse instability Lean certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/TwoSidedGramInverseInstability.lean'
+      - 'lean/GegenbauerFock/OutputGramApproximateZeroSpectrum.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramNoContinuousReconstruction.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramApproximateZeroNoStrongLimit.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramInverseOnRangeDiscontinuous.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramContinuousSpectrum.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramNonclosedRange.lean'
+      - '.github/workflows/gegenbauer-fock-two-sided-gram-inverse.yml'
+  workflow_dispatch:
+
+jobs:
+  two-sided-gram-inverse:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned elan / Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+
+      - name: Load pinned Mathlib artifacts
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+
+      - name: Kernel compile both Gram inverse-instability theorems and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramInverseInstability 2>&1 | tee /tmp/v007-two-sided-gram-inverse.log
+          grep -qF 'sourceGram_inverse_unbounded_on_range' /tmp/v007-two-sided-gram-inverse.log
+          grep -qF 'outputGram_inverse_unbounded_on_range' /tmp/v007-two-sided-gram-inverse.log
+          grep -qF 'two_sided_gram_inverse_unbounded_on_range' /tmp/v007-two-sided-gram-inverse.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-two-sided-gram-inverse.log; then
+            echo '::error::Forbidden proof axiom in two-sided Gram inverse certificate'
+            exit 1
+          fi
+          echo 'Both true Gram inverses unbounded on their dense ranges: kernel audit passed.'
+
+      - name: Kernel compile bilateral normalized approximate-zero Gram sequences
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.OutputGramApproximateZeroSpectrum 2>&1 | tee /tmp/v007-output-gram-approx-zero.log
+          grep -qF 'outputGram_exists_unit_approximate_zero_eigenvectors' /tmp/v007-output-gram-approx-zero.log
+          grep -qF 'two_sided_gram_normalized_approximate_zero_sequences' /tmp/v007-output-gram-approx-zero.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-output-gram-approx-zero.log; then
+            echo '::error::Forbidden proof axiom in output Gram approximate-zero certificate'
+            exit 1
+          fi
+          echo 'Normalized approximate-zero Gram sequences on both Hilbert sides: axiom audit passed.'
+
+      - name: Certify no continuous exact reconstruction for either Gram
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramNoContinuousReconstruction 2>&1 | tee /tmp/v007-two-sided-gram-no-cont-reconstruction.log
+          grep -qF "sourceGram_no_continuous_global_left_inverse_at_zero' depends on axioms" /tmp/v007-two-sided-gram-no-cont-reconstruction.log
+          grep -qF "outputGram_no_continuous_global_left_inverse_at_zero' depends on axioms" /tmp/v007-two-sided-gram-no-cont-reconstruction.log
+          grep -qF "two_sided_gram_no_continuous_global_reconstruction' depends on axioms" /tmp/v007-two-sided-gram-no-cont-reconstruction.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-two-sided-gram-no-cont-reconstruction.log; then
+            echo '::error::Forbidden proof axiom in nonlinear Gram reconstruction obstruction'
+            exit 1
+          fi
+          echo 'No continuous exact nonlinear reconstruction for either Gram: Lean kernel audit passed.'
+
+      - name: Certify bilateral approximate-zero sequences have no strong limits
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramApproximateZeroNoStrongLimit 2>&1 | tee /tmp/v007-gram-approx-zero-no-strong-limit.log
+          grep -qF "sourceGram_exists_approximate_zero_without_strong_limit' depends on axioms" /tmp/v007-gram-approx-zero-no-strong-limit.log
+          grep -qF "outputGram_exists_approximate_zero_without_strong_limit' depends on axioms" /tmp/v007-gram-approx-zero-no-strong-limit.log
+          grep -qF "two_sided_gram_approximate_zero_without_strong_limits' depends on axioms" /tmp/v007-gram-approx-zero-no-strong-limit.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gram-approx-zero-no-strong-limit.log; then
+            echo '::error::Forbidden proof axiom in bilateral no-strong-limit certificate'
+            exit 1
+          fi
+          echo 'Both actual Grams have normalized approximate-null sequences without strong limits: audit passed.'
+
+      - name: Certify both exact Gram inverses discontinuous on their actual ranges
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramInverseOnRangeDiscontinuous 2>&1 | tee /tmp/v007-gram-inverse-range-discontinuity.log
+          grep -qF "sourceGram_inverse_on_range_discontinuous_at_zero' depends on axioms" /tmp/v007-gram-inverse-range-discontinuity.log
+          grep -qF "outputGram_inverse_on_range_discontinuous_at_zero' depends on axioms" /tmp/v007-gram-inverse-range-discontinuity.log
+          grep -qF "two_sided_gram_inverse_on_ranges_discontinuous_at_zero' depends on axioms" /tmp/v007-gram-inverse-range-discontinuity.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gram-inverse-range-discontinuity.log; then
+            echo '::error::Forbidden proof axiom in exact range-inverse discontinuity'
+            exit 1
+          fi
+          echo 'Both actual Gram range-subtype inverses are discontinuous at zero: audit passed.'

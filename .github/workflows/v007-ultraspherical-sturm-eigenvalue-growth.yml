@@ -1,0 +1,58 @@
+name: V007 genuine ultraspherical Sturm spectral scalar growth bound
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleEigenvalueGrowth.lean'
+      - '.github/workflows/v007-ultraspherical-sturm-eigenvalue-growth.yml'
+  workflow_dispatch:
+
+jobs:
+  true-sturm-scalar-growth:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit ultraspherical spectral scalar growth
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleEigenvalueGrowth 2>&1 | tee /tmp/v007-eigen-growth-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleEigenvalueGrowth.lean 2>&1 | tee /tmp/v007-eigen-growth-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-eigen-growth-build.log /tmp/v007-eigen-growth-axioms.log; then
+            echo '::error::Forbidden axiom in Sturm scalar growth.'
+            exit 1
+          fi
+          grep -F "sturmEigenvalue_le_neg_degree' depends on axioms:" /tmp/v007-eigen-growth-axioms.log
+          grep -F "sturmEigenvalue_abs_ge_degree' depends on axioms:" /tmp/v007-eigen-growth-axioms.log
+          echo 'V007 genuine ultraspherical scalar spectral magnitude growth certified.'

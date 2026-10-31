@@ -1,0 +1,68 @@
+name: V007 exact bilateral Gram spectrum equality Lean certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/TwoSidedGramSpectrumEquality.lean'
+      - '.github/workflows/gegenbauer-fock-gram-spectrum-equality.yml'
+  workflow_dispatch:
+
+jobs:
+  gram-spectrum-equality:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned Lean 4 toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+
+      - name: Restore exact pinned Mathlib artifacts
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+
+      - name: Kernel-check equality of full source and target Gram spectra
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramSpectrumEquality 2>&1 | tee /tmp/v007-gram-spectrum-equality.log
+          for theorem in two_sided_gram_hasEigenvalue_iff \
+            two_sided_gram_nonzero_spectrum_iff \
+            two_sided_gram_spectrum_eq; do
+            grep -qF "${theorem}' depends on axioms:" /tmp/v007-gram-spectrum-equality.log
+          done
+          if grep -nE '^.*(error:|error\[)' /tmp/v007-gram-spectrum-equality.log; then
+            echo '::error::Lean compilation errors found.'
+            exit 1
+          fi
+          # Ignore echoed shell commands: scan only Lean's theorem audit lines.
+          if grep -E 'depends on axioms:|^[[:space:]]+.*(sorryAx|Lean.ofReduceBool)' /tmp/v007-gram-spectrum-equality.log | \
+             grep -E 'sorryAx|Lean.ofReduceBool'; then
+            echo '::error::Nonstandard axiom found.'
+            exit 1
+          fi
+          echo 'V007 full two-sided Gram spectrum equality: Lean compile and axiom audit succeeded.'

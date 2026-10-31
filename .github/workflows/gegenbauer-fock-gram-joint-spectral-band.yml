@@ -1,0 +1,61 @@
+name: V007 bilateral joint Gram spectral band certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/TwoSidedGramJointSpectralBand.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramNegativeResolvent.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramPositiveSpectrum.lean'
+      - '.github/workflows/gegenbauer-fock-gram-joint-spectral-band.yml'
+  workflow_dispatch:
+
+jobs:
+  joint-spectrum-band:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4 with retries
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for i in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((i * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for i in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((i * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib build
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check joint Gram spectral band and strict right resolvent
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramJointSpectralBand 2>&1 | tee /tmp/v007-joint-spectral-band.log
+          for theorem in two_sided_gram_joint_spectral_band \
+            two_sided_gram_right_halfplane_resolvent \
+            two_sided_gram_left_halfplane_resolvent; do
+            grep -qF "${theorem}' depends on axioms:" /tmp/v007-joint-spectral-band.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-joint-spectral-band.log; then
+            echo '::error::Forbidden Lean axioms detected.'
+            exit 1
+          fi
+          echo 'V007 joint spectral enclosure and common right-halfplane resolvent are kernel certified.'

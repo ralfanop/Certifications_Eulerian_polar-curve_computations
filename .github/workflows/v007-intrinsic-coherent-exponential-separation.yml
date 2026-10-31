@@ -1,0 +1,58 @@
+name: V007 actual Fock coherent finite exponential global uniqueness
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicCoherentExponentialSeparation.lean'
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicRieszExponentialGram.lean'
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicRieszSeparates.lean'
+      - '.github/workflows/v007-intrinsic-coherent-exponential-separation.yml'
+  workflow_dispatch:
+
+# Bound concurrent V007 jobs per branch without stopping active theorem audits.
+concurrency:
+  group: v007-intrinsic-coherent-exponential-separation-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  coherent-finite-exp-uniqueness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lake" --version
+      - name: Restore pinned Mathlib cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel compile finite coherent exponential global uniqueness and audit axioms
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GaussianAreaIntrinsicCoherentExponentialSeparation 2>&1 | tee /tmp/v007-coherent-exp-uniqueness.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaIntrinsicCoherentExponentialSeparation.lean 2>&1 | tee -a /tmp/v007-coherent-exp-uniqueness.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-coherent-exp-uniqueness.log; then
+            echo "::error::Forbidden axiom in finite exponential coherent uniqueness."
+            exit 1
+          fi
+          grep -F "intrinsicRieszKernel_finite_coherent_pairing_exp' depends on axioms:" /tmp/v007-coherent-exp-uniqueness.log
+          grep -F "intrinsicRieszKernel_finite_coherent_eq_zero_iff_exp_sum' depends on axioms:" /tmp/v007-coherent-exp-uniqueness.log
+          grep -F "intrinsicRieszKernel_exp_gram_eq_zero_iff_exp_sum' depends on axioms:" /tmp/v007-coherent-exp-uniqueness.log
+          echo 'V007 genuine Gaussian finite coherent exponential global uniqueness: certified.'
