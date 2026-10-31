@@ -35,7 +35,8 @@ theorem sturmRealPositiveResolventFullCLM_difference_opNorm_eq
   have hu : ‖u‖ = 1 :=
     sturmMonicEigenCandidate_realL2_normalized_norm lam hlam 0
   have hident : Rt - Rs = (s - t) • (Rt.comp Rs) := by
-    ext f
+    apply ContinuousLinearMap.ext
+    intro f
     change Rt f - Rs f = (s - t) • Rt (Rs f)
     exact sturmRealPositiveResolventFullCLM_difference
       lam t s hlam ht hs f
@@ -56,7 +57,6 @@ theorem sturmRealPositiveResolventFullCLM_difference_opNorm_eq
     have hneqs : s ≠ 0 := ne_of_gt hs
     have hfield : t⁻¹ - s⁻¹ = (s - t) * (t⁻¹ * s⁻¹) := by
       field_simp
-      ring
     rw [hfield, abs_mul,
       abs_of_nonneg (mul_nonneg (inv_nonneg.mpr ht.le)
         (inv_nonneg.mpr hs.le))]
