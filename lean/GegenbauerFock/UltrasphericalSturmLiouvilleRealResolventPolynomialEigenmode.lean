@@ -45,10 +45,16 @@ theorem sturmRealClosed_polynomial_eigenmode
   obtain ⟨x, hx, hAx⟩ :=
     LinearPMap.exists_of_le
       (sturmRealPartialOperator_le_closed_extension lam hlam) u
-  refine ⟨x, hx, ?_⟩
-  rw [hAx, haction, hp, sturmRealPolynomialLp_smul]
-  exact congrArg (fun w : SturmH lam => sturmEigenvalue lam n • w)
-    hx.symm
+  refine ⟨x, hx.symm, ?_⟩
+  calc
+    (sturmRealPartialOperator lam hlam).closure x =
+        sturmRealPartialOperator lam hlam u := hAx.symm
+    _ = sturmRealPolynomialLp lam hlam (sturmPolynomial lam p) := haction
+    _ = sturmEigenvalue lam n • sturmRealPolynomialLp lam hlam p := by
+      rw [hp, sturmRealPolynomialLp_smul]
+    _ = sturmEigenvalue lam n • (x : SturmH lam) := by
+      exact congrArg
+        (fun w : SturmH lam => sturmEigenvalue lam n • w) hx
 
 /-- A polynomial eigenvector of degree n has exactly the expected
 Gegenbauer positive-resolvent eigenvalue on ALL of real weighted L².
