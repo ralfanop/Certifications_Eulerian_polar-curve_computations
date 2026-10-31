@@ -25,7 +25,7 @@ theorem sturmPolynomial_X_pow_diagonal_lower
   rcases j with _ | n
   · simp [sturmPolynomial_X, sturmEigenvalue, sub_eq_add_neg]
     ring
-  · have hj : Nat.succ (Nat.succ n) = n+2 := by omega
+  · have hj : n+1+1 = n+2 := by omega
     rw [hj, sturmPolynomial_X_pow_succ_succ]
     have hlo : n+2-2=n := by omega
     rw [hlo]
