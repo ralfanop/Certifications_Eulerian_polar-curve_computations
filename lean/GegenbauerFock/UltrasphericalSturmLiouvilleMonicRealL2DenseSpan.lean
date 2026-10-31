@@ -43,7 +43,7 @@ theorem sturmMonicEigenCandidate_realL2_span_eq_polynomialDomain
   rw [himage, ← Submodule.map_span,
       sturmMonicEigenCandidate_span_eq_top]
   change Submodule.map F ⊤ = LinearMap.range F
-  rfl
+  rw [Submodule.map_top]
 
 /-- GENUINE weighted L² density of the concrete all-degree
 Gegenbauer polynomial eigenfunctions, without completeness
