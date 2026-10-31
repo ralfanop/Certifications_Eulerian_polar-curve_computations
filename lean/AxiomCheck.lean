@@ -87,3 +87,13 @@ open EulerianCert
 #print axioms EulerianCert.FourierModes.abs_A_bounds
 #print axioms EulerianCert.FourierModes.summable_abs_A
 #print axioms EulerianCert.FourierModes.A_asymptotic
+-- V001 Proposition 3.1 (Fourier identification) and its consequences for r_E (module FourierSeries)
+#print axioms EulerianCert.FourierSeries.fourierCoeff_F
+#print axioms EulerianCert.FourierSeries.fourier_series_rE
+#print axioms EulerianCert.FourierSeries.tendstoUniformly_partial_sums
+#print axioms EulerianCert.FourierSeries.sharp_truncation
+#print axioms EulerianCert.FourierSeries.EN_lt
+#print axioms EulerianCert.FourierSeries.S_min
+#print axioms EulerianCert.FourierSeries.damping_rE
+#print axioms EulerianCert.FourierSeries.projection_error
+#print axioms EulerianCert.FourierSeries.convexity_rE

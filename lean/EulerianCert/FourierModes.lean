@@ -71,7 +71,7 @@ lemma rE_mul_cos (n : ℕ) (θ : ℝ) :
       ((n : ℝ) + 1 / 2) * sinc (((n : ℝ) + 1 / 2) * θ) -
         ((n : ℝ) - 1 / 2) * sinc (((n : ℝ) - 1 / 2) * θ) := by
   rcases eq_or_ne θ 0 with rfl | hθ
-  · simp
+  · simp; norm_num
   have ha : ((n : ℝ) + 1 / 2) ≠ 0 := by positivity
   rcases eq_or_ne ((n : ℝ) - 1 / 2) 0 with hb | hb
   · exfalso
@@ -85,7 +85,9 @@ lemma rE_mul_cos (n : ℕ) (θ : ℝ) :
   have hsb : Real.sin (((n : ℝ) - 1 / 2) * θ) =
       Real.sin (n * θ) * Real.cos (θ / 2) - Real.cos (n * θ) * Real.sin (θ / 2) := by
     rw [← Real.sin_sub]; ring_nf
-  rw [hsa, hsb]
+  have key : ∀ c : ℝ, c ≠ 0 → c * (Real.sin (c * θ) / (c * θ)) = Real.sin (c * θ) / θ := by
+    intro c hc; field_simp
+  rw [key _ ha, key _ hb, hsa, hsb]
   field_simp
   ring
 
@@ -171,13 +173,26 @@ lemma pair_identity (n : ℕ) (hn : 1 ≤ n) {s : ℝ} (hs : s ∈ uIcc (0 : ℝ
   field_simp
   ring
 
+lemma s_sq_le {s : ℝ} (hs : s ∈ Icc 0 (π / 2)) : s ^ 2 ≤ π ^ 2 / 4 := by
+  have := mul_le_mul hs.2 hs.2 hs.1 (by linarith [pi_pos])
+  nlinarith
+
+lemma pi_sq_le {n : ℕ} (hn : 1 ≤ n) : π ^ 2 ≤ (n : ℝ) ^ 2 * π ^ 2 := by
+  have hn' : (1 : ℝ) ≤ n := by exact_mod_cast hn
+  have : (1 : ℝ) ≤ (n : ℝ) ^ 2 := by nlinarith
+  nlinarith [mul_nonneg (sq_nonneg π) (sub_nonneg.2 this)]
+
+lemma den_pos {n : ℕ} (hn : 1 ≤ n) {s : ℝ} (hs : s ∈ Icc 0 (π / 2)) :
+    3 * π ^ 2 / 4 ≤ (n : ℝ) ^ 2 * π ^ 2 - s ^ 2 := by
+  have := s_sq_le hs; have := pi_sq_le hn; linarith
+
 lemma continuousOn_kernel (n : ℕ) (hn : 1 ≤ n) :
     ContinuousOn (fun s : ℝ => s * Real.sin s / ((n : ℝ) ^ 2 * π ^ 2 - s ^ 2))
       (Icc 0 (π / 2)) := by
   apply ContinuousOn.div (by fun_prop) (by fun_prop)
   intro s hs
-  have hn' : (1 : ℝ) ≤ n := by exact_mod_cast hn
-  have : s ^ 2 < (n : ℝ) ^ 2 * π ^ 2 := by nlinarith [pi_pos, hs.1, hs.2]
+  have := den_pos hn hs
+  have : 0 < 3 * π ^ 2 / 4 := by positivity
   linarith
 
 /-- Eq. (8): `A n = (−1)^{n+1} (4/π) I n` for `n ≥ 1`. -/
@@ -221,9 +236,9 @@ theorem A_eq_sign_integral (n : ℕ) (hn : 1 ≤ n) :
       (fun s : ℝ => Real.sin s / (n * π + s))
     simp only [neg_zero] at hneg
     rw [← hneg, ← intervalIntegral.integral_add]
-    · rw [I, ← intervalIntegral.integral_const_mul, add_comm]
+    · rw [I, ← intervalIntegral.integral_const_mul]
       exact intervalIntegral.integral_congr (fun s hs => by
-        simpa [add_comm] using pair_identity n hn hs)
+        rw [add_comm]; exact pair_identity n hn hs)
     · have : ContinuousOn (fun s : ℝ => Real.sin (-s) / (n * π + -s)) (uIcc 0 (π / 2)) := by
         apply ContinuousOn.div (by fun_prop) (by fun_prop)
         intro s hs
@@ -242,9 +257,10 @@ lemma integral_s_sin : (∫ s in (0 : ℝ)..(π / 2), s * Real.sin s) = 1 := by
       HasDerivAt (fun s => Real.sin s - s * Real.cos s) (x * Real.sin x) x := by
     intro x _
     have h1 := Real.hasDerivAt_sin x
-    have h2 := (hasDerivAt_id x).mul (Real.hasDerivAt_cos x)
+    have h2 : HasDerivAt (fun s => s * Real.cos s) (1 * Real.cos x + x * -Real.sin x) x :=
+      (hasDerivAt_id' x).mul (Real.hasDerivAt_cos x)
     convert h1.sub h2 using 1
-    simp; ring
+    ring
   rw [intervalIntegral.integral_eq_sub_of_hasDerivAt h
     ((continuous_id.mul Real.continuous_sin).intervalIntegrable _ _)]
   simp [Real.sin_pi_div_two, Real.cos_pi_div_two]
@@ -264,11 +280,12 @@ lemma I_gt (n : ℕ) (hn : 1 ≤ n) : 1 / ((n : ℝ) ^ 2 * π ^ 2) < I n := by
     (by linarith [pi_pos]) (by fun_prop) (continuousOn_kernel n hn)
   · intro s hs
     have hs' : s ∈ Icc 0 (π / 2) := Ioc_subset_Icc_self hs
-    have hden : 0 < (n : ℝ) ^ 2 * π ^ 2 - s ^ 2 := by nlinarith [pi_pos, hs'.1, hs'.2]
+    have hden : 0 < (n : ℝ) ^ 2 * π ^ 2 - s ^ 2 := by nlinarith [den_pos hn hs', s_sq_le hs', pi_pos]
     exact div_le_div_of_nonneg_left (s_sin_nonneg hs') hden (by nlinarith [hs'.1])
   · refine ⟨π / 2, ⟨by linarith [pi_pos], le_rfl⟩, ?_⟩
     rw [Real.sin_pi_div_two, mul_one]
-    have hden : 0 < (n : ℝ) ^ 2 * π ^ 2 - (π / 2) ^ 2 := by nlinarith [pi_pos]
+    have hden : 0 < (n : ℝ) ^ 2 * π ^ 2 - (π / 2) ^ 2 := by
+      have := den_pos hn (⟨by linarith [pi_pos], le_rfl⟩ : π / 2 ∈ Icc 0 (π / 2)); nlinarith [pi_pos]
     exact div_lt_div_of_pos_left (by linarith [pi_pos]) hden (by nlinarith [pi_pos])
 
 /-- The upper bound of Eq. (9) for `I n`: `I n < 1/(π²(n² − ¼))`. -/
@@ -286,7 +303,7 @@ lemma I_lt (n : ℕ) (hn : 1 ≤ n) : I n < 1 / (π ^ 2 * ((n : ℝ) ^ 2 - 1 / 4
   · intro s hs
     have hs' : s ∈ Icc 0 (π / 2) := Ioc_subset_Icc_self hs
     have hle : π ^ 2 * ((n : ℝ) ^ 2 - 1 / 4) ≤ (n : ℝ) ^ 2 * π ^ 2 - s ^ 2 := by
-      nlinarith [pi_pos, hs'.1, hs'.2]
+      nlinarith [den_pos hn hs', s_sq_le hs', pi_pos]
     exact div_le_div_of_nonneg_left (s_sin_nonneg hs') hQ hle
   · refine ⟨π / 4, ⟨by linarith [pi_pos], by linarith [pi_pos]⟩, ?_⟩
     have hsin : 0 < Real.sin (π / 4) := Real.sin_pos_of_pos_of_lt_pi (by linarith [pi_pos])
@@ -306,13 +323,14 @@ lemma I_succ_lt (n : ℕ) (hn : 1 ≤ n) : I (n + 1) < I n := by
     (by linarith [pi_pos]) (continuousOn_kernel (n + 1) (by omega)) (continuousOn_kernel n hn)
   · intro s hs
     have hs' : s ∈ Icc 0 (π / 2) := Ioc_subset_Icc_self hs
-    have hden : 0 < (n : ℝ) ^ 2 * π ^ 2 - s ^ 2 := by nlinarith [pi_pos, hs'.1, hs'.2]
+    have hden : 0 < (n : ℝ) ^ 2 * π ^ 2 - s ^ 2 := by nlinarith [den_pos hn hs', s_sq_le hs', pi_pos]
     have hle : (n : ℝ) ^ 2 * π ^ 2 - s ^ 2 ≤ ((n + 1 : ℕ) : ℝ) ^ 2 * π ^ 2 - s ^ 2 := by
       push_cast; nlinarith [pi_pos]
     exact div_le_div_of_nonneg_left (s_sin_nonneg hs') hden hle
   · refine ⟨π / 2, ⟨by linarith [pi_pos], le_rfl⟩, ?_⟩
     rw [Real.sin_pi_div_two, mul_one]
-    have hden : 0 < (n : ℝ) ^ 2 * π ^ 2 - (π / 2) ^ 2 := by nlinarith [pi_pos]
+    have hden : 0 < (n : ℝ) ^ 2 * π ^ 2 - (π / 2) ^ 2 := by
+      have := den_pos hn (⟨by linarith [pi_pos], le_rfl⟩ : π / 2 ∈ Icc 0 (π / 2)); nlinarith [pi_pos]
     have hlt : (n : ℝ) ^ 2 * π ^ 2 - (π / 2) ^ 2 < ((n + 1 : ℕ) : ℝ) ^ 2 * π ^ 2 - (π / 2) ^ 2 := by
       push_cast; nlinarith [pi_pos]
     exact div_lt_div_of_pos_left (by linarith [pi_pos]) hden hlt
@@ -342,13 +360,13 @@ theorem abs_A_bounds (n : ℕ) (hn : 1 ≤ n) :
   constructor
   · have := mul_lt_mul_of_pos_left (I_gt n hn) h4
     calc 4 / (π ^ 3 * (n : ℝ) ^ 2) = 4 / π * (1 / ((n : ℝ) ^ 2 * π ^ 2)) := by
-          field_simp; ring
+          field_simp
       _ < _ := this
   · have := mul_lt_mul_of_pos_left (I_lt n hn) h4
     calc 4 / π * I n < 4 / π * (1 / (π ^ 2 * ((n : ℝ) ^ 2 - 1 / 4))) := this
       _ = 4 / (π ^ 3 * ((n : ℝ) ^ 2 - 1 / 4)) := by
           have : (0 : ℝ) < (n : ℝ) ^ 2 - 1 / 4 := by nlinarith
-          field_simp; ring
+          field_simp
 
 /-- A clean majorant: `|A n| ≤ (16/(3π³)) / n²` for `n ≥ 1`. -/
 lemma abs_A_le (n : ℕ) (hn : 1 ≤ n) : |A n| ≤ 16 / (3 * π ^ 3) * (1 / (n : ℝ) ^ 2) := by
