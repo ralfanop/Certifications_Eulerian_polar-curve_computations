@@ -122,11 +122,14 @@ theorem sturmMonicEigenCandidate_eigen
   have hzero :
       (∑ k ∈ Finset.range (n/2+1), (E k + D k)) = 0 :=
     sturmFinite_shift_cancellation (n/2) E D hD0 hEfinal hadj
-  apply (sub_eq_zero.mp ?_)
-  change sturmPolynomial lam (sturmMonicEigenCandidate lam n) -
-    C (sturmEigenvalue lam n) * sturmMonicEigenCandidate lam n = 0
-  rw [hsum]
-  exact hzero
+  have heq :
+      sturmPolynomial lam (sturmMonicEigenCandidate lam n) =
+        C (sturmEigenvalue lam n) *
+          sturmMonicEigenCandidate lam n := by
+    apply sub_eq_zero.mp
+    rw [hsum]
+    exact hzero
+  simpa only [smul_eq_C_mul] using heq
 
 #print axioms GegenbauerFock.Ultraspherical.sturmMonicEigenCandidate_eigen
 
