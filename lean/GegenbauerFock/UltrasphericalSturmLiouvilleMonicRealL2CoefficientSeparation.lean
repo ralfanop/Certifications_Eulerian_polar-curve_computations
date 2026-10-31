@@ -1,5 +1,4 @@
 import GegenbauerFock.UltrasphericalSturmLiouvilleMonicRealL2DenseSpan
-import Mathlib.Analysis.InnerProductSpace.Projection
 
 /-!
 # V007 — complete separation by actual ultraspherical Gegenbauer coefficients
