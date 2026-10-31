@@ -133,14 +133,16 @@ V478 Eq. (91) is V001 Eq. (93)). Same toolchain and Mathlib commit as §5; no `s
 | `Projection` | **Cor. 3.5**, Eqs. (26)–(28): `∫(r_E − b − a cos)² = ∫(r_E − r_L)² + 2π(b − b_E)² + π(a − a_E)²`, so `r_L` is the unique `L²` minimiser; `b_E`, `a_E` through `Si` | `pythagoras`, `projection_unique_min`, `coefficients` |
 | `Energy` | **§3.7**, Eqs. (45)–(47): `E_tot = (4/π)Si(π) − 8/π²`, Plancherel `E_tot = A_0²/2 + ∑ A_n²` (Mathlib's Parseval on `AddCircle`), and the mean-square residual of `r_L` | `Etot_closed`, `plancherel`, `rms_residual` |
 | `Turning` | **Prop. 3.7**, Eq. (39): with `k = (r² + 2r'² − r r'')/(r² + r'²)` (so `κ ds = k dθ`), `∫_{−π}^{π} k = 2π + ϑ_E`; `k > 0` on the smooth arc | `smooth_turning`, `k_pos` |
+| `RadialMinimax` | **Thm 3.12** (existence and characterisation): Eq. (62) `f(x) = ∫₀¹ cos((t/2) arccos x) dt`, Eqs. (63)–(64) (`G_α > 0`, second derivative), strict concavity of `f = r_E∘arccos` on `[−1, 1]`, the unique maximiser `x* = cos θ*` of `f − ℓ`, Eq. (59) for `θ*` and its uniqueness in `(0, π)`, Eqs. (60)–(61): `ℓ + Δ/2` has error `ε_rad = Δ/2`, every `b + a cos θ` has error `≥ ε_rad` on `[−π, π]`, with equality only for `a = m`, `b = c + ε_rad`; `b_rad > 2a_rad > 0` | `strictConcaveOn_f`, `alternation_angle`, `alternation_angle_unique`, `minimax_line_error`, `minimax_lower`, `minimax_unique`, `radial_minimax`, `rad_convex` |
+| `HausdorffMinimax` | **Thm 3.13** (part): the bodies `Ω_h` (Eq. (65)) and `Q(h) = sup_{Γ_E} dist(·, Ω_h)` (Eq. (66)) as concrete objects in `ℂ`; `Q` antitone and 1-Lipschitz; `Q(Δ) = 0`, `Q(0) > 0`; Eq. (67): unique solution `h* ∈ (0, Δ)` of `Q(h) = h`; **global lower bound** Eqs. (74)–(76): `d_H(Γ_E, Γ_{a,b}) ≥ h*` for every `b ≥ 2a > 0`; the certificate logic of Eqs. (70), (72) for this concrete `Q` (antitonicity no longer a hypothesis) | `Q_antitone`, `continuous_Q`, `Q_Δ`, `Q_zero_pos`, `exists_balance`, `balance_unique`, `hausdorff_lower`, `hstar_bracket`, `hstar_lt` |
 
-**Still not formalised (V001 numbering):** the existence part of Thm 3.12 (strict concavity of
-`f(x) = r_E(arccos x)`, Eqs. (62)–(64), and the alternation point, Eq. (59)); the nearest-point
-geometry of Thm 3.13 (continuity and monotonicity of `Q`, Eq. (73), uniqueness); the measure-theoretic
-statements of Prop. 3.7 (Eqs. (37)–(38) as measures; the unit tangents and the atom are in `Corner`);
-Prop. 3.10 (Lebesgue constants); the cube-slab volumes of Lemma 3.14, the Fourier inversion and
-local limit statements of §3.11, and Lemma 3.15; the complex-argument form of Def. 2.1. The printed
-decimals remain certified by interval arithmetic (§2), not in Lean.
+**Still not formalised (V001 numbering):** in Thm 3.13, the upper bound of Eq. (73) (hence the
+attainment `d_H(Γ_E, Γ_{h*}) = h*`, which needs the convexity of `Ω_h` and the outward-normal exit
+argument), the uniqueness of the minimiser, and the strict inequality `Q(ε_rad) < ε_rad` behind
+`h* < ε_rad`; the measure-theoretic statements of Prop. 3.7 (Eqs. (37)–(38) as measures; the unit
+tangents and the atom are in `Corner`); Prop. 3.10 (Lebesgue constants); the cube-slab volumes of
+Lemma 3.14, the Fourier inversion and local limit statements of §3.11, and Lemma 3.15; the
+complex-argument form of Def. 2.1. The printed decimals remain certified by interval arithmetic (§2), not in Lean.
 
 ## 6. Reproducing
 

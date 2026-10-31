@@ -119,3 +119,13 @@ open EulerianCert
 #print axioms EulerianCert.RadialMinimax.alternation_angle
 #print axioms EulerianCert.RadialMinimax.alternation_angle_unique
 #print axioms EulerianCert.RadialMinimax.radial_minimax
+-- V001 Theorem 3.13: scalar balance and global lower bound (module HausdorffMinimax)
+#print axioms EulerianCert.HausdorffMinimax.Q_antitone
+#print axioms EulerianCert.HausdorffMinimax.continuous_Q
+#print axioms EulerianCert.HausdorffMinimax.Q_Δ
+#print axioms EulerianCert.HausdorffMinimax.Q_zero_pos
+#print axioms EulerianCert.HausdorffMinimax.exists_balance
+#print axioms EulerianCert.HausdorffMinimax.balance_unique
+#print axioms EulerianCert.HausdorffMinimax.hausdorff_lower
+#print axioms EulerianCert.HausdorffMinimax.hstar_bracket
+#print axioms EulerianCert.HausdorffMinimax.hstar_lt
