@@ -43,11 +43,9 @@ theorem sturmMonicEigenCandidate_X_pow_mem_span
             coeff_X_pow, (ne_of_gt h_gt)]
       exact (mem_support_iff.mp hk) hzero
     have hq : q ∈ S := by
-      calc
-        q = ∑ k ∈ q.support, q.coeff k • (X ^ k : ℝ[X]) :=
-          (sturmPolynomial_true_monomial_expansion q).symm
-        _ ∈ S := Submodule.sum_mem S (fun k hk =>
-          Submodule.smul_mem S _ (ih k (hsmall k hk)))
+      rw [← sturmPolynomial_true_monomial_expansion q]
+      exact Submodule.sum_mem S (fun k hk =>
+        Submodule.smul_mem S _ (ih k (hsmall k hk)))
     have hx : (X : ℝ[X]) ^ n =
         sturmMonicEigenCandidate lam n - q := by
       dsimp [q]
@@ -61,12 +59,9 @@ theorem sturmMonicEigenCandidate_span_eq_top (lam : ℝ) :
     Submodule.span ℝ (Set.range (sturmMonicEigenCandidate lam)) = ⊤ := by
   apply Submodule.eq_top_iff'.mpr
   intro p
-  calc
-    p = ∑ k ∈ p.support, p.coeff k • (X ^ k : ℝ[X]) :=
-      (sturmPolynomial_true_monomial_expansion p).symm
-    _ ∈ Submodule.span ℝ (Set.range (sturmMonicEigenCandidate lam)) :=
-      Submodule.sum_mem _ (fun k hk =>
-        Submodule.smul_mem _ _ (sturmMonicEigenCandidate_X_pow_mem_span lam k))
+  rw [← sturmPolynomial_true_monomial_expansion p]
+  exact Submodule.sum_mem _ (fun k hk =>
+    Submodule.smul_mem _ _ (sturmMonicEigenCandidate_X_pow_mem_span lam k))
 
 #print axioms GegenbauerFock.Ultraspherical.sturmMonicEigenCandidate_X_pow_mem_span
 #print axioms GegenbauerFock.Ultraspherical.sturmMonicEigenCandidate_span_eq_top
