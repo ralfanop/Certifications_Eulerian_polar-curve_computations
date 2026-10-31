@@ -7,6 +7,7 @@ on:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaGenerator.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaGeneratorConvergence.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaEuler.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaEulerPowers.lean'
       - '.github/workflows/v007-ultraspherical-sturm-real-yosida-generator.yml'
   workflow_dispatch:
 
@@ -54,8 +55,10 @@ jobs:
           lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaGenerator.lean 2>&1 | tee /tmp/v007-yosida-generator-axioms.log
           lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealYosidaEuler 2>&1 | tee /tmp/v007-yosida-euler-build.log
           lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaGeneratorConvergence.lean 2>&1 | tee /tmp/v007-yosida-convergence-axioms.log
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealYosidaEulerPowers 2>&1 | tee /tmp/v007-yosida-euler-powers-build.log
           lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaEuler.lean 2>&1 | tee /tmp/v007-yosida-euler-axioms.log
-          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-yosida-generator-build.log /tmp/v007-yosida-generator-axioms.log /tmp/v007-yosida-convergence-build.log /tmp/v007-yosida-convergence-axioms.log /tmp/v007-yosida-euler-build.log /tmp/v007-yosida-euler-axioms.log; then
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaEulerPowers.lean 2>&1 | tee /tmp/v007-yosida-euler-powers-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-yosida-generator-build.log /tmp/v007-yosida-generator-axioms.log /tmp/v007-yosida-convergence-build.log /tmp/v007-yosida-convergence-axioms.log /tmp/v007-yosida-euler-build.log /tmp/v007-yosida-euler-axioms.log /tmp/v007-yosida-euler-powers-build.log /tmp/v007-yosida-euler-powers-axioms.log; then
             echo '::error::Forbidden axiom in Yosida generator proof.'
             exit 1
           fi
@@ -69,4 +72,5 @@ jobs:
           grep -F "sturmRealYosidaEulerStep_apply' depends on axioms:" /tmp/v007-yosida-euler-axioms.log
           grep -F "sturmRealYosidaEulerStep_norm_le' depends on axioms:" /tmp/v007-yosida-euler-axioms.log
           grep -F "sturmRealYosidaEulerStep_opNorm_le' depends on axioms:" /tmp/v007-yosida-euler-axioms.log
-          echo 'V007 Yosida generator, strong convergence, self-adjointness and Euler step contraction kernel-certified.'
+          grep -F "sturmRealYosidaEulerIterate_opNorm_le' depends on axioms:" /tmp/v007-yosida-euler-powers-axioms.log
+          echo 'V007 Yosida generator, strong convergence, self-adjointness and finite Euler contraction kernel-certified.'
