@@ -5,6 +5,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireHSMixedNoisySeparation.lean'
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireHSMixedQuantitativeGap.lean'
       - '.github/workflows/v007-intrinsic-fock-hs-mixed-noisy-separation.yml'
   workflow_dispatch:
 
@@ -46,7 +47,7 @@ jobs:
           lake build GegenbauerFock.GegenbauerIntrinsicEntireHSMixedNoisySeparation 2>&1 | tee /tmp/v007-mixed-noisy-separation.log
           lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireHSMixedNoisySeparation.lean 2>&1 | tee -a /tmp/v007-mixed-noisy-separation.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-mixed-noisy-separation.log; then
-            echo "::error::Forbidden axiom in norm identifiability"
+            echo "::error::Forbidden axiom in mixed lambda alpha noisy separation"
             exit 1
           fi
           for name in \
