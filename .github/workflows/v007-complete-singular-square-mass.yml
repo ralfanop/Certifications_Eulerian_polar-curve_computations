@@ -1,11 +1,11 @@
-name: V007 exact squared singular-value Kummer mass
+name: V007 isolated real Schatten p ge 2 proof audit
 
 on:
   push:
     branches:
-      - gegenbauer-fock-formalization-20261025
+      - v007-schatten-pge2-20261031
     paths:
-      - 'lean/GegenbauerFock/CompleteSingularSquareMass.lean'
+      - 'lean/GegenbauerFock/CompleteSingularSchattenPgeTwo.lean'
       - 'lean/GegenbauerFock/CompletePositiveSingularHilbertBasis.lean'
       - '.github/workflows/v007-complete-singular-square-mass.yml'
   workflow_dispatch:
@@ -43,16 +43,16 @@ jobs:
           set -euo pipefail
           lake update
           lake exe cache get
-      - name: Certify genuine bilateral singular square sum with axioms
+      - name: Certify real Schatten p ge two and audit all axioms
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.CompleteSingularSquareMass 2>&1 | tee /tmp/v007-singular-square-mass-build.log
-          lake env lean -M16768 GegenbauerFock/CompleteSingularSquareMass.lean 2>&1 | tee /tmp/v007-singular-square-mass-axioms.log
+          lake build GegenbauerFock.CompleteSingularSchattenPgeTwo 2>&1 | tee /tmp/v007-singular-square-mass-build.log
+          lake env lean -M16768 GegenbauerFock/CompleteSingularSchattenPgeTwo.lean 2>&1 | tee /tmp/v007-singular-square-mass-axioms.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-singular-square-mass-build.log /tmp/v007-singular-square-mass-axioms.log; then
             echo '::error::Forbidden axiom in squared singular-value mass certificate.'
             exit 1
           fi
-          grep -F "exists_complete_singular_values_squared_sum_kummer' depends on axioms:" /tmp/v007-singular-square-mass-axioms.log
+          grep -F "exists_complete_singular_schatten_pge_two' depends on axioms:" /tmp/v007-singular-square-mass-axioms.log
           echo 'V007 genuine bilateral squared singular-value Kummer mass kernel-checked and audited.'
