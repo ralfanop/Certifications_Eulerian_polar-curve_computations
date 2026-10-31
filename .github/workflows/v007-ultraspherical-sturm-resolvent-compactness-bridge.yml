@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventCompactnessBridge.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteRankTruncations.lean'
       - '.github/workflows/v007-ultraspherical-sturm-resolvent-compactness-bridge.yml'
   workflow_dispatch:
 
