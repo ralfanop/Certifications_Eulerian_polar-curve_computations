@@ -191,3 +191,8 @@ open EulerianCert
 #print axioms EulerianCert.CubeSlabs.E_eq_U
 #print axioms EulerianCert.CubeSlabs.volume_L
 #print axioms EulerianCert.CubeSlabs.volume_slab
+-- V001 Lemma 3.14, Eq. (79), second equality (module CubeSection)
+#print axioms EulerianCert.CubeSection.normDet_Lmap
+#print axioms EulerianCert.CubeSection.Sec_eq
+#print axioms EulerianCert.CubeSection.hausdorff_section
+#print axioms EulerianCert.CubeSection.eulerian_section

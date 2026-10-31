@@ -162,3 +162,7 @@
 'EulerianCert.CubeSlabs.E_eq_U' depends on axioms: [propext, Classical.choice, Quot.sound]
 'EulerianCert.CubeSlabs.volume_L' depends on axioms: [propext, Classical.choice, Quot.sound]
 'EulerianCert.CubeSlabs.volume_slab' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianCert.CubeSection.normDet_Lmap' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianCert.CubeSection.Sec_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianCert.CubeSection.hausdorff_section' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianCert.CubeSection.eulerian_section' depends on axioms: [propext, Classical.choice, Quot.sound]
