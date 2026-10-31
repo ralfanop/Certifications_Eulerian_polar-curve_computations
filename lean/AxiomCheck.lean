@@ -149,3 +149,25 @@ open EulerianCert
 #print axioms EulerianCert.SineIntegralComplex.SiC_neg
 #print axioms EulerianCert.SineIntegralComplex.SiC_ofReal
 #print axioms EulerianCert.SineIntegralComplex.differentiable_SiC
+-- V001 Proposition 3.10 (modules Lebesgue, CurvatureGrowth)
+#print axioms EulerianCert.Lebesgue.sin_mul_D
+#print axioms EulerianCert.Lebesgue.L_lower
+#print axioms EulerianCert.Lebesgue.L_upper
+#print axioms EulerianCert.Lebesgue.abel_bound
+#print axioms EulerianCert.Lebesgue.σ_bound
+#print axioms EulerianCert.CurvatureGrowth.S2_dirichlet
+#print axioms EulerianCert.CurvatureGrowth.abs_R2
+#print axioms EulerianCert.CurvatureGrowth.S1_sine
+#print axioms EulerianCert.CurvatureGrowth.abs_S1_le
+#print axioms EulerianCert.CurvatureGrowth.k_eq
+#print axioms EulerianCert.CurvatureGrowth.k_bounds
+#print axioms EulerianCert.CurvatureGrowth.TC_bounds
+#print axioms EulerianCert.CurvatureGrowth.I2_bounds
+#print axioms EulerianCert.CurvatureGrowth.curvature_growth
+#print axioms EulerianCert.CurvatureGrowth.hasDerivAt_T
+#print axioms EulerianCert.CurvatureGrowth.bounded_of_converges
+#print axioms EulerianCert.CurvatureGrowth.TC_tendsto
+#print axioms EulerianCert.CurvatureGrowth.turning_not_converge
+#print axioms EulerianCert.CurvatureGrowth.abs_curvature_not_converge
+#print axioms EulerianCert.CurvatureGrowth.vector_curvature_not_converge
+#print axioms EulerianCert.CurvatureGrowth.hausdorff_tendsto

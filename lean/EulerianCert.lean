@@ -45,3 +45,5 @@ import EulerianCert.RadialMinimax
 import EulerianCert.HausdorffMinimax
 import EulerianCert.LimaconConvex
 import EulerianCert.HausdorffAttain
+import EulerianCert.Lebesgue
+import EulerianCert.CurvatureGrowth
