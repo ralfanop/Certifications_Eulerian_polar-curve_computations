@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicEigenSum.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicFiniteShift.lean'
       - '.github/workflows/v007-ultraspherical-sturm-monic-eigen-sum.yml'
   workflow_dispatch:
 
@@ -48,12 +49,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.UltrasphericalSturmLiouvilleMonicEigenSum 2>&1 | tee /tmp/v007-monic-sum-build.log
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleMonicEigenSum GegenbauerFock.UltrasphericalSturmLiouvilleMonicFiniteShift 2>&1 | tee /tmp/v007-monic-sum-build.log
           lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleMonicEigenSum.lean 2>&1 | tee /tmp/v007-monic-sum-axioms.log
-          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-monic-sum-build.log /tmp/v007-monic-sum-axioms.log; then
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleMonicFiniteShift.lean 2>&1 | tee /tmp/v007-monic-shift-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-monic-sum-build.log /tmp/v007-monic-sum-axioms.log /tmp/v007-monic-shift-axioms.log; then
             echo '::error::Forbidden axiom in Gegenbauer monic sum.'
             exit 1
           fi
           grep -F "sturmPolynomial_X_pow_diagonal_lower' depends on axioms:" /tmp/v007-monic-sum-axioms.log
           grep -F "sturmPolynomial_monicCandidate_as_sum' depends on axioms:" /tmp/v007-monic-sum-axioms.log
-          echo 'Gegenbauer monic sum lemmas certified.'
+          grep -F "sturmFinite_shift_cancellation' depends on axioms:" /tmp/v007-monic-shift-axioms.log
+          grep -F "sturmMonic_last_lower_coeff_zero' depends on axioms:" /tmp/v007-monic-shift-axioms.log
+          grep -F "sturmMonic_step_exponent' depends on axioms:" /tmp/v007-monic-shift-axioms.log
+          echo 'Gegenbauer monic sum and finite shift lemmas certified.'
