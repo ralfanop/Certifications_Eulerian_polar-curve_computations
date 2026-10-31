@@ -56,4 +56,6 @@ jobs:
           fi
           grep -F "sturmMonicCoeff_den_pos' depends on axioms:" /tmp/v007-monic-coeff-axioms.log
           grep -F "sturmMonicCoeff_cancellation' depends on axioms:" /tmp/v007-monic-coeff-axioms.log
-          echo 'Explicit Gegenbauer monic coefficient recurrence kernel-certified.'
+          grep -F "sturmEigenvalue_lower_even_gap' depends on axioms:" /tmp/v007-monic-coeff-axioms.log
+          grep -F "sturmMonicCoeff_spectral_gap_cancellation' depends on axioms:" /tmp/v007-monic-coeff-axioms.log
+          echo 'Explicit Gegenbauer monic coefficient recurrence and eigenvalue gap kernel-certified.'
