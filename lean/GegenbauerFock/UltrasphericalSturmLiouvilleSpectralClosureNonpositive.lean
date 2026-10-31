@@ -115,8 +115,25 @@ theorem sturmRealPartialOperator_spectral_domain_eq_of_nonpositive
     (sturmRealPartialOperator_spectral_eq_closure_of_nonpositive
       lam hlam S hSclosed hExt hNonpos)
 
+/-- The actual weighted-L² polynomial vectors are a graph core of
+EVERY closed nonpositive spectral realization extending the true
+polynomial differential operator. This follows from operator equality,
+rather than being assumed in the spectral construction. -/
+theorem sturmRealPartialOperator_polynomials_spectral_core_of_nonpositive
+    (lam : ℝ) (hlam : 0 < lam)
+    (S : SturmH lam →ₗ.[ℝ] SturmH lam)
+    (hSclosed : S.IsClosed)
+    (hExt : sturmRealPartialOperator lam hlam ≤ S)
+    (hNonpos : ∀ u : S.domain,
+      inner ℝ (S u) (u : SturmH lam) ≤ 0) :
+    S.HasCore (sturmRealPartialOperator lam hlam).domain := by
+  rw [← sturmRealPartialOperator_spectral_eq_closure_of_nonpositive
+    lam hlam S hSclosed hExt hNonpos]
+  exact LinearPMap.closureHasCore (sturmRealPartialOperator lam hlam)
+
 #print axioms GegenbauerFock.Ultraspherical.sturmReal_closed_nonpositive_shift_graph_bound
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPartialOperator_spectral_eq_closure_of_nonpositive
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPartialOperator_spectral_domain_eq_of_nonpositive
+#print axioms GegenbauerFock.Ultraspherical.sturmRealPartialOperator_polynomials_spectral_core_of_nonpositive
 
 end GegenbauerFock.Ultraspherical
