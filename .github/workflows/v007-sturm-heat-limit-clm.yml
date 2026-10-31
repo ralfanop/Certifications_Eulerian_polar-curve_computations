@@ -6,6 +6,9 @@ on:
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatLimitCLM.lean'
       - '.github/workflows/v007-sturm-heat-limit-clm.yml'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaAllL2StrongLimit.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaFiniteSpanLimit.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaStrongLimitDensityPrinciple.lean'
   workflow_dispatch:
 
 jobs:
