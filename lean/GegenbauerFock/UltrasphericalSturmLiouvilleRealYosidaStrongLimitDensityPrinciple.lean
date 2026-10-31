@@ -65,7 +65,7 @@ theorem strongLimit_of_uniform_contractions_on_dense
       dist_triangle _ _ _
     _ ≤ dist (T m x) (T m d) +
         (dist (T m d) (T n d) + dist (T n d) (T n x)) :=
-      add_le_add_left (dist_triangle _ _ _) _
+      by linarith [dist_triangle (T m d) (T n d) (T n x)]
     _ < eps := by linarith
 
 #print axioms GegenbauerFock.Ultraspherical.strongLimit_of_uniform_contractions_on_dense
