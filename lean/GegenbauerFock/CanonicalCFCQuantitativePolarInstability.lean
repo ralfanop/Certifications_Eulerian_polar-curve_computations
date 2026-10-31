@@ -335,7 +335,7 @@ theorem joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere
       Filter.atTop
       (nhds (localCFCGramSqrt lam alpha hlam ha f,
           (C lam alpha hlam ha f, gram lam alpha hlam ha f))) :=
-    (hPto.prodMk (hCto.prodMk hGto)).of_prod_nhds
+    (hPto.prodMk_nhds (hCto.prodMk_nhds hGto))
   intro r hleft hcont
   have hrec : Filter.Tendsto
       (fun n : ℕ =>
@@ -442,7 +442,7 @@ theorem joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere
       Filter.atTop
       (nhds (localCFCGramSqrt lam alpha hlam ha f,
         (C lam alpha hlam ha f, gram lam alpha hlam ha f)))
-    exact (hPto.prodMk (hCto.prodMk hGto)).of_prod_nhds
+    exact (hPto.prodMk_nhds (hCto.prodMk_nhds hGto))
   intro r hleft hcont
   have hsub : Filter.Tendsto
       (fun n : ℕ =>
