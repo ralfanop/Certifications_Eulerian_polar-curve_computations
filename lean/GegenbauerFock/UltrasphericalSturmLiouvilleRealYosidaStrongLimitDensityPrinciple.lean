@@ -18,6 +18,9 @@ extension of the differential operator or a limiting semigroup.
 noncomputable section
 namespace GegenbauerFock.Ultraspherical
 
+open Filter
+open scoped Topology
+
 /-- A uniformly contractive family of actual bounded linear maps
 which converges strongly on a dense set converges strongly everywhere.
 The limit is constructed from completeness, not assumed. -/
