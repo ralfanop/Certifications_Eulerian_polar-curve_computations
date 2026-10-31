@@ -1,0 +1,59 @@
+name: V007 all positive Gegenbauer polynomial spectral shift surjectivity
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvillePositiveShiftSurjective.lean'
+      - '.github/workflows/v007-ultraspherical-sturm-positive-shift-surjective.yml'
+  workflow_dispatch:
+
+jobs:
+  positive-real-spectral-shifts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit all positive real Sturm polynomial shifts
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvillePositiveShiftSurjective 2>&1 | tee /tmp/v007-positive-sturm-shift-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvillePositiveShiftSurjective.lean 2>&1 | tee /tmp/v007-positive-sturm-shift-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-positive-sturm-shift-build.log /tmp/v007-positive-sturm-shift-axioms.log; then
+            echo '::error::Forbidden axiom in exact all-positive Sturm polynomial shifts.'
+            exit 1
+          fi
+          grep -F "sturmPositiveShiftPolynomial_monomial_preimage' depends on axioms:" /tmp/v007-positive-sturm-shift-axioms.log
+          grep -F "sturmPositiveShiftPolynomial_surjective' depends on axioms:" /tmp/v007-positive-sturm-shift-axioms.log
+          echo 'V007 exact all-positive ultraspherical polynomial spectral shift surjectivity certified.'
