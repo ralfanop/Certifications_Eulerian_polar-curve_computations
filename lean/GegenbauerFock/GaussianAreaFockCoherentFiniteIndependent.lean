@@ -27,8 +27,20 @@ theorem finiteFockCoherentKernel_zero_coefficients
       ∑ i : Fin n, c i * FockEvaluation.kernelCoordinate alpha (z i) k = 0 := by
     have hk := congrArg
       (fun F : FockSequence.Coefficients => F k) hzero
-    simpa [FockEvaluation.kernelVector, Finset.sum_apply, Pi.smul_apply,
-      smul_eq_mul] using hk
+    have hk' :
+        (∑ i : Fin n, c i •
+          FockEvaluation.kernelCoordinate alpha (z i) k) = 0 := by
+      simpa [FockEvaluation.kernelVector, Finset.sum_apply,
+        Pi.smul_apply] using hk
+    calc
+      (∑ i : Fin n, c i *
+        FockEvaluation.kernelCoordinate alpha (z i) k) =
+          ∑ i : Fin n, c i •
+            FockEvaluation.kernelCoordinate alpha (z i) k := by
+              apply Finset.sum_congr rfl
+              intro i hi
+              exact smul_eq_mul.symm
+      _ = 0 := hk'
   have hpower (k : Fin n) :
       ∑ i : Fin n, c i * (star (z i)) ^ (k : ℕ) = 0 := by
     have hfactor :
@@ -45,6 +57,10 @@ theorem finiteFockCoherentKernel_zero_coefficients
       ring
     have hzeroCoord := hcoord (k : ℕ)
     dsimp [FockEvaluation.kernelCoordinate] at hzeroCoord
+    change (∑ i : Fin n,
+      c i * (((Real.sqrt
+        (alpha ^ (k : ℕ) / (Nat.factorial (k : ℕ) : ℝ))) : ℂ) *
+          (star (z i)) ^ (k : ℕ))) = 0 at hzeroCoord
     rw [hfactor] at hzeroCoord
     have hfac : 0 < (Nat.factorial (k : ℕ) : ℝ) := by
       exact_mod_cast Nat.factorial_pos (k : ℕ)
