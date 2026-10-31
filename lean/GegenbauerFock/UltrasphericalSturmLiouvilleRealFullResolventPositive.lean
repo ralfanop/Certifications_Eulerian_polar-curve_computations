@@ -42,7 +42,7 @@ theorem sturmRealPositiveResolventFullCLM_inner_energy_bound
   rw [hfirst, hsecond] at hnonpos
   simp only [inner_sub_left, real_inner_smul_left] at hnonpos
   have hcomm : inner ℝ f (R f) = inner ℝ (R f) f :=
-    real_inner_comm f (R f)
+    (real_inner_comm f (R f)).symm
   rw [hcomm] at hnonpos
   exact sub_nonpos.mp hnonpos
 
