@@ -49,7 +49,7 @@ the genuine Gegenbauer Hilbert coefficients in weighted ℓ².
 It is not defined by referring to the operator graph. -/
 noncomputable def sturmMonicHilbertWeightedDomain
     (lam t : ℝ) (hlam : 0 < lam) : Set (SturmH lam) :=
-  {u | ∃ a : ℓ²(ℕ, ℝ), ∀ n : ℕ,
+  {u | ∃ a : lp (fun _ : ℕ => ℝ) 2, ∀ n : ℕ,
      a n = shiftedEigenweight lam t n *
        (sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam).repr u n}
 
@@ -66,7 +66,7 @@ theorem sturmRealClosed_domain_eq_monicHilbert_weightedL2
   rw [sturmRealClosed_domain_eq_full_resolvent_range lam t hlam ht]
   ext u
   change u ∈ Set.range R ↔
-    ∃ a : ℓ²(ℕ, ℝ), ∀ n : ℕ,
+    ∃ a : lp (fun _ : ℕ => ℝ) 2, ∀ n : ℕ,
       a n = shiftedEigenweight lam t n * (b.repr u) n
   constructor
   · rintro ⟨f, rfl⟩
