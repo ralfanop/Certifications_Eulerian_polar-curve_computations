@@ -78,7 +78,7 @@ theorem intrinsicRieszKernel_exp_twoPoint_determinant_pos
       alpha * ‖w‖ ^ 2) := hexp
     _ = Real.exp (alpha * ‖z‖ ^ 2) *
       Real.exp (alpha * ‖w‖ ^ 2) :=
-        (Real.exp_add _ _).symm
+        Real.exp_add _ _
 
 /-- The two-point Gaussian Fock Gram determinant vanishes exactly
 when the two evaluation nodes coincide. -/
