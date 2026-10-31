@@ -642,3 +642,41 @@ prima di dichiararne la certificazione.
 
 **Invarianti:** mantenere PR #16 in Draft, senza merge,
 senza modifiche a `main`, V097 o processi V170.
+
+## 20. Instabilità comune attorno a ogni sorgente — 31 ottobre 2026
+
+Il blocco CFC–Fock–Gram, già verificato con le CI
+[41208546359](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41208546359)
+e [41208719236](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41208719236),
+è stato esteso a ogni `f` dello spazio sorgente.
+
+**Nuove certificazioni verificate:**
+
+1. CI [41209668133](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41209668133):
+   **SUCCESS**, teorema
+   `exists_shared_cfc_fock_gram_everywhere_instability`.
+   Esistono perturbazioni `v n` con `‖v n - f‖ = 1`
+   tali che le variazioni sotto `P`, `C` e `gram`
+   tendano tutte a zero.
+2. CI [41209832173](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41209832173):
+   **SUCCESS**, teorema
+   `exists_shared_cfc_fock_gram_quantitative_everywhere_instability`,
+   compreso il controllo dei sei teoremi del modulo. In particolare
+   `‖P(v n)-P f‖ < 1/(n+1)`,
+   `‖C(v n)-C f‖ = ‖P(v n)-P f‖`
+   e `‖gram(v n)-gram f‖ ≤ ‖C_adjoint‖/(n+1)`.
+   Audit `#print axioms` puliti, senza `sorryAx` o
+   `Lean.ofReduceBool`; soltanto assiomi standard Lean.
+
+**Nuovo corollario da certificare:**
+`exists_unit_perturbation_with_arbitrarily_small_joint_measurements`
+esplicita che per ogni `eps > 0` e ogni sorgente `f`
+esiste una perturbazione di norma uno con cambiamenti di tutte
+le tre misure strettamente minori di `eps`.
+Sorgente commit `a0942833321142672c5befe5f3c8d1f1580f9c26`;
+workflow di audit commit `50c98065730adf3b64aed446361ada69519efa86`.
+La CI finale di questo corollario deve essere verificata prima
+di dichiarare SUCCESS.
+
+Invarianti permanenti: PR #16 in Draft, senza merge;
+`main`, V097 e le CI V170 non devono essere modificati.
