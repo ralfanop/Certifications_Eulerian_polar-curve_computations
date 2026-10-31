@@ -41,7 +41,7 @@ theorem sturmMonic_realL2_parseval_tsum_sq
         ∑' n : ℕ, inner ℝ f (b n) * inner ℝ (b n) f :=
       tsum_congr hterm
     _ = inner ℝ f f := b.tsum_inner_mul_inner f f
-    _ = ‖f‖ ^ 2 := real_inner_self_eq_norm_sq
+    _ = ‖f‖ ^ 2 := real_inner_self_eq_norm_sq f
 
 /-- Full infinite Poincare inequality on the actual ultraspherical
 Dirichlet-form domain, characterized by summable spectral energy.
