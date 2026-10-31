@@ -152,8 +152,15 @@ TH = ball(lo, hi)
 Delta = 2 * (TH / 2).sin() / TH - c - m * TH.cos()
 eps = Delta / 2
 brad = c + eps
+def dec(q, k=40):
+    """Decimal string of the rational q > 0, truncated to k places."""
+    q = Q(q)
+    s = str(q.numerator * 10 ** k // q.denominator).rjust(k + 1, "0")
+    return s[:-k] + "." + s[-k:]
+
+
 check_q("Eq. (59) theta_*", "2.10258309466509376393", lo, hi,
-        enclosure=f"({float(lo):.20f}, {float(hi):.20f}), width {float(hi - lo):.1e}")
+        enclosure=f"({dec(lo)}, {dec(hi)}), width {float(hi - lo):.1e}")
 check("Eq. (60) Delta", "0.09953351643838914835807", Delta)
 check("Eq. (60) eps_rad", "0.04976675821919457417904", eps)
 check("Eq. (61) b_rad = c + eps_rad", "0.86807664440298524572", brad)
