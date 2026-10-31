@@ -52,7 +52,6 @@ theorem sturmMonic_finite_spectral_poincare_degree_one_equality
         ((n : ℝ) * ((n : ℝ) + 2 * lam)) *
           (if n = 1 then (1 : ℝ) else 0) ^ 2 := by
   simp
-  ring
 
 /-- No coefficient strictly larger than the first positive Sturm
 eigenvalue can satisfy the finite inequality on every mean-zero
