@@ -47,3 +47,4 @@ import EulerianCert.LimaconConvex
 import EulerianCert.HausdorffAttain
 import EulerianCert.Lebesgue
 import EulerianCert.CurvatureGrowth
+import EulerianCert.CurvatureMeasures

@@ -171,3 +171,15 @@ open EulerianCert
 #print axioms EulerianCert.CurvatureGrowth.abs_curvature_not_converge
 #print axioms EulerianCert.CurvatureGrowth.vector_curvature_not_converge
 #print axioms EulerianCert.CurvatureGrowth.hausdorff_tendsto
+-- V001 Proposition 3.7, Eqs. (37)-(38) (module CurvatureMeasures)
+#print axioms EulerianCert.CurvatureMeasures.turning_distribution
+#print axioms EulerianCert.CurvatureMeasures.totalVariation_τE
+#print axioms EulerianCert.CurvatureMeasures.atoms_scalar
+#print axioms EulerianCert.CurvatureMeasures.integral_κds
+#print axioms EulerianCert.CurvatureMeasures.τE_integral
+#print axioms EulerianCert.CurvatureMeasures.TE_unit_tangent
+#print axioms EulerianCert.CurvatureMeasures.hasDerivAt_TE
+#print axioms EulerianCert.CurvatureMeasures.TE_pi
+#print axioms EulerianCert.CurvatureMeasures.tangent_jump
+#print axioms EulerianCert.CurvatureMeasures.vector_distribution
+#print axioms EulerianCert.CurvatureMeasures.KE_atom
