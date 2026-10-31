@@ -76,14 +76,20 @@ theorem sturmRealYosidaExponential_finiteGegenbauer_tendsto
     | @insert n F hn ih =>
         simp only [Finset.sum_insert hn]
         exact (hmode n).add ih
-  convert hfinite using 1
-  · ext k
-    change
-      (sturmRealYosidaExponential lam ((k : ℝ) + 1) hlam
-          (by positivity : 0 < (k : ℝ) + 1) s)
-        (∑ n ∈ F, (a n) • v n) = _
+  have hfun :
+      (fun k : ℕ =>
+        sturmRealYosidaExponential lam ((k : ℝ) + 1) hlam
+          (by positivity : 0 < (k : ℝ) + 1) s
+          (sturmRealGegenbauerFiniteVector lam hlam F a)) =
+      (fun k : ℕ =>
+        ∑ n ∈ F,
+          (a n) • (sturmRealYosidaExponential lam ((k : ℝ) + 1) hlam
+            (by positivity : 0 < (k : ℝ) + 1) s (v n))) := by
+    funext k
+    dsimp [sturmRealGegenbauerFiniteVector]
     simp only [map_sum, map_smul]
-  · rfl
+  rw [hfun]
+  exact hfinite
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealYosidaExponential_finiteGegenbauer_tendsto
 
