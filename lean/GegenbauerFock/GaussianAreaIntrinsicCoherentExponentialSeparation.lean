@@ -31,10 +31,16 @@ theorem intrinsicRieszKernel_finite_coherent_pairing_exp
   rw [inner_sum]
   apply Finset.sum_congr rfl
   intro i hi
-  rw [inner_smul_right
-    (intrinsicRieszKernel alpha ha w)
-    (intrinsicRieszKernel alpha ha (z i)) (c i)]
-  rw [intrinsicRieszKernel_pairing_exp]
+  calc
+    inner ℂ (intrinsicRieszKernel alpha ha w)
+        (c i • intrinsicRieszKernel alpha ha (z i)) =
+      c i * inner ℂ (intrinsicRieszKernel alpha ha w)
+        (intrinsicRieszKernel alpha ha (z i)) :=
+          inner_smul_right
+            (intrinsicRieszKernel alpha ha w)
+            (intrinsicRieszKernel alpha ha (z i)) (c i)
+    _ = c i * Complex.exp ((alpha : ℂ) * w * star (z i)) := by
+      rw [intrinsicRieszKernel_pairing_exp]
 
 /-- A finite coherent combination is the zero Hilbert vector exactly
 when its associated exponential sum vanishes at every complex point. -/
