@@ -60,8 +60,13 @@ theorem sturmMonicRealHilbertBasis_full_resolvent_repr_diagonal
   let beta : ℝ := (t + (n : ℝ) * ((n : ℝ) + 2 * lam))⁻¹
   have hsym := sturmRealPositiveResolventFullCLM_inner_symmetric
     lam t hlam ht (b n) f
-  have heigen : R (b n) = beta • b n :=
-    sturmMonicRealHilbertBasis_full_resolvent_eigen
+  have hb : b n =
+      sturmMonicEigenCandidate_realL2_normalized lam hlam n := by
+    simp only [b, sturmMonicEigenCandidate_realL2_hilbertBasis,
+      HilbertBasis.coe_mkOfOrthogonalEqBot]
+  have heigen : R (b n) = beta • b n := by
+    rw [hb]
+    exact sturmMonicRealHilbertBasis_full_resolvent_eigen
       lam t hlam ht n
   rw [heigen, real_inner_smul_left] at hsym
   change b.repr (R f) n = beta * b.repr f n
