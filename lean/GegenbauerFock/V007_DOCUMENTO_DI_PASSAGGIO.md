@@ -850,3 +850,36 @@ prima di considerare i due nuovi enunciati certificati.
 
 **Invarianti:** PR #16 Draft, nessun merge;
 non modificare `main`, V097 o i workflow V170.
+
+## 26. Omeomorfismo dei range effettivi Fock e CFC–Fock–Gram — 31 ottobre 2026
+
+**Certificazioni completate e verificate nei log del kernel Lean 4:**
+- CI [41243230607](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41243230607), SUCCESS.
+- CI [41243242871](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41243242871), SUCCESS.
+
+Entrambi i teoremi
+`exists_joint_fock_data_graph_factorization` e
+`joint_cfc_fock_gram_data_convergence_iff_fock`
+sono compilati e superano gli audit `#print axioms`
+senza `sorryAx` né `Lean.ofReduceBool`.
+La trasformata congiunta si ottiene dal solo dato Fock tramite
+il grafico continuo
+`F ↦ (W.symm F, F, C_adjoint F)`.
+La convergenza delle osservazioni congiunte equivale a quella
+della singola coordinata Fock, anche per successioni infinite.
+
+**Nuovo teorema depositato, in attesa di verifica:**
+`exists_homeomorphism_between_fock_range_and_joint_cfc_fock_gram_range`.
+L'enunciato costruisce un omeomorfismo concreto fra
+`Set.range (C lam alpha hlam ha)` e
+`Set.range (jointCFCFockGramMeasurements lam alpha hlam ha)`,
+dotati della topologia di sottospazio, che identifica `C f`
+con `(P f, C f, G f)`. È un rafforzamento topologico generale
+del teorema precedente sulle successioni.
+Commit sorgente `cd09259d8e5232ca9b83a954f80bf98b882f7f32`;
+workflow di controllo `80b69e2ff9a06036b4182eaca393577f06da47bf`.
+CI [41250746314](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41250746314).
+**Non considerare certificato prima di SUCCESS e audit pulito.**
+
+**Invarianti:** PR #16 resta aperta in Draft, nessun merge
+né modifiche a `main`, V097 o V170.
