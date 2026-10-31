@@ -42,3 +42,5 @@ import EulerianCert.Energy
 import EulerianCert.Turning
 import EulerianCert.RadialMinimax
 import EulerianCert.HausdorffMinimax
+import EulerianCert.LimaconConvex
+import EulerianCert.HausdorffAttain

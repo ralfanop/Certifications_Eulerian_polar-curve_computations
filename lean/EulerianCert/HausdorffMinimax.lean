@@ -280,52 +280,54 @@ def Γ (a b : ℝ) : Set ℂ := EulerianCert.polarCurve (fun t => b + a * Real.c
 
 lemma Γ_eq (a b : ℝ) : Γ a b = (fun t => pt (b + a * Real.cos t) t) '' Icc (-π) π := rfl
 
-/-- **Theorem 3.13, global lower bound**: every admissible limaçon (`b ≥ 2a > 0`) satisfies
-`d_H(Γ_E, Γ_{a,b}) ≥ h*`. -/
-theorem hausdorff_lower (a b : ℝ) (ha : 0 < a) (hab : 2 * a ≤ b) :
-    hstar ≤ hausdorffDist ΓE (Γ a b) := by
+lemma Γ_nonempty (a b : ℝ) : (Γ a b).Nonempty := ⟨_, ⟨0, zero_mem_angle, rfl⟩⟩
+
+lemma ΓE_bounded : Bornology.IsBounded ΓE := by
+  rw [isBounded_iff_forall_norm_le]; exact ⟨1, fun p hp => norm_le_one hp⟩
+
+lemma Γ_bounded (a b : ℝ) : Bornology.IsBounded (Γ a b) := by
+  rw [isBounded_iff_forall_norm_le]
+  refine ⟨|b| + |a|, ?_⟩
+  rintro _ ⟨t, -, rfl⟩
+  show ‖pt (b + a * Real.cos t) t‖ ≤ _
+  rw [norm_pt]
+  calc |b + a * Real.cos t| ≤ |b| + |a * Real.cos t| := abs_add_le _ _
+    _ ≤ |b| + |a| := by
+      rw [abs_mul]; gcongr
+      exact mul_le_of_le_one_right (abs_nonneg _) (Real.abs_cos_le_one t)
+
+lemma fin_ab (a b : ℝ) : hausdorffEDist ΓE (Γ a b) ≠ ⊤ :=
+  hausdorffEDist_ne_top_of_nonempty_of_bounded ΓE_nonempty (Γ_nonempty a b) ΓE_bounded
+    (Γ_bounded a b)
+
+lemma fin_ab' (a b : ℝ) : hausdorffEDist (Γ a b) ΓE ≠ ⊤ := by
+  rw [hausdorffEDist_comm]; exact fin_ab a b
+
+/-- **Eq. (74)**: the endpoint bounds `b + a ≤ 1 + D`, `b − a ≤ q + D`, `D = d_H(Γ_E, Γ_{a,b})`. -/
+theorem endpoint_bounds (a b : ℝ) (ha : 0 < a) (hab : 2 * a ≤ b) :
+    b + a ≤ 1 + hausdorffDist ΓE (Γ a b) ∧ b - a ≤ q + hausdorffDist ΓE (Γ a b) := by
   set D := hausdorffDist ΓE (Γ a b) with hD
-  have hne1 : ΓE.Nonempty := ΓE_nonempty
-  have hne2 : (Γ a b).Nonempty := ⟨_, ⟨0, zero_mem_angle, rfl⟩⟩
-  have hb1 : Bornology.IsBounded ΓE := by
-    rw [isBounded_iff_forall_norm_le]; exact ⟨1, fun p hp => norm_le_one hp⟩
-  have hb2 : Bornology.IsBounded (Γ a b) := by
-    rw [isBounded_iff_forall_norm_le]
-    refine ⟨|b| + |a|, ?_⟩
-    rintro _ ⟨t, -, rfl⟩
-    show ‖pt (b + a * Real.cos t) t‖ ≤ _
-    rw [norm_pt]
-    calc |b + a * Real.cos t| ≤ |b| + |a * Real.cos t| := abs_add_le _ _
-      _ ≤ |b| + |a| := by
-        rw [abs_mul]; gcongr
-        exact mul_le_of_le_one_right (abs_nonneg _) (Real.abs_cos_le_one t)
-  have fin : hausdorffEDist ΓE (Γ a b) ≠ ⊤ :=
-    hausdorffEDist_ne_top_of_nonempty_of_bounded hne1 hne2 hb1 hb2
-  have fin' : hausdorffEDist (Γ a b) ΓE ≠ ⊤ := by rwa [hausdorffEDist_comm]
   have hrad : ∀ t, b - a ≤ b + a * Real.cos t := fun t => by
     nlinarith [Real.neg_one_le_cos t]
-  -- Eq. (74), first bound: `b + a ≤ 1 + D`
-  have e1 : b + a ≤ 1 + D := by
-    have hz : pt (b + a) 0 ∈ Γ a b := ⟨0, zero_mem_angle, by
+  constructor
+  · have hz : pt (b + a) 0 ∈ Γ a b := ⟨0, zero_mem_angle, by
       show pt (b + a * Real.cos 0) 0 = pt (b + a) 0
       rw [Real.cos_zero, mul_one]⟩
-    have hle := infDist_le_hausdorffDist_of_mem hz fin'
+    have hle := infDist_le_hausdorffDist_of_mem hz (fin_ab' a b)
     rw [hausdorffDist_comm] at hle
     have : b + a - 1 ≤ infDist (pt (b + a) 0) ΓE := by
-      rw [le_infDist hne1]
+      rw [le_infDist ΓE_nonempty]
       intro p hp
       have := norm_sub_norm_le (pt (b + a) 0) p
       rw [← dist_eq_norm, norm_pt, abs_of_nonneg (by linarith)] at this
       linarith [norm_le_one hp]
     linarith
-  -- Eq. (74), second bound: `b − a ≤ q + D`
-  have e2 : b - a ≤ q + D := by
-    have hp0 : pt (2 / π) π ∈ ΓE := ⟨π, pi_mem, by
+  · have hp0 : pt (2 / π) π ∈ ΓE := ⟨π, pi_mem, by
       show pt (rE π) π = pt (2 / π) π
       rw [EulerianCert.FourierModes.rE_pi]⟩
-    have hle := infDist_le_hausdorffDist_of_mem hp0 fin
+    have hle := infDist_le_hausdorffDist_of_mem hp0 (fin_ab a b)
     have : b - a - q ≤ infDist (pt (2 / π) π) (Γ a b) := by
-      rw [le_infDist hne2]
+      rw [le_infDist (Γ_nonempty a b)]
       rintro _ ⟨t, -, rfl⟩
       show b - a - q ≤ dist (pt (2 / π) π) (pt (b + a * Real.cos t) t)
       have := norm_sub_norm_le (pt (b + a * Real.cos t) t) (pt (2 / π) π)
@@ -335,15 +337,25 @@ theorem hausdorff_lower (a b : ℝ) (ha : 0 < a) (hab : 2 * a ≤ b) :
       simp only [q]
       linarith
     linarith
-  -- Eq. (75): radial containment `Γ_{a,b} ⊆ Ω_D`, hence Eq. (76): `Q(D) ≤ D`
-  have hsub : Γ a b ⊆ Ω D := by
-    rintro _ ⟨t, ht, rfl⟩
-    apply mem_Ω_of_le ht (by linarith [hrad t])
-    unfold R
-    exact le_max_of_le_right (EulerianCert.Limacon.endpoint_containment a b D t e1 e2)
-  have hQD : Q D ≤ D := Q_le fun p hp =>
-    (infDist_le_infDist_of_subset hsub hne2).trans (infDist_le_hausdorffDist_of_mem hp fin)
-  exact EulerianCert.Limacon.balance_lower Q Q_antitone hstar D Q_hstar hQD
+
+/-- **Eq. (75)**: radial containment `Γ_{a,b} ⊆ Ω_D`. -/
+theorem Γ_subset_Ω (a b D : ℝ) (ha : 0 < a) (hab : 2 * a ≤ b) (e1 : b + a ≤ 1 + D)
+    (e2 : b - a ≤ q + D) : Γ a b ⊆ Ω D := by
+  rintro _ ⟨t, ht, rfl⟩
+  apply mem_Ω_of_le ht (by nlinarith [Real.neg_one_le_cos t])
+  unfold R
+  exact le_max_of_le_right (EulerianCert.Limacon.endpoint_containment a b D t e1 e2)
+
+/-- **Theorem 3.13, global lower bound**: every admissible limaçon (`b ≥ 2a > 0`) satisfies
+`d_H(Γ_E, Γ_{a,b}) ≥ h*` (Eq. (76)). -/
+theorem hausdorff_lower (a b : ℝ) (ha : 0 < a) (hab : 2 * a ≤ b) :
+    hstar ≤ hausdorffDist ΓE (Γ a b) := by
+  obtain ⟨e1, e2⟩ := endpoint_bounds a b ha hab
+  have hsub := Γ_subset_Ω a b _ ha hab e1 e2
+  have hQD : Q (hausdorffDist ΓE (Γ a b)) ≤ hausdorffDist ΓE (Γ a b) := Q_le fun p hp =>
+    (infDist_le_infDist_of_subset hsub (Γ_nonempty a b)).trans
+      (infDist_le_hausdorffDist_of_mem hp (fin_ab a b))
+  exact EulerianCert.Limacon.balance_lower Q Q_antitone hstar _ Q_hstar hQD
 
 /-- The logic of the 80-digit certificate (Eq. (70)) for the concrete `Q`:
 `Q(L) > L` and `Q(U) < U` imply `L < h* < U`. -/

@@ -129,3 +129,10 @@ open EulerianCert
 #print axioms EulerianCert.HausdorffMinimax.hausdorff_lower
 #print axioms EulerianCert.HausdorffMinimax.hstar_bracket
 #print axioms EulerianCert.HausdorffMinimax.hstar_lt
+-- V001 Theorem 3.13: convexity of Ω_h, Eq. (73), attainment (modules LimaconConvex, HausdorffAttain)
+#print axioms EulerianCert.LimaconConvex.key_ineq
+#print axioms EulerianCert.LimaconConvex.supporting
+#print axioms EulerianCert.LimaconConvex.convex_Ω
+#print axioms EulerianCert.HausdorffAttain.hausdorff_envelope
+#print axioms EulerianCert.HausdorffAttain.hausdorff_attained
+#print axioms EulerianCert.HausdorffAttain.hausdorff_isLeast
