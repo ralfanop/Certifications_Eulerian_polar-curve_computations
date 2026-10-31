@@ -13,6 +13,9 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: write
+
 jobs:
   arb:
     runs-on: ubuntu-24.04
@@ -50,3 +53,11 @@ jobs:
             numerics/arb/*.log
             numerics/arb/hstar80/*_ci.log
             numerics/arb/dkappa/*_ci.log
+      - name: Commit the logs of this run to the branch
+        if: always() && github.ref == 'refs/heads/v001-arb-decimals'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f numerics/arb/*.log numerics/arb/hstar80/*_ci.log numerics/arb/dkappa/*_ci.log
+          git diff --cached --quiet || git commit -m "CI logs of the V001 Arb certificates (run ${{ github.run_id }})"
+          git push
