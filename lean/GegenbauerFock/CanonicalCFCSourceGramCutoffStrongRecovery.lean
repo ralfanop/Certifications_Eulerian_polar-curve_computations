@@ -15,7 +15,7 @@ convergence or a strictly positive global spectral gap.
 
 noncomputable section
 
-open MeasureTheory Filter
+open MeasureTheory Filter InnerProductSpace
 
 namespace GegenbauerFock.GeneralUltrasphericalFock
 
