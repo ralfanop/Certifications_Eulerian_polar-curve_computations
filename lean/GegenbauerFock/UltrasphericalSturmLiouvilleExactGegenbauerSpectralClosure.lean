@@ -35,7 +35,7 @@ theorem sturmRealClosed_eq_exact_monicGegenbauer_spectral_realization
         ((sturmRealPartialOperator lam hlam).closure x) n =
       (-(n : ℝ) * ((n : ℝ) + 2 * lam)) *
         (sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam).repr
-          (x : SturmH lam)) := by
+          (x : SturmH lam) n) := by
   constructor
   · exact sturmRealClosed_domain_eq_monicHilbert_unshiftedL2 lam hlam
   · intro x n
