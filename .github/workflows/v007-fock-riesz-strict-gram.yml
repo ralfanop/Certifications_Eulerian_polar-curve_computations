@@ -60,4 +60,5 @@ jobs:
           grep -F "intrinsicRieszKernel_exp_gram_re_ge_normalized_sample' depends on axioms:" /tmp/v007-strict-gram.log
           grep -F "intrinsicRieszKernel_exp_gram_re_ge_origin_coeff_sum' depends on axioms:" /tmp/v007-strict-gram.log
           grep -F "intrinsicRieszKernel_exp_sum_uniform_disk_bound' depends on axioms:" /tmp/v007-strict-gram.log
+          grep -F "intrinsicRieszKernel_exp_sum_coefficient_perturbation_disk_bound' depends on axioms:" /tmp/v007-strict-gram.log
           echo 'V007 exact strict Gaussian Fock Gram criteria: kernel and axiom audit clean.'
