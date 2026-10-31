@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicRealL2HilbertBasis.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicRealL2Nonzero.lean'
       - '.github/workflows/gegenbauer-fock-monic-real-l2-hilbert-basis.yml'
   workflow_dispatch:
 
