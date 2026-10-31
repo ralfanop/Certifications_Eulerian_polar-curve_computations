@@ -54,7 +54,7 @@ theorem sturmRealPositiveResolventFullCLM_core_graph
     change t • (u : SturmH lam) -
         ((sturmRealDomainLinear lam hlam u : D lam hlam) : SturmH lam) =
           (f : SturmH lam)
-    simpa only [sturmRealDomainPositiveShift, u] using hv
+    simpa [sturmRealDomainPositiveShift, u] using hv
   have himage : t • (u : SturmH lam) - (f : SturmH lam) = A u := by
     calc
       t • (u : SturmH lam) - (f : SturmH lam) =
