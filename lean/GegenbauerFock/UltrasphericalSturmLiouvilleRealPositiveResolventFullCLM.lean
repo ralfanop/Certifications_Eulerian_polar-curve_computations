@@ -79,7 +79,8 @@ theorem sturmRealPositiveResolventFullCLM_onCore
       Dense (D lam hlam : Set (SturmH lam)) :=
     sturmRealPolynomialDomain_dense_set lam hlam
   unfold sturmRealPositiveResolventFullCLM
-  simpa only [sturmRealCorePositiveResolventCLM_apply] using
+  simpa only [sturmRealCorePositiveResolventCLM_apply,
+    Submodule.subtypeL_apply] using
     (ContinuousLinearMap.extend_eq
       (sturmRealCorePositiveResolventCLM lam t hlam ht)
       hdense.denseRange_val
