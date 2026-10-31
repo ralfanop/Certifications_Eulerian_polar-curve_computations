@@ -36,7 +36,7 @@ theorem sturmPolynomial_square_leibniz
         congr 1
         norm_num
       _ = C (1 : ℝ) + C (1 : ℝ) := by rw [map_add]
-      _ = 2 := by simp
+      _ = 2 := by ring
   rw [htwo]
   ring
 
