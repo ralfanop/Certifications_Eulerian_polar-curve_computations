@@ -721,3 +721,39 @@ enunciati senza `sorryAx` prima della promozione a certificati.
 
 **Invarianti:** PR #16 resta Draft; nessun merge, nessuna
 modifica a `main`, V097 o ai processi V170.
+
+## 22. Chiusura audit dell'inversa congiunta — 31 ottobre 2026
+
+**Conferma finale:** la CI
+[41212575882](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41212575882)
+è terminata con **SUCCESS** al commit
+`945571ba17a2da74a871db380a107a160793e2aa`.
+Il controllo di Lean 4 e gli audit `#print axioms` sono puliti:
+solo `propext`, `Classical.choice`, `Quot.sound`;
+nessun `sorryAx` né `Lean.ofReduceBool`.
+I teoremi certificati comprendono
+`joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere`
+e
+`joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere`.
+L'inversa esatta, anche non lineare, è discontinua in ogni dato
+appartenente alla vera immagine congiunta delle misure `P`, `C`, `gram`.
+Non è richiesta alcuna estensione dell'inversa fuori dal range.
+
+La CI intermedia
+[41212551801](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41212551801)
+è invece **FAILURE**, perché la versione Mathlib fissata non contiene
+il campo `of_prod_nhds` usato nei filtri di prodotto. È stata
+sostituita dalla correzione successiva, certificata con SUCCESS.
+
+**Corollario depositato, audit ancora da confermare:**
+`joint_cfc_fock_gram_no_continuous_exact_inverse_on_range`.
+Esclude l'esistenza di un ricostruttore esatto e globalmente continuo
+dal vero range congiunto allo spazio sorgente. Discende direttamente
+dalla discontinuità puntuale già certificata.
+Commit del sorgente `bb45b3cef047e46d24a713bb5c8d473925313a30`;
+workflow di audit `ee098bd737ea5e39c0fa6d69689c5df468023ed2`.
+Non dichiarare certificato questo nuovo corollario prima del SUCCESS
+della CI e dell'audit `#print axioms`.
+
+**Invarianti:** PR #16 Draft senza merge; nessuna modifica a
+`main`, V097 o workflow V170.
