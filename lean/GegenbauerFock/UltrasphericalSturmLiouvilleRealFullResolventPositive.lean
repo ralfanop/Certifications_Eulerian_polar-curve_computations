@@ -83,7 +83,7 @@ theorem sturmRealPositiveResolventFullCLM_kernel_zero
 /-- The full-L² bounded selfadjoint positive Sturm resolvent is
 injective. Its inverse is the unbounded positive-shift operator
 on the precisely certified closed Sturm domain. -/
-theorem sturmRealPositiveResolventFullCLM_injective
+theorem sturmRealPositiveResolventFullCLM_injective_via_kernel
     (lam t : ℝ) (hlam : 0 < lam) (ht : 0 < t) :
     Function.Injective
       (sturmRealPositiveResolventFullCLM lam t hlam ht) := by
@@ -118,6 +118,6 @@ theorem sturmRealPositiveResolventFullCLM_inner_pos
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_inner_pos
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_inner_nonneg
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_kernel_zero
-#print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_injective
+#print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_injective_via_kernel
 
 end GegenbauerFock.Ultraspherical
