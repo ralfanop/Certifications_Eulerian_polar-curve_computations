@@ -60,5 +60,11 @@ jobs:
             echo '::error::Forbidden axiom in CFC Gram root approximate-null vectors.'
             exit 1
           fi
-          grep -F "exists_shared_cfc_polar_instability_family' depends on axioms:" /tmp/v007-cfc-shared-polar-instability-axioms.log
+          for theorem in \
+            exists_shared_cfc_polar_instability_family \
+            exists_shared_cfc_polar_strong_null_sequence \
+            exists_shared_cfc_fock_gram_strong_null_sequence \
+            exists_shared_cfc_fock_gram_quantitative_family; do
+            grep -F "$theorem' depends on axioms:" /tmp/v007-cfc-shared-polar-instability-axioms.log
+          done
           echo 'V007 shared exact CFC-Fock polar quantitative instability audited.'
