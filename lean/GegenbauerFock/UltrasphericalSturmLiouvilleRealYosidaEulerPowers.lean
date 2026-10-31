@@ -42,6 +42,36 @@ theorem sturmRealYosidaEulerIterate_opNorm_le
     _ ≤ 1 := pow_le_one₀ (norm_nonneg _)
       (sturmRealYosidaEulerStep_opNorm_le lam t hlam ht h hh hsmall)
 
+/-- Pointwise contraction of every Euler product on the true weighted L². -/
+theorem sturmRealYosidaEulerIterate_norm_le
+    (lam t : ℝ) (hlam : 0 < lam) (ht : 0 < t)
+    (h : ℝ) (hh : 0 ≤ h) (hsmall : h * t ≤ 1)
+    (n : ℕ) (f : SturmH lam) :
+    ‖sturmRealYosidaEulerIterate lam t hlam ht h n f‖ ≤ ‖f‖ := by
+  have hnorm :=
+    sturmRealYosidaEulerIterate_opNorm_le lam t hlam ht h hh hsmall n
+  calc
+    ‖sturmRealYosidaEulerIterate lam t hlam ht h n f‖ ≤
+        ‖sturmRealYosidaEulerIterate lam t hlam ht h n‖ * ‖f‖ :=
+      ContinuousLinearMap.le_opNorm _ _
+    _ ≤ 1 * ‖f‖ :=
+      mul_le_mul_of_nonneg_right hnorm (norm_nonneg _)
+    _ = ‖f‖ := one_mul _
+
+/-- Exact discrete semigroup law for finite Yosida Euler products. -/
+theorem sturmRealYosidaEulerIterate_add
+    (lam t : ℝ) (hlam : 0 < lam) (ht : 0 < t)
+    (h : ℝ) (n m : ℕ) :
+    sturmRealYosidaEulerIterate lam t hlam ht h (n + m) =
+      sturmRealYosidaEulerIterate lam t hlam ht h n *
+        sturmRealYosidaEulerIterate lam t hlam ht h m := by
+  change (sturmRealYosidaEulerStep lam t hlam ht h) ^ (n + m) =
+    (sturmRealYosidaEulerStep lam t hlam ht h) ^ n *
+      (sturmRealYosidaEulerStep lam t hlam ht h) ^ m
+  exact pow_add _ _ _
+
 #print axioms GegenbauerFock.Ultraspherical.sturmRealYosidaEulerIterate_opNorm_le
+#print axioms GegenbauerFock.Ultraspherical.sturmRealYosidaEulerIterate_norm_le
+#print axioms GegenbauerFock.Ultraspherical.sturmRealYosidaEulerIterate_add
 
 end GegenbauerFock.Ultraspherical
