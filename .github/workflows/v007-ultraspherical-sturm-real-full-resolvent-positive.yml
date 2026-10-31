@@ -56,4 +56,6 @@ jobs:
           fi
           grep -F "sturmRealPositiveResolventFullCLM_inner_energy_bound' depends on axioms:" /tmp/v007-resolvent-positive-axioms.log
           grep -F "sturmRealPositiveResolventFullCLM_inner_nonneg' depends on axioms:" /tmp/v007-resolvent-positive-axioms.log
-          echo 'Full Sturm resolvent positivity kernel-certified.'
+          grep -F "sturmRealPositiveResolventFullCLM_kernel_zero' depends on axioms:" /tmp/v007-resolvent-positive-axioms.log
+          grep -F "sturmRealPositiveResolventFullCLM_injective' depends on axioms:" /tmp/v007-resolvent-positive-axioms.log
+          echo 'Full Sturm resolvent positivity and injectivity kernel-certified.'
