@@ -516,6 +516,27 @@ theorem joint_cfc_fock_gram_no_continuous_exact_inverse_on_range
     (0 : Lp ℂ 2 (Ultraspherical.measure lam))
     r hleft) hcont.continuousAt
 
+/-- The actual joint CFC--Fock--Gram data parametrization cannot
+be a homeomorphism from the source Hilbert space onto its range.
+This is the topological obstruction obtained from the audited
+nonexistence of a continuous exact inverse on the true data range. -/
+theorem joint_cfc_fock_gram_no_homeomorphism_to_actual_range
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    ¬ ∃ (e : Lp ℂ 2 (Ultraspherical.measure lam) ≃ₜ
+        Set.range (jointCFCFockGramMeasurements lam alpha hlam ha)),
+      ∀ f : Lp ℂ 2 (Ultraspherical.measure lam),
+        e f = ⟨jointCFCFockGramMeasurements lam alpha hlam ha f,
+          ⟨f, rfl⟩⟩ := by
+  rintro ⟨e, he⟩
+  apply joint_cfc_fock_gram_no_continuous_exact_inverse_on_range
+    lam alpha hlam ha
+  refine ⟨e.symm, e.symm.continuous, ?_⟩
+  intro f
+  rw [← he f]
+  exact e.symm_apply_apply f
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.joint_cfc_fock_gram_no_homeomorphism_to_actual_range
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.joint_cfc_fock_gram_no_continuous_exact_inverse_on_range
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere
