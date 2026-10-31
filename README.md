@@ -116,6 +116,32 @@ outside their scope, for example the bounds on a_E, b_E and the antitonicity of 
   the Laplace-method expansion of c_n in Lemma 3.15;
 * the combinatorial meaning of E(n,k) (permutations with k ascents), which is classical.
 
+## 5a. V001 extension (31 October 2026): Proposition 3.1 and its consequences for `r_E`
+
+Branch `v001-formalisation`. Numbering: manuscript **V001** (22 October 2026; its DRNA and OJAC
+transpositions have the same numbers). V001 and V478 have the same statement numbers in Section 3
+(Definition 2.1, Proposition 3.1, …, Remark 3.16), and every equation number up to (76) cited in
+§§2–5 above is the same in V001; from Section 3.11 on, V001 numbers are shifted (for example
+V478 Eq. (91) is V001 Eq. (93)). Same toolchain and Mathlib commit as §5; no `sorry`, no
+`native_decide`; `AxiomCheck.lean` prints the axioms of every theorem below.
+
+| Module | V001 content | Main declarations |
+| --- | --- | --- |
+| `FourierModes` | **Prop. 3.1**, Eqs. (6)–(10): `A_0 = (4/π)Si(π/2)`, `A_n = (2/π)[Si((n+½)π) − Si((n−½)π)]`, the sign representation (8), `sgn A_n = (−1)^{n+1}`, strict decrease of `|A_n|`, the two-sided bound (9), absolute summability, and Eq. (10) with the explicit remainder `(4/(3π³))/n⁴`. Here `r_E θ = sinc(θ/2)` and `Si x = ∫₀ˣ sinc` | `A_eq_Si`, `A_zero`, `A_succ_eq_Si`, `A_eq_sign_integral`, `A_sign`, `abs_A_strictAnti`, `abs_A_bounds`, `summable_abs_A`, `A_asymptotic` |
+| `FourierSeries` | **Prop. 3.1**, Eq. (5): `r_E = A_0/2 + ∑ A_n cos(nθ)` on `[−π, π]` (lift of the periodic extension to `AddCircle (2π)`, Fourier coefficients `A_{|k|}/2`, Mathlib's theorem for summable Fourier coefficients) and uniform convergence (M-test). **Lemma 3.2 applied to `r_E`** (`b = A_0/2`, `c_n = |A_{n+1}|`, all hypotheses proved): **Cor. 3.3** Eqs. (19)–(21), **Prop. 3.4** Eq. (24), **Cor. 3.5** Eq. (29), **Cor. 3.8** (the bounds `0 < a_E < 16/(3π³)`, `b_E > 2/π` are now proved, so `b_E > 2a_E > 0` holds unconditionally), **Cor. 3.9** Eq. (44), **Cor. 3.11** Eq. (57) | `fourierCoeff_F`, `fourier_series_rE`, `tendstoUniformly_partial_sums`, `sharp_truncation`, `EN_lt`, `S_min`, `projection_error`, `convexity_rE`, `damping_rE` |
+| `SineIntegral` | **Def. 2.1**, Eq. (4), real argument: Maclaurin series of `Si`, the reciprocal central binomial form, and `Si x = x·₁F₂(½; 3/2, 3/2; −x²/4)` (argument `z₀²x²/2`, `z₀² = −1/2`) | `hasSum_Si`, `hasSum_Si_binomial`, `hasSum_Si_hypergeometric` |
+| `Projection` | **Cor. 3.5**, Eqs. (26)–(28): `∫(r_E − b − a cos)² = ∫(r_E − r_L)² + 2π(b − b_E)² + π(a − a_E)²`, so `r_L` is the unique `L²` minimiser; `b_E`, `a_E` through `Si` | `pythagoras`, `projection_unique_min`, `coefficients` |
+| `Energy` | **§3.7**, Eqs. (45)–(47): `E_tot = (4/π)Si(π) − 8/π²`, Plancherel `E_tot = A_0²/2 + ∑ A_n²` (Mathlib's Parseval on `AddCircle`), and the mean-square residual of `r_L` | `Etot_closed`, `plancherel`, `rms_residual` |
+| `Turning` | **Prop. 3.7**, Eq. (39): with `k = (r² + 2r'² − r r'')/(r² + r'²)` (so `κ ds = k dθ`), `∫_{−π}^{π} k = 2π + ϑ_E`; `k > 0` on the smooth arc | `smooth_turning`, `k_pos` |
+
+**Still not formalised (V001 numbering):** the existence part of Thm 3.12 (strict concavity of
+`f(x) = r_E(arccos x)`, Eqs. (62)–(64), and the alternation point, Eq. (59)); the nearest-point
+geometry of Thm 3.13 (continuity and monotonicity of `Q`, Eq. (73), uniqueness); the measure-theoretic
+statements of Prop. 3.7 (Eqs. (37)–(38) as measures; the unit tangents and the atom are in `Corner`);
+Prop. 3.10 (Lebesgue constants); the cube-slab volumes of Lemma 3.14, the Fourier inversion and
+local limit statements of §3.11, and Lemma 3.15; the complex-argument form of Def. 2.1. The printed
+decimals remain certified by interval arithmetic (§2), not in Lean.
+
 ## 6. Reproducing
 
 **Numerics.** Python ≥ 3.12 with mpmath (tested on commit
