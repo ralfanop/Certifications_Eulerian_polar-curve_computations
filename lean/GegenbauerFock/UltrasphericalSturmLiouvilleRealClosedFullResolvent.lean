@@ -51,8 +51,10 @@ theorem sturmRealPositiveResolventFullCLM_core_graph
       sturmRealPartialOperator lam hlam u = (f : SturmH lam) := by
     have hv := congrArg Subtype.val
       (sturmRealDomainPositiveShift_resolvent lam t hlam ht f)
-    simpa [sturmRealDomainPositiveShift, sturmRealPartialOperator_apply, u]
-      using hv
+    change t • (u : SturmH lam) -
+        ((sturmRealDomainLinear lam hlam u : D lam hlam) : SturmH lam) =
+          (f : SturmH lam)
+    simpa only [sturmRealDomainPositiveShift, u] using hv
   have himage : t • (u : SturmH lam) - (f : SturmH lam) = A u := by
     calc
       t • (u : SturmH lam) - (f : SturmH lam) =
@@ -88,15 +90,17 @@ theorem sturmRealPositiveResolventFullCLM_closed_graph
       (A.closure.graph : Set (SturmH lam × SturmH lam)) :=
     sturmRealPartialOperator_closure_isClosed lam hlam
   have hpreimage : IsClosed
-      ((fun g : SturmH lam => ((R g, t • R g - g) :
-        SturmH lam × SturmH lam)) ⁻¹'
-          (A.closure.graph : Set (SturmH lam × SturmH lam))) :=
+      (Set.preimage
+        (fun g : SturmH lam => ((R g, t • R g - g) :
+          SturmH lam × SturmH lam))
+        (A.closure.graph : Set (SturmH lam × SturmH lam))) :=
     hclosed.preimage hcont
   have hsub :
       (D lam hlam : Set (SturmH lam)) ⊆
+      Set.preimage
         (fun g : SturmH lam => ((R g, t • R g - g) :
-          SturmH lam × SturmH lam)) ⁻¹'
-            (A.closure.graph : Set (SturmH lam × SturmH lam)) := by
+          SturmH lam × SturmH lam))
+        (A.closure.graph : Set (SturmH lam × SturmH lam)) := by
     intro g hg
     let x : D lam hlam := ⟨g, hg⟩
     change ((R g, t • R g - g) :
