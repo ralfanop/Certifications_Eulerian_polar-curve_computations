@@ -49,8 +49,12 @@ theorem sturmMonicEigenCandidate_realL2_analysis_injective
     lam hlam f g
   intro n
   have hn := congrArg (fun h : ℕ → ℝ => h n) hfg
-  simpa only [sturmMonicEigenCandidate_realL2_analysis_apply,
-    monicModes] using hn
+  change
+    inner ℝ
+      (sturmRealPolynomialLp lam hlam (sturmMonicEigenCandidate lam n)) f =
+    inner ℝ
+      (sturmRealPolynomialLp lam hlam (sturmMonicEigenCandidate lam n)) g at hn
+  exact hn
 
 /-- The exact infinite Gegenbauer analysis map has trivial kernel. -/
 theorem sturmMonicEigenCandidate_realL2_analysis_ker_eq_bot
