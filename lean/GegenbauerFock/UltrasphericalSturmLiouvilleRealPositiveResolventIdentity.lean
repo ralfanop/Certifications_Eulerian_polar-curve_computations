@@ -84,8 +84,13 @@ theorem sturmRealDomainPositiveResolvent_difference
   have htd : At (Rt f - Rs f) = (s-t) • Rs f := by
     rw [map_sub, htf, hAtRs]
     have hst : (s-t) • Rs f = -((t-s) • Rs f) := by
-      rw [show s - t = -(t-s) by ring]
-      simp
+      calc
+        (s-t) • Rs f = s • Rs f - t • Rs f :=
+          sub_smul s t (Rs f)
+        _ = -(t • Rs f - s • Rs f) := by abel
+        _ = -((t-s) • Rs f) :=
+          congrArg (fun z : D lam hlam => -z)
+            ((sub_smul t s (Rs f)).symm)
     rw [hst]
     abel
   have htr : At ((s-t) • Rt (Rs f)) = (s-t) • Rs f := by
