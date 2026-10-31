@@ -31,6 +31,8 @@ theorem sturmRealYosidaGenerator_isSelfAdjoint
   intro f g
   have hR :=
     sturmRealPositiveResolventFullCLM_inner_symmetric lam t hlam ht f g
+  change inner ℝ (sturmRealYosidaGenerator lam t hlam ht f) g =
+    inner ℝ f (sturmRealYosidaGenerator lam t hlam ht g)
   rw [sturmRealYosidaGenerator_apply lam t hlam ht f,
       sturmRealYosidaGenerator_apply lam t hlam ht g]
   simp only [real_inner_smul_left, real_inner_smul_right,
