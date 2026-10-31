@@ -93,7 +93,29 @@ theorem sturmRealPositiveResolventFullCLM_injective
     (f-g)
   rw [map_sub, hfg, sub_self]
 
+/-- Strictly positive full-L² Sturm resolvent quadratic form for every
+nonzero real datum, using the certified positive-shift graph and
+the zero-kernel theorem. -/
+theorem sturmRealPositiveResolventFullCLM_inner_pos
+    (lam t : ℝ) (hlam : 0 < lam) (ht : 0 < t)
+    (f : SturmH lam) (hf : f ≠ 0) :
+    0 < inner ℝ
+      (sturmRealPositiveResolventFullCLM lam t hlam ht f) f := by
+  let R := sturmRealPositiveResolventFullCLM lam t hlam ht
+  have hRne : R f ≠ 0 := by
+    intro hzero
+    exact hf (sturmRealPositiveResolventFullCLM_kernel_zero
+      lam t hlam ht f hzero)
+  have hself : 0 < inner ℝ (R f) (R f) :=
+    real_inner_self_pos.mpr hRne
+  have henergy :
+      t * inner ℝ (R f) (R f) ≤ inner ℝ (R f) f :=
+    sturmRealPositiveResolventFullCLM_inner_energy_bound
+      lam t hlam ht f
+  exact lt_of_lt_of_le (mul_pos ht hself) henergy
+
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_inner_energy_bound
+#print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_inner_pos
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_inner_nonneg
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_kernel_zero
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_injective
