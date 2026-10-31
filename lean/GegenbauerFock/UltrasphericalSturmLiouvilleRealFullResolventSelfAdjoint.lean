@@ -56,12 +56,10 @@ theorem sturmRealPositiveResolventFullCLM_injective
   rw [hxy, hfg] at hx2
   have hsame : t • R g - f = t • R g - g :=
     hx2.symm.trans hy2
-  apply sub_eq_zero.mp
   calc
-    f - g =
-        (t • R g - (t • R g - f)) -
-          (t • R g - (t • R g - g)) := by abel
-    _ = 0 := by rw [hsame]; abel
+    f = t • R g - (t • R g - f) := by abel
+    _ = t • R g - (t • R g - g) := by rw [hsame]
+    _ = g := by abel
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_isSelfAdjoint
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_injective
