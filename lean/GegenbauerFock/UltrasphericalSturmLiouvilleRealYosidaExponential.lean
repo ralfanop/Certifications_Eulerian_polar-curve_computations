@@ -33,7 +33,9 @@ theorem sturmRealYosidaExponential_zero
     sturmRealYosidaExponential lam t hlam ht 0 =
       (1 : SturmH lam →L[ℝ] SturmH lam) := by
   have hz : (0 : ℝ) • sturmRealYosidaGenerator lam t hlam ht =
-      (0 : SturmH lam →L[ℝ] SturmH lam) := zero_smul ℝ _
+      (0 : SturmH lam →L[ℝ] SturmH lam) := by
+    ext x
+    simp
   change NormedSpace.exp ((0 : ℝ) • sturmRealYosidaGenerator lam t hlam ht) = 1
   rw [hz]
   letI : NormedAlgebra ℚ (SturmH lam →L[ℝ] SturmH lam) :=
@@ -53,9 +55,12 @@ theorem sturmRealYosidaExponential_add
     change (s • A) * (u • A) = (u • A) * (s • A)
     ext f
     simp [ContinuousLinearMap.mul_def, smul_smul, mul_comm]
+  have hadd : (s + u) • A = s • A + u • A := by
+    ext x
+    simp [add_smul]
   change NormedSpace.exp ((s + u) • A) =
     NormedSpace.exp (s • A) * NormedSpace.exp (u • A)
-  rw [add_smul]
+  rw [hadd]
   letI : NormedAlgebra ℚ (SturmH lam →L[ℝ] SturmH lam) :=
     .restrictScalars ℚ ℝ _
   exact NormedSpace.exp_add_of_commute hcomm
