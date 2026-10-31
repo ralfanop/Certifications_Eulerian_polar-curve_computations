@@ -126,10 +126,37 @@ theorem intrinsicRieszKernel_exp_gram_positive_real_iff_exists_witness
       ((intrinsicRieszKernel_finite_coherent_eq_zero_iff_exp_sum
         s z c alpha ha).mp hzero w)
 
+/-- A quantitative bound for finite coherent exponential sampling in
+the genuine Gaussian-L² Fock space: the squared absolute value at any
+complex test point is bounded by the exact exponential Gaussian weight
+times the real Gram energy. This inequality does not require distinct
+interpolation nodes. -/
+theorem intrinsicRieszKernel_exp_sum_norm_sq_le_exp_mul_gram_re
+    {ι : Type*} (s : Finset ι) (z c : ι → ℂ)
+    (alpha : ℝ) (ha : 0 < alpha) (w : ℂ) :
+    ‖∑ i ∈ s, c i *
+        Complex.exp ((alpha : ℂ) * w * star (z i))‖ ^ 2 ≤
+      Real.exp (alpha * ‖w‖ ^ 2) *
+        Complex.re (∑ i ∈ s, ∑ j ∈ s,
+          star (c i) * c j *
+            Complex.exp ((alpha : ℂ) * z i * star (z j))) := by
+  have h := intrinsicEntire_evaluation_sq_le_exp_norm alpha ha
+    (∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)) w
+  change
+    ‖entireRepresentative alpha
+      (∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)) w‖ ^ 2 ≤
+      Real.exp (alpha * ‖w‖ ^ 2) *
+        ‖∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)‖ ^ 2 at h
+  rw [← intrinsicRieszKernel_inner alpha ha w
+    (∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)),
+    intrinsicRieszKernel_finite_coherent_pairing_exp s z c alpha ha w] at h
+  rwa [intrinsicRieszKernel_exp_gram_re_eq_norm_sq s z c alpha ha]
+
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_pos_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_eq_zero_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_pos_iff_ne_zero
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_positive_real_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_positive_real_iff_exists_witness
+#print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_sum_norm_sq_le_exp_mul_gram_re
 
 end GegenbauerFock.GaussianArea
