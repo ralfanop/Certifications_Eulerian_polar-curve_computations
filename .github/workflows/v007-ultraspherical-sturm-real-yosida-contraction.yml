@@ -4,6 +4,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaContraction.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaStrongApproximation.lean'
       - '.github/workflows/v007-ultraspherical-sturm-real-yosida-contraction.yml'
   workflow_dispatch:
 jobs:
@@ -46,12 +47,16 @@ jobs:
         run: |
           set -euo pipefail
           lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealYosidaContraction 2>&1 | tee /tmp/v007-sturm-yosida-build.log
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealYosidaStrongApproximation 2>&1 | tee /tmp/v007-sturm-yosida-strong-build.log
           lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaContraction.lean 2>&1 | tee /tmp/v007-sturm-yosida-axioms.log
-          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-sturm-yosida-build.log /tmp/v007-sturm-yosida-axioms.log; then
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaStrongApproximation.lean 2>&1 | tee /tmp/v007-sturm-yosida-strong-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-sturm-yosida-build.log /tmp/v007-sturm-yosida-axioms.log /tmp/v007-sturm-yosida-strong-build.log /tmp/v007-sturm-yosida-strong-axioms.log; then
             echo '::error::Forbidden axiom in real Sturm Yosida contraction.'
             exit 1
           fi
           grep -F "sturmRealYosidaContraction_norm_le' depends on axioms:" /tmp/v007-sturm-yosida-axioms.log
           grep -F "sturmRealYosidaContraction_on_closed_domain' depends on axioms:" /tmp/v007-sturm-yosida-axioms.log
           grep -F "sturmRealYosidaContraction_closed_domain_error_le' depends on axioms:" /tmp/v007-sturm-yosida-axioms.log
-          echo 'V007 full-L2 Sturm Yosida contractions and domain error kernel-certified.'
+          grep -F "sturmRealYosidaContraction_dense_error_bound' depends on axioms:" /tmp/v007-sturm-yosida-strong-axioms.log
+          grep -F "sturmRealYosidaContraction_strong_approximation' depends on axioms:" /tmp/v007-sturm-yosida-strong-axioms.log
+          echo 'V007 full-L2 Sturm Yosida contractions, error bounds and strong approximation kernel-certified.'
