@@ -5,6 +5,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealClosureSelfAdjoint.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealFullResolventSelfAdjoint.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealPositiveResolventFullCLM.lean'
       - '.github/workflows/v007-ultraspherical-sturm-real-closure-selfadjoint.yml'
   workflow_dispatch:
