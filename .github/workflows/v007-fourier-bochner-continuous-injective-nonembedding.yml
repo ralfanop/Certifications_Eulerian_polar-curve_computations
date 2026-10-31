@@ -5,6 +5,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireFourierContinuousInjectionNonembedding.lean'
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireFourierUniformForwardContinuity.lean'
       - '.github/workflows/v007-fourier-bochner-continuous-injective-nonembedding.yml'
   workflow_dispatch:
 
