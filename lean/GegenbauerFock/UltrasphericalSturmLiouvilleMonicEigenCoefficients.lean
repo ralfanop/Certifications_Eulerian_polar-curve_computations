@@ -71,6 +71,38 @@ theorem sturmMonicCoeff_cancellation
   field_simp [hD]
   ring
 
+/-- Exact spectral gap between a target degree n and the
+next parity-compatible lower monomial degree n-2(k+1). -/
+theorem sturmEigenvalue_lower_even_gap
+    (lam : ℝ) (n k : ℕ) (hk : 2 * (k+1) ≤ n) :
+    sturmEigenvalue lam (n - 2 * (k+1)) -
+        sturmEigenvalue lam n =
+      4 * (((k+1 : ℕ) : ℝ)) *
+        ((n : ℝ) - (k : ℝ) - 1 + lam) := by
+  have hcast : (((n - 2 * (k+1) : ℕ) : ℝ)) =
+      (n : ℝ) - 2 * (((k+1 : ℕ) : ℝ)) := by
+    rw [Nat.cast_sub hk]
+    push_cast
+    ring
+  unfold sturmEigenvalue
+  rw [hcast]
+  push_cast
+  ring
+
+/-- The monic coefficient recurrence cancels the exact diagonal
+Sturm eigenvalue gap and the lower-degree monomial contribution. -/
+theorem sturmMonicCoeff_spectral_gap_cancellation
+    (lam : ℝ) (hlam : 0 < lam) (n k : ℕ)
+    (hk : 2 * (k+1) ≤ n) :
+    (sturmEigenvalue lam (n - 2 * (k+1)) -
+      sturmEigenvalue lam n) *
+      sturmMonicCoeff lam n (k+1) +
+      ((n : ℝ) - 2 * (k : ℝ)) *
+        ((n : ℝ) - 2 * (k : ℝ) - 1) *
+          sturmMonicCoeff lam n k = 0 := by
+  rw [sturmEigenvalue_lower_even_gap lam n k hk]
+  exact sturmMonicCoeff_cancellation lam hlam n k hk
+
 /-- Explicit finite polynomial, monic by construction; the all-degree
 differential eigenrelation is the next separate verification goal. -/
 noncomputable def sturmMonicEigenCandidate (lam : ℝ) (n : ℕ) : ℝ[X] :=
@@ -80,5 +112,7 @@ noncomputable def sturmMonicEigenCandidate (lam : ℝ) (n : ℕ) : ℝ[X] :=
 #print axioms GegenbauerFock.Ultraspherical.sturmMonicCoeff_zero
 #print axioms GegenbauerFock.Ultraspherical.sturmMonicCoeff_den_pos
 #print axioms GegenbauerFock.Ultraspherical.sturmMonicCoeff_cancellation
+#print axioms GegenbauerFock.Ultraspherical.sturmEigenvalue_lower_even_gap
+#print axioms GegenbauerFock.Ultraspherical.sturmMonicCoeff_spectral_gap_cancellation
 
 end GegenbauerFock.Ultraspherical
