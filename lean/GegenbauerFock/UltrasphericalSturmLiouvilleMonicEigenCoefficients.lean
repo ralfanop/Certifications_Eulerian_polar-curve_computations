@@ -62,17 +62,7 @@ theorem sturmMonicCoeff_cancellation
   have hden := sturmMonicCoeff_den_pos lam hlam n k hk
   have hne : (4 : ℝ) * (((k+1 : ℕ) : ℝ)) *
       ((n : ℝ) - (k : ℝ) - 1 + lam) ≠ 0 := ne_of_gt hden
-  change
-    (4 * (((k+1 : ℕ) : ℝ)) *
-      ((n : ℝ) - (k : ℝ) - 1 + lam)) *
-      (-(((n : ℝ) - 2 * (k : ℝ)) *
-          ((n : ℝ) - 2 * (k : ℝ) - 1) *
-          sturmMonicCoeff lam n k) /
-        (4 * (((k+1 : ℕ) : ℝ)) *
-          ((n : ℝ) - (k : ℝ) - 1 + lam)))) +
-      ((n : ℝ) - 2 * (k : ℝ)) *
-        ((n : ℝ) - 2 * (k : ℝ) - 1) *
-          sturmMonicCoeff lam n k = 0
+  rw [sturmMonicCoeff]
   field_simp [hne]
   ring
 
