@@ -6,6 +6,8 @@ on:
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaAllL2StrongLimit.lean'
       - '.github/workflows/v007-sturm-yosida-full-l2-strong-limit.yml'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaFiniteSpanLimit.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaStrongLimitDensityPrinciple.lean'
   workflow_dispatch:
 
 jobs:
