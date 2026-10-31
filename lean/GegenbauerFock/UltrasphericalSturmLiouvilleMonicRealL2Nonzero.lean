@@ -43,9 +43,9 @@ theorem sturmRealPolynomialLp_ne_zero
   have heval := sturmRealPolynomialLp_ae_eval lam hlam p
   rw [hzero] at heval
   have hz : ∀ᵐ u ∂measure lam, p.eval u = 0 := by
-    simpa using heval.symm
+    exact heval.symm.trans (Lp.coeFn_zero ℝ 2 (measure lam))
   have hfinite : {u : ℝ | p.eval u = 0}.Finite := by
-    exact Polynomial.finite_setOf_isRoot hp
+    exact Polynomial.finite_setOfPred_isRoot hp
   have hn : ∀ᵐ u ∂measure lam, p.eval u ≠ 0 :=
     hfinite.countable.ae_notMem (measure lam)
   have hfalse : ∀ᵐ u ∂measure lam, False :=
