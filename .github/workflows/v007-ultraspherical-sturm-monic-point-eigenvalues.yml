@@ -1,0 +1,61 @@
+name: V007 exact point eigenvalue classification of closed Gegenbauer Sturm
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicPointEigenvalues.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicEigenPolynomial.lean'
+      - '.github/workflows/v007-ultraspherical-sturm-monic-point-eigenvalues.yml'
+  workflow_dispatch:
+
+jobs:
+  sturm-point-eigenvalue-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit exact real point eigenvalues of canonical closed Sturm operator
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleMonicPointEigenvalues 2>&1 | tee /tmp/v007-monic-point-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleMonicPointEigenvalues.lean 2>&1 | tee /tmp/v007-monic-point-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-monic-point-build.log /tmp/v007-monic-point-axioms.log; then
+            echo '::error::Forbidden axiom in closed Gegenbauer Sturm point spectrum.'
+            exit 1
+          fi
+          grep -F "sturmRealClosed_no_point_eigenvalue_off_Gegenbauer' depends on axioms:" /tmp/v007-monic-point-axioms.log
+          grep -F "sturmRealClosed_has_Gegenbauer_eigenvector' depends on axioms:" /tmp/v007-monic-point-axioms.log
+          grep -F "sturmRealClosed_point_eigenvalue_iff_Gegenbauer' depends on axioms:" /tmp/v007-monic-point-axioms.log
+          echo 'V007 exact real point eigenvalue classification kernel-audited.'
