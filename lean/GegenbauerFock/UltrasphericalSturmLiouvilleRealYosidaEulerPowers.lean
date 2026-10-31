@@ -35,12 +35,17 @@ theorem sturmRealYosidaEulerIterate_opNorm_le
     (n : ℕ) :
     ‖sturmRealYosidaEulerIterate lam t hlam ht h n‖ ≤ 1 := by
   change ‖(sturmRealYosidaEulerStep lam t hlam ht h) ^ n‖ ≤ 1
-  calc
-    ‖(sturmRealYosidaEulerStep lam t hlam ht h) ^ n‖ ≤
-        ‖sturmRealYosidaEulerStep lam t hlam ht h‖ ^ n :=
-      norm_pow_le _ n
-    _ ≤ 1 := pow_le_one₀ (norm_nonneg _)
-      (sturmRealYosidaEulerStep_opNorm_le lam t hlam ht h hh hsmall)
+  cases n with
+  | zero =>
+      simpa only [pow_zero] using
+        (ContinuousLinearMap.norm_id_le (𝕜 := ℝ) (E := SturmH lam))
+  | succ n =>
+      calc
+        ‖(sturmRealYosidaEulerStep lam t hlam ht h) ^ (n + 1)‖ ≤
+            ‖sturmRealYosidaEulerStep lam t hlam ht h‖ ^ (n + 1) :=
+          norm_pow_le' _ (Nat.succ_pos n)
+        _ ≤ 1 := pow_le_one₀ (norm_nonneg _)
+          (sturmRealYosidaEulerStep_opNorm_le lam t hlam ht h hh hsmall)
 
 /-- Pointwise contraction of every Euler product on the true weighted L². -/
 theorem sturmRealYosidaEulerIterate_norm_le
