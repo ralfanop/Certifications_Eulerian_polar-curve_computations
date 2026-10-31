@@ -49,7 +49,7 @@ theorem sturmMonic_realL2_closed_Dirichlet_energy_eq
       inner ℝ (A x) (b n) * inner ℝ (b n) (x : SturmH lam) =
       -(((n : ℝ) * ((n : ℝ) + 2 * lam)) *
         ((b.repr (x : SturmH lam)) n) ^ 2) := by
-    rw [real_inner_comm (b n) (x : SturmH lam)]
+    rw [real_inner_comm (b n) (A x)]
     rw [← HilbertBasis.repr_apply_apply b (A x) n]
     rw [← HilbertBasis.repr_apply_apply b (x : SturmH lam) n]
     rw [hdiag n]

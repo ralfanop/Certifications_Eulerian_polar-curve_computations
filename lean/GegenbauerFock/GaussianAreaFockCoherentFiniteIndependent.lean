@@ -27,20 +27,9 @@ theorem finiteFockCoherentKernel_zero_coefficients
       ∑ i : Fin n, c i * FockEvaluation.kernelCoordinate alpha (z i) k = 0 := by
     have hk := congrArg
       (fun F : FockSequence.Coefficients => F k) hzero
-    have hk' :
-        (∑ i : Fin n, c i •
-          FockEvaluation.kernelCoordinate alpha (z i) k) = 0 := by
-      simpa [FockEvaluation.kernelVector, Finset.sum_apply,
-        Pi.smul_apply] using hk
-    calc
-      (∑ i : Fin n, c i *
-        FockEvaluation.kernelCoordinate alpha (z i) k) =
-          ∑ i : Fin n, c i •
-            FockEvaluation.kernelCoordinate alpha (z i) k := by
-              apply Finset.sum_congr rfl
-              intro i hi
-              exact smul_eq_mul.symm
-      _ = 0 := hk'
+    simpa only [lp.coeFn_sum, Finset.sum_apply, lp.coeFn_smul,
+      Pi.smul_apply, smul_eq_mul, lp.coeFn_zero,
+      Pi.zero_apply, FockEvaluation.kernelVector] using hk
   have hpower (k : Fin n) :
       ∑ i : Fin n, c i * (star (z i)) ^ (k : ℕ) = 0 := by
     have hfactor :
