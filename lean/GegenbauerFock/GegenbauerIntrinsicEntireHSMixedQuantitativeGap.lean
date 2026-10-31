@@ -31,7 +31,7 @@ theorem kummerSeries_mixed_quantitative_gap
     kummerSeries lam₁ (1 / (4 * alpha₁)) -
       kummerSeries lam₂ (1 / (4 * alpha₂)) := by
   have hlam₂ : 0 < lam₂ := lt_of_lt_of_le hlam₁ hleL
-  have hλ :
+  have hLam :
       (lam₂ - lam₁) / (8 * alpha₁ * (lam₁ + 1) * (lam₂ + 1)) ≤
         kummerSeries lam₁ (1 / (4 * alpha₁)) -
         kummerSeries lam₂ (1 / (4 * alpha₁)) := by
@@ -44,7 +44,7 @@ theorem kummerSeries_mixed_quantitative_gap
             kummerSeries lam₂ (1 / (4 * alpha₁)) :=
         kummerSeries_lambda_first_gap
           lam₁ lam₂ (1 / (4 * alpha₁)) hlam₁ hleL (by positivity)
-  have hα :
+  have hAlpha :
       (alpha₂ - alpha₁) / (8 * (lam₂ + 1) * alpha₁ * alpha₂) ≤
         kummerSeries lam₂ (1 / (4 * alpha₁)) -
         kummerSeries lam₂ (1 / (4 * alpha₂)) :=
