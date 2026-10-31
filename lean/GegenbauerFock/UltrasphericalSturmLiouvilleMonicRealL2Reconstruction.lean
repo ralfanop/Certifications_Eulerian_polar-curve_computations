@@ -29,8 +29,27 @@ theorem sturmMonicEigenCandidate_realL2_fourier_reconstruction
           sturmMonicEigenCandidate_realL2_normalized lam hlam n)
       f := by
   let b := sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam
-  change HasSum (fun n : ℕ => (b.repr f n) • b n) f
-  exact b.hasSum_repr f
+  have hb (n : ℕ) :
+      b n = sturmMonicEigenCandidate_realL2_normalized lam hlam n := by
+    unfold b sturmMonicEigenCandidate_realL2_hilbertBasis
+    exact congrFun
+      (HilbertBasis.coe_mkOfOrthogonalEqBot
+        (sturmMonicEigenCandidate_realL2_normalized_orthonormal lam hlam)
+        (sturmMonicEigenCandidate_realL2_normalized_orthogonal_eq_bot lam hlam)) n
+  have hsum : HasSum (fun n : ℕ => (b.repr f n) • b n) f :=
+    b.hasSum_repr f
+  have hterm :
+      (fun n : ℕ =>
+        (sturmMonicEigenCandidate_realL2_unitary lam hlam f n) •
+          sturmMonicEigenCandidate_realL2_normalized lam hlam n) =
+        (fun n : ℕ => (b.repr f n) • b n) := by
+    funext n
+    change (b.repr f n) •
+      sturmMonicEigenCandidate_realL2_normalized lam hlam n =
+        (b.repr f n) • b n
+    rw [hb n]
+  rw [hterm]
+  exact hsum
 
 /-- Every genuine ℓ² sequence synthesizes uniquely into the
 weighted real L² space and is recovered by Fourier analysis. -/
