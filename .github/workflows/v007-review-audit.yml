@@ -46,7 +46,14 @@ jobs:
           set -euo pipefail
           mkdir -p logs/v007_review
           wc -l < GFReviewModules.txt
-          ( time lake build $(cat GFReviewModules.txt) ) 2>&1 | tee logs/v007_review/build.log | tail -40
+          set +e
+          ( time lake build $(cat GFReviewModules.txt) ) > logs/v007_review/build.log 2>&1
+          status=$?
+          set -e
+          tail -60 logs/v007_review/build.log
+          grep -n -E '(^|\s)error(:|\b)|✖|Some required|failed' logs/v007_review/build.log | head -200 > logs/v007_review/build_errors.txt || true
+          head -40 logs/v007_review/build_errors.txt | while IFS= read -r line; do echo "::error::${line:0:900}"; done
+          exit $status
       - name: Axiom audit of all GegenbauerFock declarations
         working-directory: lean
         run: |
@@ -59,6 +66,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           tail -c 200000 lean/logs/v007_review/build.log > lean/logs/v007_review/build_tail.log || true
-          git add -f lean/logs/v007_review/build_tail.log lean/logs/v007_review/axioms.log || true
+          for f in lean/logs/v007_review/build_tail.log lean/logs/v007_review/build_errors.txt lean/logs/v007_review/axioms.log; do
+            [ -f "$f" ] && git add -f "$f"
+          done
           git diff --cached --quiet || git commit -m "V007 review: build and axiom-audit logs (run ${{ github.run_id }})"
           git push || true
