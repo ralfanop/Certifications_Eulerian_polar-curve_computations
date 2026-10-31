@@ -69,8 +69,11 @@ theorem sturmRealClosed_meanZero_kernel_trivial
   rw [hxA, norm_zero] at hcoercive
   have hrate : 0 < 1 + 2 * lam := by linarith
   have hnorm : ‖(x : SturmH lam)‖ = 0 := by
-    have hn : 0 ≤ ‖(x : SturmH lam)‖ := norm_nonneg _
-    nlinarith
+    have hnonneg : 0 ≤ (1 + 2 * lam) * ‖(x : SturmH lam)‖ :=
+      mul_nonneg hrate.le (norm_nonneg _)
+    have hprodzero : (1 + 2 * lam) * ‖(x : SturmH lam)‖ = 0 :=
+      le_antisymm hcoercive hnonneg
+    exact (mul_eq_zero.mp hprodzero).resolve_left hrate.ne'
   exact norm_eq_zero.mp hnorm
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealClosed_meanZero_coercive
