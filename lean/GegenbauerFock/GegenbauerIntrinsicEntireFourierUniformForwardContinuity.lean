@@ -83,7 +83,7 @@ theorem ultraspherical_fourierBochner_uniformSamples_continuous
   let K : ℝ := Real.sqrt (Real.exp (alpha * R ^ 2)) *
     ‖C_intrinsicEntire lam alpha hlam ha‖
   have hK : 0 ≤ K :=
-    mul_nonneg (Real.sqrt_nonneg _) (norm_nonneg _)
+    mul_nonneg (Real.sqrt_nonneg _) (norm_nonneg (C_intrinsicEntire lam alpha hlam ha))
   have hK1 : 0 < K + 1 := by linarith
   have hrad : 0 < ε / (K + 1) := div_pos hε hK1
   have hnear : Metric.ball f (ε / (K + 1)) ∈ nhds f :=
