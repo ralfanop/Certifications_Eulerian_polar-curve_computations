@@ -111,3 +111,11 @@ open EulerianCert
 -- V001 Proposition 3.7, Eq. (39) (module Turning)
 #print axioms EulerianCert.Turning.smooth_turning
 #print axioms EulerianCert.Turning.k_pos
+-- V001 Theorem 3.12, existence and characterisation (module RadialMinimax)
+#print axioms EulerianCert.RadialMinimax.strictConcaveOn_f
+#print axioms EulerianCert.RadialMinimax.minimax_line_error
+#print axioms EulerianCert.RadialMinimax.minimax_lower
+#print axioms EulerianCert.RadialMinimax.minimax_unique
+#print axioms EulerianCert.RadialMinimax.alternation_angle
+#print axioms EulerianCert.RadialMinimax.alternation_angle_unique
+#print axioms EulerianCert.RadialMinimax.radial_minimax

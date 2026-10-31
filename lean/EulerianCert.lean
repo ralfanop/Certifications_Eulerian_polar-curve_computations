@@ -40,3 +40,4 @@ import EulerianCert.SineIntegral
 import EulerianCert.Projection
 import EulerianCert.Energy
 import EulerianCert.Turning
+import EulerianCert.RadialMinimax
