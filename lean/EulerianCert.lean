@@ -36,3 +36,5 @@ import EulerianCert.MontgomeryTaylor
 import EulerianCert.Cyclohedral
 import EulerianCert.FourierModes
 import EulerianCert.FourierSeries
+import EulerianCert.SineIntegral
+import EulerianCert.Projection

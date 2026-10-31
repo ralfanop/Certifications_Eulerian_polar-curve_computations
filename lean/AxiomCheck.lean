@@ -97,3 +97,10 @@ open EulerianCert
 #print axioms EulerianCert.FourierSeries.damping_rE
 #print axioms EulerianCert.FourierSeries.projection_error
 #print axioms EulerianCert.FourierSeries.convexity_rE
+-- V001 Definition 2.1 (module SineIntegral) and Corollary 3.5 (module Projection)
+#print axioms EulerianCert.SineIntegral.hasSum_Si
+#print axioms EulerianCert.SineIntegral.hasSum_Si_binomial
+#print axioms EulerianCert.SineIntegral.hasSum_Si_hypergeometric
+#print axioms EulerianCert.Projection.pythagoras
+#print axioms EulerianCert.Projection.projection_unique_min
+#print axioms EulerianCert.Projection.coefficients
