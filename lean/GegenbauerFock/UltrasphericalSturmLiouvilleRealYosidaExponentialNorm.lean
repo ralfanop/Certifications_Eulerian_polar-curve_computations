@@ -30,18 +30,18 @@ theorem sturmRealOperatorExponential_norm_le_exp_norm
   letI : NormedAlgebra ℚ (SturmH lam →L[ℝ] SturmH lam) :=
     .restrictScalars ℚ ℝ _
   have he :
-      HasSum (fun n : ℕ => (n !⁻¹ : ℝ) • X ^ n)
+      HasSum (fun n : ℕ => ((n.factorial : ℝ)⁻¹) • X ^ n)
         (NormedSpace.exp X) :=
     NormedSpace.exp_series_hasSum_exp' (𝕂 := ℝ) X
   have hre :
-      HasSum (fun n : ℕ => (n !⁻¹ : ℝ) * ‖X‖ ^ n)
+      HasSum (fun n : ℕ => ((n.factorial : ℝ)⁻¹) * ‖X‖ ^ n)
         (Real.exp ‖X‖) := by
     rw [Real.exp_eq_exp_ℝ]
     simpa only [smul_eq_mul] using
       (NormedSpace.exp_series_hasSum_exp' (𝕂 := ℝ) (‖X‖ : ℝ))
   apply he.norm_le_of_bounded hre
   intro n
-  have hcoeff : 0 ≤ (n !⁻¹ : ℝ) := by positivity
+  have hcoeff : 0 ≤ ((n.factorial : ℝ)⁻¹) := by positivity
   have hp : ‖X ^ n‖ ≤ ‖X‖ ^ n := by
     cases n with
     | zero =>
