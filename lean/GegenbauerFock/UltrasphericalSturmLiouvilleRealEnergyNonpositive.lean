@@ -86,7 +86,8 @@ theorem sturmPolynomial_dirichlet_energy_nonneg
       0 ≤ ((1 : ℝ) - u^2) * (p.derivative.eval u)^2 :=
     mul_nonneg hsq (sq_nonneg _)
   simpa [sturmEnergyPolynomial, Polynomial.eval_mul,
-    Polynomial.eval_sub, Polynomial.eval_pow, Polynomial.eval_X] using hpos
+    Polynomial.eval_sub, Polynomial.eval_pow, Polynomial.eval_X,
+    pow_two, mul_assoc] using hpos
 
 /-- Concrete real-polynomial Sturm quadratic form is nonpositive
 for ALL degrees, with no spectral semiboundedness hypothesis. -/
