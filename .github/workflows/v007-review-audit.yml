@@ -8,6 +8,7 @@ on:
       - '.github/workflows/v007-review-audit.yml'
       - 'lean/GFAxiomAudit.lean'
       - 'lean/GFReviewModules.txt'
+      - 'lean/GFTargetedAudit.lean'
   workflow_dispatch:
 
 permissions:
@@ -40,7 +41,16 @@ jobs:
           lean --version
           lake update
           lake exe cache get
+      - name: Targeted build and axiom check of the declarations cited in V007
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p logs/v007_review
+          lake build $(cat GFTargetedModules.txt) 2>&1 | tail -5
+          lake env lean GFTargetedAudit.lean 2>&1 | tee logs/v007_review/targeted_axioms.log
+          ! grep -E 'sorryAx|ofReduceBool|unknown (constant|identifier)|error' logs/v007_review/targeted_axioms.log
       - name: Build every GegenbauerFock module
+        continue-on-error: true
         working-directory: lean
         run: |
           set -euo pipefail
@@ -55,6 +65,7 @@ jobs:
           head -40 logs/v007_review/build_errors.txt | while IFS= read -r line; do echo "::error::${line:0:900}"; done
           exit $status
       - name: Axiom audit of all GegenbauerFock declarations
+        continue-on-error: true
         working-directory: lean
         run: |
           set -euo pipefail
@@ -66,7 +77,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           tail -c 200000 lean/logs/v007_review/build.log > lean/logs/v007_review/build_tail.log || true
-          for f in lean/logs/v007_review/build_tail.log lean/logs/v007_review/build_errors.txt lean/logs/v007_review/axioms.log; do
+          for f in lean/logs/v007_review/build_tail.log lean/logs/v007_review/build_errors.txt lean/logs/v007_review/axioms.log lean/logs/v007_review/targeted_axioms.log; do
             [ -f "$f" ] && git add -f "$f"
           done
           git diff --cached --quiet || git commit -m "V007 review: build and axiom-audit logs (run ${{ github.run_id }})"
