@@ -71,7 +71,8 @@ jobs:
             joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere \
             joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere \
             joint_cfc_fock_gram_no_continuous_exact_inverse_on_range \
-            joint_cfc_fock_gram_no_homeomorphism_to_actual_range; do
+            joint_cfc_fock_gram_no_homeomorphism_to_actual_range \
+            joint_cfc_fock_gram_measurements_continuous_injective; do
             grep -F "$theorem' depends on axioms:" /tmp/v007-cfc-shared-polar-instability-axioms.log
           done
           echo 'V007 shared exact CFC-Fock polar quantitative instability audited.'
