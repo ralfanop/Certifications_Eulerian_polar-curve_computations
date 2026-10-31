@@ -1,0 +1,57 @@
+name: V007 self-adjoint genuine closed unbounded Sturm polynomial operator
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealClosureSelfAdjoint.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealPositiveResolventFullCLM.lean'
+      - '.github/workflows/v007-ultraspherical-sturm-real-closure-selfadjoint.yml'
+  workflow_dispatch:
+jobs:
+  actual-closed-unbounded-sturm-selfadjoint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit actual unbounded Sturm closure selfadjointness
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealClosureSelfAdjoint 2>&1 | tee /tmp/v007-true-sturm-unbounded-selfadj-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealClosureSelfAdjoint.lean 2>&1 | tee /tmp/v007-true-sturm-unbounded-selfadj-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-true-sturm-unbounded-selfadj-build.log /tmp/v007-true-sturm-unbounded-selfadj-axioms.log; then
+            echo '::error::Forbidden axiom in true closed real Sturm full-L2 resolvent.'
+            exit 1
+          fi
+          grep -F "sturmRealPartialOperator_closure_isSelfAdjoint' depends on axioms:" /tmp/v007-true-sturm-unbounded-selfadj-axioms.log
+          echo 'V007 actual unbounded Sturm closure selfadjointness kernel-certified.'
