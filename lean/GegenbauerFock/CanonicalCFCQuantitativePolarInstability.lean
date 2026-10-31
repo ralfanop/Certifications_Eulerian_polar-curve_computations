@@ -167,6 +167,43 @@ theorem exists_shared_cfc_fock_gram_quantitative_family
     _ ≤ ‖C_adjoint lam alpha hlam ha‖ * (1 / ((n : ℝ) + 1)) :=
       mul_le_mul_of_nonneg_left hCbound (norm_nonneg _)
 
+/-- At every source point f there are norm-one perturbations which are
+invisible in the limit simultaneously to the true Fock transform, its
+canonical CFC positive root and the source Gram. This is a translated
+form of the certified common normalized approximate-null sequence. -/
+theorem exists_shared_cfc_fock_gram_everywhere_instability
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (f : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    ∃ v : ℕ → Lp ℂ 2 (Ultraspherical.measure lam),
+      (∀ n : ℕ, ‖v n - f‖ = 1) ∧
+      Filter.Tendsto
+        (fun n : ℕ =>
+          localCFCGramSqrt lam alpha hlam ha (v n) -
+            localCFCGramSqrt lam alpha hlam ha f)
+        Filter.atTop
+        (nhds (0 : Lp ℂ 2 (Ultraspherical.measure lam))) ∧
+      Filter.Tendsto
+        (fun n : ℕ =>
+          C lam alpha hlam ha (v n) -
+            C lam alpha hlam ha f)
+        Filter.atTop (nhds (0 : InfiniteAnalysis.FockCoefficients)) ∧
+      Filter.Tendsto
+        (fun n : ℕ =>
+          gram lam alpha hlam ha (v n) -
+            gram lam alpha hlam ha f)
+        Filter.atTop
+        (nhds (0 : Lp ℂ 2 (Ultraspherical.measure lam))) := by
+  obtain ⟨u, hunit, hP, hC, hG⟩ :=
+    exists_shared_cfc_fock_gram_strong_null_sequence lam alpha hlam ha
+  refine ⟨(fun n => u n + f), ?_, ?_, ?_, ?_⟩
+  · intro n
+    simpa only [add_sub_cancel_right] using hunit n
+  · simpa only [map_add, add_sub_cancel_right] using hP
+  · simpa only [map_add, add_sub_cancel_right] using hC
+  · simpa only [map_add, add_sub_cancel_right] using hG
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_fock_gram_everywhere_instability
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_fock_gram_quantitative_family
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_fock_gram_strong_null_sequence
