@@ -45,7 +45,6 @@ theorem sturmRealPositiveResolventFullCLM_inner_symmetric
   rw [hxf, hax, hyg, hay] at hsym
   simp only [inner_sub_left, inner_sub_right,
     real_inner_smul_left, real_inner_smul_right] at hsym
-  dsimp [R]
   linarith
 
 /-- The canonical closed Sturm operator has a concrete inverse for
@@ -79,7 +78,9 @@ theorem sturmRealPositiveResolventFullCLM_left_inverse_closed_shift
       t • ((y : SturmH lam) - (x : SturmH lam)) -
           (A.closure y - A.closure x) =
         (t • (y : SturmH lam) - A.closure y) -
-          (t • (x : SturmH lam) - A.closure x) := by abel
+          (t • (x : SturmH lam) - A.closure x) := by
+            simp only [sub_eq_add_neg, smul_add, smul_neg]
+            abel
       _ = 0 := sub_eq_zero.mpr hshift_y
   have hxy : y = x :=
     sub_eq_zero.mp (sturmRealClosedPositiveShift_kernel
