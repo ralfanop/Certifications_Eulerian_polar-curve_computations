@@ -794,3 +794,20 @@ entrambi i nuovi teoremi prima di riportarli come certificati.
 
 **Invarianti:** PR #16 aperta in Draft, nessun merge,
 nessuna modifica a `main`, V097 o V170.
+
+## 24. Controllo globale delle osservazioni congiunte — 31 ottobre 2026
+
+Due nuovi teoremi nel modulo `CanonicalCFCQuantitativePolarInstability.lean`:
+`joint_fock_gram_norm_control_by_cfc_root` e
+`joint_fock_gram_difference_control_by_cfc_root`.
+Per ogni sorgente `f`:
+`‖C f‖ = ‖P f‖` e `‖gram f‖ ≤ ‖C_adjoint‖*‖P f‖`.
+Le stime valgono anche per le differenze tra due ingressi.
+Commit sorgente `63fa9bae1787d24bedd81973107919e260b12a73`;
+workflow `948aa7aafa0ea7ebe4a0f4b7fcf3029174d4fa04`;
+CI [41229325167](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41229325167).
+**Certificazione pendente**, non dichiarare SUCCESS senza audit.
+
+La CI topologica precedente [41229048881](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41229048881)
+è stata cancellata; la nuova CI include i medesimi teoremi.
+Mantenere PR #16 Draft, senza merge né modifiche a main, V097 o V170.
