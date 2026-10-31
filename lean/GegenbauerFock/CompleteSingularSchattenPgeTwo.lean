@@ -45,9 +45,17 @@ theorem summable_real_powers_of_square_summable
     exact Real.rpow_le_rpow (hpos i).le (hbound i) hq
   have hpoint (i : ι) :
       sigma i ^ p ≤ M ^ (p - 2) * sigma i ^ 2 := by
-    have heq : p = (p - 2) + 2 := by ring
-    rw [heq, Real.rpow_add (hpos i), Real.rpow_natCast]
-    exact mul_le_mul_of_nonneg_right (hpowbound i) (sq_nonneg (sigma i))
+    calc
+      sigma i ^ p = sigma i ^ ((p - 2) + 2) := by
+        congr 1
+        ring
+      _ = sigma i ^ (p - 2) * sigma i ^ (2 : ℝ) :=
+        Real.rpow_add (hpos i) (p - 2) 2
+      _ = sigma i ^ (p - 2) * sigma i ^ (2 : ℕ) :=
+        congrArg (fun x : ℝ => sigma i ^ (p - 2) * x)
+          (Real.rpow_natCast (sigma i) 2)
+      _ ≤ M ^ (p - 2) * sigma i ^ (2 : ℕ) :=
+        mul_le_mul_of_nonneg_right (hpowbound i) (sq_nonneg (sigma i))
   have hmajor : Summable
       (fun i : ι => M ^ (p - 2) * sigma i ^ 2) := by
     exact hsq.mul_left _
