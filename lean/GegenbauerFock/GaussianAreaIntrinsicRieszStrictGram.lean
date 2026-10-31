@@ -213,6 +213,26 @@ theorem intrinsicRieszKernel_exp_sum_uniform_disk_bound
     s z c alpha ha w).trans
       (mul_le_mul_of_nonneg_right hWeight hGram)
 
+/-- Quantitative robustness under arbitrary finite coefficient
+perturbations: the squared pointwise error on a closed disk is
+controlled by the Gram energy of the coefficient difference.
+Repeated nodes are allowed, so this is naturally a seminorm bound. -/
+theorem intrinsicRieszKernel_exp_sum_coefficient_perturbation_disk_bound
+    {ι : Type*} (s : Finset ι) (z c d : ι → ℂ)
+    (alpha : ℝ) (ha : 0 < alpha)
+    (R : ℝ) (hR : 0 ≤ R) (w : ℂ) (hw : ‖w‖ ≤ R) :
+    ‖(∑ i ∈ s, c i *
+         Complex.exp ((alpha : ℂ) * w * star (z i))) -
+      (∑ i ∈ s, d i *
+         Complex.exp ((alpha : ℂ) * w * star (z i)))‖ ^ 2 ≤
+      Real.exp (alpha * R ^ 2) *
+        Complex.re (∑ i ∈ s, ∑ j ∈ s,
+          star (c i - d i) * (c j - d j) *
+            Complex.exp ((alpha : ℂ) * z i * star (z j))) := by
+  simpa only [sub_mul, Finset.sum_sub_distrib] using
+    (intrinsicRieszKernel_exp_sum_uniform_disk_bound
+      s z (fun i => c i - d i) alpha ha R hR w hw)
+
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_pos_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_eq_zero_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_pos_iff_ne_zero
@@ -222,5 +242,6 @@ theorem intrinsicRieszKernel_exp_sum_uniform_disk_bound
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_ge_normalized_sample
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_ge_origin_coeff_sum
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_sum_uniform_disk_bound
+#print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_sum_coefficient_perturbation_disk_bound
 
 end GegenbauerFock.GaussianArea
