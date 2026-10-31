@@ -1,5 +1,4 @@
-import GegenbauerFock.UltrasphericalSturmLiouvilleMonicRealL2HilbertBasis
-import GegenbauerFock.UltrasphericalSturmLiouvilleMonicRealSpectralModes
+import GegenbauerFock.UltrasphericalSturmLiouvilleMonicHilbertResolventCoordinates
 
 /-!
 # V007 — exact closed Sturm resolvent diagonal on normalized real L² Gegenbauer Hilbert basis
@@ -24,10 +23,8 @@ theorem sturmMonicEigenCandidate_realL2_normalized_resolvent_diagonal
       (sturmMonicEigenCandidate_realL2_normalized lam hlam n) =
       (t + (n : ℝ) * ((n : ℝ) + 2 * lam))⁻¹ •
         sturmMonicEigenCandidate_realL2_normalized lam hlam n := by
-  unfold sturmMonicEigenCandidate_realL2_normalized
-  rw [map_smul, sturmMonicEigenCandidate_full_resolvent_diagonal
-    lam t hlam ht n]
-  exact smul_comm _ _ _
+  exact sturmMonicRealHilbertBasis_full_resolvent_eigen
+    lam t hlam ht n
 
 /-- The true complete real Gegenbauer HilbertBasis is a diagonal
 eigenbasis for the actual all-L² closed Sturm positive resolvent. -/
