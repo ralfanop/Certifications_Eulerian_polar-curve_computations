@@ -61,4 +61,5 @@ jobs:
           grep -F "sturmReal_closed_nonpositive_shift_graph_bound' depends on axioms:" /tmp/v007-spectral-closure-nonpositive-axioms.log
           grep -F "sturmRealPartialOperator_spectral_eq_closure_of_nonpositive' depends on axioms:" /tmp/v007-spectral-closure-nonpositive-axioms.log
           grep -F "sturmRealPartialOperator_spectral_domain_eq_of_nonpositive' depends on axioms:" /tmp/v007-spectral-closure-nonpositive-axioms.log
+          grep -F "sturmRealPartialOperator_polynomials_spectral_core_of_nonpositive' depends on axioms:" /tmp/v007-spectral-closure-nonpositive-axioms.log
           echo 'V007 Sturm polynomial-to-spectral closure uniqueness kernel-certified.'
