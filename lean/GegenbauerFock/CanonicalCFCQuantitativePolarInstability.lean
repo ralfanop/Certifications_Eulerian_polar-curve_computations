@@ -434,6 +434,77 @@ private def jointCFCFockGramMeasurements
   (localCFCGramSqrt lam alpha hlam ha x,
     (C lam alpha hlam ha x, gram lam alpha hlam ha x))
 
+/-- Every joint CFC--Fock--Gram observation is a continuous graph
+over the true Fock output alone. There is no independent information
+in the two additional coordinates: P is the unitary inverse image
+of C, and G is the bounded adjoint applied to C. -/
+theorem exists_joint_fock_data_graph_factorization
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    ∃ W : Lp ℂ 2 (Ultraspherical.measure lam) ≃ₗᵢ[ℂ]
+        InfiniteAnalysis.FockCoefficients,
+      (∀ f : Lp ℂ 2 (Ultraspherical.measure lam),
+        jointCFCFockGramMeasurements lam alpha hlam ha f =
+          (W.symm (C lam alpha hlam ha f),
+            (C lam alpha hlam ha f,
+              C_adjoint lam alpha hlam ha (C lam alpha hlam ha f)))) ∧
+      Continuous (fun F : InfiniteAnalysis.FockCoefficients =>
+        (W.symm F, (F, C_adjoint lam alpha hlam ha F))) := by
+  obtain ⟨W, hcompact, hinj, hdense, hnotclosed, hfactor⟩ :=
+    exists_local_cfc_sqrt_compact_dense_nonclosed lam alpha hlam ha
+  refine ⟨W, ?_, ?_⟩
+  · intro f
+    change (localCFCGramSqrt lam alpha hlam ha f,
+        (C lam alpha hlam ha f,
+          C_adjoint lam alpha hlam ha (C lam alpha hlam ha f))) =
+      (W.symm (C lam alpha hlam ha f),
+        (C lam alpha hlam ha f,
+          C_adjoint lam alpha hlam ha (C lam alpha hlam ha f)))
+    rw [hfactor f]
+    simp
+  · exact W.symm.continuous.prodMk
+      (continuous_id.prodMk (C_adjoint lam alpha hlam ha).continuous)
+
+/-- A sequence of joint CFC--Fock--Gram data converges precisely
+when its Fock outputs converge. Thus the topology of joint data
+restricted to physical observations is already determined by the
+single genuine Fock coordinate. -/
+theorem joint_cfc_fock_gram_data_convergence_iff_fock
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (u : ℕ → Lp ℂ 2 (Ultraspherical.measure lam))
+    (f : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    Filter.Tendsto
+      (fun n : ℕ => C lam alpha hlam ha (u n))
+      Filter.atTop (nhds (C lam alpha hlam ha f)) ↔
+    Filter.Tendsto
+      (fun n : ℕ => jointCFCFockGramMeasurements lam alpha hlam ha (u n))
+      Filter.atTop
+      (nhds (jointCFCFockGramMeasurements lam alpha hlam ha f)) := by
+  obtain ⟨W, hfactor, hcontinuous⟩ :=
+    exists_joint_fock_data_graph_factorization lam alpha hlam ha
+  constructor
+  · intro hC
+    have hgraph := hcontinuous.continuousAt.tendsto.comp hC
+    have hseq :
+        (fun n : ℕ => jointCFCFockGramMeasurements lam alpha hlam ha (u n)) =
+        (fun n : ℕ =>
+          (W.symm (C lam alpha hlam ha (u n)),
+            (C lam alpha hlam ha (u n),
+              C_adjoint lam alpha hlam ha (C lam alpha hlam ha (u n))))) := by
+      funext n
+      exact hfactor (u n)
+    rw [hseq, hfactor f]
+    exact hgraph
+  · intro hM
+    have hprojection : Filter.Tendsto
+        (fun n : ℕ => (jointCFCFockGramMeasurements lam alpha hlam ha (u n)).2.1)
+        Filter.atTop
+        (nhds ((jointCFCFockGramMeasurements lam alpha hlam ha f).2.1)) :=
+      (continuous_fst.comp continuous_snd).continuousAt.tendsto.comp hM
+    exact hprojection
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_joint_fock_data_graph_factorization
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.joint_cfc_fock_gram_data_convergence_iff_fock
+
 /-- The joint data map is continuous and one-to-one, even though
 its inverse on its actual image is nowhere continuous. This gives
 the required forward regularity and uniqueness for the topological
