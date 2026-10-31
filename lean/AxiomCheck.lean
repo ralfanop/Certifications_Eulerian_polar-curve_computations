@@ -104,3 +104,7 @@ open EulerianCert
 #print axioms EulerianCert.Projection.pythagoras
 #print axioms EulerianCert.Projection.projection_unique_min
 #print axioms EulerianCert.Projection.coefficients
+-- V001 Section 3.7 (module Energy)
+#print axioms EulerianCert.Energy.plancherel
+#print axioms EulerianCert.Energy.Etot_closed
+#print axioms EulerianCert.Energy.rms_residual

@@ -38,3 +38,4 @@ import EulerianCert.FourierModes
 import EulerianCert.FourierSeries
 import EulerianCert.SineIntegral
 import EulerianCert.Projection
+import EulerianCert.Energy
