@@ -73,4 +73,6 @@ jobs:
           grep -F "sturmRealYosidaEulerStep_norm_le' depends on axioms:" /tmp/v007-yosida-euler-axioms.log
           grep -F "sturmRealYosidaEulerStep_opNorm_le' depends on axioms:" /tmp/v007-yosida-euler-axioms.log
           grep -F "sturmRealYosidaEulerIterate_opNorm_le' depends on axioms:" /tmp/v007-yosida-euler-powers-axioms.log
+          grep -F "sturmRealYosidaEulerIterate_norm_le' depends on axioms:" /tmp/v007-yosida-euler-powers-axioms.log
+          grep -F "sturmRealYosidaEulerIterate_add' depends on axioms:" /tmp/v007-yosida-euler-powers-axioms.log
           echo 'V007 Yosida generator, strong convergence, self-adjointness and finite Euler contraction kernel-certified.'
