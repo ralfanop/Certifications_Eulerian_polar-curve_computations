@@ -31,9 +31,10 @@ theorem strongLimit_product_of_uniform_contraction
     (hU : Tendsto (fun k : ℕ => U k f) atTop (𝓝 y))
     (hTy : Tendsto (fun k : ℕ => T k y) atTop (𝓝 z)) :
     Tendsto (fun k : ℕ => T k (U k f)) atTop (𝓝 z) := by
+  have hsub : Tendsto (fun k : ℕ => U k f - y) atTop (𝓝 (0 : E)) := by
+    simpa only [sub_self] using (hU.sub (tendsto_const_nhds (x := y)))
   have hnorm : Tendsto (fun k : ℕ => ‖U k f - y‖) atTop (𝓝 (0 : ℝ)) := by
-    have h := (hU.sub tendsto_const_nhds).norm
-    simpa only [sub_self, norm_zero] using h
+    simpa only [norm_zero] using hsub.norm
   have hbound (k : ℕ) :
       ‖T k (U k f - y)‖ ≤ ‖U k f - y‖ := by
     calc
