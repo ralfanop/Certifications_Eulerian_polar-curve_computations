@@ -22,8 +22,9 @@ theorem sturmFirstSpectralRate_pos
 theorem sturmPositiveDegree_spectralRate_ge_first
     (lam : ℝ) (hlam : 0 < lam) (n : ℕ) (hn : 0 < n) :
     1 + 2 * lam ≤ (n : ℝ) * ((n : ℝ) + 2 * lam) := by
+  have hn1 : 1 ≤ n := by omega
   have hreal : (1 : ℝ) ≤ (n : ℝ) := by
-    exact_mod_cast hn
+    exact_mod_cast hn1
   have hnonneg : 0 ≤ ((n : ℝ) - 1) * ((n : ℝ) + 1 + 2 * lam) :=
     mul_nonneg (by linarith) (by positivity)
   nlinarith
