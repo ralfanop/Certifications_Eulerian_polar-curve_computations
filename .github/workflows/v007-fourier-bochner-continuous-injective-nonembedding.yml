@@ -8,7 +8,7 @@ on:
       - '.github/workflows/v007-fourier-bochner-continuous-injective-nonembedding.yml'
   workflow_dispatch:
 
-# At most one specialist audit runs per branch; retain running SHA-scoped proof checks.
+# Retest on the branch with the repaired upstream Fourier continuity proof.
 concurrency:
   group: v007-fourier-injective-nonembedding-${{ github.ref }}
   cancel-in-progress: false
