@@ -55,6 +55,7 @@ theorem sturmRealClosed_kernel_iff_monicHilbert_positive_coeff_zero
     · subst n
       simp
     · rw [hcoeff n hn, mul_zero]
+      simp
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealClosed_kernel_iff_monicHilbert_positive_coeff_zero
 
