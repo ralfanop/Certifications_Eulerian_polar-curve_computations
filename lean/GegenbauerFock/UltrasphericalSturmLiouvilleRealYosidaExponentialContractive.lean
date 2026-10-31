@@ -121,7 +121,29 @@ theorem sturmRealYosidaExponential_norm_le
       (norm_nonneg _)
     _ = ‖f‖ := one_mul _
 
+/-- All bounded semigroup properties, packaged for the actual full
+weighted-L² Yosida approximant: identity, exact additive-time law,
+norm-continuity, and positive-time contraction. -/
+theorem sturmRealYosidaExponential_contractingC0Semigroup
+    (lam t : ℝ) (hlam : 0 < lam) (ht : 0 < t) :
+    (sturmRealYosidaExponential lam t hlam ht 0 =
+      (1 : SturmH lam →L[ℝ] SturmH lam)) ∧
+    (∀ s u : ℝ,
+      sturmRealYosidaExponential lam t hlam ht (s + u) =
+        sturmRealYosidaExponential lam t hlam ht s *
+          sturmRealYosidaExponential lam t hlam ht u) ∧
+    Continuous (fun s : ℝ => sturmRealYosidaExponential lam t hlam ht s) ∧
+    (∀ s : ℝ, 0 ≤ s →
+      ‖sturmRealYosidaExponential lam t hlam ht s‖ ≤ 1) := by
+  refine ⟨sturmRealYosidaExponential_zero lam t hlam ht, ?_, ?_, ?_⟩
+  · intro s u
+    exact sturmRealYosidaExponential_add lam t hlam ht s u
+  · exact sturmRealYosidaExponential_continuous lam t hlam ht
+  · intro s hs
+    exact sturmRealYosidaExponential_opNorm_le_one lam t hlam ht s hs
+
 #print axioms GegenbauerFock.Ultraspherical.sturmRealYosidaScaledResolvent_opNorm_le
+#print axioms GegenbauerFock.Ultraspherical.sturmRealYosidaExponential_contractingC0Semigroup
 #print axioms GegenbauerFock.Ultraspherical.sturmRealYosidaExponential_opNorm_le_one
 #print axioms GegenbauerFock.Ultraspherical.sturmRealYosidaExponential_norm_le
 
