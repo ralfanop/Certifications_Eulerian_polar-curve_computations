@@ -9,7 +9,7 @@
 * the hypergeometric form of Eq. (4): `Si x = x · ₁F₂(½; 3/2, 3/2; −x²/4)`, the argument being
   `z₀² x²/2` with `z₀² = (i/√2)² = −1/2`; the ₁F₂ coefficients are written with Pochhammer
   symbols `(a)_k = ascPochhammer`.
-The extension to complex `z` (Si entire) is not formalised.
+The extension to complex `z` (Si entire) is in `SineIntegralComplex`.
 -/
 import EulerianCert.FourierModes
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Series

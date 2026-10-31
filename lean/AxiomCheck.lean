@@ -141,3 +141,11 @@ open EulerianCert
 #print axioms EulerianCert.HausdorffAttain.minimiser_unique
 #print axioms EulerianCert.HausdorffAttain.Q_εrad_lt
 #print axioms EulerianCert.HausdorffAttain.hstar_lt_εrad
+-- V001 Definition 2.1, complex argument (module SineIntegralComplex)
+#print axioms EulerianCert.SineIntegralComplex.sincC_of_ne_zero
+#print axioms EulerianCert.SineIntegralComplex.hasSum_SiC
+#print axioms EulerianCert.SineIntegralComplex.hasSum_SiC_binomial
+#print axioms EulerianCert.SineIntegralComplex.hasSum_SiC_hypergeometric
+#print axioms EulerianCert.SineIntegralComplex.SiC_neg
+#print axioms EulerianCert.SineIntegralComplex.SiC_ofReal
+#print axioms EulerianCert.SineIntegralComplex.differentiable_SiC

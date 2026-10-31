@@ -116,4 +116,10 @@
 'EulerianCert.HausdorffAttain.minimiser_unique' depends on axioms: [propext, Classical.choice, Quot.sound]
 'EulerianCert.HausdorffAttain.Q_εrad_lt' depends on axioms: [propext, Classical.choice, Quot.sound]
 'EulerianCert.HausdorffAttain.hstar_lt_εrad' depends on axioms: [propext, Classical.choice, Quot.sound]
-AX_EXIT=0
+'EulerianCert.SineIntegralComplex.sincC_of_ne_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianCert.SineIntegralComplex.hasSum_SiC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianCert.SineIntegralComplex.hasSum_SiC_binomial' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianCert.SineIntegralComplex.hasSum_SiC_hypergeometric' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianCert.SineIntegralComplex.SiC_neg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianCert.SineIntegralComplex.SiC_ofReal' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianCert.SineIntegralComplex.differentiable_SiC' depends on axioms: [propext, Classical.choice, Quot.sound]

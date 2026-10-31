@@ -37,6 +37,7 @@ import EulerianCert.Cyclohedral
 import EulerianCert.FourierModes
 import EulerianCert.FourierSeries
 import EulerianCert.SineIntegral
+import EulerianCert.SineIntegralComplex
 import EulerianCert.Projection
 import EulerianCert.Energy
 import EulerianCert.Turning
