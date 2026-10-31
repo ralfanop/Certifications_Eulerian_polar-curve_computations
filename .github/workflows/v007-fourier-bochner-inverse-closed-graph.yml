@@ -1,0 +1,61 @@
+name: V007 closed graph of nowhere-continuous Fourier inverse
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireFourierInverseClosedGraph.lean'
+      - '.github/workflows/v007-fourier-bochner-inverse-closed-graph.yml'
+  workflow_dispatch:
+
+# At most one specialist audit runs per branch; retain running SHA-scoped proof checks.
+concurrency:
+  group: v007-fourier-uniform-sampling-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  fourier-inverse-closed-graph:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Restore pinned Mathlib and cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile closed graph of nowhere-continuous canonical Fourier inverse
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GegenbauerIntrinsicEntireFourierInverseClosedGraph 2>&1 | tee /tmp/v007-fourier-inverse-closed-graph-build.log
+          lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireFourierInverseClosedGraph.lean 2>&1 | tee /tmp/v007-fourier-inverse-closed-graph-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-fourier-inverse-closed-graph-build.log /tmp/v007-fourier-inverse-closed-graph-axioms.log; then
+            echo "::error::Forbidden axiom in canonical Fourier sample inverse theorem"
+            exit 1
+          fi
+          for name in ultraspherical_fourierBochner_canonicalSampleInverse_graph_closed ultraspherical_fourierBochner_canonicalSampleInverse_closedGraph_nowhereContinuous; do
+            grep -F "${name}' depends on axioms:" /tmp/v007-fourier-inverse-closed-graph-axioms.log
+          done
+          echo 'V007 closed graph of nowhere-continuous Fourier inverse: Lean and axiom audit successful.'
