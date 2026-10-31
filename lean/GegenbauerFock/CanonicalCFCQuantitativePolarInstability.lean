@@ -375,6 +375,55 @@ theorem joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere
     tendsto_nhds_unique hnormzero hnormone
   norm_num at himpossible
 
+/-- Globally, the true Fock and source Gram measurements are
+bounded in terms of the *single* canonical positive CFC amplitude.
+Thus adding Fock or Gram measurements cannot strengthen the
+smallest-data norm beyond that supplied by the positive polar root. -/
+theorem joint_fock_gram_norm_control_by_cfc_root
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (f : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    ‖C lam alpha hlam ha f‖ =
+      ‖localCFCGramSqrt lam alpha hlam ha f‖ ∧
+    ‖gram lam alpha hlam ha f‖ ≤
+      ‖C_adjoint lam alpha hlam ha‖ *
+        ‖localCFCGramSqrt lam alpha hlam ha f‖ := by
+  obtain ⟨W, hcompact, hinj, hdense, hnotclosed, hfactor⟩ :=
+    exists_local_cfc_sqrt_compact_dense_nonclosed lam alpha hlam ha
+  have hnorm : ‖C lam alpha hlam ha f‖ =
+      ‖localCFCGramSqrt lam alpha hlam ha f‖ := by
+    rw [hfactor f]
+    exact W.norm_map _
+  refine ⟨hnorm, ?_⟩
+  calc
+    ‖gram lam alpha hlam ha f‖ =
+        ‖C_adjoint lam alpha hlam ha (C lam alpha hlam ha f)‖ := rfl
+    _ ≤ ‖C_adjoint lam alpha hlam ha‖ *
+        ‖C lam alpha hlam ha f‖ :=
+      (C_adjoint lam alpha hlam ha).le_opNorm _
+    _ = ‖C_adjoint lam alpha hlam ha‖ *
+        ‖localCFCGramSqrt lam alpha hlam ha f‖ := by
+      rw [hnorm]
+
+/-- The same global comparison holds between the outputs of any two
+sources: the joint Fock--Gram data increments are controlled by
+the canonical CFC-root increment. -/
+theorem joint_fock_gram_difference_control_by_cfc_root
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (f g : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    ‖C lam alpha hlam ha f - C lam alpha hlam ha g‖ =
+      ‖localCFCGramSqrt lam alpha hlam ha f -
+        localCFCGramSqrt lam alpha hlam ha g‖ ∧
+    ‖gram lam alpha hlam ha f - gram lam alpha hlam ha g‖ ≤
+      ‖C_adjoint lam alpha hlam ha‖ *
+        ‖localCFCGramSqrt lam alpha hlam ha f -
+          localCFCGramSqrt lam alpha hlam ha g‖ := by
+  simpa only [map_sub] using
+    (joint_fock_gram_norm_control_by_cfc_root
+      lam alpha hlam ha (f - g))
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.joint_fock_gram_norm_control_by_cfc_root
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.joint_fock_gram_difference_control_by_cfc_root
+
 /-- The joint measurement map into the true ambient product. -/
 private def jointCFCFockGramMeasurements
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
