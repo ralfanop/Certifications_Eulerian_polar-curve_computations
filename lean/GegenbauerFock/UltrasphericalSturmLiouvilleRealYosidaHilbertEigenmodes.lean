@@ -1,5 +1,6 @@
 import GegenbauerFock.UltrasphericalSturmLiouvilleRealYosidaGenerator
 import GegenbauerFock.UltrasphericalSturmLiouvilleMonicHilbertSharpResolventNorm
+import GegenbauerFock.UltrasphericalSturmLiouvilleMonicRealL2BasisResolvent
 
 /-!
 # Genuine Gegenbauer eigenmodes of the bounded Sturm Yosida generator
