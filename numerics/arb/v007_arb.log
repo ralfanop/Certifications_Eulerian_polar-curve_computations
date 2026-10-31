@@ -1,0 +1,19 @@
+python 3.13.17; python-flint 0.9.0; 256 bits
+
+Eq. (56): S_15 = 337212679483569969430703669/309376751206532288348160000 CERTIFIED
+Eq. (57): (4/3)/(4^15 15!) = 1/1053078495820775424000                    CERTIFIED
+Eq. (57): e^(1/4) < 4/3 (Arb)                                            CERTIFIED
+Eq. (55), exact: lo < S_15 and S_15 + R < hi                             CERTIFIED
+Eq. (54)-(55), Arb: sqrt(pi) erfi(1/2) lies strictly inside (55)         CERTIFIED
+Eq. (54), Arb: sqrt(pi) erfi(1/2) and the series enclosure overlap       CERTIFIED
+      I = [1.08997420836724444732484026281 +/- 4.04e-30]
+      width of the printed enclosure (55): 9.510e-22
+
+Table 1, d = 3..12: A_d(k) = 4 Gamma(d/2)(2 sqrt(pi)/k)^(d-2) as printed CERTIFIED
+Table 1, d = 1, 2: 2k and 4                                              CERTIFIED
+Cor. 4.2: 4 Gamma(3/2)(2 sqrt(pi)/(1/2)) = 8 pi (Arb)                    CERTIFIED
+
+Prop. 6.6, alpha = 1: sum_k 1/(16^k (2k)!(2k+1)^2) = 4 Shi(1/4) (Arb overlap) CERTIFIED
+      ||r_E||_1^2 = [1.00347873956364893000581261900 +/- 4.07e-30]
+
+ALL CERTIFIED
