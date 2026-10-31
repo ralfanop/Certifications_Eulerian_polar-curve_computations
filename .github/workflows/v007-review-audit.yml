@@ -1,0 +1,64 @@
+name: V007 review - full GegenbauerFock build and axiom audit
+
+on:
+  push:
+    branches:
+      - v007-review-20261031
+    paths:
+      - '.github/workflows/v007-review-audit.yml'
+      - 'lean/GFAxiomAudit.lean'
+      - 'lean/GFReviewModules.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: v007-review-audit
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan and the pinned toolchain
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Mathlib at the pinned revision, with its build cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lean --version
+          lake update
+          lake exe cache get
+      - name: Build every GegenbauerFock module
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p logs/v007_review
+          wc -l < GFReviewModules.txt
+          ( time lake build $(cat GFReviewModules.txt) ) 2>&1 | tee logs/v007_review/build.log | tail -40
+      - name: Axiom audit of all GegenbauerFock declarations
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean GFAxiomAudit.lean 2>&1 | tee logs/v007_review/axioms.log
+          grep -q 'RESULT: only propext, Classical.choice, Quot.sound' logs/v007_review/axioms.log
+      - name: Commit the logs to the review branch
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          tail -c 200000 lean/logs/v007_review/build.log > lean/logs/v007_review/build_tail.log || true
+          git add -f lean/logs/v007_review/build_tail.log lean/logs/v007_review/axioms.log || true
+          git diff --cached --quiet || git commit -m "V007 review: build and axiom-audit logs (run ${{ github.run_id }})"
+          git push || true
