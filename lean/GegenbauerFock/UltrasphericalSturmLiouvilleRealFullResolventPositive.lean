@@ -62,7 +62,40 @@ theorem sturmRealPositiveResolventFullCLM_inner_nonneg
     real_inner_self_nonneg
   exact le_trans (mul_nonneg (le_of_lt ht) hself) henergy
 
+/-- The genuine positive-shift resolvent has no nonzero kernel:
+its closed-graph realization cannot send nonzero data to zero. -/
+theorem sturmRealPositiveResolventFullCLM_kernel_zero
+    (lam t : ℝ) (hlam : 0 < lam) (ht : 0 < t)
+    (f : SturmH lam)
+    (hf : sturmRealPositiveResolventFullCLM lam t hlam ht f = 0) :
+    f = 0 := by
+  let A := sturmRealPartialOperator lam hlam
+  let R := sturmRealPositiveResolventFullCLM lam t hlam ht
+  obtain ⟨x, hx⟩ := (A.closure.mem_graph_iff').mp
+    (sturmRealPositiveResolventFullCLM_closed_graph lam t hlam ht f)
+  have hfirst : (x : SturmH lam) = R f := congrArg Prod.fst hx
+  have hsecond : A.closure x = t • R f - f :=
+    congrArg Prod.snd hx
+  have hxzero : x = 0 := Subtype.ext (hfirst.trans hf)
+  rw [hxzero, hf] at hsecond
+  simpa using hsecond.symm
+
+/-- The full-L² bounded selfadjoint positive Sturm resolvent is
+injective. Its inverse is the unbounded positive-shift operator
+on the precisely certified closed Sturm domain. -/
+theorem sturmRealPositiveResolventFullCLM_injective
+    (lam t : ℝ) (hlam : 0 < lam) (ht : 0 < t) :
+    Function.Injective
+      (sturmRealPositiveResolventFullCLM lam t hlam ht) := by
+  intro f g hfg
+  apply sub_eq_zero.mp
+  apply sturmRealPositiveResolventFullCLM_kernel_zero lam t hlam ht
+    (f-g)
+  rw [map_sub, hfg, sub_self]
+
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_inner_energy_bound
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_inner_nonneg
+#print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_kernel_zero
+#print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_injective
 
 end GegenbauerFock.Ultraspherical
