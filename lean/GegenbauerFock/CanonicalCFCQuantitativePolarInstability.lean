@@ -281,6 +281,102 @@ theorem exists_unit_perturbation_with_arbitrarily_small_joint_measurements
   obtain ⟨n, hn⟩ := (hPsmall.and (hCsmall.and hGsmall)).exists
   exact ⟨v n, hunit n, hn.1, hn.2.1, hn.2.2⟩
 
+/-- Even a nonlinear exact reconstruction from all three joint
+measurements (canonical CFC root, true Fock output and source Gram)
+cannot be continuous at the measurements of *any* source point.
+The inverse is allowed to be an arbitrary function on the whole
+ambient product; no linearity or boundedness is assumed. -/
+theorem joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (f : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    ∀ (r :
+      (Lp ℂ 2 (Ultraspherical.measure lam) ×
+        (InfiniteAnalysis.FockCoefficients ×
+          Lp ℂ 2 (Ultraspherical.measure lam))) →
+        Lp ℂ 2 (Ultraspherical.measure lam)),
+      (∀ x : Lp ℂ 2 (Ultraspherical.measure lam),
+        r (localCFCGramSqrt lam alpha hlam ha x,
+          (C lam alpha hlam ha x, gram lam alpha hlam ha x)) = x) →
+      ¬ ContinuousAt r
+        (localCFCGramSqrt lam alpha hlam ha f,
+          (C lam alpha hlam ha f, gram lam alpha hlam ha f)) := by
+  obtain ⟨v, hunit, hP, hC, hG⟩ :=
+    exists_shared_cfc_fock_gram_everywhere_instability
+      lam alpha hlam ha f
+  have hPto : Filter.Tendsto
+      (fun n : ℕ => localCFCGramSqrt lam alpha hlam ha (v n))
+      Filter.atTop
+      (nhds (localCFCGramSqrt lam alpha hlam ha f)) := by
+    have hc : Continuous (fun z : Lp ℂ 2 (Ultraspherical.measure lam) =>
+        z + localCFCGramSqrt lam alpha hlam ha f) :=
+      continuous_id.add continuous_const
+    have h := hc.continuousAt.tendsto.comp hP
+    simpa only [sub_add_cancel, zero_add] using h
+  have hCto : Filter.Tendsto
+      (fun n : ℕ => C lam alpha hlam ha (v n))
+      Filter.atTop (nhds (C lam alpha hlam ha f)) := by
+    have hc : Continuous (fun z : InfiniteAnalysis.FockCoefficients =>
+        z + C lam alpha hlam ha f) :=
+      continuous_id.add continuous_const
+    have h := hc.continuousAt.tendsto.comp hC
+    simpa only [sub_add_cancel, zero_add] using h
+  have hGto : Filter.Tendsto
+      (fun n : ℕ => gram lam alpha hlam ha (v n))
+      Filter.atTop (nhds (gram lam alpha hlam ha f)) := by
+    have hc : Continuous (fun z : Lp ℂ 2 (Ultraspherical.measure lam) =>
+        z + gram lam alpha hlam ha f) :=
+      continuous_id.add continuous_const
+    have h := hc.continuousAt.tendsto.comp hG
+    simpa only [sub_add_cancel, zero_add] using h
+  have hpair : Filter.Tendsto
+      (fun n : ℕ =>
+        (localCFCGramSqrt lam alpha hlam ha (v n),
+          (C lam alpha hlam ha (v n), gram lam alpha hlam ha (v n))))
+      Filter.atTop
+      (nhds (localCFCGramSqrt lam alpha hlam ha f,
+          (C lam alpha hlam ha f, gram lam alpha hlam ha f))) :=
+    hPto.prodMk (hCto.prodMk hGto)
+  intro r hleft hcont
+  have hrec : Filter.Tendsto
+      (fun n : ℕ =>
+        r (localCFCGramSqrt lam alpha hlam ha (v n),
+          (C lam alpha hlam ha (v n), gram lam alpha hlam ha (v n))))
+      Filter.atTop
+      (nhds (r (localCFCGramSqrt lam alpha hlam ha f,
+        (C lam alpha hlam ha f, gram lam alpha hlam ha f)))) :=
+    hcont.tendsto.comp hpair
+  have heq : (fun n : ℕ =>
+        r (localCFCGramSqrt lam alpha hlam ha (v n),
+          (C lam alpha hlam ha (v n), gram lam alpha hlam ha (v n)))) = v := by
+    funext n
+    exact hleft (v n)
+  rw [heq, hleft f] at hrec
+  have hdiff : Filter.Tendsto (fun n : ℕ => v n - f)
+      Filter.atTop
+      (nhds (0 : Lp ℂ 2 (Ultraspherical.measure lam))) := by
+    have hc : Continuous (fun z : Lp ℂ 2 (Ultraspherical.measure lam) =>
+        z - f) := continuous_id.sub continuous_const
+    have h := hc.continuousAt.tendsto.comp hrec
+    simpa only [sub_self] using h
+  have hnormzero : Filter.Tendsto
+      (fun n : ℕ => ‖v n - f‖)
+      Filter.atTop (nhds (0 : ℝ)) := by
+    simpa using hdiff.norm
+  have hnormone : Filter.Tendsto
+      (fun n : ℕ => ‖v n - f‖)
+      Filter.atTop (nhds (1 : ℝ)) := by
+    have hh : (fun n : ℕ => ‖v n - f‖) =
+        (fun _ : ℕ => (1 : ℝ)) := by
+      funext n
+      exact hunit n
+    rw [hh]
+    exact tendsto_const_nhds
+  have himpossible : (0 : ℝ) = 1 :=
+    tendsto_nhds_unique hnormzero hnormone
+  norm_num at himpossible
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_unit_perturbation_with_arbitrarily_small_joint_measurements
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_fock_gram_quantitative_everywhere_instability
