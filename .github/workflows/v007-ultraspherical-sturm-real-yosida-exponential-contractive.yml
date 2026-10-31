@@ -56,4 +56,5 @@ jobs:
           grep -F "sturmRealYosidaScaledResolvent_opNorm_le' depends on axioms:" /tmp/v007-exp-contract-axioms.log
           grep -F "sturmRealYosidaExponential_opNorm_le_one' depends on axioms:" /tmp/v007-exp-contract-axioms.log
           grep -F "sturmRealYosidaExponential_norm_le' depends on axioms:" /tmp/v007-exp-contract-axioms.log
+          grep -F "sturmRealYosidaExponential_contractingC0Semigroup' depends on axioms:" /tmp/v007-exp-contract-axioms.log
           echo 'V007 all bounded Yosida exponentials contractive on true weighted L2: kernel-certified.'
