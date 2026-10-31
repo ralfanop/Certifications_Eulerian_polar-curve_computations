@@ -32,7 +32,13 @@ theorem sturmRealYosidaExponential_zero
     (lam t : ℝ) (hlam : 0 < lam) (ht : 0 < t) :
     sturmRealYosidaExponential lam t hlam ht 0 =
       (1 : SturmH lam →L[ℝ] SturmH lam) := by
-  simp [sturmRealYosidaExponential, NormedSpace.exp_zero]
+  have hz : (0 : ℝ) • sturmRealYosidaGenerator lam t hlam ht =
+      (0 : SturmH lam →L[ℝ] SturmH lam) := zero_smul ℝ _
+  change NormedSpace.exp ((0 : ℝ) • sturmRealYosidaGenerator lam t hlam ht) = 1
+  rw [hz]
+  letI : NormedAlgebra ℚ (SturmH lam →L[ℝ] SturmH lam) :=
+    .restrictScalars ℚ ℝ _
+  exact NormedSpace.exp_zero
 
 /-- Exact additive-time semigroup identity for each fixed bounded
 Yosida generator, as a true identity of continuous linear operators. -/
@@ -43,13 +49,15 @@ theorem sturmRealYosidaExponential_add
       sturmRealYosidaExponential lam t hlam ht s *
         sturmRealYosidaExponential lam t hlam ht u := by
   let A := sturmRealYosidaGenerator lam t hlam ht
-  have hcomm : Commute (s • A) (u • A) :=
-    ((Commute.refl A).smul_left s).smul_right u
-  letI : NormedAlgebra ℚ (SturmH lam →L[ℝ] SturmH lam) :=
-    .restrictScalars ℚ ℝ _
+  have hcomm : Commute (s • A) (u • A) := by
+    change (s • A) * (u • A) = (u • A) * (s • A)
+    ext f
+    simp [ContinuousLinearMap.mul_def, smul_smul, mul_comm]
   change NormedSpace.exp ((s + u) • A) =
     NormedSpace.exp (s • A) * NormedSpace.exp (u • A)
   rw [add_smul]
+  letI : NormedAlgebra ℚ (SturmH lam →L[ℝ] SturmH lam) :=
+    .restrictScalars ℚ ℝ _
   exact NormedSpace.exp_add_of_commute hcomm
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealYosidaExponential_zero
