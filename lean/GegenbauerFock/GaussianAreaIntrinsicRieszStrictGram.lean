@@ -186,6 +186,33 @@ theorem intrinsicRieszKernel_exp_gram_re_ge_origin_coeff_sum
     (intrinsicRieszKernel_exp_sum_norm_sq_le_exp_mul_gram_re
       s z c alpha ha 0)
 
+/-- Uniform Gaussian coherent sampling bound on every closed disk
+of radius R: the entire exponential superposition is controlled in
+supremum norm by its *exact* intrinsic Gram energy. -/
+theorem intrinsicRieszKernel_exp_sum_uniform_disk_bound
+    {ι : Type*} (s : Finset ι) (z c : ι → ℂ)
+    (alpha : ℝ) (ha : 0 < alpha)
+    (R : ℝ) (hR : 0 ≤ R) (w : ℂ) (hw : ‖w‖ ≤ R) :
+    ‖∑ i ∈ s, c i *
+        Complex.exp ((alpha : ℂ) * w * star (z i))‖ ^ 2 ≤
+      Real.exp (alpha * R ^ 2) *
+        Complex.re (∑ i ∈ s, ∑ j ∈ s,
+          star (c i) * c j *
+            Complex.exp ((alpha : ℂ) * z i * star (z j))) := by
+  have hRadiusSq : ‖w‖ ^ 2 ≤ R ^ 2 :=
+    (sq_le_sq₀ (norm_nonneg _) hR).mpr hw
+  have hWeight :
+      Real.exp (alpha * ‖w‖ ^ 2) ≤ Real.exp (alpha * R ^ 2) :=
+    Real.exp_le_exp.mpr
+      (mul_le_mul_of_nonneg_left hRadiusSq (le_of_lt ha))
+  have hGram : 0 ≤ Complex.re (∑ i ∈ s, ∑ j ∈ s,
+      star (c i) * c j *
+        Complex.exp ((alpha : ℂ) * z i * star (z j))) :=
+    intrinsicRieszKernel_exp_gram_nonneg s z c alpha ha
+  exact (intrinsicRieszKernel_exp_sum_norm_sq_le_exp_mul_gram_re
+    s z c alpha ha w).trans
+      (mul_le_mul_of_nonneg_right hWeight hGram)
+
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_pos_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_eq_zero_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_pos_iff_ne_zero
@@ -194,5 +221,6 @@ theorem intrinsicRieszKernel_exp_gram_re_ge_origin_coeff_sum
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_sum_norm_sq_le_exp_mul_gram_re
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_ge_normalized_sample
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_ge_origin_coeff_sum
+#print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_sum_uniform_disk_bound
 
 end GegenbauerFock.GaussianArea
