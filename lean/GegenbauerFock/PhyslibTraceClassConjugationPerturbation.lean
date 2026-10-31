@@ -64,6 +64,9 @@ theorem conjugation_traceNorm_multiplier_dist_le_v007
         ‖(sandwichContinuous U.adjoint U -
           sandwichContinuous V.adjoint V) T‖ := by
       rw [ContinuousLinearMap.sub_apply]
+      change ‖sandwich T U.adjoint U - sandwich T V.adjoint V‖ =
+        ‖sandwich T U.adjoint U - sandwich T V.adjoint V‖
+      rfl
     _ ≤ ‖sandwichContinuous U.adjoint U -
           sandwichContinuous V.adjoint V‖ * ‖T‖ :=
       ContinuousLinearMap.le_opNorm _ _
