@@ -5,6 +5,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireFourierInverseClosedGraph.lean'
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireFourierUniformForwardContinuity.lean'
       - '.github/workflows/v007-fourier-bochner-inverse-closed-graph.yml'
   workflow_dispatch:
 
