@@ -41,10 +41,16 @@ theorem sturmRealPositiveResolventFullCLM_monic_all_degree_eigenmode
       (sturmRealPolynomialLp lam hlam (sturmMonicEigenCandidate lam n)) =
       (t + (n : ℝ) * ((n : ℝ) + 2 * lam))⁻¹ •
         sturmRealPolynomialLp lam hlam (sturmMonicEigenCandidate lam n) := by
-  simpa only [sturmEigenvalue, sub_neg_eq_add] using
-    (sturmRealPositiveResolventFullCLM_polynomial_eigenmode
-      lam t hlam ht (sturmMonicEigenCandidate lam n) n
-      (sturmMonicEigenCandidate_eigen lam hlam n))
+  have h := sturmRealPositiveResolventFullCLM_polynomial_eigenmode
+    lam t hlam ht (sturmMonicEigenCandidate lam n) n
+      (sturmMonicEigenCandidate_eigen lam hlam n)
+  have hden :
+      t - sturmEigenvalue lam n =
+        t + (n : ℝ) * ((n : ℝ) + 2 * lam) := by
+    unfold sturmEigenvalue
+    ring
+  rw [hden] at h
+  exact h
 
 /-- Constructed Gegenbauer eigenmodes of distinct natural degrees are
 orthogonal in the genuine real weighted-L² space. No completeness
