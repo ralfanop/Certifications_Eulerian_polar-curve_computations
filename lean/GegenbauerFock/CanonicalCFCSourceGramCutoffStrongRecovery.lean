@@ -47,7 +47,9 @@ theorem exists_sourceGram_cutoff_strong_recovery
         (mu i : ℂ) * u.repr f i := by
     have hsq : (Real.sqrt (mu i) : ℂ) *
         (Real.sqrt (mu i) : ℂ) = (mu i : ℂ) := by
-      exact_mod_cast (Real.sq_sqrt (hpos i).le)
+      have hsqReal : Real.sqrt (mu i) * Real.sqrt (mu i) = mu i := by
+        simpa only [pow_two] using (Real.sq_sqrt (hpos i).le)
+      exact_mod_cast hsqReal
     change u.repr (C_adjoint lam alpha hlam ha
       (C lam alpha hlam ha f)) i = _
     rw [hAdj (C lam alpha hlam ha f) i, hC f i]
