@@ -57,4 +57,6 @@ jobs:
           fi
           grep -F "sturmRealPositiveResolventFullCLM_point_eigenvalue_iff' depends on axioms:" /tmp/v007-resolvent-point-axioms.log
           grep -F "sturmRealPositiveResolventFullCLM_zero_not_eigenvalue' depends on axioms:" /tmp/v007-resolvent-point-axioms.log
+          grep -F "sturmRealPositiveResolventFullCLM_injective' depends on axioms:" /tmp/v007-resolvent-point-axioms.log
+          grep -F "sturmRealPositiveResolventFullCLM_point_eigenvalue_pos' depends on axioms:" /tmp/v007-resolvent-point-axioms.log
           echo 'V007 exact real closed Sturm resolvent point eigenvalues kernel-audited.'
