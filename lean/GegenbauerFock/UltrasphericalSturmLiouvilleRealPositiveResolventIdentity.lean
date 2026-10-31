@@ -48,8 +48,11 @@ theorem sturmRealDomainPositiveShift_sub
         (t-s) • x := by
   change (t • x - sturmRealDomainLinear lam hlam x) -
     (s • x - sturmRealDomainLinear lam hlam x) = (t-s) • x
-  rw [sub_smul]
-  abel
+  calc
+    (t • x - sturmRealDomainLinear lam hlam x) -
+        (s • x - sturmRealDomainLinear lam hlam x) =
+      t • x - s • x := by abel
+    _ = (t-s) • x := (sub_smul t s x).symm
 
 /-- The exact second resolvent identity
 R_t - R_s = (s-t) R_t R_s for every positive pair t,s
@@ -73,11 +76,16 @@ theorem sturmRealDomainPositiveResolvent_difference
     sturmRealDomainPositiveShift_sub lam t s hlam (Rs f)
   have hAtRs : At (Rs f) = f + (t-s) • Rs f := by
     rw [hsf] at hts
-    exact sub_eq_iff_eq_add.mp hts
+    apply eq_of_sub_eq_zero
+    calc
+      At (Rs f) - (f + (t-s) • Rs f) =
+        (At (Rs f) - f) - (t-s) • Rs f := by abel
+      _ = 0 := sub_eq_zero.mpr hts
   have htd : At (Rt f - Rs f) = (s-t) • Rs f := by
     rw [map_sub, htf, hAtRs]
     have hst : (s-t) • Rs f = -((t-s) • Rs f) := by
-      rw [show s - t = -(t-s) by ring, neg_smul]
+      rw [show s - t = -(t-s) by ring]
+      simp
     rw [hst]
     abel
   have htr : At ((s-t) • Rt (Rs f)) = (s-t) • Rs f := by
