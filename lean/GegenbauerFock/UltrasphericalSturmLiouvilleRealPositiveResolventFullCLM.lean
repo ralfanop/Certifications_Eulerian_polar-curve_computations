@@ -78,10 +78,15 @@ theorem sturmRealPositiveResolventFullCLM_onCore
   have hdense :
       Dense (D lam hlam : Set (SturmH lam)) :=
     sturmRealPolynomialDomain_dense_set lam hlam
-  have h := ContinuousLinearMap.extend_eq
-    (sturmRealCorePositiveResolventCLM lam t hlam ht)
-    hdense.denseRange_val
-    isUniformEmbedding_subtype_val.isUniformInducing f
+  have h :
+      ((sturmRealCorePositiveResolventCLM lam t hlam ht).extend
+          (Submodule.subtypeL (D lam hlam)))
+          ((D lam hlam).subtypeL f) =
+        sturmRealCorePositiveResolventCLM lam t hlam ht f :=
+    ContinuousLinearMap.extend_eq
+      (sturmRealCorePositiveResolventCLM lam t hlam ht)
+      hdense.denseRange_val
+      isUniformEmbedding_subtype_val.isUniformInducing f
   rw [Submodule.subtypeL_apply] at h
   change ((sturmRealCorePositiveResolventCLM lam t hlam ht).extend
     (Submodule.subtypeL (D lam hlam))) (f : SturmH lam) = _
