@@ -20,8 +20,9 @@ theorem sturmPolynomial_X_pow_diagonal_lower
     sturmPolynomial lam (X ^ j) =
       C ((j : ℝ) * ((j : ℝ) - 1)) * X ^ (j-2) +
         C (sturmEigenvalue lam j) * X ^ j := by
-  rcases j with _ | _ | n
+  rcases j with _ | j
   · simp [sturmPolynomial_C, sturmEigenvalue]
+  rcases j with _ | n
   · simp [sturmPolynomial_X, sturmEigenvalue, sub_eq_add_neg]
     ring
   · have h := sturmPolynomial_X_pow_succ_succ lam n
