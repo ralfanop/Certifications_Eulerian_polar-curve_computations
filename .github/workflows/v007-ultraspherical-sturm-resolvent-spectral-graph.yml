@@ -59,4 +59,5 @@ jobs:
           grep -F "sturmRealPositiveResolventFullCLM_inner_symmetric' depends on axioms:" /tmp/v007-sturm-resolvent-graph-axioms.log
           grep -F "sturmRealPositiveResolventFullCLM_left_inverse_closed_shift' depends on axioms:" /tmp/v007-sturm-resolvent-graph-axioms.log
           grep -F "sturmRealClosed_graph_eq_full_resolvent_range' depends on axioms:" /tmp/v007-sturm-resolvent-graph-axioms.log
+          grep -F "sturmRealClosed_domain_eq_full_resolvent_range' depends on axioms:" /tmp/v007-sturm-resolvent-graph-axioms.log
           echo 'V007 exact full resolvent spectral graph kernel-certified.'
