@@ -202,6 +202,39 @@ theorem exists_shared_cfc_fock_gram_everywhere_instability
   · simpa only [map_add, add_sub_cancel_right] using hC
   · simpa only [map_add, add_sub_cancel_right] using hG
 
+/-- At any source f, perturbations of size exactly one can have
+simultaneously arbitrarily small changes in the true Fock measurements,
+the canonical CFC square-root image, and the Gram image. The bounds
+are quantitative and use the *same* perturbation sequence. -/
+theorem exists_shared_cfc_fock_gram_quantitative_everywhere_instability
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (f : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    ∃ v : ℕ → Lp ℂ 2 (Ultraspherical.measure lam),
+      ∀ n : ℕ,
+        ‖v n - f‖ = 1 ∧
+        ‖localCFCGramSqrt lam alpha hlam ha (v n) -
+          localCFCGramSqrt lam alpha hlam ha f‖ <
+          1 / ((n : ℝ) + 1) ∧
+        ‖C lam alpha hlam ha (v n) -
+          C lam alpha hlam ha f‖ =
+          ‖localCFCGramSqrt lam alpha hlam ha (v n) -
+            localCFCGramSqrt lam alpha hlam ha f‖ ∧
+        ‖gram lam alpha hlam ha (v n) -
+          gram lam alpha hlam ha f‖ ≤
+          ‖C_adjoint lam alpha hlam ha‖ *
+            (1 / ((n : ℝ) + 1)) := by
+  obtain ⟨u, hquant⟩ :=
+    exists_shared_cfc_fock_gram_quantitative_family lam alpha hlam ha
+  refine ⟨(fun n => u n + f), ?_⟩
+  intro n
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · simpa only [add_sub_cancel_right] using (hquant n).1
+  · simpa only [map_add, add_sub_cancel_right] using (hquant n).2.1
+  · simpa only [map_add, add_sub_cancel_right] using (hquant n).2.2.1
+  · simpa only [map_add, add_sub_cancel_right] using (hquant n).2.2.2
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_fock_gram_quantitative_everywhere_instability
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_fock_gram_everywhere_instability
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_fock_gram_quantitative_family
