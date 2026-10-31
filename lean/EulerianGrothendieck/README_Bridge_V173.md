@@ -9,7 +9,7 @@ lake build Bridge
 lake env lean Scratch/Audit.lean
 ```
 
-Audit result: 494 theorems in the namespace `EulerianBridge`, none of which uses an axiom other than `propext`, `Classical.choice` and `Quot.sound`. No `sorry`.
+Audit result: 821 theorems in the namespace `EulerianBridge` (`lake env lean AuditBridge.lean`), none of which uses an axiom other than `propext`, `Classical.choice` and `Quot.sound`. No `sorry`.
 
 ## Cited published results (explicit hypotheses, not re-proved)
 
