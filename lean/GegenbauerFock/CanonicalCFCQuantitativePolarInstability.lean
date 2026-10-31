@@ -497,6 +497,27 @@ theorem joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere
     tendsto_nhds_unique hnormzero hnormone
   norm_num at himpossible
 
+/-- There is no globally continuous exact reconstruction map from
+the actual joint CFC--Fock--Gram measurement range to its full source
+Hilbert space. The inverse is tested on the genuine subtype range,
+rather than on an artificial enlargement of the data domain. -/
+theorem joint_cfc_fock_gram_no_continuous_exact_inverse_on_range
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    ¬ ∃ (r :
+      Set.range (jointCFCFockGramMeasurements lam alpha hlam ha) →
+        Lp ℂ 2 (Ultraspherical.measure lam)),
+      Continuous r ∧
+      ∀ x : Lp ℂ 2 (Ultraspherical.measure lam),
+        r ⟨jointCFCFockGramMeasurements lam alpha hlam ha x,
+          ⟨x, rfl⟩⟩ = x := by
+  rintro ⟨r, hcont, hleft⟩
+  exact (joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere
+    lam alpha hlam ha
+    (0 : Lp ℂ 2 (Ultraspherical.measure lam))
+    r hleft) hcont.continuousAt
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.joint_cfc_fock_gram_no_continuous_exact_inverse_on_range
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere
