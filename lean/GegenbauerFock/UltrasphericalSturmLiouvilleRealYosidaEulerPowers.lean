@@ -37,7 +37,7 @@ theorem sturmRealYosidaEulerIterate_opNorm_le
   change ‖(sturmRealYosidaEulerStep lam t hlam ht h) ^ n‖ ≤ 1
   cases n with
   | zero =>
-      simpa only [pow_zero] using
+      simpa only [pow_zero, ContinuousLinearMap.one_def] using
         (ContinuousLinearMap.norm_id_le (𝕜 := ℝ) (E := SturmH lam))
   | succ n =>
       calc
