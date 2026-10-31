@@ -757,3 +757,40 @@ della CI e dell'audit `#print axioms`.
 
 **Invarianti:** PR #16 Draft senza merge; nessuna modifica a
 `main`, V097 o workflow V170.
+
+## 23. Chiusura CFC e ostruzione topologica — 31 ottobre 2026
+
+**Due CI precedentemente in coda ora certificate con SUCCESS:**
+
+- [41214256693](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41214256693),
+  commit `bb45b3cef047e46d24a713bb5c8d473925313a30`.
+- [41214270208](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41214270208),
+  commit `ee098bd737ea5e39c0fa6d69689c5df468023ed2`.
+
+Entrambe verificano, tramite kernel Lean 4 e `#print axioms`
+senza assiomi proibiti, il corollario
+`joint_cfc_fock_gram_no_continuous_exact_inverse_on_range`.
+Non esiste una funzione inversa esatta globalmente continua
+sulla vera immagine congiunta delle misure del fattore positivo
+CFC, della trasformata Fock e del Gram.
+
+**Nuovi teoremi depositati e NON ancora verificati:**
+
+1. `joint_cfc_fock_gram_no_homeomorphism_to_actual_range`:
+   la parametrizzazione del range tramite le sorgenti non può
+   coincidere con un omeomorfismo; commit sorgente
+   `9bc488d644762e8a32bda887101dfbb24393093d`.
+2. `joint_cfc_fock_gram_measurements_continuous_injective`:
+   la mappa congiunta è continua e iniettiva, nonostante
+   l'inversa discontinua; commit sorgente
+   `86fa311907d1ef58087afbf5fb472484c77902bf`.
+
+Workflow di audit depositato nel commit
+`0d2e3a34934e73025352af0958a6299429dfcb40`;
+CI dedicata
+[41229048881](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41229048881).
+Richiedere SUCCESS della compilazione e audit puliti di
+entrambi i nuovi teoremi prima di riportarli come certificati.
+
+**Invarianti:** PR #16 aperta in Draft, nessun merge,
+nessuna modifica a `main`, V097 o V170.
