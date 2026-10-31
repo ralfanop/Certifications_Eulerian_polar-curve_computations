@@ -52,3 +52,4 @@ import EulerianCert.CubeSlabs
 import EulerianCert.CubeSection
 import EulerianCert.EulerianFourier
 import EulerianCert.LocalLimit
+import EulerianCert.CentralSlope

@@ -214,3 +214,16 @@ open EulerianCert
 #print axioms EulerianCert.LocalLimit.error_bound
 #print axioms EulerianCert.LocalLimit.local_limit_rate
 #print axioms EulerianCert.LocalLimit.local_limit
+-- V001 Lemma 3.15, Eqs. (85)-(92) (module CentralSlope)
+#print axioms EulerianCert.CentralSlope.rE_lower6
+#print axioms EulerianCert.CentralSlope.rE_upper6
+#print axioms EulerianCert.CentralSlope.Mom_one
+#print axioms EulerianCert.CentralSlope.Mom_three
+#print axioms EulerianCert.CentralSlope.pointwise2
+#print axioms EulerianCert.CentralSlope.H2_bound
+#print axioms EulerianCert.CentralSlope.J_asymp
+#print axioms EulerianCert.CentralSlope.one_sub_cos_eq
+#print axioms EulerianCert.CentralSlope.ID_asymp
+#print axioms EulerianCert.CentralSlope.slope_eq
+#print axioms EulerianCert.CentralSlope.slope_asymp
+#print axioms EulerianCert.CentralSlope.inverse_slope_asymp
