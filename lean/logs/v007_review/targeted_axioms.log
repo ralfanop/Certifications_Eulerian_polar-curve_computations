@@ -1,0 +1,74 @@
+'GegenbauerFock.Ultraspherical.measure_eq_withDensity_gamma' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GegenbauerFock.Ultraspherical.probability' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GegenbauerFock.Ultraspherical.evenMoment_eq_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GegenbauerFock.Ultraspherical.oddMoment_eq_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GegenbauerFock.Ultraspherical.gammaDensity_moment_all_degrees' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.KummerCoefficients.ratio_eq_pochhammer' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GegenbauerFock.KummerCoefficients.kummerSeries_eq_pochhammer' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_pointwiseBochner' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.ultraspherical_fourierIntegral_differentiable_via_intrinsicFock' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_norm' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_opNorm_eq' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_opNorm_le_exp' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_opNorm_le_sqrt_kummer' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_gram_eq' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_gram_eq_integralLp' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_HS_basis_summable' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_HS_energy_eq_kummer' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_Gram_basis_trace_eq_kummer' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.exp_integral_eq_kummerSeries' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.gram_isTraceClass' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.gramTraceClass_actual_norm_eq_mathlibRegularizedKummer' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_compact' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_gram_isPositive' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_injective' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_denseRange' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_not_surjective' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_range_not_closed' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_gram_zero_continuous_spectrum' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.AnalyticKernel.spheroidal_kernel_differential_balance' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GegenbauerFock.RationalTrace.partial_fifteen' depends on axioms: [propext, Classical.choice, Quot.sound]

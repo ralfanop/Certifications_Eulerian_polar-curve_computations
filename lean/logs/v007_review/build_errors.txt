@@ -1,0 +1,43 @@
+561:  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+576:  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+1454:  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+2083:  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+2230:  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+3354:✖ [9287/9688] Building GegenbauerFock.PhyslibTraceClassContinuousInclusion (5.4s)
+3356:error: GegenbauerFock/PhyslibTraceClassContinuousInclusion.lean:40:8: Application type mismatch: The argument
+3364:error: GegenbauerFock/PhyslibTraceClassContinuousInclusion.lean:52:4: Application type mismatch: The argument
+4733:✖ [9437/9688] Building GegenbauerFock.CanonicalCFCPolarSquareRoot (31s)
+4738:error: GegenbauerFock/CanonicalCFCPolarSquareRoot.lean:47:0: failed to synthesize
+4743:error: GegenbauerFock/CanonicalCFCPolarSquareRoot.lean:52:0: failed to synthesize
+4748:error: GegenbauerFock/CanonicalCFCPolarSquareRoot.lean:63:2: failed to synthesize instance of type class
+4753:error: GegenbauerFock/CanonicalCFCPolarSquareRoot.lean:72:2: failed to synthesize instance of type class
+4758:error: GegenbauerFock/CanonicalCFCPolarSquareRoot.lean:88:12: failed to synthesize instance of type class
+4763:error: GegenbauerFock/CanonicalCFCPolarSquareRoot.lean:91:11: failed to synthesize instance of type class
+4768:error: GegenbauerFock/CanonicalCFCPolarSquareRoot.lean:104:14: failed to synthesize instance of type class
+4773:error: GegenbauerFock/CanonicalCFCPolarSquareRoot.lean:105:4: failed to synthesize instance of type class
+4782:error: GegenbauerFock/CanonicalCFCPolarSquareRoot.lean:130:11: failed to synthesize instance of type class
+4787:error: GegenbauerFock/CanonicalCFCPolarSquareRoot.lean:133:10: failed to synthesize instance of type class
+4792:error: GegenbauerFock/CanonicalCFCPolarSquareRoot.lean:137:13: failed to synthesize instance of type class
+4797:error: GegenbauerFock/CanonicalCFCPolarSquareRoot.lean:136:13: failed to synthesize instance of type class
+4802:error: GegenbauerFock/CanonicalCFCPolarSquareRoot.lean:152:14: failed to synthesize instance of type class
+4807:error: GegenbauerFock/CanonicalCFCPolarSquareRoot.lean:153:4: failed to synthesize instance of type class
+5085:✖ [9452/9688] Building GegenbauerFock.PhyslibDualGramsFiniteKummerResidual (7.2s)
+5100:error: GegenbauerFock/PhyslibDualGramsFiniteKummerResidual.lean:89:2: Type mismatch: After simplification, term
+5123:error: GegenbauerFock/PhyslibDualGramsFiniteKummerResidual.lean:109:2: Type mismatch: After simplification, term
+5199:  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+5322:✖ [9459/9688] Building GegenbauerFock.UltrasphericalSturmLiouvilleRealResolventCommutation (7.2s)
+5324:error: GegenbauerFock/UltrasphericalSturmLiouvilleRealResolventCommutation.lean:55:14: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+6629:✖ [9553/9688] Building GegenbauerFock.CanonicalCFCSpectralCutoffStrongRecovery (6.2s)
+6632:error: GegenbauerFock/CanonicalCFCSpectralCutoffStrongRecovery.lean:35:5: Unknown identifier `rankOne`
+6633:error: GegenbauerFock/CanonicalCFCSpectralCutoffStrongRecovery.lean:58:9: Unknown identifier `rankOne`
+6634:error: GegenbauerFock/CanonicalCFCSpectralCutoffStrongRecovery.lean:64:11: Unknown identifier `rankOne`
+6641:error: GegenbauerFock/CanonicalCFCSpectralCutoffStrongRecovery.lean:68:14: Unknown identifier `rankOne_apply`
+6642:error: GegenbauerFock/CanonicalCFCSpectralCutoffStrongRecovery.lean:66:37: unsolved goals
+6660:error: GegenbauerFock/CanonicalCFCSpectralCutoffStrongRecovery.lean:74:10: Unknown identifier `rankOne`
+6661:error: GegenbauerFock/CanonicalCFCSpectralCutoffStrongRecovery.lean:78:12: Unknown identifier `rankOne`
+7977:  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+8050:✖ [9654/9688] Building GegenbauerFock.UltrasphericalSturmLiouvilleMonicClosedDirichletPoincare (7.5s)
+8052:error: GegenbauerFock/UltrasphericalSturmLiouvilleMonicClosedDirichletPoincare.lean:52:8: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+8068:Full error:
+8474:Some required targets logged failures:
+8481:error: build failed
