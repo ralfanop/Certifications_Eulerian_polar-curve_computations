@@ -74,7 +74,9 @@ jobs:
             joint_cfc_fock_gram_no_homeomorphism_to_actual_range \
             joint_cfc_fock_gram_measurements_continuous_injective \
             joint_fock_gram_norm_control_by_cfc_root \
-            joint_fock_gram_difference_control_by_cfc_root; do
+            joint_fock_gram_difference_control_by_cfc_root \
+            exists_joint_fock_data_graph_factorization \
+            joint_cfc_fock_gram_data_convergence_iff_fock; do
             grep -F "$theorem' depends on axioms:" /tmp/v007-cfc-shared-polar-instability-axioms.log
           done
           echo 'V007 shared exact CFC-Fock polar quantitative instability audited.'
