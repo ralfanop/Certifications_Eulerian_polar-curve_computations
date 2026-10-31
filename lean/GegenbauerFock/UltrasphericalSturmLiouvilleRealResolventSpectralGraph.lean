@@ -43,7 +43,7 @@ theorem sturmRealPositiveResolventFullCLM_inner_symmetric
   have hay : A.closure y = t • R g - g := congrArg Prod.snd hy
   have hsym := sturmRealPartialOperator_closure_symmetric lam hlam x y
   rw [hxf, hax, hyg, hay] at hsym
-  simp only [real_inner_sub_left, real_inner_sub_right,
+  simp only [inner_sub_left, inner_sub_right,
     real_inner_smul_left, real_inner_smul_right] at hsym
   dsimp [R]
   linarith
@@ -71,14 +71,16 @@ theorem sturmRealPositiveResolventFullCLM_left_inverse_closed_shift
   have hzero :
       t • ((y - x : A.closure.domain) : SturmH lam) -
         A.closure (y - x) = 0 := by
-    simp only [Submodule.coe_sub, map_sub]
+    have hmap : A.closure (y - x) =
+        A.closure y - A.closure x := A.closure.map_sub y x
+    rw [hmap]
+    simp only [Submodule.coe_sub]
     calc
       t • ((y : SturmH lam) - (x : SturmH lam)) -
           (A.closure y - A.closure x) =
         (t • (y : SturmH lam) - A.closure y) -
           (t • (x : SturmH lam) - A.closure x) := by abel
-      _ = f - f := by rw [hshift_y]; rfl
-      _ = 0 := sub_self _
+      _ = 0 := sub_eq_zero.mpr hshift_y
   have hxy : y = x :=
     sub_eq_zero.mp (sturmRealClosedPositiveShift_kernel
       lam t hlam ht (y - x) hzero)
