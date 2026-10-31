@@ -115,6 +115,7 @@ noncomputable def sturmRealHeatLimitCLM
       SturmH lam →ₗ[ℝ] SturmH lam).mkContinuous 1
         (by
           intro f
+          change ‖sturmRealHeatLimitVector lam hlam s hs f‖ ≤ 1 * ‖f‖
           simpa only [one_mul] using
             sturmRealHeatLimitVector_norm_le lam hlam s hs f)
 
@@ -125,7 +126,8 @@ theorem sturmRealHeatLimitCLM_opNorm_le
     ‖sturmRealHeatLimitCLM lam hlam s hs‖ ≤ 1 := by
   apply ContinuousLinearMap.opNorm_le_bound _ zero_le_one
   intro f
-  simpa only [sturmRealHeatLimitCLM, LinearMap.mkContinuous_apply, one_mul] using
+  change ‖sturmRealHeatLimitVector lam hlam s hs f‖ ≤ 1 * ‖f‖
+  simpa only [one_mul] using
     sturmRealHeatLimitVector_norm_le lam hlam s hs f
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealHeatLimitVector_tendsto
