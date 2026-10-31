@@ -1,4 +1,5 @@
 import GegenbauerFock.GaussianAreaIntrinsicRieszExactGramScalar
+import GegenbauerFock.GaussianAreaIntrinsicCoherentExponentialSeparation
 
 /-!
 # V007 — strict positivity and exact degeneracy of finite Gaussian Fock Gram energies
@@ -99,9 +100,36 @@ theorem intrinsicRieszKernel_exp_gram_positive_real_iff
     · exact sq_pos_of_pos (norm_pos_iff.mpr hx)
     · exact intrinsicRieszKernel_exp_gram_eq_complex_norm_sq s z c alpha ha
 
+/-- A finite Gaussian-Fock exponential Gram energy is strictly
+positive real exactly when its associated entire exponential sum is
+nonzero at some point. No distinctness assumption on the nodes is
+required. -/
+theorem intrinsicRieszKernel_exp_gram_positive_real_iff_exists_witness
+    {ι : Type*} (s : Finset ι) (z c : ι → ℂ)
+    (alpha : ℝ) (ha : 0 < alpha) :
+    (∃ r : ℝ, 0 < r ∧
+      (∑ i ∈ s, ∑ j ∈ s,
+        star (c i) * c j *
+          Complex.exp ((alpha : ℂ) * z i * star (z j))) = (r : ℂ)) ↔
+    ∃ w : ℂ, (∑ i ∈ s,
+      c i * Complex.exp ((alpha : ℂ) * w * star (z i))) ≠ 0 := by
+  rw [intrinsicRieszKernel_exp_gram_positive_real_iff s z c alpha ha]
+  constructor
+  · intro hnonzero
+    by_contra hnowitness
+    push_neg at hnowitness
+    exact hnonzero
+      ((intrinsicRieszKernel_finite_coherent_eq_zero_iff_exp_sum
+        s z c alpha ha).mpr hnowitness)
+  · rintro ⟨w, hw⟩ hzero
+    exact hw
+      ((intrinsicRieszKernel_finite_coherent_eq_zero_iff_exp_sum
+        s z c alpha ha).mp hzero w)
+
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_pos_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_eq_zero_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_pos_iff_ne_zero
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_positive_real_iff
+#print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_positive_real_iff_exists_witness
 
 end GegenbauerFock.GaussianArea
