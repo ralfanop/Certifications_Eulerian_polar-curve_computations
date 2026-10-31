@@ -41,6 +41,6 @@ D [0.20378375953604944382608062942260682847 +/- 4.25e-39]
     }
   ],
   "published_value_certified": true,
-  "seconds": 0.8902428150177002
+  "seconds": 1.0550117492675781
 }
 rerun reproduces the stored enclosures of D, D^2 and the half-lengths exactly

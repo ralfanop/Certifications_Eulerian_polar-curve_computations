@@ -1,6 +1,6 @@
 V001 decimals certified in Arb ball arithmetic
 python 3.13.17; python-flint 0.9.0; precision 768 bits
-script sha256 a2f07e385a21457997b9d36765404def42bbe0ae5bbf6edec67e5d8716d72986
+script sha256 f02fe2d92da482b26d681af757e4cbff6d1920ce123c13ef5e65ec297a84fe7b
 
 Eq. (6) A_0                                          1.745308598921205431531889      CERTIFIED
                                                        enclosure [1.745308598921205431531888873477132448121 +/- 4.07e-41]
@@ -25,7 +25,7 @@ Table 1, row 3, %                                    94.013                     
 Sec. 4, projection Hausdorff error                   0.0847669...                    CERTIFIED
                                                        enclosure [0.08476693004920185826046136672445059341138 +/- 1.13e-42]
 Eq. (59) theta_*                                     2.10258309466509376393          CERTIFIED
-                                                       enclosure (2.10258309466509363261, 2.10258309466509363261), width 6.7e-81
+                                                       enclosure (2.1025830946650937639301862074580599059954, 2.1025830946650937639301862074580599059954), width 6.7e-81
 Eq. (60) Delta                                       0.09953351643838914835807       CERTIFIED
                                                        enclosure [0.09953351643838914835807141084665748981746 +/- 4.38e-42]
 Eq. (60) eps_rad                                     0.04976675821919457417904       CERTIFIED
@@ -75,4 +75,4 @@ negative control: eps_rad approx 0.0497667 (truncation)                      rej
 
 27 printed decimals, 6 inequalities, 4 negative controls
 ALL CERTIFIED
-elapsed 0.1s
+elapsed 0.2s
