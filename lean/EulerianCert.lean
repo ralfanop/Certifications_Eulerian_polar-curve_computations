@@ -39,3 +39,4 @@ import EulerianCert.FourierSeries
 import EulerianCert.SineIntegral
 import EulerianCert.Projection
 import EulerianCert.Energy
+import EulerianCert.Turning

@@ -108,3 +108,6 @@ open EulerianCert
 #print axioms EulerianCert.Energy.plancherel
 #print axioms EulerianCert.Energy.Etot_closed
 #print axioms EulerianCert.Energy.rms_residual
+-- V001 Proposition 3.7, Eq. (39) (module Turning)
+#print axioms EulerianCert.Turning.smooth_turning
+#print axioms EulerianCert.Turning.k_pos
