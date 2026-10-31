@@ -44,10 +44,12 @@ jobs:
         run: |
           set -euo pipefail
           lake build GegenbauerFock.UltrasphericalSturmLiouvilleResolventMultiplierDecay 2>&1 | tee /tmp/gf-resolvent-multiplier-decay.log
-          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-resolvent-multiplier-decay.log; then
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleResolventMultiplierDecay.lean 2>&1 | tee /tmp/gf-resolvent-multiplier-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-resolvent-multiplier-decay.log /tmp/gf-resolvent-multiplier-axioms.log; then
             echo '::error::Nonstandard axiom in resolvent multiplier decay.'
             exit 1
           fi
           for theorem in sturmResolventMultiplier_pos sturmResolventMultiplier_tendsto_zero; do
-            grep -q "axioms GegenbauerFock.Ultraspherical.${theorem}" /tmp/gf-resolvent-multiplier-decay.log
+            grep -F "${theorem}' depends on axioms:" /tmp/gf-resolvent-multiplier-axioms.log
           done
+          echo 'V007 resolvent multiplier positivity and decay kernel-certified.'
