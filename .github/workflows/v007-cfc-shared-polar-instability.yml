@@ -65,7 +65,8 @@ jobs:
             exists_shared_cfc_polar_strong_null_sequence \
             exists_shared_cfc_fock_gram_strong_null_sequence \
             exists_shared_cfc_fock_gram_quantitative_family \
-            exists_shared_cfc_fock_gram_everywhere_instability; do
+            exists_shared_cfc_fock_gram_everywhere_instability \
+            exists_shared_cfc_fock_gram_quantitative_everywhere_instability; do
             grep -F "$theorem' depends on axioms:" /tmp/v007-cfc-shared-polar-instability-axioms.log
           done
           echo 'V007 shared exact CFC-Fock polar quantitative instability audited.'
