@@ -80,7 +80,7 @@ theorem sturmMonic_realL2_closed_Dirichlet_poincare_constant_optimal
   rw [henergy] at hh
   have hpos : 0 < ‖(x : SturmH lam)‖ ^ 2 :=
     pow_pos (norm_pos_iff.mpr hx) _
-  exact (mul_le_mul_right hpos).mp hh
+  exact (mul_le_mul_iff_of_pos_right hpos).mp hh
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealClosed_first_nonconstant_eigenmode_zero_constant
 #print axioms GegenbauerFock.Ultraspherical.sturmMonic_realL2_closed_Dirichlet_poincare_constant_optimal
