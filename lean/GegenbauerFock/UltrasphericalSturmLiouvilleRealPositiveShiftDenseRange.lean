@@ -63,10 +63,8 @@ theorem sturmRealPartialPositiveShift_polynomial_preimage
         ((sturmRealPolynomialLinear lam hlam).map_sub
           (t • q) (sturmPolynomial lam q)).symm
     _ = sturmRealPolynomialLp lam hlam p := by
-      change sturmRealPolynomialLp lam hlam
-        (sturmPositiveShiftPolynomial lam t q) =
-          sturmRealPolynomialLp lam hlam p
-      rw [hq]
+      simpa only [sturmPositiveShiftPolynomial, smul_eq_C_mul] using
+        congrArg (sturmRealPolynomialLp lam hlam) hq
 
 /-- The true real weighted-L² range of tI-A is dense for EVERY
 positive real spectral shift, without any extra density axiom. -/
