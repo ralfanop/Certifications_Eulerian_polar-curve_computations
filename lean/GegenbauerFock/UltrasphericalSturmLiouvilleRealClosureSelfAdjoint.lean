@@ -82,6 +82,8 @@ theorem sturmRealPartialOperator_closure_isSelfAdjoint
           simpa only [inner_sub_left] using h)
       rw [hyx]
       exact x.property
+    · intro y z hyz
+      exact (hle.2 hyz.symm).symm
   · exact hle
 
 
