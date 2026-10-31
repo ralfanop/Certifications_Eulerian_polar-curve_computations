@@ -1,4 +1,4 @@
-# Lean 4 certification of manuscript V173: Sections 3, 4, 6, 7, 8, 9.1–9.2, Appendix A and the decimal values
+# Lean 4 certification of manuscript V173: Sections 3, 4, 6, 7, 8, 9.1–9.2, Lemma 5.5, Appendix A and the decimal values
 
 Toolchain: Lean 4.24.0 with Mathlib `f897ebcf72cd16f89ab4577d0c826cd14afaafc7`. This is the EulerianGrothendieck project with the new `Bridge` library declared in `lakefile.toml`.
 
@@ -6,7 +6,7 @@ Build:
 
 ```
 lake build Bridge
-lake env lean AuditBridge.lean
+lake env lean Scratch/Audit.lean
 ```
 
 Audit result: 494 theorems in the namespace `EulerianBridge`, none of which uses an axiom other than `propext`, `Classical.choice` and `Quot.sound`. No `sorry`.
@@ -98,6 +98,35 @@ Audit result: 494 theorems in the namespace `EulerianBridge`, none of which uses
   - (69): `eulerPoly`;
   - (70): `euler_comparison`.
 
+**Section 5, Lemma 5.5** (`Saddle/*`: the saddlepoint estimate with two derivatives, in its `C²` form)
+- Objects as in the manuscript:
+  - `w_M` (density of `S_M`, iterated convolution): `Saddle.w`;
+  - `g_M(x) = M w_M(Mx)`: `gM`;
+  - `A(z) = ∫ e^{zt}`, `Λ = log A`, `κ_r = Λ^{(r)}`: `A`, `Lr`, `κ`;
+  - `s = I'` (inverse of `Λ'`): `UL.Ip`, ported from the certified UniformLanczos `Lambda` module (Lemma 5.3);
+  - `I(x) = s x − Λ(s)`: `Irate`, which equals `sup_t (tx − Λ(t))` (eq. (56)): `Irate_isGreatest`;
+  - `v = Λ''(s)`: `vx`;
+  - `η = (κ₄/v² − 5κ₃²/(3v³))/8` (eq. (67)): `etaS`, `etaX`.
+- Representation (69)–(70):
+  - Laplace transform `∫ e^{zy} w_M = A(z)^M`: `laplace_w`;
+  - Fourier inversion of the tilted density, `w_M(y) = (2π)⁻¹ ∫ A(s+iu)^M e^{−(s+iu)y} du` for every real tilt `s`: `w_eq_Wint`;
+  - the first two derivatives under the integral sign: `deriv_w_ofReal`, `deriv2_w_ofReal`, `w_repr`.
+- Bounds on `χ`:
+  - `|χ| ≤ 1`, and `|χ| ≤ ρ < 1` for `|u| ≥ δ` uniformly in `|s| ≤ σ` (eq. (72)): `norm_χ_le_one`, `exists_rho`;
+  - decay (69): `norm_A_decay`.
+- Inner region, expansion (73) and (76) carried to fourth order with a fifth-order remainder:
+  - Taylor expansion with Cauchy estimates, uniform in the tilt: `taylor_Lc`, `coeff_bound`, `Ψ_taylor`;
+  - pointwise bound: `inner_pointwise`;
+  - Gaussian moments: `integral_complex_moment`;
+  - `I_r = √(2π/v)(N_r(ε) + O(ε⁵))`, `r = 0, 1, 2`: `Ir_expansion`.
+- Cancellations (74) and the coefficients of (77): `id_G02` (`= η`), `id_G11`, `id_G13`, `id_G22`, `id_G24`.
+- Eq. (68) with explicit derivatives:
+  - `lemma_5_5`: for every `b ∈ (0, 1/2)` there are `M₀` and `C` with `|E_M|`, `|E_M'|`, `|E_M''| ≤ C/(M√M)` on `[−b, b]`, together with `HasDerivAt` for `E_M` and `E_M'`;
+  - `lemma_5_5_C2`: `E_M''` is continuous on `[−b, b]` for `M` large.
+- The consequences stated after (68):
+  - `lemma_5_5_phi`: `|φ_M' − I'| ≤ C/M` and `|φ_M'' − I''| ≤ C/M` on `[−b, b]`, with `I'' = 1/v`, and `sup |φ_M''| ≤ C`.
+- The proof route differs from the printed one only in one point. The printed proof differentiates the tilted integral `𝒥_M(x)` in `x`. Here the tilt `s` is held fixed while differentiating in `y = Mx`, and only then is `s = s(x)` set; the representation holds for every real `s`. This uses the expansions of `∫ (iu)^r χ^M du` up to `O(ε⁵)` with `ε = M^{−1/2}`, and the identities `id_G22`, `id_G24` provide the cancellation of the leading terms. The statement certified is (68) exactly as printed.
+
 **Section 6** (`Mellin`, `MellinExtras`)
 - Def. 6.1 and Prop. 6.2: `qE_eq_sech`, `qE_pos`, `qE_strictAntiOn`, `qE_le_exp`.
 - Thm. 6.3:
@@ -143,10 +172,10 @@ Audit result: 494 theorems in the namespace `EulerianBridge`, none of which uses
 - The six displayed scalars: `endpoint_value`, `joining_point_value`, `determinant_value`, `beta_three_value`, `angle_degrees_value`, `bargmann_constant_value`.
 - η(1/4) ≈ −0.184391: `eta_quarter`.
 
-## Not yet formalised
+## Not formalised here
 
-- **Lemma 5.5 in C² form:** only the B-spline density w_M and its support properties are in place (`Saddle/Spline.lean`).
-- **Statements left to the cited sources:**
+- Statements left to the cited sources:
   - log(1+√2) = √2 L₈(1) (Finch);
   - convex ⇒ starlike (classical);
   - the holomorphic continuation remark after Theorem 6.3.
+- Lemma 5.6 uses Floater's B-spline inequality (cited, published); Theorem 5.9 uses Levin–Lubinsky, Theorem 13.4 (cited, published). Both enter the manuscript as published inputs.
