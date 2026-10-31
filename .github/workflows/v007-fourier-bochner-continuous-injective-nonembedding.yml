@@ -10,7 +10,7 @@ on:
 
 # At most one specialist audit runs per branch; retain running SHA-scoped proof checks.
 concurrency:
-  group: v007-fourier-uniform-sampling-${{ github.ref }}
+  group: v007-fourier-injective-nonembedding-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
