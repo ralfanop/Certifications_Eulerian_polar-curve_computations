@@ -18,7 +18,7 @@ be proved, using diagonal coordinates and vanishing multipliers.
 
 noncomputable section
 namespace GegenbauerFock.Ultraspherical
-open MeasureTheory
+open MeasureTheory InnerProductSpace
 
 private abbrev SturmH (lam : ℝ) := Lp ℝ 2 (measure lam)
 
