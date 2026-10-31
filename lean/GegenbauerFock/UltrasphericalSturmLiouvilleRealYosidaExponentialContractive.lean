@@ -1,6 +1,7 @@
 import GegenbauerFock.UltrasphericalSturmLiouvilleRealYosidaExponentialNorm
 import GegenbauerFock.UltrasphericalSturmLiouvilleRealYosidaContraction
 import Mathlib.Analysis.SpecialFunctions.Exponential
+import Mathlib.Tactic.ModuleNF
 
 /-!
 # V007 — contractivity of the bounded Yosida semigroup (all nonnegative times)
@@ -54,9 +55,7 @@ theorem sturmRealYosidaExponential_opNorm_le_one
     change s • (t • (t • R - ContinuousLinearMap.id ℝ (SturmH lam))) =
       (-(s*t)) • ContinuousLinearMap.id ℝ (SturmH lam) +
         (s*t) • (t • R)
-    rw [smul_smul, smul_sub]
-    simp only [sub_eq_add_neg, smul_smul]
-    abel
+    module_nf with ℝ
   have hcomm : Commute
       ((-c) • (1 : SturmH lam →L[ℝ] SturmH lam)) (c • B) := by
     change ((-c) • (1 : SturmH lam →L[ℝ] SturmH lam)) * (c • B) =
