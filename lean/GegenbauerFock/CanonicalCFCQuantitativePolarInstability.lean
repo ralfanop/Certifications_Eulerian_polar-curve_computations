@@ -385,6 +385,29 @@ private def jointCFCFockGramMeasurements
   (localCFCGramSqrt lam alpha hlam ha x,
     (C lam alpha hlam ha x, gram lam alpha hlam ha x))
 
+/-- The joint data map is continuous and one-to-one, even though
+its inverse on its actual image is nowhere continuous. This gives
+the required forward regularity and uniqueness for the topological
+ill-posedness statements. -/
+theorem joint_cfc_fock_gram_measurements_continuous_injective
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    Continuous (jointCFCFockGramMeasurements lam alpha hlam ha) ∧
+    Function.Injective (jointCFCFockGramMeasurements lam alpha hlam ha) := by
+  obtain ⟨W, hcompact, hinj, hdense, hnotclosed, hfactor⟩ :=
+    exists_local_cfc_sqrt_compact_dense_nonclosed lam alpha hlam ha
+  constructor
+  · change Continuous (fun x : Lp ℂ 2 (Ultraspherical.measure lam) =>
+      (localCFCGramSqrt lam alpha hlam ha x,
+        (C lam alpha hlam ha x, gram lam alpha hlam ha x)))
+    exact (localCFCGramSqrt lam alpha hlam ha).continuous.prodMk
+      ((C lam alpha hlam ha).continuous.prodMk
+        (gram lam alpha hlam ha).continuous)
+  · intro x y hxy
+    apply hinj
+    exact congrArg Prod.fst hxy
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.joint_cfc_fock_gram_measurements_continuous_injective
+
 /-- The exact inverse defined only on the *actual range* of the joint
 CFC--Fock--Gram measurements (with its genuine subtype topology)
 is discontinuous at the measured data of every source f.
