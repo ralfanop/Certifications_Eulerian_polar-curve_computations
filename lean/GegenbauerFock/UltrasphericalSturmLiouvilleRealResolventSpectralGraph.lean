@@ -118,8 +118,36 @@ theorem sturmRealClosed_graph_eq_full_resolvent_range
     exact sturmRealPositiveResolventFullCLM_closed_graph
       lam t hlam ht f
 
+/-- The domain of the canonical closure is EXACTLY the range of
+the everywhere-defined bounded positive Sturm resolvent. This is a
+concrete full-domain statement, not merely an extension on polynomials. -/
+theorem sturmRealClosed_domain_eq_full_resolvent_range
+    (lam t : ℝ) (hlam : 0 < lam) (ht : 0 < t) :
+    ((sturmRealPartialOperator lam hlam).closure.domain :
+      Set (SturmH lam)) =
+    Set.range (sturmRealPositiveResolventFullCLM lam t hlam ht) := by
+  ext u
+  constructor
+  · intro hu
+    let x : (sturmRealPartialOperator lam hlam).closure.domain :=
+      ⟨u, hu⟩
+    refine ⟨t • u -
+      (sturmRealPartialOperator lam hlam).closure x, ?_⟩
+    exact sturmRealPositiveResolventFullCLM_left_inverse_closed_shift
+      lam t hlam ht x
+  · rintro ⟨f, rfl⟩
+    let A := sturmRealPartialOperator lam hlam
+    obtain ⟨x, hx⟩ := (A.closure.mem_graph_iff').mp
+      (sturmRealPositiveResolventFullCLM_closed_graph lam t hlam ht f)
+    have hfirst : (x : SturmH lam) =
+        sturmRealPositiveResolventFullCLM lam t hlam ht f :=
+      congrArg Prod.fst hx
+    rw [← hfirst]
+    exact x.property
+
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_inner_symmetric
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_left_inverse_closed_shift
 #print axioms GegenbauerFock.Ultraspherical.sturmRealClosed_graph_eq_full_resolvent_range
+#print axioms GegenbauerFock.Ultraspherical.sturmRealClosed_domain_eq_full_resolvent_range
 
 end GegenbauerFock.Ultraspherical
