@@ -7,3 +7,8 @@ git = "https://github.com/leanprover-community/mathlib4.git"
 rev = "f897ebcf72cd16f89ab4577d0c826cd14afaafc7"
 [[lean_lib]]
 name = "EulerianGrothendieck"
+[[lean_lib]]
+name = "Bridge"
+[[lean_lib]]
+name = "V033"
+roots = ["V033Core", "V033CumulantPolynomials", "V033UniformIntegrals", "V033UniformSumMoments"]
