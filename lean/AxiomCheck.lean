@@ -196,3 +196,12 @@ open EulerianCert
 #print axioms EulerianCert.CubeSection.Sec_eq
 #print axioms EulerianCert.CubeSection.hausdorff_section
 #print axioms EulerianCert.CubeSection.eulerian_section
+-- V001 §3.11, Eqs. (80)-(81), and Lemma 3.15, Eq. (84) integral form (module EulerianFourier)
+#print axioms EulerianCert.EulerianFourier.density
+#print axioms EulerianCert.EulerianFourier.g_sample
+#print axioms EulerianCert.EulerianFourier.g_succ
+#print axioms EulerianCert.EulerianFourier.ghat_eq
+#print axioms EulerianCert.EulerianFourier.g_inversion
+#print axioms EulerianCert.EulerianFourier.eulerian_fourier_inversion
+#print axioms EulerianCert.EulerianFourier.eulerian_symmetry
+#print axioms EulerianCert.EulerianFourier.central_slope_integral

@@ -1,35 +1,35 @@
-⚠ [1992/2014] Replayed EulerianCert.SignCriterion
+⚠ [1992/2033] Replayed EulerianCert.SignCriterion
 warning: EulerianCert/SignCriterion.lean: imports `Mathlib.Topology.MetricSpace.HausdorffDistance` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/SignCriterion.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/SignCriterion.lean: imports `Mathlib.Analysis.Normed.Group.InfiniteSum` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/SignCriterion.lean: imports `Mathlib.Topology.Algebra.InfiniteSum.Real` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [2290/2487] Replayed EulerianCert.Bracket
+⚠ [2290/2551] Replayed EulerianCert.Bracket
 warning: EulerianCert/Bracket.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Bracket.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [2291/2487] Replayed EulerianCert.Crossing
+⚠ [2291/2551] Replayed EulerianCert.Crossing
 warning: EulerianCert/Crossing.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [2292/2487] Replayed EulerianCert.Limacon
+⚠ [2292/2551] Replayed EulerianCert.Limacon
 warning: EulerianCert/Limacon.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Limacon.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [2293/2487] Replayed EulerianCert.Corner
+⚠ [2293/2551] Replayed EulerianCert.Corner
 warning: EulerianCert/Corner.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Corner.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Corner.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [2445/2487] Replayed EulerianCert.Combinatorics
+⚠ [2445/2551] Replayed EulerianCert.Combinatorics
 warning: EulerianCert/Combinatorics.lean: imports `Mathlib.LinearAlgebra.Matrix.SchurComplement` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.SpecialFunctions.Exp` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.SpecialFunctions.Sqrt` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.SpecificLimits.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Topology.Algebra.InfiniteSum.Real` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [2446/2487] Replayed EulerianCert.MontgomeryTaylor
+⚠ [2446/2551] Replayed EulerianCert.MontgomeryTaylor
 warning: EulerianCert/MontgomeryTaylor.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [2461/2487] Replayed EulerianCert.Cyclohedral
+⚠ [2461/2551] Replayed EulerianCert.Cyclohedral
 warning: EulerianCert/Cyclohedral.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Chebyshev.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Cyclohedral.lean: imports `Mathlib.Analysis.SpecialFunctions.Pow.Real` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Cyclohedral.lean: imports `Mathlib.LinearAlgebra.Matrix.Determinant.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Cyclohedral.lean: imports `Mathlib.Analysis.Complex.Norm` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [2847/2887] Replayed EulerianCert.FourierModes
+⚠ [2847/3033] Replayed EulerianCert.FourierModes
 warning: EulerianCert/FourierModes.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Sinc` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/FourierModes.lean: imports `Mathlib.Analysis.SpecialFunctions.Integrals.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/FourierModes.lean: imports `Mathlib.Analysis.PSeries` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
@@ -39,19 +39,19 @@ Hint: The binding can be removed (if unused) or named `_` (if used implicitly). 
   [apply] _hn
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-⚠ [3103/3202] Replayed EulerianCert.FourierSeries
+⚠ [3103/3220] Replayed EulerianCert.FourierSeries
 warning: EulerianCert/FourierSeries.lean: imports `Mathlib.Analysis.Fourier.AddCircle` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/FourierSeries.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Inverse` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/FourierSeries.lean: imports `Mathlib.Analysis.Normed.Group.FunctionSeries` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [3105/3202] Replayed EulerianCert.SineIntegral
+⚠ [3105/3220] Replayed EulerianCert.SineIntegral
 warning: EulerianCert/SineIntegral.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Series` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/SineIntegral.lean: imports `Mathlib.Analysis.SpecificLimits.Normed` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/SineIntegral.lean: imports `Mathlib.MeasureTheory.Integral.DominatedConvergence` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/SineIntegral.lean: imports `Mathlib.RingTheory.Polynomial.Pochhammer` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [3146/3202] Replayed EulerianCert.SineIntegralComplex
+⚠ [3146/3220] Replayed EulerianCert.SineIntegralComplex
 warning: EulerianCert/SineIntegralComplex.lean: imports `Mathlib.Analysis.Complex.LocallyUniformLimit` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/SineIntegralComplex.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Series` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [3149/3202] Replayed EulerianCert.Turning
+⚠ [3149/3220] Replayed EulerianCert.Turning
 warning: EulerianCert/Turning.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.ArctanDeriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Turning.lean: imports `Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Turning.lean:37:67: This simp argument is unused:
@@ -75,12 +75,12 @@ warning: EulerianCert/Turning.lean:143:20: `if_neg` has been deprecated: Use `it
 
 Hint: Replace the deprecated name:
   i̵f̵_̵n̵e̵g̵i̲t̲e̲_̲e̲q̲_̲r̲i̲g̲h̲t̲
-⚠ [3151/3202] Replayed EulerianCert.RadialMinimax
+⚠ [3151/3220] Replayed EulerianCert.RadialMinimax
 warning: EulerianCert/RadialMinimax.lean: imports `Mathlib.Analysis.Convex.Deriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/RadialMinimax.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.InverseDeriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/RadialMinimax.lean: imports `Mathlib.Analysis.SpecialFunctions.Sqrt` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/RadialMinimax.lean: imports `Mathlib.Analysis.SpecialFunctions.Integrals.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [3152/3202] Replayed EulerianCert.HausdorffMinimax
+⚠ [3152/3220] Replayed EulerianCert.HausdorffMinimax
 warning: EulerianCert/HausdorffMinimax.lean: imports `Mathlib.Topology.MetricSpace.HausdorffDistance` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/HausdorffMinimax.lean: imports `Mathlib.Topology.Order.IntermediateValue` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/HausdorffMinimax.lean:133:41: Variable name `k` is not explicitly referenced.
@@ -95,9 +95,9 @@ Hint: The binding can be removed (if unused) or named `_` (if used implicitly). 
   [apply] _p
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-⚠ [3154/3202] Replayed EulerianCert.HausdorffAttain
+⚠ [3154/3220] Replayed EulerianCert.HausdorffAttain
 warning: EulerianCert/HausdorffAttain.lean: imports `Mathlib.Topology.Order.IntermediateValue` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [3163/3202] Replayed EulerianCert.Lebesgue
+⚠ [3163/3220] Replayed EulerianCert.Lebesgue
 warning: EulerianCert/Lebesgue.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Lebesgue.lean: imports `Mathlib.Analysis.SpecialFunctions.Integrals.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/Lebesgue.lean: imports `Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
@@ -109,12 +109,12 @@ info: EulerianCert/Lebesgue.lean:52:43: Try this:
   The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
     
   Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
-⚠ [3164/3202] Replayed EulerianCert.CurvatureGrowth
+⚠ [3164/3220] Replayed EulerianCert.CurvatureGrowth
 warning: EulerianCert/CurvatureGrowth.lean: imports `Mathlib.Analysis.Normed.Operator.BanachSteinhaus` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/CurvatureGrowth.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.ArctanDeriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/CurvatureGrowth.lean: imports `Mathlib.Analysis.Complex.RealDeriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/CurvatureGrowth.lean: imports `Mathlib.Topology.ContinuousMap.Compact` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [3181/3202] Replayed EulerianCert.CurvatureMeasures
+⚠ [3181/3220] Replayed EulerianCert.CurvatureMeasures
 warning: EulerianCert/CurvatureMeasures.lean: imports `Mathlib.MeasureTheory.VectorMeasure.Decomposition.Jordan` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/CurvatureMeasures.lean: imports `Mathlib.MeasureTheory.VectorMeasure.WithDensity` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/CurvatureMeasures.lean: imports `Mathlib.MeasureTheory.Integral.IntervalIntegral.IntegrationByParts` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
@@ -130,7 +130,7 @@ Note: The updated constant is in a different namespace. Dot notation may need to
 
 Hint: Replace the deprecated name:
   V̵e̵c̵t̵o̵r̵M̵e̵a̵s̵u̵r̵e̵.̵a̵d̵d̵_̵a̵p̵p̵l̵y̵a̲d̲d̲_̲a̲p̲p̲l̲y̲
-⚠ [3182/3202] Replayed EulerianCert.CubeSlabs
+⚠ [3182/3220] Replayed EulerianCert.CubeSlabs
 warning: EulerianCert/CubeSlabs.lean: imports `Mathlib.MeasureTheory.Constructions.Pi` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/CubeSlabs.lean: imports `Mathlib.MeasureTheory.Integral.DivergenceTheorem` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/CubeSlabs.lean: imports `Mathlib.MeasureTheory.Integral.Prod` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
@@ -186,7 +186,7 @@ warning: EulerianCert/CubeSlabs.lean:446:13: `MeasureTheory.measure_diff` has be
 
 Hint: Replace the deprecated name:
   measure_s̲diff
-⚠ [3200/3202] Replayed EulerianCert.CubeSection
+⚠ [3200/3220] Replayed EulerianCert.CubeSection
 warning: EulerianCert/CubeSection.lean: imports `Mathlib.Analysis.InnerProductSpace.NormDet` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/CubeSection.lean: imports `Mathlib.Geometry.Euclidean.Volume.Measure` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 warning: EulerianCert/CubeSection.lean: imports `Mathlib.MeasureTheory.Measure.Haar.OfBasis` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
@@ -194,5 +194,20 @@ warning: EulerianCert/CubeSection.lean:82:25: `Set.mem_setOf_eq` has been deprec
 
 Hint: Replace the deprecated name:
   S̵e̵t̵.̵m̵e̵m̵_̵s̵e̵t̵O̵f̵_̵e̵q̵m̲e̲m̲_̲o̲f̲P̲r̲e̲d̲_̲e̲q̲
-✔ [3201/3202] Built EulerianCert (2.3s)
-Build completed successfully (3202 jobs).
+⚠ [3218/3220] Built EulerianCert.EulerianFourier (12s)
+warning: EulerianCert/EulerianFourier.lean: imports `Mathlib.Analysis.Fourier.Inversion` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/EulerianFourier.lean: imports `Mathlib.Analysis.SpecialFunctions.ImproperIntegrals` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/EulerianFourier.lean: imports `Mathlib.MeasureTheory.Integral.Prod` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/EulerianFourier.lean:257:8: Try this: 
+  haveI̵
+
+The goal is a proposition, so `have` is preferred over `haveI`.
+The difference between `have` and `haveI` is that `haveI` inlines the value.
+But this is not relevant for proofs because of proof irrelevance.
+
+Note: This linter can be disabled with `set_option linter.style.haveILetI false`
+warning: EulerianCert/EulerianFourier.lean:379:28: Unused tactic linter: `push_cast` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+✔ [3219/3220] Built EulerianCert (2.4s)
+Build completed successfully (3220 jobs).
