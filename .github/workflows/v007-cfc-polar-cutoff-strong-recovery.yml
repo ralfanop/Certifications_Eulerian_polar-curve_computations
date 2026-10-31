@@ -4,6 +4,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/CanonicalCFCRootPolarCutoffStrongRecovery.lean'
+      - 'lean/GegenbauerFock/CanonicalCFCSpectralCutoffStrongRecovery.lean'
       - '.github/workflows/v007-cfc-polar-cutoff-strong-recovery.yml'
   workflow_dispatch:
 
