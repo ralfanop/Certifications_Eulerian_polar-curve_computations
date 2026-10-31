@@ -87,7 +87,7 @@ theorem ultraspherical_fourierBochner_uniformSamples_continuous
   have hK1 : 0 < K + 1 := by linarith
   have hrad : 0 < ε / (K + 1) := div_pos hε hK1
   have hnear : Metric.ball f (ε / (K + 1)) ∈ nhds f :=
-    Metric.ball_mem_nhds hrad
+    Metric.ball_mem_nhds f hrad
   have hfrac : K / (K + 1) < 1 :=
     (div_lt_iff₀ hK1).mpr (by linarith)
   have hstrict : K * (ε / (K + 1)) < ε := by
