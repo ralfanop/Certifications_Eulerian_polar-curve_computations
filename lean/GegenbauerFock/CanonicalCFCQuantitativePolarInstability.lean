@@ -311,7 +311,7 @@ theorem joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere
         z + localCFCGramSqrt lam alpha hlam ha f) :=
       continuous_id.add continuous_const
     have h := hc.continuousAt.tendsto.comp hP
-    simpa only [sub_add_cancel, zero_add] using h
+    simpa only [Function.comp_def, sub_add_cancel, zero_add] using h
   have hCto : Filter.Tendsto
       (fun n : ℕ => C lam alpha hlam ha (v n))
       Filter.atTop (nhds (C lam alpha hlam ha f)) := by
@@ -319,7 +319,7 @@ theorem joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere
         z + C lam alpha hlam ha f) :=
       continuous_id.add continuous_const
     have h := hc.continuousAt.tendsto.comp hC
-    simpa only [sub_add_cancel, zero_add] using h
+    simpa only [Function.comp_def, sub_add_cancel, zero_add] using h
   have hGto : Filter.Tendsto
       (fun n : ℕ => gram lam alpha hlam ha (v n))
       Filter.atTop (nhds (gram lam alpha hlam ha f)) := by
@@ -327,7 +327,7 @@ theorem joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere
         z + gram lam alpha hlam ha f) :=
       continuous_id.add continuous_const
     have h := hc.continuousAt.tendsto.comp hG
-    simpa only [sub_add_cancel, zero_add] using h
+    simpa only [Function.comp_def, sub_add_cancel, zero_add] using h
   have hpair : Filter.Tendsto
       (fun n : ℕ =>
         (localCFCGramSqrt lam alpha hlam ha (v n),
@@ -335,7 +335,7 @@ theorem joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere
       Filter.atTop
       (nhds (localCFCGramSqrt lam alpha hlam ha f,
           (C lam alpha hlam ha f, gram lam alpha hlam ha f))) :=
-    hPto.prodMk (hCto.prodMk hGto)
+    (hPto.prodMk (hCto.prodMk hGto)).of_prod_nhds
   intro r hleft hcont
   have hrec : Filter.Tendsto
       (fun n : ℕ =>
@@ -357,7 +357,7 @@ theorem joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere
     have hc : Continuous (fun z : Lp ℂ 2 (Ultraspherical.measure lam) =>
         z - f) := continuous_id.sub continuous_const
     have h := hc.continuousAt.tendsto.comp hrec
-    simpa only [sub_self] using h
+    simpa only [Function.comp_def, sub_self] using h
   have hnormzero : Filter.Tendsto
       (fun n : ℕ => ‖v n - f‖)
       Filter.atTop (nhds (0 : ℝ)) := by
@@ -414,7 +414,7 @@ theorem joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere
         z + localCFCGramSqrt lam alpha hlam ha f) :=
       continuous_id.add continuous_const
     have h := hc.continuousAt.tendsto.comp hP
-    simpa only [sub_add_cancel, zero_add] using h
+    simpa only [Function.comp_def, sub_add_cancel, zero_add] using h
   have hCto : Filter.Tendsto
       (fun n : ℕ => C lam alpha hlam ha (v n))
       Filter.atTop (nhds (C lam alpha hlam ha f)) := by
@@ -422,7 +422,7 @@ theorem joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere
         z + C lam alpha hlam ha f) :=
       continuous_id.add continuous_const
     have h := hc.continuousAt.tendsto.comp hC
-    simpa only [sub_add_cancel, zero_add] using h
+    simpa only [Function.comp_def, sub_add_cancel, zero_add] using h
   have hGto : Filter.Tendsto
       (fun n : ℕ => gram lam alpha hlam ha (v n))
       Filter.atTop (nhds (gram lam alpha hlam ha f)) := by
@@ -430,7 +430,7 @@ theorem joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere
         z + gram lam alpha hlam ha f) :=
       continuous_id.add continuous_const
     have h := hc.continuousAt.tendsto.comp hG
-    simpa only [sub_add_cancel, zero_add] using h
+    simpa only [Function.comp_def, sub_add_cancel, zero_add] using h
   have hpair : Filter.Tendsto
       (fun n : ℕ => jointCFCFockGramMeasurements lam alpha hlam ha (v n))
       Filter.atTop
@@ -442,7 +442,7 @@ theorem joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere
       Filter.atTop
       (nhds (localCFCGramSqrt lam alpha hlam ha f,
         (C lam alpha hlam ha f, gram lam alpha hlam ha f)))
-    exact hPto.prodMk (hCto.prodMk hGto)
+    exact (hPto.prodMk (hCto.prodMk hGto)).of_prod_nhds
   intro r hleft hcont
   have hsub : Filter.Tendsto
       (fun n : ℕ =>
@@ -479,7 +479,7 @@ theorem joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere
     have hc : Continuous (fun z : Lp ℂ 2 (Ultraspherical.measure lam) =>
         z - f) := continuous_id.sub continuous_const
     have h := hc.continuousAt.tendsto.comp hrec
-    simpa only [sub_self] using h
+    simpa only [Function.comp_def, sub_self] using h
   have hnormzero : Filter.Tendsto
       (fun n : ℕ => ‖v n - f‖)
       Filter.atTop (nhds (0 : ℝ)) := by
