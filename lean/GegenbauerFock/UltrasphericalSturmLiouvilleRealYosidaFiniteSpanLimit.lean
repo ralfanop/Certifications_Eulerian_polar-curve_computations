@@ -86,7 +86,7 @@ theorem sturmRealYosidaExponential_finiteGegenbauer_tendsto
           (a n) • (sturmRealYosidaExponential lam ((k : ℝ) + 1) hlam
             (by positivity : 0 < (k : ℝ) + 1) s (v n))) := by
     funext k
-    dsimp [sturmRealGegenbauerFiniteVector]
+    dsimp [sturmRealGegenbauerFiniteVector, v]
     simp only [map_sum, map_smul]
   rw [hfun]
   exact hfinite
