@@ -375,6 +375,130 @@ theorem joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere
     tendsto_nhds_unique hnormzero hnormone
   norm_num at himpossible
 
+/-- The joint measurement map into the true ambient product. -/
+private def jointCFCFockGramMeasurements
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (x : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    Lp ℂ 2 (Ultraspherical.measure lam) ×
+      (InfiniteAnalysis.FockCoefficients ×
+        Lp ℂ 2 (Ultraspherical.measure lam)) :=
+  (localCFCGramSqrt lam alpha hlam ha x,
+    (C lam alpha hlam ha x, gram lam alpha hlam ha x))
+
+/-- The exact inverse defined only on the *actual range* of the joint
+CFC--Fock--Gram measurements (with its genuine subtype topology)
+is discontinuous at the measured data of every source f.
+Unlike a statement about an ambient-space extension, no extension
+of the inverse outside the range is assumed. -/
+theorem joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (f : Lp ℂ 2 (Ultraspherical.measure lam)) :
+    ∀ (r :
+      Set.range (jointCFCFockGramMeasurements lam alpha hlam ha) →
+        Lp ℂ 2 (Ultraspherical.measure lam)),
+      (∀ x : Lp ℂ 2 (Ultraspherical.measure lam),
+        r ⟨jointCFCFockGramMeasurements lam alpha hlam ha x,
+          ⟨x, rfl⟩⟩ = x) →
+      ¬ ContinuousAt r
+        (⟨jointCFCFockGramMeasurements lam alpha hlam ha f,
+          ⟨f, rfl⟩⟩ :
+            Set.range (jointCFCFockGramMeasurements lam alpha hlam ha)) := by
+  obtain ⟨v, hunit, hP, hC, hG⟩ :=
+    exists_shared_cfc_fock_gram_everywhere_instability
+      lam alpha hlam ha f
+  have hPto : Filter.Tendsto
+      (fun n : ℕ => localCFCGramSqrt lam alpha hlam ha (v n))
+      Filter.atTop
+      (nhds (localCFCGramSqrt lam alpha hlam ha f)) := by
+    have hc : Continuous (fun z : Lp ℂ 2 (Ultraspherical.measure lam) =>
+        z + localCFCGramSqrt lam alpha hlam ha f) :=
+      continuous_id.add continuous_const
+    have h := hc.continuousAt.tendsto.comp hP
+    simpa only [sub_add_cancel, zero_add] using h
+  have hCto : Filter.Tendsto
+      (fun n : ℕ => C lam alpha hlam ha (v n))
+      Filter.atTop (nhds (C lam alpha hlam ha f)) := by
+    have hc : Continuous (fun z : InfiniteAnalysis.FockCoefficients =>
+        z + C lam alpha hlam ha f) :=
+      continuous_id.add continuous_const
+    have h := hc.continuousAt.tendsto.comp hC
+    simpa only [sub_add_cancel, zero_add] using h
+  have hGto : Filter.Tendsto
+      (fun n : ℕ => gram lam alpha hlam ha (v n))
+      Filter.atTop (nhds (gram lam alpha hlam ha f)) := by
+    have hc : Continuous (fun z : Lp ℂ 2 (Ultraspherical.measure lam) =>
+        z + gram lam alpha hlam ha f) :=
+      continuous_id.add continuous_const
+    have h := hc.continuousAt.tendsto.comp hG
+    simpa only [sub_add_cancel, zero_add] using h
+  have hpair : Filter.Tendsto
+      (fun n : ℕ => jointCFCFockGramMeasurements lam alpha hlam ha (v n))
+      Filter.atTop
+      (nhds (jointCFCFockGramMeasurements lam alpha hlam ha f)) := by
+    change Filter.Tendsto
+      (fun n : ℕ =>
+        (localCFCGramSqrt lam alpha hlam ha (v n),
+          (C lam alpha hlam ha (v n), gram lam alpha hlam ha (v n))))
+      Filter.atTop
+      (nhds (localCFCGramSqrt lam alpha hlam ha f,
+        (C lam alpha hlam ha f, gram lam alpha hlam ha f)))
+    exact hPto.prodMk (hCto.prodMk hGto)
+  intro r hleft hcont
+  have hsub : Filter.Tendsto
+      (fun n : ℕ =>
+        (⟨jointCFCFockGramMeasurements lam alpha hlam ha (v n),
+          ⟨v n, rfl⟩⟩ :
+          Set.range (jointCFCFockGramMeasurements lam alpha hlam ha)))
+      Filter.atTop
+      (nhds (⟨jointCFCFockGramMeasurements lam alpha hlam ha f,
+        ⟨f, rfl⟩⟩ :
+        Set.range (jointCFCFockGramMeasurements lam alpha hlam ha))) := by
+    apply tendsto_subtype_rng.mpr
+    exact hpair
+  have hrec : Filter.Tendsto
+      (fun n : ℕ => r
+        (⟨jointCFCFockGramMeasurements lam alpha hlam ha (v n),
+          ⟨v n, rfl⟩⟩ :
+          Set.range (jointCFCFockGramMeasurements lam alpha hlam ha)))
+      Filter.atTop
+      (nhds (r
+        (⟨jointCFCFockGramMeasurements lam alpha hlam ha f,
+          ⟨f, rfl⟩⟩ :
+          Set.range (jointCFCFockGramMeasurements lam alpha hlam ha)))) :=
+    hcont.tendsto.comp hsub
+  have heq : (fun n : ℕ => r
+        (⟨jointCFCFockGramMeasurements lam alpha hlam ha (v n),
+          ⟨v n, rfl⟩⟩ :
+          Set.range (jointCFCFockGramMeasurements lam alpha hlam ha))) = v := by
+    funext n
+    exact hleft (v n)
+  rw [heq, hleft f] at hrec
+  have hdiff : Filter.Tendsto (fun n : ℕ => v n - f)
+      Filter.atTop
+      (nhds (0 : Lp ℂ 2 (Ultraspherical.measure lam))) := by
+    have hc : Continuous (fun z : Lp ℂ 2 (Ultraspherical.measure lam) =>
+        z - f) := continuous_id.sub continuous_const
+    have h := hc.continuousAt.tendsto.comp hrec
+    simpa only [sub_self] using h
+  have hnormzero : Filter.Tendsto
+      (fun n : ℕ => ‖v n - f‖)
+      Filter.atTop (nhds (0 : ℝ)) := by
+    simpa using hdiff.norm
+  have hnormone : Filter.Tendsto
+      (fun n : ℕ => ‖v n - f‖)
+      Filter.atTop (nhds (1 : ℝ)) := by
+    have hh : (fun n : ℕ => ‖v n - f‖) =
+        (fun _ : ℕ => (1 : ℝ)) := by
+      funext n
+      exact hunit n
+    rw [hh]
+    exact tendsto_const_nhds
+  have himpossible : (0 : ℝ) = 1 :=
+    tendsto_nhds_unique hnormzero hnormone
+  norm_num at himpossible
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.joint_cfc_fock_gram_inverse_on_actual_range_discontinuous_everywhere
+
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.joint_cfc_fock_gram_exact_reconstruction_discontinuous_everywhere
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_unit_perturbation_with_arbitrarily_small_joint_measurements
