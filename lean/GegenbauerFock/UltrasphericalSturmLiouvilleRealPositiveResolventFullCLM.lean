@@ -78,13 +78,14 @@ theorem sturmRealPositiveResolventFullCLM_onCore
   have hdense :
       Dense (D lam hlam : Set (SturmH lam)) :=
     sturmRealPolynomialDomain_dense_set lam hlam
-  unfold sturmRealPositiveResolventFullCLM
-  simpa only [sturmRealCorePositiveResolventCLM_apply,
-    Submodule.subtypeL_apply] using
-    (ContinuousLinearMap.extend_eq
-      (sturmRealCorePositiveResolventCLM lam t hlam ht)
-      hdense.denseRange_val
-      isUniformEmbedding_subtype_val.isUniformInducing f)
+  have h := ContinuousLinearMap.extend_eq
+    (sturmRealCorePositiveResolventCLM lam t hlam ht)
+    hdense.denseRange_val
+    isUniformEmbedding_subtype_val.isUniformInducing f
+  rw [Submodule.subtypeL_apply] at h
+  change ((sturmRealCorePositiveResolventCLM lam t hlam ht).extend
+    (Submodule.subtypeL (D lam hlam))) (f : SturmH lam) = _
+  exact h.trans (sturmRealCorePositiveResolventCLM_apply lam t hlam ht f)
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealCorePositiveResolventCLM_apply
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_onCore
