@@ -48,7 +48,7 @@ theorem sturmMonicEigenCandidate_realL2_coefficients_eq_zero_iff
       rw [← Submodule.orthogonal_closure, hdense]
       simp
     rw [hbot] at hf
-    exact Submodule.mem_bot.mp hf
+    simpa only [Submodule.mem_bot] using hf
   · intro hf n
     rw [hf]
     exact inner_zero_right _
