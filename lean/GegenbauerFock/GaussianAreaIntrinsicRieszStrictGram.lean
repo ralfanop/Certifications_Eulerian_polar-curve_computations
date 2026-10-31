@@ -152,11 +152,47 @@ theorem intrinsicRieszKernel_exp_sum_norm_sq_le_exp_mul_gram_re
     intrinsicRieszKernel_finite_coherent_pairing_exp s z c alpha ha w] at h
   rwa [intrinsicRieszKernel_exp_gram_re_eq_norm_sq s z c alpha ha]
 
+/-- Each complex coherent sample gives a computable nonnegative
+lower bound for the exact Gaussian Gram energy, normalized by the
+strictly positive diagonal exponential weight. -/
+theorem intrinsicRieszKernel_exp_gram_re_ge_normalized_sample
+    {ι : Type*} (s : Finset ι) (z c : ι → ℂ)
+    (alpha : ℝ) (ha : 0 < alpha) (w : ℂ) :
+    ‖∑ i ∈ s, c i *
+        Complex.exp ((alpha : ℂ) * w * star (z i))‖ ^ 2 /
+      Real.exp (alpha * ‖w‖ ^ 2) ≤
+        Complex.re (∑ i ∈ s, ∑ j ∈ s,
+          star (c i) * c j *
+            Complex.exp ((alpha : ℂ) * z i * star (z j))) := by
+  apply (div_le_iff₀ (Real.exp_pos (alpha * ‖w‖ ^ 2))).2
+  have h := intrinsicRieszKernel_exp_sum_norm_sq_le_exp_mul_gram_re
+    s z c alpha ha w
+  rw [mul_comm (Real.exp (alpha * ‖w‖ ^ 2))
+    (Complex.re (∑ i ∈ s, ∑ j ∈ s,
+      star (c i) * c j *
+        Complex.exp ((alpha : ℂ) * z i * star (z j))))] at h
+  exact h
+
+/-- At the origin, the exact intrinsic Gaussian Gram energy bounds
+the squared magnitude of the total coherent coefficient sum. -/
+theorem intrinsicRieszKernel_exp_gram_re_ge_origin_coeff_sum
+    {ι : Type*} (s : Finset ι) (z c : ι → ℂ)
+    (alpha : ℝ) (ha : 0 < alpha) :
+    ‖∑ i ∈ s, c i‖ ^ 2 ≤
+      Complex.re (∑ i ∈ s, ∑ j ∈ s,
+        star (c i) * c j *
+          Complex.exp ((alpha : ℂ) * z i * star (z j))) := by
+  simpa using
+    (intrinsicRieszKernel_exp_sum_norm_sq_le_exp_mul_gram_re
+      s z c alpha ha 0)
+
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_pos_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_eq_zero_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_pos_iff_ne_zero
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_positive_real_iff
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_positive_real_iff_exists_witness
 #print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_sum_norm_sq_le_exp_mul_gram_re
+#print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_ge_normalized_sample
+#print axioms GegenbauerFock.GaussianArea.intrinsicRieszKernel_exp_gram_re_ge_origin_coeff_sum
 
 end GegenbauerFock.GaussianArea
