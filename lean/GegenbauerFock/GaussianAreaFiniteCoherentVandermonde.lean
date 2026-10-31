@@ -1,4 +1,5 @@
 import Mathlib.LinearAlgebra.Vandermonde
+import GegenbauerFock.FockEvaluationSequence
 
 /-!
 # V007 — exact finite coherent Vandermonde separation
