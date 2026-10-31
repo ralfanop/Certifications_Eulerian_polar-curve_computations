@@ -1,0 +1,4 @@
+PASS: both certificates support the existing 24-place value.
+PASS: all recorded rounding tests, short enclosure and program hashes.
+PASS: finer interval is contained in the principal interval.
+PASS: independent direct quadrature lies inside the principal interval.

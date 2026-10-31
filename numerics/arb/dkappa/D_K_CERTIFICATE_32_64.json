@@ -1,0 +1,71 @@
+{
+  "quantity": "D_kappa: separate normalised arclength, smooth arcs only",
+  "definition": "D^2 = int_0^1 (k_E(theta_E(v))-k_L(theta_L(v)))^2 dv; theta_i(0)=0, theta_i(1)=pi",
+  "parameters": {
+    "bits": 256,
+    "order": 32,
+    "panels": 64,
+    "terms": 80,
+    "output": "D_K_CERTIFICATE_32_64.json"
+  },
+  "python_version": "3.12.14 (main, Aug 25 2026, 13:50:22) [Clang 22.1.3 ]",
+  "python_flint_version": "0.9.0",
+  "normalisation": "Both full arcs start at theta=-pi and follow increasing theta; evenness reduces the integral to the centre-to-join half-arc variable v.",
+  "half_lengths": {
+    "E": {
+      "lower": "2.775538485257010180340016321980268872045694140976858176268831",
+      "upper": "2.775538485257010180340016321980268872045694232615808757913496"
+    },
+    "L": {
+      "lower": "2.762157245996884630613622349962828685694055949440739470652240",
+      "upper": "2.762157245996884630613622349962828685694055949455362010650686"
+    }
+  },
+  "D_squared": {
+    "lower": "0.041527820650646422632825112027900010402135981707656225830311",
+    "upper": "0.041527820650646422632825112027900010403665370998031629372023"
+  },
+  "D": {
+    "lower": "0.203783759536049443826080629422606828470494451196624581353928",
+    "upper": "0.203783759536049443826080629422606828474246989273842126201317"
+  },
+  "largest_inverse_x_radius_upper": "[3.286553791572019641559548752120363678032264492926903435976761642393856496199e-44 +/- 3.38e-120]",
+  "outer_Taylor_remainder_bound_sum": "[7.646290460898606948047764854380153267748025178415069993821214423299561248370e-40 +/- 6.14e-116]",
+  "rounding_checks": [
+    {
+      "places": 6,
+      "rounded": "0.203784",
+      "certified": true
+    },
+    {
+      "places": 12,
+      "rounded": "0.203783759536",
+      "certified": true
+    },
+    {
+      "places": 18,
+      "rounded": "0.203783759536049444",
+      "certified": true
+    },
+    {
+      "places": 24,
+      "rounded": "0.203783759536049443826081",
+      "certified": true
+    },
+    {
+      "places": 30,
+      "rounded": "0.203783759536049443826080629423",
+      "certified": true
+    },
+    {
+      "places": 36,
+      "rounded": "0.203783759536049443826080629422606828",
+      "certified": true
+    }
+  ],
+  "published_24_place_value": "0.203783759536049443826081",
+  "published_24_place_rounding_cell_contains_enclosure": true,
+  "elapsed_seconds": 0.9951181411743164,
+  "method": "Real ball arithmetic, explicit polynomial-tail bounds, rigorous Taylor quadrature, residual/positive-speed inverse enclosure, inverse-series derivative enclosures.",
+  "script_sha256": "9f438eaba926a3fa7c2291e5d44856fcad9b187e8848645c19417533e549250c"
+}

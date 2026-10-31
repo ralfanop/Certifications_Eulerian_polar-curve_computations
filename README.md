@@ -24,6 +24,7 @@ endpoints are converted to Python `Fraction`s.
 | --- | --- | --- |
 | `mpmath.iv` | (library) | Outward-rounded interval arithmetic of mpmath (pure Python), 70–150 significant digits. |
 | `ia_fixed` | `numerics/ia_fixed.py` | Written for this package; independent of mpmath. Exact Python integers, 560-bit fixed point, every rounding directed outward; sin/cos by Taylor series with explicit tail bounds; π by Machin's formula with explicit tail bounds. No floating point. |
+| Arb (FLINT) | `numerics/arb/` | Ball arithmetic of FLINT through python-flint 0.9.0, 256–768 bits. Certificates for every decimal printed in V001 (h_* to 80 places, D_κ, and `v001_arb_decimals.py` for the rest); see `numerics/arb/README.md`. |
 
 Every interval certificate in the table below is run on **both** backends; the integer and symbolic checks need no interval arithmetic.
 
@@ -154,7 +155,7 @@ estimates of the proof of Lemma 3.15 are proved in an equivalent form rather tha
 tail bound (88) (the formal proof uses `|r_E| ≤ 24/25` on `|t| ≥ 1` with a fixed cut-off instead of
 `δ = D^{−2/5}`) and the expansions (89)–(90) (proved as two-sided exponential bounds for `r_E` with an
 explicit sixth-order constant). Not formalised: the printed decimals, which remain certified by interval
-arithmetic (§2), and the classical combinatorial meaning of `E(n,k)` (permutations with `k` ascents);
+arithmetic (§2) and, every one of them, also in Arb ball arithmetic (`numerics/arb/README.md`), and the classical combinatorial meaning of `E(n,k)` (permutations with `k` ascents);
 in Lean `E` is the triangle defined by its recurrence (`Bracket`).
 
 ## 6. Reproducing

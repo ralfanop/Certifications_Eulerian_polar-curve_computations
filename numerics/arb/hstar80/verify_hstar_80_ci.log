@@ -1,0 +1,7 @@
+python 3.13.17
+python-flint 0.9.0
+Arb-only replay PASSED
+panels verified: 2589
+Q(L) > L and Q(U) < U
+CERTIFIED correctly rounded to 80 decimal places:
+h_* ≈ 0.04929794832571833570703662300396701228024147449936041418804532388531218517828559

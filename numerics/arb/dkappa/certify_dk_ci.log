@@ -1,0 +1,46 @@
+Parameters {'bits': 256, 'order': 32, 'panels': 64, 'terms': 80, 'output': '/tmp/dk_32_64.json'}
+E half-length [2.7755384852570101803400163219802688720456942 +/- 5.91e-44]
+L half-length [2.76215724599688463061362234996282868569405594945 +/- 9.27e-48]
+Outer panels 16 / 64 radius [4.77098e-47 +/- 1.73e-53]
+Outer panels 32 / 64 radius [1.93726e-46 +/- 2.85e-52]
+Outer panels 48 / 64 radius [4.69946e-45 +/- 4.18e-51]
+Outer panels 64 / 64 radius [7.64695e-40 +/- 3.56e-46]
+D^2 [0.041527820650646422632825112027900010403 +/- 8.65e-40]
+D [0.20378375953604944382608062942260682847 +/- 4.25e-39]
+{
+  "rounding": [
+    {
+      "places": 6,
+      "rounded": "0.203784",
+      "certified": true
+    },
+    {
+      "places": 12,
+      "rounded": "0.203783759536",
+      "certified": true
+    },
+    {
+      "places": 18,
+      "rounded": "0.203783759536049444",
+      "certified": true
+    },
+    {
+      "places": 24,
+      "rounded": "0.203783759536049443826081",
+      "certified": true
+    },
+    {
+      "places": 30,
+      "rounded": "0.203783759536049443826080629423",
+      "certified": true
+    },
+    {
+      "places": 36,
+      "rounded": "0.203783759536049443826080629422606828",
+      "certified": true
+    }
+  ],
+  "published_value_certified": true,
+  "seconds": 1.0550117492675781
+}
+rerun reproduces the stored enclosures of D, D^2 and the half-lengths exactly

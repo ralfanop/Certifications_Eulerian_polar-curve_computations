@@ -1,0 +1,63 @@
+name: V001 Arb certificates
+
+on:
+  push:
+    branches:
+      - v001-arb-decimals
+    paths:
+      - 'numerics/arb/**'
+      - '.github/workflows/v001-arb.yml'
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: write
+
+jobs:
+  arb:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install python-flint (Arb) and mpmath
+        run: python -m pip install python-flint==0.9.0 mpmath==1.4.1
+      - name: h_* to 80 places, Arb-only replay of the stored certificate
+        working-directory: numerics/arb/hstar80
+        run: python verify_hstar_80.py | tee verify_hstar_80_ci.log
+      - name: D_kappa, Arb rerun of the certificate program and record check
+        working-directory: numerics/arb/dkappa
+        run: |
+          python certify_dk.py --order 32 --panels 64 --output /tmp/dk_32_64.json | tee certify_dk_ci.log
+          python - <<'EOF' | tee -a certify_dk_ci.log
+          import json
+          new = json.load(open("/tmp/dk_32_64.json"))
+          old = json.load(open("D_K_CERTIFICATE_32_64.json"))
+          for k in ("D", "D_squared", "half_lengths", "rounding_checks"):
+              assert new[k] == old[k], k
+          print("rerun reproduces the stored enclosures of D, D^2 and the half-lengths exactly")
+          EOF
+          python verify_certificate.py | tee verify_certificate_ci.log
+      - name: V001 decimals not covered by the two certificates above
+        working-directory: numerics/arb
+        run: python v001_arb_decimals.py | tee v001_arb_decimals.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v001-arb-logs
+          path: |
+            numerics/arb/*.log
+            numerics/arb/hstar80/*_ci.log
+            numerics/arb/dkappa/*_ci.log
+      - name: Commit the logs of this run to the branch
+        if: always() && github.ref == 'refs/heads/v001-arb-decimals'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f numerics/arb/*.log numerics/arb/hstar80/*_ci.log numerics/arb/dkappa/*_ci.log
+          git diff --cached --quiet || git commit -m "CI logs of the V001 Arb certificates (run ${{ github.run_id }})"
+          git push
