@@ -6,6 +6,7 @@ on:
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicClosedPoincareSharp.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicInfiniteSpectralPoincare.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicClosedDirichletPoincare.lean'
       - '.github/workflows/v007-ultraspherical-sturm-closed-poincare-sharp.yml'
   workflow_dispatch:
 
