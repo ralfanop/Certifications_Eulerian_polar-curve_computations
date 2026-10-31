@@ -37,8 +37,9 @@ theorem intrinsicRieszKernel_exp_gram_eq_complex_norm_sq
           simpa only [intrinsicRieszKernel_closed_form alpha ha] using
             (intrinsicRieszKernel_finite_gram_eq_inner s z c alpha ha)
     _ = ((‖∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)‖ ^ 2 : ℝ) : ℂ) := by
-      rw [inner_self_eq_norm_sq_to_K]
-      norm_cast
+      simpa only [Complex.ofReal_pow] using
+        (inner_self_eq_norm_sq_to_K (𝕜 := ℂ)
+          (∑ i ∈ s, c i • intrinsicRieszKernel alpha ha (z i)))
 
 /-- The imaginary part of every finite Gaussian exponential Gram
 quadratic form is exactly zero. -/
