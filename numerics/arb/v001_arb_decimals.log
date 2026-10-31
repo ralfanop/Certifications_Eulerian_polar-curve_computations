@@ -1,0 +1,78 @@
+V001 decimals certified in Arb ball arithmetic
+python 3.13.17; python-flint 0.9.0; precision 768 bits
+script sha256 a2f07e385a21457997b9d36765404def42bbe0ae5bbf6edec67e5d8716d72986
+
+Eq. (6) A_0                                          1.745308598921205431531889      CERTIFIED
+                                                       enclosure [1.745308598921205431531888873477132448121 +/- 4.07e-41]
+Eq. (27) b_E                                         0.872654299460602715765944      CERTIFIED
+                                                       enclosure [0.8726542994606027157659444367385662240605 +/- 2.04e-41]
+Eq. (28) a_E                                         0.151267597043819514429948      CERTIFIED
+                                                       enclosure [0.1512675970438195144299480165240581825113 +/- 4.01e-41]
+Eq. (29) b_E - a_E - 2/pi (also Sec. 3.10)           0.08476693004920185826          CERTIFIED
+                                                       enclosure [0.08476693004920185826046136672445059341138 +/- 1.13e-42]
+Eq. (33) vartheta_E in degrees                       35.3135743                      CERTIFIED
+                                                       enclosure [35.31357430282571695763546695784572252434 +/- 4.92e-39]
+Eq. (47) RMS residual                                0.026991490844990871037657      CERTIFIED
+                                                       enclosure [0.02699149084499087103765745853639857333344 +/- 3.89e-42]
+Eq. (48) relative endpoint error, %                  13.315158235496622430663396     CERTIFIED
+                                                       enclosure [13.31515823549662243066339563495534610829 +/- 1.15e-40]
+Table 1, row 1, %                                    98.427                          CERTIFIED
+                                                       enclosure [98.42709551179999057349604630897359371934 +/- 2.44e-39]
+Table 1, row 2, %                                    99.906                          CERTIFIED
+                                                       enclosure [99.90583620564817421096852587134762912477 +/- 2.55e-39]
+Table 1, row 3, %                                    94.013                          CERTIFIED
+                                                       enclosure [94.01338129185553018230462488375303736610 +/- 1.52e-39]
+Sec. 4, projection Hausdorff error                   0.0847669...                    CERTIFIED
+                                                       enclosure [0.08476693004920185826046136672445059341138 +/- 1.13e-42]
+Eq. (59) theta_*                                     2.10258309466509376393          CERTIFIED
+                                                       enclosure (2.10258309466509363261, 2.10258309466509363261), width 6.7e-81
+Eq. (60) Delta                                       0.09953351643838914835807       CERTIFIED
+                                                       enclosure [0.09953351643838914835807141084665748981746 +/- 4.38e-42]
+Eq. (60) eps_rad                                     0.04976675821919457417904       CERTIFIED
+                                                       enclosure [0.04976675821919457417903570542332874490873 +/- 2.19e-42]
+Eq. (61) b_rad = c + eps_rad                         0.86807664440298524572          CERTIFIED
+                                                       enclosure [0.8680766444029852457168032321683574689776 +/- 4.72e-41]
+Abstract, Sec. 1: eps_rad                            0.0497668                       CERTIFIED
+                                                       enclosure [0.04976675821919457417903570542332874490873 +/- 2.19e-42]
+Eq. (70) h_* (from the 80-place Arb certificate)     0.04929794832571833571          CERTIFIED
+                                                       enclosure 80-place cell of 0.0492979483257183357070366230...
+Abstract, Sec. 1: h_*                                0.0492979                       CERTIFIED
+                                                       enclosure (same)
+Eq. (71) b_H = c + h_*                               0.86760783450950900724          CERTIFIED
+                                                       enclosure [0.8676078345095090072448041497489957363492 +/- 3.93e-41]
+Secs 1, 3.12, 4: gain 1 - h_*/eps_rad, %             0.94                            CERTIFIED
+                                                       enclosure [0.9420141280076845982337885817950831014105 +/- 1.37e-42]
+Sec. 3.11 C_MT = 1/2 + z_0 coth z_0                  1.3274992963...                 CERTIFIED
+                                                       enclosure [1.327499296320588354265620209196704811407 +/- 4.04e-40]
+Sec. 3.11 3/2 - z_0 coth z_0                         0.6725007...                    CERTIFIED
+                                                       enclosure [0.6725007036794116457343797908032951885934 +/- 3.03e-42]
+Eq. (93) c_669                                       3.13914926973...                CERTIFIED
+                                                       enclosure [3.139149269738908663060394077343430645268 +/- 4.54e-40]
+Eq. (93) c_671                                       3.14377888960...                CERTIFIED
+                                                       enclosure [3.143778889600799010547298957375532007612 +/- 4.57e-40]
+Eq. (50) D_kappa (from the D_kappa Arb certificate)  0.203783759536049443826081      CERTIFIED
+                                                       enclosure [0.203783759536049443826080629422, 0.203783759536049443826080629422]
+after Eq. (50): Eulerian curve length 2 L_E          5.5510...                       CERTIFIED
+                                                       enclosure 2 x [2.7755384852570101803400, ...]
+after Eq. (50): limacon length 2 L_L                 5.5243...                       CERTIFIED
+                                                       enclosure 2 x [2.7621572459968846306136, ...]
+
+Eq. (72) 0 < h_* < eps_rad                                                           CERTIFIED
+Eq. (72) b_H > 2 a_H > 0, a_H = m                                                    CERTIFIED
+Sec. 4: 1 - h_*/(b_E - a_E - 2/pi) is about 42 % (in [41.5, 42.5) %)                 CERTIFIED
+Sec. 3.13 proof: lower-witness margin exceeds 1.34e-80                               CERTIFIED
+Eq. (93): c_669 < 333/106 < pi < 355/113 < c_671                                     CERTIFIED
+Remark 3.16: 670 < 216 pi - 15/2 < 672                                               CERTIFIED
+                                                       gain over the radial optimum  [0.942014128008 +/- 3.16e-13] %
+                                                       gain over the projection      [41.8429471291 +/- 4.11e-11] %
+                                                       lower-witness margin          [1.34421196300e-80 +/- 1.50e-92]
+                                                       216 pi - 15/2                 [671.084013175 +/- 3.96e-10]
+
+negative control: Eq. (29) with last digit lowered (…825)                    rejected, as it must be
+negative control: Table 1 row 1 as 98.426                                    rejected, as it must be
+negative control: eps_rad truncated (…17903, earlier draft)                  rejected, as it must be
+negative control: eps_rad approx 0.0497667 (truncation)                      rejected, as it must be
+
+27 printed decimals, 6 inequalities, 4 negative controls
+ALL CERTIFIED
+elapsed 0.1s
