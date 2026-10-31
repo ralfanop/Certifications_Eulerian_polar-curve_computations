@@ -50,10 +50,12 @@ theorem sturmRealPartialPositiveShift_unique_domain_preimage
     sturmRealPartialPositiveShift_unique_polynomial_preimage
       lam t hlam ht p
   refine ⟨x, ?_, ?_⟩
-  · simpa only [hf] using hx
+  · rw [← hf]
+    exact hx
   · intro y hy
     apply huniq
-    simpa only [hf] using hy
+    rw [hf]
+    exact hy
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPartialPositiveShift_unique_polynomial_preimage
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPartialPositiveShift_unique_domain_preimage
