@@ -1,4 +1,5 @@
 import GegenbauerFock.CanonicalCFCApproximateNullFamily
+import GegenbauerFock.GramApproximateZeroSpectrum
 
 /-!
 # V007 — a shared quantitative instability certificate for the polar factor
@@ -95,6 +96,44 @@ theorem exists_shared_cfc_polar_strong_null_sequence
     exact hpolar (u n)
   rw [hseq]
   simpa only [map_zero] using hW
+
+/-- The same unit inputs are approximate-zero vectors simultaneously
+for the Gegenbauer--Fock transform, its canonical CFC polar root, and
+the genuine source Gram. In particular no extra selection of Gram
+witnesses is necessary. -/
+theorem exists_shared_cfc_fock_gram_strong_null_sequence
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
+    ∃ u : ℕ → Lp ℂ 2 (Ultraspherical.measure lam),
+      (∀ n : ℕ, ‖u n‖ = 1) ∧
+      Filter.Tendsto
+        (fun n : ℕ => localCFCGramSqrt lam alpha hlam ha (u n))
+        Filter.atTop
+        (nhds (0 : Lp ℂ 2 (Ultraspherical.measure lam))) ∧
+      Filter.Tendsto
+        (fun n : ℕ => C lam alpha hlam ha (u n))
+        Filter.atTop (nhds (0 : InfiniteAnalysis.FockCoefficients)) ∧
+      Filter.Tendsto
+        (fun n : ℕ => gram lam alpha hlam ha (u n))
+        Filter.atTop
+        (nhds (0 : Lp ℂ 2 (Ultraspherical.measure lam))) := by
+  obtain ⟨u, hunit, hP, hC⟩ :=
+    exists_shared_cfc_polar_strong_null_sequence lam alpha hlam ha
+  refine ⟨u, hunit, hP, hC, ?_⟩
+  change Filter.Tendsto
+    (fun n : ℕ => C_adjoint lam alpha hlam ha
+      (C lam alpha hlam ha (u n)))
+    Filter.atTop
+    (nhds (0 : Lp ℂ 2 (Ultraspherical.measure lam)))
+  have hG : Filter.Tendsto
+      (fun n : ℕ => C_adjoint lam alpha hlam ha
+        (C lam alpha hlam ha (u n)))
+      Filter.atTop
+      (nhds (C_adjoint lam alpha hlam ha
+        (0 : InfiniteAnalysis.FockCoefficients))) :=
+    (C_adjoint lam alpha hlam ha).continuous.continuousAt.tendsto.comp hC
+  simpa only [map_zero] using hG
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_fock_gram_strong_null_sequence
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_shared_cfc_polar_strong_null_sequence
 
