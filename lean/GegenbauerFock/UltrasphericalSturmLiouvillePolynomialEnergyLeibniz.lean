@@ -30,7 +30,13 @@ theorem sturmPolynomial_square_leibniz
           derivative p * derivative p := by
   unfold sturmPolynomial
   simp only [derivative_mul, derivative_add]
-  have htwo : (C (2 : ℝ) : ℝ[X]) = 2 := by norm_num
+  have htwo : (C (2 : ℝ) : ℝ[X]) = 2 := by
+    calc
+      (C (2 : ℝ) : ℝ[X]) = C ((1 : ℝ) + 1) := by
+        congr 1
+        norm_num
+      _ = C (1 : ℝ) + C (1 : ℝ) := by rw [map_add]
+      _ = 2 := by simp
   rw [htwo]
   ring
 
