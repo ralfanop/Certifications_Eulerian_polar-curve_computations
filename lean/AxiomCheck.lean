@@ -77,3 +77,153 @@ open EulerianCert
 -- §3.11, Montgomery–Taylor constants (EulerianCert.MontgomeryTaylor)
 #print axioms EulerianCert.MontgomeryTaylor.coth_imaginary
 #print axioms EulerianCert.MontgomeryTaylor.z0_coth_z0
+-- V001 Proposition 3.1 and Definition 2.1 (module FourierModes)
+#print axioms EulerianCert.FourierModes.A_eq_Si
+#print axioms EulerianCert.FourierModes.A_zero
+#print axioms EulerianCert.FourierModes.A_succ_eq_Si
+#print axioms EulerianCert.FourierModes.A_eq_sign_integral
+#print axioms EulerianCert.FourierModes.A_sign
+#print axioms EulerianCert.FourierModes.abs_A_strictAnti
+#print axioms EulerianCert.FourierModes.abs_A_bounds
+#print axioms EulerianCert.FourierModes.summable_abs_A
+#print axioms EulerianCert.FourierModes.A_asymptotic
+-- V001 Proposition 3.1 (Fourier identification) and its consequences for r_E (module FourierSeries)
+#print axioms EulerianCert.FourierSeries.fourierCoeff_F
+#print axioms EulerianCert.FourierSeries.fourier_series_rE
+#print axioms EulerianCert.FourierSeries.tendstoUniformly_partial_sums
+#print axioms EulerianCert.FourierSeries.sharp_truncation
+#print axioms EulerianCert.FourierSeries.EN_lt
+#print axioms EulerianCert.FourierSeries.S_min
+#print axioms EulerianCert.FourierSeries.damping_rE
+#print axioms EulerianCert.FourierSeries.projection_error
+#print axioms EulerianCert.FourierSeries.convexity_rE
+-- V001 Definition 2.1 (module SineIntegral) and Corollary 3.5 (module Projection)
+#print axioms EulerianCert.SineIntegral.hasSum_Si
+#print axioms EulerianCert.SineIntegral.hasSum_Si_binomial
+#print axioms EulerianCert.SineIntegral.hasSum_Si_hypergeometric
+#print axioms EulerianCert.Projection.pythagoras
+#print axioms EulerianCert.Projection.projection_unique_min
+#print axioms EulerianCert.Projection.coefficients
+-- V001 Section 3.7 (module Energy)
+#print axioms EulerianCert.Energy.plancherel
+#print axioms EulerianCert.Energy.Etot_closed
+#print axioms EulerianCert.Energy.rms_residual
+-- V001 Proposition 3.7, Eq. (39) (module Turning)
+#print axioms EulerianCert.Turning.smooth_turning
+#print axioms EulerianCert.Turning.k_pos
+-- V001 Theorem 3.12, existence and characterisation (module RadialMinimax)
+#print axioms EulerianCert.RadialMinimax.strictConcaveOn_f
+#print axioms EulerianCert.RadialMinimax.minimax_line_error
+#print axioms EulerianCert.RadialMinimax.minimax_lower
+#print axioms EulerianCert.RadialMinimax.minimax_unique
+#print axioms EulerianCert.RadialMinimax.alternation_angle
+#print axioms EulerianCert.RadialMinimax.alternation_angle_unique
+#print axioms EulerianCert.RadialMinimax.radial_minimax
+-- V001 Theorem 3.13: scalar balance and global lower bound (module HausdorffMinimax)
+#print axioms EulerianCert.HausdorffMinimax.Q_antitone
+#print axioms EulerianCert.HausdorffMinimax.continuous_Q
+#print axioms EulerianCert.HausdorffMinimax.Q_Δ
+#print axioms EulerianCert.HausdorffMinimax.Q_zero_pos
+#print axioms EulerianCert.HausdorffMinimax.exists_balance
+#print axioms EulerianCert.HausdorffMinimax.balance_unique
+#print axioms EulerianCert.HausdorffMinimax.hausdorff_lower
+#print axioms EulerianCert.HausdorffMinimax.hstar_bracket
+#print axioms EulerianCert.HausdorffMinimax.hstar_lt
+-- V001 Theorem 3.13: convexity of Ω_h, Eq. (73), attainment (modules LimaconConvex, HausdorffAttain)
+#print axioms EulerianCert.LimaconConvex.key_ineq
+#print axioms EulerianCert.LimaconConvex.supporting
+#print axioms EulerianCert.LimaconConvex.convex_Ω
+#print axioms EulerianCert.HausdorffAttain.hausdorff_envelope
+#print axioms EulerianCert.HausdorffAttain.hausdorff_attained
+#print axioms EulerianCert.HausdorffAttain.hausdorff_isLeast
+#print axioms EulerianCert.HausdorffAttain.variational
+#print axioms EulerianCert.HausdorffAttain.nearest_unique
+#print axioms EulerianCert.HausdorffAttain.minimiser_unique
+#print axioms EulerianCert.HausdorffAttain.Q_εrad_lt
+#print axioms EulerianCert.HausdorffAttain.hstar_lt_εrad
+-- V001 Definition 2.1, complex argument (module SineIntegralComplex)
+#print axioms EulerianCert.SineIntegralComplex.sincC_of_ne_zero
+#print axioms EulerianCert.SineIntegralComplex.hasSum_SiC
+#print axioms EulerianCert.SineIntegralComplex.hasSum_SiC_binomial
+#print axioms EulerianCert.SineIntegralComplex.hasSum_SiC_hypergeometric
+#print axioms EulerianCert.SineIntegralComplex.SiC_neg
+#print axioms EulerianCert.SineIntegralComplex.SiC_ofReal
+#print axioms EulerianCert.SineIntegralComplex.differentiable_SiC
+-- V001 Proposition 3.10 (modules Lebesgue, CurvatureGrowth)
+#print axioms EulerianCert.Lebesgue.sin_mul_D
+#print axioms EulerianCert.Lebesgue.L_lower
+#print axioms EulerianCert.Lebesgue.L_upper
+#print axioms EulerianCert.Lebesgue.abel_bound
+#print axioms EulerianCert.Lebesgue.σ_bound
+#print axioms EulerianCert.CurvatureGrowth.S2_dirichlet
+#print axioms EulerianCert.CurvatureGrowth.abs_R2
+#print axioms EulerianCert.CurvatureGrowth.S1_sine
+#print axioms EulerianCert.CurvatureGrowth.abs_S1_le
+#print axioms EulerianCert.CurvatureGrowth.k_eq
+#print axioms EulerianCert.CurvatureGrowth.k_bounds
+#print axioms EulerianCert.CurvatureGrowth.TC_bounds
+#print axioms EulerianCert.CurvatureGrowth.I2_bounds
+#print axioms EulerianCert.CurvatureGrowth.curvature_growth
+#print axioms EulerianCert.CurvatureGrowth.hasDerivAt_T
+#print axioms EulerianCert.CurvatureGrowth.bounded_of_converges
+#print axioms EulerianCert.CurvatureGrowth.TC_tendsto
+#print axioms EulerianCert.CurvatureGrowth.turning_not_converge
+#print axioms EulerianCert.CurvatureGrowth.abs_curvature_not_converge
+#print axioms EulerianCert.CurvatureGrowth.vector_curvature_not_converge
+#print axioms EulerianCert.CurvatureGrowth.hausdorff_tendsto
+-- V001 Proposition 3.7, Eqs. (37)-(38) (module CurvatureMeasures)
+#print axioms EulerianCert.CurvatureMeasures.turning_distribution
+#print axioms EulerianCert.CurvatureMeasures.totalVariation_τE
+#print axioms EulerianCert.CurvatureMeasures.atoms_scalar
+#print axioms EulerianCert.CurvatureMeasures.integral_κds
+#print axioms EulerianCert.CurvatureMeasures.τE_integral
+#print axioms EulerianCert.CurvatureMeasures.TE_unit_tangent
+#print axioms EulerianCert.CurvatureMeasures.hasDerivAt_TE
+#print axioms EulerianCert.CurvatureMeasures.TE_pi
+#print axioms EulerianCert.CurvatureMeasures.tangent_jump
+#print axioms EulerianCert.CurvatureMeasures.vector_distribution
+#print axioms EulerianCert.CurvatureMeasures.KE_atom
+-- V001 Lemma 3.14, Eq. (79), first equality (module CubeSlabs)
+#print axioms EulerianCert.CubeSlabs.integral_tp
+#print axioms EulerianCert.CubeSlabs.pascal_shift
+#print axioms EulerianCert.CubeSlabs.volume_S
+#print axioms EulerianCert.CubeSlabs.U_succ
+#print axioms EulerianCert.CubeSlabs.E_eq_U
+#print axioms EulerianCert.CubeSlabs.volume_L
+#print axioms EulerianCert.CubeSlabs.volume_slab
+-- V001 Lemma 3.14, Eq. (79), second equality (module CubeSection)
+#print axioms EulerianCert.CubeSection.normDet_Lmap
+#print axioms EulerianCert.CubeSection.Sec_eq
+#print axioms EulerianCert.CubeSection.hausdorff_section
+#print axioms EulerianCert.CubeSection.eulerian_section
+-- V001 §3.11, Eqs. (80)-(81), and Lemma 3.15, Eq. (84) integral form (module EulerianFourier)
+#print axioms EulerianCert.EulerianFourier.density
+#print axioms EulerianCert.EulerianFourier.g_sample
+#print axioms EulerianCert.EulerianFourier.g_succ
+#print axioms EulerianCert.EulerianFourier.ghat_eq
+#print axioms EulerianCert.EulerianFourier.g_inversion
+#print axioms EulerianCert.EulerianFourier.eulerian_fourier_inversion
+#print axioms EulerianCert.EulerianFourier.eulerian_symmetry
+#print axioms EulerianCert.EulerianFourier.central_slope_integral
+-- V001 §3.11, Eqs. (82)-(83) (module LocalLimit)
+#print axioms EulerianCert.LocalLimit.sin_ge
+#print axioms EulerianCert.LocalLimit.cos_le
+#print axioms EulerianCert.LocalLimit.sin_le
+#print axioms EulerianCert.LocalLimit.pointwise
+#print axioms EulerianCert.LocalLimit.gauss_cos
+#print axioms EulerianCert.LocalLimit.error_bound
+#print axioms EulerianCert.LocalLimit.local_limit_rate
+#print axioms EulerianCert.LocalLimit.local_limit
+-- V001 Lemma 3.15, Eqs. (85)-(92) (module CentralSlope)
+#print axioms EulerianCert.CentralSlope.rE_lower6
+#print axioms EulerianCert.CentralSlope.rE_upper6
+#print axioms EulerianCert.CentralSlope.Mom_one
+#print axioms EulerianCert.CentralSlope.Mom_three
+#print axioms EulerianCert.CentralSlope.pointwise2
+#print axioms EulerianCert.CentralSlope.H2_bound
+#print axioms EulerianCert.CentralSlope.J_asymp
+#print axioms EulerianCert.CentralSlope.one_sub_cos_eq
+#print axioms EulerianCert.CentralSlope.ID_asymp
+#print axioms EulerianCert.CentralSlope.slope_eq
+#print axioms EulerianCert.CentralSlope.slope_asymp
+#print axioms EulerianCert.CentralSlope.inverse_slope_asymp
