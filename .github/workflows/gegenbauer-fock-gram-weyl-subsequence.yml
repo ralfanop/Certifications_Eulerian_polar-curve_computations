@@ -1,0 +1,70 @@
+name: V007 bilateral singular Weyl sequences - no norm-convergent subsequences
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/TwoSidedGramNoStronglyConvergentSubsequence.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramWeakOnDenseRange.lean'
+      - '.github/workflows/gegenbauer-fock-gram-weyl-subsequence.yml'
+  workflow_dispatch:
+
+jobs:
+  gram-weyl-subsequences:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+      - name: Initialize exact Mathlib dependencies
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check the bilateral no-strong-subsequence theorems
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramNoStronglyConvergentSubsequence 2>&1 | tee /tmp/v007-gram-no-strong-subseq.log
+          for theorem in sourceGram_approx_zero_no_strong_subsequence outputGram_approx_zero_no_strong_subsequence two_sided_gram_approx_zero_no_strong_subsequences; do
+            grep -qF "${theorem}' depends on axioms" /tmp/v007-gram-no-strong-subseq.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gram-no-strong-subseq.log; then
+            echo '::error::Forbidden axiom in bilateral Weyl sequence certificate'
+            exit 1
+          fi
+          echo 'V007 both Gram Weyl sequences have no norm-convergent subsequences: certified.'
+
+      - name: Kernel-check bilateral inner products vanish on both dense Gram ranges
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramWeakOnDenseRange 2>&1 | tee /tmp/v007-gram-weak-dense-range.log
+          for theorem in sourceGram_approx_zero_weak_on_dense_range outputGram_approx_zero_weak_on_dense_range two_sided_gram_approx_zero_weak_on_dense_ranges; do
+            grep -qF "${theorem}' depends on axioms" /tmp/v007-gram-weak-dense-range.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gram-weak-dense-range.log; then
+            echo '::error::Forbidden axiom in weak-on-dense-range Gram test'
+            exit 1
+          fi
+          echo 'V007 Gram approximate-null sequences vanish weakly on both dense Gram ranges: certified.'

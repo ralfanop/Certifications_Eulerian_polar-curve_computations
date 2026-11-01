@@ -1,0 +1,59 @@
+name: V007 actual closed real ultraspherical Sturm full L2 positive resolvent
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealClosedFullResolvent.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealPositiveResolventFullCLM.lean'
+      - '.github/workflows/v007-ultraspherical-sturm-real-closed-full-resolvent.yml'
+  workflow_dispatch:
+jobs:
+  actual-closed-full-resolvent:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit exact all-L2 real Sturm positive resolvent and surjectivity
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealClosedFullResolvent 2>&1 | tee /tmp/v007-true-closed-full-res-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealClosedFullResolvent.lean 2>&1 | tee /tmp/v007-true-closed-full-res-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-true-closed-full-res-build.log /tmp/v007-true-closed-full-res-axioms.log; then
+            echo '::error::Forbidden axiom in true closed real Sturm full-L2 resolvent.'
+            exit 1
+          fi
+          grep -F "sturmRealPositiveResolventFullCLM_core_graph' depends on axioms:" /tmp/v007-true-closed-full-res-axioms.log
+          grep -F "sturmRealPositiveResolventFullCLM_closed_graph' depends on axioms:" /tmp/v007-true-closed-full-res-axioms.log
+          grep -F "sturmRealClosedPositiveShift_surjective' depends on axioms:" /tmp/v007-true-closed-full-res-axioms.log
+          echo 'V007 genuine closed real Sturm has everywhere-defined positive full-Hilbert resolvent, kernel-certified.'

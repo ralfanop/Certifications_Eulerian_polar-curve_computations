@@ -1,0 +1,59 @@
+name: V007 noisy joint lambda alpha quantitative Fock HS and Gram separation
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireHSMixedNoisySeparation.lean'
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireHSMixedQuantitativeGap.lean'
+      - '.github/workflows/v007-intrinsic-fock-hs-mixed-noisy-separation.yml'
+  workflow_dispatch:
+
+jobs:
+  mixed-noisy-separation:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit noise-stable lambda alpha quantitative Fock separation
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GegenbauerIntrinsicEntireHSMixedNoisySeparation 2>&1 | tee /tmp/v007-mixed-noisy-separation.log
+          lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireHSMixedNoisySeparation.lean 2>&1 | tee -a /tmp/v007-mixed-noisy-separation.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-mixed-noisy-separation.log; then
+            echo "::error::Forbidden axiom in mixed lambda alpha noisy separation"
+            exit 1
+          fi
+          for name in \
+            kummerSeries_mixed_noisy_gap \
+            C_intrinsicEntire_HS_energy_mixed_noisy_gap \
+            C_intrinsicEntire_Gram_trace_mixed_noisy_gap; do
+            grep -F "${name}' depends on axioms:" /tmp/v007-mixed-noisy-separation.log
+          done
+          echo 'V007 mixed lambda-alpha noise-stable separation: kernel checked.'

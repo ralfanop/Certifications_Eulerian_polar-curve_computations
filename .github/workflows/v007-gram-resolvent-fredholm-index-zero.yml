@@ -1,0 +1,53 @@
+name: V007 bilateral Gram resolvent Fredholm index zero
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/TwoSidedGramResolventFredholmIndexZero.lean'
+      - '.github/workflows/v007-gram-resolvent-fredholm-index-zero.yml'
+  workflow_dispatch:
+jobs:
+  resolvent-index-zero:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+      - name: Prepare pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check zero resolvent indices and inspect axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramResolventFredholmIndexZero 2>&1 | tee /tmp/v007-resolvent-index-zero.log
+          for theorem in fredholmShift_index_zero_of_mem_resolvent sourceGram_outside_spectrum_fredholm_index_zero outputGram_outside_spectrum_fredholm_index_zero two_sided_gram_outside_spectrum_fredholm_indices_zero; do
+            grep -qF "${theorem}' depends on axioms" /tmp/v007-resolvent-index-zero.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-resolvent-index-zero.log; then
+            echo '::error::Forbidden axiom in resolvent index-zero proof'
+            exit 1
+          fi
+          echo 'V007 bilateral Gram resolvent Fredholm indices vanish: kernel-audited.'

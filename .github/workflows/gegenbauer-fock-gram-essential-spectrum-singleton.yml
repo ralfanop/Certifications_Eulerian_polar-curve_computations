@@ -1,0 +1,54 @@
+name: V007 both full Gram Fredholm essential spectra equal singleton zero
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/TwoSidedGramNonzeroShiftFredholm.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramEssentialSpectrumSingleton.lean'
+      - '.github/workflows/gegenbauer-fock-gram-essential-spectrum-singleton.yml'
+  workflow_dispatch:
+jobs:
+  bilateral-singleton-essential:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+      - name: Prepare exact pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check complete essential-spectrum singleton theorem and all axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramEssentialSpectrumSingleton 2>&1 | tee /tmp/v007-gram-essential-singleton.log
+          for theorem in sourceGram_fredholm_essential_spectrum_eq_singleton_zero outputGram_fredholm_essential_spectrum_eq_singleton_zero two_sided_gram_fredholm_essential_spectra_singleton_zero; do
+            grep -qF "${theorem}' depends on axioms" /tmp/v007-gram-essential-singleton.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gram-essential-singleton.log; then
+            echo '::error::Forbidden proof axiom in essential spectrum singleton'
+            exit 1
+          fi
+          echo 'V007 full Fredholm essential spectra of both actual Grams = {0}: kernel-audited.'

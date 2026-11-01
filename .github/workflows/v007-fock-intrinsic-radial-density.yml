@@ -1,0 +1,71 @@
+name: V007 intrinsic Gaussian Fock radial-coefficient density certificate
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/GaussianAreaEntireRadialCoefficientDensity.lean'
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicIsometryViaRadial.lean'
+      - 'lean/GegenbauerFock/GaussianAreaEntireFockRadialEquiv.lean'
+      - 'lean/GegenbauerFock/GaussianAreaFullIntrinsicReproducing.lean'
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicEvaluationContinuous.lean'
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicPointwiseGrowth.lean'
+      - 'lean/GegenbauerFock/GaussianAreaEntireRadialInner.lean'
+      - 'lean/GegenbauerFock/GaussianAreaPolarAngularMoment.lean'
+      - 'lean/GegenbauerFock/GaussianAreaEntireMomentInner.lean'
+      - 'lean/GegenbauerFock/GaussianAreaRadialCircleMomentUniqueness.lean'
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicResidualCriterion.lean'
+      - '.github/workflows/v007-fock-intrinsic-radial-density.yml'
+  workflow_dispatch:
+
+jobs:
+  radial-density-kernel:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean and elan
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          if [ "$installed" -ne 1 ]; then echo "::error::elan unavailable"; exit 1; fi
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          if [ "$ready" -ne 1 ]; then echo "::error::Pinned Lean unavailable"; exit 1; fi
+      - name: Resolve pinned Mathlib and fetch build cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile real Gaussian L2 radial uniqueness and audit axioms
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GaussianAreaEntireRadialCoefficientDensity GegenbauerFock.GaussianAreaEntireFockRadialEquiv GegenbauerFock.GaussianAreaIntrinsicIsometryViaRadial GegenbauerFock.GaussianAreaFullIntrinsicReproducing GegenbauerFock.GaussianAreaIntrinsicEvaluationContinuous GegenbauerFock.GaussianAreaIntrinsicPointwiseGrowth 2>&1 | tee /tmp/v007-fock-radial-density.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-fock-radial-density.log; then
+            echo "::error::Forbidden axioms in V007 radial density"
+            exit 1
+          fi
+          grep -F "intrinsicEntire_eq_polynomialClosure_via_radial_inner' depends on axioms:" /tmp/v007-fock-radial-density.log
+          grep -F "coefficientIntrinsicEntireEquivViaRadial' depends on axioms:" /tmp/v007-fock-radial-density.log
+          grep -F "coefficientSynthesisIntrinsicViaRadial_surjective' depends on axioms:" /tmp/v007-fock-radial-density.log
+          grep -F "coefficientIntrinsicFockEquivViaRadial' depends on axioms:" /tmp/v007-fock-radial-density.log
+          grep -F "gaussianPolynomialProjector_fixes_intrinsicEntire' depends on axioms:" /tmp/v007-fock-radial-density.log
+          grep -F "intrinsicEntireEvaluation_eq_projected_full' depends on axioms:" /tmp/v007-fock-radial-density.log
+          grep -F "intrinsicEntire_reproducing_universal' depends on axioms:" /tmp/v007-fock-radial-density.log
+          grep -F "intrinsicEntireEvaluationContinuous' depends on axioms:" /tmp/v007-fock-radial-density.log
+          grep -F "intrinsicEntireEvaluationContinuous_apply' depends on axioms:" /tmp/v007-fock-radial-density.log
+          grep -F "intrinsicEntire_pointwise_gaussian_growth_sq' depends on axioms:" /tmp/v007-fock-radial-density.log
+          echo 'V007 intrinsic Fock radial density and both onto isometries: kernel compilation and audit clean.'

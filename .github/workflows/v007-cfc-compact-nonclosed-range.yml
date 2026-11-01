@@ -1,0 +1,59 @@
+name: V007 canonical CFC Gram root compact dense nonclosed range
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/CanonicalCFCCompactNonclosedRange.lean'
+      - '.github/workflows/v007-cfc-compact-nonclosed-range.yml'
+  workflow_dispatch:
+
+# Bound concurrent V007 jobs per branch without stopping active theorem audits.
+concurrency:
+  group: v007-cfc-compact-nonclosed-range-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  explicit-cfc-local-instance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lake" --version
+      - name: Restore pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel check and audit compact nonclosed CFC Gram root
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.CanonicalCFCCompactNonclosedRange 2>&1 | tee /tmp/v007-cfc-compact-nonclosed-range.log
+          lake env lean -M16768 GegenbauerFock/CanonicalCFCCompactNonclosedRange.lean 2>&1 | tee -a /tmp/v007-cfc-compact-nonclosed-range.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-cfc-compact-nonclosed-range.log; then
+            echo '::error::Forbidden axiom in compact nonclosed CFC Gram root.'
+            exit 1
+          fi
+          grep -F "exists_canonical_cfc_compact_nonclosed_range' depends on axioms:" /tmp/v007-cfc-compact-nonclosed-range.log
+          grep -F "canonical_cfc_root_not_surjective' depends on axioms:" /tmp/v007-cfc-compact-nonclosed-range.log
+          grep -F "canonical_cfc_root_not_antilipschitz' depends on axioms:" /tmp/v007-cfc-compact-nonclosed-range.log
+          echo 'V007 canonical compact/nonclosed, nonsurjective and non-antilipschitz CFC theorems kernel-certified and audited.'

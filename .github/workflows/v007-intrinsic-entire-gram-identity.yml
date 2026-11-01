@@ -1,0 +1,60 @@
+name: V007 intrinsic entire Fock Gram equals genuine Bochner kernel
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireGramIdentity.lean'
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireGramPairing.lean'
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicCompleteSpace.lean'
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireFockOperator.lean'
+      - '.github/workflows/v007-intrinsic-entire-gram-identity.yml'
+  workflow_dispatch:
+
+jobs:
+  intrinsic-gram-integral:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install exact pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Restore pinned Mathlib revision and precompiled cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build exact intrinsic Gram identity and audit each axiom list
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GegenbauerIntrinsicEntireGramIdentity 2>&1 | tee /tmp/v007-intrinsic-gram-identity.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaIntrinsicCompleteSpace.lean 2>&1 | tee -a /tmp/v007-intrinsic-gram-identity.log
+          lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireGramIdentity.lean 2>&1 | tee -a /tmp/v007-intrinsic-gram-identity.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-intrinsic-gram-identity.log; then
+            echo "::error::Forbidden axiom in V007 intrinsic analytic Gram identification"
+            exit 1
+          fi
+          grep -F "intrinsicEntire_isClosed' depends on axioms:" /tmp/v007-intrinsic-gram-identity.log
+          grep -F "C_intrinsicEntire_gram_eq' depends on axioms:" /tmp/v007-intrinsic-gram-identity.log
+          grep -F "C_intrinsicEntire_gram_eq_integralOperator' depends on axioms:" /tmp/v007-intrinsic-gram-identity.log
+          grep -F "C_intrinsicEntire_gram_eq_integralLp' depends on axioms:" /tmp/v007-intrinsic-gram-identity.log
+          echo 'V007 intrinsic entire analytic Gram identification passed Lean and axiom audit.'

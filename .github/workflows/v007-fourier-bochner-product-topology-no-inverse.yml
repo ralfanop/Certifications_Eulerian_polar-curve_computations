@@ -1,0 +1,55 @@
+name: V007 Fourier–Bochner product-topology no continuous inverse
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireFourierProductTopologyNoInverse.lean'
+      - '.github/workflows/v007-fourier-bochner-product-topology-no-inverse.yml'
+  workflow_dispatch:
+
+jobs:
+  fourier-product-topology-no-inverse:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Restore pinned Mathlib and cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile Fourier–Bochner product-topology inverse impossibility and audit axioms
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GegenbauerIntrinsicEntireFourierProductTopologyNoInverse 2>&1 | tee /tmp/v007-product-topology-inverse-build.log
+          lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireFourierProductTopologyNoInverse.lean 2>&1 | tee /tmp/v007-product-topology-inverse-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-product-topology-inverse-build.log /tmp/v007-product-topology-inverse-axioms.log; then
+            echo "::error::Forbidden axiom in Fourier–Bochner product-topology inverse impossibility"
+            exit 1
+          fi
+          for name in ultraspherical_fourierBochner_productTopology_null_no_strong_source_limit ultraspherical_fourierBochner_no_continuous_left_inverse_at_zero ultraspherical_fourierBochner_no_continuous_global_reconstruction; do
+            grep -F "${name}' depends on axioms:" /tmp/v007-product-topology-inverse-axioms.log
+          done
+          echo 'V007 Fourier–Bochner product-topology inverse impossibility: Lean and axiom audit successful.'

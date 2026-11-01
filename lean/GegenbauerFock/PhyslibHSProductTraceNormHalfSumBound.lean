@@ -1,0 +1,77 @@
+import GegenbauerFock.PhyslibHSProductTraceNormHalfEnergy
+import GegenbauerFock.PhyslibHSRightBasisEnergyBound
+
+/-!
+# V007 — coefficient-one Young bound for genuine CFC trace class
+
+This is the scaled-up version of the nonsharp sum estimate:
+  2 ||R*S||₁ ≤ ||R||₂² + ||S||₂².
+The coefficient 2 on the trace norm is essential for obtaining the
+optimal Schatten-Hölder constant by scaling R and S.
+
+It is not the final geometric-mean inequality itself. Every trace
+norm uses the source-compatible Physlib CFC.abs definition.
+-/
+
+noncomputable section
+namespace ProbabilisticTheory
+
+variable {H : Type*}
+variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
+
+theorem two_mul_traceNorm_mul_twoHilbertSchmidt_le_energy_sum
+    (R S : H →L[ℂ] H)
+    (hR : HilbertSchmidt.IsHilbertSchmidt R)
+    (hS : HilbertSchmidt.IsHilbertSchmidt S)
+    {w : Set H} (b : HilbertBasis w ℂ H) :
+    2 * traceNorm (R * S)
+      (isTraceClass_mul_of_twoHilbertSchmidt R S hR hS) ≤
+      (∑' i : w, ‖R (b i)‖ ^ 2) +
+      (∑' i : w, ‖S (b i)‖ ^ 2) := by
+  let U : H →L[ℂ] H := Polar.polarFactor (R * S)
+  have hbase :
+      2 * traceNorm (R * S)
+        (isTraceClass_mul_of_twoHilbertSchmidt R S hR hS) ≤
+      (∑' i : w, ‖(R.adjoint.comp U) (b i)‖ ^ 2) +
+      (∑' i : w, ‖S (b i)‖ ^ 2) :=
+    two_mul_traceNorm_mul_twoHilbertSchmidt_le_polar_energy R S hR hS b
+  have hadj : HilbertSchmidt.IsHilbertSchmidt R.adjoint :=
+    HilbertSchmidt.isHilbertSchmidt_adjoint R hR
+  have hright :
+      (∑' i : w, ‖(R.adjoint.comp U) (b i)‖ ^ 2) ≤
+      ‖U‖ ^ 2 * (∑' i : w, ‖R.adjoint (b i)‖ ^ 2) :=
+    HilbertSchmidt.right_basis_energy_le R.adjoint hadj U b
+  have hsR : Summable (fun i : w => ‖R (b i)‖ ^ 2) :=
+    HilbertSchmidt.summable_norm_sq_apply_of_hilbertBasis w b hR
+  have hstar :
+      (∑' i : w, ‖R.adjoint (b i)‖ ^ 2) =
+        (∑' i : w, ‖R (b i)‖ ^ 2) :=
+    (HilbertSchmidt.hasSum_norm_sq_apply_eq_adjoint b b hsR).tsum_eq
+  have hR_nonneg : 0 ≤ ∑' i : w, ‖R (b i)‖ ^ 2 :=
+    tsum_nonneg (fun i => sq_nonneg _)
+  have hU : ‖U‖ ≤ 1 := Polar.polarFactor_opNorm_le (R * S)
+  have hU2 : ‖U‖ ^ 2 ≤ (1 : ℝ) := by
+    simpa only [one_pow] using
+      (sq_le_sq₀ (norm_nonneg _) zero_le_one).2 hU
+  calc
+    2 * traceNorm (R * S)
+        (isTraceClass_mul_of_twoHilbertSchmidt R S hR hS) ≤
+        (∑' i : w, ‖(R.adjoint.comp U) (b i)‖ ^ 2) +
+        (∑' i : w, ‖S (b i)‖ ^ 2) := hbase
+    _ ≤ (‖U‖ ^ 2 * (∑' i : w, ‖R.adjoint (b i)‖ ^ 2)) +
+        (∑' i : w, ‖S (b i)‖ ^ 2) :=
+      add_le_add_left hright _
+    _ = (‖U‖ ^ 2 * (∑' i : w, ‖R (b i)‖ ^ 2)) +
+        (∑' i : w, ‖S (b i)‖ ^ 2) := by rw [hstar]
+    _ ≤ (∑' i : w, ‖R (b i)‖ ^ 2) +
+        (∑' i : w, ‖S (b i)‖ ^ 2) := by
+      apply add_le_add_left
+      calc
+        ‖U‖ ^ 2 * (∑' i : w, ‖R (b i)‖ ^ 2) ≤
+          1 * (∑' i : w, ‖R (b i)‖ ^ 2) :=
+            mul_le_mul_of_nonneg_right hU2 hR_nonneg
+        _ = (∑' i : w, ‖R (b i)‖ ^ 2) := one_mul _
+
+#print axioms ProbabilisticTheory.two_mul_traceNorm_mul_twoHilbertSchmidt_le_energy_sum
+
+end ProbabilisticTheory

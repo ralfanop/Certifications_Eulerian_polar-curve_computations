@@ -1,0 +1,126 @@
+name: V007 true planar Gaussian radial-circle bridge Lean certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/GaussianAreaPolarRadialCircleBridge.lean'
+      - 'lean/GegenbauerFock/GaussianAreaCircleScalarExtraction.lean'
+      - 'lean/GegenbauerFock/GaussianAreaPlanarMomentUniqueness.lean'
+      - 'lean/GegenbauerFock/GaussianAreaFullIntrinsicFockSurjectivity.lean'
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicFockParseval.lean'
+      - 'lean/GegenbauerFock/GaussianAreaIntrinsicPointwiseExpansion.lean'
+      - 'lean/GegenbauerFock/GaussianAreaOriginMeanIdentity.lean'
+      - 'lean/GegenbauerFock/GaussianAreaAllMomentsTaylorFormula.lean'
+      - 'lean/GegenbauerFock/GaussianAreaHilbertCoefficientsTaylor.lean'
+      - 'lean/GegenbauerFock/GaussianAreaMomentTaylorNormalized.lean'
+      - 'lean/GegenbauerFock/GaussianAreaExplicitTaylorFourierSeries.lean'
+      - 'lean/GegenbauerFock/GaussianAreaTaylorCoefficientParseval.lean'
+      - 'lean/GegenbauerFock/GaussianAreaTaylorCoefficientBound.lean'
+      - 'lean/GegenbauerFock/GaussianAreaTaylorDerivativeUnitary.lean'
+      - 'lean/GegenbauerFock/GaussianAreaFullIntrinsicEvaluation.lean'
+      - '.github/workflows/gegenbauer-fock-gaussian-radial-circle-bridge.yml'
+  workflow_dispatch:
+
+jobs:
+  true-planar-radial-circle:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install exact pinned Lean toolchain with retries
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then
+              ready=1
+              break
+            fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Restore exact Mathlib dependencies
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel compile and audit radial-circle Gaussian bridge
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GaussianAreaTaylorDerivativeUnitary GegenbauerFock.GaussianAreaTaylorCoefficientBound GegenbauerFock.GaussianAreaTaylorCoefficientParseval GegenbauerFock.GaussianAreaExplicitTaylorFourierSeries GegenbauerFock.GaussianAreaMomentTaylorNormalized GegenbauerFock.GaussianAreaHilbertCoefficientsTaylor GegenbauerFock.GaussianAreaAllMomentsTaylorFormula GegenbauerFock.GaussianAreaOriginMeanIdentity GegenbauerFock.GaussianAreaIntrinsicPointwiseExpansion GegenbauerFock.GaussianAreaIntrinsicFockParseval 2>&1 | tee /tmp/v007-radial-circle-build.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaPolarRadialCircleBridge.lean 2>&1 | tee /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaCircleScalarExtraction.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaPlanarMomentUniqueness.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaFullIntrinsicFockSurjectivity.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaIntrinsicFockParseval.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaFullIntrinsicEvaluation.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaIntrinsicPointwiseExpansion.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaOriginMeanIdentity.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaAllMomentsTaylorFormula.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaHilbertCoefficientsTaylor.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaMomentTaylorNormalized.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaExplicitTaylorFourierSeries.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaTaylorCoefficientParseval.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaTaylorCoefficientBound.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaTaylorDerivativeUnitary.lean 2>&1 | tee -a /tmp/v007-radial-circle-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-radial-circle-build.log /tmp/v007-radial-circle-axioms.log; then
+            echo "::error::Forbidden axiom in Gaussian radial-circle bridge."
+            exit 1
+          fi
+          grep -F "iterated_polar_eq_radial_circleAverage' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "entireRepresentative_planar_moment_eq_radial_circleAverage' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "circleAverage_nested_real_smul' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "gaussian_circleAverage_scalar_normalization' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "entireRepresentative_planar_moment_eq_two_alpha_radial' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "radial_circleMoment_zero_of_planar_moment_zero' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicGaussian_zero_of_all_planar_moments_zero' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_le_polynomialClosure_unconditional' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_exists_coefficient_synthesis' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "coefficientSynthesisToIntrinsicEntire_surjective' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "coefficientIntrinsicEntireEquiv' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_gaussian_parseval_norm' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_gaussian_parseval_sq' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_gaussian_monomial_hasSum' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "coefficientSynthesis_analysis_eq_intrinsic' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntireEvaluation_eq_coherent_analysis' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "coefficientAnalysisL2_norm_intrinsic' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntireEvaluation_norm_le_full' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_evaluation_eq_coherent_tsum' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_evaluation_at_zero_eq_coefficient_zero' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntireEvaluationContinuous_eq_coherent_analysis' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_evaluation_sq_le_exp_norm' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "monomialWeight_zero' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_origin_eq_gaussian_mean' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_planar_gaussian_moment_eq_taylor' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_planar_moment_zero_iff_taylor_deriv_zero' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "coefficientAnalysisL2_intrinsic_eq_taylor_gamma' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "coefficientAnalysisL2_intrinsic_zero_iff_taylor_deriv_zero' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "gaussian_taylor_gamma_scalar_normalization' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_planar_gaussian_moment_eq_scaled_derivative' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "coefficientAnalysisL2_intrinsic_eq_scaled_taylor' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_scaledTaylor_monomial_hasSum' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_scaledTaylor_memℓp' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicTaylorCoefficients_eq_analysis' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicTaylorCoefficients_norm_eq' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicTaylorCoefficients_inner_eq' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicTaylorCoefficients_tsum_norm_sq' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicEntire_normalized_taylor_coefficient_norm_le' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicTaylorDerivativeUnitary' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicTaylorDerivativeUnitary_eq_coefficients' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          grep -F "intrinsicTaylorDerivativeUnitary_apply' depends on axioms:" /tmp/v007-radial-circle-axioms.log
+          echo 'V007 normalized Taylor derivative unitary and exact Fock Parseval: kernel checked and audited.'

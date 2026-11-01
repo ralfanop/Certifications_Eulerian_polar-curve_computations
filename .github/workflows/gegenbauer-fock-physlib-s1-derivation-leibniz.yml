@@ -1,0 +1,67 @@
+name: V007 bounded CFC S1 inner derivation Leibniz and split norm certificate
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/PhyslibTraceClassBoundedDerivationLeibniz.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassCommutatorContinuous.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassComplexNonUnitalAlgebra.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassNonUnitalBanachRing.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassComplete.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassProductPerturbation.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassProductDistributivity.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassSubmultiplicative.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassNormedSpace.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassIdealNormSharp.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassTwoSidedIdeal.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceNormSqrtAbsEnergy.lean'
+      - 'lean/GegenbauerFock/PhyslibHSProductTraceNormHolder.lean'
+      - 'lean/GegenbauerFock/PhyslibHSProductTraceNormWeightedYoung.lean'
+      - 'lean/GegenbauerFock/SchattenYoungSharpReal.lean'
+      - '.github/workflows/gegenbauer-fock-physlib-s1-derivation-leibniz.yml'
+  workflow_dispatch:
+
+jobs:
+  s1-bounded-derivation-leibniz:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt*8))"
+          done
+          test "$installed" = 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt*8))"
+          done
+          test "$ready" = 1
+      - name: Resolve pinned Mathlib
+        working-directory: lean
+        run: lake update
+      - name: Download fixed Mathlib cache
+        working-directory: lean
+        run: lake exe cache get
+      - name: Certify full Leibniz rule and split norm inequality for genuine S1 inner derivations
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.PhyslibTraceClassBoundedDerivationLeibniz 2>&1 | tee /tmp/gf-s1-derivation-leibniz.log
+          grep -F "ProbabilisticTheory.TraceClass.commutatorContinuous_product_leibniz' depends on axioms:" /tmp/gf-s1-derivation-leibniz.log
+          grep -F "ProbabilisticTheory.TraceClass.norm_commutator_product_le' depends on axioms:" /tmp/gf-s1-derivation-leibniz.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-s1-derivation-leibniz.log; then
+            echo '::error::Nonstandard axiom.'
+            exit 1
+          fi
+          echo 'True CFC S1 bilinear product verified with clean axioms.'
