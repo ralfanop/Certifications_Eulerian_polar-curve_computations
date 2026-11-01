@@ -3,7 +3,7 @@ import Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan
 /-!
 # Subsection 9.2: a normalised inverse-tangent function
 
-Manuscript V173, eqs. (111)–(112) (printed (177)–(179)).
+Manuscript V173, eqs. (177)–(179).
 With `s(t) = 2R arctan(t/(2R))`, the dimensionless function
 `σ(τ) = s(Rτ)/(2R) = arctan(τ/2)` satisfies
 `2σ(1) = 2 arctan(1/2) = 2 arccot 2` and `2σ(2/π) = 2 arctan(1/π) = 2 arccot π = ϑ_E`.

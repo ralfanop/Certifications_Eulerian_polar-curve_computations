@@ -1,7 +1,7 @@
 import Bridge.Saddle.Corollary
 
 /-!
-# The rate function: `I(x) = s(x)x - Λ(s(x)) = sup_s {sx - Λ(s)}` (eq. (56))
+# The rate function: `I(x) = s(x)x - Λ(s(x)) = sup_s {sx - Λ(s)}` (eqs. (94)–(95))
 -/
 
 open Set Filter Topology

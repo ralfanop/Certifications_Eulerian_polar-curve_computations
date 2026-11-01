@@ -4,7 +4,7 @@ import Bridge.Saddle.IrExp
 # Lemma 5.5, part 12: the coefficients of the expansion and their cancellation identities
 
 As functions of the tilt `s` (with `κ = κ₂(s)`):
-* `etaS = (κ₄/κ₂² - 5κ₃²/(3κ₂³))/8` (eq. (67)), its `s`-derivatives `etaS1`, `etaS2`;
+* `etaS = (κ₄/κ₂² - 5κ₃²/(3κ₂³))/8` (eq. (114)), its `s`-derivatives `etaS1`, `etaS2`;
 * the `x`-derivatives `eta1 = etaS1/κ₂`, `eta2 = (eta1)'/κ₂` (since `ds/dx = 1/κ₂`);
 * `L1 = κ₃/(2κ₂²) = (½ log v)'`, `L2 = (L1)'/κ₂ = (½ log v)''`;
 * the Gaussian coefficients `G_{rj}` with `N_0 = 1 + ε²G₀₂ + ε⁴G₀₄`, `N_1 = εG₁₁ + ε³G₁₃`,
@@ -20,7 +20,7 @@ namespace EulerianBridge.Saddle
 
 /-! ## Real coefficient functions of `s` -/
 
-/-- `η(s) = (κ₄/κ₂² - 5κ₃²/(3κ₂³))/8`, eq. (67). -/
+/-- `η(s) = (κ₄/κ₂² - 5κ₃²/(3κ₂³))/8`, eq. (114). -/
 noncomputable def etaS (s : ℝ) : ℝ := (κ 4 s / κ 2 s ^ 2 - 5 * κ 3 s ^ 2 / (3 * κ 2 s ^ 3)) / 8
 
 noncomputable def etaS1 (s : ℝ) : ℝ :=

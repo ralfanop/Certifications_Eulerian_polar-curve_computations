@@ -5,23 +5,23 @@ import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 /-!
 # Theorem 3.10: the Eulerian Paley–Wiener kernel and cardinal sampling
 
-Manuscript V173, eqs. (22)–(27).
+Manuscript V173, eqs. (47)–(54).
 
 **Model.** `PW_{1/2}` is realised through its Fourier data: for `g ∈ L²(-1/2,1/2]` (here
 `L²` of the unit additive circle `𝕋 = ℝ/ℤ`, identified with `(-1/2,1/2]` by the representative map
 `rep`), the entire function
-`(T g)(z) = (1/2π) ∫_{-1/2}^{1/2} g(ξ) e^{izξ} dξ` (eq. (23), with `ĝ = g` on `[-1/2,1/2]`).
+`(T g)(z) = (1/2π) ∫_{-1/2}^{1/2} g(ξ) e^{izξ} dξ` (eq. (49), with `ĝ = g` on `[-1/2,1/2]`).
 
 **Cited input (Plancherel), as a hypothesis.** For `g, h ∈ L²(-1/2,1/2]`, `T g ∈ L²(ℝ)` and
-`∫_ℝ \overline{T g} T h = (1/2π) ⟨g, h⟩`. This is the Plancherel theorem for the convention (22)
+`∫_ℝ \overline{T g} T h = (1/2π) ⟨g, h⟩`. This is the Plancherel theorem for the convention (47)–(48)
 restricted to band-limited functions.
 
 Proved from it (and from Mathlib's Fourier-series theory on `𝕋`):
-* (24) `K_E(z,w) = (1/2π)∫ e^{i(z-w̄)ξ} dξ = r_E(z-w̄)/(2π)` and `f(w) = ⟨K_E(·,w), f⟩_{L²(ℝ)}`;
-* (25) `‖r_E‖² = 2π`;
-* (26) `{r_E(z-2πn)/√(2π)}` is orthonormal in `L²(ℝ)` and every `f ∈ PW` is the `L²(ℝ)` sum of its
+* (50) `K_E(z,w) = (1/2π)∫ e^{i(z-w̄)ξ} dξ = r_E(z-w̄)/(2π)` and `f(w) = ⟨K_E(·,w), f⟩_{L²(ℝ)}`;
+* (51) `‖r_E‖² = 2π`;
+* (52) `{r_E(z-2πn)/√(2π)}` is orthonormal in `L²(ℝ)` and every `f ∈ PW` is the `L²(ℝ)` sum of its
   expansion;
-* (27) `f(z) = ∑ f(2πn) r_E(z-2πn)` pointwise, uniformly on every strip `|Im z| ≤ R`, and
+* (53)–(54) `f(z) = ∑ f(2πn) r_E(z-2πn)` pointwise, uniformly on every strip `|Im z| ≤ R`, and
   `‖f‖² = 2π ∑ |f(2πn)|²`.
 -/
 
@@ -177,7 +177,7 @@ theorem rE_eq_T (z : ℂ) : rE z = T ((2 * Real.pi : ℂ) • one) z := by
   have hp : (2 * Real.pi : ℂ) ≠ 0 := by exact_mod_cast (by positivity : (0:ℝ) < 2 * Real.pi).ne'
   field_simp
 
-/-- The Paley–Wiener kernel (24). -/
+/-- The Paley–Wiener kernel (50). -/
 noncomputable def KE (z w : ℂ) : ℂ := (1 / (2 * Real.pi)) * ∫ ξ in (-1/2:ℝ)..(1/2), cexp (I * (z - conj w) * ξ)
 
 theorem KE_eq (z w : ℂ) : KE z w = rE (z - conj w) / (2 * Real.pi) := by
@@ -250,14 +250,14 @@ section Plancherel
 variable (hP : Plancherel)
 include hP
 
-/-- (24) reproducing property: `f(w) = ∫_ℝ \overline{K_E(x,w)} f(x) dx` for `f = T g`. -/
+/-- (50) reproducing property: `f(w) = ∫_ℝ \overline{K_E(x,w)} f(x) dx` for `f = T g`. -/
 theorem reproducing (g : GI) (w : ℂ) :
     T g w = ∫ x : ℝ, conj (KE x w) * T g x := by
   simp_rw [KE_eq_T]
   rw [(hP (kz w)).2 g]
   rfl
 
-/-- (25): `‖r_E‖²_{L²(ℝ)} = 2π`. -/
+/-- (51): `‖r_E‖²_{L²(ℝ)} = 2π`. -/
 theorem norm_rE_sq : ∫ x : ℝ, ‖rE x‖ ^ 2 = 2 * Real.pi := by
   have h := (hP ((2 * Real.pi : ℂ) • one)).2 ((2 * Real.pi : ℂ) • one)
   simp_rw [← rE_eq_T] at h
@@ -280,7 +280,7 @@ theorem norm_rE_sq : ∫ x : ℝ, ‖rE x‖ ^ 2 = 2 * Real.pi := by
   simp [Complex.conj_ofReal, map_ofNat]
   field_simp
 
-/-- (26), orthonormality of the translates in `L²(ℝ)`. -/
+/-- (52), orthonormality of the translates in `L²(ℝ)`. -/
 theorem orthonormal_φ (m n : ℤ) :
     ∫ x : ℝ, conj (φ m x) * φ n x = if m = n then 1 else 0 := by
   simp_rw [φ_eq_T]
@@ -295,7 +295,7 @@ theorem orthonormal_φ (m n : ℤ) :
   · simp
 
 omit hP in
-/-- (27a): cardinal series, pointwise. -/
+/-- (53): cardinal series, pointwise. -/
 theorem sampling (g : GI) (z : ℂ) :
     HasSum (fun n : ℤ => T g (2 * Real.pi * n) * rE (z - 2 * Real.pi * n)) (T g z) := by
   let L : GI →L[ℂ] ℂ := (1 / (2 * Real.pi) : ℂ) • innerSL ℂ (kz z)

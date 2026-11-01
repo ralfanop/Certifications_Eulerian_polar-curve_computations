@@ -5,7 +5,7 @@ import Bridge.Saddle.Main
 
 `lemma_5_5`: for every `b ∈ (0, 1/2)` there are `M₀`, `C` such that for `M ≥ M₀` and `|x| ≤ b`,
 with `E_M = log g_M + MI - ½ log(M/(2πv)) - η/M`,
-`|E_M(x)|, |E_M'(x)|, |E_M''(x)| ≤ C/(M√M)`   (eq. (68)).
+`|E_M(x)|, |E_M'(x)|, |E_M''(x)| ≤ C/(M√M)`   (eq. (115)).
 -/
 
 open MeasureTheory Set Complex Filter Topology Metric

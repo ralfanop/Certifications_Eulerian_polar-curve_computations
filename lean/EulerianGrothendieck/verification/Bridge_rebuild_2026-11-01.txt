@@ -1,0 +1,69 @@
+Bridge library: sequential recompilation after the docstring corrections of 1 November 2026
+Lean 4.24.0, Mathlib f897ebcf72cd16f89ab4577d0c826cd14afaafc7; one module at a time (lake env lean -o).
+
+Pass 1 (all modules, dependency order):
+Bridge/Appell exit 0 errors 0 sorries 0 20s
+Bridge/AppendixA exit 0 errors 0 sorries 0 9s
+Bridge/AppendixAGd exit 0 errors 0 sorries 0 10s
+Bridge/AppendixAMoments exit 0 errors 0 sorries 0 7s
+Bridge/BernoulliAppell exit 0 errors 0 sorries 0 6s
+Bridge/Decimals exit 0 errors 0 sorries 0 13s
+Bridge/Duplication exit 0 errors 0 sorries 0 6s
+Bridge/EtaQuarter exit 0 errors 0 sorries 0 51s
+Bridge/Fock3 exit 0 errors 0 sorries 0 8s
+Bridge/Fock3b exit 0 errors 0 sorries 0 6s
+Bridge/Ladder exit 0 errors 0 sorries 0 11s
+Bridge/Ladder2 exit 0 errors 0 sorries 0 4s
+Bridge/Ladder3 exit 0 errors 0 sorries 0 5s
+Bridge/Ladder4 exit 0 errors 0 sorries 0 6s
+Bridge/Ladder5 exit 0 errors 0 sorries 0 9s
+Bridge/Fock3c exit 0 errors 0 sorries 0 5s
+Bridge/FrameBridge exit 0 errors 0 sorries 0 18s
+Bridge/Hall exit 0 errors 0 sorries 0 5s
+Bridge/InverseTangent exit 0 errors 0 sorries 0 3s
+Bridge/Isoclinic exit 0 errors 0 sorries 0 6s
+Bridge/Mellin exit 0 errors 0 sorries 0 23s
+Bridge/Malmsten exit 0 errors 0 sorries 0 4s
+Bridge/Rabotnov exit 0 errors 0 sorries 0 4s
+Bridge/MellinExtras exit 0 errors 0 sorries 0 6s
+Bridge/MalmstenIBP exit 0 errors 0 sorries 0 8s
+Bridge/PaleyWiener exit 0 errors 0 sorries 0 8s
+Bridge/PaleyWiener2 exit 0 errors 0 sorries 0 9s
+Bridge/PaleyWiener3 exit 0 errors 0 sorries 0 7s
+Bridge/PaleyWiener4 exit 0 errors 0 sorries 0 8s
+Bridge/Saddle/Spline exit 0 errors 0 sorries 0 4s
+Bridge/Saddle/Laplace exit 0 errors 0 sorries 0 7s
+Bridge/Saddle/AFun exit 0 errors 0 sorries 0 9s
+Bridge/Saddle/Cauchy exit 0 errors 0 sorries 0 6s
+Bridge/Saddle/Fourier exit 0 errors 0 sorries 0 8s
+Bridge/Saddle/ULLambda exit 0 errors 0 sorries 0 10s
+Bridge/Saddle/LogA exit 0 errors 0 sorries 0 7s
+Bridge/Saddle/Gauss exit 0 errors 0 sorries 0 6s
+Bridge/Saddle/Expansion exit 0 errors 0 sorries 0 29s
+Bridge/Saddle/InnerBound exit 0 errors 0 sorries 0 131s
+Bridge/Saddle/Integrals exit 0 errors 0 sorries 0 34s
+Bridge/Saddle/IrExp exit 0 errors 0 sorries 0 22s
+Bridge/Saddle/Coeffs exit 0 errors 0 sorries 0 7s
+Bridge/Saddle/Represent exit 0 errors 0 sorries 0 7s
+Bridge/Saddle/Deriv exit 0 errors 0 sorries 0 4s
+Bridge/Saddle/FinalAlg exit 0 errors 0 sorries 0 39s
+Bridge/Saddle/Main exit 0 errors 0 sorries 0 7s
+Bridge/Saddle/Main2 exit 0 errors 0 sorries 0 7s
+Bridge/Saddle/Lemma55 exit 0 errors 0 sorries 0 26s
+Bridge/Saddle/Corollary exit 0 errors 0 sorries 0 20s
+Bridge/Saddle/RateSup exit 0 errors 0 sorries 0 4s
+Bridge/StepFrame exit 0 errors 0 sorries 0 10s
+Bridge exit 0 errors 0 sorries 0 3s
+AUDIT exit 0
+
+Pass 2 (StepFrame and PaleyWiener* docstrings, with dependants):
+Bridge/PaleyWiener exit 0 errors 0 sorries 0 8s
+Bridge/PaleyWiener2 exit 0 errors 0 sorries 0 7s
+Bridge/PaleyWiener3 exit 0 errors 0 sorries 0 7s
+Bridge/PaleyWiener4 exit 0 errors 0 sorries 0 7s
+Bridge/StepFrame exit 0 errors 0 sorries 0 10s
+Bridge exit 0 errors 0 sorries 0 3s
+AUDIT exit 0
+
+Audit (AuditBridge.lean):
+theorems: 821; with non-standard axioms: 0

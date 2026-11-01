@@ -4,8 +4,8 @@ import Mathlib.MeasureTheory.Integral.Prod
 /-!
 # Corollary 3.11 (continued): `P_E` is the Fourier multiplier with symbol `1_{[-1/2,1/2]}`
 
-For `f ∈ L¹ ∩ L²(ℝ)` with `f̂(ξ) = ∫ f(x) e^{-ixξ} dx` (convention (22)), `P_E f = T(f̂|_{[-1/2,1/2]})`.
-Also: each integral in (28) converges absolutely (Cauchy–Schwarz).
+For `f ∈ L¹ ∩ L²(ℝ)` with `f̂(ξ) = ∫ f(x) e^{-ixξ} dx` (convention (47)–(48)), `P_E f = T(f̂|_{[-1/2,1/2]})`.
+Also: each integral in (55) converges absolutely (Cauchy–Schwarz).
 -/
 
 open MeasureTheory Complex Set Filter Topology
@@ -104,7 +104,7 @@ theorem PE_multiplier {f : ℝ → ℂ} (hf1 : Integrable f) (hf2 : MemLp f 2) :
   change (inner ℂ (hf2.toLp f - Fv hP (fhat hf1)) (Fv hP h) : ℂ) = 0
   rw [inner_sub_left, inner_f_Fv hP hf1 hf2, inner_Fv, sub_self]
 
-/-- The integrals in (28) converge absolutely: `y ↦ r_E(x-y) f(y)` is integrable for `f ∈ L²`. -/
+/-- The integrals in (55) converge absolutely: `y ↦ r_E(x-y) f(y)` is integrable for `f ∈ L²`. -/
 theorem kernel_integrable (f : L2R) (x : ℝ) : Integrable (fun y : ℝ => rE (x - y) * f y) := by
   have hK : MemLp (fun y : ℝ => rE (x - y)) 2 volume := by
     have h := ((hP (kz x)).1).const_mul (2 * Real.pi : ℂ)

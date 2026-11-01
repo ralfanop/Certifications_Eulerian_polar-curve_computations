@@ -6,15 +6,15 @@ import Mathlib.Topology.Algebra.Module.FiniteDimension
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 
 /-!
-# Proposition 3.6: the step-function isometry `U_d` and the finite-frame factorisation
+# Proposition 3.7: the step-function isometry `U_d` and the finite-frame factorisation
 
-Manuscript V173, Proposition 3.6, eqs. (34)–(36).
+Manuscript V173, Proposition 3.7, eqs. (34)–(36).
 
 `I_{d,k} = [-1/2 + k/d, -1/2 + (k+1)/d]` (`k = 0, …, d-1`, i.e. the manuscript's `I_{d,k+1}`),
 `U_d e_k = √d 1_{I_{d,k}} ∈ L²(ℝ)`, `c_d = d^{-1/2}(1,…,1)` and `ψ₁ = 1_{[-1/2,1/2]}`.
 We prove that the `√d 1_{I_{d,k}}` are orthonormal, `U_d† U_d = I`, `U_d c_d = ψ₁`, and then,
 with Hall's unitarity `𝒱†𝒱 = I` and Vourdas's `M M† = I` as cited hypotheses, the conclusions of
-Proposition 3.6 for `B = 𝒱 U_d M`.
+Proposition 3.7 for `B = 𝒱 U_d M`.
 -/
 
 open MeasureTheory Set ContinuousLinearMap
@@ -165,7 +165,7 @@ theorem U_c (hd : 0 < d) : U d (cvec d) = ψ₁ := by
     exact pow_eq_zero_iff (n := 2) (by norm_num) |>.mp h0
   exact sub_eq_zero.mp (norm_eq_zero.mp this)
 
-/-! ## Proposition 3.6 -/
+/-! ## Proposition 3.7 -/
 
 open EulerianBridge.FrameBridge
 
@@ -173,7 +173,7 @@ variable {C2d F : Type*}
   [NormedAddCommGroup C2d] [InnerProductSpace ℂ C2d] [CompleteSpace C2d]
   [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
 
-/-- Proposition 3.6: for `B = 𝒱_ħ U_d M_V(ζ)`, with Hall's unitarity and Vourdas's semi-unitarity as
+/-- Proposition 3.7: for `B = 𝒱_ħ U_d M_V(ζ)`, with Hall's unitarity and Vourdas's semi-unitarity as
 hypotheses: `B†B = M†M`, `BB† = 𝒱U_dU_d†𝒱†`, `B M† c_d = 𝒱ψ₁`, and both are orthogonal projections. -/
 theorem frame_factorisation (hd : 0 < d) (V : L2R →L[ℂ] F) (M : C2d →L[ℂ] EuclideanSpace ℂ (Fin d))
     (hV : adjoint V ∘L V = ContinuousLinearMap.id ℂ L2R)

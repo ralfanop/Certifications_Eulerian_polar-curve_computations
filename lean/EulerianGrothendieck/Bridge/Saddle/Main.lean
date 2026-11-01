@@ -4,7 +4,7 @@ import Bridge.Saddle.FinalAlg
 # Lemma 5.5 (manuscript V173): the saddlepoint estimate with two derivatives
 
 For every `b ∈ (0, 1/2)` there are `M₀` and `C` such that for `M ≥ M₀`
-`‖log g_M + MI - ½ log(M/(2πv)) - η/M‖_{C²([-b,b])} ≤ C/(M√M)`  (eq. (68)), `lemma_5_5`.
+`‖log g_M + MI - ½ log(M/(2πv)) - η/M‖_{C²([-b,b])} ≤ C/(M√M)`  (eq. (115)), `lemma_5_5`.
 -/
 
 open MeasureTheory Set Complex Filter Topology Metric

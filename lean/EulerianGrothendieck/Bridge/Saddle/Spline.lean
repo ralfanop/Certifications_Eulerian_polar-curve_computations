@@ -7,7 +7,7 @@ import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 /-!
 # Lemma 5.5, part 1: the centred cardinal B-spline density and its Laplace transform
 
-Manuscript V173, Section 5, eqs. (71), (89)–(91), (117).
+Manuscript V173, Section 5, eqs. (71) and (87)–(90).
 
 `w 1 = 1_{(-1/2,1/2]}` and `w (M+1) y = ∫_{-1/2}^{1/2} w M (y - t) dt` (convolution with the uniform law);
 `w M` is the density of `S_M`. We prove

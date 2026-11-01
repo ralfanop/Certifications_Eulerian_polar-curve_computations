@@ -4,7 +4,7 @@ import Mathlib.MeasureTheory.Integral.IntegralEqImproper
 import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 
 /-!
-# Section 7: the integration by parts in (104)
+# Section 7: the integration by parts in (168)
 
 `∫_0^∞ (1 - sech t)/t² dt = ∫_0^∞ tanh t sech t / t dt`, both integrals converging absolutely;
 the boundary terms of `F(t) = (1 - sech t)/t` vanish at `0⁺` and at `∞`.
@@ -193,7 +193,7 @@ theorem F_tendsto_atTop : Tendsto F atTop (𝓝 0) := by
     simpa using tendsto_inv_atTop_zero
   exact tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds hlim hlb hub
 
-/-- Eq. (104), first equality. -/
+/-- Eq. (168), first equality. -/
 theorem catalan_ibp :
     ∫ t in Ioi (0:ℝ), (1 - sech t) / t ^ 2 = ∫ t in Ioi (0:ℝ), tanh t * sech t / t := by
   have hF := integral_Ioi_of_hasDerivAt_of_tendsto F_continuousWithinAt
@@ -203,7 +203,7 @@ theorem catalan_ibp :
   rw [h0, sub_zero] at hF
   linarith
 
-/-- Eq. (104) with the cited value (Abdulsalam): both integrals equal `(4/π) β(2)`, and (105). -/
+/-- Eq. (168) with the cited value (Abdulsalam): both integrals equal `(4/π) β(2)`, and (169). -/
 theorem catalan_both (hA : ∫ t in Ioi (0:ℝ), (1 - sech t) / t ^ 2 = 4 / π * dirichletBeta 2) :
     ∫ t in Ioi (0:ℝ), tanh t * sech t / t = 4 / π * dirichletBeta 2 ∧
       ∫ t in Ioi (0:ℝ), (1 - qE t) / t ^ 2 = 2 * dirichletBeta 2 * EulerianBridge.Malmsten.rEpi :=

@@ -3,9 +3,9 @@ import Bridge.Saddle.InnerBound
 /-!
 # Lemma 5.5, part 10: the integrals `I_r = ∫ (iz)^r χ(s, εz)^M dz`, `r = 0, 1, 2`
 
-* `exists_rho`: `|χ(s,u)| ≤ ρ < 1` for `|s| ≤ σ`, `|u| ≥ δ` (outer region, (72));
+* `exists_rho`: `|χ(s,u)| ≤ ρ < 1` for `|s| ≤ σ`, `|u| ≥ δ` (outer region, (121));
 * `integral_main`: `∫ (iz)^r e^{-κ₂z²/2} T dz = √(2π/κ₂) N_r(ε)` with an explicit polynomial
-  `N_r = Σ_k τ_k μ_{r+k}` (Gaussian moments after (76));
+  `N_r = Σ_k τ_k μ_{r+k}` (Gaussian moments after (129));
 * `Ir_expansion`: `|I_r - √(2π/κ₂) N_r(ε)| ≤ C ε⁵`, uniformly for `|s| ≤ σ`, `M ≥ 4`, `Mε² = 1`.
 -/
 

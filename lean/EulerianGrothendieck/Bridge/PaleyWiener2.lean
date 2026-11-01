@@ -4,10 +4,10 @@ import Bridge.Fock3
 /-!
 # Theorem 3.10 (continued) and the momentum normalisation of Proposition 3.1
 
-* (27a) the cardinal series converges uniformly on every horizontal strip `|Im z| ≤ R`;
-* (27b) Parseval: `∫_ℝ |f|² = 2π ∑ |f(2πn)|²`;
-* (29) `∫ r_E(x-t) r_E(t-y) dt = 2π r_E(x-y)`;
-* (17) `∫ |F_ħψ_L(p)|² dp = 1`.
+* (53) the cardinal series converges uniformly on every horizontal strip `|Im z| ≤ R`;
+* (54) Parseval: `∫_ℝ |f|² = 2π ∑ |f(2πn)|²`;
+* (56) `∫ r_E(x-t) r_E(t-y) dt = 2π r_E(x-y)`;
+* (18) `∫ |F_ħψ_L(p)|² dp = 1`.
 All under the cited Plancherel hypothesis `PW.Plancherel`.
 -/
 
@@ -55,7 +55,7 @@ theorem hasSum_neg (g : GI) : HasSum (fun n : ℤ => fourierCoeff g (-n) • (fo
     (hasSum_fourier_series_L2 g)
   exact h
 
-/-- (27a): the cardinal series converges uniformly on every strip `|Im z| ≤ R`. -/
+/-- (53): the cardinal series converges uniformly on every strip `|Im z| ≤ R`. -/
 theorem sampling_uniform (g : GI) (R : ℝ) :
     TendstoUniformlyOn (fun (S : Finset ℤ) (z : ℂ) => ∑ n ∈ S, T g (2 * Real.pi * n) * rE (z - 2 * Real.pi * n))
       (T g) atTop {z : ℂ | |z.im| ≤ R} := by
@@ -96,7 +96,7 @@ theorem integral_norm_sq_T (g : GI) : ∫ x : ℝ, ‖T g x‖ ^ 2 = (1 / (2 * R
   simp_rw [e]
   rw [h]; push_cast; rfl
 
-/-- (27b) Parseval: `∫_ℝ |f|² = 2π ∑_n |f(2πn)|²` for `f = T g`. -/
+/-- (54) Parseval: `∫_ℝ |f|² = 2π ∑_n |f(2πn)|²` for `f = T g`. -/
 theorem parseval (g : GI) :
     ∫ x : ℝ, ‖T g x‖ ^ 2 = 2 * Real.pi * ∑' n : ℤ, ‖T g (2 * Real.pi * n)‖ ^ 2 := by
   rw [integral_norm_sq_T hP]
@@ -122,7 +122,7 @@ theorem parseval (g : GI) :
   have hp : (0:ℝ) < Real.pi := Real.pi_pos
   field_simp
 
-/-- (29): `∫ r_E(x-t) r_E(t-y) dt = 2π r_E(x-y)` for real `x, y`. -/
+/-- (56): `∫ r_E(x-t) r_E(t-y) dt = 2π r_E(x-y)` for real `x, y`. -/
 theorem convolution (x y : ℝ) :
     ∫ t : ℝ, rE (x - t) * rE (t - y) = 2 * Real.pi * rE (x - y) := by
   have h := reproducing hP (kz y) x
@@ -141,7 +141,7 @@ theorem convolution (x y : ℝ) :
   field_simp at h
   linear_combination -h
 
-/-- Proposition 3.1, eq. (17): `∫ |(F_ħψ_L)(p)|² dp = 1`. -/
+/-- Proposition 3.1, eq. (18): `∫ |(F_ħψ_L)(p)|² dp = 1`. -/
 theorem momentum_normalisation {L ħ : ℝ} (hL : 0 < L) (hħ : 0 < ħ) :
     ∫ p : ℝ, ‖EulerianBridge.Fock3.momentum ħ (EulerianBridge.Fock3.psiL L) p‖ ^ 2 = 1 := by
   simp_rw [EulerianBridge.Fock3.momentum_psiL hL hħ, norm_mul, mul_pow, Complex.norm_real,
