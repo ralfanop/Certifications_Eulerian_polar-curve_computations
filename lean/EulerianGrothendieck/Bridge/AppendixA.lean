@@ -11,7 +11,7 @@ import Mathlib.Data.Nat.Factorial.DoubleFactorial
 /-!
 # Appendix A: the moment sequence of the Eulerian profile
 
-Manuscript V173, Appendix A, eqs. (284)–(298) (source labels `eq:A058962-*`, `eq:moments-*`,
+Manuscript V173, Appendix A, eqs. (287)–(301) (source labels `eq:A058962-*`, `eq:moments-*`,
 `eq:gudermannian`, `eq:lambertian*`, `eq:central-binomial-semifactorial`, `eq:catalan-semifactorial`).
 
 `m k = ∫_{-1/2}^{1/2} t^{2k} dt`, `a k = 4^k (2k+1)` its reciprocal.
@@ -48,11 +48,11 @@ theorem m_inv (k : ℕ) : (m k)⁻¹ = (a k : ℝ) := by
 theorem a_eq_hypercube_edges (k : ℕ) : a k = (2 * k + 1) * 2 ^ (2 * k) := by
   unfold a; rw [pow_mul]; norm_num; ring
 
-/-- Eq. (286): `a(k) = 8 a(k-1) - 16 a(k-2)`, written without subtraction. -/
+/-- Eq. (289): `a(k) = 8 a(k-1) - 16 a(k-2)`, written without subtraction. -/
 theorem a_rec (k : ℕ) : a (k + 2) + 16 * a k = 8 * a (k + 1) := by
   unfold a; ring
 
-/-- Eq. (284): ordinary generating function, `|x| < 1/4`. -/
+/-- Eq. (287): ordinary generating function, `|x| < 1/4`. -/
 theorem a_ogf {x : ℝ} (hx : |x| < 1 / 4) :
     HasSum (fun k => (a k : ℝ) * x ^ k) ((1 + 4 * x) / (1 - 4 * x) ^ 2) := by
   have hy : ‖4 * x‖ < 1 := by
@@ -69,7 +69,7 @@ theorem a_ogf {x : ℝ} (hx : |x| < 1 / 4) :
   · funext k; unfold a; push_cast; rw [mul_pow]; ring
   · field_simp; ring
 
-/-- Eq. (285): exponential generating function. -/
+/-- Eq. (288): exponential generating function. -/
 theorem a_egf (x : ℝ) :
     HasSum (fun k => (a k : ℝ) * x ^ k / k.factorial) (Real.exp (4 * x) * (1 + 8 * x)) := by
   have he : HasSum (fun k : ℕ => (4 * x) ^ k / k.factorial) (Real.exp (4 * x)) := by
@@ -95,7 +95,7 @@ noncomputable def arctanh (x : ℝ) : ℝ := (1 / 2) * Real.log ((1 + x) / (1 - 
 /-- `arccoth x = arctanh (1/x)`. -/
 noncomputable def arccoth (x : ℝ) : ℝ := arctanh (1 / x)
 
-/-- Eq. (287): `∑ 1/(4^k (2k+1)) = 2 arctanh(1/2) = 2 arccoth 2 = log 3`. -/
+/-- Eq. (290): `∑ 1/(4^k (2k+1)) = 2 arctanh(1/2) = 2 arccoth 2 = log 3`. -/
 theorem moments_sum :
     HasSum (fun k : ℕ => 1 / ((4:ℝ) ^ k * (2 * k + 1))) (2 * arctanh (1 / 2)) ∧
       2 * arctanh (1 / 2) = 2 * arccoth 2 ∧ 2 * arctanh (1 / 2) = Real.log 3 := by
@@ -141,13 +141,13 @@ theorem integral_inv_one_sub_sq : ∫ t in (-1/2:ℝ)..(1/2), (1 - t ^ 2)⁻¹ =
     rw [Set.uIcc_of_le (by norm_num)] at ht
     nlinarith [ht.1, ht.2]
 
-/-- Eq. (288): the Gudermannian function `gd ψ = ∫_0^ψ sech u du`. -/
+/-- Eq. (291): the Gudermannian function `gd ψ = ∫_0^ψ sech u du`. -/
 noncomputable def gd (ψ : ℝ) : ℝ := ∫ u in (0:ℝ)..ψ, 1 / Real.cosh u
 
-/-- Eq. (289): `gd⁻¹ φ := ∫_0^φ sec t dt`. -/
+/-- Eq. (292): `gd⁻¹ φ := ∫_0^φ sec t dt`. -/
 noncomputable def gdInv (φ : ℝ) : ℝ := ∫ t in (0:ℝ)..φ, 1 / Real.cos t
 
-/-- Eq. (289): `gd⁻¹ φ = arctanh(sin φ)` for `|φ| < π/2`. -/
+/-- Eq. (292): `gd⁻¹ φ = arctanh(sin φ)` for `|φ| < π/2`. -/
 theorem gdInv_eq_arctanh_sin {φ : ℝ} (hφ : |φ| < π / 2) : gdInv φ = arctanh (Real.sin φ) := by
   have hφ' := abs_lt.mp hφ
   have hcos : ∀ t ∈ Set.uIcc 0 φ, 0 < Real.cos t := by
@@ -185,7 +185,7 @@ theorem gdInv_eq_arctanh_sin {φ : ℝ} (hφ : |φ| < π / 2) : gdInv φ = arcta
     apply ContinuousOn.div continuousOn_const Real.continuous_cos.continuousOn
     intro t ht; exact (hcos t ht).ne'
 
-/-- Eq. (290): `gd⁻¹(π/4) = arctanh(1/√2) = log(1+√2)`. -/
+/-- Eq. (293): `gd⁻¹(π/4) = arctanh(1/√2) = log(1+√2)`. -/
 theorem gdInv_pi_div_four :
     gdInv (π / 4) = arctanh (1 / Real.sqrt 2) ∧ arctanh (1 / Real.sqrt 2) = Real.log (1 + Real.sqrt 2) := by
   have hpi : |π / 4| < π / 2 := by rw [abs_of_pos (by positivity)]; linarith [Real.pi_pos]
@@ -210,7 +210,7 @@ theorem gdInv_pi_div_four :
     rw [key, Real.log_pow]
     push_cast; ring
 
-/-- Eq. (291): `sin(arctan(4/3)) = 4/5` and `gd⁻¹(arctan(4/3)) = arctanh(4/5) = 2 arctanh(1/2) = log 3`. -/
+/-- Eq. (294): `sin(arctan(4/3)) = 4/5` and `gd⁻¹(arctan(4/3)) = arctanh(4/5) = 2 arctanh(1/2) = log 3`. -/
 theorem gdInv_arctan_four_thirds :
     Real.sin (Real.arctan (4 / 3)) = 4 / 5 ∧
       gdInv (Real.arctan (4 / 3)) = arctanh (4 / 5) ∧
@@ -246,7 +246,7 @@ theorem factorial_two_mul (k : ℕ) : (2 * k).factorial = 2 ^ k * k.factorial * 
       oddDF_succ, Nat.factorial_succ]
     ring
 
-/-- Eq. (293): `C(2k,k) = 2^k (2k-1)!!/k!`, in the multiplicative form `k! C(2k,k) = 2^k (2k-1)!!`. -/
+/-- Eq. (296): `C(2k,k) = 2^k (2k-1)!!/k!`, in the multiplicative form `k! C(2k,k) = 2^k (2k-1)!!`. -/
 theorem central_binom_semifactorial (k : ℕ) : k.factorial * Nat.centralBinom k = 2 ^ k * oddDF k := by
   have h := Nat.succ_mul_centralBinom_succ k
   have hfac : (2 * k).factorial = Nat.centralBinom k * k.factorial * k.factorial := by
@@ -259,14 +259,14 @@ theorem central_binom_semifactorial (k : ℕ) : k.factorial * Nat.centralBinom k
   have := Nat.eq_of_mul_eq_mul_right hk this
   linarith [this]
 
-/-- Eq. (294): `C_k = C(2k,k)/(k+1)`, in the form `(k+1)! C_k = 2^k (2k-1)!!`. -/
+/-- Eq. (297): `C_k = C(2k,k)/(k+1)`, in the form `(k+1)! C_k = 2^k (2k-1)!!`. -/
 theorem catalan_semifactorial (k : ℕ) : (k + 1).factorial * catalan k = 2 ^ k * oddDF k := by
   rw [← central_binom_semifactorial, Nat.factorial_succ, catalan_eq_centralBinom_div,
     Nat.mul_comm (k + 1), Nat.mul_assoc]
   congr 1
   exact Nat.mul_div_cancel' (Nat.succ_dvd_centralBinom k)
 
-/-- Eq. (292): `m_k = (2k-1)!!/(4^k (2k+1)!!)`, since `(2k+1)!! = (2k+1)(2k-1)!!`. -/
+/-- Eq. (295): `m_k = (2k-1)!!/(4^k (2k+1)!!)`, since `(2k+1)!! = (2k+1)(2k-1)!!`. -/
 theorem m_semifactorial (k : ℕ) : m k = (oddDF k : ℝ) / (4 ^ k * oddDF (k + 1)) := by
   rw [m_eq, oddDF_succ]
   have hpos : (0:ℝ) < oddDF k := by
@@ -274,7 +274,7 @@ theorem m_semifactorial (k : ℕ) : m k = (oddDF k : ℝ) / (4 ^ k * oddDF (k + 
   push_cast
   field_simp
 
-/-- Eq. (295): uniform law on `[-2,2]`: `(1/4)∫_{-2}^{2} x^{2k} dx = 4^k/(2k+1) = 16^k m_k`. -/
+/-- Eq. (298): uniform law on `[-2,2]`: `(1/4)∫_{-2}^{2} x^{2k} dx = 4^k/(2k+1) = 16^k m_k`. -/
 theorem uniform_moments (k : ℕ) :
     (1 / 4) * ∫ x in (-2:ℝ)..2, x ^ (2 * k) = 4 ^ k / (2 * k + 1) ∧ (4:ℝ) ^ k / (2 * k + 1) = 16 ^ k * m k := by
   refine ⟨?_, ?_⟩
