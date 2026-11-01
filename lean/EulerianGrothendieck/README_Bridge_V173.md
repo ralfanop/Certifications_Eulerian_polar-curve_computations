@@ -2,7 +2,7 @@
 
 Toolchain: Lean 4.24.0 with Mathlib `f897ebcf72cd16f89ab4577d0c826cd14afaafc7`. This is the EulerianGrothendieck project with the new `Bridge` library declared in `lakefile.toml` (51 modules, 30 in `Bridge/` and 21 in `Bridge/Saddle/`, imported by the root `Bridge.lean`).
 
-Numbering: equation and statement numbers are those printed in manuscript 12 (formerly V174; Appendix D), version of 1 November 2026. They coincide with V173 and V174 up to (179); from (180) on they are three higher, because the moments and cumulants of the uniform law in Subsection 9.3 are now four numbered equations (180)–(183). In particular Appendix A is (287)–(301), formerly (284)–(298).
+Numbering: equation and statement numbers are those printed in manuscript 12 (formerly V174; Appendix D), version of 1 November 2026 (evening). They coincide with V173 and V174 up to (179); from (180) to (286) they are three higher, because the moments and cumulants of the uniform law in Subsection 9.3 are four numbered equations (180)–(183); from (287) on they are seven higher, because Lemma 10.2 (sharp Lipschitz constant of arcsin on the disks |z−i| ≤ r) adds the four equations (287)–(290) at the end of Section 10. In particular Appendix A is (291)–(305), formerly (287)–(301) in the 12 of 1 November 2026 (afternoon) and (284)–(298) in V173.
 
 Build, in this directory, after installing `elan` (which reads the toolchain from `lean-toolchain`):
 
@@ -157,19 +157,27 @@ Audit result: 821 theorems in the namespace `EulerianBridge` (`lake env lean Aud
 - Prop. 9.1, (174)–(176): `V_isometry`, `overlap_gram`, `trace_P_mul_P`.
 - (177)–(179): `sigma_eq`, `two_sigma_one`, `varthetaE_eq`.
 
+**Section 10, Lemma 10.2** (`DiskFamily`): sharp Lipschitz constant of arcsin on |z − i| ≤ r, 0 < r < √2
+- Boundary identity (289): `normSq_one_sub_sq`, `boundary_re`, `boundary_im`, `boundary_identity`.
+- (287), first case (r ≤ 2 − √2): `min_first_case`, `min_first_case_eq`, `min_first_case_unique`.
+- (287), second case (2 − √2 < r < √2): `second_case_sstar`, `second_case_value`, `second_case_lower`; extremal points z±: `extremal_points`.
+- Threshold 2 − √2: `threshold_root`, `below_threshold`, `above_threshold`.
+- Metallic form (288): `mu`, `mu_eq`, `mu_pos`, `mu_root`, `mu_inv`, `sinh_log_mu`, `cosh_log_mu`, `metallic_form`; cases r = 1/2 and r = 1/4: `golden_case`, `quarter_case`.
+- Contact of curvatures (290): `normSq_sq_sub_one`, `curvature_threshold`, `curvature_root`, `curvature_at_threshold`.
+
 **Appendix A** (`AppendixA`, `AppendixAGd`, `AppendixAMoments`)
 - The sequence a(k):
   - closed form and identities: `m_eq`, `m_inv`, `a_eq_hypercube_edges`;
-  - recurrence (289): `a_rec`;
-  - generating functions (287)–(288): `a_ogf`, `a_egf`.
-- (290): `moments_sum`, `integral_inv_one_sub_sq`.
-- Gudermannian (291):
+  - recurrence (293): `a_rec`;
+  - generating functions (291)–(292): `a_ogf`, `a_egf`.
+- (294): `moments_sum`, `integral_inv_one_sub_sq`.
+- Gudermannian (295):
   - `gd_eq`, `gd_strictMono`, `abs_gd_lt`, `range_gd`;
   - inverse relations: `gdInv_gd`, `gd_gdInv`.
-- Lambertian (292): `gdInv_eq_arctanh_sin`, `gdInv_eq_log_tan`.
-- Special values (293)–(294): `gdInv_pi_div_four`, `gdInv_arctan_four_thirds`.
-- Semifactorial forms (295)–(297): `m_semifactorial`, `central_binom_semifactorial`, `catalan_semifactorial`.
-- Moments of the four laws (298)–(301): `uniform_moments`, `arcsine_moment`, `semicircle_moment`, `gaussian_moment`.
+- Lambertian (296): `gdInv_eq_arctanh_sin`, `gdInv_eq_log_tan`.
+- Special values (297)–(298): `gdInv_pi_div_four`, `gdInv_arctan_four_thirds`.
+- Semifactorial forms (299)–(301): `m_semifactorial`, `central_binom_semifactorial`, `catalan_semifactorial`.
+- Moments of the four laws (302)–(305): `uniform_moments`, `arcsine_moment`, `semicircle_moment`, `gaussian_moment`.
 
 **Decimal values** (`Decimals`, `EtaQuarter`)
 - The six displayed scalars, (4)–(6), (12), (13) and (31): `endpoint_value`, `joining_point_value`, `determinant_value`, `beta_three_value`, `angle_degrees_value`, `bargmann_constant_value`.
@@ -177,6 +185,7 @@ Audit result: 821 theorems in the namespace `EulerianBridge` (`lake env lean Aud
 
 ## Not formalised here
 
+- Lemma 10.2: the reduction of the supremum to the boundary circle (maximum modulus principle, holomorphy of the principal branch of arcsin near the disk) and the implicit-function computation of the curvature (290) are classical steps of the manuscript's proof and are not formalised; the algebra they lead to is certified in `DiskFamily`.
 - Statements left to the cited sources:
   - log(1+√2) = √2 L₈(1) (Finch);
   - convex ⇒ starlike (classical);

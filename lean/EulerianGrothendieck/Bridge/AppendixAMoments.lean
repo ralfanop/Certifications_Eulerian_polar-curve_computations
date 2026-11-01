@@ -8,11 +8,11 @@ import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 /-!
 # Appendix A (continued): even moments of the arcsine, semicircle and Gaussian laws
 
-Manuscript V173, eqs. (299)–(301).
+Manuscript V173, eqs. (303)–(305).
 
-* (299) `(1/π) ∫_{-2}^{2} x^{2k}/√(4-x²) dx = C(2k,k)`;
-* (300) `(1/(2π)) ∫_{-2}^{2} x^{2k} √(4-x²) dx = C_k`;
-* (301) `∫_ℝ x^{2k} e^{-x²/2}/√(2π) dx = (2k-1)!!`.
+* (303) `(1/π) ∫_{-2}^{2} x^{2k}/√(4-x²) dx = C(2k,k)`;
+* (304) `(1/(2π)) ∫_{-2}^{2} x^{2k} √(4-x²) dx = C_k`;
+* (305) `∫_ℝ x^{2k} e^{-x²/2}/√(2π) dx = (2k-1)!!`.
 The first two reduce through `x = 2 sin θ` to Wallis integrals.
 -/
 
@@ -21,7 +21,7 @@ open scoped Nat
 
 namespace EulerianBridge.AppendixA
 
-/-- Eq. (301): Gaussian moments. -/
+/-- Eq. (305): Gaussian moments. -/
 theorem gaussian_moment (k : ℕ) :
     ∫ x : ℝ, x ^ (2 * k) * exp (-x ^ 2 / 2) / Real.sqrt (2 * π) = ((2 * k - 1 : ℕ)‼ : ℝ) := by
   -- even integrand: ∫_ℝ = 2 ∫_{Ioi 0}
@@ -138,14 +138,14 @@ theorem arcsine_subst (k : ℕ) :
   norm_num
   ring
 
-/-- Eq. (299): `(1/π) ∫_{-2}^{2} x^{2k}/√(4-x²) dx = C(2k,k)`. -/
+/-- Eq. (303): `(1/π) ∫_{-2}^{2} x^{2k}/√(4-x²) dx = C(2k,k)`. -/
 theorem arcsine_moment (k : ℕ) :
     (1 / π) * ∫ x in (-2:ℝ)..2, x ^ (2 * k) / Real.sqrt (4 - x ^ 2) = (Nat.centralBinom k : ℝ) := by
   rw [arcsine_subst, wallis]
   have := Real.pi_pos
   field_simp
 
-/-- Eq. (300): `(1/(2π)) ∫_{-2}^{2} x^{2k} √(4-x²) dx = C_k`. -/
+/-- Eq. (304): `(1/(2π)) ∫_{-2}^{2} x^{2k} √(4-x²) dx = C_k`. -/
 theorem semicircle_moment (k : ℕ) :
     (1 / (2 * π)) * ∫ x in (-2:ℝ)..2, x ^ (2 * k) * Real.sqrt (4 - x ^ 2) = (catalan k : ℝ) := by
   have hsub : ∫ x in (-2:ℝ)..2, x ^ (2 * k) * Real.sqrt (4 - x ^ 2) =

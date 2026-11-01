@@ -5,7 +5,7 @@ import Mathlib.Analysis.SpecialFunctions.Arsinh
 /-!
 # Appendix A (continued): the Gudermannian and Lambertian functions
 
-Manuscript V173, eqs. (291)–(292).
+Manuscript V173, eqs. (295)–(296).
 
 * `gd ψ = arctan(sinh ψ)`; `gd` is strictly increasing, `|gd ψ| < π/2`, and `gd` maps `ℝ` onto
   `(-π/2, π/2)`;
@@ -79,7 +79,7 @@ theorem gd_gdInv {φ : ℝ} (hφ : |φ| < π / 2) : gd (gdInv φ) = φ := by
   obtain ⟨ψ, rfl⟩ := this
   rw [gdInv_gd]
 
-/-- Eq. (292): `gd⁻¹ φ = log tan(π/4 + φ/2)` for `|φ| < π/2`. -/
+/-- Eq. (296): `gd⁻¹ φ = log tan(π/4 + φ/2)` for `|φ| < π/2`. -/
 theorem gdInv_eq_log_tan {φ : ℝ} (hφ : |φ| < π / 2) : gdInv φ = log (tan (π / 4 + φ / 2)) := by
   rw [gdInv_eq_arctanh_sin hφ]
   have hφ' := abs_lt.mp hφ
