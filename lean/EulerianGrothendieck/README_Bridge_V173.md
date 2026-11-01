@@ -2,7 +2,7 @@
 
 Toolchain: Lean 4.24.0 with Mathlib `f897ebcf72cd16f89ab4577d0c826cd14afaafc7`. This is the EulerianGrothendieck project with the new `Bridge` library declared in `lakefile.toml` (51 modules, 30 in `Bridge/` and 21 in `Bridge/Saddle/`, imported by the root `Bridge.lean`).
 
-Numbering: equation and statement numbers are those printed in manuscript V173; V174 (Appendix D) has the same numbering.
+Numbering: equation and statement numbers are those printed in manuscript 12 (formerly V174; Appendix D), version of 1 November 2026. They coincide with V173 and V174 up to (179); from (180) on they are three higher, because the moments and cumulants of the uniform law in Subsection 9.3 are now four numbered equations (180)–(183). In particular Appendix A is (287)–(301), formerly (284)–(298).
 
 Build, in this directory, after installing `elan` (which reads the toolchain from `lean-toolchain`):
 
@@ -160,16 +160,16 @@ Audit result: 821 theorems in the namespace `EulerianBridge` (`lake env lean Aud
 **Appendix A** (`AppendixA`, `AppendixAGd`, `AppendixAMoments`)
 - The sequence a(k):
   - closed form and identities: `m_eq`, `m_inv`, `a_eq_hypercube_edges`;
-  - recurrence (286): `a_rec`;
-  - generating functions (284)–(285): `a_ogf`, `a_egf`.
-- (287): `moments_sum`, `integral_inv_one_sub_sq`.
-- Gudermannian (288):
+  - recurrence (289): `a_rec`;
+  - generating functions (287)–(288): `a_ogf`, `a_egf`.
+- (290): `moments_sum`, `integral_inv_one_sub_sq`.
+- Gudermannian (291):
   - `gd_eq`, `gd_strictMono`, `abs_gd_lt`, `range_gd`;
   - inverse relations: `gdInv_gd`, `gd_gdInv`.
-- Lambertian (289): `gdInv_eq_arctanh_sin`, `gdInv_eq_log_tan`.
-- Special values (290)–(291): `gdInv_pi_div_four`, `gdInv_arctan_four_thirds`.
-- Semifactorial forms (292)–(294): `m_semifactorial`, `central_binom_semifactorial`, `catalan_semifactorial`.
-- Moments of the four laws (295)–(298): `uniform_moments`, `arcsine_moment`, `semicircle_moment`, `gaussian_moment`.
+- Lambertian (292): `gdInv_eq_arctanh_sin`, `gdInv_eq_log_tan`.
+- Special values (293)–(294): `gdInv_pi_div_four`, `gdInv_arctan_four_thirds`.
+- Semifactorial forms (295)–(297): `m_semifactorial`, `central_binom_semifactorial`, `catalan_semifactorial`.
+- Moments of the four laws (298)–(301): `uniform_moments`, `arcsine_moment`, `semicircle_moment`, `gaussian_moment`.
 
 **Decimal values** (`Decimals`, `EtaQuarter`)
 - The six displayed scalars, (4)–(6), (12), (13) and (31): `endpoint_value`, `joining_point_value`, `determinant_value`, `beta_three_value`, `angle_degrees_value`, `bargmann_constant_value`.
