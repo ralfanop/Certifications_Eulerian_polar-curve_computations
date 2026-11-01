@@ -138,14 +138,14 @@ theorem arcsine_subst (k : ℕ) :
   norm_num
   ring
 
-/-- Eq. (125): `(1/π) ∫_{-2}^{2} x^{2k}/√(4-x²) dx = C(2k,k)`. -/
+/-- Eq. (296): `(1/π) ∫_{-2}^{2} x^{2k}/√(4-x²) dx = C(2k,k)`. -/
 theorem arcsine_moment (k : ℕ) :
     (1 / π) * ∫ x in (-2:ℝ)..2, x ^ (2 * k) / Real.sqrt (4 - x ^ 2) = (Nat.centralBinom k : ℝ) := by
   rw [arcsine_subst, wallis]
   have := Real.pi_pos
   field_simp
 
-/-- Eq. (126): `(1/(2π)) ∫_{-2}^{2} x^{2k} √(4-x²) dx = C_k`. -/
+/-- Eq. (297): `(1/(2π)) ∫_{-2}^{2} x^{2k} √(4-x²) dx = C_k`. -/
 theorem semicircle_moment (k : ℕ) :
     (1 / (2 * π)) * ∫ x in (-2:ℝ)..2, x ^ (2 * k) * Real.sqrt (4 - x ^ 2) = (catalan k : ℝ) := by
   have hsub : ∫ x in (-2:ℝ)..2, x ^ (2 * k) * Real.sqrt (4 - x ^ 2) =

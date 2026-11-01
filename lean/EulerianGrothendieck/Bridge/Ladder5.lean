@@ -126,7 +126,7 @@ theorem inner_E_eq (hα : 0 < α) (n m : ℕ) :
   rw [hswap]
   rfl
 
-/-- Proposition 3.8, eq. (31): `⟨E_n, E_m⟩_{L²(μ_α)} = δ_{nm} ‖r_E‖² = 4α δ_{nm} Shi(1/(4α))`. -/
+/-- Proposition 3.8, eq. (39): `⟨E_n, E_m⟩_{L²(μ_α)} = δ_{nm} ‖r_E‖² = 4α δ_{nm} Shi(1/(4α))`. -/
 theorem inner_E (hα : 0 < α) (n m : ℕ) :
     ∫ z, conj (E α n z) * E α m z * (fockDensity α z : ℂ) =
       if n = m then ((4 * α * EulerianBridge.Fock3.Shi (1 / (4 * α)) : ℝ) : ℂ) else 0 := by
@@ -204,7 +204,7 @@ theorem adag_const_mul (α : ℝ) (k : ℂ) (n : ℕ) :
     dz_of_hasFDerivAt (hasFDerivAt_const_mul_Ij α _ n z), wz_smul, wz_smul]
   ring
 
-/-- The canonical commutation relation `[a, a†] = I` on the ladder (eq. (16)). -/
+/-- The canonical commutation relation `[a, a†] = I` on the ladder (eq. (37)). -/
 theorem commutator_E (α : ℝ) (hα : 0 < α) (n : ℕ) :
     a α (adag α (E α n)) = (fun z => (n + 1 : ℂ) * E α n z) ∧
       adag α (a α (E α (n + 1))) = (fun z => (n + 1 : ℂ) * E α (n + 1) z) := by

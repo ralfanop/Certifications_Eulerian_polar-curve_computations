@@ -7,9 +7,9 @@ import Mathlib.Topology.MetricSpace.Antilipschitz
 
 Under the cited Plancherel hypothesis:
 * the map `g ↦ T g` is a bounded linear map `L²(-1/2,1/2] → L²(ℝ)` with `‖T g‖ = ‖g‖/√(2π)`;
-* (26) the translates `φ_n` form an orthonormal family in `L²(ℝ)` and every `f ∈ PW_{1/2}`
+* (52) the translates `φ_n` form an orthonormal family in `L²(ℝ)` and every `f ∈ PW_{1/2}`
   is the `L²(ℝ)`-sum `∑ ⟨φ_n, f⟩ φ_n`;
-* (28) `PW_{1/2}` (the range) is closed; `P_E` is the orthogonal projector onto it,
+* (55) `PW_{1/2}` (the range) is closed; `P_E` is the orthogonal projector onto it,
   `P_E² = P_E = P_E*`, `‖P_E‖ = 1`, `(P_E f)(x) = (1/2π) ∫ r_E(x-y) f(y) dy`, and for
   `f ∈ L¹ ∩ L²`, `P_E f` has Fourier data `f̂` on `[-1/2,1/2]` (multiplier with symbol `1_{[-1/2,1/2]}`).
 -/
@@ -84,7 +84,7 @@ theorem Φ_coe (n : ℤ) : (Φ hP n : ℝ → ℂ) =ᵐ[volume] fun x : ℝ => �
   filter_upwards [Fv_coe hP ((Real.sqrt (2 * Real.pi) : ℂ) • fourierLp 2 (-n))] with x hx
   rw [Φ, hx, φ_eq_T]
 
-/-- (26): the translates are orthonormal in `L²(ℝ)`. -/
+/-- (52): the translates are orthonormal in `L²(ℝ)`. -/
 theorem orthonormal_Φ : Orthonormal ℂ (Φ hP) := by
   rw [orthonormal_iff_ite]
   intro m n
@@ -107,7 +107,7 @@ theorem inner_Φ (g : GI) (n : ℤ) :
     exact_mod_cast Real.mul_self_sqrt (by positivity : (0:ℝ) ≤ 2 * Real.pi)
   ring
 
-/-- (26): every `f ∈ PW_{1/2}` is the `L²(ℝ)` sum of its expansion in the translates. -/
+/-- (52): every `f ∈ PW_{1/2}` is the `L²(ℝ)` sum of its expansion in the translates. -/
 theorem expansion (g : GI) : HasSum (fun n : ℤ => (inner ℂ (Φ hP n) (Fv hP g) : ℂ) • Φ hP n) (Fv hP g) := by
   have h := (hasSum_neg g).mapL (FL hP)
   convert h using 1
@@ -143,7 +143,7 @@ theorem PWsub_closed : IsClosed (PWsub hP : Set L2R) := by
 
 instance : CompleteSpace (PWsub hP) := (PWsub_closed hP).completeSpace_coe
 
-/-- The orthogonal projector `P_E : L²(ℝ) → PW_{1/2}` (eq. (28)). -/
+/-- The orthogonal projector `P_E : L²(ℝ) → PW_{1/2}` (eq. (55)). -/
 noncomputable def PE : L2R →L[ℂ] L2R := (PWsub hP).starProjection
 
 theorem PE_idem : IsIdempotentElem (PE hP) := (PWsub hP).isIdempotentElem_starProjection
@@ -167,7 +167,7 @@ theorem conj_KE_real (x y : ℝ) : conj (KE y x) = rE (x - y) / (2 * Real.pi) :=
     show ((y - x : ℝ) : ℂ) = -((x:ℂ) - y) by push_cast; ring, EulerianBridge.Fock3.rE_neg]
   simp only [map_mul, map_ofNat, Complex.conj_ofReal]
 
-/-- (28): the convolution kernel of `P_E`. -/
+/-- (55): the convolution kernel of `P_E`. -/
 theorem PE_kernel (f : L2R) :
     ∃ g : GI, PE hP f = Fv hP g ∧
       ∀ x : ℝ, T g x = (1 / (2 * Real.pi)) * ∫ y : ℝ, rE (x - y) * f y := by

@@ -6,7 +6,7 @@ import Bridge.Ladder5
 
 For `t ∈ ℝ` let `k_t = K_α(·, -it/α) = e^{it·} ∈ L²(μ_α)`. The map `t ↦ k_t` is continuous into
 `L²(μ_α)`, hence Bochner integrable on compact intervals, and as elements of `L²(μ_α)`
-`∫_{-1/2}^{1/2} k_t dt = r_E` and `∫_{1/2}^{3/2} k_t dt = G_E` (eq. (9)).
+`∫_{-1/2}^{1/2} k_t dt = r_E` and `∫_{1/2}^{3/2} k_t dt = G_E` (eqs. (21)–(22)).
 -/
 
 open MeasureTheory Complex Set Filter Topology intervalIntegral

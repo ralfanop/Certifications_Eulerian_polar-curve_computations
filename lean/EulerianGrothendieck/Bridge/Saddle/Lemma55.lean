@@ -7,7 +7,7 @@ import Bridge.Saddle.Main2
 and all `x ∈ [-b, b]`, the function
 `E_M = log g_M + MI - ½ log(M/(2πv)) - η/M`
 is twice differentiable at `x` (with derivatives `E1 M x`, `E2 M x`) and
-`|E_M(x)| ≤ C/(M√M)`, `|E_M'(x)| ≤ C/(M√M)`, `|E_M''(x)| ≤ C/(M√M)`  — eq. (68).
+`|E_M(x)| ≤ C/(M√M)`, `|E_M'(x)| ≤ C/(M√M)`, `|E_M''(x)| ≤ C/(M√M)`  — eq. (115).
 -/
 
 open MeasureTheory Set Complex Filter Topology Metric
@@ -97,7 +97,7 @@ theorem uniform_data {σ : ℝ} (hσ : 0 ≤ σ) :
   · have := id_G22 s; exact this
   · have := id_G24 s; exact this
 
-/-- **Lemma 5.5** (eq. (68)). -/
+/-- **Lemma 5.5** (eq. (115)). -/
 theorem lemma_5_5 {b : ℝ} (hb0 : 0 < b) (hb : b < 1 / 2) :
     ∃ M0 : ℕ, ∃ C : ℝ, ∀ M : ℕ, M0 ≤ M → ∀ x ∈ Icc (-b) b,
       0 < w M (M * x) ∧ HasDerivAt (EM M) (E1 M x) x ∧ HasDerivAt (deriv (EM M)) (E2 M x) x ∧

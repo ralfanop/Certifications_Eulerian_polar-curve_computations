@@ -3,7 +3,7 @@ import Bridge.Saddle.Expansion
 /-!
 # Lemma 5.5, part 9: the inner-region estimate for `χ(s, εz)^M`
 
-`χ(s,u) = A(s+iu)/A(s) · e^{-iuκ₁(s)}` (eq. (70)), `Ψ = log χ` (eq. (73)), `a_n = κ_n/n!`.
+`χ(s,u) = A(s+iu)/A(s) · e^{-iuκ₁(s)}` (eq. (119)), `Ψ = log χ` (eq. (122)), `a_n = κ_n/n!`.
 For `|s| ≤ σ`, `M ε² = 1` and `ε|z| ≤ δ` (with `δ` small in terms of `σ` only):
 `|χ(s,εz)^M - e^{-κ₂z²/2} T(z)| ≤ ε⁵ C_in (1+z²)^{24} e^{-c₀z²/4}` (`inner_pointwise`).
 -/
@@ -80,7 +80,7 @@ theorem Kw_nonneg {σ : ℝ} (hσ : 0 ≤ σ) : 0 ≤ Kw σ := by
 /-- The cubic and higher coefficients `b_n = a_n (iz)^n`. -/
 noncomputable def bz (n : ℕ) (s z : ℝ) : ℂ := ac n s * ((z:ℂ) * I) ^ n
 
-/-- `T(s, ε, z)` of (76). -/
+/-- `T(s, ε, z)` of (129). -/
 noncomputable def Tz (s e z : ℝ) : ℂ := Tpoly e (bz 3 s z) (bz 4 s z) (bz 5 s z) (bz 6 s z)
 
 theorem norm_bz_le {σ s : ℝ} (hσ : 0 ≤ σ) (hs : |s| ≤ σ) {n : ℕ} (hn : n ≤ 6) (z : ℝ) :

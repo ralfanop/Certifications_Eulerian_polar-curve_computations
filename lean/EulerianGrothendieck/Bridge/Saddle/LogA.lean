@@ -8,7 +8,7 @@ import Mathlib.Analysis.Calculus.Deriv.Inverse
 /-!
 # Lemma 5.5, part 6: `Λ = log A`, its derivatives `κ_r`, and the saddlepoint `s(x)`
 
-Manuscript V173, eqs. (55)–(56) and (73).
+Manuscript V173, eqs. (92)–(97) and (122).
 
 * `Lc = log ∘ A` is holomorphic on `U = {Re A > 0}`, an open set containing `ℝ`;
   `κc n = Lc^{(n)}` (complex) and `κ n = Λ^{(n)}` (real), with `κc n s = κ n s` on `ℝ`
@@ -16,7 +16,7 @@ Manuscript V173, eqs. (55)–(56) and (73).
 * `κ_one_eq_Lp`: `κ_1 = Λ'` is the explicit function `1/2 + 1/(eˢ-1) - 1/s` of Lemma 5.3;
   `κ_two_pos`: `κ_2 = Λ'' > 0`, with `κ_2(0) = 1/12`;
 * `hasDerivAt_Ip`: the inverse `s = I'` of `Λ'` satisfies `s' = 1/κ_2(s)`;
-* uniform Cauchy estimates on `[-σ, σ]` (`coeff_bound`, `taylor_Lc`), the input for (73).
+* uniform Cauchy estimates on `[-σ, σ]` (`coeff_bound`, `taylor_Lc`), the input for (122).
 -/
 
 open MeasureTheory Set Complex Filter Topology Metric

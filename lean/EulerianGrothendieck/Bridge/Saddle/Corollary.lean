@@ -4,7 +4,7 @@ import Bridge.Saddle.Lemma55
 # Lemma 5.5, final part: `C²` regularity and the consequences for `φ_M = -(1/M) log g_M`
 
 * `lemma_5_5_C2`: for `M ≥ max M₀ 5` the second derivative of `E_M` is continuous on `[-b, b]`,
-  so `E_M ∈ C²([-b,b])` and (68) is a bound for its `C²` norm;
+  so `E_M ∈ C²([-b,b])` and (115) is a bound for its `C²` norm;
 * `lemma_5_5_phi`: `‖φ_M' - I'‖_{C¹([-b,b])} ≤ C/M` and `sup_{M ≥ M₀} sup_{|x| ≤ b} |φ_M''(x)| < ∞`
   (the "in particular" of Lemma 5.5), with `I' = s` and `I'' = 1/v`.
 -/
@@ -14,7 +14,7 @@ open scoped Nat
 
 namespace EulerianBridge.Saddle
 
-/-- `φ_M = -(1/M) log g_M`, eq. (53). -/
+/-- `φ_M = -(1/M) log g_M`, eq. (89). -/
 noncomputable def φM (M : ℕ) (x : ℝ) : ℝ := -(1 / (M:ℝ)) * Real.log (gM M x)
 
 theorem continuous_deriv_w {M : ℕ} (hM : 4 ≤ M) : Continuous (deriv (w M)) := by

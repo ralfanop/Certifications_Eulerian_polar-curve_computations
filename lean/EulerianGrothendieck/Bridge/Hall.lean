@@ -5,9 +5,9 @@ import Mathlib.Analysis.SpecialFunctions.Complex.LogBounds
 /-!
 # Propositions 3.4–3.5: Hall and Bargmann normalisations
 
-Manuscript V173, eqs. (13)–(15) and (bargmann-input)–(segal-isolated-profile).
+Manuscript V173, eqs. (27)–(29) and (30)–(33).
 
-Hall's one-dimensional transform is taken as the integral (15)
+Hall's one-dimensional transform is taken as the integral (29)
 `(𝒱_ħ u)(w) = (πħ)^{-1/4} ∫ exp((√8 w x - w² - x²)/(2ħ)) u(x) dx`.
 Its unitarity (Hall, Thm. 14.18) and Melzak's product for `π/(2e)` are cited inputs; neither is
 needed for the identities proved here, except Melzak's product for (bargmann-melzak-product),
@@ -20,12 +20,12 @@ namespace EulerianBridge.Hall
 
 open EulerianGrothendieck.Fock
 
-/-- Hall's transform (15). -/
+/-- Hall's transform (29). -/
 noncomputable def hall (ħ : ℝ) (u : ℝ → ℂ) (w : ℂ) : ℂ :=
   (((Real.pi * ħ) ^ (-(1:ℝ) / 4) : ℝ) : ℂ) *
     ∫ x : ℝ, cexp ((Real.sqrt 8 * w * x - w ^ 2 - (x:ℂ) ^ 2) / (2 * ħ)) * u x
 
-/-- `u_ħ(x) = e^{x²/(2ħ)} 1_{[-1/2,1/2]}(x)` (eq. (13)). -/
+/-- `u_ħ(x) = e^{x²/(2ħ)} 1_{[-1/2,1/2]}(x)` (eq. (27)). -/
 noncomputable def uħ (ħ : ℝ) (x : ℝ) : ℂ :=
   (Icc (-1/2:ℝ) (1/2)).indicator (fun x => cexp ((x:ℂ) ^ 2 / (2 * ħ))) x
 
@@ -60,7 +60,7 @@ theorem hall_uħ {ħ : ℝ} (hħ : 0 < ħ) (z : ℂ) :
     ← intervalIntegral.integral_of_le (by norm_num), intervalIntegral.integral_const_mul]
   rfl
 
-/-- Proposition 3.4, eq. (14): `r_E(z) = (πħ)^{1/4} e^{-ħz²/4} (𝒱_ħ u_ħ)(ħ z z₀)`, `z₀ = i/√2`. -/
+/-- Proposition 3.4, eq. (28): `r_E(z) = (πħ)^{1/4} e^{-ħz²/4} (𝒱_ħ u_ħ)(ħ z z₀)`, `z₀ = i/√2`. -/
 theorem segal_result {ħ : ℝ} (hħ : 0 < ħ) (z : ℂ) :
     rE z = (((Real.pi * ħ) ^ ((1:ℝ) / 4) : ℝ) : ℂ) * cexp (-(ħ * z ^ 2 / 4)) *
       hall ħ (uħ ħ) (ħ * z * (I / Real.sqrt 2)) := by
@@ -98,7 +98,7 @@ theorem hall_one (z : ℂ) :
     rw [show -(1:ℝ) / 4 = -((1:ℝ) / 4) by ring, Real.rpow_neg hp.le]; push_cast; ring
   rw [hinv]; field_simp
 
-/-- `C_B = r_E(1)/(𝒱₁u₁)(i/√2) = (π/e)^{1/4}` (eq. (segal-isolated-constant)). -/
+/-- `C_B = r_E(1)/(𝒱₁u₁)(i/√2) = (π/e)^{1/4}` (eq. (31)). -/
 theorem CB_eq : (CB : ℂ) = rE 1 / hall 1 (uħ 1) (1 * (I / Real.sqrt 2)) := by
   rw [hall_one]
   have hr := rE_one_ne_zero

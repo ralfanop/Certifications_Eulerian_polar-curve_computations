@@ -7,13 +7,13 @@ import Mathlib.Analysis.Complex.RemovableSingularity
 /-!
 # Section 3: momentum realisation, coherent kernels and exact Fock norms
 
-Manuscript V173, Propositions 3.1–3.3 and eqs. (16)–(21), (10), (12).
+Manuscript V173, Propositions 3.1–3.3 and eqs. (15)–(18), (21)–(26) and (46).
 
 * Prop. 3.1: `‖ψ_L‖ = 1` and `(F_ħ ψ_L)(p) = √(L/(2πħ)) r_E(pL/ħ)`;
 * Prop. 3.2: `r_E(z) = ∫_{-1/2}^{1/2} e^{itz} dt = ∫ K_α(z,-it/α) dt`, the same for
   `G_E(z) = e^{iz} r_E(z)` on `[1/2,3/2]`; `r_E` and `G_E` are entire and lie in `L²(μ_α)`;
 * Prop. 3.3: `‖r_E‖² = ∫∫_{[-1/2,1/2]²} e^{ts/α} = ∑_k 1/(2^{4k} α^{2k} (2k)! (2k+1)²)`,
-  `‖G_E‖² = ∫∫_{[1/2,3/2]²} e^{ts/α}`, the upper bounds (10), and the closed form (21)
+  `‖G_E‖² = ∫∫_{[1/2,3/2]²} e^{ts/α}`, the upper bounds (23), and the closed form (46)
   `‖r_E‖² = 4α ∫_0^{1/2} sinh(t/(2α))/t dt = 4α Shi(1/(4α))`.
 -/
 
@@ -53,7 +53,7 @@ theorem rE_neg (z : ℂ) : rE (-z) = rE z := by
   refine intervalIntegral.integral_congr (fun t _ => ?_)
   simp only [ofReal_neg]; ring_nf
 
-/-- Proposition 3.1, eq. (18). -/
+/-- Proposition 3.1, eq. (17). -/
 theorem momentum_psiL {L ħ : ℝ} (hL : 0 < L) (hħ : 0 < ħ) (p : ℝ) :
     momentum ħ (psiL L) p = ((Real.sqrt (L / (2 * Real.pi * ħ)) : ℝ) : ℂ) * rE (p * L / ħ) := by
   unfold momentum
@@ -102,7 +102,7 @@ theorem kernel_point (α : ℝ) (hα : α ≠ 0) (z : ℂ) (t : ℝ) : K α z (-
   simp [map_neg, map_div₀, Complex.conj_ofReal, Complex.conj_I]
   field_simp
 
-/-- Eq. (9), first line. -/
+/-- Eq. (21). -/
 theorem rE_kernel (α : ℝ) (hα : α ≠ 0) (z : ℂ) :
     rE z = ∫ t in (-1/2:ℝ)..(1/2), K α z (-(I * t / α)) := by
   unfold rE
@@ -111,7 +111,7 @@ theorem rE_kernel (α : ℝ) (hα : α ≠ 0) (z : ℂ) :
 /-- `G_E(z) = e^{iz} r_E(z)`. -/
 noncomputable def GE (z : ℂ) : ℂ := cexp (I * z) * rE z
 
-/-- Eq. (9), second line. -/
+/-- Eq. (22). -/
 theorem GE_kernel (α : ℝ) (hα : α ≠ 0) (z : ℂ) :
     GE z = ∫ t in (1/2:ℝ)..(3/2), cexp (I * t * z) ∧
       GE z = ∫ t in (1/2:ℝ)..(3/2), K α z (-(I * t / α)) := by
@@ -211,7 +211,7 @@ theorem norm_sq_rE_pair (z : ℂ) :
   congr 1; funext p
   rw [← Complex.exp_add]; congr 1; ring
 
-/-- Prop. 3.3, (11) first equality, in probabilistic form: `‖r_E‖² = E e^{XY/α}`. -/
+/-- Prop. 3.3, (24) first equality, in probabilistic form: `‖r_E‖² = E e^{XY/α}`. -/
 theorem fock_norm_rE_pair {α : ℝ} (hα : 0 < α) :
     ∫ z : ℂ, ‖rE z‖ ^ 2 * fockDensity α z = ∫ p, Real.exp (p.1 * p.2 / α) ∂ν := by
   have hX : ∀ᵐ p ∂ν, |p.1| ≤ 1 / 2 := Measure.quasiMeasurePreserving_fst.ae ae_abs_le_half
@@ -241,7 +241,7 @@ theorem integral_ν (f : ℝ → ℝ → ℝ) (hf : Continuous (Function.uncurry
       (isCompact_Icc (a := (-1/2:ℝ)) (b := 1/2))) hf.continuousOn).mono_set ?_
     intro p hp; exact ⟨⟨hp.1.1.le, hp.1.2⟩, ⟨hp.2.1.le, hp.2.2⟩⟩
 
-/-- Prop. 3.3, eq. (11), first line, first equality. -/
+/-- Prop. 3.3, eq. (24), first equality. -/
 theorem fock_norm_rE {α : ℝ} (hα : 0 < α) :
     ∫ z : ℂ, ‖rE z‖ ^ 2 * fockDensity α z =
       ∫ t in (-1/2:ℝ)..(1/2), ∫ s in (-1/2:ℝ)..(1/2), Real.exp (t * s / α) := by

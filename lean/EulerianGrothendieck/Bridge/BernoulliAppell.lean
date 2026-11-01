@@ -3,7 +3,7 @@ import Bridge.Appell
 /-!
 # Proposition 4.1: dual Bernoulli conventions
 
-Manuscript V173, Section 4, eqs. (57)–(65).
+Manuscript V173, Section 4, eqs. (57)–(64).
 
 With `op` from `Bridge.Appell` (formal operators `f(D)` on polynomials):
 * (58) `𝒜 = M(D)` is the averaging operator `(𝒜p)(x) = ∫_0^1 p(x+t) dt` (`Appell.op_Mser_integral`);

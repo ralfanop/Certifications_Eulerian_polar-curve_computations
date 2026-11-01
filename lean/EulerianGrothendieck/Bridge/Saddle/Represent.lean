@@ -4,7 +4,7 @@ import Bridge.Saddle.Coeffs
 # Lemma 5.5, part 13: `w_M`, `w_M'`, `w_M''` at `y = Mx` through the integrals `I_r`
 
 With `s = s(x)` (so that `Λ'(s) = x`), `P = A(s)^M e^{-sMx}` and `ε` with `Mε² = 1`
-(eqs. (70) and the rescaling `u = εz`):
+(eqs. (117)–(119) and the rescaling `u = εz`):
 * `w_M(Mx)   = (2π)⁻¹ P (ε I₀)`,
 * `w_M'(Mx)  = (2π)⁻¹ P (-s ε I₀ - ε² I₁)`,
 * `w_M''(Mx) = (2π)⁻¹ P (s² ε I₀ + 2s ε² I₁ + ε³ I₂)`.

@@ -7,7 +7,7 @@ import Mathlib.MeasureTheory.Measure.Haar.NormedSpace
 /-!
 # Lemma 5.5, part 4: Fourier representation of `w_M` and of its first two derivatives
 
-Manuscript V173, eqs. (69)–(70).  For every real tilt `s`, every `M ≥ 2` and every real `y`,
+Manuscript V173, eqs. (116)–(119).  For every real tilt `s`, every `M ≥ 2` and every real `y`,
 `w_M(y) = (2π)⁻¹ ∫ A(s+iu)^M e^{-(s+iu)y} du`
 (Fourier inversion of the tilted density `e^{sy} w_M(y)`, whose Fourier transform is
 `A(s - 2πiξ)^M`).  Differentiating under the integral sign, for `M ≥ 4`,
@@ -159,7 +159,7 @@ theorem continuous_tilt (M : ℕ) (hM : 2 ≤ M) (s : ℝ) : Continuous (tilt M 
 theorem integrable_tilt (M : ℕ) (hM : 1 ≤ M) (s : ℝ) : Integrable (tilt M s) :=
   integrable_mul_w M hM (g := fun y : ℝ => cexp ((s:ℂ) * y)) (by fun_prop)
 
-/-- Representation (70): `w_M(y) = (2π)⁻¹ ∫ A(s+iu)^M e^{-(s+iu)y} du` for every real `s`. -/
+/-- Representation (117)–(119): `w_M(y) = (2π)⁻¹ ∫ A(s+iu)^M e^{-(s+iu)y} du` for every real `s`. -/
 theorem w_eq_Wint (M : ℕ) (hM : 2 ≤ M) (s y : ℝ) :
     (w M y : ℂ) = (2 * Real.pi : ℂ)⁻¹ * Wint M 0 s y := by
   have hinv := (continuous_tilt M hM s).fourier_inversion (integrable_tilt M (by omega) s)

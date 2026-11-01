@@ -5,16 +5,16 @@ import Mathlib.Analysis.Calculus.FDeriv.Mul
 /-!
 # Proposition 3.8: the Eulerian polyanalytic ladder (algebraic part)
 
-Manuscript V173, eqs. (30)–(33).
+Manuscript V173, eqs. (37)–(46).
 
 Wirtinger derivatives are defined through the real Fréchet derivative,
 `∂_z F = (D F·1 - i D F·i)/2`, `∂_z̄ F = (D F·1 + i D F·i)/2`, and
 `a_α = α^{-1/2} ∂_z̄`, `a_α† = α^{-1/2}(-∂_z + α z̄)`.
 With `phi_n(t,z) = (α z̄ - i t)^n e^{itz}` and
-`E_n(z) = (n! αⁿ)^{-1/2} ∫_{-1/2}^{1/2} phi_n(t,z) dt` (eq. (30)) we prove:
+`E_n(z) = (n! αⁿ)^{-1/2} ∫_{-1/2}^{1/2} phi_n(t,z) dt` (eq. (38)) we prove:
 * `E_0 = r_E`;
-* (32) `a E_0 = 0`, `a E_n = √n E_{n-1}`, `a† E_n = √(n+1) E_{n+1}`, hence `(a†)ⁿ r_E = √(n!) E_n`;
-* (31) `∂_z̄ⁿ E_n = √(n! αⁿ) r_E ≢ 0` and `∂_z̄^{n+1} E_n = 0`.
+* (40)–(42) `a E_0 = 0`, `a E_n = √n E_{n-1}`, `a† E_n = √(n+1) E_{n+1}`, hence `(a†)ⁿ r_E = √(n!) E_n`;
+* (43)–(44) `∂_z̄ⁿ E_n = √(n! αⁿ) r_E ≢ 0` and `∂_z̄^{n+1} E_n = 0`.
 -/
 
 open MeasureTheory Complex Set Filter Topology intervalIntegral
@@ -191,7 +191,7 @@ theorem wz_DIj (α : ℝ) (n : ℕ) (z : ℂ) :
 /-- `c_n = (n! αⁿ)^{-1/2}`. -/
 noncomputable def cn (α : ℝ) (n : ℕ) : ℝ := 1 / Real.sqrt (n ! * α ^ n)
 
-/-- `E_n^α` (eq. (30)). -/
+/-- `E_n^α` (eq. (38)). -/
 noncomputable def E (α : ℝ) (n : ℕ) (z : ℂ) : ℂ := (cn α n : ℂ) * Ij α n z
 
 /-- `a_α F = α^{-1/2} ∂_z̄ F`. -/
@@ -233,7 +233,7 @@ theorem cn_succ {α : ℝ} (hα : 0 < α) (n : ℕ) :
   have h3 : 0 < Real.sqrt (n ! * α ^ n) := Real.sqrt_pos.mpr h1
   field_simp
 
-/-- (32), first two relations: `a E_0 = 0` and `a E_{n+1} = √(n+1) E_n`. -/
+/-- (40)–(41): `a E_0 = 0` and `a E_{n+1} = √(n+1) E_n`. -/
 theorem a_E (α : ℝ) (hα : 0 < α) (n : ℕ) :
     a α (E α 0) = 0 ∧ a α (E α (n + 1)) = fun z => (Real.sqrt (n + 1) : ℂ) * E α n z := by
   constructor
@@ -262,7 +262,7 @@ theorem a_E (α : ℝ) (hα : 0 < α) (n : ℕ) :
     linear_combination (-(cn α (n + 1) : ℂ) * Ij α n z * ((Real.sqrt α : ℂ) * (Real.sqrt α : ℂ))) * hn1
       + (-(cn α (n + 1) : ℂ) * Ij α n z * ((n:ℂ) + 1)) * hαs'
 
-/-- (32), third relation: `a† E_n = √(n+1) E_{n+1}`. -/
+/-- (42): `a† E_n = √(n+1) E_{n+1}`. -/
 theorem adag_E (α : ℝ) (hα : 0 < α) (n : ℕ) :
     adag α (E α n) = fun z => (Real.sqrt (n + 1) : ℂ) * E α (n + 1) z := by
   funext z
@@ -291,7 +291,7 @@ theorem adag_E (α : ℝ) (hα : 0 < α) (n : ℕ) :
   have hs' : (Real.sqrt α : ℂ) ≠ 0 := by exact_mod_cast hs.ne'
   field_simp
 
-/-- The first equality of (30): `(a†)ⁿ r_E = √(n!) E_n`. -/
+/-- The first equality of (38): `(a†)ⁿ r_E = √(n!) E_n`. -/
 theorem adag_iter (α : ℝ) (hα : 0 < α) (n : ℕ) :
     (adag α)^[n] rE = fun z => (Real.sqrt (n !) : ℂ) * E α n z := by
   induction n with
@@ -330,7 +330,7 @@ theorem dzb_iter (α : ℝ) (n : ℕ) (k' : ℂ) :
     rw [Nat.cast_sub (by omega)]
     ring
 
-/-- (31): `∂_z̄ⁿ E_n = √(n! αⁿ) r_E` and `∂_z̄^{n+1} E_n = 0`; `r_E ≢ 0`. -/
+/-- (43)–(44): `∂_z̄ⁿ E_n = √(n! αⁿ) r_E` and `∂_z̄^{n+1} E_n = 0`; `r_E ≢ 0`. -/
 theorem exact_order (α : ℝ) (hα : 0 < α) (n : ℕ) :
     dzb^[n] (E α n) = (fun z => (Real.sqrt (n ! * α ^ n) : ℂ) * rE z) ∧
       dzb^[n + 1] (E α n) = 0 ∧ rE 0 ≠ 0 := by

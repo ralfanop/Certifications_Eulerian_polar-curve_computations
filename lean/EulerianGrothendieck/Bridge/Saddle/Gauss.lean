@@ -10,7 +10,7 @@ import Mathlib.Topology.Order.LiminfLimsup
 * `pow_one_add_sq_le`: `(1+z²)^N ≤ N! (2/c)^N e^{c/2} e^{cz²/2}`;
 * `integrable_poly_gauss`: `(1+z²)^N e^{-cz²}` is integrable for `c > 0`;
 * `integral_complex_moment`: `∫ (iz)^n e^{-κz²/2} dz = √(2π/κ) μ_n(κ)`, with
-  `μ_{2k} = (-1)^k (2k-1)!! κ^{-k}` and `μ_{2k+1} = 0` (the moments used after (76));
+  `μ_{2k} = (-1)^k (2k-1)!! κ^{-k}` and `μ_{2k+1} = 0` (the moments used after (129));
 * `bounded_pow_mul_geom`: `M^k ρ^M` is bounded for `0 ≤ ρ < 1` (exponential smallness).
 -/
 

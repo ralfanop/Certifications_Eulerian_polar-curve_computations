@@ -22,7 +22,7 @@ open Real Finset intervalIntegral MeasureTheory
 
 namespace EulerianBridge.AppendixA
 
-/-- Even moments of the uniform law on `[-1/2,1/2]` (eq. (27)). -/
+/-- Even moments of the uniform law on `[-1/2,1/2]` (eq. (26)). -/
 noncomputable def m (k : ℕ) : ℝ := ∫ t in (-1/2:ℝ)..(1/2), t ^ (2 * k)
 
 /-- OEIS A058962: `a(k) = 4^k (2k+1)`. -/
@@ -114,7 +114,7 @@ theorem moments_sum :
   field_simp
   rw [← mul_pow]; norm_num
 
-/-- The same value by summing (27) under the integral: `∫_{-1/2}^{1/2} (1-t^2)^{-1} dt = log 3`. -/
+/-- The same value by summing (26) under the integral: `∫_{-1/2}^{1/2} (1-t^2)^{-1} dt = log 3`. -/
 theorem integral_inv_one_sub_sq : ∫ t in (-1/2:ℝ)..(1/2), (1 - t ^ 2)⁻¹ = Real.log 3 := by
   have hderiv : ∀ t ∈ Set.uIcc (-1/2:ℝ) (1/2),
       HasDerivAt (fun t => (1 / 2) * (Real.log (1 + t) - Real.log (1 - t))) ((1 - t ^ 2)⁻¹) t := by

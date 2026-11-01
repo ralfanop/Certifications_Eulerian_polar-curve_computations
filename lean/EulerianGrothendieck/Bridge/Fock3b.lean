@@ -1,7 +1,7 @@
 import Bridge.Fock3
 
 /-!
-# Proposition 3.3 (continued): the series, `G_E`, the bounds (10) and the closed form (21)
+# Proposition 3.3 (continued): the series, `G_E`, the bounds (23) and the closed form (46)
 -/
 
 open MeasureTheory Complex Set intervalIntegral ProbabilityTheory Filter Topology
@@ -31,7 +31,7 @@ theorem moment_uniform (k : ℕ) :
   unfold V033.UniformSum.uniformLaw EulerianBridge.AppendixA.m
   rw [intervalIntegral.integral_of_le (by norm_num)]
 
-/-- Prop. 3.3, eq. (11), second equality: the even-moment series. -/
+/-- Prop. 3.3, eq. (24), second equality: the even-moment series. -/
 theorem fock_norm_series {α : ℝ} (hα : 0 < α) :
     ∫ z : ℂ, ‖rE z‖ ^ 2 * fockDensity α z =
       ∑' k : ℕ, 1 / (2 ^ (4 * k) * α ^ (2 * k) * ((2 * k).factorial : ℝ) * (2 * k + 1) ^ 2) := by
@@ -79,7 +79,7 @@ theorem ae_abs_shift_le : ∀ᵐ x ∂V033.UniformSum.uniformLaw, |x + 1| ≤ 3 
   filter_upwards [ae_abs_le_half] with x hx
   rw [abs_le] at hx ⊢; constructor <;> linarith [hx.1, hx.2]
 
-/-- Prop. 3.3, eq. (11), second line: `‖G_E‖² = ∫∫_{[1/2,3/2]²} e^{ts/α}`. -/
+/-- Prop. 3.3, eq. (25): `‖G_E‖² = ∫∫_{[1/2,3/2]²} e^{ts/α}`. -/
 theorem fock_norm_GE {α : ℝ} (hα : 0 < α) :
     ∫ z : ℂ, ‖GE z‖ ^ 2 * fockDensity α z =
       ∫ t in (1/2:ℝ)..(3/2), ∫ s in (1/2:ℝ)..(3/2), Real.exp (t * s / α) := by
@@ -112,7 +112,7 @@ theorem fock_norm_GE {α : ℝ} (hα : 0 < α) :
   rw [show (-1/2:ℝ) + 1 = 1/2 by norm_num, show (1/2:ℝ) + 1 = 3/2 by norm_num] at this
   exact this
 
-/-! ## The upper bounds (10) -/
+/-! ## The upper bounds (23) -/
 
 theorem double_le (a b : ℝ) (hab : a ≤ b) {α : ℝ} (hα : 0 < α) :
     ∫ t in a..b, ∫ s in a..b, Real.exp (t * s / α) ≤
@@ -138,7 +138,7 @@ theorem double_le (a b : ℝ) (hab : a ≤ b) {α : ℝ} (hα : 0 < α) :
         simp_rw [intervalIntegral.integral_const_mul]
         rw [intervalIntegral.integral_mul_const, sq]
 
-/-- Eq. (10): `‖r_E‖ ≤ ∫_{-1/2}^{1/2} e^{t²/(2α)} dt` and `‖G_E‖ ≤ ∫_{1/2}^{3/2} e^{t²/(2α)} dt`. -/
+/-- Eq. (23): `‖r_E‖ ≤ ∫_{-1/2}^{1/2} e^{t²/(2α)} dt` and `‖G_E‖ ≤ ∫_{1/2}^{3/2} e^{t²/(2α)} dt`. -/
 theorem fock_upper {α : ℝ} (hα : 0 < α) :
     Real.sqrt (∫ z : ℂ, ‖rE z‖ ^ 2 * fockDensity α z) ≤ ∫ t in (-1/2:ℝ)..(1/2), Real.exp (t ^ 2 / (2 * α)) ∧
       Real.sqrt (∫ z : ℂ, ‖GE z‖ ^ 2 * fockDensity α z) ≤ ∫ t in (1/2:ℝ)..(3/2), Real.exp (t ^ 2 / (2 * α)) := by
@@ -150,7 +150,7 @@ theorem fock_upper {α : ℝ} (hα : 0 < α) :
   · rw [fock_norm_GE hα, Real.sqrt_le_left (hpos _ _ (by norm_num))]
     exact double_le _ _ (by norm_num) hα
 
-/-! ## The closed form (21) -/
+/-! ## The closed form (46) -/
 
 /-- The sinh integral `Shi(x) = ∫_0^x sinh t / t dt`. -/
 noncomputable def Shi (x : ℝ) : ℝ := ∫ t in (0:ℝ)..x, Real.sinh t / t
@@ -180,7 +180,7 @@ theorem H_eq {α t : ℝ} (hα : 0 < α) (ht : t ≠ 0) : H α t = 2 * α * Real
     field_simp]
   field_simp
 
-/-- Eq. (21): `‖r_E‖² = 4α ∫_0^{1/2} sinh(t/(2α))/t dt = 4α Shi(1/(4α))`. -/
+/-- Eq. (46): `‖r_E‖² = 4α ∫_0^{1/2} sinh(t/(2α))/t dt = 4α Shi(1/(4α))`. -/
 theorem fock_norm_Shi {α : ℝ} (hα : 0 < α) :
     ∫ z : ℂ, ‖rE z‖ ^ 2 * fockDensity α z = 4 * α * ∫ t in (0:ℝ)..(1/2), Real.sinh (t / (2 * α)) / t ∧
       4 * α * ∫ t in (0:ℝ)..(1/2), Real.sinh (t / (2 * α)) / t = 4 * α * Shi (1 / (4 * α)) := by

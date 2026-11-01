@@ -10,7 +10,7 @@ import Mathlib.Analysis.Analytic.OfScalars
 * Corollary 6.4: `d_E = 1/∫t²q_E = 1/(4β(3)) = 1/(4[-(7/8)ζ(3) - ψ''(1/4)/64]) = 8/π³` and
   `r_E(π) = (∫ t² q_E)^{-1/3}`;
 * Corollary 6.5: `β(2) = (1/2)∫ t q_E`, `ζ(3) = (8/9)∫ t³ q_E²`;
-* Proposition 6.6, from the cited Fourier integral `∫ sech(πx/2) e^{itx} dx = 2 sech t`
+* Proposition 6.7, from the cited Fourier integral `∫ sech(πx/2) e^{itx} dx = 2 sech t`
   (Gradshteyn–Ryzhik 3.981.3, a hypothesis): the density representation, unit mass and
   positive definiteness of `q_E`;
 * Proposition 8.1 (rest): `F_E` is entire and `F_E(w²) = w² r_E(iw)`.
@@ -52,7 +52,7 @@ theorem rE_pi : EulerianGrothendieck.Fock.rE (π : ℂ) = ((2 / π : ℝ) : ℂ)
   push_cast
   field_simp
 
-/-- Corollary 6.4, eq. (97). -/
+/-- Corollary 6.4, eq. (159). -/
 theorem det_mellin :
     let I₂ := ∫ t in Ioi (0:ℝ), t ^ 2 * qE t
     8 / π ^ 3 = 1 / I₂ ∧ 1 / I₂ = 1 / (4 * dirichletBeta 3) ∧
@@ -63,7 +63,7 @@ theorem det_mellin :
   refine ⟨?_, by rw [hI], by rw [beta_three_polygamma]⟩
   rw [hI, hI']; field_simp
 
-/-- Corollary 6.4, eq. (98): `r_E(π) = (∫ t² q_E)^{-1/3}`. -/
+/-- Corollary 6.4, eq. (160): `r_E(π) = (∫ t² q_E)^{-1/3}`. -/
 theorem radius_mellin :
     (2 / π : ℝ) = 1 / (∫ t in Ioi (0:ℝ), t ^ 2 * qE t) ^ ((1:ℝ) / 3) := by
   rw [moment_two.1, moment_two.2]
@@ -73,13 +73,13 @@ theorem radius_mellin :
     norm_num
   rw [hcube]; field_simp
 
-/-- Corollary 6.5, eq. (99). -/
+/-- Corollary 6.5, eqs. (161)–(162). -/
 theorem two_constants :
     dirichletBeta 2 = 1 / 2 * ∫ t in Ioi (0:ℝ), t * qE t ∧
       zeta 3 = 8 / 9 * ∫ t in Ioi (0:ℝ), t ^ 3 * qE t ^ 2 := by
   rw [moment_one, moment_three_sq]; constructor <;> ring
 
-/-! ## Proposition 6.6 -/
+/-! ## Proposition 6.7 -/
 
 /-- The cited Fourier integral (Gradshteyn–Ryzhik, entry 3.981.3). -/
 def SechFourier : Prop :=
@@ -88,7 +88,7 @@ def SechFourier : Prop :=
 /-- The probability density `ρ(x) = (1/2) sech(πx/2)`. -/
 noncomputable def ρ (x : ℝ) : ℝ := 1 / 2 * (Real.cosh (π * x / 2))⁻¹
 
-/-- Eq. (100): `q_E(t) = ∫ e^{itx} ρ(x) dx`. -/
+/-- Eq. (163): `q_E(t) = ∫ e^{itx} ρ(x) dx`. -/
 theorem qE_characteristic (h : SechFourier) (t : ℝ) :
     (qE t : ℂ) = ∫ x : ℝ, Complex.exp (Complex.I * t * x) * (ρ x : ℂ) := by
   have ht := h t
@@ -224,7 +224,7 @@ theorem FE_differentiable : Differentiable ℂ FE := by
   have := hb.analyticAt_of_mem (y := z) (by simp)
   exact this.differentiableAt
 
-/-- Eq. (106): `F_E(w²) = w² r_E(iw)`. -/
+/-- Eq. (170): `F_E(w²) = w² r_E(iw)`. -/
 theorem FE_eq_rE (w : ℂ) : FE (w ^ 2) = w ^ 2 * EulerianGrothendieck.Fock.rE (Complex.I * w) := by
   rw [FE_eq_sq]
   rcases eq_or_ne w 0 with rfl | hw

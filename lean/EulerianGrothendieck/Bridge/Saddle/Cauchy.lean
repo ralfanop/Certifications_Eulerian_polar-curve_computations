@@ -7,7 +7,7 @@ import Mathlib.Analysis.Complex.CauchyIntegral
 If `f` is holomorphic on the closed disc `|z - c| ≤ R` and `|f| ≤ B` there, then
 * `cauchy_coeff_bound`: `|f^{(n)}(c)| / n! ≤ B / R^n`;
 * `taylor_remainder_bound`: `|f(c + w) - Σ_{n<N} f^{(n)}(c) w^n / n!| ≤ 2B (|w|/R)^N` for `|w| ≤ R/2`.
-These are the estimates used for the Taylor expansion (73) of `Ψ` in the proof of Lemma 5.5.
+These are the estimates used for the Taylor expansion (122) of `Ψ` in the proof of Lemma 5.5.
 -/
 
 open Complex Metric Set Filter Topology

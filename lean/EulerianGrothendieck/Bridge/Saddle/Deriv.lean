@@ -18,16 +18,16 @@ namespace EulerianBridge.Saddle
 /-- `g_M(x) = M w_M(Mx)`, the density of `S_M/M`. -/
 noncomputable def gM (M : ℕ) (x : ℝ) : ℝ := M * w M (M * x)
 
-/-- The Cramér rate function `I(x) = s(x)x - Λ(s(x))`, eq. (56). -/
+/-- The Cramér rate function `I(x) = s(x)x - Λ(s(x))`, eq. (95). -/
 noncomputable def Irate (x : ℝ) : ℝ := UL.Ip x * x - Lr (UL.Ip x)
 
 /-- `v(x) = Λ''(s(x))`. -/
 noncomputable def vx (x : ℝ) : ℝ := κ 2 (UL.Ip x)
 
-/-- `η(x)` of eq. (67). -/
+/-- `η(x)` of eq. (114). -/
 noncomputable def etaX (x : ℝ) : ℝ := etaS (UL.Ip x)
 
-/-- The quantity estimated in (68). -/
+/-- The quantity estimated in (115). -/
 noncomputable def EM (M : ℕ) (x : ℝ) : ℝ :=
   Real.log (gM M x) + M * Irate x - 1 / 2 * Real.log (M / (2 * Real.pi * vx x)) - etaX x / M
 

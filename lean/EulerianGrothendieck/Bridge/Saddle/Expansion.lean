@@ -2,14 +2,14 @@ import Bridge.Saddle.LogA
 import Bridge.Saddle.Gauss
 
 /-!
-# Lemma 5.5, part 8: the pointwise expansion (76) of `χ^M` in the inner region
+# Lemma 5.5, part 8: the pointwise expansion (129) of `χ^M` in the inner region
 
 With `u = εz`, `ε = M^{-1/2}`, `b_n = κ_n (iz)^n / n!` and
 `T = 1 + εb₃ + ε²(b₄ + b₃²/2) + ε³(b₅ + b₃b₄ + b₃³/6)
       + ε⁴(b₆ + b₃b₅ + b₄²/2 + b₃²b₄/2 + b₃⁴/24)`,
 we prove (`inner_pointwise`), uniformly for `|s| ≤ σ` and `ε|z| ≤ δ`,
 `|χ(s, εz)^M - e^{-κ₂z²/2} T| ≤ C ε⁵ (1+z²)^{24} e^{-c₀z²/4}`.
-This is the expansion (76) carried to fourth order with a fifth-order remainder, which is what
+This is the expansion (129) carried to fourth order with a fifth-order remainder, which is what
 the two-derivative statement needs.
 -/
 
@@ -37,7 +37,7 @@ theorem norm_pow_succ_sub_pow_le {x y : ℂ} {r : ℝ} (hx : ‖x‖ ≤ r) (hy 
             gcongr
         _ = ((m + 1 : ℕ) + 1 : ℝ) * ‖x - y‖ * r ^ (m + 1) := by push_cast; ring
 
-/-- The polynomial `T` of (76), carried to order `ε⁴`. -/
+/-- The polynomial `T` of (129), carried to order `ε⁴`. -/
 noncomputable def Tpoly (e : ℝ) (b3 b4 b5 b6 : ℂ) : ℂ :=
   1 + (e:ℂ) * b3 + (e:ℂ) ^ 2 * (b4 + b3 ^ 2 / 2) + (e:ℂ) ^ 3 * (b5 + b3 * b4 + b3 ^ 3 / 6) +
     (e:ℂ) ^ 4 * (b6 + b3 * b5 + b4 ^ 2 / 2 + b3 ^ 2 * b4 / 2 + b3 ^ 4 / 24)

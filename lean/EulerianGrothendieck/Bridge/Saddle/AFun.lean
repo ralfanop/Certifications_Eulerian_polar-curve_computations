@@ -6,12 +6,12 @@ import Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv
 /-!
 # Lemma 5.5, part 3: the Laplace transform `A(z) = ∫_{-1/2}^{1/2} e^{zt} dt` of the uniform law
 
-Manuscript V173, eqs. (54) and (69).
+Manuscript V173, eqs. (90) and (116).
 
 * `hasDerivAt_Ak`: `A_k(z) = ∫ t^k e^{zt} dt` satisfies `A_k' = A_{k+1}`; `A = A_0` is entire;
-* `A_eq_closed`: `A(z) = (e^{z/2} - e^{-z/2})/z` for `z ≠ 0` (eq. (54)), `A_zero`;
+* `A_eq_closed`: `A(z) = (e^{z/2} - e^{-z/2})/z` for `z ≠ 0` (eq. (90)), `A_zero`;
 * `A_ofReal`, `one_le_Ar`, `Ar_le`: on the real axis `A = A_r` with `1 ≤ A_r(s) ≤ e^{|s|/2}`;
-* `norm_A_le_Ar`: `|A(z)| ≤ A_r(Re z)`; `norm_A_decay`: `|A(z)| ≤ 2e^{|Re z|/2}/|z|` (eq. (69));
+* `norm_A_le_Ar`: `|A(z)| ≤ A_r(Re z)`; `norm_A_decay`: `|A(z)| ≤ 2e^{|Re z|/2}/|z|` (eq. (116));
 * `norm_A_sub`: `|A(z) - A(s)| ≤ e^{|s|/2} |z - s|` for `|z - s| ≤ 1`;
 * `norm_A_lt`: `|A(s + iu)| < A_r(s)` for `u ≠ 0`.
 -/
