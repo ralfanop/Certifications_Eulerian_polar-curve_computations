@@ -1,6 +1,6 @@
 # Lean 4 certification of manuscript V173/V174: Sections 3, 4, 6, 7, 8, 9.1–9.2, Lemma 5.5, Appendix A and the decimal values
 
-Toolchain: Lean 4.24.0 with Mathlib `f897ebcf72cd16f89ab4577d0c826cd14afaafc7`. This is the EulerianGrothendieck project with the new `Bridge` library declared in `lakefile.toml` (51 modules, 30 in `Bridge/` and 21 in `Bridge/Saddle/`, imported by the root `Bridge.lean`).
+Toolchain: Lean 4.24.0 with Mathlib `f897ebcf72cd16f89ab4577d0c826cd14afaafc7`. This is the EulerianGrothendieck project with the new `Bridge` library declared in `lakefile.toml` (52 modules, 31 in `Bridge/` and 21 in `Bridge/Saddle/`, imported by the root `Bridge.lean`).
 
 Numbering: equation and statement numbers are those printed in manuscript 12 (formerly V174; Appendix D), version of 1 November 2026 (evening). They coincide with V173 and V174 up to (179); from (180) to (286) they are three higher, because the moments and cumulants of the uniform law in Subsection 9.3 are four numbered equations (180)–(183); from (287) on they are seven higher, because Lemma 10.2 (sharp Lipschitz constant of arcsin on the disks |z−i| ≤ r) adds the four equations (287)–(290) at the end of Section 10. In particular Appendix A is (291)–(305), formerly (287)–(301) in the 12 of 1 November 2026 (afternoon) and (284)–(298) in V173.
 
@@ -8,11 +8,11 @@ Build, in this directory, after installing `elan` (which reads the toolchain fro
 
 ```
 lake exe cache get              # compiled Mathlib for the pinned commit
-lake build Bridge               # the 51 modules
+lake build Bridge               # the 52 modules
 lake env lean AuditBridge.lean  # axiom audit: prints the theorem count
 ```
 
-Audit result: 821 theorems in the namespace `EulerianBridge` (`lake env lean AuditBridge.lean`), none of which uses an axiom other than `propext`, `Classical.choice` and `Quot.sound`. No `sorry`.
+Audit result: 849 theorems in the namespace `EulerianBridge` (`lake env lean AuditBridge.lean`), none of which uses an axiom other than `propext`, `Classical.choice` and `Quot.sound`. No `sorry`.
 
 ## Cited published results (explicit hypotheses, not re-proved)
 
