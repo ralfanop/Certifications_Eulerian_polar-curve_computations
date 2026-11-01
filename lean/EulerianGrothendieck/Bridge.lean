@@ -13,6 +13,7 @@ import Bridge.Duplication
 import Bridge.AppendixA
 import Bridge.AppendixAGd
 import Bridge.AppendixAMoments
+import Bridge.DiskFamily
 import Bridge.Fock3
 import Bridge.Fock3b
 import Bridge.Hall

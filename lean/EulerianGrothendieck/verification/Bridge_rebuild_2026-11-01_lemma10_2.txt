@@ -1,0 +1,15 @@
+Bridge library: rebuild and audit after adding Bridge/DiskFamily (Lemma 10.2 of manuscript 12), 1 November 2026
+Lean 4.24.0, Mathlib f897ebcf72cd16f89ab4577d0c826cd14afaafc7; one module at a time (lake env lean -o).
+
+Modules recompiled (all other modules unchanged since Bridge_rebuild_2026-11-01.txt):
+Bridge/AppendixA exit 0 errors 0 sorries 0      (docstring equation numbers +4 only)
+Bridge/AppendixAGd exit 0 errors 0 sorries 0    (docstring equation numbers +4 only)
+Bridge/AppendixAMoments exit 0 errors 0 sorries 0 (docstring equation numbers +4 only)
+Bridge/DiskFamily exit 0 errors 0 sorries 0     (new; no warnings)
+Bridge exit 0 errors 0 sorries 0                (root, imports all 52 modules)
+
+#print axioms on boundary_identity, min_first_case_unique, second_case_sstar, metallic_form,
+curvature_threshold, above_threshold, golden_case: [propext, Classical.choice, Quot.sound].
+
+Audit (lake env lean AuditBridge.lean, 18 min 25 s):
+theorems: 849; with non-standard axioms: 0

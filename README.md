@@ -301,13 +301,14 @@ deposited as received and extended, with `SHA256SUMS.txt` over every file:
 Reproduction: `python3 verify_v170.py --lake …` then `python3 verify_v170_new.py --lake …` in
 `lean/EulerianGrothendieck/` (one `lean` process at a time, `-M4096`).
 
-## 11a. Library `Bridge` (manuscript V173/V174, Appendix D): Lean 4 deposit of 31 October 2026
+## 11a. Library `Bridge` (manuscript 12, formerly V173/V174, Appendix D): Lean 4 deposit of 31 October 2026, updated 1 November 2026
 
 `lean/EulerianGrothendieck/Bridge/` is a second library of the same Lean project (same toolchain and
-Mathlib commit as §11). Its 51 modules (30 in `Bridge/`, 21 in `Bridge/Saddle/`) and 821 theorems
+Mathlib commit as §11). Its 52 modules (31 in `Bridge/`, 21 in `Bridge/Saddle/`) and 849 theorems
 formalise Sections 3, 4, 6, 7, 8, Subsections 9.1–9.2, Lemma 5.5 (the saddlepoint estimate with two
-derivatives, eq. (115)), Appendix A and the displayed decimal values of the Bargmann–Fock manuscript
-(V173; V174 has the same numbering and describes the library in its Appendix D). Published results
+derivatives, eq. (115)), the algebraic steps of Lemma 10.2 (`Bridge/DiskFamily`, added 1 November 2026),
+Appendix A and the displayed decimal values of the Bargmann–Fock manuscript
+(manuscript 12, formerly V174, describes the library in its Appendix D; the statement map uses its numbering). Published results
 enter as explicit hypotheses (list in the README below). The axiom audit `AuditBridge.lean` finds only
 `propext`, `Classical.choice`, `Quot.sound` (`verification/AuditBridge_output.txt`); hashes in
 `SHA256SUMS_Bridge.txt`.
