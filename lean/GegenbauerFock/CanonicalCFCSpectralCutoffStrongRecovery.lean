@@ -85,7 +85,7 @@ theorem singularCutoff_strong_recovery
     ∑ i ∈ s,
       (((Real.sqrt (mu i) : ℂ)⁻¹) • rankOne ℂ (u i) (v i)) (T f))
     atTop (nhds f) at hsum
-  simpa only [singularCutoff, Finset.sum_apply] using hsum
+  simpa only [singularCutoff, _root_.sum_apply] using hsum
 
 /-- The true compact Gegenbauer–Fock operator has an actual family of
 bounded finite-rank singular-cutoff reconstructors with strong recovery
