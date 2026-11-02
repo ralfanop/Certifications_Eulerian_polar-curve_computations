@@ -342,6 +342,82 @@ theorem coisometric_complement_operator_perturbation_v007
     _ ≤ 2 * ‖T - T‖ + 4 * ‖U - V‖ * ‖T‖ := h
     _ = (4 * ‖U - V‖) * ‖T‖ := by simp
 
+/-- Directed quantitative gap for the closed embedded S₁ ranges
+under perturbation of coisometries. For each source T in range(E_U),
+the explicit target approximation is P_V(T), with trace-norm error
+at most 4 ‖U-V‖ ‖T‖. This is an upper bound, not an optimality claim. -/
+theorem coisometric_embedding_range_directed_gap_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ))
+    (T : TraceClass H)
+    (hT : T ∈ Set.range (sandwichContinuous U.adjoint U)) :
+    ∃ S : TraceClass H,
+      S ∈ Set.range (sandwichContinuous V.adjoint V) ∧
+      dist T S ≤ 4 * ‖U - V‖ * ‖T‖ := by
+  obtain ⟨X, hX⟩ := hT
+  have hFix : coisometric_sandwich_projection_v007 U T = T := by
+    rw [← hX]
+    exact coisometric_projection_fixes_image_v007 U hUUstar X
+  let S : TraceClass H := coisometric_sandwich_projection_v007 V T
+  have hRange : S ∈ Set.range (sandwichContinuous V.adjoint V) := by
+    refine ⟨sandwichContinuous V V.adjoint T, ?_⟩
+    rfl
+  refine ⟨S, hRange, ?_⟩
+  have hOp :=
+    coisometric_projection_operator_perturbation_v007
+      U V hUnorm hVnorm
+  calc
+    dist T S =
+        ‖(coisometric_sandwich_projection_v007 U -
+           coisometric_sandwich_projection_v007 V) T‖ := by
+      rw [dist_eq_norm, ContinuousLinearMap.sub_apply, hFix]
+      rfl
+    _ ≤ ‖coisometric_sandwich_projection_v007 U -
+            coisometric_sandwich_projection_v007 V‖ * ‖T‖ :=
+      ContinuousLinearMap.le_opNorm _ _
+    _ ≤ (4 * ‖U - V‖) * ‖T‖ :=
+      mul_le_mul_of_nonneg_right hOp (norm_nonneg _)
+    _ = 4 * ‖U - V‖ * ‖T‖ := by ring
+
+/-- Directed quantitative gap of the closed kernels ker(R_U).
+For T in ker(R_U), the canonical target approximation is Q_V(T),
+which lies in ker(R_V), with error bounded in the genuine S₁ norm. -/
+theorem coisometric_retraction_kernel_directed_gap_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ))
+    (T : TraceClass H)
+    (hT : sandwichContinuous U U.adjoint T = 0) :
+    ∃ S : TraceClass H,
+      sandwichContinuous V V.adjoint S = 0 ∧
+      dist T S ≤ 4 * ‖U - V‖ * ‖T‖ := by
+  have hFix : coisometric_complementaryProjection_v007 U T = T :=
+    (coisometric_retraction_kernel_iff_complement_fixed_v007
+      U hUUstar T).mp hT
+  let S : TraceClass H := coisometric_complementaryProjection_v007 V T
+  have hKer : sandwichContinuous V V.adjoint S = 0 :=
+    coisometric_retraction_complement_zero_v007 V hVVstar T
+  refine ⟨S, hKer, ?_⟩
+  have hOp :=
+    coisometric_complement_operator_perturbation_v007
+      U V hUnorm hVnorm
+  calc
+    dist T S =
+        ‖(coisometric_complementaryProjection_v007 U -
+           coisometric_complementaryProjection_v007 V) T‖ := by
+      rw [dist_eq_norm, ContinuousLinearMap.sub_apply, hFix]
+      rfl
+    _ ≤ ‖coisometric_complementaryProjection_v007 U -
+            coisometric_complementaryProjection_v007 V‖ * ‖T‖ :=
+      ContinuousLinearMap.le_opNorm _ _
+    _ ≤ (4 * ‖U - V‖) * ‖T‖ :=
+      mul_le_mul_of_nonneg_right hOp (norm_nonneg _)
+    _ = 4 * ‖U - V‖ * ‖T‖ := by ring
+
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_norm_le_one_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_component_dist_le_v007
@@ -354,5 +430,7 @@ theorem coisometric_complement_operator_perturbation_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_operator_perturbation_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_projection_operator_perturbation_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_complement_operator_perturbation_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_embedding_range_directed_gap_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_kernel_directed_gap_v007
 
 end ProbabilisticTheory.TraceClass
