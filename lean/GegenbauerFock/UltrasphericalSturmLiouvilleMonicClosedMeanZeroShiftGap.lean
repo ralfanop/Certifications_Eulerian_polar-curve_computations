@@ -49,9 +49,9 @@ theorem sturmRealClosed_meanZero_positiveShift_gap
           (1 + 2 * lam) * ‖(x : SturmH lam)‖ ^ 2 := by ring
       _ ≤ t * ‖(x : SturmH lam)‖ ^ 2 +
           -inner ℝ (A x) (x : SturmH lam) :=
-        add_le_add_left hp _
+        add_le_add (le_refl _) hp
       _ = inner ℝ (t • (x : SturmH lam) - A x) (x : SturmH lam) := by
-        rw [real_inner_sub_left, real_inner_smul_left, real_inner_self_eq_norm_sq]
+        rw [inner_sub_left, real_inner_smul_left, real_inner_self_eq_norm_sq]
         ring
   have hcs :
       inner ℝ (t • (x : SturmH lam) - A x) (x : SturmH lam) ≤
