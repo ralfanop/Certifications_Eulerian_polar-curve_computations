@@ -34,8 +34,14 @@ private theorem kernel_hasDerivAt_left (c u v : ℝ) :
     HasDerivAt (fun t : ℝ => kernel c t v)
       ((c * v) * kernel c u v) u := by
   have hlinear : HasDerivAt (fun t : ℝ => c * t * v) (c * v) u := by
-    convert (hasDerivAt_id u).const_mul (c * v) using 1 <;> ring
+    have h : HasDerivAt (fun t : ℝ => (c * v) * t) (c * v) u := by
+      simpa using (hasDerivAt_id u).const_mul (c * v)
+    convert h using 1
+    funext t
+    ring
   have hExp := (Real.hasDerivAt_exp (c * u * v)).comp u hlinear
+  change HasDerivAt (Real.exp ∘ (fun t : ℝ => c * t * v))
+    ((c * v) * Real.exp (c * u * v)) u
   convert hExp using 1 <;> ring
 
 /-- First partial derivative in the first variable of the real kernel. -/
@@ -66,7 +72,6 @@ theorem kernel_deriv_right (c u v : ℝ) :
     funext t
     exact kernel_symm c u t
   rw [heq, kernel_deriv_left, kernel_symm c v u]
-  ring
 
 /-- Second partial derivative in the second variable. -/
 theorem kernel_second_deriv_right (c u v : ℝ) :
@@ -77,7 +82,6 @@ theorem kernel_second_deriv_right (c u v : ℝ) :
     funext r
     exact kernel_symm c u r
   rw [heq, kernel_second_deriv_left, kernel_symm c v u]
-  ring
 
 /-- The actual spheroidal expression in u, including the negative
 Sturm second-derivative sign and the negative quadratic potential. -/
@@ -100,7 +104,9 @@ theorem spheroidal_exponential_pointwise_bispectral
     (lam c u v : ℝ) :
     spheroidalLeft lam c u v = spheroidalRight lam c u v := by
   unfold spheroidalLeft spheroidalRight
-  rw [kernel_second_deriv_left, kernel_deriv_left,\n    kernel_second_deriv_right, kernel_deriv_right]\n  ring
+  rw [kernel_second_deriv_left, kernel_deriv_left,
+    kernel_second_deriv_right, kernel_deriv_right]
+  ring
 
 #print axioms GegenbauerFock.Spheroidal.kernel_deriv_left
 #print axioms GegenbauerFock.Spheroidal.kernel_second_deriv_left
