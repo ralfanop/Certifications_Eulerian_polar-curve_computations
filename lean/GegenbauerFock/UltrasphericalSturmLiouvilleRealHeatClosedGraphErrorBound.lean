@@ -106,8 +106,8 @@ theorem sturmRealHeat_closed_graph_slope_error_norm_le
       _ = ((-w) * c) ^ 2 := by ring
   have hbound := (hsquared y).tsum_le_tsum hpoint (hsquared (A x))
   change ‖y‖ ≤ ‖A x‖
-  rw [← sturmMonic_realL2_parseval_tsum_sq lam hlam y,
-    ← sturmMonic_realL2_parseval_tsum_sq lam hlam (A x)] at *
+  rw [sturmMonic_realL2_parseval_tsum_sq lam hlam y,
+    sturmMonic_realL2_parseval_tsum_sq lam hlam (A x)] at hbound
   nlinarith [norm_nonneg y, norm_nonneg (A x)]
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealHeat_closed_graph_slope_error_repr
