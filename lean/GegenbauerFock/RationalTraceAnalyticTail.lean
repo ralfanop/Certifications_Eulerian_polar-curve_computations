@@ -1,4 +1,5 @@
 import GegenbauerFock.RationalTrace
+import GegenbauerFock.UltrasphericalKummerBridge
 import Mathlib
 
 /-!
@@ -129,5 +130,97 @@ theorem fifteen_rational_endpoints :
 
 #print axioms GegenbauerFock.RationalTrace.fifteen_tail_strict_bound
 #print axioms GegenbauerFock.RationalTrace.fifteen_rational_endpoints
+
+
+/-- The λ=1/2 normalized ultraspherical even-moment ratio is exactly
+1/(2n+1), as required for the Eulerian uniform-law specialization. -/
+theorem kummer_ratio_half (n : ℕ) :
+    KummerCoefficients.ratio (1 / 2 : ℝ) n =
+      1 / (((2*n+1 : ℕ) : ℝ)) := by
+  induction n with
+  | zero =>
+      norm_num [KummerCoefficients.ratio]
+  | succ n ih =>
+      rw [KummerCoefficients.ratio_succ, ih]
+      have h1 : (2 * (n : ℝ) + 1) ≠ 0 := by positivity
+      have h2 : (n : ℝ) + (1 / 2 : ℝ) + 1 ≠ 0 := by positivity
+      have h3 : (2 * (n : ℝ) + 3) ≠ 0 := by positivity
+      push_cast
+      field_simp
+      <;> ring
+
+/-- Identify the exact scalar Taylor series with the actual
+unregularized Kummer series at the Eulerian parameter. -/
+theorem kummer_half_quarter_eq_realTraceSeries :
+    KummerCoefficients.kummerSeries (1 / 2) (1 / 4) =
+      ∑' n : ℕ, realTerm n := by
+  unfold KummerCoefficients.kummerSeries
+  apply tsum_congr
+  intro n
+  rw [kummer_ratio_half]
+  unfold realTerm
+  rw [one_div_pow]
+  have hf : (Nat.factorial n : ℝ) ≠ 0 := by positivity
+  have hp : (4 : ℝ)^n ≠ 0 := by positivity
+  have ho : (((2*n+1 : ℕ) : ℝ)) ≠ 0 := by positivity
+  field_simp
+  <;> ring
+
+/-- The full Eulerian special integral equals the genuine positive
+trace-coefficient series; no asymptotic or floating-point assumption. -/
+theorem legendre_exp_integral_eq_realTraceSeries :
+    (∫ u : ℝ, Real.exp (u ^ 2 / 4)
+      ∂(GegenbauerFock.Ultraspherical.measure (1 / 2))) =
+      ∑' n : ℕ, realTerm n := by
+  have h :=
+    GegenbauerFock.GeneralUltrasphericalFock.exp_integral_eq_kummerSeries
+      (1 / 2) 1 (by norm_num) (by norm_num)
+  simpa only [mul_one] using h.trans kummer_half_quarter_eq_realTraceSeries
+
+private theorem fifteen_real_partial_exact :
+    (∑ n ∈ Finset.range 15, realTerm n) =
+      (337212679483569969430703669 : ℝ) /
+        309376751206532288348160000 := by
+  norm_num [realTerm, Finset.sum_range_succ]
+
+/-- The two printed decimal bounds hold for the actual normalized
+ultraspherical exponential integral in the Eulerian case. -/
+theorem legendre_exp_integral_decimal_enclosure :
+    ((1089974208367244447324816 : ℝ) / 10^24) <
+       (∫ u : ℝ, Real.exp (u ^ 2 / 4)
+         ∂(GegenbauerFock.Ultraspherical.measure (1 / 2))) ∧
+       (∫ u : ℝ, Real.exp (u ^ 2 / 4)
+         ∂(GegenbauerFock.Ultraspherical.measure (1 / 2))) <
+      ((1089974208367244447325767 : ℝ) / 10^24) := by
+  have hs : Summable realTerm := realTerm_summable
+  have hdecomp :
+      (∑' n : ℕ, realTerm n) =
+        (∑ n ∈ Finset.range 15, realTerm n) +
+          (∑' k : ℕ, realTerm (15+k)) := by
+    simpa only [Nat.add_comm] using
+      (hs.sum_add_tsum_nat_add 15).symm
+  have htail_nonneg :
+      0 ≤ ∑' k : ℕ, realTerm (15+k) :=
+    tsum_nonneg (fun k => realTerm_nonneg (15+k))
+  have htail_small := fifteen_tail_strict_bound
+  rw [legendre_exp_integral_eq_realTraceSeries]
+  rw [hdecomp, fifteen_real_partial_exact]
+  constructor
+  · have hlo :
+        ((1089974208367244447324816 : ℝ) / 10^24) <
+          (337212679483569969430703669 : ℝ) /
+            309376751206532288348160000 := by norm_num
+    linarith
+  · have hhi :
+        (337212679483569969430703669 : ℝ) /
+            309376751206532288348160000 +
+          (1 : ℝ) / 1053078495820775424000 <
+          ((1089974208367244447325767 : ℝ) / 10^24) := by norm_num
+    linarith
+
+#print axioms GegenbauerFock.RationalTrace.kummer_ratio_half
+#print axioms GegenbauerFock.RationalTrace.kummer_half_quarter_eq_realTraceSeries
+#print axioms GegenbauerFock.RationalTrace.legendre_exp_integral_eq_realTraceSeries
+#print axioms GegenbauerFock.RationalTrace.legendre_exp_integral_decimal_enclosure
 
 end GegenbauerFock.RationalTrace
