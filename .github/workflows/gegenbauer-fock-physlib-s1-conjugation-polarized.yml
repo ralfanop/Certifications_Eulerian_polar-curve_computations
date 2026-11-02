@@ -99,11 +99,11 @@ jobs:
 
       # Isolate constructive rank-one S1 results from unrelated new Banach proofs.
 
-      - name: Compile and audit polarized S1 polarized conjugation
+      - name: Compile and audit polarized S1 conjugation
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.PhyslibTraceClassConjugationPerturbation 2>&1 | tee /tmp/gf-s1-conjugation-polarized.log
+          lake build GegenbauerFock.PhyslibTraceClassConjugationPolarized 2>&1 | tee /tmp/gf-s1-conjugation-polarized.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-s1-conjugation-polarized.log; then
             echo '::error::Forbidden axiom in S1 polarized conjugation.'
             exit 1
