@@ -5,7 +5,9 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatGeneratorExactGraph.lean'
-      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatGeneratorExactGraph.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatGeneratorClosedDomainForward.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatGeneratorReverseDomain.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatClosedGraphErrorBound.lean'
       - '.github/workflows/v007-sturm-heat-generator-exact-graph.yml'
   workflow_dispatch:
 jobs:
