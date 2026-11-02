@@ -27,7 +27,11 @@ theorem sturmResolventMultiplier_antitone
     mul_le_mul hcast (by linarith) (by positivity) (by positivity)
   have hden : 0 < t + (n : ℝ) * ((n : ℝ) + 2 * lam) :=
     inv_pos.mp (sturmResolventMultiplier_pos lam t hlam ht n)
-  have h := one_div_le_one_div_of_le hden (add_le_add_left hmult t)
+  have hdenle :
+      t + (n : ℝ) * ((n : ℝ) + 2 * lam) ≤
+      t + (m : ℝ) * ((m : ℝ) + 2 * lam) := by
+    linarith
+  have h := one_div_le_one_div_of_le hden hdenle
   simpa only [one_div] using h
 
 /-- All scalar multipliers past degree N are bounded by the first
