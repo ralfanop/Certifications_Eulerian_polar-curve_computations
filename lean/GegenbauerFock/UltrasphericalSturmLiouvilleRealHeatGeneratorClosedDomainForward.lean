@@ -162,9 +162,11 @@ theorem sturmRealHeatLimit_closed_sturm_right_derivative
           (fun s : ℝ => ‖err s‖) := by
       funext s
       rw [Real.sqrt_sq_eq_abs, abs_of_nonneg (norm_nonneg _)]
-    change Tendsto (fun s : ℝ => Real.sqrt (‖err s‖ ^ 2))
-      (𝓝[>] (0 : ℝ)) (𝓝 (0 : ℝ)) at hroot
-    rwa [hid] at hroot
+    have hroot' : Tendsto
+        (fun s : ℝ => Real.sqrt (‖err s‖ ^ 2))
+        (𝓝[>] (0 : ℝ)) (𝓝 (0 : ℝ)) := by
+      simpa only [Function.comp_def, Real.sqrt_zero] using hroot
+    rwa [hid] at hroot'
   apply tendsto_iff_norm_sub_tendsto_zero.mpr
   change Tendsto (fun s : ℝ => ‖err s‖)
     (𝓝[>] (0 : ℝ)) (𝓝 (0 : ℝ))
