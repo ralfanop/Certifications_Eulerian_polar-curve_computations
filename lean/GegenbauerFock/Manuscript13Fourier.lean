@@ -292,12 +292,10 @@ theorem dens_tendsto {u : ℝ} (hu : u ∈ Ioo (-1:ℝ) 1) :
   · unfold cl
     apply Tendsto.div
     · exact (Real.differentiableAt_Gamma (by intro m; nlinarith [(Nat.cast_nonneg m : (0:ℝ) ≤ m)])
-        |>.continuousAt).tendsto.comp (by
-          simpa using ((continuous_id.add continuous_const : Continuous fun x : ℝ => x + (1 : ℝ)).tendsto (0 : ℝ)))
+        |>.continuousAt).tendsto.comp (by exact (continuous_id.add continuous_const).tendsto 0)
     · apply Tendsto.const_mul
       exact (Real.differentiableAt_Gamma (by intro m; nlinarith [(Nat.cast_nonneg m : (0:ℝ) ≤ m)])
-        |>.continuousAt).tendsto.comp (by
-          simpa using ((continuous_id.add continuous_const : Continuous fun x : ℝ => x + (1 / 2 : ℝ)).tendsto (0 : ℝ)))
+        |>.continuousAt).tendsto.comp (by exact (continuous_id.add continuous_const).tendsto 0)
     · have : 0 < Real.Gamma (0 + 1 / 2) := Real.Gamma_pos_of_pos (by norm_num)
       exact (mul_pos (Real.sqrt_pos.mpr Real.pi_pos) this).ne'
   · exact ((Real.continuousAt_const_rpow hb.ne').comp
