@@ -1,18 +1,28 @@
 # V007 — Compact resolvent of the closed Gegenbauer–Sturm operator
 
-## Status and certification boundary (31 October 2026)
+## Status and certification boundary (2 November 2026)
 
-This file is a **mathematical proof dossier**, not a Lean certificate. The
-explicit normalized complete Gegenbauer Hilbert basis, the identity of
-the *canonical closure* with the diagonal spectral realization, and
-the positive-shift resolvent multiplier formula have already been
-certified in separate Lean modules. The scalar multiplier-decay
-certificate has passed targeted CI #41243410438.
+**COMPLETE: exact real weighted-L² Sturm resolvent compactness is
+kernel-certified.** This Markdown exposition is not itself a Lean
+certificate. The unconditional Lean theorems and their axiom audits
+are in `UltrasphericalSturmLiouvilleResolventCompactExact.lean`.
 
-Further Lean modules for compact finite truncations, strong spectral
-synthesis, monotone scalar tails, and the conditional compactness
-implication were submitted on the PR #16 branch. Their CI status must be
-checked independently before marking them certified.
+- [Final CI #41429342198](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41429342198):
+  **SUCCESS**; 9,098 jobs; exact spectral truncation operator norm
+  (`sturmRealClosedResolvent_finite_tail_norm_eq`) and unconditional
+  compactness (`sturmRealClosedResolvent_isCompactOperator`).
+- [Uniform operator-norm upper bound #41429311807](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41429311807):
+  **SUCCESS**, `sturmRealClosedResolvent_finite_tail_norm_le`.
+- [Exact Hilbert Fourier coordinates #41429302314](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41429302314):
+  **SUCCESS**.
+- [Genuine rank-N truncation compactness #41427284868](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41427284868):
+  **SUCCESS**.
+- [Conditional compactness bridge #41428087599](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41428087599):
+  **SUCCESS**, and its hypothesis is discharged in the final theorem.
+
+The final `#print axioms` reports only the standard
+`propext`, `Classical.choice`, and `Quot.sound`: no `sorryAx`
+or `Lean.ofReduceBool`. Pinned Lean v4.35.0-rc3 / Mathlib.
 
 ## Statement
 
@@ -100,23 +110,17 @@ target spaces. It follows that IsCompactOperator R_t.
    domain were identified with the canonical closure in
    UltrasphericalSturmLiouvilleExactGegenbauerSpectralClosure.lean.
 
-## Precise remaining Lean obligations
+## Completed Lean obligations and scope
 
-- Confirm CI and axiom audits for the new isolated modules:
-  ResolventFiniteRankTruncations, ResolventSpectralHasSum,
-  ResolventMultiplierMonotone, ResolventCompactnessBridge.
-- In the *actual* HilbertBasis, prove that every truncated operator
-  T_N acts as finite diagonal synthesis and its coefficient k is
-  β_k a_k when k<N, and zero otherwise.
-- Use `sturmMonic_realL2_parseval_tsum_sq` and the scalar tail bound
-  `sturmResolventMultiplier_tail_le` to certify the norm inequality
-  ‖R_t−T_N‖≤β_N for every N.
-- Use the e_N eigenvector to certify the reverse bound and equality.
-- Apply `sturmRealClosedResolvent_compact_of_uniform_tail_bound`
-  with the just-proved unconditional norm bound; audit the final
-  `IsCompactOperator R_t` theorem with `#print axioms`.
-- Keep the actual real weighted-L² statement distinct from complex
-  Fock operators and from source/target Gram compactness.
+The concrete normalized complete Gegenbauer Hilbert basis, genuine closed
+resolvent's diagonal coefficients, finite-rank compactness, exact finite
+coefficient cutoff, sharp upper and lower norm-tail bounds, norm equality,
+and compact limit are proved with kernel-checked declarations.
 
-**Repository restrictions:** PR #16 remains Draft; no merge or changes
-to main, V097, or V170 workflows.
+No additional Lean obligation remains for the two final real weighted-L²
+resolvent theorems above. Complex Fock operators, Gram operators and
+Schatten-ideal claims are distinct objects and remain subject to their
+own independent verification.
+
+**Repository restrictions:** PR #16 remains Draft and unmerged. No changes
+to main, V097 or V170.
