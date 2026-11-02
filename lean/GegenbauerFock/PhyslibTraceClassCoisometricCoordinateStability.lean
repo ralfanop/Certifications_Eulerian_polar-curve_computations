@@ -195,10 +195,11 @@ theorem coisometric_projection_joint_traceNorm_le_v007
     _ = traceNorm H (T - S) +
           4 * ‖U - V‖ * traceNorm H S := by ring
 
+set_option maxHeartbeats 1200000
+
 /-- The canonical complementary components for different coisometries
 are stable with coefficient two for input perturbations and four for
 multiplier perturbations, in the genuine trace norm. -/
-set_option maxHeartbeats 1200000 in
 theorem coisometric_complement_joint_traceNorm_le_v007
     (U V : H →L[ℂ] H) (T S : TraceClass H)
     (hU : ‖U‖ ≤ (1 : ℝ)) (hV : ‖V‖ ≤ (1 : ℝ)) :
@@ -234,12 +235,14 @@ theorem coisometric_complement_joint_traceNorm_le_v007
         ‖coisometric_sandwich_projection_v007 U T -
          coisometric_sandwich_projection_v007 V S‖ := norm_sub_le _ _
     _ ≤ ‖T - S‖ + (‖T - S‖ + 4 * ‖U - V‖ * ‖S‖) :=
-      add_le_add_left hP _
+      add_le_add (le_refl _) hP
     _ = 2 * traceNorm H (T - S) +
         4 * ‖U - V‖ * traceNorm H S := by
       rw [← norm_eq_genuineTraceNorm (T - S),
         ← norm_eq_genuineTraceNorm S]
       ring
+
+set_option maxHeartbeats 200000
 
 /-- Quantitative stability of the uniquely determined source and kernel
 coordinates when both the input and the coisometry vary. Exact
