@@ -198,6 +198,7 @@ theorem coisometric_projection_joint_traceNorm_le_v007
 /-- The canonical complementary components for different coisometries
 are stable with coefficient two for input perturbations and four for
 multiplier perturbations, in the genuine trace norm. -/
+set_option maxHeartbeats 1200000 in
 theorem coisometric_complement_joint_traceNorm_le_v007
     (U V : H →L[ℂ] H) (T S : TraceClass H)
     (hU : ‖U‖ ≤ (1 : ℝ)) (hV : ‖V‖ ≤ (1 : ℝ)) :
