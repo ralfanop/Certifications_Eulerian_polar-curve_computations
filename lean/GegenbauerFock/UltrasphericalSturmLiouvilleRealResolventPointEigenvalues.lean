@@ -86,7 +86,7 @@ theorem sturmRealPositiveResolventFullCLM_zero_not_eigenvalue
 /-- The genuine closed Sturm positive resolvent is injective on
 the entire weighted-real-L² Hilbert space. It cannot annihilate any
 nonzero source, although its eigenvalues accumulate at zero. -/
-theorem sturmRealPositiveResolventFullCLM_injective
+theorem sturmRealPositiveResolventFullCLM_injective_from_point_eigenvalues
     (lam t : ℝ) (hlam : 0 < lam) (ht : 0 < t) :
     Function.Injective (sturmRealPositiveResolventFullCLM lam t hlam ht) := by
   intro f g hfg
@@ -114,7 +114,7 @@ theorem sturmRealPositiveResolventFullCLM_point_eigenvalue_pos
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_point_eigenvalue_iff
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_zero_not_eigenvalue
-#print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_injective
+#print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_injective_from_point_eigenvalues
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_point_eigenvalue_pos
 
 end GegenbauerFock.Ultraspherical
