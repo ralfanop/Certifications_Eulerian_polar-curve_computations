@@ -1,0 +1,58 @@
+name: V007 strong spectral recovery and sharp uniform obstruction
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/CanonicalCFCStrongButNotUniformRecovery.lean'
+      - 'lean/GegenbauerFock/CanonicalCFCSpectralCutoffStrongRecovery.lean'
+      - 'lean/GegenbauerFock/CanonicalCFCRootPolarCutoffStrongRecovery.lean'
+      - 'lean/GegenbauerFock/CanonicalCFCSourceGramCutoffStrongRecovery.lean'
+      - '.github/workflows/v007-cfc-strong-but-nonuniform-recovery.yml'
+  workflow_dispatch:
+concurrency:
+  group: v007-cfc-strong-but-nonuniform-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  sharp-strong-gap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt*8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt*8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore exact Mathlib dependencies
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel check and axiom audit for all three strong-nonuniform conclusions
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.CanonicalCFCStrongButNotUniformRecovery 2>&1 | tee /tmp/v007-sharp-strong-build.log
+          lake env lean -M16768 GegenbauerFock/CanonicalCFCStrongButNotUniformRecovery.lean 2>&1 | tee /tmp/v007-sharp-strong-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-sharp-strong-build.log /tmp/v007-sharp-strong-axioms.log; then
+            echo '::error::Forbidden axiom in strong-versus-uniform certification.'
+            exit 1
+          fi
+          grep -F "exists_Fock_strongCutoff_and_sharp_uniform_obstruction' depends on axioms:" /tmp/v007-sharp-strong-axioms.log
+          grep -F "exists_CFCroot_strongCutoff_and_sharp_uniform_obstruction' depends on axioms:" /tmp/v007-sharp-strong-axioms.log
+          grep -F "exists_sourceGram_strongCutoff_and_sharp_uniform_obstruction' depends on axioms:" /tmp/v007-sharp-strong-axioms.log
