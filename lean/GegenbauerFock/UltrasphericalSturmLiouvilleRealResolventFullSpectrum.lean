@@ -24,12 +24,13 @@ private abbrev SturmH (lam : ℝ) := Lp ℝ 2 (measure lam)
 real weighted L² Hilbert space, with explicit closed-resolvent eigenvalues. -/
 theorem sturmRealClosedResolvent_hasEigenvalue_iff
     (lam t : ℝ) (hlam : 0 < lam) (ht : 0 < t) (r : ℝ) :
-    (sturmRealPositiveResolventFullCLM lam t hlam ht :
-      Module.End ℝ (SturmH lam)).HasEigenvalue r ↔
+    Module.End.HasEigenvalue
+      (sturmRealPositiveResolventFullCLM lam t hlam ht :
+        Module.End ℝ (SturmH lam)) r ↔
       ∃ n : ℕ, r = (t + (n : ℝ) * ((n : ℝ) + 2 * lam))⁻¹ := by
   constructor
   · intro heig
-    obtain ⟨f, hf⟩ := heig.exists_hasEigenvector
+    obtain ⟨f, hf⟩ := Module.End.HasEigenvalue.exists_hasEigenvector heig
     apply (sturmRealPositiveResolventFullCLM_point_eigenvalue_iff
       lam t hlam ht r).mp
     refine ⟨f, hf.2, ?_⟩
@@ -38,9 +39,9 @@ theorem sturmRealClosedResolvent_hasEigenvalue_iff
     obtain ⟨f, hf, hRf⟩ :=
       (sturmRealPositiveResolventFullCLM_point_eigenvalue_iff
         lam t hlam ht r).mpr h
-    apply hasEigenvalue_of_hasEigenvector
-    apply (hasEigenvector_iff).mpr
-    refine ⟨(mem_eigenspace_iff).mpr ?_, hf⟩
+    apply Module.End.hasEigenvalue_of_hasEigenvector
+    apply (Module.End.hasEigenvector_iff).mpr
+    refine ⟨(Module.End.mem_eigenspace_iff).mpr ?_, hf⟩
     exact hRf
 
 /-- A real scalar belongs to the full operator spectrum exactly if
@@ -59,7 +60,7 @@ theorem sturmRealClosedResolvent_mem_spectrum_iff
     by_cases hzero : r = 0
     · exact Or.inl hzero
     · right
-      have heig : (R : Module.End ℝ (SturmH lam)).HasEigenvalue r :=
+      have heig : Module.End.HasEigenvalue (R : Module.End ℝ (SturmH lam)) r :=
         (hcompact.hasEigenvalue_iff_mem_spectrum hzero).mpr hs
       exact (sturmRealClosedResolvent_hasEigenvalue_iff
         lam t hlam ht r).mp heig
@@ -69,7 +70,7 @@ theorem sturmRealClosedResolvent_mem_spectrum_iff
     · have hnonzero : r ≠ 0 := by
         rw [hn]
         exact ne_of_gt (sturmResolventMultiplier_pos lam t hlam ht n)
-      have heig : (R : Module.End ℝ (SturmH lam)).HasEigenvalue r :=
+      have heig : Module.End.HasEigenvalue (R : Module.End ℝ (SturmH lam)) r :=
         (sturmRealClosedResolvent_hasEigenvalue_iff
           lam t hlam ht r).mpr ⟨n, hn⟩
       exact (hcompact.hasEigenvalue_iff_mem_spectrum hnonzero).mp heig
