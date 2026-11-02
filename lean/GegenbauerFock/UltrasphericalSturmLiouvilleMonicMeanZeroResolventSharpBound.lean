@@ -71,7 +71,7 @@ theorem sturmRealPositiveResolventFullCLM_meanZero_sharp_bound
   have hshift : t • (x : SturmH lam) - A.closure x = f := by
     rw [hfirst, hsecond]
     abel
-  rw [hfirst, hshift] at hgap
+  rw [hshift, hfirst] at hgap
   exact hgap
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_preserves_meanZero
