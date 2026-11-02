@@ -52,7 +52,6 @@ theorem sturmRealHeatLimitCLM_hilbert_repr_diagonal
     simp only [inner_smul_right, smul_eq_mul]
     by_cases hi : i = n
     · subst i
-      simp only [smul_eq_mul]
       ring
     · have horth : inner ℝ (b n) (b i) = 0 :=
         b.orthonormal.inner_eq_zero (Ne.symm hi)
