@@ -73,14 +73,17 @@ theorem sturmRealHeat_closed_domain_slope_norm_le
     have hqhi : q ≤ 0 := by dsimp [q]; linarith
     have hsq : q ^ 2 ≤ (-w) ^ 2 := by nlinarith
     rw [hz n, hA n]
-    change (q * (b.repr f) n) ^ 2 ≤
-      ((-w) * (b.repr f) n) ^ 2
     calc
-      (q * (b.repr f) n) ^ 2 =
-          q ^ 2 * ((b.repr f) n) ^ 2 := by ring
+      (((Real.exp (-s * ((n : ℝ) * ((n : ℝ) + 2 * lam))) - 1) / s) *
+        (b.repr f) n) ^ 2 =
+          (q * (b.repr f) n) ^ 2 := by rfl
+      _ = q ^ 2 * ((b.repr f) n) ^ 2 := by ring
       _ ≤ (-w) ^ 2 * ((b.repr f) n) ^ 2 :=
         mul_le_mul_of_nonneg_right hsq (sq_nonneg _)
-      _ = ((-w) * (b.repr f) n) ^ 2 := by ring
+      _ = ((-(n : ℝ) * ((n : ℝ) + 2 * lam)) *
+        (b.repr f) n) ^ 2 := by
+          dsimp [w]
+          ring
   have hsquared (y : SturmH lam) :
       Summable (fun n : ℕ => ((b.repr y) n) ^ 2) := by
     have hsum := b.summable_inner_mul_inner y y
