@@ -926,3 +926,41 @@ senza inferirne il successo dal risultato qui verificato.
 
 **Invarianti:** PR #16 aperta in Draft; nessun merge,
 nessuna modifica a `main`, V097 o ai workflow V170.
+
+## 28. Risolvente di Sturm: troncamenti certificati — verifica 2 novembre 2026
+
+Tre CI del risolvente effettivo su `L²(ν_λ;ℝ)` sono
+state verificate direttamente nei log del kernel Lean 4;
+ciascuna termina con **SUCCESS** e gli audit
+`#print axioms` non contengono `sorryAx` né
+`Lean.ofReduceBool`:
+
+- [41429062206](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41429062206):
+  `sturmRealResolventFiniteRankTruncation_repr_coordinate`.
+  Per il troncamento spettrale di rango `N`, ogni coordinata
+  è precisamente il moltiplicatore `(t+n(n+2λ))⁻¹`
+  della coordinata della sorgente se `n<N`, e zero altrimenti.
+- [41429055115](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41429055115):
+  `sturmRealResolventFiniteRankTruncation_mode_eq_ite`.
+  Azione esatta del troncamento su ogni modo normalizzato.
+- [41428649059](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41428649059):
+  `sturmRealClosedResolvent_finite_tail_norm_ge`.
+  Stima **inferiore** rigorosa dell'errore in norma operatoriale:
+  `(t+N(N+2λ))⁻¹ ≤ ‖R_t-R_t^{(N)}‖`,
+  ottenuta sul primo modo di Gegenbauer omesso.
+
+La stima **superiore** corrispondente e la conseguente
+identità esatta della norma della coda e compattezza del
+risolvente vanno verificate **separatamente**: le CI
+[41429311807](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41429311807)
+e
+[41429342198](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41429342198)
+erano ancora in esecuzione al controllo; non attribuire SUCCESS.
+
+L'identificazione esatta di dominio e azione della
+chiusura del vero operatore di Sturm è già SUCCESS nella
+CI 41223492857 (sezione 27); non confonderla con
+le nuove proprietà del suo risolvente.
+
+Invarianti: PR #16 Draft, senza merge; nessun intervento
+su `main`, V097 o sui workflow V170.
