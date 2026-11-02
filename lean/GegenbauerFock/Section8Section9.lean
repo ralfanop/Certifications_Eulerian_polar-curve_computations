@@ -358,17 +358,17 @@ theorem theorem_8_1_opNorm (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) (
 
 /-- **Theorem 8.1**: `C_N` has rank at most `N`. -/
 theorem theorem_8_1_rank (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) (N : ℕ) :
-    FiniteDimensional ℂ (LinearMap.range (CN lam alpha hlam ha N)) ∧
-      Module.finrank ℂ (LinearMap.range (CN lam alpha hlam ha N)) ≤ N := by
+    FiniteDimensional ℂ (LinearMap.range (CN lam alpha hlam ha N).toLinearMap) ∧
+      Module.finrank ℂ (LinearMap.range (CN lam alpha hlam ha N).toLinearMap) ≤ N := by
   set V := Submodule.span ℂ (Set.range (fun k : Fin N => e alpha ha (k : ℕ)))
-  have hle : LinearMap.range (CN lam alpha hlam ha N) ≤ V := by
+  have hle : LinearMap.range (CN lam alpha hlam ha N).toLinearMap ≤ V := by
     rintro _ ⟨f, rfl⟩
     exact proj_mem_span alpha ha N _
   haveI hV : FiniteDimensional ℂ V :=
     FiniteDimensional.span_of_finite ℂ (Set.finite_range _)
   refine ⟨Submodule.finiteDimensional_of_le hle, ?_⟩
   calc
-    Module.finrank ℂ (LinearMap.range (CN lam alpha hlam ha N)) ≤ Module.finrank ℂ V :=
+    Module.finrank ℂ (LinearMap.range (CN lam alpha hlam ha N).toLinearMap) ≤ Module.finrank ℂ V :=
       Submodule.finrank_mono hle
     _ ≤ Fintype.card (Fin N) := finrank_range_le_card _
     _ = N := Fintype.card_fin N
@@ -392,7 +392,7 @@ spaces) obeys the bound. -/
 theorem theorem_8_1_approximation_number (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     (N : ℕ) :
     ∃ T : H lam →L[ℂ] Fock alpha,
-      FiniteDimensional ℂ (LinearMap.range T) ∧ Module.finrank ℂ (LinearMap.range T) ≤ N ∧
+      FiniteDimensional ℂ (LinearMap.range T.toLinearMap) ∧ Module.finrank ℂ (LinearMap.range T.toLinearMap) ≤ N ∧
       ‖Cf lam alpha hlam ha - T‖ ≤
         Real.exp (1 / (4 * alpha) / 2) * Real.sqrt ((1 / (4 * alpha)) ^ N / (N.factorial : ℝ)) :=
   ⟨CN lam alpha hlam ha N, (theorem_8_1_rank lam alpha hlam ha N).1,
@@ -475,9 +475,9 @@ theorem range_not_closed_of_compact_injective {E F : Type*}
     [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
     (T : E →L[ℂ] F) (hc : IsCompactOperator T) (hi : Function.Injective T)
     (hE : ¬ FiniteDimensional ℂ E) :
-    ¬ IsClosed (LinearMap.range T : Set F) := by
+    ¬ IsClosed (LinearMap.range T.toLinearMap : Set F) := by
   intro hcl
-  set R := LinearMap.range T
+  set R := LinearMap.range T.toLinearMap
   haveI : CompleteSpace R := hcl.completeSpace_coe
   have hmem : ∀ x, T x ∈ R := fun x => LinearMap.mem_range_self T x
   let T' : E →L[ℂ] R := T.codRestrict R hmem
@@ -521,11 +521,14 @@ theorem source_not_finiteDimensional (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 
     ¬ FiniteDimensional ℂ (H lam) := by
   intro h
   haveI := h
-  have hcl : IsClosed (LinearMap.range (Cf lam alpha hlam ha) : Set (Fock alpha)) :=
+  have hcl : IsClosed (LinearMap.range (Cf lam alpha hlam ha).toLinearMap : Set (Fock alpha)) :=
     Submodule.closed_of_finiteDimensional _
-  rw [LinearMap.coe_range] at hcl
+  have hcl' : IsClosed (Set.range (Cf lam alpha hlam ha)) := by
+    have h2 := hcl
+    rw [LinearMap.coe_range] at h2
+    exact h2
   have huniv : Set.range (Cf lam alpha hlam ha) = Set.univ := by
-    rw [← hcl.closure_eq]
+    rw [← hcl'.closure_eq]
     exact (Cf_denseRange lam alpha hlam ha).closure_range
   apply C_intrinsicEntire_not_surjective lam alpha hlam ha
   intro F
@@ -583,13 +586,15 @@ theorem S_injective (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
   exact sub_eq_zero.mp h
 
 theorem S_ker_eq_bot (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
-    LinearMap.ker (S lam alpha hlam ha) = ⊥ :=
+    LinearMap.ker (S lam alpha hlam ha).toLinearMap = ⊥ :=
   (Submodule.eq_bot_iff _).mpr fun x hx => S_eq_zero lam alpha hlam ha x (LinearMap.mem_ker.mp hx)
 
 theorem S_dense_range (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
-    (LinearMap.range (S lam alpha hlam ha)).topologicalClosure = ⊤ := by
-  have h := ContinuousLinearMap.orthogonal_ker (S lam alpha hlam ha)
-  rw [S_adjoint] at h
+    (LinearMap.range (S lam alpha hlam ha).toLinearMap).topologicalClosure = ⊤ := by
+  have h0 := ContinuousLinearMap.orthogonal_ker (S lam alpha hlam ha)
+  rw [S_adjoint] at h0
+  have h : (LinearMap.ker (S lam alpha hlam ha).toLinearMap)ᗮ =
+      (LinearMap.range (S lam alpha hlam ha).toLinearMap).topologicalClosure := h0
   rw [← h, S_ker_eq_bot lam alpha hlam ha, Submodule.bot_orthogonal_eq_top]
 
 theorem isUnit_surjective {X : Type*} [NormedAddCommGroup X] [NormedSpace ℂ X]
@@ -610,22 +615,24 @@ theorem proposition_8_2 (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha) :
     Function.Injective (Cf lam alpha hlam ha) ∧
     DenseRange (Cf lam alpha hlam ha) ∧
     ¬ Function.Surjective (Cf lam alpha hlam ha) ∧
-    ¬ IsClosed (LinearMap.range (Cf lam alpha hlam ha) : Set (Fock alpha)) ∧
+    ¬ IsClosed (LinearMap.range (Cf lam alpha hlam ha).toLinearMap : Set (Fock alpha)) ∧
     Function.Injective (S lam alpha hlam ha) ∧
-    (LinearMap.range (S lam alpha hlam ha)).topologicalClosure = ⊤ ∧
+    (LinearMap.range (S lam alpha hlam ha).toLinearMap).topologicalClosure = ⊤ ∧
     (0 : ℂ) ∈ spectrum ℂ (S lam alpha hlam ha) ∧
-    LinearMap.ker (S lam alpha hlam ha) = ⊥ ∧
+    LinearMap.ker (S lam alpha hlam ha).toLinearMap = ⊥ ∧
     ¬ Function.Surjective (S lam alpha hlam ha) := by
   letI : CompleteSpace (GaussianArea.entireGaussianL2Submodule alpha) :=
     (GaussianArea.intrinsicEntire_isClosed alpha ha).completeSpace_coe
   have hsrc := source_not_finiteDimensional lam alpha hlam ha
-  have hSnc : ¬ IsClosed (LinearMap.range (S lam alpha hlam ha) : Set (H lam)) :=
+  have hSnc : ¬ IsClosed (LinearMap.range (S lam alpha hlam ha).toLinearMap : Set (H lam)) :=
     range_not_closed_of_compact_injective (S lam alpha hlam ha) (S_compact lam alpha hlam ha)
       (S_injective lam alpha hlam ha) hsrc
   have hSns : ¬ Function.Surjective (S lam alpha hlam ha) := by
     intro hs
     apply hSnc
-    rw [LinearMap.range_eq_top.mpr hs, Submodule.top_coe]
+    have htop : LinearMap.range (S lam alpha hlam ha).toLinearMap = ⊤ :=
+      LinearMap.range_eq_top.mpr hs
+    rw [htop, Submodule.top_coe]
     exact isClosed_univ
   refine ⟨fock_not_finiteDimensional alpha ha, C_intrinsicEntire_injective lam alpha hlam ha,
     Cf_denseRange lam alpha hlam ha, C_intrinsicEntire_not_surjective lam alpha hlam ha,
