@@ -28,7 +28,7 @@ theorem sturmRealResolventFiniteRankTruncation_apply
             (sturmMonicEigenCandidate_realL2_normalized lam hlam n) f •
               sturmMonicEigenCandidate_realL2_normalized lam hlam n) := by
   simp only [sturmRealResolventFiniteRankTruncation,
-    Finset.sum_apply, ContinuousLinearMap.smul_apply,
+    ContinuousLinearMap.sum_apply, ContinuousLinearMap.smul_apply,
     InnerProductSpace.rankOne_apply]
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealResolventFiniteRankTruncation_apply
