@@ -52,10 +52,10 @@ jobs:
           lake build GegenbauerFock.GegenbauerIntrinsicEntireFourierCompactPriorEmbedding 2>&1 | tee /tmp/v007-fourier-compact-prior-build.log
           lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireFourierCompactPriorEmbedding.lean 2>&1 | tee /tmp/v007-fourier-compact-prior-axioms.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-fourier-compact-prior-build.log /tmp/v007-fourier-compact-prior-axioms.log; then
-            echo "::error::Forbidden axiom in canonical Fourier sample inverse theorem"
+            echo "::error::Forbidden axiom in compact-prior Fourier inverse stability theorems"
             exit 1
           fi
-          for name in ultraspherical_fourierBochner_compactPrior_isEmbedding; do
+          for name in ultraspherical_fourierBochner_compactPrior_isEmbedding ultraspherical_fourierBochner_compactPrior_inverse_uniformContinuous; do
             grep -F "${name}' depends on axioms:" /tmp/v007-fourier-compact-prior-axioms.log
           done
-          echo 'V007 compact-prior topological stability of Fourier inversion: Lean and axiom audit successful.'
+          echo 'V007 compact-prior embedding and uniform inverse stability: Lean and axiom audit successful.'
