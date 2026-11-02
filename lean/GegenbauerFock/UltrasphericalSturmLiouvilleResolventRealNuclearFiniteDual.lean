@@ -58,7 +58,7 @@ theorem realHilbertFiniteTrace_rankOne_eq
       inner ℝ (b n) (rankOne ℝ u v (b n))) =
     inner ℝ
       (∑ n ∈ Finset.range N, (inner ℝ (b n) v) • b n) u := by
-  rw [inner_sum]
+  rw [sum_inner]
   apply Finset.sum_congr rfl
   intro n hn
   rw [InnerProductSpace.rankOne_apply,
