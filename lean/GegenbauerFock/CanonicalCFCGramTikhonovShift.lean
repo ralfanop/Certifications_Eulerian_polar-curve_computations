@@ -1,6 +1,7 @@
 import GegenbauerFock.TwoSidedGramNegativeResolvent
 import GegenbauerFock.CompletePositiveSingularFamily
 import Mathlib.Analysis.InnerProductSpace.LinearMap
+import Mathlib.Tactic.Module
 
 /-!
 # V007 — actual positive-shift Tikhonov inverse of the source Gram
@@ -43,7 +44,7 @@ theorem sourceGramPositiveShift_isUnit
   have heq :
       (-(eps : ℂ)) • (1 : TikhonovH lam →L[ℂ] TikhonovH lam) - G =
         -(G + (eps : ℂ) • (1 : TikhonovH lam →L[ℂ] TikhonovH lam)) := by
-    abel
+    module
   have hh : IsUnit (G + (eps : ℂ) •
       (1 : TikhonovH lam →L[ℂ] TikhonovH lam)) :=
     (IsUnit.neg_iff _).mp (heq ▸ h)
