@@ -6,6 +6,8 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTailLower.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteRankTruncations.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTruncationApply.lean'
       - '.github/workflows/v007-ultraspherical-sturm-resolvent-finite-tail-lower.yml'
   workflow_dispatch:
 
