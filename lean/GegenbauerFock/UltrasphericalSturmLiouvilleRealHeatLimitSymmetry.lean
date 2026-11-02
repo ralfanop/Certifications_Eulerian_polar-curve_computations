@@ -45,7 +45,7 @@ theorem sturmRealHeatLimitCLM_inner_symmetric
         inner ℝ f (b n) * inner ℝ (b n) (T g) := by
     have hleft (x : SturmH lam) :
         inner ℝ x (b n) = (b.repr x) n :=
-      (real_inner_comm x (b n)).trans
+      (real_inner_comm x (b n)).symm.trans
         (HilbertBasis.repr_apply_apply b x n).symm
     have hright (x : SturmH lam) :
         inner ℝ (b n) x = (b.repr x) n :=
