@@ -41,7 +41,6 @@ theorem sturmRealHeat_scalar_difference_quotient_abs_le
   · calc
       -omega = s⁻¹ * (-(s * omega)) := by
         field_simp [ne_of_gt hs]
-        ring
       _ ≤ s⁻¹ * (Real.exp (-s * omega) - 1) := hL
   · exact hR.trans homega
 
