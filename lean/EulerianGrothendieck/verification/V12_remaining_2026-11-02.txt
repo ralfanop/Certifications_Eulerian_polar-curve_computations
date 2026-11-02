@@ -1,0 +1,51 @@
+Manuscript 12, remaining formalisations, 2 November 2026
+Toolchain: Lean 4.24.0, Mathlib f897ebcf72cd16f89ab4577d0c826cd14afaafc7
+Modules compiled one at a time with 'lake env lean -o', no errors, no sorry:
+  EulerianGrothendieck/ExactPolynomialAllOrders
+  UniformLanczos/Lambda
+  UniformLanczos/Endpoint
+  UniformLanczos/Cancellation
+  UniformLanczos/ClassQ
+  UniformLanczos/Diagonal
+  UniformLanczos/MRS
+  UniformLanczos/Arcsine
+  UniformLanczos/Corollary
+  UniformLanczos/EndpointConcrete
+  UniformLanczos/Expansion
+  UniformLanczos/HigherProfileCoefficients
+  UniformLanczos/Joined
+  UniformLanczos/Profile
+  UniformLanczos
+
+== lake env lean AuditV12Remaining.lean (lean/EulerianGrothendieck)
+'EulerianGrothendieck.AllOrders.euler' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianGrothendieck.AllOrders.Ppoly_rec' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianGrothendieck.AllOrders.pc_support' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianGrothendieck.AllOrders.coeff_eq_G' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianGrothendieck.AllOrders.uniformMomentRatio_eq_g_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianGrothendieck.AllOrders.G_at_zero_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianGrothendieck.AllOrders.gPoly_natDegree' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianGrothendieck.AllOrders.gPoly_eval' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianGrothendieck.AllOrders.qPoly_natDegree' depends on axioms: [propext, Classical.choice, Quot.sound]
+'EulerianGrothendieck.AllOrders.qPoly_eval' depends on axioms: [propext, Classical.choice, Quot.sound]
+'UniformLanczos.Joined.w_even' depends on axioms: [propext, Classical.choice, Quot.sound]
+'UniformLanczos.Joined.hP_actual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'UniformLanczos.Joined.endpoint_actual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'UniformLanczos.Profile.F_bounds' depends on axioms: [propext, Classical.choice, Quot.sound]
+'UniformLanczos.Profile.F_strictMonoOn' depends on axioms: [propext, Classical.choice, Quot.sound]
+'UniformLanczos.Profile.F_continuousOn' depends on axioms: [propext, Classical.choice, Quot.sound]
+'UniformLanczos.Profile.F_tendsto' depends on axioms: [propext, Classical.choice, Quot.sound]
+'UniformLanczos.Profile.F_series' depends on axioms: [propext, Classical.choice, Quot.sound]
+'UniformLanczos.Profile.lemma_5_7a' depends on axioms: [propext, Classical.choice, Quot.sound]
+'UniformLanczos.Profile.lemma_5_7a_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'UniformLanczos.endpoint_concrete' depends on axioms: [propext, Classical.choice, Quot.sound]
+'UniformLanczos.F_expansion7_explicit' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+== lean/FixedDegreeLanczos/lean: V035ExactCoefficients, V035JacobiCorollary (same toolchain; built on the V033 modules)
+'V033.UniformSum.exact_beta_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.exact_beta_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.lanczos_first_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.actual_second_fourth' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.fourth_cumulant' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.jacobi_normalisation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'V033.UniformSum.jacobi_normalisation_lanczos' depends on axioms: [propext, Classical.choice, Quot.sound]

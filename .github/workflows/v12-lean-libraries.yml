@@ -1,0 +1,100 @@
+name: Manuscript 12 Lean libraries (Lean 4.24, Mathlib f897ebcf)
+
+on:
+  push:
+    branches:
+      - main
+      - v12-remaining-formalisations
+    paths:
+      - 'lean/EulerianGrothendieck/**'
+      - 'lean/FixedDegreeLanczos/**'
+      - '.github/workflows/v12-lean-libraries.yml'
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/**'
+      - 'lean/FixedDegreeLanczos/**'
+      - '.github/workflows/v12-lean-libraries.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: v12-lean-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  eulerian-grothendieck:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib build artifacts
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          lean --version
+          lake exe cache get
+      - name: Build all libraries
+        working-directory: lean/EulerianGrothendieck
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build EulerianGrothendieck EulerianGrothendieck.ExactPolynomialAllOrders Bridge V033 V001 UniformLanczos 2>&1 | tee /tmp/eg-build.log
+      - name: Axiom audit of the 2 November 2026 additions
+        working-directory: lean/EulerianGrothendieck
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean AuditV12Remaining.lean 2>&1 | tee /tmp/eg-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'error:' /tmp/eg-build.log /tmp/eg-axioms.log; then
+            echo '::error::Build error or nonstandard axiom in EulerianGrothendieck.'
+            exit 1
+          fi
+          grep -F "UniformLanczos.Profile.lemma_5_7a' depends on axioms:" /tmp/eg-axioms.log
+          grep -F "UniformLanczos.Joined.endpoint_actual' depends on axioms:" /tmp/eg-axioms.log
+          grep -F "coeff_eq_G' depends on axioms:" /tmp/eg-axioms.log
+
+  fixed-degree-lanczos:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan and ripgrep
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -q && sudo apt-get install -y -q ripgrep
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib build artifacts
+        working-directory: lean/FixedDegreeLanczos
+        run: |
+          lake update
+          lake exe cache get
+      - name: Compile V033 (existing portable script)
+        working-directory: lean/FixedDegreeLanczos
+        run: bash code/verify_lean_portable.sh
+      - name: Compile and audit V035 additions
+        working-directory: lean/FixedDegreeLanczos
+        shell: bash
+        run: |
+          set -euo pipefail
+          LEAN_BIN="$(lake env which lean)"
+          export LEAN_PATH="$PWD/lean:$(lake env printenv LEAN_PATH)"
+          for module in V035ExactCoefficients V035JacobiCorollary; do
+            "$LEAN_BIN" -M 4096 -o "lean/$module.olean" "lean/$module.lean" 2>&1 | tee "results/$module.log"
+          done
+          "$LEAN_BIN" lean/AuditV035.lean 2>&1 | tee results/AuditV035.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'error:' results/V035*.log results/AuditV035.log; then
+            echo '::error::Build error or nonstandard axiom in V035.'
+            exit 1
+          fi
+          grep -F "exact_beta_two' depends on axioms:" results/AuditV035.log
+          grep -F "jacobi_normalisation_lanczos' depends on axioms:" results/AuditV035.log
