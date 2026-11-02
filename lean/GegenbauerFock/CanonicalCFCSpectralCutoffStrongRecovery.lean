@@ -81,6 +81,10 @@ theorem singularCutoff_strong_recovery
       exact hterm i
     rw [heq]
     exact u.hasSum_repr f
+  change Tendsto (fun s : Finset ι =>
+    ∑ i ∈ s,
+      (((Real.sqrt (mu i) : ℂ)⁻¹) • rankOne ℂ (u i) (v i)) (T f))
+    atTop (nhds f) at hsum
   simpa only [singularCutoff, Finset.sum_apply] using hsum
 
 /-- The true compact Gegenbauer–Fock operator has an actual family of
