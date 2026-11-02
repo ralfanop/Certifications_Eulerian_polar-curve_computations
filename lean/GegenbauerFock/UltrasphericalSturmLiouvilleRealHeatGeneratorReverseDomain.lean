@@ -1,5 +1,5 @@
 import GegenbauerFock.UltrasphericalSturmLiouvilleRealHeatGeneratorReverseCoordinates
-import GegenbauerFock.UltrasphericalSturmLiouvilleExactGegenbauerSpectralClosure
+import GegenbauerFock.UltrasphericalSturmLiouvilleRealHeatGeneratorGraphBridge
 
 /-!
 # V007 — strong heat generator domain is contained in canonical Sturm closure domain
@@ -36,32 +36,16 @@ theorem sturmRealHeatLimit_generator_graph_subset_closedSturm
     ∃ x : (sturmRealPartialOperator lam hlam).closure.domain,
       (x : SturmH lam) = f ∧
         (sturmRealPartialOperator lam hlam).closure x = g := by
-  let b := sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam
-  let A := (sturmRealPartialOperator lam hlam).closure
-  have hweighted : f ∈ sturmMonicHilbertUnshiftedDomain lam hlam := by
-    change ∃ a : lp (fun _ : ℕ => ℝ) 2,
-      ∀ n : ℕ, a n =
-        ((n : ℝ) * ((n : ℝ) + 2 * lam)) * (b.repr f) n
-    refine ⟨-(b.repr g), ?_⟩
-    intro n
-    change -((b.repr g) n) =
-      ((n : ℝ) * ((n : ℝ) + 2 * lam)) * (b.repr f) n
-    rw [sturmRealHeatLimit_right_derivative_repr
-      lam hlam f g hderiv n]
-    ring
-  have hdomain : f ∈ (A.domain : Set (SturmH lam)) := by
-    rw [(sturmRealClosed_eq_exact_monicGegenbauer_spectral_realization
-      lam hlam).1]
-    exact hweighted
-  let x : A.domain := ⟨f, hdomain⟩
-  refine ⟨x, rfl, ?_⟩
-  apply b.repr.injective
-  ext n
-  change (b.repr (A x)) n = (b.repr g) n
-  rw [(sturmRealClosed_eq_exact_monicGegenbauer_spectral_realization
-    lam hlam).2 x n]
-  exact (sturmRealHeatLimit_right_derivative_repr
-    lam hlam f g hderiv n).symm
+  apply sturmRealClosed_graph_of_diagonal_coefficients lam hlam f g
+  intro n
+  calc
+    (sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam).repr g n =
+        (-((n : ℝ) * ((n : ℝ) + 2 * lam))) *
+          (sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam).repr f n :=
+      sturmRealHeatLimit_right_derivative_repr lam hlam f g hderiv n
+    _ = (-(n : ℝ) * ((n : ℝ) + 2 * lam)) *
+          (sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam).repr f n := by
+      ring
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealHeatLimit_generator_graph_subset_closedSturm
 
