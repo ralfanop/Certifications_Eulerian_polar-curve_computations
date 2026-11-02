@@ -6,6 +6,11 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventCompactExact.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTruncationApply.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTruncationCoordinates.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTailUpper.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTailLower.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventCompactnessBridge.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteRankTruncations.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTruncationApply.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTruncationCoordinates.lean'
