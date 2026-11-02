@@ -373,7 +373,6 @@ theorem coisometric_embedding_range_directed_gap_v007
         ‖(coisometric_sandwich_projection_v007 U -
            coisometric_sandwich_projection_v007 V) T‖ := by
       rw [dist_eq_norm, ContinuousLinearMap.sub_apply, hFix]
-      rfl
     _ ≤ ‖coisometric_sandwich_projection_v007 U -
             coisometric_sandwich_projection_v007 V‖ * ‖T‖ :=
       ContinuousLinearMap.le_opNorm _ _
@@ -410,7 +409,6 @@ theorem coisometric_retraction_kernel_directed_gap_v007
         ‖(coisometric_complementaryProjection_v007 U -
            coisometric_complementaryProjection_v007 V) T‖ := by
       rw [dist_eq_norm, ContinuousLinearMap.sub_apply, hFix]
-      rfl
     _ ≤ ‖coisometric_complementaryProjection_v007 U -
             coisometric_complementaryProjection_v007 V‖ * ‖T‖ :=
       ContinuousLinearMap.le_opNorm _ _
