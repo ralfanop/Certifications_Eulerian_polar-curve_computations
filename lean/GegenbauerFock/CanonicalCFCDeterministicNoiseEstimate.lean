@@ -35,7 +35,7 @@ theorem bounded_reconstructor_noise_error_le
     ‖R (T f + eta) - f‖ = ‖(R (T f) - f) + R eta‖ := by rw [heq]
     _ ≤ ‖R (T f) - f‖ + ‖R eta‖ := norm_add_le _ _
     _ ≤ ‖R (T f) - f‖ + ‖R‖ * ‖eta‖ :=
-      add_le_add_left (R.le_opNorm eta) _
+      add_le_add_right (R.le_opNorm eta) _
 
 private abbrev MeasH (lam : ℝ) := Lp ℂ 2 (Ultraspherical.measure lam)
 
