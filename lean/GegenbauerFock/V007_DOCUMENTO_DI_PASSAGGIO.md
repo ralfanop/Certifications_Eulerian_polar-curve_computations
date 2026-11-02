@@ -964,3 +964,46 @@ le nuove proprietà del suo risolvente.
 
 Invarianti: PR #16 Draft, senza merge; nessun intervento
 su `main`, V097 o sui workflow V170.
+
+## 29. Risolvente compatto e norma esatta della coda certificati — verifica 2 novembre 2026
+
+**SUCCESS definitivo nei log Lean 4, con audit assiomi puliti:**
+
+- [41429311807](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41429311807):
+  `sturmRealClosedResolvent_finite_tail_norm_le`,
+  stima superiore dell'errore spettrale di troncamento
+  per il vero risolvente chiuso sul pieno L² reale.
+- [41429324321](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41429324321)
+  e
+  [41429342198](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41429342198):
+  `sturmRealClosedResolvent_finite_tail_norm_eq` e
+  `sturmRealClosedResolvent_isCompactOperator`,
+  entrambi controllati dal kernel senza `sorryAx`
+  o `Lean.ofReduceBool`.
+
+Per `λ>0`, `t>0`, e ciascun `N : ℕ`,
+l'identità di norma operatoriale è
+`‖R_t - R_t^(N)‖ = (t + N(N+2λ))⁻¹`.
+Il limite per `N → ∞` è zero; i troncamenti
+sono a rango finito e il risolvente della
+**chiusura canonica dell'operatore differenziale Sturm** è compatto.
+Il risultato non si riferisce soltanto a un modello astratto
+di diagonale ℓ², essendo già certificata l'uguaglianza
+chiusura/realizzazione spettrale nella CI 41223492857.
+
+**Verifica separata ancora non riuscita:**
+[41429294955](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41429294955)
+è FAILURE. Nel modulo
+`UltrasphericalSturmLiouvilleRealResolventZeroContinuousSpectrum.lean`,
+riga 94 al commit testato, la riscrittura
+`rw [R.orthogonal_range, hself, hker]` fallisce perché
+l'enunciato presenta `ContinuousLinearMap.adjoint R`
+mentre `hself` riscrive `star R`.
+Non dichiarare ancora certificato il teorema sulla
+densità del range e la classificazione dello zero
+nello spettro continuo **sulla base di tale CI**.
+Le proprietà già certificate di compattezza,
+iniettività e natura non suriettiva restano distinte.
+
+**Invarianti:** PR #16 Draft, nessun merge,
+nessuna modifica a `main`, V097 o workflow V170.
