@@ -7,6 +7,9 @@ on:
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTailUpper.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteRankTruncations.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTruncationApply.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTruncationCoordinates.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventMultiplierMonotone.lean'
       - '.github/workflows/v007-ultraspherical-sturm-resolvent-tail-upper.yml'
   workflow_dispatch:
 
