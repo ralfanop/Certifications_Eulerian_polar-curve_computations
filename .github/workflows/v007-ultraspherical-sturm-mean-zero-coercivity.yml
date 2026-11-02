@@ -61,4 +61,5 @@ jobs:
           grep -F "sturmRealClosed_meanZero_kernel_trivial' depends on axioms:" /tmp/v007-mean-zero-coercivity-axioms.log
           grep -F "sturmRealClosed_meanZero_coercivity_attained' depends on axioms:" /tmp/v007-mean-zero-coercivity-axioms.log
           grep -F "sturmRealClosed_meanZero_coercivity_constant_optimal' depends on axioms:" /tmp/v007-mean-zero-coercivity-axioms.log
+          grep -F "sturmRealClosed_meanZero_residual_stability' depends on axioms:" /tmp/v007-mean-zero-coercivity-axioms.log
           echo 'V007 genuine closed Sturm sharp quantitative mean-zero coercivity: kernel-certified.'
