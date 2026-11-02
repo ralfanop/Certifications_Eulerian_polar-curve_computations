@@ -38,7 +38,8 @@ theorem sturmRealHeatLimitCLM_zero
     (lam : ℝ) (hlam : 0 < lam) :
     sturmRealHeatLimitCLM lam hlam 0 le_rfl =
       (1 : SturmH lam →L[ℝ] SturmH lam) := by
-  ext f
+  apply ContinuousLinearMap.ext
+  intro f
   have hlim := sturmRealHeatLimitVector_tendsto
     lam hlam 0 le_rfl f
   have hconst :
@@ -70,7 +71,8 @@ theorem sturmRealHeatLimitCLM_add
     sturmRealHeatLimitCLM lam hlam (s + u) (add_nonneg hs hu) =
       sturmRealHeatLimitCLM lam hlam s hs *
         sturmRealHeatLimitCLM lam hlam u hu := by
-  ext f
+  apply ContinuousLinearMap.ext
+  intro f
   have huLimit := sturmRealHeatLimitVector_tendsto lam hlam u hu f
   have hsLimit :=
     sturmRealHeatLimitVector_tendsto lam hlam s hs
