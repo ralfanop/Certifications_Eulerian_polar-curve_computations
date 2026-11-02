@@ -57,4 +57,5 @@ jobs:
           grep -F "sturmRealClosed_meanZero_twoSource_coercive' depends on axioms:" /tmp/v007-two-source-audit.log
           grep -F "sturmRealClosed_meanZero_twoSource_residual_stability' depends on axioms:" /tmp/v007-two-source-audit.log
           grep -F "sturmRealClosed_meanZero_unique_of_same_data' depends on axioms:" /tmp/v007-two-source-audit.log
+          grep -F "sturmRealClosed_meanZero_commonObservation_noise_stability' depends on axioms:" /tmp/v007-two-source-audit.log
           echo 'V007 true closed Sturm two-source stability and uniqueness: kernel-certified.'
