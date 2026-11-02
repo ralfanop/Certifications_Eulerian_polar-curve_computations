@@ -39,11 +39,11 @@ theorem exists_localCFC_polarCutoff_strong_recovery
       lam alpha hlam ha
   obtain ⟨ι, R, hR⟩ :=
     exists_C_singularCutoff_strong_recovery lam alpha hlam ha
-  refine ⟨ι, (fun s => (R s).comp W.toContinuousLinearMap), ?_⟩
+  refine ⟨ι, (fun s => (R s).comp W.toLinearIsometry.toContinuousLinearMap), ?_⟩
   intro f
   have heq :
       (fun s : Finset ι =>
-        ((R s).comp W.toContinuousLinearMap)
+        ((R s).comp W.toLinearIsometry.toContinuousLinearMap)
           (localCFCGramSqrt lam alpha hlam ha f)) =
       (fun s : Finset ι => R s (C lam alpha hlam ha f)) := by
     funext s
@@ -52,7 +52,7 @@ theorem exists_localCFC_polarCutoff_strong_recovery
     rw [hpolar f]
   change Tendsto
     (fun s : Finset ι =>
-      ((R s).comp W.toContinuousLinearMap)
+      ((R s).comp W.toLinearIsometry.toContinuousLinearMap)
         (localCFCGramSqrt lam alpha hlam ha f))
     atTop (nhds f)
   rw [heq]
