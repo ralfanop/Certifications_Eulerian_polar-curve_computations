@@ -7,6 +7,7 @@ on:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatGeneratorExactGraph.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatGeneratorClosedDomainForward.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatGeneratorReverseDomain.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatGeneratorReverseCoordinates.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatClosedGraphErrorBound.lean'
       - '.github/workflows/v007-sturm-heat-generator-exact-graph.yml'
   workflow_dispatch:
