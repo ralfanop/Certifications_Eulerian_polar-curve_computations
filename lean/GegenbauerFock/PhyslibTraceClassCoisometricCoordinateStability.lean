@@ -235,6 +235,38 @@ theorem coisometric_complement_joint_traceNorm_le_v007
       add_le_add_left hP _
     _ = 2 * ‖T - S‖ + 4 * ‖U - V‖ * ‖S‖ := by ring
 
+
+/-- Quantitative stability of the uniquely determined source and kernel
+coordinates when both the input and the coisometry vary. Exact
+coisometry equations guarantee uniqueness; the numerical constants
+come from the separate contractive perturbation estimates. -/
+theorem coisometric_unique_coordinates_joint_traceNorm_le_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ))
+    (T S X Y X' Y' : TraceClass H)
+    (hT : T = sandwichContinuous U.adjoint U X + Y)
+    (hS : S = sandwichContinuous V.adjoint V X' + Y')
+    (hY : sandwichContinuous U U.adjoint Y = 0)
+    (hY' : sandwichContinuous V V.adjoint Y' = 0) :
+    traceNorm H (X - X') ≤
+        traceNorm H (T - S) + 2 * ‖U - V‖ * traceNorm H S ∧
+    traceNorm H (Y - Y') ≤
+        2 * traceNorm H (T - S) + 4 * ‖U - V‖ * traceNorm H S := by
+  obtain ⟨hX, hYcoord⟩ :=
+    coisometric_split_coordinates_unique_v007 U hUUstar T X Y hT hY
+  obtain ⟨hX', hYcoord'⟩ :=
+    coisometric_split_coordinates_unique_v007 V hVVstar S X' Y' hS hY'
+  constructor
+  · rw [hX, hX']
+    exact coisometric_retraction_joint_traceNorm_le_v007
+      U V T S hUnorm hVnorm
+  · rw [hYcoord, hYcoord']
+    exact coisometric_complement_joint_traceNorm_le_v007
+      U V T S hUnorm hVnorm
+
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_norm_le_one_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_component_dist_le_v007
@@ -243,5 +275,6 @@ theorem coisometric_complement_joint_traceNorm_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_joint_traceNorm_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_projection_joint_traceNorm_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_complement_joint_traceNorm_le_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_unique_coordinates_joint_traceNorm_le_v007
 
 end ProbabilisticTheory.TraceClass
