@@ -275,6 +275,73 @@ theorem coisometric_unique_coordinates_joint_traceNorm_le_v007
     exact coisometric_complement_joint_traceNorm_le_v007
       U V T S hUnorm hVnorm
 
+/-- The retraction operators themselves vary 2-Lipschitzly in
+operator norm on the genuine CFC Schatten S₁ space. Only contractivity
+of U and V is needed; the coisometry identities are not required. -/
+theorem coisometric_retraction_operator_perturbation_v007
+    (U V : H →L[ℂ] H)
+    (hU : ‖U‖ ≤ (1 : ℝ)) (hV : ‖V‖ ≤ (1 : ℝ)) :
+    ‖sandwichContinuous U U.adjoint -
+      sandwichContinuous V V.adjoint‖ ≤ 2 * ‖U - V‖ := by
+  have hAdjU : ‖U.adjoint‖ ≤ (1 : ℝ) := by
+    rw [← ContinuousLinearMap.star_eq_adjoint]
+    simpa only [norm_star] using hU
+  have hAdjV : ‖V.adjoint‖ ≤ (1 : ℝ) := by
+    rw [← ContinuousLinearMap.star_eq_adjoint]
+    simpa only [norm_star] using hV
+  have h := conjugationContinuous_contractions_dist_le_v007
+    U.adjoint V.adjoint hAdjU hAdjV
+  simpa only [ContinuousLinearMap.adjoint_adjoint,
+    conjugation_adjoint_sub_norm_eq_v007 U V] using h
+
+/-- The range projections P_U and P_V differ by at most
+4 ‖U-V‖ in B(S₁), for two contractive bounded multipliers. -/
+theorem coisometric_projection_operator_perturbation_v007
+    (U V : H →L[ℂ] H)
+    (hU : ‖U‖ ≤ (1 : ℝ)) (hV : ‖V‖ ≤ (1 : ℝ)) :
+    ‖coisometric_sandwich_projection_v007 U -
+      coisometric_sandwich_projection_v007 V‖ ≤
+      4 * ‖U - V‖ := by
+  apply ContinuousLinearMap.opNorm_le_bound _ (by positivity)
+  intro T
+  have h := coisometric_projection_joint_traceNorm_le_v007
+    U V T T hU hV
+  change ‖coisometric_sandwich_projection_v007 U T -
+    coisometric_sandwich_projection_v007 V T‖ ≤
+      ‖T - T‖ + 4 * ‖U - V‖ * ‖T‖ at h
+  calc
+    ‖(coisometric_sandwich_projection_v007 U -
+       coisometric_sandwich_projection_v007 V) T‖ =
+        ‖coisometric_sandwich_projection_v007 U T -
+          coisometric_sandwich_projection_v007 V T‖ := by
+      rw [ContinuousLinearMap.sub_apply]
+    _ ≤ ‖T - T‖ + 4 * ‖U - V‖ * ‖T‖ := h
+    _ = (4 * ‖U - V‖) * ‖T‖ := by simp
+
+/-- The complementary projections Q_U and Q_V have the same
+4-Lipschitz perturbation bound on the genuine Schatten S₁ space. -/
+theorem coisometric_complement_operator_perturbation_v007
+    (U V : H →L[ℂ] H)
+    (hU : ‖U‖ ≤ (1 : ℝ)) (hV : ‖V‖ ≤ (1 : ℝ)) :
+    ‖coisometric_complementaryProjection_v007 U -
+      coisometric_complementaryProjection_v007 V‖ ≤
+      4 * ‖U - V‖ := by
+  apply ContinuousLinearMap.opNorm_le_bound _ (by positivity)
+  intro T
+  have h := coisometric_complement_joint_traceNorm_le_v007
+    U V T T hU hV
+  change ‖coisometric_complementaryProjection_v007 U T -
+    coisometric_complementaryProjection_v007 V T‖ ≤
+      2 * ‖T - T‖ + 4 * ‖U - V‖ * ‖T‖ at h
+  calc
+    ‖(coisometric_complementaryProjection_v007 U -
+       coisometric_complementaryProjection_v007 V) T‖ =
+        ‖coisometric_complementaryProjection_v007 U T -
+          coisometric_complementaryProjection_v007 V T‖ := by
+      rw [ContinuousLinearMap.sub_apply]
+    _ ≤ 2 * ‖T - T‖ + 4 * ‖U - V‖ * ‖T‖ := h
+    _ = (4 * ‖U - V‖) * ‖T‖ := by simp
+
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_norm_le_one_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_component_dist_le_v007
@@ -284,5 +351,8 @@ theorem coisometric_unique_coordinates_joint_traceNorm_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_projection_joint_traceNorm_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_complement_joint_traceNorm_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_unique_coordinates_joint_traceNorm_le_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_operator_perturbation_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_projection_operator_perturbation_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_complement_operator_perturbation_v007
 
 end ProbabilisticTheory.TraceClass
