@@ -49,7 +49,7 @@ theorem sturmRealClosed_meanZero_twoSource_coercive
     rw [map_sub]
     have hxa : (b.repr (x : SturmH lam)) 0 = 0 := hx0
     have hya : (b.repr (y : SturmH lam)) 0 = 0 := hy0
-    simpa only [hxa, hya, sub_self]
+    simpa only [lp.coeFn_sub, Pi.sub_apply, hxa, hya, sub_self]
   have hcoercive := sturmRealClosed_meanZero_coercive lam hlam d hd0
   change (1 + 2 * lam) * ‖(d : SturmH lam)‖ ≤ ‖A d‖ at hcoercive
   have hd : (d : SturmH lam) = (x : SturmH lam) - (y : SturmH lam) := rfl
