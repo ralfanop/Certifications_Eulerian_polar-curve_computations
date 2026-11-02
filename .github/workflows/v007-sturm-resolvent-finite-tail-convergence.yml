@@ -1,0 +1,60 @@
+name: V007 operator norm convergence of finite-rank genuine closed Sturm resolvents
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTailConvergence.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventCompactExact.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTailUpper.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTailLower.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTruncationApply.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTruncationCoordinates.lean'
+      - '.github/workflows/v007-sturm-resolvent-finite-tail-convergence.yml'
+  workflow_dispatch:
+jobs:
+  finite-tail-convergence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit exact operator-norm finite resolvent convergence
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleResolventFiniteTailConvergence 2>&1 | tee /tmp/v007-finite-tail-convergence-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTailConvergence.lean 2>&1 | tee /tmp/v007-finite-tail-convergence-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-finite-tail-convergence-build.log /tmp/v007-finite-tail-convergence-axioms.log; then
+            echo '::error::Forbidden axiom in exact closed Sturm resolvent finite-tail convergence.'
+            exit 1
+          fi
+          grep -F "sturmRealClosedResolvent_finite_truncation_tendsto_opNorm' depends on axioms:" /tmp/v007-finite-tail-convergence-axioms.log
+          echo 'Exact norm convergence of genuine finite-rank closed Sturm resolvents kernel-certified.'
