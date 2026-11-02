@@ -48,22 +48,50 @@ theorem sturmRealHeatLimit_right_derivative_repr
             (sturmRealHeatLimitNonnegativeExtended lam hlam s f - f))) n)
         (𝓝[>] (0 : ℝ)) (𝓝 ((b.repr g) n)) := by
     have h := ((innerSL ℝ (b n)).continuous.tendsto g).comp hderiv
-    simpa only [innerSL_apply_apply, ← HilbertBasis.repr_apply_apply]
-      using h
+    have h' :
+        Tendsto
+          (fun t : ℝ => inner ℝ (b n)
+            (t⁻¹ •
+              (sturmRealHeatLimitNonnegativeExtended lam hlam t f - f)))
+          (𝓝[>] (0 : ℝ)) (𝓝 (inner ℝ (b n) g)) := by
+      simpa only [Function.comp_def, innerSL_apply_apply] using h
+    simpa only [← HilbertBasis.repr_apply_apply] using h'
   have hspectral (s : ℝ) (hs : 0 < s) :
       (b.repr (sturmRealHeatLimitNonnegativeExtended lam hlam s f)) n =
         Real.exp (-s * omega) * c := by
     have h := sturmRealHeatLimitCLM_hilbert_repr_diagonal lam hlam
       (max (0 : ℝ) s) (le_max_left (0 : ℝ) s) f n
+    change (b.repr (sturmRealHeatLimitCLM lam hlam
+      (max (0 : ℝ) s) (le_max_left (0 : ℝ) s) f)) n =
+        Real.exp (-s * omega) * c
     simpa only [max_eq_right hs.le] using h
   have hpoint (s : ℝ) (hs : 0 < s) :
       (b.repr (s⁻¹ •
         (sturmRealHeatLimitNonnegativeExtended lam hlam s f - f))) n =
         (s⁻¹ • (Real.exp (s * (-omega)) - 1)) * c := by
-    simp only [map_smul, map_sub, smul_eq_mul]
-    rw [hspectral s hs]
-    dsimp [c]
-    ring
+    calc
+      (b.repr (s⁻¹ •
+        (sturmRealHeatLimitNonnegativeExtended lam hlam s f - f))) n =
+          inner ℝ (b n) (s⁻¹ •
+            (sturmRealHeatLimitNonnegativeExtended lam hlam s f - f)) :=
+        HilbertBasis.repr_apply_apply b _ n
+      _ = s⁻¹ * (inner ℝ (b n)
+          (sturmRealHeatLimitNonnegativeExtended lam hlam s f) -
+          inner ℝ (b n) f) := by
+        rw [inner_smul_right, inner_sub_right]
+        rfl
+      _ = s⁻¹ * (Real.exp (-s * omega) * c - c) := by
+        rw [← HilbertBasis.repr_apply_apply b
+          (sturmRealHeatLimitNonnegativeExtended lam hlam s f) n,
+          ← HilbertBasis.repr_apply_apply b f n, hspectral s hs]
+      _ = (s⁻¹ • (Real.exp (s * (-omega)) - 1)) * c := by
+        have he : Real.exp (-s * omega) =
+            Real.exp (s * (-omega)) := by
+          congr 1
+          ring
+        rw [he]
+        simp only [smul_eq_mul]
+        ring
   have hevent :
       (fun s : ℝ =>
         (b.repr (s⁻¹ •
