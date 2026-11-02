@@ -5,6 +5,7 @@ on:
     paths:
       - 'lean/GegenbauerFock/CanonicalCFCGramTikhonovShift.lean'
       - 'lean/GegenbauerFock/CanonicalCFCGramTikhonovEigenmodes.lean'
+      - 'lean/GegenbauerFock/CanonicalCFCGramTikhonovErrorIdentity.lean'
       - '.github/workflows/v007-gram-tikhonov-shift.yml'
   workflow_dispatch:
 concurrency:
@@ -44,9 +45,10 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.CanonicalCFCGramTikhonovEigenmodes 2>&1 | tee /tmp/v007-shift-build.log
+          lake build GegenbauerFock.CanonicalCFCGramTikhonovEigenmodes GegenbauerFock.CanonicalCFCGramTikhonovErrorIdentity 2>&1 | tee /tmp/v007-shift-build.log
           lake env lean -M16768 GegenbauerFock/CanonicalCFCGramTikhonovShift.lean 2>&1 | tee /tmp/v007-shift-axioms.log
           lake env lean -M16768 GegenbauerFock/CanonicalCFCGramTikhonovEigenmodes.lean 2>&1 | tee -a /tmp/v007-shift-axioms.log
+          lake env lean -M16768 GegenbauerFock/CanonicalCFCGramTikhonovErrorIdentity.lean 2>&1 | tee -a /tmp/v007-shift-axioms.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-shift-build.log /tmp/v007-shift-axioms.log; then
             echo '::error::Forbidden axiom in Tikhonov shift'
             exit 1
@@ -55,4 +57,5 @@ jobs:
           grep -F "sourceGramPositiveShift_two_sided_inverse' depends on axioms:" /tmp/v007-shift-axioms.log
           grep -F "sourceGramPositiveShift_inv_eigenmode' depends on axioms:" /tmp/v007-shift-axioms.log
           grep -F "sourceGramTikhonovFilter_eigenmode' depends on axioms:" /tmp/v007-shift-axioms.log
-          echo 'V007 genuine Tikhonov shifted inverse and eigenmodes audited'
+          grep -F "sourceGramTikhonov_filter_error_identity' depends on axioms:" /tmp/v007-shift-axioms.log
+          echo 'V007 genuine Tikhonov shifted inverse, eigenmodes and error identity audited'
