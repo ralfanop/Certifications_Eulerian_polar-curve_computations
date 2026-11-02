@@ -329,6 +329,42 @@ enter as explicit hypotheses (list in the README below). The axiom audit `AuditB
   lake env lean AuditBridge.lean
   ```
 
+## 11b. Manuscript 12: the remaining formalisations (2 November 2026)
+
+Toolchain Lean 4.24.0, Mathlib `f897ebcf72cd16f89ab4577d0c826cd14afaafc7` throughout; no `sorry`; every
+listed theorem depends only on `propext`, `Classical.choice`, `Quot.sound`
+(`lean/EulerianGrothendieck/verification/V12_remaining_2026-11-02.txt`).
+
+* **Lemma 9.8 at every order** — `lean/EulerianGrothendieck/EulerianGrothendieck/ExactPolynomialAllOrders.lean`
+  (40 theorems). `P_r` is defined by the recurrence (eg:eq:Pformal-recurrence) (`Ppoly_rec`); its degrees lie
+  between `r+1` and `2r` (`pc_support`); the Euler identity `y P_r' = r P_r + Σ_{j=1}^r a_{j+1} y^{j+1} P_{r-j}`
+  (`euler`) gives, for every `k` and `r`, `(uniformRatioPolynomial k).coeff r = g_r(k)` (`coeff_eq_G`), hence
+  `R_{M,k} = Σ_{r=0}^{k-1} g_r(k) M^{-r}` for all `M, k ≥ 1` (`uniformMomentRatio_eq_g_sum`), `g_0 = 1`,
+  `g_r(0) = 0` for `r > 0`, and `g_r`, `q_r` rational polynomials of degree ≤ `2r` (`gPoly_natDegree`,
+  `qPoly_natDegree`). Before, the identification was certified only for `r ≤ 13`.
+* **Subsection 9.5 and Corollary 5.2** — `lean/FixedDegreeLanczos/lean/V035ExactCoefficients.lean` and
+  `V035JacobiCorollary.lean`: `μ_2 = M/12`, `μ_4 = M²/48 − M/120` for the actual `S_M`; `β_1 = M/12`,
+  `β_2 = M/6 − 1/10` and `κ_4 = β_1(β_2 − 2β_1) = −M/120` for the Hankel quotients and every monic Lanczos
+  family (`lanczos_first_two`); Corollary 5.2, `√(12β_n/M) = √n[1 − 3(n−1)/(10M)] + O_n(M^{−2})`
+  (`jacobi_normalisation`, `jacobi_normalisation_lanczos`), from the certified Theorem 5.1.
+* **`UniformLanczos` on Lean 4.24** — `lean/EulerianGrothendieck/UniformLanczos/` (library `UniformLanczos` of
+  this project). The eleven modules of `lean/UniformLanczos/` (Lean 4.35.0-rc3) compile here with small
+  tactic-level changes (`verification/UniformLanczos_port_4.24.diff`); the original directory is unchanged.
+* **Lemma 5.5 joined to Lemma 5.7(b) and Theorem 5.9** — `UniformLanczos/Joined.lean`: the hypothesis of
+  `endpoint_concrete` is proved for the actual `φ_M = −(1/M) log g_M` (`hP_actual`): `|φ_M' − I'| ≤ C/M`
+  from `Bridge` `lemma_5_5_phi`; `φ_M'' ≥ 4 − C/M > 0` from Lemma 5.5 and `Λ'' ≤ 1/4`; `φ_M'(0) = 0` from the
+  evenness of `w_M` (`w_even`, by Fourier inversion and `A(−z) = A(z)`). `endpoint_actual` is Lemma 5.7(b)
+  with no hypothesis left.
+* **Lemma 5.7(a) and Corollary 5.10** — `UniformLanczos/Profile.lean`: `ξ_α` and `F(α) = ξ_α²/4` defined;
+  `F` continuous and strictly increasing on `(0,∞)`, `0 < F < 1/16`, `F → 1/16`, and the seven-coefficient
+  expansion with remainder `225 α⁸` for `0 < α ≤ Φ(1/40)` (`F_series`). Lemma 5.7(a): unique root of
+  `Φ_M(ξ) = t` for every `t > 0`, from the conclusions of Lemma 5.6 (`lemma_5_7a`), none for `M = 1`
+  (`lemma_5_7a_one`).
+
+Reproduce in `lean/EulerianGrothendieck`: `lake exe cache get`, `lake build EulerianGrothendieck.ExactPolynomialAllOrders UniformLanczos`,
+`lake env lean AuditV12Remaining.lean`. In `lean/FixedDegreeLanczos`: `code/verify_lean_portable.sh` builds every
+file of `lean/`, including the two new ones.
+
 ## 12. License
 
 All files in this repository are released under CC0 1.0 Universal (see `LICENSE`).
