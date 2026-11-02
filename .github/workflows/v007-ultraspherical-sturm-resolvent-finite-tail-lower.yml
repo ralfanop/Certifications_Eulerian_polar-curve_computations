@@ -54,3 +54,5 @@ jobs:
             grep -F "'GegenbauerFock.Ultraspherical.${theorem}' depends on axioms:" /tmp/gf-sturm-finite-truncations.log
           done
           echo 'Sharp lower operator norm tail bound kernel-certified.'
+
+# Recheck with kernel-certified finite rank compactness at commit 0fd91b77.
