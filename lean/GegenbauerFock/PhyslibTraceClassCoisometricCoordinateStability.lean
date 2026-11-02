@@ -446,6 +446,93 @@ theorem coisometric_complement_operator_difference_norm_eq_projection_v007
   rw [coisometric_complement_operator_difference_eq_neg_projection_v007 U V,
     norm_neg]
 
+
+/-- An explicit upper bound for the normalized directed gap from A
+to B. The source vector is restricted to the closed unit ball, and
+the target point may be any point in B. This is the quantified
+upper-bound formulation of the supremum of point-to-set distances. -/
+def normalizedDirectedGapLE_v007
+    (A B : Set (TraceClass H)) (eps : ℝ) : Prop :=
+  ∀ T : TraceClass H, T ∈ A → ‖T‖ ≤ 1 →
+    ∃ S : TraceClass H, S ∈ B ∧ dist T S ≤ eps
+
+/-- The two-sided normalized gap upper bound: both directed unit-ball
+distance bounds hold with the same prescribed epsilon. -/
+def normalizedBidirectionalGapLE_v007
+    (A B : Set (TraceClass H)) (eps : ℝ) : Prop :=
+  normalizedDirectedGapLE_v007 A B eps ∧
+    normalizedDirectedGapLE_v007 B A eps
+
+/-- Coisometric closed embedding ranges have normalized two-sided
+gap at most 4 ‖U-V‖ in the true Schatten S₁ Banach topology. -/
+theorem coisometric_embedding_range_normalized_bidirectional_gap_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ)) :
+    normalizedBidirectionalGapLE_v007
+      (Set.range (sandwichContinuous U.adjoint U))
+      (Set.range (sandwichContinuous V.adjoint V))
+      (4 * ‖U - V‖) := by
+  constructor
+  · intro T hT hTnorm
+    obtain ⟨S, hS, hdist⟩ :=
+      coisometric_embedding_range_directed_gap_v007
+        U V hUUstar hUnorm hVnorm T hT
+    refine ⟨S, hS, ?_⟩
+    calc
+      dist T S ≤ 4 * ‖U - V‖ * ‖T‖ := hdist
+      _ ≤ 4 * ‖U - V‖ * 1 :=
+        mul_le_mul_of_nonneg_left hTnorm (by positivity)
+      _ = 4 * ‖U - V‖ := by ring
+  · intro T hT hTnorm
+    obtain ⟨S, hS, hdist⟩ :=
+      coisometric_embedding_range_directed_gap_v007
+        V U hVVstar hVnorm hUnorm T hT
+    refine ⟨S, hS, ?_⟩
+    calc
+      dist T S ≤ 4 * ‖V - U‖ * ‖T‖ := hdist
+      _ ≤ 4 * ‖V - U‖ * 1 :=
+        mul_le_mul_of_nonneg_left hTnorm (by positivity)
+      _ = 4 * ‖U - V‖ := by rw [norm_sub_rev]; ring
+
+/-- The complementary closed kernels of the coisometric retractions
+have normalized bidirectional gap at most 4 ‖U-V‖. No assertion of
+optimality or finite-dimensionality is involved. -/
+theorem coisometric_retraction_kernel_normalized_bidirectional_gap_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ)) :
+    normalizedBidirectionalGapLE_v007
+      {T : TraceClass H | sandwichContinuous U U.adjoint T = 0}
+      {T : TraceClass H | sandwichContinuous V V.adjoint T = 0}
+      (4 * ‖U - V‖) := by
+  constructor
+  · intro T hT hTnorm
+    obtain ⟨S, hS, hdist⟩ :=
+      coisometric_retraction_kernel_directed_gap_v007
+        U V hUUstar hVVstar hUnorm hVnorm T hT
+    refine ⟨S, hS, ?_⟩
+    calc
+      dist T S ≤ 4 * ‖U - V‖ * ‖T‖ := hdist
+      _ ≤ 4 * ‖U - V‖ * 1 :=
+        mul_le_mul_of_nonneg_left hTnorm (by positivity)
+      _ = 4 * ‖U - V‖ := by ring
+  · intro T hT hTnorm
+    obtain ⟨S, hS, hdist⟩ :=
+      coisometric_retraction_kernel_directed_gap_v007
+        V U hVVstar hUUstar hVnorm hUnorm T hT
+    refine ⟨S, hS, ?_⟩
+    calc
+      dist T S ≤ 4 * ‖V - U‖ * ‖T‖ := hdist
+      _ ≤ 4 * ‖V - U‖ * 1 :=
+        mul_le_mul_of_nonneg_left hTnorm (by positivity)
+      _ = 4 * ‖U - V‖ := by rw [norm_sub_rev]; ring
+
+
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_norm_le_one_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_component_dist_le_v007
@@ -462,5 +549,7 @@ theorem coisometric_complement_operator_difference_norm_eq_projection_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_complement_operator_difference_norm_eq_projection_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_embedding_range_directed_gap_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_kernel_directed_gap_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_embedding_range_normalized_bidirectional_gap_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_kernel_normalized_bidirectional_gap_v007
 
 end ProbabilisticTheory.TraceClass
