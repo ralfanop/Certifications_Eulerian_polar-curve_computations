@@ -1,4 +1,5 @@
 import GegenbauerFock.GegenbauerIntrinsicEntireFourierContinuousInjectionNonembedding
+import Mathlib.Topology.EMetricSpace.Defs
 
 /-!
 # V007 — conditional stability on compact source classes
@@ -98,5 +99,72 @@ theorem ultraspherical_fourierBochner_compactPrior_inverse_uniformContinuous
     hEmb.toHomeomorph.symm.continuous
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.ultraspherical_fourierBochner_compactPrior_inverse_uniformContinuous
+
+
+/-- Every prescribed reconstruction accuracy on a compact a priori class
+has a common positive tolerance in extended uniform-data distance.
+The tolerance is existential, not an explicit numerical formula. -/
+theorem ultraspherical_fourierBochner_compactPrior_inverse_epsilonDelta
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (S : Set ℂ) (w : ℂ) (R : ℝ) (hR : 0 ≤ R)
+    (hbound : ∀ z ∈ S, ‖z‖ ≤ R)
+    (hacc : w ∈ closure (S \ ({w} : Set ℂ)))
+    (K : Set (Lp ℂ 2 (Ultraspherical.measure lam)))
+    (hK : IsCompact K)
+    (ε : ℝ≥0∞) (hε : 0 < ε) :
+    ∃ δ : ℝ≥0∞, 0 < δ ∧
+      ∀ d e : Set.range (fun f : K =>
+        ultraspherical_fourierBochner_uniformSamples lam S
+          (f : Lp ℂ 2 (Ultraspherical.measure lam))),
+        edist d e < δ →
+          edist
+            ((ultraspherical_fourierBochner_compactPrior_isEmbedding
+              lam alpha hlam ha S w R hR hbound hacc K hK).toHomeomorph.symm d)
+            ((ultraspherical_fourierBochner_compactPrior_isEmbedding
+              lam alpha hlam ha S w R hR hbound hacc K hK).toHomeomorph.symm e) < ε := by
+  obtain ⟨δ, hδ, hmod⟩ :=
+    (EMetric.uniformContinuous_iff.mp
+      (ultraspherical_fourierBochner_compactPrior_inverse_uniformContinuous
+        lam alpha hlam ha S w R hR hbound hacc K hK)) ε hε
+  exact ⟨δ, hδ, fun d e hde => hmod hde⟩
+
+/-- If two compact-class sample data are jointly compatible with a
+single possibly noisy observation, their inverse sources are close
+whenever the sum of their data discrepancies falls below the
+compact-class uniform inverse tolerance. No particular reconstruction
+algorithm, Lipschitz modulus, or source outside K is assumed. -/
+theorem ultraspherical_fourierBochner_compactPrior_noisyCandidates
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (S : Set ℂ) (w : ℂ) (R : ℝ) (hR : 0 ≤ R)
+    (hbound : ∀ z ∈ S, ‖z‖ ≤ R)
+    (hacc : w ∈ closure (S \ ({w} : Set ℂ)))
+    (K : Set (Lp ℂ 2 (Ultraspherical.measure lam)))
+    (hK : IsCompact K)
+    (ε : ℝ≥0∞) (hε : 0 < ε) :
+    ∃ δ : ℝ≥0∞, 0 < δ ∧
+      ∀ d e : Set.range (fun f : K =>
+        ultraspherical_fourierBochner_uniformSamples lam S
+          (f : Lp ℂ 2 (Ultraspherical.measure lam))),
+      ∀ y : UniformFun S ℂ,
+        edist (d : UniformFun S ℂ) y +
+          edist y (e : UniformFun S ℂ) < δ →
+          edist
+            ((ultraspherical_fourierBochner_compactPrior_isEmbedding
+              lam alpha hlam ha S w R hR hbound hacc K hK).toHomeomorph.symm d)
+            ((ultraspherical_fourierBochner_compactPrior_isEmbedding
+              lam alpha hlam ha S w R hR hbound hacc K hK).toHomeomorph.symm e) < ε := by
+  obtain ⟨δ, hδ, hmod⟩ :=
+    ultraspherical_fourierBochner_compactPrior_inverse_epsilonDelta
+      lam alpha hlam ha S w R hR hbound hacc K hK ε hε
+  refine ⟨δ, hδ, ?_⟩
+  intro d e y hnoisy
+  apply hmod d e
+  change edist (d : UniformFun S ℂ) (e : UniformFun S ℂ) < δ
+  exact lt_of_le_of_lt
+    (edist_triangle (d : UniformFun S ℂ) y (e : UniformFun S ℂ))
+    hnoisy
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.ultraspherical_fourierBochner_compactPrior_inverse_epsilonDelta
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.ultraspherical_fourierBochner_compactPrior_noisyCandidates
 
 end GegenbauerFock.GeneralUltrasphericalFock
