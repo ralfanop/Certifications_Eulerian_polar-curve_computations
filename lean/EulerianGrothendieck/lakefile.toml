@@ -12,3 +12,5 @@ name = "Bridge"
 [[lean_lib]]
 name = "V033"
 roots = ["V033Core", "V033CumulantPolynomials", "V033UniformIntegrals", "V033UniformSumMoments"]
+[[lean_lib]]
+name = "V001"

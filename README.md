@@ -154,7 +154,14 @@ V478 Eq. (91) is V001 Eq. (93)). Same toolchain and Mathlib commit as §5; no `s
 estimates of the proof of Lemma 3.15 are proved in an equivalent form rather than verbatim: the
 tail bound (88) (the formal proof uses `|r_E| ≤ 24/25` on `|t| ≥ 1` with a fixed cut-off instead of
 `δ = D^{−2/5}`) and the expansions (89)–(90) (proved as two-sided exponential bounds for `r_E` with an
-explicit sixth-order constant). Not formalised: the printed decimals, which remain certified by interval
+explicit sixth-order constant). Since 2 November 2026 both are also proved verbatim, in the library `V001` of
+`lean/EulerianGrothendieck` (Lean 4.24.0, Mathlib `f897ebcf`; modules `V001/Integrand.lean` and
+`V001/Tail.lean`, 34 declarations, no `sorry`, axioms `propext`, `Classical.choice`, `Quot.sound`):
+**Eqs. (89)–(90)** (`integrand_eq`, `remainder_bound`: for every `D ≥ 1` and `|t| ≤ D^{−2/5}`,
+`r_E(t)^D (1 − cos t) = e^{−Dt²/24}(t²/2 − t⁴/24 − Dt⁶/5760 + R)` with `|R| ≤ K(t⁶ + Dt⁸ + D²t¹⁰)`,
+`K = 3 + 2e`) and **Eq. (88)** (`eq88`: for `D ≥ 2` and `δ = D^{−2/5}`,
+`∫_{|t|≥δ} |r_E|^D (1 − cos t) ≤ 4π/exp((D−2)δ²/24) ≤ 4πe^{1/12} e^{−D^{1/5}/25}`), with the classical value
+`∫_ℝ r_E² = 2π` (that is, `∫_ℝ (sin u/u)² du = π`) as an explicit hypothesis (`L2Input`). Not formalised: the printed decimals, which remain certified by interval
 arithmetic (§2) and, every one of them, also in Arb ball arithmetic (`numerics/arb/README.md`), and the classical combinatorial meaning of `E(n,k)` (permutations with `k` ascents);
 in Lean `E` is the triangle defined by its recurrence (`Bracket`).
 
