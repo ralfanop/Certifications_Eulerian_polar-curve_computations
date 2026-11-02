@@ -43,12 +43,14 @@ theorem sturmRealHeatLimitCLM_inner_symmetric
   have hterm (n : ℕ) :
       inner ℝ (T f) (b n) * inner ℝ (b n) g =
         inner ℝ f (b n) * inner ℝ (b n) (T g) := by
-    rw [real_inner_comm (T f) (b n), real_inner_comm f (b n)]
-    rw [← HilbertBasis.repr_apply_apply b (T f) n,
-      ← HilbertBasis.repr_apply_apply b f n,
-      ← HilbertBasis.repr_apply_apply b g n,
-      ← HilbertBasis.repr_apply_apply b (T g) n]
-    rw [hf n, hg n]
+    have hleft (x : SturmH lam) :
+        inner ℝ x (b n) = (b.repr x) n :=
+      (real_inner_comm x (b n)).trans
+        (HilbertBasis.repr_apply_apply b x n).symm
+    have hright (x : SturmH lam) :
+        inner ℝ (b n) x = (b.repr x) n :=
+      (HilbertBasis.repr_apply_apply b x n).symm
+    rw [hleft (T f), hright g, hleft f, hright (T g), hf n, hg n]
     ring
   calc
     inner ℝ (T f) g =
@@ -68,7 +70,7 @@ theorem sturmRealHeatLimitCLM_constant_coefficient_preserved
       (sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam).repr f 0 := by
   have h := sturmRealHeatLimitCLM_hilbert_repr_diagonal
     lam hlam s hs f 0
-  simpa only [Nat.cast_zero, zero_add, zero_mul, neg_zero, Real.exp_zero, one_mul] using h
+  simpa only [Nat.cast_zero, zero_add, zero_mul, mul_zero, neg_zero, Real.exp_zero, one_mul] using h
 
 /-- A zero constant Gegenbauer coefficient stays zero at all times
 for the actual full-L² heat-limit contraction. -/
