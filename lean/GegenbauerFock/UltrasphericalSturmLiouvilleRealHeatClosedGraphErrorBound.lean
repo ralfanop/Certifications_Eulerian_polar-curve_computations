@@ -52,8 +52,11 @@ theorem sturmRealHeat_closed_graph_slope_error_repr
       (x : SturmH lam)) -
       (sturmRealPartialOperator lam hlam).closure x)) n =
     ((Real.exp (-s * w) - 1) / s + w) * c
-  rw [map_sub, map_smul, map_sub, hheat, hclosed]
-  simp only [smul_eq_mul, div_eq_mul_inv]
+  rw [map_sub, map_smul, map_sub]
+  simp only [lp.coeFn_sub, lp.coeFn_smul, Pi.sub_apply, Pi.smul_apply,
+    smul_eq_mul]
+  rw [hheat, hclosed]
+  simp only [div_eq_mul_inv]
   ring
 
 /-- Every true closed-domain input obeys the time-uniform sharp
@@ -96,8 +99,13 @@ theorem sturmRealHeat_closed_graph_slope_error_norm_le
         lam hlam).2 x n
     change (b.repr y) n =
       ((Real.exp (-s * w) - 1) / s + w) * c at hcoef
-    change (b.repr (A x)) n = (-w) * c at hA
-    rw [hcoef, hA]
+    have hA' : (b.repr (A x)) n = (-w) * c := by
+      calc
+        (b.repr (A x)) n =
+            (-(n : ℝ) * ((n : ℝ) + 2 * lam)) *
+              (b.repr (x : SturmH lam)) n := hA
+        _ = (-w) * c := by dsimp [w, c]; ring
+    rw [hcoef, hA']
     calc
       (((Real.exp (-s * w) - 1) / s + w) * c) ^ 2 =
         (((Real.exp (-s * w) - 1) / s + w)) ^ 2 * c ^ 2 := by ring
