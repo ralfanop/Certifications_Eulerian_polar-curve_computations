@@ -108,7 +108,11 @@ theorem sturmRealHeatLimit_closed_sturm_right_derivative
           ((Real.exp (-s * w) - 1) / s + w) * c := by
       simpa [err, v, sturmRealHeatLimitNonnegativeExtended,
         max_eq_right hs.le, w, c, b] using herr
-    have hA : (b.repr (A x)) n = (-w) * c := hclosed n
+    have hA : (b.repr (A x)) n = (-w) * c := by
+      calc
+        (b.repr (A x)) n =
+            (-(n : ℝ) * ((n : ℝ) + 2 * lam)) * (b.repr v) n := hclosed n
+        _ = (-w) * c := by dsimp [w, c]; ring
     rw [herr', hA]
     calc
       (((Real.exp (-s * w) - 1) / s + w) * c) ^ 2 =
