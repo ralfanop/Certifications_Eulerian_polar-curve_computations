@@ -63,6 +63,7 @@ theorem sturmRealHeatLimitCLM_mean_zero_exponential_decay
     rw [hdiag n]
     by_cases hn : n = 0
     · subst n
+      change (b.repr f) 0 = 0 at hzero
       simp [hzero]
     · have hw :=
         sturmPositiveDegree_spectralRate_ge_first lam hlam n
@@ -71,7 +72,6 @@ theorem sturmRealHeatLimitCLM_mean_zero_exponential_decay
       have hExp :
           Real.exp (-s * ((n : ℝ) * ((n : ℝ) + 2 * lam))) ≤ gamma := by
         apply Real.exp_le_exp.mpr
-        dsimp [gamma]
         linarith
       have hePos :
           0 ≤ Real.exp (-s * ((n : ℝ) * ((n : ℝ) + 2 * lam))) :=
