@@ -58,7 +58,29 @@ theorem sturmRealClosed_meanZero_coercivity_constant_optimal
     norm_pos_iff.mpr hx
   exact (mul_le_mul_iff_of_pos_right hnorm).mp h
 
+/-- A posteriori stability: if a mean-zero source has closed Sturm
+residual of norm at most ε, its true weighted L² norm is at most
+ε/(1+2λ). No finite-dimensional truncation is assumed. -/
+theorem sturmRealClosed_meanZero_residual_stability
+    (lam : ℝ) (hlam : 0 < lam)
+    (x : (sturmRealPartialOperator lam hlam).closure.domain)
+    (hzero :
+      (sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam).repr
+        (x : SturmH lam) 0 = 0)
+    (ε : ℝ)
+    (hresidual : ‖(sturmRealPartialOperator lam hlam).closure x‖ ≤ ε) :
+    ‖(x : SturmH lam)‖ ≤ ε / (1 + 2 * lam) := by
+  have hgap : 0 < 1 + 2 * lam := by linarith
+  apply (le_div_iff₀ hgap).2
+  calc
+    ‖(x : SturmH lam)‖ * (1 + 2 * lam) =
+        (1 + 2 * lam) * ‖(x : SturmH lam)‖ := by ring
+    _ ≤ ‖(sturmRealPartialOperator lam hlam).closure x‖ :=
+      sturmRealClosed_meanZero_coercive lam hlam x hzero
+    _ ≤ ε := hresidual
+
 #print axioms GegenbauerFock.Ultraspherical.sturmRealClosed_meanZero_coercivity_attained
 #print axioms GegenbauerFock.Ultraspherical.sturmRealClosed_meanZero_coercivity_constant_optimal
+#print axioms GegenbauerFock.Ultraspherical.sturmRealClosed_meanZero_residual_stability
 
 end GegenbauerFock.Ultraspherical
