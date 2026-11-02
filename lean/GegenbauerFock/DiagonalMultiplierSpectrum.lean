@@ -51,7 +51,7 @@ def mulOp (b : HilbertBasis ℕ ℝ H) (c : ℕ → ℝ) (C : ℝ) (hC : ∀ n, 
     { toFun := fun f => b.repr.symm ⟨fun n => c n * b.repr f n, memℓp_mul c hC (b.repr f)⟩
       map_add' := fun f g => by
         rw [← map_add]; congr 1; ext n
-        simp [mul_add]
+        simp [mul_add] <;> rfl
       map_smul' := fun r f => by
         rw [← map_smul]; congr 1; ext n
         simp only [map_smul, lp.coeFn_smul, Pi.smul_apply, smul_eq_mul, RingHom.id_apply]

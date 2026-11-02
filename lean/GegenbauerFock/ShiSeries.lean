@@ -74,6 +74,10 @@ theorem hasSum_shi (x : ℝ) :
     filter_upwards [h0] with t ht _
     exact (sinh_div_hasSum ht).tsum_eq
   rw [intervalIntegral.integral_congr_ae hae] at h
-  simpa only [hint] using h
+  have h' : HasSum (fun k : ℕ => ∫ t in (0 : ℝ)..x, term k t) (Shi x) := h
+  have hfun : (fun k : ℕ => ∫ t in (0 : ℝ)..x, term k t) =
+      fun k : ℕ => x ^ (2 * k + 1) / (((2 * k + 1).factorial : ℝ) * (2 * k + 1)) := funext hint
+  rw [hfun] at h'
+  exact h'
 
 end GegenbauerFock.Shi
