@@ -52,6 +52,9 @@ theorem sturmRealHeat_right_derivative_implies_closed_sturm_graph
         (𝓝[>] (0 : ℝ)) (𝓝 ((b.repr g) n)) := by
     have hinner :=
       ((innerSL ℝ (b n)).continuous.tendsto g).comp hderiv
+    change Tendsto
+      (fun s : ℝ => inner ℝ (b n) (s⁻¹ • (T s f - f)))
+      (𝓝[>] (0 : ℝ)) (𝓝 (inner ℝ (b n) g)) at hinner
     simpa only [HilbertBasis.repr_apply_apply] using hinner
   have hpoint (s : ℝ) (hs : 0 < s) :
       (b.repr (s⁻¹ • (T s f - f))) n =
@@ -68,7 +71,10 @@ theorem sturmRealHeat_right_derivative_implies_closed_sturm_graph
     calc
       (b.repr (s⁻¹ • (T s f - f))) n =
           s⁻¹ * ((b.repr (T s f)) n - (b.repr f) n) := by
-            simp only [map_smul, map_sub, smul_eq_mul]
+            rw [map_smul, map_sub]
+            change s⁻¹ * ((b.repr (T s f)) n - (b.repr f) n) =
+              s⁻¹ * ((b.repr (T s f)) n - (b.repr f) n)
+            rfl
       _ = (s⁻¹ • (Real.exp (s * (-w)) - 1)) *
           (b.repr f) n := by
             rw [hT]
