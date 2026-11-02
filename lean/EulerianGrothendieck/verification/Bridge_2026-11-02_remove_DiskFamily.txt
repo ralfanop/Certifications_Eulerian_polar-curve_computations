@@ -1,0 +1,7 @@
+Bridge library, 2 November 2026: Bridge/DiskFamily (Lemma 10.2 of manuscript 12) removed,
+together with its import in Bridge.lean and its line in SHA256SUMS_Bridge.txt, because Lemma 10.2
+was removed from the manuscript. The library returns to the 51 modules (30 in Bridge/, 21 in
+Bridge/Saddle/) and the 821 audited theorems of Bridge_rebuild_2026-11-01.txt; no other module
+imported DiskFamily. README_Bridge_V173.md updated: Lemma 10.2 entries removed, Appendix A
+renumbered (287)-(301) as in the manuscript of 2 November 2026. Rebuilt and audited by the CI
+workflow v12-lean-libraries.yml.
