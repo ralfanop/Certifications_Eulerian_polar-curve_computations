@@ -28,26 +28,26 @@ theorem sourceGramTikhonov_filter_error_identity
     (1 : ErrorH lam →L[ℂ] ErrorH lam) -
       sourceGramTikhonovFilter lam alpha hlam ha eps =
         (eps : ℂ) •
-          (sourceGramPositiveShift lam alpha hlam ha eps)⁻¹ʳ := by
+          (Ring.inverse (sourceGramPositiveShift lam alpha hlam ha eps)) := by
   let G := gram lam alpha hlam ha
   let A := sourceGramPositiveShift lam alpha hlam ha eps
   have hright :
-      G * A⁻¹ʳ + (eps : ℂ) • A⁻¹ʳ =
+      G * (Ring.inverse A) + (eps : ℂ) • (Ring.inverse A) =
         (1 : ErrorH lam →L[ℂ] ErrorH lam) := by
     have h := (sourceGramPositiveShift_two_sided_inverse
       lam alpha hlam ha eps heps).1
-    change A * A⁻¹ʳ = 1 at h
+    change A * (Ring.inverse A) = 1 at h
     have hA : A = G + (eps : ℂ) •
         (1 : ErrorH lam →L[ℂ] ErrorH lam) := rfl
     rw [hA, add_mul, smul_mul_assoc, one_mul] at h
     exact h
   change (1 : ErrorH lam →L[ℂ] ErrorH lam) -
-    G * A⁻¹ʳ = (eps : ℂ) • A⁻¹ʳ
+    G * (Ring.inverse A) = (eps : ℂ) • (Ring.inverse A)
   exact sub_eq_iff_eq_add.mpr (by
     calc
       (1 : ErrorH lam →L[ℂ] ErrorH lam) =
-          G * A⁻¹ʳ + (eps : ℂ) • A⁻¹ʳ := hright.symm
-      _ = (eps : ℂ) • A⁻¹ʳ + G * A⁻¹ʳ := add_comm _ _)
+          G * (Ring.inverse A) + (eps : ℂ) • (Ring.inverse A) := hright.symm
+      _ = (eps : ℂ) • (Ring.inverse A) + G * (Ring.inverse A) := add_comm _ _)
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.sourceGramTikhonov_filter_error_identity
 end GegenbauerFock.GeneralUltrasphericalFock

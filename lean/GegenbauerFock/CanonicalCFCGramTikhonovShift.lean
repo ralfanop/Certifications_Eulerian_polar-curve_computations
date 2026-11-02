@@ -43,7 +43,6 @@ theorem sourceGramPositiveShift_isUnit
   have heq :
       (-(eps : ℂ)) • (1 : TikhonovH lam →L[ℂ] TikhonovH lam) - G =
         -(G + (eps : ℂ) • (1 : TikhonovH lam →L[ℂ] TikhonovH lam)) := by
-    simp only [neg_smul]
     abel
   have hh : IsUnit (G + (eps : ℂ) •
       (1 : TikhonovH lam →L[ℂ] TikhonovH lam)) :=
@@ -56,9 +55,9 @@ theorem sourceGramPositiveShift_two_sided_inverse
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     (eps : ℝ) (heps : 0 < eps) :
     (sourceGramPositiveShift lam alpha hlam ha eps) *
-      (sourceGramPositiveShift lam alpha hlam ha eps)⁻¹ʳ =
+      (Ring.inverse (sourceGramPositiveShift lam alpha hlam ha eps)) =
         (1 : TikhonovH lam →L[ℂ] TikhonovH lam) ∧
-    (sourceGramPositiveShift lam alpha hlam ha eps)⁻¹ʳ *
+    (Ring.inverse (sourceGramPositiveShift lam alpha hlam ha eps)) *
       (sourceGramPositiveShift lam alpha hlam ha eps) =
         (1 : TikhonovH lam →L[ℂ] TikhonovH lam) := by
   let h := sourceGramPositiveShift_isUnit lam alpha hlam ha eps heps
@@ -73,7 +72,7 @@ noncomputable def sourceGramTikhonovFilter
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     (eps : ℝ) : TikhonovH lam →L[ℂ] TikhonovH lam :=
   (gram lam alpha hlam ha) *
-    (sourceGramPositiveShift lam alpha hlam ha eps)⁻¹ʳ
+    (Ring.inverse (sourceGramPositiveShift lam alpha hlam ha eps))
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.sourceGramPositiveShift_isUnit
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.sourceGramPositiveShift_two_sided_inverse

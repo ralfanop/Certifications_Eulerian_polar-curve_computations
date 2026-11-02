@@ -23,7 +23,7 @@ theorem sourceGramPositiveShift_inv_eigenmode
     (mu : ℝ) (hmu : 0 < mu)
     (u : EigenH lam)
     (hu : gram lam alpha hlam ha u = (mu : ℂ) • u) :
-    (sourceGramPositiveShift lam alpha hlam ha eps)⁻¹ʳ u =
+    (Ring.inverse (sourceGramPositiveShift lam alpha hlam ha eps)) u =
       (((mu + eps : ℝ) : ℂ)⁻¹) • u := by
   let A := sourceGramPositiveShift lam alpha hlam ha eps
   have hA : A u = ((mu + eps : ℝ) : ℂ) • u := by
@@ -33,7 +33,7 @@ theorem sourceGramPositiveShift_inv_eigenmode
     rw [ContinuousLinearMap.add_apply, hu]
     simp only [smul_apply, one_apply, ← add_smul]
     norm_cast
-  have hInvA : A⁻¹ʳ (A u) = u := by
+  have hInvA : (Ring.inverse A) (A u) = u := by
     have heq := (sourceGramPositiveShift_two_sided_inverse
       lam alpha hlam ha eps heps).2
     have hx := congrArg (fun T : EigenH lam →L[ℂ] EigenH lam => T u) heq
@@ -41,7 +41,7 @@ theorem sourceGramPositiveShift_inv_eigenmode
       ContinuousLinearMap.comp_apply, one_apply] using hx
   have hsc : ((mu + eps : ℝ) : ℂ) ≠ 0 := by
     exact_mod_cast (ne_of_gt (add_pos hmu heps))
-  have hscaled : ((mu + eps : ℝ) : ℂ) • A⁻¹ʳ u = u := by
+  have hscaled : ((mu + eps : ℝ) : ℂ) • ((Ring.inverse A) u) = u := by
     rw [hA, map_smul] at hInvA
     exact hInvA
   have hresult := congrArg
@@ -61,7 +61,7 @@ theorem sourceGramTikhonovFilter_eigenmode
   have hinv := sourceGramPositiveShift_inv_eigenmode
     lam alpha hlam ha eps heps mu hmu u hu
   change (gram lam alpha hlam ha)
-    ((sourceGramPositiveShift lam alpha hlam ha eps)⁻¹ʳ u) =
+    ((Ring.inverse (sourceGramPositiveShift lam alpha hlam ha eps)) u) =
     ((mu / (mu + eps) : ℝ) : ℂ) • u
   rw [hinv, map_smul, hu, smul_smul]
   have hcoeff : (((mu + eps : ℝ) : ℂ)⁻¹) * (mu : ℂ) =
