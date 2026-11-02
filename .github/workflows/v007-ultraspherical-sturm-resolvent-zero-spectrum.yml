@@ -6,6 +6,8 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealResolventZeroSpectrum.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealResolventZeroContinuousSpectrum.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealResolventPointEigenvalues.lean'
       - '.github/workflows/v007-ultraspherical-sturm-resolvent-zero-spectrum.yml'
   workflow_dispatch:
 
