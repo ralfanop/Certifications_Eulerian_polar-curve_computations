@@ -81,7 +81,6 @@ private theorem realTerm_tail_le_geometric (k : ℕ) :
       unfold geometricMajorant
       rw [pow_add, one_div_pow]
       field_simp
-      <;> ring
 
 private theorem geometricMajorant_summable : Summable geometricMajorant := by
   unfold geometricMajorant
@@ -95,9 +94,10 @@ explicit upper bound which is strictly smaller than the published
 theorem fifteen_tail_strict_bound :
     (∑' k : ℕ, realTerm (15+k)) <
       (1 : ℝ) / 1053078495820775424000 := by
-  have hs : Summable (fun k : ℕ => realTerm (15+k)) :=
-    (summable_nat_add_iff 15).2 (by
-      simpa only [add_comm] using realTerm_summable)
+  have hs' : Summable (fun k : ℕ => realTerm (k + 15)) :=
+    (summable_nat_add_iff 15).2 realTerm_summable
+  have hs : Summable (fun k : ℕ => realTerm (15+k)) := by
+    simpa only [add_comm] using hs'
   have hle := hs.tsum_le_tsum realTerm_tail_le_geometric
     geometricMajorant_summable
   have hgeo :
