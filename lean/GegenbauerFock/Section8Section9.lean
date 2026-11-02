@@ -481,13 +481,13 @@ theorem range_not_closed_of_compact_injective {E F : Type*}
   haveI : CompleteSpace R := hcl.completeSpace_coe
   have hmem : ∀ x, T x ∈ R := fun x => LinearMap.mem_range_self T.toLinearMap x
   let T' : E →L[ℂ] R := T.codRestrict R hmem
-  have hT'inj : LinearMap.ker T' = ⊥ := by
+  have hT'inj : LinearMap.ker T'.toLinearMap = ⊥ := by
     apply LinearMap.ker_eq_bot.mpr
     intro x y hxy
     apply hi
     have := congrArg Subtype.val hxy
     exact this
-  have hT'surj : LinearMap.range T' = ⊤ := by
+  have hT'surj : LinearMap.range T'.toLinearMap = ⊤ := by
     apply LinearMap.range_eq_top.mpr
     rintro ⟨_, ⟨x, rfl⟩⟩
     exact ⟨x, rfl⟩
