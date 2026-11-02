@@ -59,9 +59,9 @@ theorem sturmRealHeatLimit_closed_sturm_right_derivative
     exact hsum.congr hterm
   have hclosed (n : ℕ) :
       (b.repr (A x)) n =
-        (-((n : ℝ) * ((n : ℝ) + 2 * lam))) * (b.repr v) n :=
-    (sturmRealClosed_eq_exact_monicGegenbauer_spectral_realization
-      lam hlam).2 x n
+        (-((n : ℝ) * ((n : ℝ) + 2 * lam))) * (b.repr v) n := by
+    convert (sturmRealClosed_eq_exact_monicGegenbauer_spectral_realization
+      lam hlam).2 x n using 1 <;> ring
   have hpoint (n : ℕ) :
       Tendsto (fun s : ℝ => ((b.repr (err s)) n) ^ 2)
         (𝓝[>] (0 : ℝ)) (𝓝 (0 : ℝ)) := by
