@@ -264,7 +264,7 @@ theorem eq_d4_bessel :
     (∀ z : ℂ, HasSum (fun n : ℕ => (-1 : ℂ) ^ n * (catalanC n : ℂ) /
         (4 ^ n * ((2 * n).factorial : ℂ)) * z ^ (2 * n)) (Φ 1 z)) ∧
       Φ 1 0 = 1 ∧ Differentiable ℂ (Φ 1) ∧
-      ∀ t : ℝ, 0 < t → Φ 1 t = ((2 * besselJ 1 t / t : ℝ) : ℂ) := by
+      ∀ t : ℝ, 0 < t → Φ 1 t = ((2 * GegenbauerFock.Manuscript13.besselJ 1 t / t : ℝ) : ℂ) := by
   refine ⟨fun z => ?_, Manuscript13.Phi_zero (by norm_num), ?_, fun t ht => ?_⟩
   · have hs := Manuscript13.Phi_hasSum (l := 1) (by norm_num) z
     convert hs using 1
