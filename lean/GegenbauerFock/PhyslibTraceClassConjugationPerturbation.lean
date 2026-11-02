@@ -114,10 +114,61 @@ theorem conjugation_traceNorm_contractions_dist_le_v007
           (by linarith : ‖U‖ + ‖V‖ ≤ 2) (norm_nonneg _)
       · exact norm_nonneg _
 
+/-- Joint first-order stability in the trace-class input and in the
+bounded conjugating multiplier, in the genuine CFC Schatten S₁ norm.
+This is a corollary of the sharp bilateral ideal estimate and the
+already certified multiplier perturbation bound. It does not require
+positive, selfadjoint, or normal trace-class inputs. -/
+theorem conjugation_traceNorm_joint_input_multiplier_dist_le_v007
+    (U V : H →L[ℂ] H) (T S : TraceClass H) :
+    traceNorm H (conjugate T U - conjugate S V) ≤
+      ‖U‖ ^ 2 * traceNorm H (T - S) +
+      (‖U‖ + ‖V‖) * ‖U - V‖ * traceNorm H S := by
+  change ‖conjugate T U - conjugate S V‖ ≤
+    ‖U‖ ^ 2 * ‖T - S‖ +
+    (‖U‖ + ‖V‖) * ‖U - V‖ * ‖S‖
+  have hAdj : ‖U.adjoint‖ = ‖U‖ := by
+    rw [← ContinuousLinearMap.star_eq_adjoint]
+    exact norm_star U
+  have hInput :
+      ‖conjugate T U - conjugate S U‖ ≤
+        ‖U‖ ^ 2 * ‖T - S‖ := by
+    calc
+      ‖conjugate T U - conjugate S U‖ =
+          ‖sandwichContinuous U.adjoint U (T - S)‖ := by
+        change ‖sandwichContinuous U.adjoint U T -
+          sandwichContinuous U.adjoint U S‖ = _
+        rw [map_sub]
+      _ ≤ ‖sandwichContinuous U.adjoint U‖ * ‖T - S‖ :=
+        ContinuousLinearMap.le_opNorm _ _
+      _ ≤ (‖U.adjoint‖ * ‖U‖) * ‖T - S‖ :=
+        mul_le_mul_of_nonneg_right
+          (sandwichContinuous_norm_le U.adjoint U) (norm_nonneg _)
+      _ = ‖U‖ ^ 2 * ‖T - S‖ := by rw [hAdj]; ring
+  have hMultiplier := conjugation_traceNorm_multiplier_dist_le_v007 U V S
+  change ‖conjugate S U - conjugate S V‖ ≤
+    (‖U‖ + ‖V‖) * ‖U - V‖ * ‖S‖ at hMultiplier
+  have hSplit :
+      conjugate T U - conjugate S V =
+        (conjugate T U - conjugate S U) +
+        (conjugate S U - conjugate S V) := by
+    abel
+  calc
+    ‖conjugate T U - conjugate S V‖ =
+        ‖(conjugate T U - conjugate S U) +
+          (conjugate S U - conjugate S V)‖ :=
+      congrArg norm hSplit
+    _ ≤ ‖conjugate T U - conjugate S U‖ +
+        ‖conjugate S U - conjugate S V‖ := norm_add_le _ _
+    _ ≤ ‖U‖ ^ 2 * ‖T - S‖ +
+        (‖U‖ + ‖V‖) * ‖U - V‖ * ‖S‖ :=
+      add_le_add hInput hMultiplier
+
 #print axioms ProbabilisticTheory.TraceClass.conjugation_adjoint_sub_norm_eq_v007
 #print axioms ProbabilisticTheory.TraceClass.conjugationContinuous_multiplier_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.conjugation_traceNorm_multiplier_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.conjugationContinuous_contractions_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.conjugation_traceNorm_contractions_dist_le_v007
+#print axioms ProbabilisticTheory.TraceClass.conjugation_traceNorm_joint_input_multiplier_dist_le_v007
 
 end ProbabilisticTheory.TraceClass
