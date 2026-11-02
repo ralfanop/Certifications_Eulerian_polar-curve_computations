@@ -217,24 +217,28 @@ theorem coisometric_complement_joint_traceNorm_le_v007
         (T - S) -
           (coisometric_sandwich_projection_v007 U T -
            coisometric_sandwich_projection_v007 V S) := by
-    simp only [coisometric_complementaryProjection_v007,
-      ContinuousLinearMap.sub_apply, ContinuousLinearMap.id_apply]
+    change (T - coisometric_sandwich_projection_v007 U T) -
+      (S - coisometric_sandwich_projection_v007 V S) = _
     abel
-  change ‖coisometric_complementaryProjection_v007 U T -
-    coisometric_complementaryProjection_v007 V S‖ ≤
-      2 * ‖T - S‖ + 4 * ‖U - V‖ * ‖S‖
-  rw [hQ]
   calc
-    ‖(T - S) -
-        (coisometric_sandwich_projection_v007 U T -
-         coisometric_sandwich_projection_v007 V S)‖ ≤
-      ‖T - S‖ +
+    traceNorm H
+        (coisometric_complementaryProjection_v007 U T -
+         coisometric_complementaryProjection_v007 V S) =
+        ‖(T - S) -
+          (coisometric_sandwich_projection_v007 U T -
+           coisometric_sandwich_projection_v007 V S)‖ := by
+      rw [hQ]
+      exact (norm_eq_genuineTraceNorm _).symm
+    _ ≤ ‖T - S‖ +
         ‖coisometric_sandwich_projection_v007 U T -
          coisometric_sandwich_projection_v007 V S‖ := norm_sub_le _ _
     _ ≤ ‖T - S‖ + (‖T - S‖ + 4 * ‖U - V‖ * ‖S‖) :=
       add_le_add_left hP _
-    _ = 2 * ‖T - S‖ + 4 * ‖U - V‖ * ‖S‖ := by ring
-
+    _ = 2 * traceNorm H (T - S) +
+        4 * ‖U - V‖ * traceNorm H S := by
+      rw [← norm_eq_genuineTraceNorm (T - S),
+        ← norm_eq_genuineTraceNorm S]
+      ring
 
 /-- Quantitative stability of the uniquely determined source and kernel
 coordinates when both the input and the coisometry vary. Exact
