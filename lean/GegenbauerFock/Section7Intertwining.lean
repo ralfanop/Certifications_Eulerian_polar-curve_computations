@@ -375,18 +375,29 @@ theorem G_hasDerivAt (lam : ℝ) (hlam : 0 < lam) (p : ℂ[X]) (k : ℕ) (z : �
         (p.eval (u : ℂ) * ((Complex.I * (u : ℂ) / 2) ^ (k + 1) *
           Complex.exp (Complex.I * x * (u : ℂ) / 2))) x :=
     Filter.Eventually.of_forall (fun u x _ => kernel_hasDerivAt p k u x)
-  have key := hasDerivAt_integral_of_dominated_loc_of_deriv_le
-    (μ := Ultraspherical.measure lam)
-    (F := fun (x : ℂ) (u : ℝ) => p.eval (u : ℂ) *
-      ((Complex.I * (u : ℂ) / 2) ^ k * Complex.exp (Complex.I * x * (u : ℂ) / 2)))
-    (F' := fun (x : ℂ) (u : ℝ) => p.eval (u : ℂ) *
-      ((Complex.I * (u : ℂ) / 2) ^ (k + 1) * Complex.exp (Complex.I * x * (u : ℂ) / 2)))
-    (x₀ := z) (bound := fun _ => B * Real.exp ((‖z‖ + 1) / 2)) (ε := 1) one_pos
-    (Filter.Eventually.of_forall (fun x => (kernel_continuous p k x).aestronglyMeasurable))
-    (integrable_of_continuous lam hlam _ (kernel_continuous p k z))
-    (kernel_continuous p (k + 1) z).aestronglyMeasurable
-    h_bound (integrable_const _) h_diff
-  exact key.2
+  first
+  | exact (hasDerivAt_integral_of_dominated_loc_of_deriv_le
+        (μ := Ultraspherical.measure lam)
+        (F := fun (x : ℂ) (u : ℝ) => p.eval (u : ℂ) *
+          ((Complex.I * (u : ℂ) / 2) ^ k * Complex.exp (Complex.I * x * (u : ℂ) / 2)))
+        (F' := fun (x : ℂ) (u : ℝ) => p.eval (u : ℂ) *
+          ((Complex.I * (u : ℂ) / 2) ^ (k + 1) * Complex.exp (Complex.I * x * (u : ℂ) / 2)))
+        (x₀ := z) (bound := fun _ => B * Real.exp ((‖z‖ + 1) / 2)) (ε := 1) one_pos
+        (Filter.Eventually.of_forall (fun x => (kernel_continuous p k x).aestronglyMeasurable))
+        (integrable_of_continuous lam hlam _ (kernel_continuous p k z))
+        (kernel_continuous p (k + 1) z).aestronglyMeasurable
+        h_bound (integrable_const _) h_diff).2
+  | exact (hasDerivAt_integral_of_dominated_loc_of_deriv_le
+        (μ := Ultraspherical.measure lam)
+        (F := fun (x : ℂ) (u : ℝ) => p.eval (u : ℂ) *
+          ((Complex.I * (u : ℂ) / 2) ^ k * Complex.exp (Complex.I * x * (u : ℂ) / 2)))
+        (F' := fun (x : ℂ) (u : ℝ) => p.eval (u : ℂ) *
+          ((Complex.I * (u : ℂ) / 2) ^ (k + 1) * Complex.exp (Complex.I * x * (u : ℂ) / 2)))
+        (x₀ := z) (bound := fun _ => B * Real.exp ((‖z‖ + 1) / 2)) (Metric.ball_mem_nhds z one_pos)
+        (Filter.Eventually.of_forall (fun x => (kernel_continuous p k x).aestronglyMeasurable))
+        (integrable_of_continuous lam hlam _ (kernel_continuous p k z))
+        (kernel_continuous p (k + 1) z).aestronglyMeasurable
+        h_bound (integrable_const _) h_diff).2
 
 theorem G_deriv (lam : ℝ) (hlam : 0 < lam) (p : ℂ[X]) (k : ℕ) :
     deriv (G lam p k) = G lam p (k + 1) :=
