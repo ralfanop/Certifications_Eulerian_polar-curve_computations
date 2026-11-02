@@ -52,8 +52,10 @@ theorem sturmRealResolvent_positive_nuclear_operator_summable
       ‖β n • rankOne ℝ (e n) (e n)‖ = β n := by
     rw [norm_smul, norm_rankOne,
       sturmMonicEigenCandidate_realL2_normalized_norm lam hlam n]
-    simp only [one_mul, mul_one, Real.norm_eq_abs,
-      abs_of_pos (sturmResolventMultiplier_pos lam t hlam ht n)]
+    simp only [one_mul, mul_one, Real.norm_eq_abs]
+    change |(t + (n : ℝ) * ((n : ℝ) + 2 * lam))⁻¹| =
+      (t + (n : ℝ) * ((n : ℝ) + 2 * lam))⁻¹
+    exact abs_of_pos (sturmResolventMultiplier_pos lam t hlam ht n)
   apply Summable.of_norm
   convert hs using 1
   funext n
@@ -112,7 +114,8 @@ theorem sturmRealResolvent_positive_nuclear_operator_tsum_eq
               (sturmMonicEigenCandidate_realL2_normalized lam hlam n)
               (sturmMonicEigenCandidate_realL2_normalized lam hlam n))
       atTop (nhds R) := by
-    simpa only [T, sturmRealResolventFiniteRankTruncation] using hTend
+    change Tendsto T atTop (nhds R)
+    exact hTend
   exact tendsto_nhds_unique hTend' hsumTend
 
 /-- The actual closed real weighted-L² resolvent has a genuine
