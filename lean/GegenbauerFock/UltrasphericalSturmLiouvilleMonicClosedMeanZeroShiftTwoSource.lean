@@ -63,7 +63,8 @@ theorem sturmRealClosed_meanZero_shift_twoSource_coercive
           (t • (y : SturmH lam) - A y) := by
     rw [hd, hAd, smul_sub]
     abel
-  simpa only [hd, hshift] using hgap
+  rw [hshift, hd] at hgap
+  exact hgap
 
 /-- Stable mean-zero reconstruction from a difference of
 shifted closed-Sturm outputs bounded by ε. -/
