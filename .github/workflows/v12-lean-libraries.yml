@@ -44,7 +44,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          lake build EulerianGrothendieck Bridge V033 V001 UniformLanczos 2>&1 | tee /tmp/eg-build.log
+          lake build EulerianGrothendieck EulerianGrothendieck.ExactPolynomialAllOrders Bridge V033 V001 UniformLanczos 2>&1 | tee /tmp/eg-build.log
       - name: Axiom audit of the 2 November 2026 additions
         working-directory: lean/EulerianGrothendieck
         shell: bash
