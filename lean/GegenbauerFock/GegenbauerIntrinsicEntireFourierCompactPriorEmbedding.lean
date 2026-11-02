@@ -66,4 +66,37 @@ theorem ultraspherical_fourierBochner_compactPrior_isEmbedding
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.ultraspherical_fourierBochner_compactPrior_isEmbedding
 
+
+/-- On a compact class of sources, the inverse of the genuine
+Fourier–Bochner sampling map is uniformly continuous on its actual
+sample-data range. This is stronger than mere continuity, but it does
+not imply a Lipschitz estimate or an effective numerical modulus. -/
+theorem ultraspherical_fourierBochner_compactPrior_inverse_uniformContinuous
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    (S : Set ℂ) (w : ℂ) (R : ℝ) (hR : 0 ≤ R)
+    (hbound : ∀ z ∈ S, ‖z‖ ≤ R)
+    (hacc : w ∈ closure (S \ ({w} : Set ℂ)))
+    (K : Set (Lp ℂ 2 (Ultraspherical.measure lam)))
+    (hK : IsCompact K) :
+    UniformContinuous
+      ((ultraspherical_fourierBochner_compactPrior_isEmbedding
+        lam alpha hlam ha S w R hR hbound hacc K hK).toHomeomorph.symm) := by
+  letI : CompactSpace K := isCompact_iff_compactSpace.mp hK
+  have hEmb := ultraspherical_fourierBochner_compactPrior_isEmbedding
+    lam alpha hlam ha S w R hR hbound hacc K hK
+  have hRange : IsCompact
+      (Set.range (fun f : K =>
+        ultraspherical_fourierBochner_uniformSamples lam S
+          (f : Lp ℂ 2 (Ultraspherical.measure lam)))) :=
+    isCompact_range hEmb.continuous
+  letI : CompactSpace
+      (Set.range (fun f : K =>
+        ultraspherical_fourierBochner_uniformSamples lam S
+          (f : Lp ℂ 2 (Ultraspherical.measure lam)))) :=
+    isCompact_iff_compactSpace.mp hRange
+  exact CompactSpace.uniformContinuous_of_continuous
+    hEmb.toHomeomorph.symm.continuous
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.ultraspherical_fourierBochner_compactPrior_inverse_uniformContinuous
+
 end GegenbauerFock.GeneralUltrasphericalFock
