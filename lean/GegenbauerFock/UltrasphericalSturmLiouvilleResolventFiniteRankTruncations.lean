@@ -65,9 +65,12 @@ theorem sturmRealResolventFiniteRankTruncation_compact
             (sturmMonicEigenCandidate_realL2_normalized lam hlam n)
             (sturmMonicEigenCandidate_realL2_normalized lam hlam n))) :=
     by
-      simpa only [ContinuousLinearMap.smul_apply] using
-        (sturmRealGegenbauerRankOne_compact lam hlam n).smul
-          ((t + (n : ℝ) * ((n : ℝ) + 2 * lam))⁻¹)
+      let β : ℝ := (t + (n : ℝ) * ((n : ℝ) + 2 * lam))⁻¹
+      let e : SturmH lam := sturmMonicEigenCandidate_realL2_normalized lam hlam n
+      have h := (sturmRealGegenbauerRankOne_compact lam hlam n).smul β
+      change IsCompactOperator (fun x : SturmH lam => β • (rankOne ℝ e e) x) at h
+      change IsCompactOperator (fun x : SturmH lam => β • (rankOne ℝ e e) x)
+      exact h
   have hsum (s : Finset ℕ) :
       IsCompactOperator
         (∑ n ∈ s,
