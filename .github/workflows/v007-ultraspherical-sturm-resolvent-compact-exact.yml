@@ -7,6 +7,11 @@ on:
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventCompactExact.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteRankTruncations.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTruncationApply.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTruncationCoordinates.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTailLower.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTailUpper.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventCompactnessBridge.lean'
       - '.github/workflows/v007-ultraspherical-sturm-resolvent-compact-exact.yml'
   workflow_dispatch:
 
