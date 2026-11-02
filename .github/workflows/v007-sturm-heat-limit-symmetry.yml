@@ -1,4 +1,5 @@
 name: V007 full L2 heat symmetry and mean conservation
+# Recheck after corrected all-L2 heat Hilbert-coordinate proof
 
 on:
   push:
