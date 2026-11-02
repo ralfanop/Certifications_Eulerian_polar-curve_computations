@@ -1,5 +1,44 @@
 # V007 — rigorous rational enclosure of a Gegenbauer–Fock scalar integral
 
+## Kernel-verified update — 2 November 2026
+
+The original 26 October status notes below record the **historical**
+boundary; the following later certifications supersede their claim that
+the infinite Taylor remainder was not formalized.
+
+- **CI [41432703183](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41432703183): SUCCESS**, 9,014 build jobs. Lean proves `fifteen_tail_strict_bound` and
+  `fifteen_rational_endpoints`, including the infinite positive-series
+  remainder and strict outward rational 24-place endpoints.
+- **CI [41433829109](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41433829109): SUCCESS**, 9,039 build jobs; exact source commit
+  [`2e81430a`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/commit/2e81430a63a67670bf2dff7e02b368ce6863a100).
+  Its six audited declarations include `kummer_ratio_half`,
+  `kummer_half_quarter_eq_realTraceSeries`,
+  `legendre_exp_integral_eq_realTraceSeries`, and
+  `legendre_exp_integral_decimal_enclosure`.
+- Both audits report only `propext`, `Classical.choice`, and
+  `Quot.sound` in the theorem dependencies: no `sorryAx` or
+  `Lean.ofReduceBool`.
+
+The certified integral is the **actual ultraspherical probability measure**
+integral
+`∫ u : ℝ, Real.exp (u^2 / 4) ∂(Ultraspherical.measure (1/2))`.
+The proven exact series is
+`∑' n : ℕ, 1/(4^n * n! * (2*n+1))`, with the same strict
+24-decimal enclosure printed in V007.2. This is an unconditional
+infinite-series and actual-measure statement, not just finite
+arithmetic or floating-point evidence.
+
+**Separate final correspondence check:** the literal manuscript notation
+`(1/2) ∫_{-1}^1 exp(u^2/4) du` additionally uses the
+specialization of the ultraspherical law to uniform Lebesgue density
+`1/2` on the interval. Likewise, any formulation in terms of the
+norm in a named Hilbert–Schmidt ideal must cite its exact checked
+operator-to-energy identification, not merely infer it from this scalar
+certificate. Neither stronger correspondence is silently asserted by
+the six theorems above.
+
+
+
 **26 October 2026.** This numerical certificate is for the *scalar integral*
 \[
 I=\frac12\int_{-1}^{1}\exp(u^2/4)\,du,
