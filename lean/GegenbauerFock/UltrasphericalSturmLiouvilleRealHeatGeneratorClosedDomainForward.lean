@@ -87,6 +87,14 @@ theorem sturmRealHeatLimit_closed_sturm_right_derivative
       exact herror s
     have hzero : Tendsto (fun s : ℝ => (b.repr (err s)) n)
         (𝓝[>] (0 : ℝ)) (𝓝 (0 : ℝ)) := by
+      change Tendsto
+        (fun s : ℝ =>
+          (b.repr (s⁻¹ •
+            (sturmRealHeatLimitNonnegativeExtended lam hlam s v - v))) n -
+          (b.repr (A x)) n)
+        (𝓝[>] (0 : ℝ))
+        (𝓝 ((-((n : ℝ) * ((n : ℝ) + 2 * lam))) *
+          (b.repr v) n - (b.repr (A x)) n)) at hsub
       rw [hfun]
       simpa only [hclosed n, sub_self] using hsub
     simpa using hzero.pow 2
@@ -108,11 +116,7 @@ theorem sturmRealHeatLimit_closed_sturm_right_derivative
           ((Real.exp (-s * w) - 1) / s + w) * c := by
       simpa [err, v, sturmRealHeatLimitNonnegativeExtended,
         max_eq_right hs.le, w, c, b] using herr
-    have hA : (b.repr (A x)) n = (-w) * c := by
-      calc
-        (b.repr (A x)) n =
-            (-(n : ℝ) * ((n : ℝ) + 2 * lam)) * (b.repr v) n := hclosed n
-        _ = (-w) * c := by dsimp [w, c]; ring
+    have hA : (b.repr (A x)) n = (-w) * c := hclosed n
     rw [herr', hA]
     calc
       (((Real.exp (-s * w) - 1) / s + w) * c) ^ 2 =
@@ -126,8 +130,10 @@ theorem sturmRealHeatLimit_closed_sturm_right_derivative
           ((b.repr (A x)) n) ^ 2 := by
     filter_upwards [self_mem_nhdsWithin] with s hs
     intro n
-    simpa only [Real.norm_eq_abs, abs_of_nonneg (sq_nonneg _)] using
-      hbound s hs n
+    change |((b.repr (err s)) n) ^ 2| ≤
+      ((b.repr (A x)) n) ^ 2
+    rw [abs_of_nonneg (sq_nonneg ((b.repr (err s)) n))]
+    exact hbound s hs n
   have htannery : Tendsto
       (fun s : ℝ => ∑' n : ℕ, ((b.repr (err s)) n) ^ 2)
       (𝓝[>] (0 : ℝ)) (𝓝 (∑' _n : ℕ, (0 : ℝ))) :=
@@ -149,7 +155,8 @@ theorem sturmRealHeatLimit_closed_sturm_right_derivative
   have hroot := (Real.continuous_sqrt.tendsto (0 : ℝ)).comp hnormsq
   have hnorm : Tendsto (fun s : ℝ => ‖err s‖)
       (𝓝[>] (0 : ℝ)) (𝓝 (0 : ℝ)) := by
-    simpa only [Real.sqrt_sq_eq_abs, abs_norm, Real.sqrt_zero] using hroot
+    simpa only [Function.comp_def, Real.sqrt_sq_eq_abs,
+      abs_norm, Real.sqrt_zero] using hroot
   apply tendsto_iff_norm_sub_tendsto_zero.mpr
   change Tendsto (fun s : ℝ => ‖err s‖)
     (𝓝[>] (0 : ℝ)) (𝓝 (0 : ℝ))
