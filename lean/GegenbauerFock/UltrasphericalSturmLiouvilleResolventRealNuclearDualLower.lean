@@ -94,7 +94,7 @@ theorem realHilbertFiniteTrace_abs_le_nuclearCost
           exact (Real.norm_eq_abs _).symm
     _ = ‖∑' k : ℕ, Φ (A k)‖ := by rw [hcommute]
     _ ≤ ∑' k : ℕ, ‖Φ (A k)‖ :=
-      norm_tsum_le_tsum_norm hΦ
+      norm_tsum_le_tsum_norm hΦnorm
     _ ≤ ∑' k : ℕ, ‖β k‖ * ‖u k‖ * ‖v k‖ := hsumBound
 
 /-- For the ACTUAL real closed Sturm resolvent, all projective
