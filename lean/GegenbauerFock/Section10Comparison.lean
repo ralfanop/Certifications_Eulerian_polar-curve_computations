@@ -8,7 +8,7 @@ import GegenbauerFock.UltrasphericalSturmLiouvilleRealResolventSpectralGraph
 import Mathlib.MeasureTheory.Measure.Haar.InnerProductSpace
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Algebra.MvPolynomial.PDeriv
-import Mathlib.Combinatorics.Enumerative.Catalan
+import Mathlib.Data.Nat.Choose.Central
 import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
 
 /-!
@@ -26,7 +26,7 @@ import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
   (`sphereArea_ratio`), hence the classical multiplier equals `η_n(h)` written with the
   library's `ν_λ` (`classicalMultiplier_eq_eta`).
 * **Eq. (d4-bessel)** (`eq_d4_bessel`). `Φ_1(z) = ∑ (-1)ⁿ C_n z^{2n}/(4ⁿ (2n)!)` for every
-  `z ∈ ℂ` (`C_n` = Mathlib's `catalan n`), `Φ_1(0) = 1`, `Φ_1` entire, and
+  `z ∈ ℂ` (`C_n = binom(2n,n)/(n+1)` = `catalanC n`), `Φ_1(0) = 1`, `Φ_1` entire, and
   `Φ_1(t) = 2 J_1(t)/t` for real `t > 0` (`J_1` the library's power-series Bessel function).
   The coefficients are `(-1)ⁿ m_{2n}(1)/(2n)!` with the Catalan moments `m_{2n}(1) = C_n/4ⁿ`
   (`d4_coeff_eq_moment`).
@@ -217,31 +217,37 @@ theorem proposition_10_1 (d : ℕ) (hd : 3 ≤ d) (hFH : FunkHeckeFormula d)
 
 /-! ## Eq. (d4-bessel): the four-dimensional Gegenbauer–Bessel specialization -/
 
+/-- The Catalan numbers of (catalan-numbers), `C_n = binom(2n,n)/(n+1)` (an exact division). -/
+def catalanC (n : ℕ) : ℕ := Nat.centralBinom n / (n + 1)
+
+theorem succ_mul_catalanC (n : ℕ) : (n + 1) * catalanC n = Nat.centralBinom n :=
+  Nat.mul_div_cancel' (Nat.succ_dvd_centralBinom n)
+
 /-- `(2n)! = C_n · n! · (n+1)!`. -/
 theorem factorial_two_mul_eq_catalan (n : ℕ) :
-    (2 * n).factorial = catalan n * (n.factorial * (n + 1).factorial) := by
+    (2 * n).factorial = catalanC n * (n.factorial * (n + 1).factorial) := by
   have h1 := Nat.choose_mul_factorial_mul_factorial (show n ≤ 2 * n by omega)
   rw [show 2 * n - n = n by omega] at h1
-  have h2 := succ_mul_catalan_eq_centralBinom n
+  have h2 := succ_mul_catalanC n
   rw [Nat.centralBinom_eq_two_mul_choose] at h2
   rw [← h1, ← h2, Nat.factorial_succ]
   ring
 
-theorem catalan_pos' (n : ℕ) : 0 < catalan n := by
-  have h2 := succ_mul_catalan_eq_centralBinom n
+theorem catalan_pos' (n : ℕ) : 0 < catalanC n := by
+  have h2 := succ_mul_catalanC n
   have h3 := Nat.centralBinom_pos n
-  rcases Nat.eq_zero_or_pos (catalan n) with h | h
+  rcases Nat.eq_zero_or_pos (catalanC n) with h | h
   · rw [h, mul_zero] at h2; omega
   · exact h
 
 /-- The Catalan coefficient is `(-1)ⁿ m_{2n}(1)/(2n)!`, with the certified Catalan moments
 `m_{2n}(1) = ∫ u^{2n} dν_1 = C_n/4ⁿ` (Proposition 3.6). -/
 theorem d4_coeff_eq_moment (n : ℕ) :
-    (-1 : ℂ) ^ n * (catalan n : ℂ) / (4 ^ n * ((2 * n).factorial : ℂ)) =
+    (-1 : ℂ) ^ n * (catalanC n : ℂ) / (4 ^ n * ((2 * n).factorial : ℂ)) =
       (-1 : ℂ) ^ n * (∫ u, ((u ^ (2 * n) : ℝ) : ℂ) ∂(ν 1)) / ((2 * n).factorial : ℂ) := by
   rw [Manuscript13.moment_one n]
-  have hcat : ((catalan n : ℝ)) = (Nat.choose (2 * n) n : ℝ) / (n + 1) := by
-    have h2 := succ_mul_catalan_eq_centralBinom n
+  have hcat : ((catalanC n : ℝ)) = (Nat.choose (2 * n) n : ℝ) / (n + 1) := by
+    have h2 := succ_mul_catalanC n
     rw [Nat.centralBinom_eq_two_mul_choose] at h2
     have hn : ((n : ℝ) + 1) ≠ 0 := by positivity
     rw [eq_div_iff hn]
@@ -255,7 +261,7 @@ theorem d4_coeff_eq_moment (n : ℕ) :
 `Φ_1(z) = ∑_{n≥0} (-1)ⁿ C_n z^{2n}/(4ⁿ (2n)!)` for every `z ∈ ℂ`, `Φ_1(0) = 1`, `Φ_1` is entire,
 and `Φ_1(t) = 2 J_1(t)/t` for real `t > 0`. -/
 theorem eq_d4_bessel :
-    (∀ z : ℂ, HasSum (fun n : ℕ => (-1 : ℂ) ^ n * (catalan n : ℂ) /
+    (∀ z : ℂ, HasSum (fun n : ℕ => (-1 : ℂ) ^ n * (catalanC n : ℂ) /
         (4 ^ n * ((2 * n).factorial : ℂ)) * z ^ (2 * n)) (Φ 1 z)) ∧
       Φ 1 0 = 1 ∧ Differentiable ℂ (Φ 1) ∧
       ∀ t : ℝ, 0 < t → Φ 1 t = ((2 * besselJ 1 t / t : ℝ) : ℂ) := by
@@ -265,7 +271,7 @@ theorem eq_d4_bessel :
     funext n
     rw [show (1 : ℝ) + 1 = 2 by norm_num, Manuscript13.pochhammer_two n,
       factorial_two_mul_eq_catalan n]
-    have hc : (catalan n : ℂ) ≠ 0 := by exact_mod_cast (catalan_pos' n).ne'
+    have hc : (catalanC n : ℂ) ≠ 0 := by exact_mod_cast (catalan_pos' n).ne'
     have hf : (n.factorial : ℂ) ≠ 0 := by exact_mod_cast (Nat.factorial_pos n).ne'
     have hf' : ((n + 1).factorial : ℂ) ≠ 0 := by exact_mod_cast (Nat.factorial_pos (n + 1)).ne'
     have h4 : (4 : ℂ) ^ n ≠ 0 := pow_ne_zero _ (by norm_num)
