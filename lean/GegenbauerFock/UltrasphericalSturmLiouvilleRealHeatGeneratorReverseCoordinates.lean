@@ -1,5 +1,6 @@
 import GegenbauerFock.UltrasphericalSturmLiouvilleRealHeatLimitHilbertCoordinates
 import GegenbauerFock.UltrasphericalSturmLiouvilleRealHeatScalarSlope
+import GegenbauerFock.UltrasphericalSturmLiouvilleRealHeatLimitModeContinuity
 import Mathlib.Analysis.InnerProductSpace.l2Space
 
 /-!
@@ -46,9 +47,9 @@ theorem sturmRealHeatLimit_right_derivative_repr
           (b.repr (s⁻¹ •
             (sturmRealHeatLimitNonnegativeExtended lam hlam s f - f))) n)
         (𝓝[>] (0 : ℝ)) (𝓝 ((b.repr g) n)) := by
-    have hcont : Continuous (fun x : SturmH lam => (b.repr x) n) :=
-      (PiLp.continuous_apply 2 (fun _ : ℕ => ℝ) n).comp b.repr.continuous
-    exact (hcont.tendsto g).comp hderiv
+    have h := ((innerSL ℝ (b n)).continuous.tendsto g).comp hderiv
+    simpa only [innerSL_apply_apply, ← HilbertBasis.repr_apply_apply]
+      using h
   have hspectral (s : ℝ) (hs : 0 < s) :
       (b.repr (sturmRealHeatLimitNonnegativeExtended lam hlam s f)) n =
         Real.exp (-s * omega) * c := by
