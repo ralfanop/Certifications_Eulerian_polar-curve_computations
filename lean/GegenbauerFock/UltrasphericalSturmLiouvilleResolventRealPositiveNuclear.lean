@@ -113,7 +113,7 @@ theorem sturmRealResolvent_positive_nuclear_operator_tsum_eq
               (sturmMonicEigenCandidate_realL2_normalized lam hlam n))
       atTop (nhds R) := by
     simpa only [T, sturmRealResolventFiniteRankTruncation] using hTend
-  exact (tendsto_nhds_unique hTend' hsumTend).symm
+  exact tendsto_nhds_unique hTend' hsumTend
 
 /-- The actual closed real weighted-L² resolvent has a genuine
 operator-norm summable, orthogonal positive rank-one nuclear witness. -/
