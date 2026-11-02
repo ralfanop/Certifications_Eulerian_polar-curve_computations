@@ -90,8 +90,10 @@ theorem sturmRealResolvent_dense_range
       (sturmRealPositiveResolventFullCLM_injective lam t hlam ht)
   have hself : IsSelfAdjoint R :=
     sturmRealPositiveResolventFullCLM_isSelfAdjoint lam t hlam ht
+  have hadj : ContinuousLinearMap.adjoint R = R :=
+    (ContinuousLinearMap.isSelfAdjoint_iff').mp hself
   apply (Submodule.topologicalClosure_eq_top_iff).2
-  rw [R.orthogonal_range, hself, hker]
+  rw [R.orthogonal_range, hadj, hker]
 
 /-- The resolvent range is dense and proper, so it is not closed. -/
 theorem sturmRealResolvent_range_not_closed
