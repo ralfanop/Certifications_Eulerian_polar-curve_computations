@@ -27,7 +27,7 @@ theorem sturmRealClosedResolvent_finite_truncation_tendsto_opNorm
     Tendsto
       (fun N : ℕ => sturmRealResolventFiniteRankTruncation lam t hlam N)
       atTop
-      (𝓝 (sturmRealPositiveResolventFullCLM lam t hlam ht)) := by
+      (nhds (sturmRealPositiveResolventFullCLM lam t hlam ht)) := by
   apply tendsto_iff_norm_sub_tendsto_zero.mpr
   have hbeta :=
     sturmResolventMultiplier_tendsto_zero lam t hlam ht
