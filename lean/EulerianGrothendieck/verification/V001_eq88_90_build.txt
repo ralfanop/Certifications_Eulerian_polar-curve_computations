@@ -1,0 +1,12 @@
+Library V001 (manuscript 11, proof of Lemma 3.15, Eqs. (88)-(90) verbatim), 2 November 2026
+Lean 4.24.0, Mathlib f897ebcf72cd16f89ab4577d0c826cd14afaafc7; one module at a time (lake env lean -o).
+
+V001/Integrand exit 0 errors 0 warnings 0 sorries 0   (Eqs. (89)-(90): integrand_eq, remainder_bound)
+V001/Tail      exit 0 errors 0 warnings 0 sorries 0   (Eq. (88): tail_bound, tail_order, eq88)
+V001           exit 0 errors 0 sorries 0              (root)
+
+#print axioms integrand_eq, remainder_bound, tail_bound, tail_order, eq88, abs_rE_le_exp:
+[propext, Classical.choice, Quot.sound]
+
+Classical input taken as a hypothesis (not re-proved): L2Input := Integrable (r_E^2) and
+int_R r_E(t)^2 dt = 2 pi, i.e. int_R (sin u / u)^2 du = pi.
