@@ -48,7 +48,9 @@ theorem sturmRealGegenbauerRankOne_compact
         (ContinuousLinearMap.toSpanSingleton ℝ e : ℝ →L[ℝ] SturmH lam) :=
     isCompactOperator_of_locallyCompactSpace_rng _
   have hcomp := hspan.comp_clm (innerSL ℝ e)
-  simpa only [rankOne_def', e] using hcomp
+  change IsCompactOperator (fun x : SturmH lam => inner ℝ e x • e) at hcomp
+  change IsCompactOperator (fun x : SturmH lam => inner ℝ e x • e)
+  exact hcomp
 
 /-- Every genuine finite spectral truncation is a compact bounded
 operator on the actual ultraspherical real L², independently of any
@@ -62,7 +64,10 @@ theorem sturmRealResolventFiniteRankTruncation_compact
           (rankOne ℝ
             (sturmMonicEigenCandidate_realL2_normalized lam hlam n)
             (sturmMonicEigenCandidate_realL2_normalized lam hlam n))) :=
-    (sturmRealGegenbauerRankOne_compact lam hlam n).smul _
+    by
+      simpa only [ContinuousLinearMap.smul_apply] using
+        (sturmRealGegenbauerRankOne_compact lam hlam n).smul
+          ((t + (n : ℝ) * ((n : ℝ) + 2 * lam))⁻¹)
   have hsum (s : Finset ℕ) :
       IsCompactOperator
         (∑ n ∈ s,
