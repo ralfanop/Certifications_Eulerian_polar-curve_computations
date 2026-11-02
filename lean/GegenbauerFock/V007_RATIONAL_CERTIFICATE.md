@@ -1,5 +1,33 @@
 # V007 — rigorous rational enclosure of a Gegenbauer–Fock scalar integral
 
+## Kernel-verified Eulerian uniform law — 2 November 2026
+
+The previously separate identification of the abstract ultraspherical
+probability law with the *actual uniform Lebesgue density* is now a
+Lean kernel certificate.
+
+- **[CI #41436401805](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41436401805): SUCCESS**, 9,021 build jobs; source
+  [`UltrasphericalLegendreDensityExact.lean`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/af90d0c6605b842521274d7fb6bdf7d830637fff/lean/GegenbauerFock/UltrasphericalLegendreDensityExact.lean).
+- `gammaDensity_half_eq_eulerianUniformDensity` is the pointwise
+  density equality for every real argument, including zero outside
+  the open support.
+- `measure_half_eq_uniformDensity` identifies the original
+  Beta-pushforward measure exactly with Lebesgue measure weighted by
+  `(1/2) * 1_{(-1,1)}`, as genuine measures.
+- `integral_measure_half_eq_uniformDensity` transfers real Bochner
+  integrals to this normalized Lebesgue measure.
+
+Every individual `#print axioms` audit is clean: only
+`propext`, `Classical.choice`, `Quot.sound`, without `sorryAx`
+or `Lean.ofReduceBool`.
+
+**Scope:** This certificate establishes the equality of probability
+measures and their real integrals. Translating this into the literal
+interval-integral notation printed in the paper is a separate
+notation/measure-restriction bridge. The operator-specific S₂
+energy and Gram trace decimal enclosures have their own dedicated
+CI and must not be marked certified unless that run completes green.
+
 ## Kernel-verified update — 2 November 2026
 
 The original 26 October status notes below record the **historical**
