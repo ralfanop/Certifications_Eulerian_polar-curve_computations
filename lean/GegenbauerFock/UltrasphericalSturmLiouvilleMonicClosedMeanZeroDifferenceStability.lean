@@ -107,8 +107,41 @@ theorem sturmRealClosed_meanZero_unique_of_same_data
   apply Subtype.ext
   exact sub_eq_zero.mp (norm_eq_zero.mp hnorm)
 
+/-- Two mean-zero solutions approximately matching the *same noisy*
+weighted-L² observation are close, with the certified sharp spectral
+gap and the sum of their individual residual tolerances. -/
+theorem sturmRealClosed_meanZero_commonObservation_noise_stability
+    (lam : ℝ) (hlam : 0 < lam)
+    (x y : (sturmRealPartialOperator lam hlam).closure.domain)
+    (hx0 : (sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam).repr
+      (x : SturmH lam) 0 = 0)
+    (hy0 : (sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam).repr
+      (y : SturmH lam) 0 = 0)
+    (observation : SturmH lam) (εx εy : ℝ)
+    (hxnoise : ‖(sturmRealPartialOperator lam hlam).closure x -
+      observation‖ ≤ εx)
+    (hynoise : ‖(sturmRealPartialOperator lam hlam).closure y -
+      observation‖ ≤ εy) :
+    ‖(x : SturmH lam) - (y : SturmH lam)‖ ≤
+      (εx + εy) / (1 + 2 * lam) := by
+  let A := (sturmRealPartialOperator lam hlam).closure
+  have hdata : ‖A x - A y‖ ≤ εx + εy := by
+    calc
+      ‖A x - A y‖ =
+          ‖(A x - observation) + -(A y - observation)‖ := by
+            congr 1
+            abel
+      _ ≤ ‖A x - observation‖ + ‖-(A y - observation)‖ :=
+        norm_add_le _ _
+      _ = ‖A x - observation‖ + ‖A y - observation‖ := by
+        rw [norm_neg]
+      _ ≤ εx + εy := add_le_add hxnoise hynoise
+  exact sturmRealClosed_meanZero_twoSource_residual_stability
+    lam hlam x y hx0 hy0 (εx + εy) hdata
+
 #print axioms GegenbauerFock.Ultraspherical.sturmRealClosed_meanZero_twoSource_coercive
 #print axioms GegenbauerFock.Ultraspherical.sturmRealClosed_meanZero_twoSource_residual_stability
 #print axioms GegenbauerFock.Ultraspherical.sturmRealClosed_meanZero_unique_of_same_data
+#print axioms GegenbauerFock.Ultraspherical.sturmRealClosed_meanZero_commonObservation_noise_stability
 
 end GegenbauerFock.Ultraspherical
