@@ -79,15 +79,6 @@ theorem sturmRealHeatLimit_right_derivative_repr
       simp only [lp.coeFn_smul, lp.coeFn_sub, Pi.smul_apply,
         Pi.sub_apply, smul_eq_mul]
     rw [hslope, hspectral s hs]
-    change s⁻¹ * (Real.exp (-s * omega) * c - c) =
-      (s⁻¹ • (Real.exp (s * (-omega)) - 1)) * c
-    have he : Real.exp (-s * omega) =
-        Real.exp (s * (-omega)) := by
-      congr 1
-      ring
-    rw [he]
-    simp only [smul_eq_mul]
-    ring
   have hevent :
       (fun s : ℝ =>
         (b.repr (s⁻¹ •
