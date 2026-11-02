@@ -1,4 +1,4 @@
-import GegenbauerFock.UltrasphericalSturmLiouvilleRealHeatLimitHilbertCoordinates
+import GegenbauerFock.UltrasphericalSturmLiouvilleRealHeatGeneratorCoordinateSlope
 import GegenbauerFock.UltrasphericalSturmLiouvilleRealHeatScalarSlope
 import GegenbauerFock.UltrasphericalSturmLiouvilleRealHeatLimitModeContinuity
 import Mathlib.Analysis.InnerProductSpace.l2Space
@@ -39,8 +39,6 @@ theorem sturmRealHeatLimit_right_derivative_repr
       (-((n : ℝ) * ((n : ℝ) + 2 * lam))) *
         (sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam).repr f n := by
   let b := sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam
-  let omega : ℝ := (n : ℝ) * ((n : ℝ) + 2 * lam)
-  let c : ℝ := (b.repr f) n
   have hlimit :
       Tendsto
         (fun s : ℝ =>
@@ -51,51 +49,14 @@ theorem sturmRealHeatLimit_right_derivative_repr
     have h' :
         Tendsto
           (fun t : ℝ => inner ℝ (b n)
-            (t⁻¹ •
-              (sturmRealHeatLimitNonnegativeExtended lam hlam t f - f)))
+            (t⁻¹ • (sturmRealHeatLimitNonnegativeExtended lam hlam t f - f)))
           (𝓝[>] (0 : ℝ)) (𝓝 (inner ℝ (b n) g)) := by
       simpa only [Function.comp_def, innerSL_apply_apply] using h
     simpa only [← HilbertBasis.repr_apply_apply] using h'
-  have hspectral (s : ℝ) (hs : 0 < s) :
-      (b.repr (sturmRealHeatLimitNonnegativeExtended lam hlam s f)) n =
-        Real.exp (-s * omega) * c := by
-    have h := sturmRealHeatLimitCLM_hilbert_repr_diagonal lam hlam
-      (max (0 : ℝ) s) (le_max_left (0 : ℝ) s) f n
-    change (b.repr (sturmRealHeatLimitCLM lam hlam
-      (max (0 : ℝ) s) (le_max_left (0 : ℝ) s) f)) n =
-        Real.exp (-s * omega) * c
-    simpa only [max_eq_right hs.le] using h
-  have hpoint (s : ℝ) (hs : 0 < s) :
-      (b.repr (s⁻¹ •
-        (sturmRealHeatLimitNonnegativeExtended lam hlam s f - f))) n =
-        (s⁻¹ • (Real.exp (s * (-omega)) - 1)) * c := by
-    have hslope :
-        (b.repr (s⁻¹ •
-          (sturmRealHeatLimitNonnegativeExtended lam hlam s f - f))) n =
-          s⁻¹ * ((b.repr
-            (sturmRealHeatLimitNonnegativeExtended lam hlam s f)) n -
-            (b.repr f) n) := by
-      rw [map_smul, map_sub]
-      simp only [lp.coeFn_smul, lp.coeFn_sub, Pi.smul_apply,
-        Pi.sub_apply, smul_eq_mul]
-    rw [hslope, hspectral s hs]
-  have hevent :
-      (fun s : ℝ =>
-        (b.repr (s⁻¹ •
-          (sturmRealHeatLimitNonnegativeExtended lam hlam s f - f))) n)
-      =ᶠ[𝓝[>] (0 : ℝ)]
-      (fun s : ℝ => (s⁻¹ • (Real.exp (s * (-omega)) - 1)) * c) := by
-    filter_upwards [self_mem_nhdsWithin] with s hs
-    exact hpoint s hs
-  have hscalar :
-      Tendsto (fun s : ℝ =>
-        (s⁻¹ • (Real.exp (s * (-omega)) - 1)) * c)
-        (𝓝[>] (0 : ℝ)) (𝓝 ((-omega) * c)) :=
-    (sturmRealHeat_scalar_slope_zero_right omega).mul_const c
-  have hother := hlimit.congr' hevent
-  have heq := tendsto_nhds_unique hother hscalar
-  change (b.repr g) n = -omega * c
-  exact heq
+  have hcoordinate :=
+    sturmRealHeatLimit_fullL2_coordinate_right_slope lam hlam f n
+  have hunique := tendsto_nhds_unique hlimit hcoordinate
+  exact hunique
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealHeatLimit_right_derivative_repr
 
