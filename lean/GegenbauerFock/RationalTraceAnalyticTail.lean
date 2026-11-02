@@ -175,7 +175,12 @@ theorem legendre_exp_integral_eq_realTraceSeries :
   have h :=
     GegenbauerFock.GeneralUltrasphericalFock.exp_integral_eq_kummerSeries
       (1 / 2) 1 (by norm_num) (by norm_num)
-  simpa only [mul_one] using h.trans kummer_half_quarter_eq_realTraceSeries
+  have h' :
+      (∫ u : ℝ, Real.exp (u ^ 2 / 4)
+        ∂(GegenbauerFock.Ultraspherical.measure (1 / 2))) =
+        KummerCoefficients.kummerSeries (1 / 2) (1 / 4) := by
+    simpa only [mul_one] using h
+  exact h'.trans kummer_half_quarter_eq_realTraceSeries
 
 private theorem fifteen_real_partial_exact :
     (∑ n ∈ Finset.range 15, realTerm n) =

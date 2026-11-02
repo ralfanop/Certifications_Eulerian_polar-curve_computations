@@ -54,7 +54,7 @@ jobs:
             echo "::error::Forbidden axiom in rational trace tail"
             exit 1
           fi
-          for theorem in fifteen_tail_strict_bound fifteen_rational_endpoints; do
+          for theorem in fifteen_tail_strict_bound fifteen_rational_endpoints kummer_ratio_half kummer_half_quarter_eq_realTraceSeries legendre_exp_integral_eq_realTraceSeries legendre_exp_integral_decimal_enclosure; do
             grep -F "${theorem}' depends on axioms:" /tmp/v007-rational-tail-axioms.log
           done
           echo 'V007 rational trace tail: Lean compilation and axiom audit clean.'
