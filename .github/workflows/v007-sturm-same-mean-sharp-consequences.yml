@@ -1,0 +1,71 @@
+name: V007 exact same-mean resolvent and heat sharpness
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealSameMeanSharpConsequences.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicMeanZeroResolventTwoSource.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatSameMeanStability.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatLimitFirstModes.lean'
+      - '.github/workflows/v007-sturm-same-mean-sharp-consequences.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: v007-same-mean-sharp-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  actual-hilbert-space-same-mean-sharpness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit all four exact sharpness theorems
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealSameMeanSharpConsequences 2>&1 | tee /tmp/v007-same-mean-sharp-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealSameMeanSharpConsequences.lean 2>&1 | tee /tmp/v007-same-mean-sharp-audit.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-same-mean-sharp-build.log /tmp/v007-same-mean-sharp-audit.log; then
+            echo '::error::Forbidden axiom in V007 same-mean sharpness module.'
+            exit 1
+          fi
+          for theorem in \
+            sturmRealPositiveResolventFullCLM_sameMean_twoSource_bound \
+            sturmRealPositiveResolventFullCLM_sameMean_twoSource_optimal \
+            sturmRealHeatLimitCLM_same_mean_bound_attained \
+            sturmRealHeatLimitCLM_same_mean_lipschitz_optimal
+          do
+            grep -F "${theorem}' depends on axioms:" /tmp/v007-same-mean-sharp-audit.log
+          done
+          echo 'V007 full weighted-L2 same-mean resolvent/heat bounds and sharpness: kernel-certified.'
