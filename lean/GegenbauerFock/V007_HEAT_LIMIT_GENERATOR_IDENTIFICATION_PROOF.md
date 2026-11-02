@@ -1,6 +1,6 @@
 # V007 — Identification of the genuine Gegenbauer heat semigroup generator
 
-**Status:** rigorous mathematical proof and a list of Lean obligations; **this file is not itself a Lean kernel certificate.** The exact-source CI status must be checked for every imported theorem.
+**Status (2 November 2026):** The complete generator–canonical-Sturm graph equality is now Lean 4 kernel-certified at source commit `ae52253f87b3a93410c0d6799f78b7e647e0daa4` by CI [41438637991](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41438637991) (SUCCESS, 9,132 jobs, clean `#print axioms` audit). The mathematical proof below and the historical checklist remain for exposition; this Markdown file is not itself a kernel certificate. Certification attaches to the exact Lean declarations and source blob.
 
 ## 1. Framework and established bridge
 
@@ -93,7 +93,7 @@ Taking square roots gives
 
 For `f=e_1`, the inequality is an equality for every `s≥0`; hence the spectral-gap exponential rate is sharp. The separate closed-domain Poincaré optimality theorem gives an equivalent gap witness at the quadratic-form level.
 
-## 5. Exact Lean certification tasks remaining
+## 5. Historical Lean certification checklist (now discharged)
 
 1. Prove the full-`L²` heat coefficient formula by finite-basis truncation, continuity of `H_s`, and the HilbertBasis expansion theorem.
 2. Formalize the positive-time scalar bound and right derivative `(exp(-s*w)-1)/s -> -w` for `w≥0`.
@@ -105,7 +105,7 @@ For `f=e_1`, the inequality is an equality for every `s≥0`; hence the spectral
 **Isolation:** V007 branch / PR #16 only. No merge into `main`; no changes to V097 or V170.
 
 
-## 6. Exact Lean 4 certification frontier — 2 November 2026
+## 6. Historical Lean 4 certification frontier — earlier on 2 November 2026
 
 This section records only individually checked GitHub Actions results on the V007 branch. A green workflow certifies declarations at its specific checked-out SHA, **not** arbitrary later edits or the still-unproved full domain equality.
 
@@ -122,3 +122,34 @@ This section records only individually checked GitHub Actions results on the V00
 - **Compact canonical closed Sturm resolvent and sharp finite-rank truncation norm:** [CI 41429342198](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41429342198), SUCCESS.
 
 **Remaining central operator theorem:** construct the full-L² heat-coefficient identity, prove norm convergence of the derivative quotients on `Dom(closure(L_{λ,0}))` using the just-certified scalar majorant and spectral square-summability, prove the converse inclusion of domains by coordinate continuity and Parseval, and conclude exact equality of the closed operator and the semigroup generator. Neither the eigenmode nor the finite-span derivative by itself establishes the domain equality.
+
+## 7. Final generator theorem: exact Lean 4 certificates — 2 November 2026
+
+The earlier open obligations in §§5–6 have now been discharged. Here are the exact checks, distinguishing mathematical implications from the source SHA and workflow that kernel-checked each statement:
+
+| Theorem / scope | Verified GitHub Actions run | Result |
+|---|---|---|
+| \`sturmRealClosed_graph_of_diagonal_coefficients\`: the certified coordinate criterion for the actual closed Sturm graph | [41434260651](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41434260651) | SUCCESS |
+| \`sturmRealHeatLimit_right_derivative_repr\`: coefficients of any strong right derivative | [41436992960](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41436992960) | SUCCESS |
+| \`sturmRealHeatLimit_generator_graph_subset_closedSturm\`: reverse generator graph inclusion | [41438270476](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41438270476), source SHA \`63dedea24377ea48a31a976ae32778f44cb89b96\`, 9,125 jobs | SUCCESS |
+| \`sturmRealHeatLimit_closed_sturm_right_derivative\`: full-domain strong right derivative, recompiled with the sqrt-zero correction | [41438637975](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41438637975), source SHA \`ae52253f87b3a93410c0d6799f78b7e647e0daa4\`, 9,128 jobs | SUCCESS |
+| \`sturmRealHeatLimit_generator_exact_closedSturm_graph\` and \`sturmRealHeatLimit_generator_graph_set_eq_closedSturm\`: equivalence of derivative existence with canonical-domain membership and literal equality of the sets of ordered pairs | [41438637991](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41438637991), same source SHA \`ae52253f87b3a93410c0d6799f78b7e647e0daa4\`, 9,132 jobs | SUCCESS |
+
+All final targeted CI jobs completed successfully; both last runs finished at 2026-11-02 11:47 UTC. The dedicated \`#print axioms\` output for each of the **two final graph theorems**, as well as the forward and reverse inclusion theorems, lists **only** \`propext\`, \`Classical.choice\` and \`Quot.sound\`. Both final workflows reject \`sorryAx\` and \`Lean.ofReduceBool\`; neither occurs in their accepted theorem audit.
+
+**Precisely certified statement.** For each real \`lam > 0\`, and all \`f, g : Lp ℝ 2 (measure lam)\`, the strong right limit
+
+\`Tendsto (fun s : ℝ => s⁻¹ • (H_s f - f)) (𝓝[>] 0) (𝓝 g)\`
+
+holds if and only if there exists \`x : (sturmRealPartialOperator lam hlam).closure.domain\` whose underlying \`L²\` element is \`f\` and whose closed Sturm action is \`g\`. As a separate kernel-checked theorem, the two graph **sets** are exactly equal. Thus the infinitesimal generator \`G_lam\` of the actual \`C₀\` contraction semigroup and the canonical closure \`A_lam = closure(L_lam,0)\` agree *as unbounded operators including their domains*:
+
+\`Dom(G_lam) = Dom(A_lam)\`, \`G_lam f = A_lam f\` on this common domain.
+
+Proof directions:
+- **Forward:** \`UltrasphericalSturmLiouvilleRealHeatGeneratorClosedDomainForward.lean\` uses the exact heat multiplier, a sharp uniform scalar bound, \`tendsto_tsum_of_dominated_convergence\`, and Hilbert-basis Parseval.
+- **Reverse:** \`UltrasphericalSturmLiouvilleRealHeatGeneratorReverseCoordinates.lean\` transfers strong differentiation to continuous Fourier coordinates, then \`UltrasphericalSturmLiouvilleRealHeatGeneratorReverseDomain.lean\` invokes the exact canonical spectral-graph membership criterion.
+- **Composition:** \`UltrasphericalSturmLiouvilleRealHeatGeneratorExactGraph.lean\` states and proves both the iff and set equality.
+
+**Integrity check:** the five principal source files (\`ClosedDomainForward\`, \`ReverseDomain\`, \`GraphBridge\`, \`ReverseCoordinates\`, \`ExactGraph\`) have identical Git blob SHAs on the CI-certified \`ae52253f\` commit and the later observed PR head at the time of this audit. Later unrelated branch edits must not be construed as new CI certification of changed proof sources.
+
+**Scope safeguard:** this settles the full weighted-real-\`L²\` Gegenbauer heat-generator identification. It does **not** automatically prove every other V007 claim involving the Fourier–Bochner transform, Gaussian Fock isometry or separate operator ideals. Keep PR #16 Draft/unmerged; do not alter \`main\`, V097 or V170.
