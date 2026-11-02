@@ -6,6 +6,8 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteCoordinateCutoff.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteTruncationApply.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventFiniteRankTruncations.lean'
       - '.github/workflows/v007-ultraspherical-sturm-resolvent-finite-coordinate-cutoff.yml'
   workflow_dispatch:
 
