@@ -418,6 +418,36 @@ theorem coisometric_retraction_kernel_directed_gap_v007
       mul_le_mul_of_nonneg_right hOp (norm_nonneg _)
     _ = 4 * ‖U - V‖ * ‖T‖ := by ring
 
+/-- Complementary and range projections have exactly opposite
+operator perturbations, without any coisometry or norm hypothesis.
+This improves the paired upper bounds to an exact equality of
+the associated operator-norm variations. -/
+theorem coisometric_complement_operator_difference_eq_neg_projection_v007
+    (U V : H →L[ℂ] H) :
+    coisometric_complementaryProjection_v007 U -
+      coisometric_complementaryProjection_v007 V =
+    -(coisometric_sandwich_projection_v007 U -
+      coisometric_sandwich_projection_v007 V) := by
+  change
+    ((ContinuousLinearMap.id ℂ (TraceClass H) -
+        coisometric_sandwich_projection_v007 U) -
+      (ContinuousLinearMap.id ℂ (TraceClass H) -
+        coisometric_sandwich_projection_v007 V)) =
+      -(coisometric_sandwich_projection_v007 U -
+        coisometric_sandwich_projection_v007 V)
+  abel
+
+/-- Exact equality of operator perturbation norms of the
+complementary and range projections on true CFC Schatten S₁. -/
+theorem coisometric_complement_operator_difference_norm_eq_projection_v007
+    (U V : H →L[ℂ] H) :
+    ‖coisometric_complementaryProjection_v007 U -
+      coisometric_complementaryProjection_v007 V‖ =
+    ‖coisometric_sandwich_projection_v007 U -
+      coisometric_sandwich_projection_v007 V‖ := by
+  rw [coisometric_complement_operator_difference_eq_neg_projection_v007 U V,
+    norm_neg]
+
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_norm_le_one_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_component_dist_le_v007
@@ -430,6 +460,8 @@ theorem coisometric_retraction_kernel_directed_gap_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_operator_perturbation_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_projection_operator_perturbation_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_complement_operator_perturbation_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_complement_operator_difference_eq_neg_projection_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_complement_operator_difference_norm_eq_projection_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_embedding_range_directed_gap_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_kernel_directed_gap_v007
 
