@@ -45,11 +45,14 @@ theorem sturmRealClosedResolvent_compact_of_uniform_tail_bound
     have hev : ∀ᶠ N : ℕ in atTop,
         (t + (N : ℝ) * ((N : ℝ) + 2 * lam))⁻¹ < eps :=
       hbeta.eventually (eventually_lt_nhds heps)
-    filter_upwards [hev] with N hN
-    have hb := hbound N
-    change ‖R - T N‖ ≤ _ at hb
+    obtain ⟨N, hN⟩ := Filter.eventually_atTop.mp hev
+    refine ⟨N, ?_⟩
+    intro n hn
+    have hscalar := hN n hn
+    have hb := hbound n
+    change ‖R - T n‖ ≤ _ at hb
     rw [dist_eq_norm, norm_sub_rev]
-    exact lt_of_le_of_lt hb hN
+    exact lt_of_le_of_lt hb hscalar
   have hcompact : ∀ N : ℕ, IsCompactOperator (T N) := by
     intro N
     exact sturmRealResolventFiniteRankTruncation_compact lam t hlam N
