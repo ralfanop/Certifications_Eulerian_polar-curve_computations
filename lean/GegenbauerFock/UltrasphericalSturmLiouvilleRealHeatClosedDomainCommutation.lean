@@ -41,7 +41,7 @@ theorem sturmRealHeatLimitCLM_closed_domain_invariant_commutes
   let y : SturmH lam := T (x : SturmH lam)
   have hdiagAx (n : ℕ) :
       (b.repr (A x)) n =
-        (-((n : ℝ) * ((n : ℝ) + 2 * lam))) *
+        (-(n : ℝ) * ((n : ℝ) + 2 * lam)) *
           (b.repr (x : SturmH lam)) n :=
     (sturmRealClosed_eq_exact_monicGegenbauer_spectral_realization
       lam hlam).2 x n
@@ -57,13 +57,10 @@ theorem sturmRealHeatLimitCLM_closed_domain_invariant_commutes
     intro n
     change -((b.repr (T (A x))) n) =
       ((n : ℝ) * ((n : ℝ) + 2 * lam)) * (b.repr y) n
-    rw [hdiagT (A x) n, hdiagAx n]
-    change -(Real.exp (-s * ((n : ℝ) * ((n : ℝ) + 2 * lam))) *
-        (-((n : ℝ) * ((n : ℝ) + 2 * lam))) *
-        (b.repr (x : SturmH lam)) n) =
+    change -((b.repr (T (A x))) n) =
       ((n : ℝ) * ((n : ℝ) + 2 * lam)) *
         (b.repr (T (x : SturmH lam))) n
-    rw [hdiagT (x : SturmH lam) n]
+    rw [hdiagT (A x) n, hdiagAx n, hdiagT (x : SturmH lam) n]
     ring
   have hdomain : y ∈ (A.domain : Set (SturmH lam)) := by
     rw [(sturmRealClosed_eq_exact_monicGegenbauer_spectral_realization
@@ -76,9 +73,8 @@ theorem sturmRealHeatLimitCLM_closed_domain_invariant_commutes
   change (b.repr (A z)) n = (b.repr (T (A x))) n
   rw [(sturmRealClosed_eq_exact_monicGegenbauer_spectral_realization
     lam hlam).2 z n]
-  change (-((n : ℝ) * ((n : ℝ) + 2 * lam))) *
-      (b.repr (T (x : SturmH lam))) n = (b.repr (T (A x))) n
-  rw [hdiagT (x : SturmH lam) n, hdiagT (A x) n, hdiagAx n]
+  have hz : (z : SturmH lam) = T (x : SturmH lam) := rfl
+  rw [hz, hdiagT (x : SturmH lam) n, hdiagT (A x) n, hdiagAx n]
   ring
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealHeatLimitCLM_closed_domain_invariant_commutes
