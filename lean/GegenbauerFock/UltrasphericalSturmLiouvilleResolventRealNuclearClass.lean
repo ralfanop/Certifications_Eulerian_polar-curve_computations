@@ -39,6 +39,7 @@ summable operator-norm rank-one decomposition, not merely a
 formal scalar trace series. -/
 theorem HasRealNuclearRankOneSeries.operator_summable
     {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℝ H]
+    [CompleteSpace H]
     {A : H →L[ℝ] H}
     (hA : HasRealNuclearRankOneSeries A) :
     ∃ (u v : ℕ → H) (β : ℕ → ℝ),
