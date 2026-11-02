@@ -1,6 +1,7 @@
 name: V007 full L2 heat symmetry and mean conservation
 # Recheck after corrected all-L2 heat Hilbert-coordinate proof
 
+# Recheck after heat-coordinate scalar normalization fix 42b66e65
 on:
   push:
     branches: [gegenbauer-fock-formalization-20261025]
