@@ -5,6 +5,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatGeneratorReverseDomain.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatGeneratorReverseCoordinates.lean'
       - '.github/workflows/v007-sturm-heat-generator-reverse-domain.yml'
   workflow_dispatch:
 
