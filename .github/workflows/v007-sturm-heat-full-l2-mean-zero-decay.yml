@@ -1,5 +1,6 @@
 name: V007 sharp exponential heat decay on full mean-zero L2
 
+# Recheck after heat-coordinate scalar normalization fix 42b66e65
 on:
   push:
     branches: [gegenbauer-fock-formalization-20261025]
