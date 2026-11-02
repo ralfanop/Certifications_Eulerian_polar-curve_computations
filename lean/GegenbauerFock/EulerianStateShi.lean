@@ -118,9 +118,9 @@ theorem C_one_coeff (alpha : ℝ) (ha : 0 < alpha) (n : ℕ) :
     C (1 / 2) alpha half_pos' ha one n =
       WeightedMoments.complexWeight alpha n * ∫ u, (u : ℂ) ^ n ∂ν := by
   rw [C_coefficient]
-  simp only [WeightedMoments.coefficient, ContinuousLinearMap.smul_apply, innerSL_apply,
-    smul_eq_mul]
+  simp only [WeightedMoments.coefficient, ContinuousLinearMap.smul_apply, smul_eq_mul]
   congr 1
+  change inner ℂ (WeightedMoments.monomial ν (ae_abs_le_one (1 / 2)) n) one = _
   rw [MeasureTheory.L2.inner_def]
   have hm := (WeightedMoments.monomial_memLp ν (ae_abs_le_one (1 / 2)) n).coeFn_toLp
   have hc : (one : ℝ → ℂ) =ᵐ[ν] fun _ => (1 : ℂ) := Lp.coeFn_const 2 ν (1 : ℂ)
@@ -139,6 +139,22 @@ theorem C_one_coeff_norm_sq (alpha : ℝ) (ha : 0 < alpha) (n : ℕ) :
 /-- The terms of the Eulerian state series. -/
 def stateTerm (alpha : ℝ) (k : ℕ) : ℝ :=
   1 / (16 ^ k * alpha ^ (2 * k) * ((2 * k).factorial : ℝ) * (2 * k + 1) ^ 2)
+
+/-- The even terms of the coefficient series are the Eulerian state terms. -/
+theorem even_term_eq (alpha : ℝ) (ha : 0 < alpha) (k : ℕ) :
+    WeightedMoments.squareWeight alpha (2 * k) *
+      ((1 - (-1 : ℝ) ^ (2 * k + 1)) / (2 * ((2 * k : ℕ) + 1))) ^ 2 = stateTerm alpha k := by
+  have hα : alpha ≠ 0 := ha.ne'
+  have hev : (1 - (-1 : ℝ) ^ (2 * k + 1)) = 2 := by
+    rw [pow_succ, pow_mul]; norm_num
+  have h4 : (1 / (4 * alpha)) ^ (2 * k) = 1 / (16 ^ k * alpha ^ (2 * k)) := by
+    rw [div_pow, one_pow, mul_pow, pow_mul (4 : ℝ)]; norm_num
+  rw [hev]
+  unfold WeightedMoments.squareWeight stateTerm
+  rw [h4]
+  push_cast
+  field_simp
+  try ring
 
 /-- `‖C_{1/2,α} 𝟏‖² = ∑ₖ 1/(16^k α^{2k} (2k)! (2k+1)²)`. -/
 theorem C_one_norm_sq_hasSum (alpha : ℝ) (ha : 0 < alpha) :
@@ -159,16 +175,13 @@ theorem C_one_norm_sq_hasSum (alpha : ℝ) (ha : 0 < alpha) :
     rw [show 2 * k + 1 + 1 = 2 * (k + 1) by ring, pow_mul]
     norm_num
   rw [← (mul_right_injective₀ (two_ne_zero : (2 : ℕ) ≠ 0)).hasSum_iff hodd] at h
-  convert h using 1
-  funext k
-  simp only [Function.comp, stateTerm, WeightedMoments.squareWeight]
-  rw [show 2 * k + 1 = 2 * k + 1 from rfl, pow_succ, pow_mul]
-  norm_num
-  push_cast
-  have hα : alpha ≠ 0 := ha.ne'
-  rw [pow_mul, show (alpha⁻¹ * (1 / 4)) ^ 2 = (alpha ^ 2)⁻¹ * 16⁻¹ by field_simp; ring,
-    mul_pow, inv_pow, inv_pow]
-  field_simp
+  have hfun : ((fun n : ℕ => WeightedMoments.squareWeight alpha n *
+      ((1 - (-1 : ℝ) ^ (n + 1)) / (2 * (n + 1))) ^ 2) ∘ fun k : ℕ => 2 * k) = stateTerm alpha := by
+    funext k
+    simp only [Function.comp_apply]
+    exact even_term_eq alpha ha k
+  rw [hfun] at h
+  exact h
 
 /-- The same series is `4α Shi(1/(4α))`. -/
 theorem stateTerm_hasSum_shi (alpha : ℝ) (ha : 0 < alpha) :
