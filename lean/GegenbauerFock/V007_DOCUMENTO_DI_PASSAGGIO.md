@@ -883,3 +883,46 @@ CI [41250746314](https://github.com/ralfanop/Certifications_Eulerian_polar-curve
 
 **Invarianti:** PR #16 resta aperta in Draft, nessun merge
 né modifiche a `main`, V097 o V170.
+
+## 27. CI certificate: omeomorfismo dei dati e chiusura spettrale esatta — verifica del 2 novembre 2026
+
+**SUCCESS confermato, blocco CFC--Fock--Gram:**
+- [41250734176](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41250734176)
+  (commit `cd09259d8e5232ca9b83a954f80bf98b882f7f32`).
+- [41250746314](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41250746314)
+  (commit `80b69e2ff9a06036b4182eaca393577f06da47bf`).
+
+I log verificano la compilazione e `#print axioms` puliti
+per `exists_homeomorphism_between_fock_range_and_joint_cfc_fock_gram_range`,
+`exists_joint_fock_data_graph_factorization` e
+`joint_cfc_fock_gram_data_convergence_iff_fock`.
+Dunque i range effettivi delle osservazioni Fock e
+CFC--Fock--Gram sono omeomorfi nella topologia di sottospazio:
+il grafico dei dati congiunti è `F ↦ (W.symm F,F,C_adjoint F)`,
+con proiezione sulla coordinata Fock come inversa.
+Nessun `sorryAx` né `Lean.ofReduceBool`.
+
+**SUCCESS confermato, operatore di Sturm--Gegenbauer:**
+- [41223492857](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41223492857)
+  (commit `643864c1ec2baf836179716d964d3214feb23c8b`).
+
+Il teorema
+`sturmRealClosed_eq_exact_monicGegenbauer_spectral_realization`
+in `UltrasphericalSturmLiouvilleExactGegenbauerSpectralClosure.lean`
+è certificato dal kernel, con `#print axioms` pulito.
+Esso congiunge due uguaglianze esatte per l'operatore
+differenziale Sturm su `L²(ν_λ;ℝ)` con `λ>0`:
+(1) il dominio della chiusura canonica è precisamente il
+dominio spettrale pesato ℓ² nella base monica normalizzata
+di Gegenbauer; (2) ciascun coefficiente dell'azione chiusa
+è `-n(n+2λ)` volte il coefficiente della sorgente.
+Quindi la realizzazione diagonale NON è soltanto una
+estensione chiusa, ma coincide con la chiusura
+del vero operatore differenziale sul nucleo polinomiale.
+
+Le CI recenti sul risolvente compatto, sui troncamenti
+finiti e sulle relative stime vanno valutate separatamente,
+senza inferirne il successo dal risultato qui verificato.
+
+**Invarianti:** PR #16 aperta in Draft; nessun merge,
+nessuna modifica a `main`, V097 o ai workflow V170.
