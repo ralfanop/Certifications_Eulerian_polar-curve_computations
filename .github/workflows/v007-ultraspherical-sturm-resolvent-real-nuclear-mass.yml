@@ -6,6 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventRealNuclearMass.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventRealPositiveNuclear.lean'
       - '.github/workflows/v007-ultraspherical-sturm-resolvent-real-nuclear-mass.yml'
   workflow_dispatch:
 
