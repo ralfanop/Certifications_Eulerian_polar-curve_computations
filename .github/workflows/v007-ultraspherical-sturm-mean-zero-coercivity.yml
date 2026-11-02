@@ -1,4 +1,4 @@
-name: V007 quantitative mean-zero coercivity of true closed Gegenbauer Sturm
+name: V007 sharp quantitative mean-zero coercivity of true closed Gegenbauer Sturm
 
 on:
   push:
@@ -6,6 +6,8 @@ on:
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicClosedMeanZeroCoercivity.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicClosedDirichletPoincare.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicClosedMeanZeroCoercivitySharp.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicClosedPoincareSharp.lean'
       - '.github/workflows/v007-ultraspherical-sturm-mean-zero-coercivity.yml'
   workflow_dispatch:
 
@@ -48,12 +50,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.UltrasphericalSturmLiouvilleMonicClosedMeanZeroCoercivity 2>&1 | tee /tmp/v007-mean-zero-coercivity-build.log
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleMonicClosedMeanZeroCoercivitySharp 2>&1 | tee /tmp/v007-mean-zero-coercivity-build.log
           lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleMonicClosedMeanZeroCoercivity.lean 2>&1 | tee /tmp/v007-mean-zero-coercivity-axioms.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleMonicClosedMeanZeroCoercivitySharp.lean 2>&1 | tee -a /tmp/v007-mean-zero-coercivity-axioms.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-mean-zero-coercivity-build.log /tmp/v007-mean-zero-coercivity-axioms.log; then
             echo '::error::Forbidden axiom in genuine closed Sturm mean-zero coercivity.'
             exit 1
           fi
           grep -F "sturmRealClosed_meanZero_coercive' depends on axioms:" /tmp/v007-mean-zero-coercivity-axioms.log
           grep -F "sturmRealClosed_meanZero_kernel_trivial' depends on axioms:" /tmp/v007-mean-zero-coercivity-axioms.log
-          echo 'V007 genuine closed Sturm quantitative mean-zero coercivity: kernel-certified.'
+          grep -F "sturmRealClosed_meanZero_coercivity_attained' depends on axioms:" /tmp/v007-mean-zero-coercivity-axioms.log
+          grep -F "sturmRealClosed_meanZero_coercivity_constant_optimal' depends on axioms:" /tmp/v007-mean-zero-coercivity-axioms.log
+          echo 'V007 genuine closed Sturm sharp quantitative mean-zero coercivity: kernel-certified.'
