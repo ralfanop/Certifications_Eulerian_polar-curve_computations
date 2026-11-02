@@ -1,5 +1,6 @@
 import GegenbauerFock.PhyslibTraceClassCoisometricClosedRanges
 import GegenbauerFock.PhyslibTraceClassCoisometricUniqueness
+import GegenbauerFock.PhyslibTraceClassConjugationPerturbation
 
 /-!
 # V007 — quantitative stability of the canonical coisometric S₁ coordinates
@@ -125,10 +126,122 @@ theorem coisometric_unique_coordinates_norm_le_v007
       _ = ‖T‖ := one_mul _
   · exact (coisometric_closed_components_norm_le_v007 U hUnorm T).2
 
+
+/-- Simultaneous perturbation of data and the *retraction* multiplier.
+The true S₁ estimate does not require the coisometry identity: the
+contractivity hypotheses alone suffice. -/
+theorem coisometric_retraction_joint_traceNorm_le_v007
+    (U V : H →L[ℂ] H) (T S : TraceClass H)
+    (hU : ‖U‖ ≤ (1 : ℝ)) (hV : ‖V‖ ≤ (1 : ℝ)) :
+    traceNorm H
+      (sandwichContinuous U U.adjoint T -
+       sandwichContinuous V V.adjoint S) ≤
+      traceNorm H (T - S) + 2 * ‖U - V‖ * traceNorm H S := by
+  have hAdjU : ‖U.adjoint‖ ≤ (1 : ℝ) := by
+    rw [← ContinuousLinearMap.star_eq_adjoint]
+    simpa only [norm_star] using hU
+  have hAdjV : ‖V.adjoint‖ ≤ (1 : ℝ) := by
+    rw [← ContinuousLinearMap.star_eq_adjoint]
+    simpa only [norm_star] using hV
+  have h := conjugation_traceNorm_joint_input_contractions_dist_le_v007
+    U.adjoint V.adjoint T S hAdjU hAdjV
+  change traceNorm H
+    (sandwich T U U.adjoint - sandwich S V V.adjoint) ≤
+      traceNorm H (T - S) + 2 * ‖U - V‖ * traceNorm H S
+  simpa only [conjugate, ContinuousLinearMap.adjoint_adjoint,
+    conjugation_adjoint_sub_norm_eq_v007 U V] using h
+
+/-- The canonical range components for *different* contractive
+coisometric multipliers are jointly Lipschitz in the data and the
+multiplier, with explicit coefficient four on multiplier variation. -/
+theorem coisometric_projection_joint_traceNorm_le_v007
+    (U V : H →L[ℂ] H) (T S : TraceClass H)
+    (hU : ‖U‖ ≤ (1 : ℝ)) (hV : ‖V‖ ≤ (1 : ℝ)) :
+    traceNorm H
+      (coisometric_sandwich_projection_v007 U T -
+       coisometric_sandwich_projection_v007 V S) ≤
+      traceNorm H (T - S) + 4 * ‖U - V‖ * traceNorm H S := by
+  let RT : TraceClass H := sandwichContinuous U U.adjoint T
+  let RS : TraceClass H := sandwichContinuous V V.adjoint S
+  have hR : traceNorm H (RT - RS) ≤
+      traceNorm H (T - S) + 2 * ‖U - V‖ * traceNorm H S :=
+    coisometric_retraction_joint_traceNorm_le_v007 U V T S hU hV
+  have hRS : traceNorm H RS ≤ traceNorm H S := by
+    change ‖RS‖ ≤ ‖S‖
+    calc
+      ‖RS‖ ≤ ‖sandwichContinuous V V.adjoint‖ * ‖S‖ :=
+        ContinuousLinearMap.le_opNorm _ _
+      _ ≤ 1 * ‖S‖ :=
+        mul_le_mul_of_nonneg_right
+          (coisometric_retraction_norm_le_one_v007 V hV) (norm_nonneg _)
+      _ = ‖S‖ := one_mul _
+  have hInner :=
+    conjugation_traceNorm_joint_input_contractions_dist_le_v007
+      U V RT RS hU hV
+  have hMult :
+      2 * ‖U - V‖ * traceNorm H RS ≤
+        2 * ‖U - V‖ * traceNorm H S :=
+    mul_le_mul_of_nonneg_left hRS (by positivity)
+  change traceNorm H (conjugate RT U - conjugate RS V) ≤
+    traceNorm H (T - S) + 4 * ‖U - V‖ * traceNorm H S
+  calc
+    traceNorm H (conjugate RT U - conjugate RS V) ≤
+        traceNorm H (RT - RS) +
+          2 * ‖U - V‖ * traceNorm H RS := hInner
+    _ ≤ (traceNorm H (T - S) +
+          2 * ‖U - V‖ * traceNorm H S) +
+          2 * ‖U - V‖ * traceNorm H S :=
+      add_le_add hR hMult
+    _ = traceNorm H (T - S) +
+          4 * ‖U - V‖ * traceNorm H S := by ring
+
+/-- The canonical complementary components for different coisometries
+are stable with coefficient two for input perturbations and four for
+multiplier perturbations, in the genuine trace norm. -/
+theorem coisometric_complement_joint_traceNorm_le_v007
+    (U V : H →L[ℂ] H) (T S : TraceClass H)
+    (hU : ‖U‖ ≤ (1 : ℝ)) (hV : ‖V‖ ≤ (1 : ℝ)) :
+    traceNorm H
+      (coisometric_complementaryProjection_v007 U T -
+       coisometric_complementaryProjection_v007 V S) ≤
+      2 * traceNorm H (T - S) +
+        4 * ‖U - V‖ * traceNorm H S := by
+  have hP := coisometric_projection_joint_traceNorm_le_v007
+    U V T S hU hV
+  change ‖coisometric_sandwich_projection_v007 U T -
+    coisometric_sandwich_projection_v007 V S‖ ≤
+      ‖T - S‖ + 4 * ‖U - V‖ * ‖S‖ at hP
+  have hQ :
+      coisometric_complementaryProjection_v007 U T -
+          coisometric_complementaryProjection_v007 V S =
+        (T - S) -
+          (coisometric_sandwich_projection_v007 U T -
+           coisometric_sandwich_projection_v007 V S) := by
+    simp only [coisometric_complementaryProjection_v007,
+      ContinuousLinearMap.sub_apply, ContinuousLinearMap.id_apply]
+    abel
+  change ‖coisometric_complementaryProjection_v007 U T -
+    coisometric_complementaryProjection_v007 V S‖ ≤
+      2 * ‖T - S‖ + 4 * ‖U - V‖ * ‖S‖
+  rw [hQ]
+  calc
+    ‖(T - S) -
+        (coisometric_sandwich_projection_v007 U T -
+         coisometric_sandwich_projection_v007 V S)‖ ≤
+      ‖T - S‖ +
+        ‖coisometric_sandwich_projection_v007 U T -
+         coisometric_sandwich_projection_v007 V S‖ := norm_sub_le _ _
+    _ ≤ ‖T - S‖ + (‖T - S‖ + 4 * ‖U - V‖ * ‖S‖) :=
+      add_le_add_left hP _
+    _ = 2 * ‖T - S‖ + 4 * ‖U - V‖ * ‖S‖ := by ring
+
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_norm_le_one_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_component_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_unique_coordinates_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_unique_coordinates_norm_le_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_joint_traceNorm_le_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_projection_joint_traceNorm_le_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_complement_joint_traceNorm_le_v007
 
 end ProbabilisticTheory.TraceClass
