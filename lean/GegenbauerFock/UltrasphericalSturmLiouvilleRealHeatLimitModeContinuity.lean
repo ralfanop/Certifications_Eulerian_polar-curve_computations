@@ -73,7 +73,7 @@ theorem sturmRealHeatLimitNonnegativeExtended_mode_tendsto_zero
         (fun s : ℝ => Real.exp (-(max (0 : ℝ) s) * omega))
         (𝓝[≥] (0 : ℝ)) (𝓝 (1 : ℝ)) := by
     have h := (Real.continuous_exp.comp harg).tendsto (0 : ℝ)
-    have hh := h.mono_left nhdsWithin_le_nhds
+    have hh := h.mono_left (nhdsWithin_le_nhds (s := Set.Ici (0 : ℝ)))
     simpa only [max_self, neg_zero, zero_mul, Real.exp_zero] using hh
   have hvec : Tendsto
       (fun s : ℝ => Real.exp (-(max (0 : ℝ) s) * omega) • v)
