@@ -48,7 +48,8 @@ theorem sturmRealHeatLimitCLM_hilbert_repr_diagonal
   have hterm (i : ℕ) :
       inner ℝ (b n) (T ((b.repr f i) • b i)) =
       beta n • inner ℝ (b n) ((b.repr f i) • b i) := by
-    rw [map_smul, heigen i, inner_smul_right, inner_smul_right]
+    rw [map_smul, heigen i]
+    simp only [inner_smul_right, smul_eq_mul]
     by_cases hi : i = n
     · subst i
       simp only [smul_eq_mul]
