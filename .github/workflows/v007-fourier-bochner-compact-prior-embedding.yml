@@ -55,7 +55,7 @@ jobs:
             echo "::error::Forbidden axiom in compact-prior Fourier inverse stability theorems"
             exit 1
           fi
-          for name in ultraspherical_fourierBochner_compactPrior_isEmbedding ultraspherical_fourierBochner_compactPrior_inverse_uniformContinuous; do
+          for name in ultraspherical_fourierBochner_compactPrior_isEmbedding ultraspherical_fourierBochner_compactPrior_inverse_uniformContinuous ultraspherical_fourierBochner_compactPrior_inverse_epsilonDelta ultraspherical_fourierBochner_compactPrior_noisyCandidates; do
             grep -F "${name}' depends on axioms:" /tmp/v007-fourier-compact-prior-axioms.log
           done
-          echo 'V007 compact-prior embedding and uniform inverse stability: Lean and axiom audit successful.'
+          echo 'V007 compact-prior embedding, epsilon-delta and noisy candidate stability: Lean and axiom audit successful.'
