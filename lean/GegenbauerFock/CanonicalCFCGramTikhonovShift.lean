@@ -43,10 +43,12 @@ theorem sourceGramPositiveShift_isUnit
   have heq :
       (-(eps : ℂ)) • (1 : TikhonovH lam →L[ℂ] TikhonovH lam) - G =
         -(G + (eps : ℂ) • (1 : TikhonovH lam →L[ℂ] TikhonovH lam)) := by
-    rw [neg_smul]
+    simp only [neg_smul]
     abel
-  rw [heq, IsUnit.neg_iff] at h
-  exact h
+  have hh : IsUnit (G + (eps : ℂ) •
+      (1 : TikhonovH lam →L[ℂ] TikhonovH lam)) :=
+    (IsUnit.neg_iff _).mp (heq ▸ h)
+  simpa only [sourceGramPositiveShift, G] using hh
 
 /-- Two genuine bounded endomorphism inverse identities for the
 positive-shift Tikhonov resolvent, for every eps>0. -/
@@ -54,13 +56,16 @@ theorem sourceGramPositiveShift_two_sided_inverse
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     (eps : ℝ) (heps : 0 < eps) :
     (sourceGramPositiveShift lam alpha hlam ha eps) *
-      (sourceGramPositiveShift lam alpha hlam ha eps)⁻¹ =
+      (sourceGramPositiveShift lam alpha hlam ha eps)⁻¹ʳ =
         (1 : TikhonovH lam →L[ℂ] TikhonovH lam) ∧
-    (sourceGramPositiveShift lam alpha hlam ha eps)⁻¹ *
+    (sourceGramPositiveShift lam alpha hlam ha eps)⁻¹ʳ *
       (sourceGramPositiveShift lam alpha hlam ha eps) =
         (1 : TikhonovH lam →L[ℂ] TikhonovH lam) := by
   let h := sourceGramPositiveShift_isUnit lam alpha hlam ha eps heps
-  exact ⟨h.mul_inv_cancel, h.inv_mul_cancel⟩
+  have heq : (↑h.unit : TikhonovH lam →L[ℂ] TikhonovH lam) =
+      sourceGramPositiveShift lam alpha hlam ha eps := h.unit_spec
+  rw [← heq, Ring.inverse_unit]
+  exact ⟨h.unit.mul_inv, h.unit.inv_mul⟩
 
 /-- Genuine shifted source-Gram regularization acting on the
 original full source Hilbert space. -/
@@ -68,7 +73,7 @@ noncomputable def sourceGramTikhonovFilter
     (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
     (eps : ℝ) : TikhonovH lam →L[ℂ] TikhonovH lam :=
   (gram lam alpha hlam ha) *
-    (sourceGramPositiveShift lam alpha hlam ha eps)⁻¹
+    (sourceGramPositiveShift lam alpha hlam ha eps)⁻¹ʳ
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.sourceGramPositiveShift_isUnit
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.sourceGramPositiveShift_two_sided_inverse
