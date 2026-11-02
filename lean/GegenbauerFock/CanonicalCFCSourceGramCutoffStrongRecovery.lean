@@ -92,7 +92,7 @@ theorem exists_sourceGram_cutoff_strong_recovery
     ∑ i ∈ s,
       (((mu i : ℂ)⁻¹) • rankOne ℂ (u i) (u i))
         (gram lam alpha hlam ha f)) atTop (nhds f) at hsum
-  simpa only [R, sourceGramCutoff, Finset.sum_apply] using hsum
+  simpa only [R, sourceGramCutoff, _root_.sum_apply] using hsum
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.exists_sourceGram_cutoff_strong_recovery
 
