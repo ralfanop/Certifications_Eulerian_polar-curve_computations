@@ -61,7 +61,7 @@ theorem sturmRealHeatLimitCLM_zero
   have heq :
       sturmRealHeatLimitVector lam hlam 0 le_rfl f = f :=
     tendsto_nhds_unique hlim hconst
-  simpa only [sturmRealHeatLimitCLM_apply, one_apply] using heq
+  simpa [sturmRealHeatLimitCLM_apply, ContinuousLinearMap.one_def] using heq
 
 /-- Exact additive positive-time semigroup law for the constructed
 actual weighted real L² heat-limit continuous linear operators. -/
