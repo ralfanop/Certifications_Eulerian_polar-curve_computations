@@ -65,7 +65,7 @@ theorem Phi_hasSum {l : ℝ} (hl : -1/2 < l) (z : ℂ) :
   have hint : ∀ k, Integrable (F k) (ν l) := fun k =>
     (integrable_const (‖z‖ ^ k / k.factorial : ℝ)).mono' (hmeas k) (hbound k)
   have hsumR : Summable fun k : ℕ => ‖z‖ ^ k / (k.factorial : ℝ) :=
-    (NormedSpace.expSeries_div_hasSum_exp ℝ ‖z‖).summable
+    Real.summable_pow_div_factorial ‖z‖
   have hsum : Summable fun k => ∫ u, ‖F k u‖ ∂(ν l) := by
     refine Summable.of_nonneg_of_le (fun k => integral_nonneg fun _ => norm_nonneg _) (fun k => ?_) hsumR
     calc ∫ u, ‖F k u‖ ∂(ν l) ≤ ∫ u, (‖z‖ ^ k / k.factorial : ℝ) ∂(ν l) :=
@@ -74,7 +74,9 @@ theorem Phi_hasSum {l : ℝ} (hl : -1/2 < l) (z : ℂ) :
   have hexp : ∀ u : ℝ, HasSum (fun k => F k u) (cexp (I * z * u)) := by
     intro u
     rw [Complex.exp_eq_exp_ℂ]
-    exact NormedSpace.expSeries_div_hasSum_exp ℂ (I * z * u)
+    first
+      | exact NormedSpace.expSeries_div_hasSum_exp ℂ (I * z * u)
+      | exact NormedSpace.expSeries_div_hasSum_exp (I * z * u)
   have hΦ : Φ l z = ∑' k, ∫ u, F k u ∂(ν l) := by
     rw [integral_tsum_of_summable_integral_norm hint hsum, Φ]
     congr 1; funext u; exact (hexp u).tsum_eq.symm
@@ -291,11 +293,11 @@ theorem dens_tendsto {u : ℝ} (hu : u ∈ Ioo (-1:ℝ) 1) :
     apply Tendsto.div
     · exact (Real.differentiableAt_Gamma (by intro m; nlinarith [(Nat.cast_nonneg m : (0:ℝ) ≤ m)])
         |>.continuousAt).tendsto.comp (by
-          simpa using (continuous_id.add continuous_const).continuousAt (x := (0:ℝ)) |>.tendsto)
+          simpa using (continuous_add_right (1 : ℝ)).tendsto (0 : ℝ))
     · apply Tendsto.const_mul
       exact (Real.differentiableAt_Gamma (by intro m; nlinarith [(Nat.cast_nonneg m : (0:ℝ) ≤ m)])
         |>.continuousAt).tendsto.comp (by
-          simpa using (continuous_id.add continuous_const).continuousAt (x := (0:ℝ)) |>.tendsto)
+          simpa using (continuous_add_right (1 / 2 : ℝ)).tendsto (0 : ℝ))
     · have : 0 < Real.Gamma (0 + 1 / 2) := Real.Gamma_pos_of_pos (by norm_num)
       exact (mul_pos (Real.sqrt_pos.mpr Real.pi_pos) this).ne'
   · exact ((Real.continuousAt_const_rpow hb.ne').comp
