@@ -5,6 +5,7 @@ on:
     branches: [gegenbauer-fock-formalization-20261025]
     paths:
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicMeanZeroResolventSharpBound.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicMeanZeroResolventSharpOptimal.lean'
       - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleMonicClosedMeanZeroShiftGap.lean'
       - '.github/workflows/v007-ultraspherical-sturm-mean-zero-resolvent-sharp.yml'
   workflow_dispatch:
@@ -48,12 +49,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.UltrasphericalSturmLiouvilleMonicMeanZeroResolventSharpBound 2>&1 | tee /tmp/v007-mean-zero-resolvent-build.log
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleMonicMeanZeroResolventSharpOptimal 2>&1 | tee /tmp/v007-mean-zero-resolvent-build.log
           lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleMonicMeanZeroResolventSharpBound.lean 2>&1 | tee /tmp/v007-mean-zero-resolvent-audit.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleMonicMeanZeroResolventSharpOptimal.lean 2>&1 | tee -a /tmp/v007-mean-zero-resolvent-audit.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-mean-zero-resolvent-build.log /tmp/v007-mean-zero-resolvent-audit.log; then
             echo '::error::Forbidden axiom in mean-zero real-L2 full resolvent proof.'
             exit 1
           fi
           grep -F "sturmRealPositiveResolventFullCLM_preserves_meanZero' depends on axioms:" /tmp/v007-mean-zero-resolvent-audit.log
           grep -F "sturmRealPositiveResolventFullCLM_meanZero_sharp_bound' depends on axioms:" /tmp/v007-mean-zero-resolvent-audit.log
-          echo 'V007 full resolvent preserves mean zero and sharp-gap bounded: kernel-certified.'
+          grep -F "sturmRealPositiveResolventFullCLM_meanZero_bound_attained' depends on axioms:" /tmp/v007-mean-zero-resolvent-audit.log
+          grep -F "sturmRealPositiveResolventFullCLM_meanZero_bound_optimal' depends on axioms:" /tmp/v007-mean-zero-resolvent-audit.log
+          echo 'V007 full resolvent preserves mean zero, sharp gap attained and optimal: kernel-certified.'
