@@ -5,6 +5,7 @@ on:
     paths:
       - 'lean/GegenbauerFock/CanonicalCFCGramPositiveShiftCoercivity.lean'
       - 'lean/GegenbauerFock/CanonicalCFCGramTikhonovContraction.lean'
+      - 'lean/GegenbauerFock/CanonicalCFCGramTikhonovDenseRangeError.lean'
       - '.github/workflows/v007-gram-positive-shift-coercivity.yml'
   workflow_dispatch:
 concurrency:
@@ -44,9 +45,10 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.CanonicalCFCGramPositiveShiftCoercivity GegenbauerFock.CanonicalCFCGramTikhonovContraction 2>&1 | tee /tmp/v007-coercivity-build.log
+          lake build GegenbauerFock.CanonicalCFCGramPositiveShiftCoercivity GegenbauerFock.CanonicalCFCGramTikhonovContraction GegenbauerFock.CanonicalCFCGramTikhonovDenseRangeError 2>&1 | tee /tmp/v007-coercivity-build.log
           lake env lean -M16768 GegenbauerFock/CanonicalCFCGramPositiveShiftCoercivity.lean 2>&1 | tee /tmp/v007-coercivity-axioms.log
           lake env lean -M16768 GegenbauerFock/CanonicalCFCGramTikhonovContraction.lean 2>&1 | tee -a /tmp/v007-coercivity-axioms.log
+          lake env lean -M16768 GegenbauerFock/CanonicalCFCGramTikhonovDenseRangeError.lean 2>&1 | tee -a /tmp/v007-coercivity-axioms.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-coercivity-build.log /tmp/v007-coercivity-axioms.log; then
             echo '::error::Forbidden axiom in Gram coercivity'
             exit 1
@@ -54,4 +56,6 @@ jobs:
           grep -F "sourceGram_positive_shift_norm_lower' depends on axioms:" /tmp/v007-coercivity-axioms.log
           grep -F "sourceGramTikhonov_error_pointwise_contract' depends on axioms:" /tmp/v007-coercivity-axioms.log
           grep -F "sourceGramTikhonov_error_opNorm_le_one' depends on axioms:" /tmp/v007-coercivity-axioms.log
-          echo 'V007 true Gram shifted coercivity and Tikhonov contraction certified'
+          grep -F "sourceGramTikhonov_error_on_range' depends on axioms:" /tmp/v007-coercivity-axioms.log
+          grep -F "sourceGramTikhonov_error_on_range_norm' depends on axioms:" /tmp/v007-coercivity-axioms.log
+          echo 'V007 true Gram coercivity, contraction and dense-range Tikhonov error certified'
