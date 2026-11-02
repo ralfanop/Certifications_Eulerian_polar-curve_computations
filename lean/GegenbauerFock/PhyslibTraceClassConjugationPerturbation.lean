@@ -164,11 +164,44 @@ theorem conjugation_traceNorm_joint_input_multiplier_dist_le_v007
         (‖U‖ + ‖V‖) * ‖U - V‖ * ‖S‖ :=
       add_le_add hInput hMultiplier
 
+/-- For two contractive multipliers, simultaneous perturbations of
+the trace-class input and multiplier have universal coefficients one
+and two. This holds without positivity, normality, or coisometry. -/
+theorem conjugation_traceNorm_joint_input_contractions_dist_le_v007
+    (U V : H →L[ℂ] H) (T S : TraceClass H)
+    (hU : ‖U‖ ≤ (1 : ℝ))
+    (hV : ‖V‖ ≤ (1 : ℝ)) :
+    traceNorm H (conjugate T U - conjugate S V) ≤
+      traceNorm H (T - S) + 2 * ‖U - V‖ * traceNorm H S := by
+  change ‖conjugate T U - conjugate S V‖ ≤
+    ‖T - S‖ + 2 * ‖U - V‖ * ‖S‖
+  have hSq : ‖U‖ ^ 2 ≤ (1 : ℝ) := by
+    have hprod : 0 ≤ ‖U‖ * (1 - ‖U‖) :=
+      mul_nonneg (norm_nonneg _) (sub_nonneg.mpr hU)
+    nlinarith
+  have hSum : ‖U‖ + ‖V‖ ≤ (2 : ℝ) := by linarith
+  have hJoint :=
+    conjugation_traceNorm_joint_input_multiplier_dist_le_v007 U V T S
+  change ‖conjugate T U - conjugate S V‖ ≤
+    ‖U‖ ^ 2 * ‖T - S‖ +
+      (‖U‖ + ‖V‖) * ‖U - V‖ * ‖S‖ at hJoint
+  calc
+    ‖conjugate T U - conjugate S V‖ ≤
+        ‖U‖ ^ 2 * ‖T - S‖ +
+          (‖U‖ + ‖V‖) * ‖U - V‖ * ‖S‖ := hJoint
+    _ ≤ 1 * ‖T - S‖ + 2 * ‖U - V‖ * ‖S‖ := by
+      apply add_le_add
+      · exact mul_le_mul_of_nonneg_right hSq (norm_nonneg _)
+      · exact mul_le_mul_of_nonneg_right
+          (mul_le_mul_of_nonneg_right hSum (norm_nonneg _)) (norm_nonneg _)
+    _ = ‖T - S‖ + 2 * ‖U - V‖ * ‖S‖ := by ring
+
 #print axioms ProbabilisticTheory.TraceClass.conjugation_adjoint_sub_norm_eq_v007
 #print axioms ProbabilisticTheory.TraceClass.conjugationContinuous_multiplier_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.conjugation_traceNorm_multiplier_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.conjugationContinuous_contractions_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.conjugation_traceNorm_contractions_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.conjugation_traceNorm_joint_input_multiplier_dist_le_v007
+#print axioms ProbabilisticTheory.TraceClass.conjugation_traceNorm_joint_input_contractions_dist_le_v007
 
 end ProbabilisticTheory.TraceClass
