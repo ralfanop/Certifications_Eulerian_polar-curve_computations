@@ -1,0 +1,55 @@
+name: V007 deterministic noise bounds for CFC Fock Gram
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/CanonicalCFCDeterministicNoiseEstimate.lean'
+      - '.github/workflows/v007-cfc-deterministic-noise-bound.yml'
+  workflow_dispatch:
+concurrency:
+  group: v007-cfc-noise-bound-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  noise-bound:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for i in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((i*8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for i in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((i*8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile four noise bounds and kernel axiom audit
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.CanonicalCFCDeterministicNoiseEstimate 2>&1 | tee /tmp/v007-noise-build.log
+          lake env lean -M16768 GegenbauerFock/CanonicalCFCDeterministicNoiseEstimate.lean 2>&1 | tee /tmp/v007-noise-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-noise-build.log /tmp/v007-noise-axioms.log; then
+            echo '::error::Forbidden Lean axiom in V007 noise bounds.'
+            exit 1
+          fi
+          grep -F "bounded_reconstructor_noise_error_le' depends on axioms:" /tmp/v007-noise-axioms.log
+          grep -F "C_noisy_reconstruction_bound' depends on axioms:" /tmp/v007-noise-axioms.log
+          grep -F "localCFC_noisy_reconstruction_bound' depends on axioms:" /tmp/v007-noise-axioms.log
+          grep -F "sourceGram_noisy_reconstruction_bound' depends on axioms:" /tmp/v007-noise-axioms.log
