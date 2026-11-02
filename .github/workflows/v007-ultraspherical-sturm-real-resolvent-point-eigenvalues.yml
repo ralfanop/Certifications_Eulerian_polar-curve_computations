@@ -49,7 +49,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealResolventPointEigenvalues 2>&1 | tee /tmp/v007-resolvent-point-build.log
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealFullResolventSelfAdjoint GegenbauerFock.UltrasphericalSturmLiouvilleRealResolventPointEigenvalues 2>&1 | tee /tmp/v007-resolvent-point-build.log
           lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealResolventPointEigenvalues.lean 2>&1 | tee /tmp/v007-resolvent-point-axioms.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-resolvent-point-build.log /tmp/v007-resolvent-point-axioms.log; then
             echo '::error::Forbidden axiom in real Sturm resolvent point spectrum.'
@@ -59,4 +59,17 @@ jobs:
           grep -F "sturmRealPositiveResolventFullCLM_zero_not_eigenvalue' depends on axioms:" /tmp/v007-resolvent-point-axioms.log
           grep -F "sturmRealPositiveResolventFullCLM_injective_from_point_eigenvalues' depends on axioms:" /tmp/v007-resolvent-point-axioms.log
           grep -F "sturmRealPositiveResolventFullCLM_point_eigenvalue_pos' depends on axioms:" /tmp/v007-resolvent-point-axioms.log
+          cat > /tmp/v007-resolvent-point-joint-import.lean <<'LEAN'
+          import GegenbauerFock.UltrasphericalSturmLiouvilleRealFullResolventSelfAdjoint
+          import GegenbauerFock.UltrasphericalSturmLiouvilleRealResolventPointEigenvalues
+          #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_injective
+          #print axioms GegenbauerFock.Ultraspherical.sturmRealPositiveResolventFullCLM_injective_from_point_eigenvalues
+          LEAN
+          lake env lean -M16768 /tmp/v007-resolvent-point-joint-import.lean 2>&1 | tee /tmp/v007-resolvent-point-joint-import.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-resolvent-point-joint-import.log; then
+          echo '::error::Forbidden axiom in combined resolvent module import.'
+          exit 1
+          fi
+          grep -F "sturmRealPositiveResolventFullCLM_injective' depends on axioms:" /tmp/v007-resolvent-point-joint-import.log
+          grep -F "sturmRealPositiveResolventFullCLM_injective_from_point_eigenvalues' depends on axioms:" /tmp/v007-resolvent-point-joint-import.log
           echo 'V007 exact real closed Sturm resolvent point eigenvalues kernel-audited.'
