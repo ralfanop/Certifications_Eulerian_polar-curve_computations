@@ -1,5 +1,35 @@
 # V007 — rigorous rational enclosure of a Gegenbauer–Fock scalar integral
 
+## Genuine intrinsic Fock Hilbert–Schmidt numerical certificate — 2 November 2026
+
+The *operator-level* bridge is now kernel-certified, not merely
+the scalar special integral or its Kummer series.
+
+- **[CI #41435876640](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41435876640): SUCCESS**, 9,173 build jobs; exact Lean source
+  [`GegenbauerIntrinsicEntireHSRationalEnclosure.lean`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/19a2876c2a4377373aafe03f811b1fd2aa4928b0/lean/GegenbauerFock/GegenbauerIntrinsicEntireHSRationalEnclosure.lean).
+- For EVERY complete complex Hilbert source basis of
+  `Lp ℂ 2 (Ultraspherical.measure (1/2))`, the actual
+  intrinsic Gaussian Fock-valued Gegenbauer transform satisfies
+  the *strict* printed rational enclosure of its squared S₂ energy:
+  `C_intrinsicEntire_HS_energy_legendre_decimal_enclosure`.
+- Its exact identification with the normalized Eulerian integral
+  is `C_intrinsicEntire_HS_energy_legendre_eq_integral`.
+- The same two conclusions hold for the source Gram diagonal trace:
+  `C_intrinsicEntire_Gram_trace_legendre_eq_integral` and
+  `C_intrinsicEntire_Gram_trace_legendre_decimal_enclosure`.
+- All four declarations have `#print axioms` checked: only
+  `propext`, `Classical.choice`, and `Quot.sound`;
+  no `sorryAx` or `Lean.ofReduceBool`.
+
+The operator-level result is phrased as the **basis-defined genuine
+Hilbert–Schmidt S₂ energy** and the **actual source Gram diagonal
+trace**, not an arbitrary different ideal's norm implementation.
+The separately completed exact uniform-density measure identity
+(CI #41436401805) justifies the same Eulerian normalization
+`(1/2) 1_{(-1,1)}du` used by the paper. If the literal
+`∫_{-1}^1` notation is required as a Lean expression, a separate
+interval-integral API conversion remains an editorial/formal bridge.
+
 ## Kernel-verified Eulerian uniform law — 2 November 2026
 
 The previously separate identification of the abstract ultraspherical
