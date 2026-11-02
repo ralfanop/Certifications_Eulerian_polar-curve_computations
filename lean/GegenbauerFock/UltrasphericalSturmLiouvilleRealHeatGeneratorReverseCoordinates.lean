@@ -79,7 +79,6 @@ theorem sturmRealHeatLimit_right_derivative_repr
           (sturmRealHeatLimitNonnegativeExtended lam hlam s f) -
           inner ℝ (b n) f) := by
         rw [inner_smul_right, inner_sub_right]
-        rfl
       _ = s⁻¹ * (Real.exp (-s * omega) * c - c) := by
         rw [← HilbertBasis.repr_apply_apply b
           (sturmRealHeatLimitNonnegativeExtended lam hlam s f) n,
