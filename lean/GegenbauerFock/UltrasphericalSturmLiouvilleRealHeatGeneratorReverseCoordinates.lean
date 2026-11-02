@@ -69,28 +69,25 @@ theorem sturmRealHeatLimit_right_derivative_repr
       (b.repr (s⁻¹ •
         (sturmRealHeatLimitNonnegativeExtended lam hlam s f - f))) n =
         (s⁻¹ • (Real.exp (s * (-omega)) - 1)) * c := by
-    calc
-      (b.repr (s⁻¹ •
-        (sturmRealHeatLimitNonnegativeExtended lam hlam s f - f))) n =
-          inner ℝ (b n) (s⁻¹ •
-            (sturmRealHeatLimitNonnegativeExtended lam hlam s f - f)) :=
-        HilbertBasis.repr_apply_apply b _ n
-      _ = s⁻¹ * (inner ℝ (b n)
-          (sturmRealHeatLimitNonnegativeExtended lam hlam s f) -
-          inner ℝ (b n) f) := by
-        rw [inner_smul_right, inner_sub_right]
-      _ = s⁻¹ * (Real.exp (-s * omega) * c - c) := by
-        rw [← HilbertBasis.repr_apply_apply b
-          (sturmRealHeatLimitNonnegativeExtended lam hlam s f) n,
-          ← HilbertBasis.repr_apply_apply b f n, hspectral s hs]
-      _ = (s⁻¹ • (Real.exp (s * (-omega)) - 1)) * c := by
-        have he : Real.exp (-s * omega) =
-            Real.exp (s * (-omega)) := by
-          congr 1
-          ring
-        rw [he]
-        simp only [smul_eq_mul]
-        ring
+    have hslope :
+        (b.repr (s⁻¹ •
+          (sturmRealHeatLimitNonnegativeExtended lam hlam s f - f))) n =
+          s⁻¹ * ((b.repr
+            (sturmRealHeatLimitNonnegativeExtended lam hlam s f)) n -
+            (b.repr f) n) := by
+      rw [map_smul, map_sub]
+      simp only [lp.coeFn_smul, lp.coeFn_sub, Pi.smul_apply,
+        Pi.sub_apply, smul_eq_mul]
+    rw [hslope, hspectral s hs]
+    change s⁻¹ * (Real.exp (-s * omega) * c - c) =
+      (s⁻¹ • (Real.exp (s * (-omega)) - 1)) * c
+    have he : Real.exp (-s * omega) =
+        Real.exp (s * (-omega)) := by
+      congr 1
+      ring
+    rw [he]
+    simp only [smul_eq_mul]
+    ring
   have hevent :
       (fun s : ℝ =>
         (b.repr (s⁻¹ •
