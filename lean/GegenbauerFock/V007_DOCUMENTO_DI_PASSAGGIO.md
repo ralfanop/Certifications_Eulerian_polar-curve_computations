@@ -1007,3 +1007,67 @@ iniettività e natura non suriettiva restano distinte.
 
 **Invarianti:** PR #16 Draft, nessun merge,
 nessuna modifica a `main`, V097 o workflow V170.
+
+## 30. Classificazione dello spettro continuo e certificato integrato — audit 2 novembre 2026
+
+**CI verificate con SUCCESS e audit `#print axioms` senza
+`sorryAx` né `Lean.ofReduceBool`:**
+
+1. [41430114750](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41430114750):
+   `sturmRealResolvent_zero_mem_spectrum` e
+   `sturmRealResolvent_zero_continuous_spectrum`.
+   Zero appartiene allo spettro del risolvente effettivo,
+   ma non è autovalore; l'operatore è iniettivo,
+   con immagine densa e propria.
+2. [41430114787](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41430114787):
+   `sturmRealResolvent_not_surjective`,
+   `sturmRealResolvent_dense_range`,
+   `sturmRealResolvent_range_not_closed` e
+   `sturmRealResolvent_not_bounded_below`.
+   Il problema di risoluzione inversa non ammette una
+   stima di stabilità uniforme sull'intero range.
+3. [41436770561](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41436770561):
+   `sturmRealClosedResolvent_spectrum_eq`,
+   `sturmRealClosedResolvent_mem_spectrum_iff`
+   e `sturmRealClosedResolvent_hasEigenvalue_iff`.
+   Lo spettro reale esatto è
+   `{0} ∪ {(t+n(n+2λ))⁻¹ : n∈ℕ}`;
+   zero è l'unico valore non appartenente allo spettro
+   puntuale.
+4. [41438050308](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41438050308):
+   certificato integrato
+   `sturmRealClosedResolvent_compact_spectrum_and_exact_cutoffs`
+   e `sturmRealClosedResolvent_spectral_dichotomy`,
+   con importazione e audit di
+   `sturmRealClosed_eq_exact_monicGegenbauer_spectral_realization`
+   e `sturmRealResolvent_inverse_on_range_discontinuous_at_zero`.
+   Il certificato integra compattezza, spettro, norma esatta
+   dei troncamenti, densità e non-chiusura del range.
+5. [41450968499](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41450968499):
+   `sturmRealResolvent_spectrum_eq` e
+   `corollary_5_2` nel modulo
+   `UltrasphericalSturmLiouvilleResolventSpectrumExact.lean`.
+   Il Corollario 5.2 del manoscritto 13 è certificato
+   per l'effettivo risolvente chiuso, includendo
+   positività, autoaggiuntezza, compattezza,
+   autovalori `β_n=(t+n(n+2λ))⁻¹`,
+   spettro `{0}∪{β_n}`, isolamento di ogni
+   punto spettrale non nullo e accumulazione in zero.
+
+**Stato rigoroso:** per `λ,t>0`, il risolvente
+`R_t=(tI-closure(L_λ))⁻¹` è compatto,
+autoaggiunto, positivo e iniettivo;
+`Ran(R_t)` è denso, proprio e non chiuso;
+`σ(R_t)={0}∪{β_n}`;
+`‖R_t-R_t^(N)‖=β_N`.
+La chiusura canonica del vero nucleo differenziale
+polinomiale coincide con la realizzazione spettrale
+diagonale (CI 41223492857).
+
+Le CI più recenti sulle ulteriori formulazioni nucleari,
+Schatten e semigruppo vanno valutate separatamente:
+nessun risultato ancora in corso è promosso a
+certificato senza il suo proprio SUCCESS e audit.
+
+**Invarianti:** PR #16 resta Draft senza merge.
+Non modificare `main`, V097 o workflow V170.
