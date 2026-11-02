@@ -88,9 +88,10 @@ theorem sturmRealResolvent_dense_range
   have hker : R.ker = ⊥ :=
     LinearMap.ker_eq_bot.mpr
       (sturmRealPositiveResolventFullCLM_injective lam t hlam ht)
+  have hself : IsSelfAdjoint R :=
+    sturmRealPositiveResolventFullCLM_isSelfAdjoint lam t hlam ht
   apply (Submodule.topologicalClosure_eq_top_iff).2
-  rw [R.orthogonal_range,
-    sturmRealPositiveResolventFullCLM_isSelfAdjoint lam t hlam ht, hker]
+  rw [R.orthogonal_range, hself, hker]
 
 /-- The resolvent range is dense and proper, so it is not closed. -/
 theorem sturmRealResolvent_range_not_closed
