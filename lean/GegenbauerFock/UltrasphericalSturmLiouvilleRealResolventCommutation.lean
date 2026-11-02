@@ -52,9 +52,12 @@ theorem sturmRealPositiveResolventFullCLM_comp_comm
         _ = -(Rs - Rt) := by abel
         _ = -((t - s) • (Rs.comp Rt)) := by rw [hreverse]
         _ = (s - t) • (Rs.comp Rt) := by
-          rw [← neg_smul]
-          congr 1
-          ring
+          calc
+            -((t - s) • (Rs.comp Rt)) =
+                (-(t - s)) • (Rs.comp Rt) := by
+                  exact (neg_smul (t - s) (Rs.comp Rt)).symm
+            _ = (s - t) • (Rs.comp Rt) := by
+                  rw [neg_sub]
     have hnonzero : s - t ≠ 0 := sub_ne_zero.mpr hst
     have hcancel := congrArg
       (fun z : SturmH lam →L[ℝ] SturmH lam => (s - t)⁻¹ • z) hmain
