@@ -53,3 +53,5 @@ jobs:
             grep -F "'GegenbauerFock.Ultraspherical.${theorem}' depends on axioms:" /tmp/gf-sturm-finite-truncations.log
           done
           echo 'Finite Gegenbauer resolvent pointwise synthesis kernel-certified.'
+
+# Recheck with kernel-certified finite rank compactness at commit 0fd91b77.
