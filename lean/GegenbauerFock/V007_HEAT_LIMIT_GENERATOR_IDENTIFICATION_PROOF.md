@@ -103,3 +103,22 @@ For `f=e_1`, the inequality is an equality for every `s≥0`; hence the spectral
 6. Compile and perform explicit `#print axioms` audits on each new theorem, tied to its exact commit SHA. Exclude `sorryAx` and `Lean.ofReduceBool` from the audit.
 
 **Isolation:** V007 branch / PR #16 only. No merge into `main`; no changes to V097 or V170.
+
+
+## 6. Exact Lean 4 certification frontier — 2 November 2026
+
+This section records only individually checked GitHub Actions results on the V007 branch. A green workflow certifies declarations at its specific checked-out SHA, **not** arbitrary later edits or the still-unproved full domain equality.
+
+- **Full weighted-real-L² strong Yosida heat limit:** [CI 41252264177](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41252264177), SUCCESS.
+- **Contractive full-L² limit CLM:** [CI 41252657051](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41252657051), SUCCESS.
+- **Positive-time semigroup identity:** [CI 41427396901](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41427396901), SUCCESS.
+- **Full-L² strong C₀ continuity:** [CI 41428776506](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41428776506), SUCCESS.
+- **Exact heat semigroup operator norm `‖H_s‖=1`:** new `UltrasphericalSturmLiouvilleRealHeatLimitExactNorm.lean` at commit `47167bf5`; [CI 41429860101](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41429860101), SUCCESS, with targeted axiom audit.
+- **Right scalar slope `(exp(-s ω)-1)/s → -ω`:** `UltrasphericalSturmLiouvilleRealHeatScalarSlope.lean` at `d7d34307`; [CI 41430249990](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41430249990), SUCCESS.
+- **Right slope on every actual normalized weighted-L² Gegenbauer eigenmode:** `UltrasphericalSturmLiouvilleRealHeatModeDerivative.lean` at `d3fc1406`; [CI 41430442037](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41430442037), SUCCESS.
+- **Uniform scalar error majorant for `s>0, ω≥0`:** `0 ≤ (exp(-s ω)-1)/s+ω ≤ ω`, in `UltrasphericalSturmLiouvilleRealHeatScalarDomination.lean` at `3f982e16`; [CI 41431014583](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41431014583), SUCCESS.
+- **Finite Gegenbauer core right derivative:** `UltrasphericalSturmLiouvilleRealHeatFiniteSpanDerivative.lean` at `66c4d1a0`, [CI 41431328861](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41431328861), IN_PROGRESS at this checkpoint. Do **not** count it as certified before SUCCESS.
+- **Sharp closed-domain Poincaré constant:** [CI 41428064114](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41428064114), SUCCESS.
+- **Compact canonical closed Sturm resolvent and sharp finite-rank truncation norm:** [CI 41429342198](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41429342198), SUCCESS.
+
+**Remaining central operator theorem:** construct the full-L² heat-coefficient identity, prove norm convergence of the derivative quotients on `Dom(closure(L_{λ,0}))` using the just-certified scalar majorant and spectral square-summability, prove the converse inclusion of domains by coordinate continuity and Parseval, and conclude exact equality of the closed operator and the semigroup generator. Neither the eigenmode nor the finite-span derivative by itself establishes the domain equality.
