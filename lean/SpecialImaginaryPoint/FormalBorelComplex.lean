@@ -116,7 +116,7 @@ theorem operatorAPS_eq_standard (f : PowerSeries ℂ) :
       simp [operatorAPS, operatorAComplex, thetaPS, thetaComplex]
   | succ n =>
       simp only [operatorAPS, PowerSeries.coeff_mk, operatorAComplex,
-        PowerSeries.coeff_sub, PowerSeries.coeff_add, PowerSeries.coeff_C_mul,
+        map_sub, map_add, PowerSeries.coeff_C_mul,
         PowerSeries.coeff_succ_X_mul, thetaPS, thetaComplex]
       push_cast
       ring
@@ -133,7 +133,7 @@ theorem operatorFPS_eq_standard (f : PowerSeries ℂ) :
       simp [operatorFPS, operatorFComplex, thetaPS, thetaComplex]
   | succ n =>
       simp only [operatorFPS, PowerSeries.coeff_mk, operatorFComplex,
-        PowerSeries.coeff_sub, PowerSeries.coeff_add, PowerSeries.coeff_C_mul,
+        map_sub, map_add, PowerSeries.coeff_C_mul,
         PowerSeries.coeff_succ_X_mul, thetaPS, thetaComplex]
       push_cast
       ring
