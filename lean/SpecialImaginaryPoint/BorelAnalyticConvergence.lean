@@ -73,6 +73,59 @@ theorem eulerianEntireSeries_analyticAt_zero :
     AnalyticAt ℂ eulerianEntireSeries 0 :=
   eulerianEntireSeries_hasFPowerSeriesAt_zero.analyticAt
 
+/-!
+The following strengthens convergence at each parameter to a formal
+infinite radius of convergence and hence analyticity everywhere.
+-/ 
+
+/-- The complex scalar Taylor expansion of the Eulerian Borel output
+has infinite radius of convergence. -/
+theorem eulerianEntireSeries_radius_top :
+    (FormalMultilinearSeries.ofScalars ℂ eulerianEntireCoeff).radius = ⊤ := by
+  apply FormalMultilinearSeries.radius_eq_top_of_summable_norm
+  intro r
+  have hmajor :
+      Summable (fun n : ℕ => (4 * (r : ℝ)) ^ n / (n.factorial : ℝ)) :=
+    Real.summable_pow_div_factorial (4 * (r : ℝ))
+  simp only [FormalMultilinearSeries.ofScalars_norm]
+  refine Summable.of_nonneg_of_le (fun n => by positivity) ?_ hmajor
+  intro n
+  have hfact : (n.factorial : ℝ) ≤ ((2 * n + 1).factorial : ℝ) := by
+    exact_mod_cast (Nat.factorial_le (show n ≤ 2 * n + 1 by omega))
+  have hn : (0 : ℝ) < (n.factorial : ℝ) := by positivity
+  have hmain :
+      (4 * (r : ℝ)) ^ n / ((2 * n + 1).factorial : ℝ) ≤
+        (4 * (r : ℝ)) ^ n / (n.factorial : ℝ) := by
+    exact div_le_div_of_nonneg_left (by positivity) hn hfact
+  calc
+    ‖eulerianEntireCoeff n‖ * (r : ℝ) ^ n =
+        (4 * (r : ℝ)) ^ n / ((2 * n + 1).factorial : ℝ) := by
+      simp only [eulerianEntireCoeff, norm_div, norm_pow,
+        Complex.norm_natCast]
+      norm_num
+      rw [mul_pow]
+      ring
+    _ ≤ _ := hmain
+
+/-- The genuine Eulerian double-Borel function has the specified Taylor
+expansion on the entire complex plane (infinite analytic radius). -/
+theorem eulerianEntireSeries_hasFPowerSeriesOnBall :
+    HasFPowerSeriesOnBall eulerianEntireSeries
+      (FormalMultilinearSeries.ofScalars ℂ eulerianEntireCoeff) 0 ⊤ := by
+  refine ⟨by rw [eulerianEntireSeries_radius_top], by simp, ?_⟩
+  intro y hy
+  simpa only [zero_add, FormalMultilinearSeries.ofScalars_apply_eq,
+    smul_eq_mul] using eulerianEntireSeries_hasSum y
+
+/-- Global holomorphy of the Eulerian double-Borel series. -/
+theorem eulerianEntireSeries_analyticAt (z : ℂ) :
+    AnalyticAt ℂ eulerianEntireSeries z := by
+  exact eulerianEntireSeries_hasFPowerSeriesOnBall.analyticAt_of_mem (by simp)
+
+#print axioms EulerianSpecialPoint.eulerianEntireSeries_radius_top
+#print axioms EulerianSpecialPoint.eulerianEntireSeries_hasFPowerSeriesOnBall
+#print axioms EulerianSpecialPoint.eulerianEntireSeries_analyticAt
+
 #print axioms EulerianSpecialPoint.eulerianEntireSeries_hasFPowerSeriesAt_zero
 #print axioms EulerianSpecialPoint.eulerianEntireSeries_analyticAt_zero
 
