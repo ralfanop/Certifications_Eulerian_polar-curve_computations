@@ -41,8 +41,9 @@ theorem sourceGramTikhonov_error_pointwise_contract
     simp [A, sourceGramPositiveShift, ContinuousLinearMap.add_apply]
   change ‖(eps : ℂ) • y‖ ≤ ‖x‖
   calc
-    ‖(eps : ℂ) • y‖ = eps * ‖y‖ := by
-      simp [norm_smul, Complex.norm_real, Real.norm_eq_abs, abs_of_pos heps]
+    ‖(eps : ℂ) • y‖ ≤ ‖(eps : ℂ)‖ * ‖y‖ := norm_smul_le _ _
+    _ = eps * ‖y‖ := by
+      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos heps]
     _ ≤ ‖gram lam alpha hlam ha y + (eps : ℂ) • y‖ := hco
     _ = ‖A y‖ := by rw [heval]
     _ = ‖x‖ := by rw [hAy]
