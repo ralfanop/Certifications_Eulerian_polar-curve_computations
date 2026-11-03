@@ -18,15 +18,15 @@ in `FormalBorel.lean`.
 
 namespace EulerianSpecialPoint
 
-def doubleBorelComplex (a : ℕ → ℂ) (n : ℕ) : ℂ :=
+noncomputable def doubleBorelComplex (a : ℕ → ℂ) (n : ℕ) : ℂ :=
   a n / ((n.factorial : ℂ) ^ 2)
 
-def operatorAComplex (a : ℕ → ℂ) : ℕ → ℂ
+noncomputable def operatorAComplex (a : ℕ → ℂ) : ℕ → ℂ
   | 0 => (1 / 2 : ℂ) * a 0
   | n + 1 => (((n + 1 : ℕ) : ℂ) + 1 / 2) * a (n + 1)
       - ((n + 1 : ℕ) : ℂ) * a n
 
-def operatorFComplex (a : ℕ → ℂ) : ℕ → ℂ
+noncomputable def operatorFComplex (a : ℕ → ℂ) : ℕ → ℂ
   | 0 => 0
   | n + 1 => ((n + 1 : ℕ) : ℂ)
       * (((n + 1 : ℕ) : ℂ) + 1 / 2) * a (n + 1) - a n
@@ -46,7 +46,8 @@ theorem doubleBorel_intertwines_complex (a : ℕ → ℂ) :
         thetaComplex]
       have hn : (n.factorial : ℂ) ≠ 0 := by
         exact_mod_cast (Nat.ne_of_gt (Nat.factorial_pos n))
-      have hn1 : (((n + 1 : ℕ) : ℂ)) ≠ 0 := by positivity
+      have hn1 : (((n + 1 : ℕ) : ℂ)) ≠ 0 := by
+        exact_mod_cast (Nat.succ_ne_zero n)
       rw [Nat.factorial_succ]
       push_cast
       field_simp
