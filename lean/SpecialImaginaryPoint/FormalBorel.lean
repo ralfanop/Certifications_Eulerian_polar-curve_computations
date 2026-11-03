@@ -63,6 +63,31 @@ theorem doubleBorel_binomialInput_coefficients (n : ℕ) :
   have hm : ((2 * n + 1).factorial : ℚ) ≠ 0 := by positivity
   field_simp
 
+
+/-- The exact recurrence of the reciprocal-central-binomial input
+coefficients: (n+3/2) a_(n+1) = (n+1) a_n. -/
+theorem binomialInputCoefficient_recurrence (n : ℕ) :
+    ((n : ℚ) + 3 / 2) * binomialInputCoefficient (n + 1) =
+      ((n + 1 : ℕ) : ℚ) * binomialInputCoefficient n := by
+  have hidx : 2 * (n + 1) + 1 = ((2 * n + 1) + 1) + 1 := by omega
+  have hfac :
+      (2 * (n + 1) + 1).factorial =
+        (2 * n + 3) * (2 * n + 2) * (2 * n + 1).factorial := by
+    rw [hidx, Nat.factorial_succ, Nat.factorial_succ]
+    ring
+  have hfacn : (n + 1).factorial = (n + 1) * n.factorial := Nat.factorial_succ n
+  unfold binomialInputCoefficient
+  rw [hfac, hfacn, pow_succ]
+  push_cast
+  have hn : (n.factorial : ℚ) ≠ 0 := by positivity
+  have hm : ((2 * n + 1).factorial : ℚ) ≠ 0 := by positivity
+  have htwo : ((2 * n + 2 : ℕ) : ℚ) ≠ 0 := by positivity
+  have hthree : ((2 * n + 3 : ℕ) : ℚ) ≠ 0 := by positivity
+  field_simp
+  ring
+
+#print axioms EulerianSpecialPoint.binomialInputCoefficient_recurrence
+
 #print axioms EulerianSpecialPoint.doubleBorel_binomialInput_coefficients
 
 #print axioms EulerianSpecialPoint.doubleBorel_intertwines
