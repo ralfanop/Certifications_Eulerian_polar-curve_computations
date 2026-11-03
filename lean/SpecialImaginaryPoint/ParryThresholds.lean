@@ -71,6 +71,25 @@ theorem strict_parry_return (x : ℝ)
           mul_le_mul_of_nonneg_left (by linarith) (by positivity)
     linarith
 
+
+/-- The defining trinomial of beta_31 gives the exact finite
+Parry digit value 1/beta + 1/beta^31 = 1, without decimals. -/
+theorem parry31_two_digit_identity (beta : ℝ)
+    (hbeta : beta ≠ 0)
+    (hpoly : beta ^ 31 - beta ^ 30 - 1 = 0) :
+    (1 : ℝ) = 1 / beta + 1 / beta ^ 31 := by
+  have hp : beta ^ 31 ≠ 0 := pow_ne_zero _ hbeta
+  have heq : beta ^ 31 = beta ^ 30 + 1 := by
+    linarith
+  calc
+    (1 : ℝ) = beta ^ 31 / beta ^ 31 := (div_self hp).symm
+    _ = (beta ^ 30 + 1) / beta ^ 31 := by rw [heq]
+    _ = 1 / beta + 1 / beta ^ 31 := by
+      field_simp [hbeta]
+      ring
+
+#print axioms Manuscript14Section11.parry31_two_digit_identity
+
 #print axioms Manuscript14Section11.f32_left_positive
 #print axioms Manuscript14Section11.f31_right_negative
 #print axioms Manuscript14Section11.delta_left_exact
