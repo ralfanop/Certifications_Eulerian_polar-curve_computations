@@ -533,6 +533,135 @@ theorem coisometric_retraction_kernel_normalized_bidirectional_gap_v007
       _ = 4 * ‖U - V‖ := by rw [norm_sub_rev]; ring
 
 
+
+/-!
+## Numerical normalized gaps
+
+The preceding predicates encode sharp-to-the-quantifiers upper bounds.
+Here we additionally construct actual real-valued gaps using sInf
+(point-to-subspace distance) followed by sSup (over the unit ball).
+The bridge theorems are valid whenever the target gap upper bound has
+been proved and the source contains zero.
+-/
+
+/-- Actual real-valued point-to-set distance, represented by sInf
+over all distances to points of B. For nonempty B this agrees with
+the usual distance-to-set construction. -/
+noncomputable def normalizedPointToSetGapValue_v007
+    (T : TraceClass H) (B : Set (TraceClass H)) : ℝ :=
+  sInf {r : ℝ | ∃ S : TraceClass H, S ∈ B ∧ r = dist T S}
+
+/-- Actual numerical directed gap: sSup of point-to-set distances
+over the unit ball of A. Its target B is a nonempty closed subspace
+in the coisometric applications below. -/
+noncomputable def normalizedDirectedGapValue_v007
+    (A B : Set (TraceClass H)) : ℝ :=
+  sSup {r : ℝ | ∃ T : TraceClass H,
+    T ∈ A ∧ ‖T‖ ≤ 1 ∧ r = normalizedPointToSetGapValue_v007 T B}
+
+/-- Symmetric numerical normalized gap, the maximum of two directed
+numerical gaps defined by sSup and sInf in the real numbers. -/
+noncomputable def normalizedBidirectionalGapValue_v007
+    (A B : Set (TraceClass H)) : ℝ :=
+  max (normalizedDirectedGapValue_v007 A B)
+    (normalizedDirectedGapValue_v007 B A)
+
+/-- The quantified normalized directed-gap bound controls the
+actual sSup/sInf numerical directed gap, provided A contains zero. -/
+theorem normalizedDirectedGapValue_le_of_quantified_v007
+    (A B : Set (TraceClass H)) (eps : ℝ)
+    (hA0 : (0 : TraceClass H) ∈ A)
+    (hGap : normalizedDirectedGapLE_v007 A B eps) :
+    normalizedDirectedGapValue_v007 A B ≤ eps := by
+  have hNe :
+      ({r : ℝ | ∃ T : TraceClass H,
+        T ∈ A ∧ ‖T‖ ≤ 1 ∧
+        r = normalizedPointToSetGapValue_v007 T B}).Nonempty := by
+    refine ⟨normalizedPointToSetGapValue_v007 (0 : TraceClass H) B, ?_⟩
+    exact ⟨0, hA0, by simp, rfl⟩
+  unfold normalizedDirectedGapValue_v007
+  apply csSup_le hNe
+  intro r hr
+  obtain ⟨T, hT, hTnorm, rfl⟩ := hr
+  obtain ⟨S, hS, hdist⟩ := hGap T hT hTnorm
+  have hBdd :
+      BddBelow {x : ℝ | ∃ S' : TraceClass H,
+        S' ∈ B ∧ x = dist T S'} := by
+    refine ⟨0, ?_⟩
+    intro x hx
+    obtain ⟨S', hS', rfl⟩ := hx
+    exact dist_nonneg
+  have hInf :
+      normalizedPointToSetGapValue_v007 T B ≤ dist T S := by
+    unfold normalizedPointToSetGapValue_v007
+    exact csInf_le hBdd ⟨S, hS, rfl⟩
+  exact le_trans hInf hdist
+
+/-- A bidirectional quantified estimate yields a numerical
+sSup/sInf gap bound whenever both source sets contain zero. -/
+theorem normalizedBidirectionalGapValue_le_of_quantified_v007
+    (A B : Set (TraceClass H)) (eps : ℝ)
+    (hA0 : (0 : TraceClass H) ∈ A)
+    (hB0 : (0 : TraceClass H) ∈ B)
+    (hGap : normalizedBidirectionalGapLE_v007 A B eps) :
+    normalizedBidirectionalGapValue_v007 A B ≤ eps := by
+  unfold normalizedBidirectionalGapValue_v007
+  exact max_le
+    (normalizedDirectedGapValue_le_of_quantified_v007 A B eps hA0 hGap.1)
+    (normalizedDirectedGapValue_le_of_quantified_v007 B A eps hB0 hGap.2)
+
+/-- Real-valued normalized bidirectional gap of the two embedded
+closed Schatten S₁ ranges is bounded by 4 ‖U-V‖. The numerical
+gap is explicitly represented by nested sSup and sInf. -/
+theorem coisometric_embedding_range_numeric_bidirectional_gap_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ)) :
+    normalizedBidirectionalGapValue_v007
+      (Set.range (sandwichContinuous U.adjoint U))
+      (Set.range (sandwichContinuous V.adjoint V)) ≤
+      4 * ‖U - V‖ := by
+  have h0U :
+      (0 : TraceClass H) ∈
+        Set.range (sandwichContinuous U.adjoint U) :=
+    ⟨0, map_zero _⟩
+  have h0V :
+      (0 : TraceClass H) ∈
+        Set.range (sandwichContinuous V.adjoint V) :=
+    ⟨0, map_zero _⟩
+  exact normalizedBidirectionalGapValue_le_of_quantified_v007
+    _ _ _ h0U h0V
+    (coisometric_embedding_range_normalized_bidirectional_gap_v007
+      U V hUUstar hVVstar hUnorm hVnorm)
+
+/-- The actual numerical normalized bidirectional gap between the
+closed Schatten S₁ kernels of R_U and R_V is ≤ 4 ‖U-V‖. -/
+theorem coisometric_retraction_kernel_numeric_bidirectional_gap_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ)) :
+    normalizedBidirectionalGapValue_v007
+      {T : TraceClass H | sandwichContinuous U U.adjoint T = 0}
+      {T : TraceClass H | sandwichContinuous V V.adjoint T = 0} ≤
+      4 * ‖U - V‖ := by
+  have h0U :
+      (0 : TraceClass H) ∈
+        {T : TraceClass H | sandwichContinuous U U.adjoint T = 0} :=
+    map_zero _
+  have h0V :
+      (0 : TraceClass H) ∈
+        {T : TraceClass H | sandwichContinuous V V.adjoint T = 0} :=
+    map_zero _
+  exact normalizedBidirectionalGapValue_le_of_quantified_v007
+    _ _ _ h0U h0V
+    (coisometric_retraction_kernel_normalized_bidirectional_gap_v007
+      U V hUUstar hVVstar hUnorm hVnorm)
+
+
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_norm_le_one_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_component_dist_le_v007
@@ -551,5 +680,9 @@ theorem coisometric_retraction_kernel_normalized_bidirectional_gap_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_kernel_directed_gap_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_embedding_range_normalized_bidirectional_gap_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_kernel_normalized_bidirectional_gap_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedDirectedGapValue_le_of_quantified_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_le_of_quantified_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_embedding_range_numeric_bidirectional_gap_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_kernel_numeric_bidirectional_gap_v007
 
 end ProbabilisticTheory.TraceClass
