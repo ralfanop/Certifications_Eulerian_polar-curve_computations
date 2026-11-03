@@ -76,9 +76,14 @@ theorem sturmRealHeat_actual_basis_inner_diagonal
         ((sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam) n)) =
     Real.exp (-s * ((n : ℝ) * ((n : ℝ) + 2 * lam))) := by
   let b := sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam
+  have hb (k : ℕ) :
+      b k = sturmMonicEigenCandidate_realL2_normalized lam hlam k := by
+    simp only [b, sturmMonicEigenCandidate_realL2_hilbertBasis,
+      HilbertBasis.coe_mkOfOrthogonalEqBot]
   have heig :
       sturmRealHeatLimitCLM lam hlam s hs (b n) =
         Real.exp (-s * ((n : ℝ) * ((n : ℝ) + 2 * lam))) • b n := by
+    rw [hb n]
     exact sturmRealHeatLimitCLM_normalized_Gegenbauer_eigen lam hlam s hs n
   have hnorm : ‖b n‖ = 1 := b.orthonormal.norm_eq_one n
   change inner ℝ (b n) (sturmRealHeatLimitCLM lam hlam s hs (b n)) = _
@@ -122,9 +127,14 @@ theorem sturmRealHeat_actual_basis_norm_sq
       ((sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam) n)‖ ^ 2 =
     (Real.exp (-s * ((n : ℝ) * ((n : ℝ) + 2 * lam)))) ^ 2 := by
   let b := sturmMonicEigenCandidate_realL2_hilbertBasis lam hlam
+  have hb (k : ℕ) :
+      b k = sturmMonicEigenCandidate_realL2_normalized lam hlam k := by
+    simp only [b, sturmMonicEigenCandidate_realL2_hilbertBasis,
+      HilbertBasis.coe_mkOfOrthogonalEqBot]
   have heig :
       sturmRealHeatLimitCLM lam hlam s hs (b n) =
         Real.exp (-s * ((n : ℝ) * ((n : ℝ) + 2 * lam))) • b n := by
+    rw [hb n]
     exact sturmRealHeatLimitCLM_normalized_Gegenbauer_eigen lam hlam s hs n
   have hnorm : ‖b n‖ = 1 := b.orthonormal.norm_eq_one n
   change ‖sturmRealHeatLimitCLM lam hlam s hs (b n)‖ ^ 2 = _
