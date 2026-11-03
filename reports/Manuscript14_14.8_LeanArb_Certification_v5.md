@@ -62,4 +62,4 @@ The same successful run executed **37/37** numerical checks (five accurately rou
 4. Finish the remaining special-value and pullback identities, with domain and parameter normalization matched to the manuscript's exact text.
 5. Continue with the other main results in the archived 20-row statement matrix; do not duplicate general results of manuscripts 11–13.
 
-No merge was performed to PR #16, V007, V097 or the repository's main branch. Manuscipts 11–13 were not changed.
+No merge was performed to PR #16, V007, V097 or the repository's main branch. Manuscripts 11–13 were not changed.
