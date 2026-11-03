@@ -70,10 +70,12 @@ proves rational comparisons and conditional transport of inequalities.
 ## Strict verification boundary
 
 - Arb proof-of-sign and numeric enclosure: independently executable.
-- Lean polynomial-sign lemmas: certification ONLY AFTER CI SUCCESS and
-  forbidden-axiom audit; previously observed no Lean certificate for the
-  analytic identity x_E=sqrt(2)sinh(1/sqrt(2)), nor for the full
-  Perron–Frobenius invariant-density theorem.
+- Lean polynomial-sign lemmas and strict interval transport: five theorems
+  **SUCCESS** on CI #41725449416 (pinned Lean 4.35.0-rc3, Mathlib;
+  #print axioms includes only propext, Classical.choice, Quot.sound).
+  A subsequent exact two-digit identity was submitted for a separate check.
+  There remains no Lean certificate for the analytic identity
+  x_E=sqrt(2)sinh(1/sqrt(2)) or the full Perron–Frobenius invariant-density theorem.
 - Transcendence uses Lindemann's theorem in the manuscript; not Lean-certified
   by this Section 11 module.
 - The Mersenne-index conjecture is not proved.
