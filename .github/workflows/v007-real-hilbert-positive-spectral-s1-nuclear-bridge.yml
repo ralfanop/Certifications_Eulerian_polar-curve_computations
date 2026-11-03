@@ -1,0 +1,49 @@
+name: V007 universal real positive spectral S1 nuclear bridge
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/RealHilbertPositiveSpectralS1NuclearBridge.lean'
+      - '.github/workflows/v007-real-hilbert-positive-spectral-s1-nuclear-bridge.yml'
+  workflow_dispatch:
+
+jobs:
+  abstract-real-spectral-s1-nuclear:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Prepare pinned Mathlib dependencies
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Certify general real positive spectral S1 to nuclear S1
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealHilbertPositiveSpectralS1NuclearBridge 2>&1 | tee /tmp/v007-real-spectral-s1-nuclear.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-real-spectral-s1-nuclear.log; then
+            echo '::error::Forbidden axiom in general real positive S1 bridge.'
+            exit 1
+          fi
+          for theorem in realHilbert_positiveEigenbasis_rankOne_summable realHilbert_positiveEigenbasis_operator_tsum_eq HasRealPositiveS1Eigenbasis.exists_nuclear_exact_trace; do
+            grep -F "'GegenbauerFock.Ultraspherical.${theorem}' depends on axioms:" /tmp/v007-real-spectral-s1-nuclear.log
+          done
+          echo 'General real positive spectral S1 to nuclear S1 kernel-certified.'
