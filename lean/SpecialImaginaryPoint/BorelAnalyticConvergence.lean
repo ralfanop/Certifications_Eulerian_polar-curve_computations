@@ -157,7 +157,11 @@ theorem eulerianEntireCoeff_recurrence (n : ℕ) :
       ring
     rw [heq]
     exact hthree
-  ring
+  calc
+    _ = (4 * (3 + (n : ℂ) * 2)) *
+          (3 + (n : ℂ) * 2)⁻¹ := by ring
+    _ = 4 := by
+      rw [mul_assoc, mul_inv_cancel₀ hden, mul_one]
 
 /-- The actual analytic Eulerian series takes the expected value at zero. -/
 theorem eulerianEntireSeries_zero : eulerianEntireSeries 0 = 1 := by
