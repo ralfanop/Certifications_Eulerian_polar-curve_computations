@@ -48,7 +48,7 @@ jobs:
             echo '::error::Forbidden axiom in real heat S1 projective trace certificate.'
             exit 1
           fi
-          for theorem in sturmRealHeat_has_positive_real_spectralS1 sturmRealHeat_has_real_nuclear_rank_one_series sturmRealHeat_realNuclearInfimum_eq_spectralTrace sturmRealHeat_positive_time_realS1_exact_certificate; do
+          for theorem in sturmRealHeat_has_positive_real_spectralS1 sturmRealHeat_has_real_nuclear_rank_one_series_viaS1 sturmRealHeat_realNuclearInfimum_eq_spectralTrace_directDuality sturmRealHeat_positive_time_realS1_exact_certificate; do
             grep -F "'GegenbauerFock.Ultraspherical.${theorem}' depends on axioms:" /tmp/v007-heat-projective-nuclear-trace.log
           done
           echo 'Positive-time real Sturm heat S1 nuclear trace norm kernel-certified.'
