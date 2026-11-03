@@ -35,6 +35,19 @@ pre-existing operator results in Sections 1–10; V007 and V097 untouched.
    Their spectral assertions have additional hypotheses: do NOT
    transfer spectral conclusions to beta_31 without checking them.
 
+
+Additional independent overlap checks:
+- "On the Beta Transformation" (https://linas.org/math/beta-spectrum.pdf),
+  equation (17), presents the Gelfond–Parry step-function series
+  for invariant densities and more general spectral deformations.
+  It further confirms that the step-function/Fourier-sinc formula
+  is a routine transform of existing densities, not new operator theory.
+- Notes "β-transformations" at
+  https://www.maths.usyd.edu.au/u/donaldc/gbrown/yin.pdf explicitly
+  reproduce the classical Parry admissibility and invariant-density
+  theorems. Neither source was found to contain the special
+  Eulerian value `sqrt(2)*sinh(1/sqrt(2))` in the Parry-threshold context.
+
 Other fundamental primary references: W. Parry (1960),
 doi:10.1007/BF02020954; K. Schmidt (1980),
 doi:10.1112/blms/12.4.269; K. G. Hare and D. Tweedle (2008),
