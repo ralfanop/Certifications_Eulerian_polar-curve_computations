@@ -151,11 +151,24 @@ theorem eulerianEntireCoeff_recurrence (n : ℕ) :
   have hthree : ((2 * n + 3 : ℕ) : ℂ) ≠ 0 := by
     exact_mod_cast (Nat.ne_of_gt (show 0 < 2 * n + 3 by omega))
   field_simp
+  have hden : (3 + (n : ℂ) * 2) ≠ 0 := by
+    have heq : (3 + (n : ℂ) * 2) = ((2 * n + 3 : ℕ) : ℂ) := by
+      push_cast
+      ring
+    rw [heq]
+    exact hthree
+  field_simp [hden]
   ring
 
 /-- The actual analytic Eulerian series takes the expected value at zero. -/
 theorem eulerianEntireSeries_zero : eulerianEntireSeries 0 = 1 := by
-  simp [eulerianEntireSeries, eulerianEntireCoeff]
+  unfold eulerianEntireSeries
+  rw [tsum_eq_single 0]
+  · norm_num [eulerianEntireCoeff]
+  · intro n hn
+    cases n with
+    | zero => contradiction
+    | succ n => simp
 
 /-- Derivative of the *actual analytic function* at the origin, derived
 from its certified Taylor expansion rather than only formal coefficients. -/
