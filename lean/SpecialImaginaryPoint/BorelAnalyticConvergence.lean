@@ -122,6 +122,53 @@ theorem eulerianEntireSeries_analyticAt (z : ℂ) :
     AnalyticAt ℂ eulerianEntireSeries z := by
   exact eulerianEntireSeries_hasFPowerSeriesOnBall.analyticAt_of_mem (by simp)
 
+/-!
+## A pointwise analytic derivative and the exact scalar ODE recurrence
+
+The coefficient recurrence below is the Taylor-coefficient form of
+the second-order ODE t F''(t) + (3/2) F'(t) - F(t) = 0.
+The separate analytic differential equation is not claimed here.
+-/
+
+/-- The exact factorial recurrence for the Taylor coefficients
+of the Eulerian entire double-Borel output. -/
+theorem eulerianEntireCoeff_recurrence (n : ℕ) :
+    ((n : ℂ) + 1) * ((n : ℂ) + 3 / 2) *
+      eulerianEntireCoeff (n + 1) = eulerianEntireCoeff n := by
+  have hindex : 2 * (n + 1) + 1 = ((2 * n + 1) + 1) + 1 := by omega
+  have hfac :
+      (2 * (n + 1) + 1).factorial =
+        (2 * n + 3) * (2 * n + 2) * (2 * n + 1).factorial := by
+    rw [hindex, Nat.factorial_succ, Nat.factorial_succ]
+    ring
+  unfold eulerianEntireCoeff
+  rw [hfac, pow_succ]
+  push_cast
+  have hbase : ((2 * n + 1).factorial : ℂ) ≠ 0 := by
+    exact_mod_cast (Nat.ne_of_gt (Nat.factorial_pos (2 * n + 1)))
+  have htwo : ((2 * n + 2 : ℕ) : ℂ) ≠ 0 := by
+    exact_mod_cast (Nat.ne_of_gt (show 0 < 2 * n + 2 by omega))
+  have hthree : ((2 * n + 3 : ℕ) : ℂ) ≠ 0 := by
+    exact_mod_cast (Nat.ne_of_gt (show 0 < 2 * n + 3 by omega))
+  field_simp
+  ring
+
+/-- The actual analytic Eulerian series takes the expected value at zero. -/
+theorem eulerianEntireSeries_zero : eulerianEntireSeries 0 = 1 := by
+  simp [eulerianEntireSeries, eulerianEntireCoeff]
+
+/-- Derivative of the *actual analytic function* at the origin, derived
+from its certified Taylor expansion rather than only formal coefficients. -/
+theorem eulerianEntireSeries_deriv_zero :
+    deriv eulerianEntireSeries 0 = (2 / 3 : ℂ) := by
+  rw [eulerianEntireSeries_hasFPowerSeriesAt_zero.deriv]
+  norm_num [FormalMultilinearSeries.ofScalars_apply_eq,
+    eulerianEntireCoeff]
+
+#print axioms EulerianSpecialPoint.eulerianEntireCoeff_recurrence
+#print axioms EulerianSpecialPoint.eulerianEntireSeries_zero
+#print axioms EulerianSpecialPoint.eulerianEntireSeries_deriv_zero
+
 #print axioms EulerianSpecialPoint.eulerianEntireSeries_radius_top
 #print axioms EulerianSpecialPoint.eulerianEntireSeries_hasFPowerSeriesOnBall
 #print axioms EulerianSpecialPoint.eulerianEntireSeries_analyticAt
