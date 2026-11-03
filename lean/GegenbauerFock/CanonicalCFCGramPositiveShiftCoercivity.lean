@@ -42,7 +42,8 @@ theorem sourceGram_positive_shift_norm_lower
   have hnormsq :
       ‖(eps : ℂ) • x‖ ^ 2 ≤
         ‖(eps : ℂ) • x + G x‖ ^ 2 := by
-    nlinarith [sq_nonneg (‖G x‖)]
+    rw [hsq]
+    nlinarith only [hcrossR, sq_nonneg (‖G x‖)]
   have hnorm :=
     (sq_le_sq₀ (norm_nonneg _) (norm_nonneg _)).mp hnormsq
   have h : eps * ‖x‖ ≤ ‖(eps : ℂ) • x + G x‖ := by
