@@ -110,10 +110,35 @@ New Lean sources on the PR #16 Draft branch:
 - `CanonicalCFCGramTikhonovErrorIdentity.lean`:
   the global identity `I−T_ε=E_ε`.
 
-These are **deposited obligations, not certificates** unless the
-corresponding SHA-specific GitHub CI has succeeded with a clean
-`#print axioms` result. The Step 3 estimate, Step 4
-unconditional strong convergence, Step 5 equality of operator
-norms and the noise estimate are distinct formalization obligations.
+The first three operator-level components listed above are **now certified** by
+[CI #41498115168](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41498115168),
+SUCCESS on source commit `075c9e8106d9d9eda7feff42819a390f768c1943`.
+The exact positive-shift unit, both inverse identities, actual positive Gram eigenmode
+filters and the full-space bounded-operator error identity
+`I - T_eps = E_eps` passed the pinned Lean compiler and explicit `#print axioms`
+audit with only `propext`, `Classical.choice`, `Quot.sound` and no
+`sorryAx` or `Lean.ofReduceBool`. The source blobs of the three Lean modules
+are unchanged on the V007 Draft branch as of 3 November 2026.
+
+**Step 3 (coercivity and contractivity): not yet certified at this checkpoint.**
+The older [CI #41499854005](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41499854005)
+FAILED in `CanonicalCFCGramPositiveShiftCoercivity.lean`, at the real-part
+comparison used in the squared-norm inequality. After introducing an explicit
+nonnegative `RCLike.re` witness in the source, a further representation-normalizing
+correction was committed as
+[`46b9769f`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/commit/46b9769fb8c0be2a44fa0eaa141b8ca2a3ccc89f).
+Its isolated CI [#41717581132](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41717581132)
+was **pending** at the last verification. This new source statement must not
+be described as kernel-certified without checking its own SUCCESS log and axiom audit.
+
+**Step 4 (unconditional full-`L²` strong convergence)** still requires the density
+argument using `gram_dense_range`, the uniform contraction
+`‖E_eps‖≤1`, and the certified exact dense-image identity
+`E_eps(Gy)=eps(y-E_eps(y))`. Neither a pointwise positive-Gram-eigenmode
+limit nor a dense-image estimate alone proves convergence at arbitrary inputs.
+
+**Step 5 (sharp operator-norm obstruction)** and the data-space noise
+estimate require independent Lean declarations and CI checks. No result about the
+unshifted bounded inverse of compact `G` is asserted.
 
 **This note belongs solely to V007. No merge into V097 and no V170 changes.**
