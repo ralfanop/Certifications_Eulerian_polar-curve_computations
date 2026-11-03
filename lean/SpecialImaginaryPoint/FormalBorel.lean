@@ -86,6 +86,26 @@ theorem binomialInputCoefficient_recurrence (n : ℕ) :
   field_simp
   ring
 
+
+/-- The printed differential equation L_A A = 1/2, expressed at every
+coefficient of the exact rational binomial input series. -/
+theorem operatorA_binomialInput_coefficient (n : ℕ) :
+    operatorA binomialInputCoefficient n =
+      if n = 0 then (1 / 2 : ℚ) else 0 := by
+  cases n with
+  | zero => norm_num [operatorA, binomialInputCoefficient]
+  | succ n =>
+      simp only [operatorA, Nat.succ_ne_zero, ↓reduceIte]
+      have h := binomialInputCoefficient_recurrence n
+      have hv : (((n + 1 : ℕ) : ℚ) + 1 / 2) =
+          (n : ℚ) + 3 / 2 := by
+        push_cast
+        ring
+      rw [hv]
+      linarith
+
+#print axioms EulerianSpecialPoint.operatorA_binomialInput_coefficient
+
 #print axioms EulerianSpecialPoint.binomialInputCoefficient_recurrence
 
 #print axioms EulerianSpecialPoint.doubleBorel_binomialInput_coefficients
