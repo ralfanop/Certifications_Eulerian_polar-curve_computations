@@ -161,7 +161,7 @@ theorem eulerianEntireCoeff_recurrence (n : ℕ) :
     _ = (4 * (3 + (n : ℂ) * 2)) *
           (3 + (n : ℂ) * 2)⁻¹ := by ring <;> norm_num
     _ = 4 := by
-      rw [mul_assoc, mul_inv_cancel₀ hden, mul_one]
+      rw [mul_assoc, mul_inv_cancel₀ hden, mul_one] <;> norm_num
 
 /-- The actual analytic Eulerian series takes the expected value at zero. -/
 theorem eulerianEntireSeries_zero : eulerianEntireSeries 0 = 1 := by
