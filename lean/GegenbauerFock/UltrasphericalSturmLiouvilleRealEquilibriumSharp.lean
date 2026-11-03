@@ -48,9 +48,12 @@ theorem sturmRealConstantEquilibrium_zero_coordinate
     sturmMonicEigenCandidate_realL2_normalized lam hlam 0)) 0 =
       (b.repr f) 0
   rw [← hb0, map_smul]
+  have hdiag : (b.repr (b 0)) 0 = 1 := by
+    rw [HilbertBasis.repr_apply_apply]
+    rw [real_inner_self_eq_norm_sq, hnorm]
+    norm_num
   change (b.repr f) 0 * (b.repr (b 0)) 0 = (b.repr f) 0
-  rw [HilbertBasis.repr_apply_apply, real_inner_self_eq_norm_sq, hnorm]
-  norm_num
+  rw [hdiag, mul_one]
 
 /-- The genuine full-L² heat flow leaves each constant-equilibrium
 component unchanged at every nonnegative time. -/
