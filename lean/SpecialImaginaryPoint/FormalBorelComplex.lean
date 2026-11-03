@@ -84,6 +84,26 @@ theorem doubleBorel_intertwines_powerSeries (f : PowerSeries ℂ) :
       congrFun (doubleBorel_intertwines_complex
         (fun j => (PowerSeries.coeff j) f)) n
 
+
+/-- The coefficientwise Euler operator θ agrees with `X * d/dX`
+using Mathlib's actual formal derivative on complex power series. -/
+theorem thetaPS_eq_X_derivative (f : PowerSeries ℂ) :
+    thetaPS f = PowerSeries.X * PowerSeries.derivative f := by
+  apply PowerSeries.ext
+  intro n
+  cases n with
+  | zero =>
+      simp only [thetaPS, PowerSeries.coeff_mk, thetaComplex, Nat.cast_zero,
+        zero_mul]
+      exact (PowerSeries.coeff_zero_X_mul (PowerSeries.derivative f)).symm
+  | succ n =>
+      simp only [thetaPS, PowerSeries.coeff_mk, thetaComplex,
+        PowerSeries.coeff_succ_X_mul, PowerSeries.coeff_derivative]
+      push_cast
+      ring
+
+#print axioms EulerianSpecialPoint.thetaPS_eq_X_derivative
+
 #print axioms EulerianSpecialPoint.doubleBorel_intertwines_powerSeries
 
 #print axioms EulerianSpecialPoint.doubleBorel_intertwines_complex
