@@ -1,8 +1,8 @@
 # V007 — real Schatten–S₁ norm of the closed Sturm resolvent: proof and Lean obligations
 
-**Status 2026-11-02.** The real positive rank-one operator expansion and its exact mass have completed their own green CI checks (#41440898371 and #41441020071). The general real nuclear rank-one class and the universal infimum construction have distinct source modules and CI jobs. Do not call their new theorems kernel-certified until the matching jobs succeed and the printed axioms are clean.
+**Status 2026-11-03 — EXACT REAL PROJECTIVE NUCLEAR NORM KERNEL-CERTIFIED.** The genuine real closed Sturm resolvent admits a positive operator-norm convergent nuclear expansion (CI #41440898371); its specific mass equals the spectral trace (CI #41441020071); general real nuclear rank-one membership (CI #41496631031) and the projective nuclear infimum upper bound (CI #41497090311) are certified. Most importantly, the **reverse bound for every admissible real rank-one expansion and the exact universal infimum identity** are kernel-certified by CI #41500000883 (9,108 jobs), module `UltrasphericalSturmLiouvilleResolventRealNuclearDualLower.lean`, `#print axioms` restricted to `propext`, `Classical.choice`, `Quot.sound`. This is a real projective nuclear-class certificate; a separate abstract complex CFC/Physlib trace-class identification has not been asserted.
 
-This dossier supplies the *paper-level* proof of the reverse bound which is **not** established by a mere positive expansion. It distinguishes the model-independent projective nuclear norm from the complex CFC/Physlib trace norm.
+This dossier records the now **kernel-certified** reverse bound, which requires all-representation finite-trace duality and cannot be inferred merely from one positive expansion. It distinguishes the real projective nuclear norm from the separate complex CFC/Physlib trace norm.
 
 ## Definitions
 
@@ -47,9 +47,9 @@ where the Gegenbauer family \((e_n)\) is a complete orthonormal Hilbert basis an
 =\operatorname{Tr}(R_t).
 \]
 
-The Lean module `UltrasphericalSturmLiouvilleResolventRealNuclearNorm.lean` defines the infimum over **all** admissible rank-one series and attempts to certify this bound, not just the cost of the displayed series.
+The Lean module `UltrasphericalSturmLiouvilleResolventRealNuclearNorm.lean` defines the infimum over **all** admissible rank-one series and certifies its upper bound, not just the cost of the displayed series.
 
-## Essential missing reverse inequality (finite-rank trace duality)
+## Certified reverse inequality (finite-rank trace duality)
 
 Fix any admissible expansion
 \(T=\sum_k\beta_k(u_k\otimes v_k)\).
@@ -111,9 +111,9 @@ Combined with the upper bound,
 \frac1{t+n(n+2\lambda)}.}
 \]
 
-The equality is established **mathematically** by these arguments. Its complete Lean-kernel certificate requires the following additional bridges.
+The equality is established **mathematically and in Lean 4**: the `RealNuclearDualLower.lean` module compiles successfully in CI #41500000883, with a clean axiom audit. The following list documents the discharged proof obligations.
 
-## Precise Lean obligations
+## Discharged Lean obligations
 
 1. Define the finite-coordinate orthogonal projection (Q_N) using the already certified Hilbert basis, or reuse the existing finite modal projection (NOT the resolvent truncation \(\sum_{n<N}\rho_nP_n\)).
 2. Prove \(\|Q_Nv\|\le\|v\|\), and the finite trace identity
@@ -123,5 +123,7 @@ The equality is established **mathematically** by these arguments. Its complete 
 5. Use the certified resolvent diagonal and spectral trace summability to pass (N\to\infty\).
 6. Apply the universal property of `sInf` to obtain the missing reverse bound; combine it with `sturmRealClosedResolvent_nuclearInfimum_le_spectralTrace`.
 7. Audit all new declarations with `#print axioms`; reject `sorryAx` and `Lean.ofReduceBool`. Do not substitute a conditional hypothesis for obligation 4.
+
+**Certified theorem names:** `realHilbertFiniteTraceCLM_apply`, `realHilbertFiniteTrace_abs_le_nuclearCost`, `sturmRealClosedResolvent_spectralTrace_le_allNuclearCosts`, and `sturmRealClosedResolvent_nuclearInfimum_eq_spectralTrace`. A previously failing experimental finite-sum module and a duplicate exact-infimum module were corrected on 2026-11-03; their standalone CI status is independent from the already successful main theorem.
 
 No merge to `main` or edits to V097/V170. The PR remains Draft.
