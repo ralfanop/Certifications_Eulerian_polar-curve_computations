@@ -104,6 +104,27 @@ theorem operatorA_binomialInput_coefficient (n : ℕ) :
       rw [hv]
       linarith
 
+
+/-- The printed differential equation L_F F=0 for the exact
+double-Borel coefficient sequence. -/
+theorem operatorF_eulerianBorel_coefficient (n : ℕ) :
+    operatorF eulerianBorelCoefficient n = 0 := by
+  have hb : doubleBorel binomialInputCoefficient = eulerianBorelCoefficient := by
+    funext k
+    exact doubleBorel_binomialInput_coefficients k
+  have h := congrFun (doubleBorel_intertwines binomialInputCoefficient) n
+  rw [hb] at h
+  calc
+    operatorF eulerianBorelCoefficient n =
+        theta (doubleBorel (operatorA binomialInputCoefficient)) n := h
+    _ = 0 := by
+      cases n with
+      | zero => simp [theta]
+      | succ n =>
+          simp [theta, doubleBorel, operatorA_binomialInput_coefficient]
+
+#print axioms EulerianSpecialPoint.operatorF_eulerianBorel_coefficient
+
 #print axioms EulerianSpecialPoint.operatorA_binomialInput_coefficient
 
 #print axioms EulerianSpecialPoint.binomialInputCoefficient_recurrence
