@@ -7,7 +7,7 @@ from fractions import Fraction
 from math import factorial
 import sys
 import flint
-from flint import arb, ctx
+from flint import arb, acb, ctx
 
 ctx.prec = 256
 failures = []
@@ -66,11 +66,22 @@ bound("Dirichlet resolvent trace scalar", trace,
       "0.165294108066399398665502780884923",
       "0.165294108066399398665502780884927")
 
+hs_squared = (2*trace - variance)/(4*a*a)
+bound("Dirichlet squared Hilbert-Schmidt norm", hs_squared,
+      "0.010851438958259306738743595838020",
+      "0.010851438958259306738743595838023")
+
+tau = acb(0, 2*a)
+cm_j = tau.modular_j()
+check("Klein modular j at i/sqrt(2) overlaps 8000", cm_j.overlaps(acb(8000)))
+check("Klein modular j within 1e-40 of 8000", abs(cm_j - 8000) < qball("1e-40"))
+print(f"    CM modular j enclosure: {cm_j}")
+
 kappa = arb.pi()*a
 bound("arithmetic scalar pi/sqrt(8)", kappa,
       "1.110720734539591561753970247",
       "1.110720734539591561753970249")
 
-print("Not proved here: class-number formula, j(z0)=8000, operator-domain theorems.")
+print("Not proved here: class-number formula, exact modular equality j(z0)=8000, operator-domain theorems.")
 print("ALL NUMERICAL CHECKS PASSED" if not failures else f"FAILED CHECKS: {failures}")
 sys.exit(0 if not failures else 1)
