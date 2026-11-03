@@ -89,6 +89,54 @@ theorem parry31_two_digit_identity (beta : ℝ)
 
 #print axioms Manuscript14Section11.parry31_two_digit_identity
 
+
+/-- All the precritical powers remain in [0,1), providing the zero-digit
+inequalities for the greedy beta expansion after its initial digit 1. -/
+theorem precritical_zero_digit_bounds (beta : ℝ)
+    (hbeta : 1 < beta) (hfirst : beta ^ 30 * (beta - 1) < 1)
+    (k : ℕ) (hk : k ≤ 30) :
+    0 ≤ beta ^ k * (beta - 1) ∧ beta ^ k * (beta - 1) < 1 := by
+  have hpow : beta ^ k ≤ beta ^ 30 := by
+    gcongr <;> linarith
+  have hm : beta ^ k * (beta - 1) ≤ beta ^ 30 * (beta - 1) :=
+    mul_le_mul_of_nonneg_right hpow (by linarith)
+  constructor
+  · exact mul_nonneg (pow_nonneg (by linarith) _) (by linarith)
+  · linarith
+
+/-- At the next digit, the greedy remainder lies strictly between 1 and 2:
+its integer part is 1, and not 0 or 2. -/
+theorem next_one_digit_bounds (beta : ℝ)
+    (hbeta : 1 < beta) (hlt2 : beta < 2)
+    (hfirst : beta ^ 30 * (beta - 1) < 1)
+    (hnext : 1 < beta ^ 31 * (beta - 1)) :
+    1 < beta ^ 31 * (beta - 1) ∧ beta ^ 31 * (beta - 1) < 2 := by
+  constructor
+  · exact hnext
+  · have hmul := mul_lt_mul_of_pos_left hfirst (by linarith : 0 < beta)
+    calc
+      beta ^ 31 * (beta - 1) = beta * (beta ^ 30 * (beta - 1)) := by ring
+      _ < beta := by nlinarith
+      _ < 2 := hlt2
+
+/-- All inequalities needed for the initial greedy beta digit block
+1 0^30 1, assuming the certified rational bracket for the parameter. -/
+theorem eulerian_initial_greedy_block (beta : ℝ)
+    (hlo : (10854 : ℝ) / 10000 < beta)
+    (hhi : beta < (1085445 : ℝ) / 1000000) :
+    (∀ k : ℕ, k ≤ 30 →
+      0 ≤ beta ^ k * (beta - 1) ∧ beta ^ k * (beta - 1) < 1) ∧
+    (1 < beta ^ 31 * (beta - 1) ∧ beta ^ 31 * (beta - 1) < 2) := by
+  have hb : 1 < beta := by linarith
+  have hb2 : beta < 2 := by linarith
+  obtain ⟨hn, hf⟩ := strict_parry_return beta hlo hhi
+  exact ⟨fun k hk => precritical_zero_digit_bounds beta hb hf k hk,
+         next_one_digit_bounds beta hb hb2 hf hn⟩
+
+#print axioms Manuscript14Section11.precritical_zero_digit_bounds
+#print axioms Manuscript14Section11.next_one_digit_bounds
+#print axioms Manuscript14Section11.eulerian_initial_greedy_block
+
 #print axioms Manuscript14Section11.f32_left_positive
 #print axioms Manuscript14Section11.f31_right_negative
 #print axioms Manuscript14Section11.delta_left_exact
