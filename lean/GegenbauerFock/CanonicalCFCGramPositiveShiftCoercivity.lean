@@ -39,6 +39,9 @@ theorem sourceGram_positive_shift_norm_lower
       0 ≤ RCLike.re (inner ℂ ((eps : ℂ) • x) (G x)) := by
     exact hcross
   have hsq := norm_add_sq (𝕜 := ℂ) ((eps : ℂ) • x) (G x)
+  have hcross' : 0 ≤
+      RCLike.re (inner ℂ ((eps : ℂ) • x) (G x)) := by
+    simpa only using hcross
   have hnormsq :
       ‖(eps : ℂ) • x‖ ^ 2 ≤
         ‖(eps : ℂ) • x + G x‖ ^ 2 := by
