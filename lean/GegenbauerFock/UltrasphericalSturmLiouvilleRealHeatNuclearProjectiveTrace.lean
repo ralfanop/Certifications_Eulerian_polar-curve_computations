@@ -52,7 +52,7 @@ theorem sturmRealHeat_has_positive_real_spectralS1
 /-- Genuine real rank-one nuclear class membership for the actual
 strictly positive-time heat operator, independently of a special
 heat-series module. -/
-theorem sturmRealHeat_has_real_nuclear_rank_one_series
+theorem sturmRealHeat_has_real_nuclear_rank_one_series_viaS1
     (lam s : ℝ) (hlam : 0 < lam) (hs : 0 < s) :
     HasRealNuclearRankOneSeries
       (sturmRealHeatLimitCLM lam hlam s (le_of_lt hs)) := by
@@ -62,7 +62,7 @@ theorem sturmRealHeat_has_real_nuclear_rank_one_series
 /-- The universal real-Hilbert projective nuclear norm of the ACTUAL
 heat operator is the exact spectral heat trace, not merely an upper
 bound derived from the canonical rank-one representation. -/
-theorem sturmRealHeat_realNuclearInfimum_eq_spectralTrace
+theorem sturmRealHeat_realNuclearInfimum_eq_spectralTrace_directDuality
     (lam s : ℝ) (hlam : 0 < lam) (hs : 0 < s) :
     realNuclearInfimum
       (sturmRealHeatLimitCLM lam hlam s (le_of_lt hs)) =
@@ -139,12 +139,12 @@ theorem sturmRealHeat_positive_time_realS1_exact_certificate
       ∑' n : ℕ, Real.exp
         (-s * ((n : ℝ) * ((n : ℝ) + 2 * lam))) := by
   exact ⟨sturmRealHeat_has_positive_real_spectralS1 lam s hlam hs,
-    sturmRealHeat_has_real_nuclear_rank_one_series lam s hlam hs,
-    sturmRealHeat_realNuclearInfimum_eq_spectralTrace lam s hlam hs⟩
+    sturmRealHeat_has_real_nuclear_rank_one_series_viaS1 lam s hlam hs,
+    sturmRealHeat_realNuclearInfimum_eq_spectralTrace_directDuality lam s hlam hs⟩
 
 #print axioms GegenbauerFock.Ultraspherical.sturmRealHeat_has_positive_real_spectralS1
-#print axioms GegenbauerFock.Ultraspherical.sturmRealHeat_has_real_nuclear_rank_one_series
-#print axioms GegenbauerFock.Ultraspherical.sturmRealHeat_realNuclearInfimum_eq_spectralTrace
+#print axioms GegenbauerFock.Ultraspherical.sturmRealHeat_has_real_nuclear_rank_one_series_viaS1
+#print axioms GegenbauerFock.Ultraspherical.sturmRealHeat_realNuclearInfimum_eq_spectralTrace_directDuality
 #print axioms GegenbauerFock.Ultraspherical.sturmRealHeat_positive_time_realS1_exact_certificate
 
 end GegenbauerFock.Ultraspherical
