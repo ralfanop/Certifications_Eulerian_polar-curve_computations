@@ -703,7 +703,7 @@ theorem normalizedPointToSetGapValue_le_norm_v007
     sInf {r : ℝ | ∃ S : TraceClass H, S ∈ B ∧ r = dist T S} ≤
         dist T (0 : TraceClass H) :=
       csInf_le hBelow ⟨0, hB0, rfl⟩
-    _ = ‖T‖ := dist_zero
+    _ = ‖T‖ := by simp
 
 /-- The real numerical directed unit-ball gap is nonnegative
 when both source and target contain zero. -/
