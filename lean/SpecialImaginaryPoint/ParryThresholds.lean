@@ -86,7 +86,6 @@ theorem parry31_two_digit_identity (beta : ℝ)
     _ = (beta ^ 30 + 1) / beta ^ 31 := by rw [heq]
     _ = 1 / beta + 1 / beta ^ 31 := by
       field_simp [hbeta]
-      ring
 
 #print axioms Manuscript14Section11.parry31_two_digit_identity
 
