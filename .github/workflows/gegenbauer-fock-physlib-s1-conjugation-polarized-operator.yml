@@ -6,7 +6,7 @@ on:
       - gegenbauer-fock-formalization-20261025
     paths:
       - 'lean/GegenbauerFock/PhyslibTraceClassConjugationPolarizedOperator.lean'
-      - '.github/workflows/gegenbauer-fock-physlib-s1-conjugation-polarized-operator-operator.yml'
+      - '.github/workflows/gegenbauer-fock-physlib-s1-conjugation-polarized-operator.yml'
   workflow_dispatch:
 
 jobs:
@@ -103,7 +103,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.PhyslibTraceClassConjugationPolarizedOperatorOperator 2>&1 | tee /tmp/gf-s1-conjugation-polarized-operator.log
+          lake build GegenbauerFock.PhyslibTraceClassConjugationPolarizedOperator 2>&1 | tee /tmp/gf-s1-conjugation-polarized-operator.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-s1-conjugation-polarized-operator.log; then
             echo '::error::Forbidden axiom in S1 polarized conjugation.'
             exit 1
