@@ -1,9 +1,9 @@
-# Certification ledger — version 2.0
+# Certification ledger — version 3.0
 
-**Manuscript:** *The Special Point i/sqrt(2): Eulerian Fourier Profiles, Spectral Determinants, and Conformal Normalisations*, independent draft **0.10r5** (3 November 2026).
+**Manuscript:** *The Special Point i/sqrt(2): Eulerian Fourier Profiles, Spectral Determinants, and Conformal Normalisations*, independent draft **0.10r6** (3 November 2026).
 **Ledger issued:** 3 November 2026.
-**Proof-evidence commit:** [`5b9f99d6d53196bb8236bfececb66e99d21ef1f0`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/commit/5b9f99d6d53196bb8236bfececb66e99d21ef1f0).
-**Latest complete CI:** [GitHub Actions #41655638996](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41655638996): **SUCCESS for Lean and Arb**, completed 2026-11-03 14:41 UTC.
+**Proof-evidence commit:** [`3c67a0f60093ccd50ec707ca351bd72147931daa`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/commit/3c67a0f60093ccd50ec707ca351bd72147931daa).
+**Latest complete CI:** [GitHub Actions #41682230079](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41682230079): **SUCCESS for Lean and Arb**, completed 2026-11-03 17:16 UTC.
 **Project branch:** [`special-point-i-sqrt2-cert-20261103`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/tree/special-point-i-sqrt2-cert-20261103).
 **Scope:** This register applies *only* to the printed 0.10r5 manuscript. The proofs in manuscripts 11, 12 and 13 or V007/PR #16 do not automatically certify statements of this article.
 
@@ -11,19 +11,19 @@
 
 | Measurement | Verified status |
 | --- | --- |
-| Main mathematical statements in the manuscript | 22 = 6 Theorems + 12 Propositions + 4 Corollaries |
-| Main statements certified in **every printed conclusion** | **0 / 22** under strict statement-by-statement matching |
-| Main statements with **some** specific Lean certification | **4 / 22**: Corollary 2.3; Proposition 3.1; Theorems 3.3 and 3.5 |
-| Main statements without dedicated Lean verification of their full conclusions | **18 / 22** (some have Arb evidence or potentially reusable theorems from prior papers) |
+| Main mathematical statements in the manuscript | 26 = 6 Theorems + 16 Propositions + 4 Corollaries |
+| Main statements certified in **every printed conclusion** | **0 / 26** under strict statement-by-statement matching |
+| Main statements with **some** specific Lean certification | **4 / 26**: Corollary 2.3; Proposition 3.1; Theorems 3.3 and 3.5 |
+| Main statements without dedicated Lean verification of their full conclusions | **22 / 26** (some have Arb evidence or potentially reusable theorems from prior papers) |
 | Lean declarations printed in the latest clean axiom audit | **15** in **3** dedicated modules |
-| Arb/exact-rational checks marked PASS by the latest numeric log | **24**; script exits successfully |
-| Printed numerical values proved correctly rounded to 50 significant digits | **5 / 5** values explicitly checked in the script |
+| Arb/exact-rational checks marked PASS by the latest numeric log | **37**; script exits successfully |
+| Printed numerical values proved correctly rounded to 50 significant digits | **10 / 10** values: five at the original point and five at the modular companion |
 | Printed even-zeta expansion coefficients checked exactly | **5** rational coefficients |
 | Precise overall completion percentage | **Not assigned**: a proof-count percentage would misrepresent the analytical/operator-theoretic workload |
 
 **Interpretation:** The *central formal-power-series operator identity* in Theorem 3.5 is proved over Mathlib's `PowerSeries ℂ`. Its other printed conclusions about specific functions and analytic ODEs are not fully formalized. A numerical enclosure, even a rigorous Arb enclosure, is never counted as a proof of an operator identity.
 
-## 2. Main-statement correspondence matrix (all 22)
+## 2. Main-statement correspondence matrix (all 26)
 
 Status codes: **PARTIAL** = a theorem of the new article has a dedicated kernel-checked subclaim; **PENDING** = no complete dedicated Lean proof of the printed statement has been confirmed. Numerical certification is recorded separately.
 
@@ -36,10 +36,13 @@ Status codes: **PARTIAL** = a theorem of the new article has a dedicated kernel-
 | Theorem 3.5 — Differential-operator identity under double Borel | **PARTIAL; central formal identity CERTIFIED** | `L_F B² = θ B² L_A` over all `PowerSeries ℂ` with standard-form operators; exact rational coefficient equations `L_A A=1/2`, `L_F F=0` checked. Still prove analytic ODEs and identify the particular formal series with the analytic functions |
 | Corollary 3.6 — Eulerian second-order differential generator | PENDING | Formal/analytic pullback, second-order differential operator and equation for `r_E` |
 | Proposition 3.7 — Modified-Bessel beta average | PENDING | Rigorous `I_0` expansion and beta integration, interchanges and integral identity |
-| Proposition 4.1 — Two spherical realisations | PENDING | Sphere surface-measure marginal, both axis integrations and `I_0` representation at fixed parameter |
-| Theorem 4.3 — Cylindrical–spherical transmutation | PENDING | Second-order identity on even entire functions, domain and origin behavior, `J_0` and `I_0` specialisations |
-| Proposition 4.4 — Regular modified-Helmholtz profile | PENDING | `C²` radial regularity, PDE on `ℝ³`, boundary/initial data, uniqueness |
+| Proposition 4.1 — Ultraspherical Fourier specialisation | PENDING | New Draft 0.10r6: normalized beta measure, entire Fourier transform as `{}_0F_1`, integer-dimensional sphere marginal, and exact λ=1/2 specialization; no dedicated Lean theorem yet |
+| Proposition 4.2 — Axisymmetric Gegenbauer–Laplacian correspondence | PENDING | New Draft 0.10r6: axial Laplace–Beltrami formula on `S^{d-1}`, Legendre eigenvalues, and `D=-L_{1/2}` on polynomial core; no dedicated Lean theorem yet |
+| Proposition 4.3 — Two spherical realisations | PENDING | Fixed-parameter sphere surface-measure marginal, axis integrations and `I_0` representation |
+| Theorem 4.5 — Cylindrical–spherical transmutation | PENDING | Second-order identity on even entire functions, domain and origin behavior, `J_0` and `I_0` specialisations |
+| Proposition 4.7 — Regular modified-Helmholtz profile | PENDING | `C²` radial regularity, PDE on `ℝ³`, boundary/initial data and uniqueness |
 | Proposition 5.1 — Special partition function and magnetisation | PENDING | Exact sphere integral, Langevin derivative and variance identities; Arb has only scalar evaluations |
+| Proposition 5.2 — Projected von Mises–Fisher moments | PENDING | New Draft 0.10r6: normalized spherical exponential tilt, marginal density, mean/variance and zero-coupling limits; no dedicated Lean theorem yet |
 | Theorem 6.2 — Complete domain-level commutation | PENDING | Positivity, selfadjointness, trace class, smoothness, domain invariance, *closed-domain* commutation, boundary and trace identities |
 | Corollary 6.3 — Matching Fock parameter | PENDING | Identify Gram kernel and `C* C` with matching measure and normalization; trace/HS interpretation |
 | Proposition 6.4 — Second-order Gegenbauer–Fock transport | PENDING | Exact differential intertwiner on polynomial core, with stated conventions and Eulerian ODE |
@@ -50,9 +53,10 @@ Status codes: **PARTIAL** = a theorem of the new article has a dedicated kernel-
 | Proposition 8.1 — Hall–Bargmann evaluation | PENDING | Gaussian integral, real evaluation coordinate `-ℏ/2` and exact prefactor, with the manuscript's convention |
 | Proposition 9.1 — Quadratic L-value normalisation | PENDING | Exact `L(1,χ₋₈)=π/sqrt(8)`, `β(3)` evaluation and its formal links to Borel and Fredholm objects |
 | Proposition 9.2 — Class-number-one singular modulus | PENDING | Exact CM value `j(i/sqrt(2))=8000` and `H₋₈(X)=X-8000`; an Arb ball near 8000 is *not* this proof |
+| Proposition 9.3 — Modular equivalence without Eulerian equality | PENDING | New Draft 0.10r6: modular inversion `z_1=-1/z_0=i sqrt(2)`, strict Fourier-value inequality, distinct Fredholm and Dirichlet resolvent/variance identities; Arb checks companion decimals, not these analytical identities |
 | Proposition 10.1 — Scalar factor in chiral generators | PENDING | Chiral-projector algebra and precise historical gamma-matrix convention |
 
-**Other manuscript content:** There are also **3 definitions**, **12 Remarks** and **3 open Questions**. The Questions need not be proved as affirmative results; independently checkable assertions in Remarks and mathematical statements outside theorem environments must still be audited before making a 100% certification claim.
+**Other manuscript content:** There are also **3 definitions**, **14 Remarks** and **3 open Questions**. The Questions need not be proved as affirmative results; independently checkable assertions in Remarks and mathematical statements outside theorem environments must still be audited before making a 100% certification claim.
 
 ## 3. Verified Lean 4 declarations — explicit audit index
 
@@ -84,18 +88,18 @@ The following **15** declarations occur in the successful CI's `#print axioms` o
 
 **Formal method:** Lean `leanprover/lean4:v4.35.0-rc3`, Mathlib revision `0272bbe1c093d038d7257ab15306abd58245f9ff`, pinned in `lean/lean-toolchain` and `lean/lakefile.toml`. These modules compile through `lake env lean` within the dedicated workflow. Every printed axiom set contains only a subset of `propext`, `Classical.choice`, `Quot.sound`. The successful audit found no `sorryAx` or `Lean.ofReduceBool`.
 
-**Proof log:** [Run #41655638996](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41655638996), `lean` job, checked against the source commit given above.
+**Proof log:** [Run #41682230079](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41682230079), `lean` job, checked against the source commit given above.
 
 ## 4. Arb and exact-rational verification ledger
 
-**Script:** [`numerics/arb/special_point_i_sqrt2_arb.py`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/5b9f99d6d53196bb8236bfececb66e99d21ef1f0/numerics/arb/special_point_i_sqrt2_arb.py).
+**Script:** [`numerics/arb/special_point_i_sqrt2_arb.py`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/3c67a0f60093ccd50ec707ca351bd72147931daa/numerics/arb/special_point_i_sqrt2_arb.py).
 
-**Execution:** Python 3.13, `python-flint==0.9.0`, Arb context precision **256 bits**, 24 PASS results in [run #41655638996](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41655638996) (`arb` job).
+**Execution:** Python 3.13, `python-flint==0.9.0`, Arb context precision **256 bits**, 37 PASS results in [run #41682230079](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41682230079) (`arb` job).
 
-1. **Five 50-significant-digit values:** special Fourier/Eulerian scalar; Langevin mean; orientation variance; Dirichlet resolvent-trace *expression*; squared Hilbert–Schmidt *expression*. For each, the printed decimal is strictly enclosed between the exact rational half-ULP rounding bounds.
+1. **Ten 50-significant-digit values:** five at the original point `z_0=i/sqrt(2)` and five at its modular companion `z_1=i sqrt(2)`. Each group comprises the Eulerian scalar, Langevin mean, orientation variance, Dirichlet resolvent-trace expression and squared Hilbert–Schmidt expression. The *printed* decimal is strictly enclosed between exact rational half-ULP rounding bounds.
 2. **Rational data:** first five denominators, recurrence checked computationally at `n=0,...,39` (universal recurrence separately certified in Lean), one positive rational tail enclosure at **N=11**, and all **five** rational coefficients printed in the even-zeta expansion. The coefficient check uses the five *supplied* classical `ζ(2m)/π^(2m)` ratios; it does not independently prove those zeta evaluations.
 3. **Additional Arb values:** `π/sqrt(8)` scalar, numerical estimates of the Langevin/variance/resolvent/HS expressions.
-4. **Complex multiplication:** `j(i/sqrt(2))` overlaps 8000 and lies within `10^-40` of it, with a displayed Arb ball of radius below approximately `2.29×10^-71`. This is **not** a Lean proof of an exact singular-modulus identity.
+4. **Complex multiplication:** both `j(i/sqrt(2))` and `j(i sqrt(2))` lie within `10^-40` of 8000 under Arb interval arithmetic. Neither exact CM equality is a kernel proof; modular inversion remains a distinct analytic theorem.
 
 **Important separation:** Numerical evidence for a scalar expression does not establish that it equals the trace or norm of the specific operator printed in the manuscript. Those analytical identification theorems are pending.
 
@@ -104,11 +108,11 @@ The following **15** declarations occur in the successful CI's `#print axioms` o
 | Phase | Deliverable | Completion test |
 | --- | --- | --- |
 | A — close Sections 2–3 | Formal special-value chain, general `N` tail bound; analytic Borel transform, entire function, `{}_0F_1` and sinh identification; differential ODEs | Lean declarations cover *all* conclusions of Propositions 2.1, 3.1 and Theorems 3.3/3.5 plus Corollaries 2.3/3.6 |
-| B — Sections 4–5 | Spherical marginal, `I_0`/`J_0`, second-order radial transmutation, Helmholtz uniqueness, Langevin derivatives | Exact measure, function-space, domain and differentiability assumptions in Lean |
+| B — Sections 4–5 | Entire ultraspherical Fourier family, axial Laplace–Beltrami generator, sphere/Bessel averages, radial transmutation, Helmholtz uniqueness and von Mises–Fisher moments | Exact normalization, domains, derivatives and operator sign conventions formalized in Lean |
 | C — Section 6 | Positive trace-class Gram, parameter matching, closed-domain commutation and Fock transport | Domain invariance + graph-core/closure argument with an exact matching operator |
 | D — Section 7 | Dirichlet realization, trace-class resolvent, Fredholm and zeta determinant, zeta-series convergence | Full operator identities and zeta-regularized ratio as printed |
-| E — Sections 8–10 | Hall evaluation, exact Dirichlet character L-value, CM singular modulus, chiral scalar identity | Exact statements checked in Lean, not merely numerical agreement |
-| F — final manuscript audit | Independently check mathematical assertions in Remarks, proof hypotheses, numeric literals and final LaTeX-to-Lean cross-reference | 22/22 complete matching + reproducible clean CI and axiom audits |
+| E — Sections 8–10 | Hall evaluation, exact Dirichlet L-value, singular modulus, modular companion and **distinct** resolvent/variance identities, chiral projector | Exact symbolic assertions kernel-checked, beyond Arb ball agreement |
+| F — final manuscript audit | Independently check mathematical assertions in Remarks, proof hypotheses, numeric literals and final LaTeX-to-Lean cross-reference | 26/26 complete matching + reproducible clean CI and axiom audits |
 
 ## 6. Reproducibility and safety constraints
 
@@ -121,4 +125,4 @@ The following **15** declarations occur in the successful CI's `#print axioms` o
 
 ---
 
-**Version change (v1 → v2):** A 22-row statement matrix, reproducibility snapshot, complete 15-declaration axiom index, exact-vs-numerical distinctions, explicit five-value rounding scope, zeta coefficient evidence, and phased criteria for 100% completion were added. **No additional mathematical proof is claimed by this documentation revision.**
+**Version change (v2 → v3):** Mapped all 26 mathematical statements of Draft 0.10r6, including four new Propositions and two new Remarks; retained the 15 Lean declarations; recorded 37 passing Arb/exact-rational checks and ten 50-digit values. The new general ultraspherical, spherical-Laplacian, von Mises–Fisher, and modular-companion propositions remain **not yet kernel-certified**. No new Lean theorem is claimed by this register revision.
