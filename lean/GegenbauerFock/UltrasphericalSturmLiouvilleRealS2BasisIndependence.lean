@@ -1,7 +1,6 @@
 import GegenbauerFock.UltrasphericalSturmLiouvilleResolventRealSchattenBasis
 import GegenbauerFock.UltrasphericalSturmLiouvilleRealFullResolventSelfAdjoint
 import Mathlib.Analysis.InnerProductSpace.l2Space
-import Mathlib.Analysis.Normed.Group.Tannery
 
 /-!
 # V007 — genuine real Hilbert-Schmidt basis independence for self-adjoint operators
