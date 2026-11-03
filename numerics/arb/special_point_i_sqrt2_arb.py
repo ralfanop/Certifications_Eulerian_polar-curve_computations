@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Draft 0.10r1 numerical certificates (exact rationals and Arb real balls).
+"""Draft 0.10r5 numerical certificates (exact rationals and Arb real balls).
 
 These checks certify scalar enclosures, not the analytic/operator identities.
 """
@@ -70,6 +70,30 @@ hs_squared = (2*trace - variance)/(4*a*a)
 bound("Dirichlet squared Hilbert-Schmidt norm", hs_squared,
       "0.010851438958259306738743595838020",
       "0.010851438958259306738743595838023")
+
+# Draft 0.10r5: prove each 50-significant-digit printed decimal is correctly rounded.
+# Comparisons are certified ball inequalities against exact rational half-ULP bounds.
+def rounded_50(name, x, printed):
+    digits = len(printed.replace(".", "").lstrip("0"))
+    check(name + ": exactly 50 significant digits", digits == 50)
+    center = Fraction(printed)
+    n_decimal_places = len(printed.partition(".")[2])
+    half_ulp = Fraction(1, 2 * 10**n_decimal_places)
+    lo = center - half_ulp
+    hi = center + half_ulp
+    check(name + ": correct rounding to 50 significant digits",
+          x > qball(lo) and x < qball(hi))
+
+rounded_50("Draft 0.10r5 Eq. (8) rE", r,
+           "1.0209639298650195104786646351804211019462043266699")
+rounded_50("Draft 0.10r5 Eq. (44) Langevin", mean,
+           "0.11688058470393301970853181386179164401493872379933")
+rounded_50("Draft 0.10r5 Eq. (45) variance", variance,
+           "0.32516249665366914396163376385083845935142050373689")
+rounded_50("Draft 0.10r5 resolvent trace", trace,
+           "0.16529410806639939866550278088492457407260894951106")
+rounded_50("Draft 0.10r5 HS norm squared", hs_squared,
+           "0.010851438958259306738743595838021377587594790570479")
 
 tau = acb(0, 2*a)
 cm_j = tau.modular_j()
