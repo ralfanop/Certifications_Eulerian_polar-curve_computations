@@ -58,12 +58,22 @@ theorem realHilbertFiniteTrace_rankOne_eq
       inner ℝ (b n) (rankOne ℝ u v (b n))) =
     inner ℝ
       (∑ n ∈ Finset.range N, (inner ℝ (b n) v) • b n) u := by
-  rw [sum_inner]
-  apply Finset.sum_congr rfl
-  intro n hn
-  rw [InnerProductSpace.rankOne_apply,
-    real_inner_smul_right, real_inner_smul_left,
-    real_inner_comm v (b n)]
+  calc
+    (∑ n ∈ Finset.range N,
+      inner ℝ (b n) (rankOne ℝ u v (b n))) =
+        ∑ n ∈ Finset.range N,
+          inner ℝ u ((inner ℝ (b n) v) • b n) := by
+      apply Finset.sum_congr rfl
+      intro n hn
+      simp only [InnerProductSpace.rankOne_apply,
+        real_inner_smul_right]
+      rw [real_inner_comm v (b n), real_inner_comm u (b n)]
+    _ = inner ℝ u
+        (∑ n ∈ Finset.range N, (inner ℝ (b n) v) • b n) := by
+      rw [inner_sum]
+    _ = inner ℝ
+        (∑ n ∈ Finset.range N, (inner ℝ (b n) v) • b n) u :=
+      real_inner_comm _ _
 
 /-- The coefficient-one nuclear duality estimate, valid for ANY
 real Hilbert vectors u,v, and ANY finite initial segment of a
