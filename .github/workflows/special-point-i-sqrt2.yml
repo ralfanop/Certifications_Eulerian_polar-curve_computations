@@ -45,6 +45,7 @@ jobs:
           set -euo pipefail
           lake env lean SpecialImaginaryPoint/DenominatorRecurrence.lean 2>&1 | tee /tmp/special_point_lean.log
           lake env lean SpecialImaginaryPoint/FormalBorel.lean 2>&1 | tee -a /tmp/special_point_lean.log
+          lake env lean SpecialImaginaryPoint/FormalBorelComplex.lean 2>&1 | tee -a /tmp/special_point_lean.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/special_point_lean.log; then
             echo '::error::Forbidden axiom in Lean certificates'
             exit 1
