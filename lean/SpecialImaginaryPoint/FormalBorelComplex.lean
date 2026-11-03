@@ -51,6 +51,40 @@ theorem doubleBorel_intertwines_complex (a : ℕ → ℂ) :
       push_cast
       field_simp
 
+
+/-!
+The following realizes the same identity in the actual Mathlib type
+`PowerSeries ℂ`, rather than merely its coefficient function type.
+By definition these four formal operators act through the
+corresponding Taylor coefficients.
+-/
+
+noncomputable def doubleBorelPS (f : PowerSeries ℂ) : PowerSeries ℂ :=
+  PowerSeries.mk (doubleBorelComplex (fun n => (PowerSeries.coeff n) f))
+
+noncomputable def operatorAPS (f : PowerSeries ℂ) : PowerSeries ℂ :=
+  PowerSeries.mk (operatorAComplex (fun n => (PowerSeries.coeff n) f))
+
+noncomputable def operatorFPS (f : PowerSeries ℂ) : PowerSeries ℂ :=
+  PowerSeries.mk (operatorFComplex (fun n => (PowerSeries.coeff n) f))
+
+noncomputable def thetaPS (f : PowerSeries ℂ) : PowerSeries ℂ :=
+  PowerSeries.mk (thetaComplex (fun n => (PowerSeries.coeff n) f))
+
+/-- The double-Borel intertwining equation as a literal identity of
+operators on `PowerSeries ℂ`, at every formal power series. -/
+theorem doubleBorel_intertwines_powerSeries (f : PowerSeries ℂ) :
+    operatorFPS (doubleBorelPS f) =
+      thetaPS (doubleBorelPS (operatorAPS f)) := by
+  apply PowerSeries.ext
+  intro n
+  simpa only [operatorFPS, doubleBorelPS, operatorAPS, thetaPS,
+    PowerSeries.coeff_mk] using
+      congrFun (doubleBorel_intertwines_complex
+        (fun j => (PowerSeries.coeff j) f)) n
+
+#print axioms EulerianSpecialPoint.doubleBorel_intertwines_powerSeries
+
 #print axioms EulerianSpecialPoint.doubleBorel_intertwines_complex
 
 end EulerianSpecialPoint
