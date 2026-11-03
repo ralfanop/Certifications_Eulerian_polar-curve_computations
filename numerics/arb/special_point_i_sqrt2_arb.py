@@ -34,6 +34,23 @@ def denominator(n):
 check("denominator first five integers",
       [denominator(n) for n in range(5)] ==
       [1, 48, 7680, 2580480, 1486356480])
+# Independently certify all five printed rational coefficients in
+# the even-zeta expansion of log(r_E), using exact Bernoulli/zeta ratios.
+zeta_even_over_pi = [
+    Fraction(1, 6), Fraction(1, 90), Fraction(1, 945),
+    Fraction(1, 9450), Fraction(1, 93555),
+]
+printed_zeta_coefficients = [
+    Fraction(1, 48), -Fraction(1, 11520), Fraction(1, 1451520),
+    -Fraction(1, 154828800), Fraction(1, 15328051200),
+]
+calculated_zeta_coefficients = [
+    (-1) ** (m + 1) * zeta_even_over_pi[m - 1] / (m * 8 ** m)
+    for m in range(1, 6)
+]
+check("even-zeta expansion: exact coefficients m=1,...,5",
+      calculated_zeta_coefficients == printed_zeta_coefficients)
+
 check("integer recurrence n=0,...,39 (Lean proof is universal)",
       all(denominator(n+1) == 8*(2*n+2)*(2*n+3)*denominator(n) for n in range(40)))
 
