@@ -46,7 +46,7 @@ theorem sourceGramTikhonovFilter_eigenmode_tendsto
       (𝓝[>] (0 : ℝ)) (𝓝 u) := by
     simpa using hcomplex.smul_const u
   have hevent : (fun eps : ℝ =>
-      sourceGramTikhonovFilter lam alpha hlam ha eps u) =ᶠ[𝓝[>] (0 : ℝ)]
+      sourceGramTikhonovFilter lam alpha hlam ha eps u) =ᶠ[(𝓝[>] (0 : ℝ))]
       (fun eps : ℝ => ((mu / (mu + eps) : ℝ) : ℂ) • u) := by
     filter_upwards [self_mem_nhdsWithin] with eps heps
     exact sourceGramTikhonovFilter_eigenmode
