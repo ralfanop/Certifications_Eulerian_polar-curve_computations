@@ -113,8 +113,12 @@ theorem sturmRealHeat_positive_nuclear_operator_tsum_eq
         rw [if_neg hnk, horth, zero_smul, smul_zero]
     rw [hterms] at happly
     exact happly.unique hsingle
+  have hdense : Dense
+      ((Submodule.span ℝ (Set.range b)) : Set (SturmH lam)) := by
+    apply Submodule.dense_iff_topologicalClosure_eq_top.mpr
+    exact b.dense_span
   have hEq : T = S := by
-    apply ContinuousLinearMap.ext_on b.dense_span
+    apply ContinuousLinearMap.ext_on hdense
     rintro _ ⟨k, rfl⟩
     exact (hTb k).trans (hSb k).symm
   change T = _
