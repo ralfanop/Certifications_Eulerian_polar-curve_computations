@@ -102,6 +102,58 @@ theorem thetaPS_eq_X_derivative (f : PowerSeries ℂ) :
       push_cast
       ring
 
+
+/-- Identify the coefficient operator L_A with
+θ + 1/2 - X(θ+1) on the actual formal power-series ring. -/
+theorem operatorAPS_eq_standard (f : PowerSeries ℂ) :
+    operatorAPS f =
+      thetaPS f + PowerSeries.C (1 / 2 : ℂ) * f -
+        PowerSeries.X * (thetaPS f + f) := by
+  apply PowerSeries.ext
+  intro n
+  cases n with
+  | zero =>
+      simp [operatorAPS, operatorAComplex, thetaPS, thetaComplex]
+  | succ n =>
+      simp only [operatorAPS, PowerSeries.coeff_mk, operatorAComplex,
+        PowerSeries.coeff_sub, PowerSeries.coeff_add, PowerSeries.coeff_C_mul,
+        PowerSeries.coeff_succ_X_mul, thetaPS, thetaComplex]
+      push_cast
+      ring
+
+/-- Identify L_F with θ(θ+1/2)-X in Mathlib's power-series ring. -/
+theorem operatorFPS_eq_standard (f : PowerSeries ℂ) :
+    operatorFPS f =
+      thetaPS (thetaPS f + PowerSeries.C (1 / 2 : ℂ) * f) -
+        PowerSeries.X * f := by
+  apply PowerSeries.ext
+  intro n
+  cases n with
+  | zero =>
+      simp [operatorFPS, operatorFComplex, thetaPS, thetaComplex]
+  | succ n =>
+      simp only [operatorFPS, PowerSeries.coeff_mk, operatorFComplex,
+        PowerSeries.coeff_sub, PowerSeries.coeff_add, PowerSeries.coeff_C_mul,
+        PowerSeries.coeff_succ_X_mul, thetaPS, thetaComplex]
+      push_cast
+      ring
+
+/-- The manuscript's literal differential-operator identity on ℂ[[t]],
+now expressed using sums, products and the formal Euler differential operator. -/
+theorem doubleBorel_intertwines_standard (f : PowerSeries ℂ) :
+    (thetaPS (thetaPS (doubleBorelPS f) +
+        PowerSeries.C (1 / 2 : ℂ) * doubleBorelPS f) -
+      PowerSeries.X * doubleBorelPS f) =
+      thetaPS (doubleBorelPS (thetaPS f +
+        PowerSeries.C (1 / 2 : ℂ) * f -
+          PowerSeries.X * (thetaPS f + f))) := by
+  rw [← operatorFPS_eq_standard, ← operatorAPS_eq_standard]
+  exact doubleBorel_intertwines_powerSeries f
+
+#print axioms EulerianSpecialPoint.operatorAPS_eq_standard
+#print axioms EulerianSpecialPoint.operatorFPS_eq_standard
+#print axioms EulerianSpecialPoint.doubleBorel_intertwines_standard
+
 #print axioms EulerianSpecialPoint.thetaPS_eq_X_derivative
 
 #print axioms EulerianSpecialPoint.doubleBorel_intertwines_powerSeries
