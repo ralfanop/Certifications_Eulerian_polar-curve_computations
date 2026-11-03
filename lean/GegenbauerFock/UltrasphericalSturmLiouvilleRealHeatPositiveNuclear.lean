@@ -46,8 +46,10 @@ theorem sturmRealHeat_positive_nuclear_operator_summable
         beta n := by
     rw [norm_smul, norm_rankOne,
       sturmMonicEigenCandidate_realL2_normalized_norm lam hlam n]
-    simp only [one_mul, mul_one, Real.norm_eq_abs,
-      abs_of_pos (Real.exp_pos _)]
+    simp only [one_mul, mul_one, Real.norm_eq_abs]
+    change |Real.exp (-s * ((n : ℝ) * ((n : ℝ) + 2 * lam)))| =
+      Real.exp (-s * ((n : ℝ) * ((n : ℝ) + 2 * lam)))
+    exact abs_of_pos (Real.exp_pos _)
   apply Summable.of_norm
   convert hsum using 1
   funext n
