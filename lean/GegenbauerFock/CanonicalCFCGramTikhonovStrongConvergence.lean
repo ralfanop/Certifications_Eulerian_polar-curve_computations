@@ -145,7 +145,10 @@ theorem sourceGramTikhonovFilter_fullL2_strong_tendsto
       (fun T : RegH lam →L[ℂ] RegH lam => T x) heq
     change x - sourceGramTikhonovFilter lam alpha hlam ha eps x =
       regularizationError lam alpha hlam ha eps x at hx
-    abel
+    calc
+      sourceGramTikhonovFilter lam alpha hlam ha eps x =
+          x - (x - sourceGramTikhonovFilter lam alpha hlam ha eps x) := by abel
+      _ = x - regularizationError lam alpha hlam ha eps x := by rw [hx]
   exact hsub.congr' hevent.symm
 
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.sourceGramTikhonov_error_dense_approximation
