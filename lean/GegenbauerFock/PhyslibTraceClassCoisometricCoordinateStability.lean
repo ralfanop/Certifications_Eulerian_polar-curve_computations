@@ -768,6 +768,87 @@ theorem normalizedBidirectionalGapValue_self_zero_v007
   · exact normalizedBidirectionalGapValue_nonneg_v007 A A hA0 hA0
 
 
+/-- Simultaneous strong trace-norm convergence of the canonical
+coisometric coordinate components when both the bounded multiplier
+and trace-class input converge. The numerical argument only requires
+contractivity, hence covers arbitrary convergent sequences of
+coisometries as a special case. For actual coisometries the components
+are the unique certified split coordinates. -/
+theorem coisometric_joint_components_tendsto_v007
+    (U : ℕ → H →L[ℂ] H) (V : H →L[ℂ] H)
+    (T : ℕ → TraceClass H) (S : TraceClass H)
+    (hUn : ∀ n, ‖U n‖ ≤ (1 : ℝ))
+    (hV : ‖V‖ ≤ (1 : ℝ))
+    (hUt : Filter.Tendsto U Filter.atTop (nhds V))
+    (hTt : Filter.Tendsto T Filter.atTop (nhds S)) :
+    Filter.Tendsto
+      (fun n => sandwichContinuous (U n) (U n).adjoint (T n))
+      Filter.atTop (nhds (sandwichContinuous V V.adjoint S)) ∧
+    Filter.Tendsto
+      (fun n => coisometric_sandwich_projection_v007 (U n) (T n))
+      Filter.atTop (nhds (coisometric_sandwich_projection_v007 V S)) ∧
+    Filter.Tendsto
+      (fun n => coisometric_complementaryProjection_v007 (U n) (T n))
+      Filter.atTop (nhds (coisometric_complementaryProjection_v007 V S)) := by
+  have hData :
+      Filter.Tendsto (fun n => ‖T n - S‖)
+        Filter.atTop (nhds (0 : ℝ)) :=
+    tendsto_iff_norm_sub_tendsto_zero.mp hTt
+  have hMultiplier :
+      Filter.Tendsto (fun n => ‖U n - V‖)
+        Filter.atTop (nhds (0 : ℝ)) :=
+    tendsto_iff_norm_sub_tendsto_zero.mp hUt
+  have hMajorAux :
+      Filter.Tendsto
+        (fun n => (2 : ℝ) * ‖T n - S‖ +
+          ((4 : ℝ) * ‖U n - V‖) * ‖S‖)
+        Filter.atTop
+        (nhds ((2 : ℝ) * 0 + ((4 : ℝ) * 0) * ‖S‖)) :=
+    (tendsto_const_nhds.mul hData).add
+      ((tendsto_const_nhds.mul hMultiplier).mul tendsto_const_nhds)
+  have hMajor :
+      Filter.Tendsto
+        (fun n => (2 : ℝ) * ‖T n - S‖ +
+          4 * ‖U n - V‖ * ‖S‖)
+        Filter.atTop (nhds (0 : ℝ)) := by
+    simpa only [mul_zero, zero_mul, add_zero] using hMajorAux
+  have hConvergence (F : ℕ → TraceClass H) (Z : TraceClass H)
+      (hBound : ∀ n,
+        ‖F n - Z‖ ≤
+          2 * ‖T n - S‖ + 4 * ‖U n - V‖ * ‖S‖) :
+      Filter.Tendsto F Filter.atTop (nhds Z) := by
+    apply tendsto_iff_norm_sub_tendsto_zero.mpr
+    exact squeeze_zero (fun n => norm_nonneg (F n - Z)) hBound hMajor
+  constructor
+  · apply hConvergence
+    intro n
+    have h := coisometric_retraction_joint_traceNorm_le_v007
+      (U n) V (T n) S (hUn n) hV
+    change ‖sandwichContinuous (U n) (U n).adjoint (T n) -
+      sandwichContinuous V V.adjoint S‖ ≤
+        ‖T n - S‖ + 2 * ‖U n - V‖ * ‖S‖ at h
+    have hn : 0 ≤ ‖T n - S‖ := norm_nonneg _
+    have hm : 0 ≤ ‖U n - V‖ * ‖S‖ :=
+      mul_nonneg (norm_nonneg _) (norm_nonneg _)
+    nlinarith
+  constructor
+  · apply hConvergence
+    intro n
+    have h := coisometric_projection_joint_traceNorm_le_v007
+      (U n) V (T n) S (hUn n) hV
+    change ‖coisometric_sandwich_projection_v007 (U n) (T n) -
+      coisometric_sandwich_projection_v007 V S‖ ≤
+        ‖T n - S‖ + 4 * ‖U n - V‖ * ‖S‖ at h
+    nlinarith [norm_nonneg (T n - S)]
+  · apply hConvergence
+    intro n
+    have h := coisometric_complement_joint_traceNorm_le_v007
+      (U n) V (T n) S (hUn n) hV
+    change ‖coisometric_complementaryProjection_v007 (U n) (T n) -
+      coisometric_complementaryProjection_v007 V S‖ ≤
+        2 * ‖T n - S‖ + 4 * ‖U n - V‖ * ‖S‖ at h
+    exact h
+
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_norm_le_one_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_component_dist_le_v007
@@ -796,5 +877,7 @@ theorem normalizedBidirectionalGapValue_self_zero_v007
 #print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_nonneg_v007
 #print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_symm_v007
 #print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_self_zero_v007
+
+#print axioms ProbabilisticTheory.TraceClass.coisometric_joint_components_tendsto_v007
 
 end ProbabilisticTheory.TraceClass
