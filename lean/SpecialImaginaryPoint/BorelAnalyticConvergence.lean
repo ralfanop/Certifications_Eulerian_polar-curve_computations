@@ -43,6 +43,7 @@ theorem eulerianEntireSeries_summable (t : ℂ) :
         Complex.norm_natCast]
       norm_num
       rw [mul_pow]
+      ring
     _ ≤ _ := hmain
 
 /-- The value of the absolutely convergent Eulerian double-Borel series. -/
@@ -54,6 +55,26 @@ theorem eulerianEntireSeries_hasSum (t : ℂ) :
     HasSum (fun n : ℕ => eulerianEntireCoeff n * t ^ n)
       (eulerianEntireSeries t) :=
   (eulerianEntireSeries_summable t).hasSum
+
+/-- The convergent scalar series is a genuine complex-analytic power-series
+germ at the origin, with Taylor coefficients equal to the double-Borel
+Eulerian coefficients.  This is a statement about an actual function,
+not merely an element of the formal power-series ring. -/
+theorem eulerianEntireSeries_hasFPowerSeriesAt_zero :
+    HasFPowerSeriesAt eulerianEntireSeries
+      (FormalMultilinearSeries.ofScalars ℂ eulerianEntireCoeff) 0 := by
+  apply (hasFPowerSeriesAt_iff).2
+  refine Filter.Eventually.of_forall (fun z => ?_)
+  simpa only [zero_add, FormalMultilinearSeries.coeff_ofScalars,
+    smul_eq_mul, mul_comm] using eulerianEntireSeries_hasSum z
+
+/-- Local complex analyticity of the Eulerian double-Borel output. -/
+theorem eulerianEntireSeries_analyticAt_zero :
+    AnalyticAt ℂ eulerianEntireSeries 0 :=
+  eulerianEntireSeries_hasFPowerSeriesAt_zero.analyticAt
+
+#print axioms EulerianSpecialPoint.eulerianEntireSeries_hasFPowerSeriesAt_zero
+#print axioms EulerianSpecialPoint.eulerianEntireSeries_analyticAt_zero
 
 #print axioms EulerianSpecialPoint.eulerianEntireSeries_summable
 #print axioms EulerianSpecialPoint.eulerianEntireSeries_hasSum
