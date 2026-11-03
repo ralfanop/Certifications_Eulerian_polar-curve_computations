@@ -35,6 +35,9 @@ theorem sourceGram_positive_shift_norm_lower
     simp only [Complex.conj_ofReal, Complex.mul_re, Complex.ofReal_re,
       Complex.ofReal_im, zero_mul, sub_zero]
     exact mul_nonneg heps.le (hpos.re_inner_nonneg_right x)
+  have hcrossR :
+      0 ≤ RCLike.re (inner ℂ ((eps : ℂ) • x) (G x)) := by
+    exact hcross
   have hsq := norm_add_sq (𝕜 := ℂ) ((eps : ℂ) • x) (G x)
   have hnormsq :
       ‖(eps : ℂ) • x‖ ^ 2 ≤
