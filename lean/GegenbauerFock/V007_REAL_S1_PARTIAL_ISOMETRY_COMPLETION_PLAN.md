@@ -12,12 +12,18 @@ Date: 3 November 2026. Branch: `gegenbauer-fock-formalization-20261025`, PR #16 
 
 All listed successful CI logs had explicit `#print axioms` checks with only `propext`, `Classical.choice`, `Quot.sound`. No unverified result is to be treated as certified.
 
-## Candidate modules pending their own CI (do not cite as proved until green)
+## Further verified real nonselfadjoint S₁ certifications (3 November 2026)
 
-- `RealNuclearUnitaryPolarS1Bridge.lean`: operator admitting complete **two-sided** Hilbert singular bases admits a unitary-positive factorization, belongs to the real nuclear class, and computes a singular sum.
-- `RealNuclearSingularS1ExactGivenBases.lean`: sharper projective infimum equals the sum of singular weights of the **given** source/target Hilbert bases.
-- `RealNuclearUnitaryRightTwoSidedInvariance.lean`: exact equality of real nuclear projective costs under right/two-sided Hilbert unitaries.
-- `RealNuclearInfimumDominatesOperatorNorm.lean`: operator norm bounded by the infimum and strict positivity away from zero.
+6. **Two full real Hilbert singular bases imply a unitary-polar factorization and true nuclearity**: `RealNuclearUnitaryPolarS1Bridge.lean`; [CI #41722591697](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41722591697) SUCCESS, 9114 jobs, four clean-axiom theorems.
+7. **Exact norm for the SPECIFIC supplied two complete singular bases**: `RealNuclearSingularS1ExactGivenBases.lean`; [CI #41723296935](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41723296935) SUCCESS, 9115 jobs, three clean-axiom theorems.
+8. **Nuclear cost-set and norm invariance under right and two-sided unitary multiplication**, with no selfadjointness assumption: `RealNuclearUnitaryRightTwoSidedInvariance.lean`; [CI #41723512868](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41723512868) SUCCESS, 9114 jobs, six clean-axiom theorems.
+9. **General nuclear projective norm dominates the operator norm, hence is nondegenerate on nuclear operators**: `RealNuclearInfimumDominatesOperatorNorm.lean`; [CI #41723806687](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41723806687) SUCCESS, 9106 jobs, four clean-axiom theorems.
+
+These claims apply on their precisely stated domains; in particular, two full bases and a global unitary phase do not cover unequal kernel/cokernel defect dimensions.
+
+## Still pending exact-SHA Lean certification
+
+- `RealNuclearRankOneImpliesCompact.lean`, [CI #41724362531](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41724362531), attempts to prove that every real nuclear operator is compact, using rank-one factorization through the scalar field and norm-closedness of compact operators. Do not cite the theorem as certified until a successful job and clean kernel axiom audit.
 
 ## Important mathematical gap: an arbitrary nuclear operator need NOT have a global unitary phase
 
