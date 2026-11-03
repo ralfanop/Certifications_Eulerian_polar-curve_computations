@@ -84,10 +84,14 @@ proves rational comparisons and conditional transport of inequalities.
 
 - Arb proof-of-sign and numeric enclosure: independently executable.
 - Lean polynomial-sign lemmas and strict interval transport: five theorems
-  **SUCCESS** on CI #41725449416 (pinned Lean 4.35.0-rc3, Mathlib;
-  #print axioms includes only propext, Classical.choice, Quot.sound).
-  The sixth exact two-digit identity is also Lean-certified: CI #41726344450
-  SUCCESS (all six declarations audited, only the three standard axioms).
+  **SUCCESS** on CI #41725449416 (pinned Lean 4.35.0-rc3, Mathlib).
+  The exact two-digit Parry identity: sixth theorem **SUCCESS** on CI #41726344450.
+  Three further results, including all zero-digit inequalities for k=0,...,30,
+  the strict next digit bound 1<beta^31*(beta−1)<2, and their combination
+  for any beta in (1.0854,1.085445), are also **SUCCESS** on CI #41727177204.
+  **TOTAL NINE Lean-certified theorem declarations**, each audited with
+  #print axioms showing only propext, Classical.choice and Quot.sound;
+  no sorryAx or Lean.ofReduceBool. All 16 Arb/exact tests also passed.
   There remains no Lean certificate for the analytic identity
   x_E=sqrt(2)sinh(1/sqrt(2)) or the full Perron–Frobenius invariant-density theorem.
 - Transcendence uses Lindemann's theorem in the manuscript; not Lean-certified
