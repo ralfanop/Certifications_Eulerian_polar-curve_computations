@@ -1,0 +1,56 @@
+name: V007 Sturm heat full closed graph norm strong continuity
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatClosedGraphStrongContinuity.lean'
+      - '.github/workflows/v007-sturm-heat-graph-norm-strong-continuity.yml'
+  workflow_dispatch:
+
+jobs:
+  sturm-heat-closed-graph-strong-continuity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Verify graph-strong continuity and audit axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealHeatClosedGraphStrongContinuity 2>&1 | tee /tmp/v007-heat-graph-continuity-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatClosedGraphStrongContinuity.lean 2>&1 | tee /tmp/v007-heat-graph-continuity-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-heat-graph-continuity-build.log /tmp/v007-heat-graph-continuity-axioms.log; then
+            echo '::error::Forbidden axiom in V007 closed graph continuity.'
+            exit 1
+          fi
+          grep -F "sturmRealHeatLimit_closed_graph_continuity_and_invariance' depends on axioms:" /tmp/v007-heat-graph-continuity-axioms.log
+          echo 'V007 closed Sturm graph norm strong continuity audited.'
