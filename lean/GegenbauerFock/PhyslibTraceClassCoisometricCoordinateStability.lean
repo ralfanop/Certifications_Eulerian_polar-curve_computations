@@ -662,6 +662,112 @@ theorem coisometric_retraction_kernel_numeric_bidirectional_gap_v007
       U V hUUstar hVVstar hUnorm hVnorm)
 
 
+
+/-!
+## Basic structural properties of the numerical normalized gap
+
+The real sInf/sSup model is symmetric after taking the two-sided
+maximum, is nonnegative when both sets contain zero, and vanishes
+for two copies of the same set containing zero. These facts rely
+on conditional completeness of the real numbers, not on an
+uncertified distance-to-set abstraction.
+-/
+
+/-- Nonnegativity of the sInf point-to-set distance for a nonempty target. -/
+theorem normalizedPointToSetGapValue_nonneg_v007
+    (T : TraceClass H) (B : Set (TraceClass H))
+    (hB : B.Nonempty) :
+    0 ≤ normalizedPointToSetGapValue_v007 T B := by
+  rcases hB with ⟨S, hS⟩
+  unfold normalizedPointToSetGapValue_v007
+  apply le_csInf
+  · exact ⟨dist T S, S, hS, rfl⟩
+  · intro r hr
+    rcases hr with ⟨S', hS', rfl⟩
+    exact dist_nonneg
+
+/-- If zero belongs to the target, its numerical sInf distance is
+bounded above by the source norm, uniformly for arbitrary sources. -/
+theorem normalizedPointToSetGapValue_le_norm_v007
+    (T : TraceClass H) (B : Set (TraceClass H))
+    (hB0 : (0 : TraceClass H) ∈ B) :
+    normalizedPointToSetGapValue_v007 T B ≤ ‖T‖ := by
+  have hBelow :
+      BddBelow {r : ℝ | ∃ S : TraceClass H, S ∈ B ∧ r = dist T S} := by
+    refine ⟨0, ?_⟩
+    intro r hr
+    obtain ⟨S, hS, rfl⟩ := hr
+    exact dist_nonneg
+  unfold normalizedPointToSetGapValue_v007
+  calc
+    sInf {r : ℝ | ∃ S : TraceClass H, S ∈ B ∧ r = dist T S} ≤
+        dist T (0 : TraceClass H) :=
+      csInf_le hBelow ⟨0, hB0, rfl⟩
+    _ = ‖T‖ := dist_zero
+
+/-- The real numerical directed unit-ball gap is nonnegative
+when both source and target contain zero. -/
+theorem normalizedDirectedGapValue_nonneg_v007
+    (A B : Set (TraceClass H))
+    (hA0 : (0 : TraceClass H) ∈ A)
+    (hB0 : (0 : TraceClass H) ∈ B) :
+    0 ≤ normalizedDirectedGapValue_v007 A B := by
+  have hAbove :
+      BddAbove {r : ℝ | ∃ T : TraceClass H,
+        T ∈ A ∧ ‖T‖ ≤ 1 ∧
+        r = normalizedPointToSetGapValue_v007 T B} := by
+    refine ⟨1, ?_⟩
+    intro r hr
+    obtain ⟨T, hT, hTnorm, rfl⟩ := hr
+    exact (normalizedPointToSetGapValue_le_norm_v007 T B hB0).trans hTnorm
+  have hPoint :
+      0 ≤ normalizedPointToSetGapValue_v007 (0 : TraceClass H) B :=
+    normalizedPointToSetGapValue_nonneg_v007
+      0 B ⟨0, hB0⟩
+  unfold normalizedDirectedGapValue_v007
+  calc
+    0 ≤ normalizedPointToSetGapValue_v007 (0 : TraceClass H) B := hPoint
+    _ ≤ sSup {r : ℝ | ∃ T : TraceClass H,
+        T ∈ A ∧ ‖T‖ ≤ 1 ∧
+        r = normalizedPointToSetGapValue_v007 T B} :=
+      le_csSup hAbove ⟨0, hA0, by simp, rfl⟩
+
+/-- The numerical bidirectional gap is nonnegative on sets containing zero. -/
+theorem normalizedBidirectionalGapValue_nonneg_v007
+    (A B : Set (TraceClass H))
+    (hA0 : (0 : TraceClass H) ∈ A)
+    (hB0 : (0 : TraceClass H) ∈ B) :
+    0 ≤ normalizedBidirectionalGapValue_v007 A B := by
+  unfold normalizedBidirectionalGapValue_v007
+  exact (normalizedDirectedGapValue_nonneg_v007 A B hA0 hB0).trans
+    (le_max_left _ _)
+
+/-- Symmetry of the actual numerical sSup/sInf bidirectional gap. -/
+theorem normalizedBidirectionalGapValue_symm_v007
+    (A B : Set (TraceClass H)) :
+    normalizedBidirectionalGapValue_v007 A B =
+      normalizedBidirectionalGapValue_v007 B A := by
+  unfold normalizedBidirectionalGapValue_v007
+  exact max_comm _ _
+
+/-- The numerical normalized gap between a nonempty subspace
+containing zero and itself is exactly zero. -/
+theorem normalizedBidirectionalGapValue_self_zero_v007
+    (A : Set (TraceClass H))
+    (hA0 : (0 : TraceClass H) ∈ A) :
+    normalizedBidirectionalGapValue_v007 A A = 0 := by
+  have hReflexive : normalizedBidirectionalGapLE_v007 A A 0 := by
+    constructor
+    · intro T hT hTnorm
+      exact ⟨T, hT, by simp⟩
+    · intro T hT hTnorm
+      exact ⟨T, hT, by simp⟩
+  apply le_antisymm
+  · exact normalizedBidirectionalGapValue_le_of_quantified_v007
+      A A 0 hA0 hA0 hReflexive
+  · exact normalizedBidirectionalGapValue_nonneg_v007 A A hA0 hA0
+
+
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_norm_le_one_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_component_dist_le_v007
@@ -684,5 +790,11 @@ theorem coisometric_retraction_kernel_numeric_bidirectional_gap_v007
 #print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_le_of_quantified_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_embedding_range_numeric_bidirectional_gap_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_kernel_numeric_bidirectional_gap_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedPointToSetGapValue_nonneg_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedPointToSetGapValue_le_norm_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedDirectedGapValue_nonneg_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_nonneg_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_symm_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_self_zero_v007
 
 end ProbabilisticTheory.TraceClass
