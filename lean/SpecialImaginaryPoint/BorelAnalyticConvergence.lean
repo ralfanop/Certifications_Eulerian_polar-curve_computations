@@ -159,7 +159,7 @@ theorem eulerianEntireCoeff_recurrence (n : ℕ) :
     exact hthree
   calc
     _ = (4 * (3 + (n : ℂ) * 2)) *
-          (3 + (n : ℂ) * 2)⁻¹ := by ring
+          (3 + (n : ℂ) * 2)⁻¹ := by ring <;> norm_num
     _ = 4 := by
       rw [mul_assoc, mul_inv_cancel₀ hden, mul_one]
 
