@@ -157,7 +157,6 @@ theorem eulerianEntireCoeff_recurrence (n : ℕ) :
       ring
     rw [heq]
     exact hthree
-  field_simp [hden]
   ring
 
 /-- The actual analytic Eulerian series takes the expected value at zero. -/
