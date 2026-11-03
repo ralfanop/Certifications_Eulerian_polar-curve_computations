@@ -79,7 +79,10 @@ theorem conjugation_traceNorm_polarized_le_v007
   have hDouble : ‖D + D‖ = 2 * ‖D‖ := by
     calc
       ‖D + D‖ = ‖(2 : ℂ) • D‖ := by simp only [two_smul]
-      _ = 2 * ‖D‖ := by simp
+      _ = 2 * ‖D‖ := by
+        change ‖(2 : ℂ) • D‖ = (2 : ℝ) * ‖D‖
+        rw [norm_smul]
+        norm_num
   have hTwo :
       2 * ‖D‖ ≤ 2 * (‖U - V‖ * ‖U + V‖ * ‖T‖) := by
     calc
@@ -95,7 +98,8 @@ theorem conjugation_traceNorm_polarized_le_v007
           (‖U - V‖ * ‖U + V‖ * ‖T‖) :=
         add_le_add hLeft hRight
       _ = 2 * (‖U - V‖ * ‖U + V‖ * ‖T‖) := by ring
-  dsimp [D] at hTwo
+  change 2 * ‖conjugate T U - conjugate T V‖ ≤
+    2 * (‖U - V‖ * ‖U + V‖ * ‖T‖) at hTwo
   nlinarith
 
 #print axioms ProbabilisticTheory.TraceClass.conjugation_polarized_double_identity_v007
