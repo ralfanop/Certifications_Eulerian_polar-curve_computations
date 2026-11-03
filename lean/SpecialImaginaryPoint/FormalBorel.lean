@@ -43,7 +43,6 @@ theorem doubleBorel_intertwines (a : ℕ → ℚ) :
       rw [Nat.factorial_succ]
       push_cast
       field_simp
-      ring
 
 #print axioms EulerianSpecialPoint.doubleBorel_intertwines
 end EulerianSpecialPoint
