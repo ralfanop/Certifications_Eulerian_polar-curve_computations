@@ -48,7 +48,6 @@ theorem strict_parry_return (x : ℝ)
   constructor
   · have hpow : ((10854 : ℝ) / 10000)^31 ≤ x^31 := by
       gcongr
-      exact le_of_lt hx_lower
     have hmul : ((10854 : ℝ) / 10000)^31 *
         ((10854 : ℝ) / 10000 - 1) ≤ x^31 * (x-1) := by
       calc
@@ -59,7 +58,6 @@ theorem strict_parry_return (x : ℝ)
     linarith
   · have hpow : x^30 ≤ ((1085445 : ℝ) / 1000000)^30 := by
       gcongr
-      exact le_of_lt hx_upper
     have hpos : (0 : ℝ) ≤ x - 1 := by
       linarith
     have hmul : x^30 * (x-1) ≤
