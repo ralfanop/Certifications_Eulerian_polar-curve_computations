@@ -26,7 +26,7 @@ theorem sourceGramTikhonovFilter_eigenmode_tendsto
     Tendsto
       (fun eps : ℝ =>
         sourceGramTikhonovFilter lam alpha hlam ha eps u)
-      (𝓝[>] (0 : ℝ)) (𝓝 u) := by
+      (nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ))) (𝓝 u) := by
   have hmu0 : mu ≠ 0 := ne_of_gt hmu
   have hc : ContinuousAt (fun eps : ℝ => mu / (mu + eps)) 0 := by
     apply ContinuousAt.div continuousAt_const
@@ -34,19 +34,19 @@ theorem sourceGramTikhonovFilter_eigenmode_tendsto
     simpa only [add_zero] using hmu0
   have hreal : Tendsto
       (fun eps : ℝ => mu / (mu + eps))
-      (𝓝[>] (0 : ℝ)) (𝓝 (1 : ℝ)) := by
+      (nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ))) (𝓝 (1 : ℝ)) := by
     simpa only [add_zero, div_self hmu0] using
       hc.tendsto.mono_left nhdsWithin_le_nhds
   have hcomplex : Tendsto
       (fun eps : ℝ => ((mu / (mu + eps) : ℝ) : ℂ))
-      (𝓝[>] (0 : ℝ)) (𝓝 (1 : ℂ)) := by
+      (nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ))) (𝓝 (1 : ℂ)) := by
     simpa using Complex.continuous_ofReal.continuousAt.tendsto.comp hreal
   have hvector : Tendsto
       (fun eps : ℝ => ((mu / (mu + eps) : ℝ) : ℂ) • u)
-      (𝓝[>] (0 : ℝ)) (𝓝 u) := by
+      (nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ))) (𝓝 u) := by
     simpa using hcomplex.smul_const u
   have hevent : (fun eps : ℝ =>
-      sourceGramTikhonovFilter lam alpha hlam ha eps u) =ᶠ[(𝓝[>] (0 : ℝ))]
+      sourceGramTikhonovFilter lam alpha hlam ha eps u) =ᶠ[(nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ)))]
       (fun eps : ℝ => ((mu / (mu + eps) : ℝ) : ℂ) • u) := by
     filter_upwards [self_mem_nhdsWithin] with eps heps
     exact sourceGramTikhonovFilter_eigenmode
