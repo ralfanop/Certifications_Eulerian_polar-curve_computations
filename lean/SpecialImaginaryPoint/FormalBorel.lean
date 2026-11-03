@@ -44,5 +44,26 @@ theorem doubleBorel_intertwines (a : ℕ → ℚ) :
       push_cast
       field_simp
 
+
+/-- The exact reciprocal-central-binomial input coefficients
+of manuscript Proposition 3.1, after expansion of the binomial. -/
+def binomialInputCoefficient (n : ℕ) : ℚ :=
+  4 ^ n * (n.factorial : ℚ) ^ 2 / ((2 * n + 1).factorial : ℚ)
+
+/-- The entire-function coefficients appearing in manuscript Theorem 3.3. -/
+def eulerianBorelCoefficient (n : ℕ) : ℚ :=
+  4 ^ n / ((2 * n + 1).factorial : ℚ)
+
+/-- Exact coefficient equality under double Borel: no approximation and
+no unproved analytic convergence assumption is involved. -/
+theorem doubleBorel_binomialInput_coefficients (n : ℕ) :
+    doubleBorel binomialInputCoefficient n = eulerianBorelCoefficient n := by
+  simp only [doubleBorel, binomialInputCoefficient, eulerianBorelCoefficient]
+  have hn : (n.factorial : ℚ) ≠ 0 := by positivity
+  have hm : ((2 * n + 1).factorial : ℚ) ≠ 0 := by positivity
+  field_simp
+
+#print axioms EulerianSpecialPoint.doubleBorel_binomialInput_coefficients
+
 #print axioms EulerianSpecialPoint.doubleBorel_intertwines
 end EulerianSpecialPoint
