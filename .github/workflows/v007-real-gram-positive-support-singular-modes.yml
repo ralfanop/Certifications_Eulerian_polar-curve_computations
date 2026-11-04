@@ -1,0 +1,50 @@
+name: V007 real Gram positive support singular modes
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/RealCompactGramActiveSingularModes.lean'
+      - 'lean/GegenbauerFock/RealCompactGramPositiveSingularBasisBridge.lean'
+      - '.github/workflows/v007-real-gram-positive-support-singular-modes.yml'
+  workflow_dispatch:
+
+jobs:
+  real-gram-positive-support:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel audit of positive-support real singular modes
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealCompactGramActiveSingularModes 2>&1 | tee /tmp/v007-real-gram-active-modes.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-real-gram-active-modes.log; then
+            echo '::error::Forbidden axiom in real positive-support singular modes.'
+            exit 1
+          fi
+          for theorem in realGram_apply_eq_zero_iff_v007 realGram_zeroEigenvector_in_kernel_v007 realGram_nonpositiveEigenfamily_in_kernel_v007 realGram_active_singular_pair_adjoint_v007 realGram_positiveSupport_output_orthonormal_v007; do
+            grep -F "'GegenbauerFock.Ultraspherical.${theorem}' depends on axioms:" /tmp/v007-real-gram-active-modes.log
+          done
+          echo 'Positive-support singular modes and real Gram kernel identity kernel-certified.'
