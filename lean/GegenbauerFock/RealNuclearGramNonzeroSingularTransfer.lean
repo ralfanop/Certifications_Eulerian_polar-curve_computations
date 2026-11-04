@@ -64,8 +64,7 @@ theorem realNuclearGram_nonzero_output_orthonormal
       norm_num
     rw [hbi]
     have hne : sigma i ≠ 0 := ne_of_gt (hpos i)
-    field_simp
-    ring
+    field_simp <;> ring
   · rw [if_neg hij, hb.inner_eq_zero hij]
     ring
 
