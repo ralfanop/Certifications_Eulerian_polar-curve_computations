@@ -1,4 +1,5 @@
 import Mathlib
+set_option maxHeartbeats 1000000
 
 /-!
 # Manuscript 14, Section 11 — rational Parry-threshold certificates
@@ -509,7 +510,7 @@ theorem parry31_left_jump (root : ℝ)
         ring
       _ = 1 := by linarith
   have hcont : ContinuousAt (fun b : ℝ => b ^ 30 * (b - 1)) root := by
-    fun_prop
+    exact (continuousAt_id.pow 30).mul (continuousAt_id.sub continuousAt_const)
   have hpoly_tendsto : Filter.Tendsto
       (fun b : ℝ => b ^ 30 * (b - 1))
       (𝓝[<] root) (𝓝 (1 : ℝ)) := by
