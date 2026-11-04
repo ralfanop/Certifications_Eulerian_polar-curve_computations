@@ -13,13 +13,15 @@ This file contains NO additional axioms and NO `sorry`.
 
 namespace Manuscript14Section11
 
+open scoped Topology
+
 /-- The nonzero algebraic Eulerian exponent is algebraic over the integers
 after passage to the complex numbers. -/
 theorem eulerian_complex_exponent_algebraic_integer :
     IsAlgebraic ℤ (((1 / Real.sqrt 2 : ℝ) : ℂ)) := by
   have hq :
       IsAlgebraic ℚ (((1 / Real.sqrt 2 : ℝ) : ℂ)) := by
-    simpa only using
+    simpa only [Complex.coe_algebraMap] using
       (eulerian_exponent_algebraic_nonzero.1.algebraMap (A := ℂ))
   exact (IsFractionRing.isAlgebraic_iff ℤ ℚ ℂ).mpr hq
 
@@ -38,7 +40,7 @@ theorem eulerian_exponential_transcendental :
   have hq : IsAlgebraic ℚ (Complex.exp (a : ℂ)) := by
     have hc : IsAlgebraic ℚ
         (((Real.exp (1 / Real.sqrt 2)) : ℝ) : ℂ) := by
-      simpa only using (hr.algebraMap (A := ℂ))
+      simpa only [Complex.coe_algebraMap] using (hr.algebraMap (A := ℂ))
     simpa only [a, Complex.ofReal_exp] using hc
   exact ht ((IsFractionRing.isAlgebraic_iff ℤ ℚ ℂ).mpr hq)
 
