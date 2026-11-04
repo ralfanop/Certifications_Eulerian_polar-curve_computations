@@ -1,4 +1,4 @@
-name: Manuscript 14.1 complex formal Sonine intertwining — Lean
+name: Manuscript 14.1 complex formal Sonine intertwining — Lean and Arb
 
 on:
   push:
@@ -55,7 +55,7 @@ jobs:
           if-no-files-found: ignore
 
   arb:
-    name: Arb 256-bit / exact Q — polynomial Sonine
+    name: Arb 384-bit / exact Q — polynomial Sonine
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
