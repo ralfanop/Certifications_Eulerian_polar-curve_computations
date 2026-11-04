@@ -76,10 +76,11 @@ check('manuscript HS trace correctly rounded at 51 decimal places',
       p2-Q(1,2*10**51)<tr2-err2 and tr2+err2<p2+Q(1,2*10**51))
 
 # Eulerian endpoint: S1(±1) = sinh(a)/a, via rational Taylor enclosure.
-M=20
+M=18
 s=sum((Q(1,8**k*factorial(2*k+1)) for k in range(M)),Q(0))
 nextterm=Q(1,8**M*factorial(2*M+1))
-ratio=Q(1,8*(2*M+2)*(2*M+3))
+ratio=Q(1,10000)  # strictly above the true next-term ratio 1/[8(2M+2)(2M+3)]
+check('sinh tail ratio majorant valid for all k≥M',Q(1,8*(2*M+2)*(2*M+3))<ratio)
 sup=s+nextterm/(1-ratio)
 val=h/a
 check('Eulerian Gram endpoint value in positive exact Taylor enclosure',
