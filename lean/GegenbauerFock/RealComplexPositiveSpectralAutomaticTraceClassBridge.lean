@@ -58,14 +58,14 @@ theorem complex_nonneg_isTraceClass_of_summable_natBasis_diagonal
     rw [hinner, inner_self_eq_norm_sq_to_K]
     norm_cast
   have hb : Summable (fun n : ℕ => ‖S (b n)‖ ^ 2) :=
-    hs.congr (fun n => (hpt (b n)).symm)
+    hs.congr (fun n => hpt (b n))
   obtain ⟨w, c, _⟩ := exists_hilbertBasis ℂ HC
   have hc : Summable (fun i : w => ‖S (c i)‖ ^ 2) :=
     (ProbabilisticTheory.hasSum_norm_sq_apply_of_selfAdjoint
       hSself b c hb).summable
   have hcdiag : Summable (fun i : w =>
       (inner ℂ (c i) (T (c i))).re) :=
-    hc.congr (fun i => hpt (c i))
+    hc.congr (fun i => (hpt (c i)).symm)
   exact ProbabilisticTheory.isTraceClass_of_nonneg_of_summable
     T hTpos c hcdiag
 
