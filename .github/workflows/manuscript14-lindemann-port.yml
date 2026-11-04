@@ -8,6 +8,11 @@ on:
       - 'lean/lean-toolchain'
       - 'lean/lakefile.toml'
       - 'lean/SpecialImaginaryPoint/HermiteLindemannPrExperiment.lean'
+      - 'lean/SpecialImaginaryPoint/HermiteEulerianCompleteExperiment.lean'
+      - 'lean/SpecialImaginaryPoint/ParryThresholds.lean'
+      - 'lean/SpecialImaginaryPoint/EulerianAnalyticBracket.lean'
+      - 'lean/SpecialImaginaryPoint/PeriodicOrbitAlgebraicity.lean'
+      - 'lean/SpecialImaginaryPoint/EulerianTranscendenceReduction.lean'
       - '.github/workflows/manuscript14-lindemann-port.yml'
   workflow_dispatch:
 
@@ -44,7 +49,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake env lean -M16768 SpecialImaginaryPoint/HermiteLindemannPrExperiment.lean 2>&1 | tee /tmp/manuscript14-lindemann.log
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/ParryThresholds.olean SpecialImaginaryPoint/ParryThresholds.lean 2>&1 | tee /tmp/manuscript14-lindemann.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/EulerianAnalyticBracket.olean SpecialImaginaryPoint/EulerianAnalyticBracket.lean 2>&1 | tee -a /tmp/manuscript14-lindemann.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/PeriodicOrbitAlgebraicity.olean SpecialImaginaryPoint/PeriodicOrbitAlgebraicity.lean 2>&1 | tee -a /tmp/manuscript14-lindemann.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/EulerianTranscendenceReduction.olean SpecialImaginaryPoint/EulerianTranscendenceReduction.lean 2>&1 | tee -a /tmp/manuscript14-lindemann.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/HermiteLindemannPrExperiment.olean SpecialImaginaryPoint/HermiteLindemannPrExperiment.lean 2>&1 | tee -a /tmp/manuscript14-lindemann.log
+          lake env lean -M16768 SpecialImaginaryPoint/HermiteEulerianCompleteExperiment.lean 2>&1 | tee -a /tmp/manuscript14-lindemann.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/manuscript14-lindemann.log; then
             echo "::error::Forbidden Lean axiom present"
             exit 1
