@@ -166,8 +166,7 @@ private theorem floor_one_of_mem (x : ℝ) (hx1 : 1 ≤ x) (hx2 : x < 2) :
   apply (Int.floor_eq_iff).2
   constructor
   · simpa using hx1
-  · change x < 2
-    exact hx2
+  · exact lt_of_lt_of_le hx2 (by norm_num)
 
 private theorem floor_zero_of_mem (x : ℝ) (hx0 : 0 ≤ x) (hx1 : x < 1) :
     ⌊x⌋ = (0 : ℤ) := by
