@@ -6,6 +6,7 @@ on:
       - manuscript14-dirichlet-finite-20261104
     paths:
       - 'lean/SpecialImaginaryPoint/DirichletFiniteDeterminant.lean'
+      - 'lean/SpecialImaginaryPoint/DirichletFiniteTrace.lean'
       - 'numerics/arb/manuscript14_dirichlet_finite_arb.py'
       - '.github/workflows/manuscript14-dirichlet-finite.yml'
   workflow_dispatch:
@@ -41,7 +42,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake env lean -M16768 SpecialImaginaryPoint/DirichletFiniteDeterminant.lean 2>&1 | tee /tmp/manuscript14-dirichlet-lean.log
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/DirichletFiniteDeterminant.olean SpecialImaginaryPoint/DirichletFiniteDeterminant.lean 2>&1 | tee /tmp/manuscript14-dirichlet-lean.log
+          lake env lean -M16768 SpecialImaginaryPoint/DirichletFiniteTrace.lean 2>&1 | tee -a /tmp/manuscript14-dirichlet-lean.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/manuscript14-dirichlet-lean.log; then
             echo "::error::Forbidden Lean axiom detected"
             exit 1
