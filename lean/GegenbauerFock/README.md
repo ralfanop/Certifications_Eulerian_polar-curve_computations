@@ -1,3 +1,15 @@
+## Current status — 4 November 2026
+
+**Read first:** [V007 certification scope audit, 4 November 2026](V007_CERTIFICATION_SCOPE_AUDIT_20261104.md), which compares the accessible `V007.2.tex` manuscript snapshot with the latest verified Lean source/run evidence and identifies exact remaining proof boundaries.
+
+**The section below is a historical 26 October snapshot, not a reliable current inventory.** Since then, the branch has added actual intrinsic holomorphic Gaussian Fock operator sources, Gamma-normalized ultraspherical moment proofs, the exact closed Sturm generator, positive-time compact/nuclear heat certificates, and quantitative numerical Schatten-S₁ gap theory. Their proof types and CI statuses must be checked individually; this update does **not** certify the whole manuscript or every source module.
+
+**Primary open general-theory issue:** The certified theorem about a given pair of incomplete orthonormal singular families does *not* construct a partial singular-value decomposition for every compact real Hilbert operator. Likewise, a real projective nuclear norm and a separate complex trace-class norm must not be identified without a certified bridge. The pointwise spheroidal kernel balance is not, by itself, an unbounded operator commutation proof.
+
+PR #16 remains OPEN/DRAFT/unmerged. No changes to main, V097 or V170 are authorised.
+
+---
+
 # Gegenbauer–Fock Lean 4 formalization — isolated draft PR #16
 
 **Status (26 October 2026):** algebraic + selected analytic and integral lemmas
