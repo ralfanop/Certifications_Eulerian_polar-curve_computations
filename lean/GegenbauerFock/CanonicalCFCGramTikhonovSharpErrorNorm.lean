@@ -42,18 +42,22 @@ theorem sourceGramTikhonov_error_opNorm_eq_one
     sourceGramTikhonov_error_opNorm_le_one lam alpha hlam ha eps heps
   obtain ⟨u, hunit, hGramZero⟩ :=
     gram_exists_unit_approximate_zero_eigenvectors lam alpha hlam ha
+  have hGzero :
+      Tendsto (fun n : ℕ => G (u n))
+        atTop (nhds (0 : SharpRegH lam)) := by
+    exact hGramZero
   have hEGzero :
       Tendsto (fun n : ℕ => E (G (u n)))
         atTop (nhds (0 : SharpRegH lam)) := by
-    simpa only [map_zero] using
-      E.continuous.continuousAt.tendsto.comp hGramZero
+    have hcomp := E.continuous.continuousAt.tendsto.comp hGzero
+    simpa only [Function.comp_def, map_zero] using hcomp
+  have hconst :
+      Tendsto (fun _ : ℕ => ((eps : ℂ)⁻¹))
+        atTop (nhds ((eps : ℂ)⁻¹)) := tendsto_const_nhds
   have hscaledZero :
       Tendsto (fun n : ℕ => ((eps : ℂ)⁻¹) • E (G (u n)))
         atTop (nhds (0 : SharpRegH lam)) := by
-    simpa only [smul_zero] using
-      (tendsto_const_nhds.smul hEGzero :
-        Tendsto (fun n : ℕ => ((eps : ℂ)⁻¹) • E (G (u n)))
-          atTop (nhds (((eps : ℂ)⁻¹) • (0 : SharpRegH lam)))
+    simpa only [smul_zero] using hconst.smul hEGzero
   have hepsNe : (eps : ℂ) ≠ 0 := by
     exact_mod_cast (ne_of_gt heps)
   have hresidual (n : ℕ) :
