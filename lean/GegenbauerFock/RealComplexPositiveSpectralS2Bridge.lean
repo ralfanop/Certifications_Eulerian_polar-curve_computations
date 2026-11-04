@@ -77,27 +77,23 @@ theorem real_complex_shared_positive_spectrum_intrinsicS2
   have hbC : Summable (fun n : ℕ => ‖T (bC n)‖ ^ 2) :=
     hsq.congr (fun n => (hTmass n).symm)
   have hself : IsSelfAdjoint T := .of_nonneg hTpos
-  have hcomplex (κ : Type*) (b : HilbertBasis κ ℂ HC) :
-      HasSum (fun i : κ => ‖T (b i)‖ ^ 2)
-        (∑' n : ℕ, σ n ^ 2) := by
-    have h := ProbabilisticTheory.hasSum_norm_sq_apply_of_selfAdjoint
-      hself bC b hbC
-    have hmass : (∑' n : ℕ, ‖T (bC n)‖ ^ 2) =
-        ∑' n : ℕ, σ n ^ 2 := tsum_congr hTmass
-    rw [← hmass]
-    exact h
-  have hreal (ι : Type*) (b : HilbertBasis ι ℝ HR) :
-      HasSum (fun i : ι => ‖R (b i)‖ ^ 2)
-        (∑' n : ℕ, σ n ^ 2) := by
-    have h := realHilbert_hsMass_hasSum_any_basis R bR b hbR
-    have hmass : (∑' n : ℕ, ‖R (bR n)‖ ^ 2) =
-        ∑' n : ℕ, σ n ^ 2 := tsum_congr hRmass
-    rw [← hmass]
-    exact h
+  have hRealMass : (∑' n : ℕ, ‖R (bR n)‖ ^ 2) =
+      ∑' n : ℕ, σ n ^ 2 := tsum_congr hRmass
+  have hComplexMass : (∑' n : ℕ, ‖T (bC n)‖ ^ 2) =
+      ∑' n : ℕ, σ n ^ 2 := tsum_congr hTmass
   obtain ⟨w, b, _⟩ := exists_hilbertBasis ℂ HC
-  exact ⟨⟨w, b, (hcomplex w b).summable⟩,
-    (fun {_} b => hreal _ b),
-    (fun {_} b => hcomplex _ b)⟩
+  refine ⟨⟨w, b, ?_⟩, ?_, ?_⟩
+  · exact (ProbabilisticTheory.hasSum_norm_sq_apply_of_selfAdjoint
+      hself bC b hbC).summable
+  · intro ι c
+    have hh := realHilbert_hsMass_hasSum_any_basis R bR c hbR
+    rw [← hRealMass]
+    exact hh
+  · intro κ c
+    have hh := ProbabilisticTheory.hasSum_norm_sq_apply_of_selfAdjoint
+      hself bC c hbC
+    rw [← hComplexMass]
+    exact hh
 
 #print axioms GegenbauerFock.Ultraspherical.nonnegative_summable_has_summable_squares
 #print axioms GegenbauerFock.Ultraspherical.real_complex_shared_positive_spectrum_intrinsicS2
