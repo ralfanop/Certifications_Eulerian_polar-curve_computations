@@ -89,20 +89,36 @@ theorem complexLp_eq_realToComplex_re_add_I_im
     Complex.reCLM.coeFn_compLpL f,
     Complex.imCLM.coeFn_compLpL f
   ] with x hadd hsm hincRe hincIm hre him
+  have hadd' :
+      (realToComplexLp lam (complexLpRe lam f) +
+        Complex.I • realToComplexLp lam (complexLpIm lam f)) x =
+      (realToComplexLp lam (complexLpRe lam f)) x +
+        (Complex.I • realToComplexLp lam (complexLpIm lam f)) x := by
+    simpa only [Pi.add_apply] using hadd
+  have hincRe' :
+      (realToComplexLp lam (complexLpRe lam f)) x =
+        ((complexLpRe lam f) x : ℂ) := by
+    simpa only [realToComplexLp, Complex.ofRealCLM_apply] using hincRe
+  have hincIm' :
+      (realToComplexLp lam (complexLpIm lam f)) x =
+        ((complexLpIm lam f) x : ℂ) := by
+    simpa only [realToComplexLp, Complex.ofRealCLM_apply] using hincIm
+  have hre' : (complexLpRe lam f) x = (f x).re := by
+    simpa only [complexLpRe, Complex.reCLM_apply] using hre
+  have him' : (complexLpIm lam f) x = (f x).im := by
+    simpa only [complexLpIm, Complex.imCLM_apply] using him
   calc
     (realToComplexLp lam (complexLpRe lam f) +
       Complex.I • realToComplexLp lam (complexLpIm lam f)) x =
         (realToComplexLp lam (complexLpRe lam f)) x +
           Complex.I * (realToComplexLp lam (complexLpIm lam f)) x := by
-            rw [hadd, hsm]
+            rw [hadd', hsm]
             rfl
     _ = ((complexLpRe lam f) x : ℂ) +
           Complex.I * ((complexLpIm lam f) x : ℂ) := by
-            rw [hincRe, hincIm]
-            simp only [Complex.ofRealCLM_apply]
+            rw [hincRe', hincIm']
     _ = ((f x).re : ℂ) + Complex.I * ((f x).im : ℂ) := by
-            rw [hre, him]
-            simp only [Complex.reCLM_apply, Complex.imCLM_apply]
+            rw [hre', him']
     _ = f x := by
             simpa only [mul_comm] using (Complex.re_add_im (f x))
 
