@@ -7,7 +7,7 @@ on:
       - '.github/workflows/v007-tikhonov-hilbert-energy-noise.yml'
   workflow_dispatch:
 concurrency:
-  group: v007-tikhonov-hilbert-energy-${{ github.ref }}
+  group: v007-tikhonov-hilbert-energy-${{ github.sha }}
   cancel-in-progress: false
 jobs:
   hilbert-noise:
