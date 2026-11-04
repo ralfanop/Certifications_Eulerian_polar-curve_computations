@@ -17,7 +17,7 @@ No transcendence theorem is imported or assumed here.
 namespace Manuscript14Section11
 
 /-- Exact monic polynomial representing a finite affine orbit. -/
-def affineOrbitPolynomial (d : ℕ → ℚ) : ℕ → Polynomial ℚ
+noncomputable def affineOrbitPolynomial (d : ℕ → ℚ) : ℕ → Polynomial ℚ
   | 0 => 1
   | n + 1 => Polynomial.X * affineOrbitPolynomial d n -
       Polynomial.C (d n)
@@ -39,7 +39,7 @@ theorem affineOrbitPolynomial_monic_degree (d : ℕ → ℚ) (n : ℕ) :
           _ < _ := by
             rw [Polynomial.degree_eq_natDegree hX.ne_zero,
               Polynomial.natDegree_X_mul ih.1.ne_zero, ih.2]
-            norm_num
+            positivity
       constructor
       · change (Polynomial.X * affineOrbitPolynomial d n -
             Polynomial.C (d n)).Monic
@@ -65,7 +65,7 @@ theorem affineOrbitPolynomial_aeval (d : ℕ → ℚ) (beta : ℝ)
           Polynomial.C (d n)) = _
       simp only [map_sub, map_mul, Polynomial.aeval_X, Polynomial.aeval_C]
       rw [ih]
-      ring
+      simp
 
 /-- Two different positions have different monic polynomial forms. -/
 theorem affineOrbitPolynomial_ne_of_lt (d : ℕ → ℚ)
