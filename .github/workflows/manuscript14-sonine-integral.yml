@@ -9,6 +9,7 @@ on:
       - 'lean/SpecialImaginaryPoint/SonineIntegralMoment.lean'
       - 'lean/SpecialImaginaryPoint/SonineEvenPolynomials.lean'
       - 'lean/SpecialImaginaryPoint/SonineFactorialMoment.lean'
+      - 'lean/SpecialImaginaryPoint/SonineEvenComplexPolynomials.lean'
       - '.github/workflows/manuscript14-sonine-integral.yml'
   workflow_dispatch:
 
@@ -46,6 +47,7 @@ jobs:
           lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineIntegralMoment.olean SpecialImaginaryPoint/SonineIntegralMoment.lean 2>&1 | tee -a /tmp/manuscript14-sonine-integral.log
           lake env lean -M16768 SpecialImaginaryPoint/SonineFactorialMoment.lean 2>&1 | tee -a /tmp/manuscript14-sonine-integral.log
           lake env lean -M16768 SpecialImaginaryPoint/SonineEvenPolynomials.lean 2>&1 | tee -a /tmp/manuscript14-sonine-integral.log
+          lake env lean -M16768 SpecialImaginaryPoint/SonineEvenComplexPolynomials.lean 2>&1 | tee -a /tmp/manuscript14-sonine-integral.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/manuscript14-sonine-integral.log; then
             echo '::error::Forbidden Lean axiom in audit'
             exit 1
