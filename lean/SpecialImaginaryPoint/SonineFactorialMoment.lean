@@ -75,8 +75,6 @@ theorem integralMoment_eq_factorial (n : ℕ) :
         (Nat.factorial (2*n+1) : ℝ) := by
   rw [integralMoment_eq_moment, moment_eq_factorialMoment]
   norm_num [factorialMoment]
-  push_cast
-  rfl
 
 #print axioms Manuscript14Sonine.factorialMoment_succ
 #print axioms Manuscript14Sonine.moment_eq_factorialMoment
