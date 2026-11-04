@@ -209,7 +209,27 @@ Both theorems apply to the genuine operator on the full weighted complex
 `c860bf4be4ab08531bcce561c5250ee42ee0b204` was verified
 identical at the certified commit and on the Draft branch.
 
-The **remaining data-space noise estimate** is a distinct Lean proof
-obligation. No bounded inverse of the unshifted compact Gram `G` is asserted.
+**Step 6 — actual Fock-data bias–noise: KERNEL-CERTIFIED (4 November 2026).**
+[CI #41810425031](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41810425031)
+finished SUCCESS at `892b0c301f64af0714b9a164b175e06994e72d97`,
+with **9,143 compiled jobs** and a clean `#print axioms` audit:
+only `propext`, `Classical.choice`, `Quot.sound`; no
+`sorryAx` or `Lean.ofReduceBool`. The exact source blob
+`1b142d4edae39d2acabd19527de0ba2a3912197c` is unchanged
+on the active V007 Draft branch.
+
+`CanonicalCFCGramTikhonovNoisyReconstruction.lean` defines
+the genuine data-to-source map `R_eps=(G+eps I)⁻¹ C*`.
+Its theorems `sourceGramTikhonovReconstructor_noiseless_bias`
+and `sourceGramTikhonovReconstructor_noisy_bound` certify
+`R_eps(Cf)-f=-E_eps f` and
+`‖R_eps(Cf+eta)-f‖ ≤ ‖E_eps f‖+‖R_eps‖‖eta‖`.
+
+**Remaining Lean obligation:** prove for this genuine operator
+`eps‖R_eps eta‖²+‖C R_eps eta‖² ≤ ‖eta‖‖C R_eps eta‖`;
+then apply the now-certified scalar energy lemma to replace
+`‖R_eps‖` by `1/(2√eps)`. This sharp data-noise bound is
+*not yet kernel-certified*. No bounded inverse of unshifted compact
+`G` is asserted.
 
 **This note belongs solely to V007. No merge into V097 and no V170 changes.**
