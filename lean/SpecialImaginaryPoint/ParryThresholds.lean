@@ -598,4 +598,146 @@ theorem parry31_exists_unique_root :
 #print axioms Manuscript14Section11.parry_power_strict_mono
 #print axioms Manuscript14Section11.parry31_exists_unique_root
 
+
+/-!
+## The adjacent trinomial endpoint and a unified exact comparison
+
+This closes the *root-existence and interval-order* part of Section 11
+for an arbitrary real parameter in the already-certified rational bracket.
+The separate identification of the *actual* Eulerian sinh value with
+that bracket is not assumed to have been kernel-proved.
+-/
+
+/-- The next member of the trinomial family has exactly one root in (1,2). -/
+theorem parry32_exists_unique_root :
+    ∃! beta : ℝ, 1 < beta ∧ beta < 2 ∧
+      beta ^ 32 - beta ^ 31 - 1 = 0 := by
+  let f : ℝ → ℝ := fun b => b ^ 31 * (b - 1)
+  have hcont : ContinuousOn f (Set.Icc (1 : ℝ) 2) := by
+    dsimp [f]
+    fun_prop
+  have hmem : (1 : ℝ) ∈ Set.Icc (f 1) (f 2) := by
+    norm_num [f, Set.mem_Icc]
+  obtain ⟨beta, hbeta, hval⟩ :
+      ∃ beta ∈ Set.Icc (1 : ℝ) 2, f beta = 1 :=
+    (intermediate_value_Icc (by norm_num : (1 : ℝ) ≤ 2) hcont) hmem
+  have hb1 : 1 < beta := by
+    rcases lt_or_eq_of_le hbeta.1 with h | h
+    · exact h
+    · subst beta
+      norm_num [f] at hval
+  have hb2 : beta < 2 := by
+    rcases lt_or_eq_of_le hbeta.2 with h | h
+    · exact h
+    · subst beta
+      norm_num [f] at hval
+  change beta ^ 31 * (beta - 1) = 1 at hval
+  have hp : beta ^ 32 - beta ^ 31 - 1 = 0 := by
+    calc
+      beta ^ 32 - beta ^ 31 - 1 =
+          beta ^ 31 * (beta - 1) - 1 := by
+        rw [pow_succ]
+        ring
+      _ = 0 := by rw [hval]; ring
+  refine ⟨beta, ⟨hb1, hb2, hp⟩, ?_⟩
+  intro y hy
+  obtain ⟨hy1, hy2, hyP⟩ := hy
+  have hyval : y ^ 31 * (y - 1) = 1 := by
+    calc
+      y ^ 31 * (y - 1) = y ^ 32 - y ^ 31 := by
+        rw [pow_succ]
+        ring
+      _ = 1 := by linarith
+  rcases lt_trichotomy beta y with hlt | heq | hgt
+  · have hh := parry_power_strict_mono 31 beta y hb1.le hlt
+    linarith
+  · exact heq.symm
+  · have hh := parry_power_strict_mono 31 y beta hy1.le hgt
+    linarith
+
+/-- The two actual, uniquely defined trinomial roots straddle every
+parameter satisfying the certified six-decimal bracket. -/
+theorem parry_adjacent_roots_straddle (x : ℝ)
+    (hlo : (10854 : ℝ) / 10000 < x)
+    (hhi : x < (1085445 : ℝ) / 1000000) :
+    ∃ beta32 beta31 : ℝ,
+      (1 < beta32 ∧ beta32 < 2 ∧ beta32 ^ 32 - beta32 ^ 31 - 1 = 0) ∧
+      (1 < beta31 ∧ beta31 < 2 ∧ beta31 ^ 31 - beta31 ^ 30 - 1 = 0) ∧
+      beta32 < x ∧ x < beta31 := by
+  obtain ⟨beta32, h32, _⟩ := parry32_exists_unique_root
+  obtain ⟨beta31, h31, _⟩ := parry31_exists_unique_root
+  have hx : 1 < x := by linarith
+  obtain ⟨hgreater, hless⟩ := strict_parry_return x hlo hhi
+  have h32value : beta32 ^ 31 * (beta32 - 1) = 1 := by
+    calc
+      beta32 ^ 31 * (beta32 - 1) = beta32 ^ 32 - beta32 ^ 31 := by
+        rw [pow_succ]
+        ring
+      _ = 1 := by linarith [h32.2.2]
+  have h31value : beta31 ^ 30 * (beta31 - 1) = 1 := by
+    calc
+      beta31 ^ 30 * (beta31 - 1) = beta31 ^ 31 - beta31 ^ 30 := by
+        rw [pow_succ]
+        ring
+      _ = 1 := by linarith [h31.2.2]
+  have h32lt : beta32 < x := by
+    by_contra h
+    have hle : x ≤ beta32 := le_of_not_gt h
+    rcases lt_or_eq_of_le hle with hlt | heq
+    · have hm := parry_power_strict_mono 31 x beta32 hx.le hlt
+      linarith
+    · subst x
+      linarith
+  have h31gt : x < beta31 := by
+    by_contra h
+    have hle : beta31 ≤ x := le_of_not_gt h
+    rcases lt_or_eq_of_le hle with hlt | heq
+    · have hm := parry_power_strict_mono 30 beta31 x h31.1.le hlt
+      linarith
+    · subst x
+      linarith
+  exact ⟨beta32, beta31, h32, h31, h32lt, h31gt⟩
+
+/-- The distinguished *actual* Eulerian scalar (not a free real variable).
+The tight rational enclosure is a distinct pending kernel obligation. -/
+noncomputable def eulerianParameter : ℝ :=
+  Real.sqrt 2 * Real.sinh (1 / Real.sqrt 2)
+
+/-- Integrates the genuine floor recursion, both adjacent unique roots,
+the exact defect and the discontinuity at the algebraic endpoint,
+conditional only on an explicit rational enclosure of the actual
+Eulerian scalar. -/
+theorem eulerian_parry_theorem_conditional
+    (hlo : (1085441641272 : ℝ) / 10 ^ 12 < eulerianParameter)
+    (hhi : eulerianParameter < (1085441641273 : ℝ) / 10 ^ 12) :
+    (greedyDigit eulerianParameter 0 = 1 ∧
+      (∀ k : ℕ, k < 30 → greedyDigit eulerianParameter (k + 1) = 0) ∧
+      greedyDigit eulerianParameter 31 = 1) ∧
+    ((313240 : ℝ) / 10 ^ 9 <
+      1 - (greedyMap eulerianParameter)^[31] 1 ∧
+      1 - (greedyMap eulerianParameter)^[31] 1 <
+        (313241 : ℝ) / 10 ^ 9) ∧
+    (∃ beta32 beta31 : ℝ,
+      (1 < beta32 ∧ beta32 < 2 ∧ beta32 ^ 32 - beta32 ^ 31 - 1 = 0) ∧
+      (1 < beta31 ∧ beta31 < 2 ∧ beta31 ^ 31 - beta31 ^ 30 - 1 = 0) ∧
+      beta32 < eulerianParameter ∧ eulerianParameter < beta31 ∧
+      (greedyMap beta31)^[31] 1 = 0 ∧
+      Filter.Tendsto (fun beta : ℝ => (greedyMap beta)^[31] 1)
+        (𝓝[<] beta31) (𝓝 (1 : ℝ))) := by
+  have hlo6 : (10854 : ℝ) / 10000 < eulerianParameter := by linarith
+  have hhi6 : eulerianParameter < (1085445 : ℝ) / 1000000 := by linarith
+  have hprefix := eulerian_greedy_prefix_floor eulerianParameter hlo6 hhi6
+  have hdelta := parry_real_orbit_defect_tight_interval eulerianParameter hlo hhi
+  obtain ⟨beta32, beta31, h32, h31, hbetween32, hbetween31⟩ :=
+    parry_adjacent_roots_straddle eulerianParameter hlo6 hhi6
+  obtain ⟨hlimit, hreturn⟩ :=
+    parry31_left_jump beta31 h31.1 h31.2.1 h31.2.2
+  exact ⟨hprefix, ⟨hdelta.2.1, hdelta.2.2⟩,
+    ⟨beta32, beta31, h32, h31, hbetween32, hbetween31, hreturn, hlimit⟩⟩
+
+#print axioms Manuscript14Section11.parry32_exists_unique_root
+#print axioms Manuscript14Section11.parry_adjacent_roots_straddle
+#print axioms Manuscript14Section11.eulerian_parry_theorem_conditional
+
+
 end Manuscript14Section11
