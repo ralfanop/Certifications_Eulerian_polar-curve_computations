@@ -54,7 +54,7 @@ theorem realGram_fullEigenbasis_active_singular_hasSum
       (inner ℝ (b i) x) • T (b i) := by
     by_cases hi : 0 < mu i
     · simp only [if_pos hi, smul_smul]
-      rw [mul_inv_cancel₀ (Real.sqrt_pos.2 hi).ne', one_smul]
+      rw [mul_inv_cancel₀ (Real.sqrt_pos.2 hi).ne', mul_one]
     · have hzero : T (b i) = 0 :=
         realGram_nonpositiveEigenfamily_in_kernel_v007
           T b mu hmu heig i hi
