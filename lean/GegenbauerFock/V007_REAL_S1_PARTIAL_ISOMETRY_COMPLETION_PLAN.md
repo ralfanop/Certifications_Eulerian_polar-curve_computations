@@ -1,5 +1,20 @@
 # V007 — Real Schatten S₁: what is kernel-certified, and the remaining partial-isometry gap
 
+## 4 November 2026 — completed conditional S₁ and finite polar phase
+
+Additional verified pinned Lean 4 successes after the preceding checkpoint:
+
+1. **Complete strictly positive genuine Gram basis ⇒ exact real nuclear norm and actual operator SVD**: `RealNuclearGramCompletePositiveS1.lean`, [CI #41823226566](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41823226566) **SUCCESS**, 9,118 jobs, three clean-axiom theorems. For **any nuclear real-Hilbert endomorphism** T with a supplied complete Hilbert basis `b : HilbertBasis ℕ ℝ H` of genuine Gram eigenvectors of strictly positive eigenvalues μₙ, Lean derives (without pre-assuming summability) `Summable (sqrt ∘ μ)`, `realNuclearInfimum T = ∑' n, sqrt(μₙ)`, and `T = ∑' n, sqrt(μₙ) • rankOne ((sqrt μₙ)⁻¹ • T(bₙ)) (bₙ)` **in operator norm**. The normalized output family need NOT be complete; a nonzero cokernel is allowed. The zero-mode case is not covered by this exact-norm theorem.
+2. **Full source Gram eigenbasis ⇒ pointwise reconstruction with zero modes**: `RealNuclearGramFullBasisReconstruction.lean`, fixed commit `00942046`, [CI #41823998249](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41823998249) **SUCCESS**, 9,114 jobs, two clean-axiom theorems. A given full Gram eigenbasis with μᵢ ≥ 0 yields `HasSum` reconstruction of T(x) from its positive μᵢ-modes, and T(bᵢ)=0 for μᵢ=0, avoiding any division by zero. The earlier first-pass CI #41823025956 failed only on scalar simplification and is superseded.
+3. **Actual positive Gram finite partial phase isometric**: `RealNuclearGramFinitePhaseIsometry.lean`, [CI #41823814514](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41823814514) **SUCCESS**, 9,114 jobs, four clean-axiom theorems. For every finite positive-support index set F and real coefficients aᵢ,dᵢ, both inner products and norms of `∑_{F} aᵢ bᵢ` and `∑_{F} aᵢ cᵢ` match, where cᵢ is the normalized image of the ACTUAL T.
+
+**Further bounded real partial isometry module deposited:** `RealNuclearGramBoundedPartialPhase.lean` constructs bounded W=C B† on the entire real Hilbert space from canonical ℓ² synthesis isometries B,C, with target initial/final projection identities W†W=BB† and WW†=CC†. Its first [CI #41825104278](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41825104278) failed on missing `DecidableEq ι` in the `lp.single` theorem signature. This was patched in commit `603c2eab`; the corrected [CI #41826084240](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41826084240) was running at this checkpoint. Separate instantiation on the positive eigensupport of the **actual** real Gram is in `RealNuclearGramActualPartialPhase.lean`, [CI #41826084231](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41826084231), also pending. Do NOT label either kernel-certified until its own success and clean axiom audit.
+
+**Remaining global bridge:** from the actual compact real Gram spectral theorem, construct a full positive-mode family spanning (ker T)ᗮ even when H is nonseparable; identify the resulting W's initial/final projections as projections onto (ker T)ᗮ and closure(range T); construct positive |T| with |T|²=T†T and T=W|T|; reindex the trace-class singular series to the original ℕ-indexed real nuclear representation including zero-mode/noninjective cases. The unconstrained S₁ ↔ singular summability equivalence is NOT yet kernel-certified.
+
+---
+
+
 ## 4 November 2026 — newly certified converse singular-mass bridge (further checkpoint)
 
 The items here were checked against **individual pinned Lean 4 workflow runs and audited actual theorem logs**. This checkpoint **does not claim the global partial-isometry polar factorization or arbitrary-real-operator CFC absolute value is complete**.
