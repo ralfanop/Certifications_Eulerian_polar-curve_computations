@@ -19,8 +19,9 @@ import Mathlib.RingTheory.MvPolynomial.Symmetric.Eval
 /-!
 # The Lindemann-Weierstrass theorem
 
-Compatibility backport of Yuyang Zhao's Mathlib PR #28013 at commit f2fafea6d260
-(Lean v4.35.0-rc3). Apache 2.0 and authorship notice retained.
+Backport of Yuyang Zhao's Mathlib PR #28013 at commit 5a0057ccc26b
+(Lean v4.35.0-rc2 source, checked against pinned rc3).
+The copyright and Apache 2.0 notice above are retained.
 
 ## References
 
@@ -45,7 +46,7 @@ private theorem linearIndependent_exp' [Fintype ι] (u : ι → ℂ) (hu : ∀ i
   -- `w` and `w' p` are integers, `w ≠ 0`, and the `p` in the support of `w'` are integral
   -- polynomials with nonzero constant coefficients.
   obtain ⟨w, w0, w'', p0, h⟩ :=
-    LindemannWeierstrass.exists_add_sum_map_aroots_eq_zero expMonoidHom u hu u_inj v hv v0 h
+    LindemannWeierstrass.exists_sum_map_aroots expMonoidHom u hu u_inj v hv v0 h
   simp_rw [expMonoidHom_apply, toAdd_ofAdd] at h
   let p : w''.support → ℤ[X] := Subtype.val
   let w' := w'' ∘ p
