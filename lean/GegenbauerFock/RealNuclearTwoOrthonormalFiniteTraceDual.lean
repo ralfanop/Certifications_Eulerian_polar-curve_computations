@@ -75,7 +75,6 @@ theorem realTwoOrthonormalFiniteTrace_rankOne_eq
       simp only [InnerProductSpace.rankOne_apply,
         real_inner_smul_right, real_inner_smul_left]
       rw [real_inner_comm v (b n)]
-      ring
     _ = inner ℝ
           (∑ n ∈ Finset.range N,
             (inner ℝ (b n) v) • c n) u := by
