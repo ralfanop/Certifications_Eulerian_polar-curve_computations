@@ -43,7 +43,8 @@ theorem complex_eigen_of_real_spectral_intertwining
     _ = J (σ n • bR n) := by rw [hR n]
     _ = σ n • J (bR n) := by rw [map_smul]
     _ = (σ n : ℂ) • bC n := by
-      simp only [hJ n, Complex.real_smul]
+      rw [hJ n]
+      exact (IsScalarTower.algebraMap_smul ℂ (σ n) (bC n)).symm
 
 /-- A conditional exact real-projective / complex-CFC S1 comparison
 from a verified real-linear spectral intertwining relation. -/
