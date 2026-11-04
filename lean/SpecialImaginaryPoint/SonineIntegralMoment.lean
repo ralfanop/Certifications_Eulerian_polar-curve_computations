@@ -35,9 +35,12 @@ private theorem hasDerivAt_momentPrimitive (n : ℕ) (x : ℝ) :
     convert ((hasDerivAt_const x (1 : ℝ)).sub (hasDerivAt_pow 2 x)) using 1 <;> ring
   have hmul := (hasDerivAt_id x).mul (hbase.pow (n + 1))
   convert hmul using 1
-  rw [pow_succ]
-  push_cast
-  ring
+  · funext u
+    simp only [Pi.mul_apply, Pi.pow_apply, id_eq]
+  · simp only [Pi.pow_apply, id_eq, Nat.add_sub_cancel]
+    rw [pow_succ]
+    push_cast
+    ring
 
 private theorem integralMoment_unscaled_recurrence (n : ℕ) :
     (2 * (n : ℝ) + 3) *
