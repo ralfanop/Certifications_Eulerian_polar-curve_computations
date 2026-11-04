@@ -1,0 +1,58 @@
+name: V007 actual complex Sturm generator on embedded real closed domain
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleActualComplexHeatGeneratorRealCore.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleActualComplexHeatFullC0.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatGeneratorClosedDomainForward.lean'
+      - '.github/workflows/v007-actual-complex-heat-generator-real-core.yml'
+  workflow_dispatch:
+
+jobs:
+  actual-complex-generator-real-core:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build and audit actual complex generator derivative on real closed core
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleActualComplexHeatGeneratorRealCore 2>&1 | tee /tmp/v007-complex-generator-real-core-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleActualComplexHeatGeneratorRealCore.lean 2>&1 | tee /tmp/v007-complex-generator-real-core-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-complex-generator-real-core-build.log /tmp/v007-complex-generator-real-core-axioms.log; then
+            echo '::error::Forbidden axiom in actual complex Sturm generator real-domain certificate.'
+            exit 1
+          fi
+          grep -F "sturmActualComplexHeat_embedded_closedSturm_right_derivative' depends on axioms:" /tmp/v007-complex-generator-real-core-axioms.log
+          echo 'V007 actual complex Sturm generator on embedded real closed domain audited.'
