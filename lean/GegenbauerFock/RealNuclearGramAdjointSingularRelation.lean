@@ -36,8 +36,7 @@ theorem realNuclearGram_adjoint_normalized_output_eigen
   calc
     T.adjoint ((sigma n)⁻¹ • T (b n)) =
         (sigma n)⁻¹ • realNuclearGram T (b n) := by
-      rw [map_smul]
-      rfl
+      rw [map_smul] <;> rfl
     _ = (sigma n)⁻¹ • ((sigma n)^2 • b n) := by
       rw [heig n]
     _ = sigma n • b n := by
