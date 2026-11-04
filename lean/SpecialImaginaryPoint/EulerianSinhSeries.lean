@@ -47,7 +47,6 @@ theorem eulerian_sinh_rational_series :
         Real.sqrt 2 * (∑' n : ℕ,
           a ^ (2 * n + 1) / ((2 * n + 1).factorial : ℝ)) := by
       rw [realSinh_eq_tsum]
-      rfl
     _ = ∑' n : ℕ,
           Real.sqrt 2 * (a ^ (2 * n + 1) / ((2 * n + 1).factorial : ℝ)) := by
       rw [tsum_mul_left]
