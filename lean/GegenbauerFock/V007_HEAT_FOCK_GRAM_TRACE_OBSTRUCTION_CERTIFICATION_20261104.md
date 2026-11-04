@@ -115,3 +115,34 @@ Each has `#print axioms` in the same checked Lean module and passed CI #41810553
 For `lambda,alpha,s>0`, consider the actual real Gegenbauer heat semigroup `H_s` and the actual complex Gegenbauer–Fock Gram `G_(lambda,alpha)`. If their optimal real nuclear trace and complex CFC trace norm differ, no real-linear map can both intertwine `H_s` with `G_(lambda,alpha)` and carry the complete normalized Gegenbauer eigenbasis onto a complete complex Hilbert basis. In particular, at `lambda=1/2`, `alpha=1`, `s=1/10`, such an intertwiner does not exist: the real heat trace is at least `9/5`, while the complex Gram trace is strictly less than `11/10`.
 
 **Proof.** Exact trace identities and positive spectral intertwining theorem from V007, combined with its certified rational Eulerian trace enclosure and the two-mode heat lower bound. The full assertion is kernel checked in CI #41810553114.
+
+
+## 7. Stronger result certified later on 4 November: an entire small-time interval
+
+The isolated rational time `s=1/10` is **not** the sharpest outcome now certified. The follow-up module
+
+[`UltrasphericalSturmLiouvilleRealHeatFockGramSmallTimeNoGo.lean`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/gegenbauer-fock-formalization-20261025/lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatFockGramSmallTimeNoGo.lean)
+
+was deposited in commit [`4aba162e`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/commit/4aba162e40f153131f13b9bb0ac8b4df126063eb) and **kernel certified** by [CI #41811921115](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41811921115) — **SUCCESS**, 4 November 2026, **9,194 compiled jobs**, audit of both new theorems limited to `propext`, `Classical.choice`, `Quot.sound`; no `sorryAx` or `Lean.ofReduceBool`.
+
+Lean theorem inventory:
+
+1. `legendre_heat_smallTime_trace_ge_nine_fifths`
+2. `no_legendre_heat_small_positive_time_to_fock_gram_basis_intertwiner`
+
+For **every real time `0 < s <= 1/10`**, the genuine real Legendre heat trace obeys
+
+```text
+realNuclearInfimum(H_s)
+ = SUM_{n>=0} exp(-s*n*(n+1))
+ >= SUM_{n>=0} exp(-(1/10)*n*(n+1))
+ >= 9/5.
+```
+
+The first inequality is certified termwise from nonnegative Gegenbauer frequencies and monotonicity of the exponential, and then on the infinite positive sums by `Summable.tsum_le_tsum`. The second is the previously certified two-mode bound. The genuine complex Eulerian Fock Gram has the independent CFC upper bound `traceNorm(G_(1/2,1)) < 11/10`.
+
+**Consequently, no complete-normalized-eigenbasis-preserving real-linear intertwiner commuting with the two actual operators exists at ANY `s in (0,1/10]`.** This supersedes the earlier one-time-only conclusion, without making an unsupported claim for other times or for weaker intertwiners.
+
+### Strengthened manuscript proposition
+
+**Corollary (Small-time trace obstruction).** Let `H_s` be the actual real Legendre Sturm semigroup and `G=C_(1/2,1)^*C_(1/2,1)` the actual complex Gegenbauer–Fock Gram. For every `0<s<=1/10`, there is no real-linear `J` that both maps the complete real normalized Gegenbauer basis onto a complete complex Hilbert basis and satisfies `G J = J H_s`. Indeed, `Tr(H_s)>=9/5>11/10>Tr(G)`. The result is formalized and kernel checked in CI #41811921115.
