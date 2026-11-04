@@ -18,21 +18,26 @@ This register supersedes v6 **for status only**. Historical records and manuscri
 | Rational-digit affine orbits: monic polynomial, recurrence, repeated remainder ⇒ algebraic parameter, periodic digits ⇒ algebraic parameter | [#41808330602](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41808330602) | 7 |
 | **Actual greedy integer floors**: remainder bounded by 1, affine digit recurrence, eventually periodic actual digits ⇒ algebraic β, transcendental β ⇒ digits aperiodic | [#41808771417](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41808771417) | 4 |
 | Algebraic transfer: √2 algebraic, `exp(1/√2)` transcendental ⇒ `x_E` transcendental ⇒ actual greedy digits non-eventually-periodic | [#41809032863](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41809032863) | 3 |
-| **Total Lean statements verified at these five successful checkpoints** | | **67** |
+| Exact real sinh and rational Taylor series for `x_E` | [#41809760282](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41809760282) | 2 |
+| Algebraicity/nonzero of `1/√2` and final theorem reduced to an explicit Hermite–Lindemann hypothesis | [#41809760282](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41809760282) | 2 |
+| **Total Lean statements verified across successful checkpoints** | | **71** |
 
 Each new theorem above has an explicit `#print axioms` audit. The permitted kernel axioms are `propext`, `Classical.choice`, `Quot.sound` (or subsets). No `sorryAx` or `Lean.ofReduceBool` was accepted by the successful runs.
 
-**Do not interpret 67 as 67 independently novel paper theorems.** These are kernel-checked helper and main declarations supporting the *one* research theorem in §11.
+**Do not interpret 71 as 71 independently novel paper theorems.** These are kernel-checked helper and main declarations supporting the *one* research theorem in §11.
 
 ## Arb / exact rational checks
 
 The prior special-point workflow verified 37 checks. The current §11 Arb workflow independently verified 26 checks — the original 16 plus ten checks corresponding to the printed seven-term `s₆` Taylor enclosure in manuscript 14.10 — on [#41809439359](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41809439359) (Arb job SUCCESS; the *Lean* job of that same run failed on a redundant `rfl` in an independent source file and cannot be counted as successful Lean). Thus **63 distinct Arb/exact checks are verified**. Finite ratio sampling alone is not a universal tail theorem; separate analytic bounds supply the rigorous enclosure.
 
-## Additional modules currently under verification
+## Additional certified modules — the latest clean checkpoint
 
-- `EulerianTranscendenceReduction.lean` adds two declarations: `eulerian_exponent_algebraic_nonzero` and `eulerian_final_reduction_to_hermite_lindemann`; the latter takes the classical Hermite–Lindemann statement as an **explicit hypothesis**, not an axiom.
-- `EulerianSinhSeries.lean` adds the exact real sinh Taylor-series representation and the rational-coefficient series for `x_E`.
-- Both are included in the current workflow on [#41809760282](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41809760282), launched after removal of a redundant tactic. **Do not count these four declarations until kernel/audit success.**
+[CI #41809760282](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41809760282) finished with **SUCCESS** in both Lean 4 and Arb, and the axiom audit is clean.
+
+- `EulerianSinhSeries.lean` certifies the actual real hyperbolic sine Taylor identity and the exact series `x_E = Σ_{n≥0} 1/(2^n(2n+1)!)`, with two audited declarations.
+- `EulerianTranscendenceReduction.lean` adds the algebraicity and nonvanishing of `1/√2`, and a theorem formally assembling the Eulerian transcendence and non-periodicity consequences **under a precisely stated Hermite–Lindemann hypothesis**, with two audited declarations.
+
+The explicit hypothesis is **not** counted as a proven, unconditional classical theorem. The formal implication is kernel-checked; the premise remains open in this pinned library.
 
 ## Theorem 11.1 — exact verification boundary
 
