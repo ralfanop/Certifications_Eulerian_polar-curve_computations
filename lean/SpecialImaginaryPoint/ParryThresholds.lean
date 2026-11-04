@@ -375,4 +375,76 @@ theorem eulerian_fourier_companion_exact :
 #print axioms Manuscript14Section11.eulerian_fourier_imaginary_sinh
 #print axioms Manuscript14Section11.eulerian_fourier_companion_exact
 
+/-!
+## Exact interval transport to the critical-orbit defect
+
+The input interval is presently established by the independent Arb/rational
+certificate.  These kernel proofs show that every real parameter in that
+interval satisfies the stated strict rational defect bounds, and that the
+defect is computed from the genuine floor-map iterate.
+-/
+
+/-- Monotone transfer of the tight Eulerian bracket to the exact defect. -/
+theorem parry_defect_tight_interval (beta : ℝ)
+    (hlo : (1085441641272 : ℝ) / 10 ^ 12 < beta)
+    (hhi : beta < (1085441641273 : ℝ) / 10 ^ 12) :
+    (313240 : ℝ) / 10 ^ 9 < 1 - beta ^ 30 * (beta - 1) ∧
+      1 - beta ^ 30 * (beta - 1) < (313241 : ℝ) / 10 ^ 9 := by
+  let L : ℝ := (1085441641272 : ℝ) / 10 ^ 12
+  let U : ℝ := (1085441641273 : ℝ) / 10 ^ 12
+  have hpupper : beta ^ 30 ≤ U ^ 30 := by
+    dsimp [U]
+    gcongr <;> linarith
+  have hplower : L ^ 30 ≤ beta ^ 30 := by
+    dsimp [L]
+    gcongr <;> linarith
+  have hbeta : 0 ≤ beta - 1 := by linarith
+  have hlpos : 0 ≤ L - 1 := by norm_num [L]
+  have hbetaUpper : beta ^ 30 * (beta - 1) ≤ U ^ 30 * (U - 1) := by
+    calc
+      _ ≤ U ^ 30 * (beta - 1) :=
+        mul_le_mul_of_nonneg_right hpupper hbeta
+      _ ≤ U ^ 30 * (U - 1) :=
+        mul_le_mul_of_nonneg_left (by dsimp [U]; linarith) (by positivity)
+  have hbetaLower : L ^ 30 * (L - 1) ≤ beta ^ 30 * (beta - 1) := by
+    calc
+      _ ≤ beta ^ 30 * (L - 1) :=
+        mul_le_mul_of_nonneg_right hplower hlpos
+      _ ≤ beta ^ 30 * (beta - 1) :=
+        mul_le_mul_of_nonneg_left (by dsimp [L]; linarith) (by positivity)
+  have hnumLower : (313240 : ℝ) / 10 ^ 9 <
+      1 - U ^ 30 * (U - 1) := by norm_num [U]
+  have hnumUpper : 1 - L ^ 30 * (L - 1) <
+      (313241 : ℝ) / 10 ^ 9 := by norm_num [L]
+  constructor <;> linarith
+
+/-- The 31st iterate, using the actual floor map, has the
+strictly enclosed critical-orbit defect on the tight rational interval. -/
+theorem parry_real_orbit_defect_tight_interval (beta : ℝ)
+    (hlo : (1085441641272 : ℝ) / 10 ^ 12 < beta)
+    (hhi : beta < (1085441641273 : ℝ) / 10 ^ 12) :
+    1 - (greedyMap beta)^[31] 1 =
+      1 - beta ^ 30 * (beta - 1) ∧
+    (313240 : ℝ) / 10 ^ 9 < 1 - (greedyMap beta)^[31] 1 ∧
+    1 - (greedyMap beta)^[31] 1 < (313241 : ℝ) / 10 ^ 9 := by
+  have hlo6 : (10854 : ℝ) / 10000 < beta := by linarith
+  have hhi6 : beta < (1085445 : ℝ) / 1000000 := by linarith
+  obtain ⟨hzero, _⟩ := eulerian_initial_greedy_block beta hlo6 hhi6
+  have hz : ∀ k : ℕ, 1 ≤ k → k ≤ 30 →
+      0 ≤ beta ^ k * (beta - 1) ∧ beta ^ k * (beta - 1) < 1 :=
+    fun k _ hk => hzero k hk
+  have hrem : greedyRemainder beta 31 = beta ^ 30 * (beta - 1) :=
+    greedy_remainder_zero_run beta (by linarith) (by linarith) 30 hz 30 le_rfl
+  have horbit : 1 - (greedyMap beta)^[31] 1 =
+      1 - beta ^ 30 * (beta - 1) := by
+    simpa only [greedyRemainder_eq_iterate] using
+      congrArg (fun x : ℝ => 1 - x) hrem
+  obtain ⟨hl, hu⟩ := parry_defect_tight_interval beta hlo hhi
+  refine ⟨horbit, ?_, ?_⟩
+  · rwa [horbit]
+  · rwa [horbit]
+
+#print axioms Manuscript14Section11.parry_defect_tight_interval
+#print axioms Manuscript14Section11.parry_real_orbit_defect_tight_interval
+
 end Manuscript14Section11
