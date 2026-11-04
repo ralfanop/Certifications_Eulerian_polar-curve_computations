@@ -43,13 +43,25 @@ The isolated [CI #41848633944](https://github.com/ralfanop/Certifications_Euleri
 
 These results are not a claim that global analytic identities `M(J₀)=j₀` or `M(I₀)=sinhc` are fully formalized: the pointwise interchange of an infinite Taylor sum with the integral is still being checked separately. The exact scalar identity for every monomial **is** already kernel-certified.
 
+## Actual entire-series identity: kernel certified
+
+**SUCCESS:** [CI #41850369477](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41850369477), with the pinned Lean/Mathlib stack and clean axiom audit, proves a global analytic statement that is strictly stronger than the previous finite polynomial identity:
+
+For any complex sequence `a : ℕ → ℂ` such that `∑ ‖a_n z^(2n)‖ < ∞` for every `z : ℂ`, set `f(z)=∑' n, a_n z^(2n)`. Then
+
+`(Mf)(z) = (1/2)∫_{-1}¹ f(z sqrt(1-u²)) du = ∑' n, a_n c_n z^(2n)`, where `c_n=4^n(n!)²/(2n+1)!`.
+
+The kernel proof uses continuous complex integrands, Mathlib dominated convergence on the *real interval*, exact monomial moments and global pointwise equality of the `tsum` with the integral. **No differentiability or second-order radial identity for arbitrary entire f is claimed yet**. This result does not by itself identify any particular unqualified classical `BesselJ`/ `BesselI` function.
+
+The next [SonineBesselGlobal.lean](../lean/SpecialImaginaryPoint/SonineBesselGlobal.lean) applies this to the series-defined cylindrical Bessel functions and Mathlib's classical `Complex.sin/sinh`; [SonineBesselSummability.lean](../lean/SpecialImaginaryPoint/SonineBesselSummability.lean) targets universal coefficient absolute convergence. This latter workstream is not counted without separate successful CI.
+
 ## Outstanding work to formalize full Theorem 4
 
 1. **DISCHARGED**: the actual monomial moment integral equals the formal rational coefficient for all natural indices — [CI #41838692304](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41838692304).
 2. **DISCHARGED**: [SonineEvenPolynomials.lean](../lean/SpecialImaginaryPoint/SonineEvenPolynomials.lean) defines the actual real averaging operator with `sqrt(1-u²)` and proves the exact action on all even monomials and finite even polynomials with real coefficients. [CI #41839414136](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41839414136) — **SUCCESS**; `sonineAverageReal_even_monomial` and `sonineAverageReal_evenPolynomial` audited with only standard axioms.
 3. **DISCHARGED (FORMAL SERIES)**: [SonineRadialComplex.lean](../lean/SpecialImaginaryPoint/SonineRadialComplex.lean) extends `H3 M = M H2` coefficientwise to arbitrary `ℕ → ℂ` and to Mathlib `PowerSeries ℂ`. [CI #41839935793](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41839935793) — **SUCCESS**, with `momentComplex_recurrence`, `radial_intertwining_coeff_complex`, and `radial_intertwining_powerSeries_complex` each using only the three standard axioms.
 4. **OPEN**: show uniform convergence of the even entire Taylor series and its differentiated series on every compact set; use this to justify differentiation and integration termwise, including `t=0`.
-5. **IN PROGRESS**: [SonineEvenComplexPolynomials.lean](../lean/SpecialImaginaryPoint/SonineEvenComplexPolynomials.lean) targets the actual complex-valued averaging integral on complex even polynomials; [SonineEntireInterchange.lean](../lean/SpecialImaginaryPoint/SonineEntireInterchange.lean) targets the dominated-convergence interchange for a summable complex even Taylor series. These require a successful CI before their statements are counted as certified. Lift `H3 M f = M H2 f` from even polynomials to all even entire functions, and establish `M J0=j0` and `M I0(a)=sinh(a)/a` as analytic identities.
+5. **DISCHARGED (INTEGRAL / ENTIRE SERIES)**: [CI #41850369477](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41850369477) is SUCCESS. [SonineEvenComplexPolynomials.lean](../lean/SpecialImaginaryPoint/SonineEvenComplexPolynomials.lean) proves the actual complex Bochner Sonine integral on every even complex polynomial; [SonineEntireInterchange.lean](../lean/SpecialImaginaryPoint/SonineEntireInterchange.lean) proves dominated-convergence exchange at every complex z with ∑‖aₙz^(2n)‖ finite; [SonineEntireAveraging.lean](../lean/SpecialImaginaryPoint/SonineEntireAveraging.lean) proves the actual global integral identity for every such entire coefficient sequence. All six audited declarations in the new modules list only `propext`, `Classical.choice`, `Quot.sound` and no forbidden axioms. **OPEN**: Lift `H3 M f = M H2 f` from even polynomials to all even entire functions, and establish `M J0=j0` and `M I0(a)=sinh(a)/a` as analytic identities.
 6. **OPEN**: separately audit the regular modified-Helmholtz profile proposition, especially uniqueness.
 
 ## Integrity
