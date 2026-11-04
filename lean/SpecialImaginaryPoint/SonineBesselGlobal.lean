@@ -33,7 +33,7 @@ private theorem complex_ordinary_coefficient (n : ℕ) :
       (-1 : ℂ)^n / (Nat.factorial (2*n+1) : ℂ) := by
   have h := congrArg (fun q : ℚ => (q : ℂ))
     (sonine_ordinaryBessel_coefficients n)
-  simpa [ordinarySphericalCoefficient] using h
+  simpa [ordinarySphericalCoefficient, modifiedSphericalCoefficient] using h
 
 /-- For convergent I0 Taylor coefficients, the actual Sonine integral
     is a global modified-spherical profile at the chosen z. -/
