@@ -1,0 +1,79 @@
+name: Manuscript 14.1 Sonine radial intertwiner — isolated Lean and Arb
+
+on:
+  push:
+    branches:
+      - manuscript14-sonine-radial-20261104
+    paths:
+      - 'lean/SpecialImaginaryPoint/SonineRadialFormal.lean'
+      - 'numerics/arb/manuscript14_sonine_radial_arb.py'
+      - '.github/workflows/manuscript14-sonine-radial.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Lean 4 — Sonine formal series + axiom audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Certify Sonine formal identities
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/SonineRadialFormal.lean 2>&1 | tee /tmp/manuscript14-sonine-lean.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/manuscript14-sonine-lean.log; then
+            echo "::error::Forbidden Lean axiom in audit"
+            exit 1
+          fi
+      - name: Upload Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-sonine-lean
+          path: /tmp/manuscript14-sonine-lean.log
+          if-no-files-found: ignore
+
+  arb:
+    name: Arb 256-bit / exact Q — Sonine moments and profiles
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install pinned python-flint
+        run: python -m pip install python-flint==0.9.0
+      - name: Execute Sonine exact rational and Arb checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python numerics/arb/manuscript14_sonine_radial_arb.py 2>&1 | tee /tmp/manuscript14-sonine-arb.log
+      - name: Upload Arb log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-sonine-arb
+          path: /tmp/manuscript14-sonine-arb.log
+          if-no-files-found: ignore
