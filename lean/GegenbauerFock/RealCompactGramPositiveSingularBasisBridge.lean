@@ -48,8 +48,7 @@ theorem realGram_eigenvector_norm_sq_v007
     ‖T x‖ ^ 2 = mu * ‖x‖ ^ 2 := by
   calc
     ‖T x‖ ^ 2 = inner ℝ ((T.adjoint ∘L T) x) x := by
-      simpa only [ContinuousLinearMap.comp_apply] using
-        (T.apply_norm_sq_eq_inner_adjoint_left x)
+      simpa using (T.apply_norm_sq_eq_inner_adjoint_left x)
     _ = mu * ‖x‖ ^ 2 := by
       rw [hx, real_inner_smul_left, real_inner_self_eq_norm_sq]
 
