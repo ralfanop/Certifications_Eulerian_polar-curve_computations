@@ -99,4 +99,96 @@ theorem algebraic_of_affine_orbit_repeat (d : ℕ → ℚ) (beta : ℝ)
 #print axioms Manuscript14Section11.affineOrbitPolynomial_ne_of_lt
 #print axioms Manuscript14Section11.algebraic_of_affine_orbit_repeat
 
+
+/-!
+## Eventual digit periodicity forces a repeated orbit state
+
+The key dynamical argument avoids a second infinite-series construction.
+When the digits agree after a shift p, the difference of the two shifted
+remainders evolves by multiplication by beta at every step. For beta > 1
+this is incompatible with the fact that both remainders remain in [0,1],
+unless the difference vanishes identically. We then invoke the
+kernel-checked monic-polynomial lemma above.
+-/
+
+/-- Shifted remainders under an eventually periodic rational digit sequence
+satisfy an exact homogeneous linear recurrence. -/
+theorem affine_shift_difference (d : ℕ → ℚ) (beta : ℝ)
+    (r : ℕ → ℝ)
+    (hstep : ∀ n, r (n + 1) = beta * r n - (d n : ℝ))
+    (m p : ℕ)
+    (hperiod : ∀ n, m ≤ n → d (n + p) = d n) (n : ℕ) :
+    r (m + p + n) - r (m + n) =
+      beta ^ n * (r (m + p) - r m) := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+      have hd : d (m + p + n) = d (m + n) := by
+        simpa only [Nat.add_assoc, Nat.add_left_comm, Nat.add_comm]
+          using hperiod (m + n) (by omega)
+      calc
+        r (m + p + (n + 1)) - r (m + (n + 1)) =
+            (beta * r (m + p + n) - (d (m + p + n) : ℝ)) -
+              (beta * r (m + n) - (d (m + n) : ℝ)) := by
+                rw [show m + p + (n + 1) = (m + p + n) + 1 by omega,
+                    show m + (n + 1) = (m + n) + 1 by omega]
+                rw [hstep, hstep]
+        _ = beta * (r (m + p + n) - r (m + n)) := by
+          rw [hd]
+          ring
+        _ = beta ^ (n + 1) * (r (m + p) - r m) := by
+          rw [ih, pow_succ]
+          ring
+
+/-- Bounded remainders imply that a periodic digit tail forces the
+actual remainder to repeat after one full period. -/
+theorem affine_remainder_repeat_of_eventually_periodic_digits
+    (d : ℕ → ℚ) (beta : ℝ) (hbeta : 1 < beta)
+    (r : ℕ → ℝ)
+    (hbound : ∀ n, 0 ≤ r n ∧ r n ≤ 1)
+    (hstep : ∀ n, r (n + 1) = beta * r n - (d n : ℝ))
+    (m p : ℕ) (hp : 0 < p)
+    (hperiod : ∀ n, m ≤ n → d (n + p) = d n) :
+    r m = r (m + p) := by
+  let delta : ℝ := r (m + p) - r m
+  by_contra hneq
+  have hdeltane : delta ≠ 0 := by
+    dsimp [delta]
+    exact sub_ne_zero.mpr (Ne.symm hneq)
+  have hdelta : 0 < |delta| := abs_pos.mpr hdeltane
+  obtain ⟨n, hn⟩ := pow_unbounded_of_one_lt (1 / |delta|) hbeta
+  have hlarge : 1 < beta ^ n * |delta| :=
+    (div_lt_iff₀ hdelta).mp hn
+  have hrem := affine_shift_difference d beta r hstep m p hperiod n
+  have hleft := hbound (m + p + n)
+  have hright := hbound (m + n)
+  have hsmall :
+      |r (m + p + n) - r (m + n)| ≤ 1 := by
+    apply abs_le.mpr
+    constructor <;> linarith [hleft.1, hleft.2, hright.1, hright.2]
+  rw [hrem, abs_mul, abs_of_pos (pow_pos (by linarith) n)] at hsmall
+  exact (not_lt_of_ge hsmall) hlarge
+
+/-- Eventual periodicity of the digits of a bounded affine orbit
+forces algebraicity of its base, not merely an assumed repeated state. -/
+theorem algebraic_of_eventually_periodic_affine_digits
+    (d : ℕ → ℚ) (beta : ℝ) (hbeta : 1 < beta)
+    (r : ℕ → ℝ) (hzero : r 0 = 1)
+    (hbound : ∀ n, 0 ≤ r n ∧ r n ≤ 1)
+    (hstep : ∀ n, r (n + 1) = beta * r n - (d n : ℝ))
+    (m p : ℕ) (hp : 0 < p)
+    (hperiod : ∀ n, m ≤ n → d (n + p) = d n) :
+    IsAlgebraic ℚ beta := by
+  have hrepeat :
+      r m = r (m + p) :=
+    affine_remainder_repeat_of_eventually_periodic_digits
+      d beta hbeta r hbound hstep m p hp hperiod
+  exact algebraic_of_affine_orbit_repeat d beta r hzero hstep
+    m (m + p) (by omega) hrepeat
+
+#print axioms Manuscript14Section11.affine_shift_difference
+#print axioms Manuscript14Section11.affine_remainder_repeat_of_eventually_periodic_digits
+#print axioms Manuscript14Section11.algebraic_of_eventually_periodic_affine_digits
+
+
 end Manuscript14Section11
