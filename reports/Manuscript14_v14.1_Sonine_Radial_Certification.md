@@ -3,7 +3,7 @@
 **Date:** 4 November 2026  
 **Source manuscript:** `Manuscript_14_v14.1_Cor3.6_CERTIFIED_Bibliography_Corrected.zip`, SHA-256 `9dd5c527d7312f3285a26d318061ad38430347378275f4ae7a8f02fd5a3a62d5`.  
 **Repository branch:** `manuscript14-sonine-radial-20261104`, based on `manuscript14-cor36-lean-arb-20261104`.  
-**Independent certification workflow:** [#41823916721](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41823916721).  
+**Final successful joint workflow:** [CI #41824320150](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41824320150) at commit `03f130979fa00d4d8546e37a8f8eab3b8fa0566c` — **Lean SUCCESS; Arb 12/12 PASS**, both jobs completed 4 November 2026. An earlier CI #41823916721 had one harmless Lean tactic sequencing error (`No goals to be solved`) and Arb SUCCESS; the revised source passed at the final CI.  
 **Change isolation:** no merge, no TeX/PDF edits, no changes to V007, V097, manuscripts 11–13 or PR #30.
 
 ## Formal mathematical target
@@ -20,7 +20,7 @@ The coefficient moments are
 
 with `c_0=1` and `(2n+3)c_(n+1)=(2n+2)c_n`.
 
-**What the new Lean module claims:** [SonineRadialFormal.lean](../lean/SpecialImaginaryPoint/SonineRadialFormal.lean) constructs the rational recurrence `c_n` and proves its positivity, the recurrence, and coefficientwise `H3 M = M H2` on every rational sequence; it also states and proves the same identity in Mathlib's `PowerSeries ℚ` (variable `u=t²`). It must pass the isolated Lean job and `#print axioms` before these new declarations are described as kernel-certified. The Lean moment is *defined by recurrence*; this module does not yet prove the integral representation or its gamma/factorial evaluation for all `n`.
+**What the new Lean module claims:** [SonineRadialFormal.lean](../lean/SpecialImaginaryPoint/SonineRadialFormal.lean) constructs the rational recurrence `c_n` and proves its positivity, the recurrence, and coefficientwise `H3 M = M H2` on every rational sequence; it also states and proves the same identity in Mathlib's `PowerSeries ℚ` (variable `u=t²`). **CERTIFIED:** the isolated Lean job has passed, and `#print axioms` for `moment_pos`, `moment_recurrence`, `radial_intertwining_coeff`, and `radial_intertwining_powerSeries` lists only `propext`, `Classical.choice`, `Quot.sound`; no `sorryAx` or `Lean.ofReduceBool` was reported. The Lean moment is *defined by recurrence*; this module does not yet prove the integral representation or its gamma/factorial evaluation for all `n`.
 
 **What the Arb/exact script claims:** [manuscript14_sonine_radial_arb.py](../numerics/arb/manuscript14_sonine_radial_arb.py) has 12/12 independent checks PASS on the CI Arb job: exact moment recurrences through `n=100`, 81 exact integrated-binomial moments, four rational-polynomial profile tests for 129 coefficients, Bessel-to-spherical coefficients through `n=100`, and a rigorous 256-bit Arb special-value enclosure. This is *finite exhaustive checking for the listed ranges*, not a universal mathematical proof.
 
