@@ -5,6 +5,22 @@
 **Branch:** `gegenbauer-fock-formalization-20261025`, PR [#16](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/16) (OPEN, DRAFT, DO NOT MERGE).  
 **Manuscript snapshot compared:** `V007.2.tex` in the author's file Library, labelled 31 October 2026. The manuscript was **not modified** during this audit. A later manuscript revision, if any, must be compared separately.
 
+## 11:58 UTC addendum — zero-mode-compatible real Gram reconstruction (new Lean certificate)
+
+The module [`RealCompactGramFullBasisZeroModesNuclear.lean`](RealCompactGramFullBasisZeroModesNuclear.lean) was introduced on 4 November, commit [`dd308341`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/commit/dd308341ddceddba5a7838c018bbec238ac0121c). Its dedicated workflow was corrected separately in [`8edb3ae`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/commit/8edb3ae5a9fdfa0d52423b367457164a270c66c1). The first workflow [#41823454853](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41823454853) failed because its `lake build` command pointed to the old module, **not because of a proof error**.
+
+**Exact-SHA certified:** [CI #41824425727](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41824425727) — SUCCESS, **9,116** Lake jobs; all four `#print axioms` declarations checked, only `propext`, `Classical.choice`, `Quot.sound`, no `sorryAx` or `Lean.ofReduceBool`. The audited blob `3a0c2ce60438925720b197ab4c7e1eacfce27143` equals the current source file blob as inspected after SUCCESS.
+
+The four theorems are:
+1. `realGram_fullBasis_image_norm_eq_sqrt_v007`: for an actual real Gram eigenvector `b_n`, `‖T b_n‖ = sqrt(mu_n)`, **including mu_n=0**.
+2. `realGram_fullBasis_rankOne_summable_v007`: summability of `sqrt(mu_n)` gives absolute convergence in operator norm of `rankOne (T b_n) b_n`.
+3. `realGram_fullBasis_operator_tsum_eq_v007`: reconstructs the **actual T** as the operator-norm rank-one sum from a supplied complete source Gram eigenbasis.
+4. `realGram_fullBasis_nuclear_upper_v007`: builds a real nuclear rank-one representation and certifies `realNuclearInfimum T ≤ ∑ sqrt(mu_n)`.
+
+**Important precision:** These proofs allow arbitrary zero modes and do NOT assume a full target singular basis. They still assume a complete source Gram eigenbasis `b : HilbertBasis ℕ ℝ H` with nonnegative `mu_n` and summable square roots. They do **not** construct that basis for every compact operator; they give the nuclear **upper** bound, not yet equality in the presence of zero modes. General partial-isometry/polar decomposition and the nuclearity ⇔ singular-value-summability theorem remain the main goals.
+
+---
+
 ## Evidence rules
 
 - **CI verified:** successful GitHub Actions run inspected on the exact commit SHA. The statement must be interpreted literally as its Lean source enunciates; compilation alone does not establish mathematical novelty.
