@@ -55,7 +55,10 @@ theorem exp_one_div_sqrt_two_transcendental :
       isAlgebraic_intCast (R := ℤ) (A := ℚ) q.num
     have hden : IsAlgebraic ℤ ((q.den : ℕ) : ℚ) :=
       isAlgebraic_natCast (R := ℤ) (A := ℚ) q.den
-    simpa [div_eq_mul_inv, Rat.num_div_den] using hnum.mul hden.inv
+    have hrepr : ((q.num : ℤ) : ℚ) * ((q.den : ℕ) : ℚ)⁻¹ = q := by
+      simpa only [div_eq_mul_inv] using Rat.num_div_den q
+    rw [← hrepr]
+    exact hnum.mul hden.inv
   have hZc : IsAlgebraic ℤ (Complex.exp ((a : ℝ) : ℂ)) :=
     hQc.restrictScalars ℤ
   exact htrans hZc
