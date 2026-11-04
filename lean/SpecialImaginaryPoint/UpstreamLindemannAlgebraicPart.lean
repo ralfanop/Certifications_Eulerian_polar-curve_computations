@@ -16,9 +16,8 @@ import Mathlib.RingTheory.Invariant.Basic
 /-!
 # The Lindemann-Weierstrass theorem
 
-Local compatibility copy of Yuyang Zhao's upstream Mathlib PR #28013
-(commit 54fbfba6f39455b27daaff60830df6a627de8847), pending upstream merge.
-The copyright and Apache 2.0 notice above are retained verbatim.
+Compatibility backport of Yuyang Zhao's Mathlib PR #28013 at commit f2fafea6d260
+(Lean v4.35.0-rc3). Apache 2.0 and authorship notice retained.
 
 ## References
 
@@ -154,9 +153,15 @@ theorem exists_ne_zero_lift_eq_zero {K S : Type*}
     (v' : ι → K) (v0 : v' ≠ 0)
     (h : ∑ i : ι, algebraMap K S (v' i) * φ (.ofAdd (u' i)) = 0) :
     ∃ (f : K[K]), f ≠ 0 ∧ AddMonoidAlgebra.lift _ _ _ φ f = 0 := by
-  refine ⟨(AddMonoidAlgebra.ofCoeff <| Finsupp.equivFunOnFinite.symm v').mapDomain u', ?_, ?_⟩
-  · rw [← AddMonoidAlgebra.mapDomain_zero u', (AddMonoidAlgebra.mapDomain_injective u'_inj).ne_iff]
-    simpa [Finsupp.ext_iff, funext_iff] using v0
+  classical
+  let f : K[K] := (AddMonoidAlgebra.ofCoeff <| Finsupp.equivFunOnFinite.symm v').mapDomain u'
+  refine ⟨f, ?_, ?_⟩
+  · obtain ⟨i, hv'i⟩ : ∃ i, v' i ≠ 0 := by simpa [Function.ne_iff, Pi.zero_apply] using v0
+    have h : f.coeff (u' i) ≠ 0 := by
+      simpa [f, AddMonoidAlgebra.coeff_mapDomain, AddMonoidAlgebra.coeff_ofCoeff,
+        Finsupp.mapDomain_apply_of_injective u'_inj]
+    contrapose h
+    simp [h]
   · rw [AddMonoidAlgebra.lift_apply, ← h, AddMonoidAlgebra.coeff_mapDomain,
       Finsupp.sum_mapDomain_index_inj u'_inj]
     simp [Finsupp.sum_fintype, Algebra.smul_def]
@@ -169,18 +174,17 @@ theorem exists_sum_conjRootClass_eq_zero {F K S : Type*}
     (x : FixedPoints.subalgebra F F[K] Gal(K/F)) (x0 : x ≠ 0)
     (hx : AddMonoidAlgebra.lift F _ _ φ x = 0) :
     ∃ v : ConjRootClass F K →₀ F, v 0 ≠ 0 ∧
-      Finsupp.linearCombination F
-        (fun c : ConjRootClass F K ↦ ∑ x ∈ c.carrier, φ (.ofAdd x)) v = 0 := by
+      (v.sum fun c vc ↦ vc • ∑ x ∈ c.carrier, φ (.ofAdd x)) = 0 := by
   rw [← (classSumBasis F F K).repr.injective.ne_iff, map_zero] at x0
   obtain ⟨i, hi⟩ := Finsupp.support_nonempty_iff.mpr x0
   set x' := x * classSumBasis F F K (-i) with x'_def
   have hx' : (classSumBasis F F K).repr x' 0 ≠ 0 := by
     rw [x'_def, classSumBasis_repr_mul_classSumBasis_apply_zero, neg_neg]
     exact mul_ne_zero (Finsupp.mem_support_iff.mp hi)
-      (Nat.cast_ne_zero.mpr (card_pos.mpr (Set.toFinset_nonempty.mpr i.carrier_nonempty)).ne')
+      (Nat.cast_ne_zero.mpr (ConjRootClass.card_carrier_ne_zero i))
   have lift_x' : AddMonoidAlgebra.lift F _ _ φ x' = 0 := by
     rw [x'_def, Subalgebra.coe_mul, map_mul, hx, zero_mul]
-  exact ⟨_, hx', by rw [Finsupp.linearCombination_apply, ← lift_eq_sum_classSumBasis_repr, lift_x']⟩
+  exact ⟨_, hx', by rw [← lift_eq_sum_classSumBasis_repr, lift_x']⟩
 
 open Polynomial
 
@@ -205,7 +209,8 @@ theorem exists_sum_conjRootClass_eq_add_sum_map_aroots (A : Type*) {R F K S : Ty
     · simp at hc
     rw [ConjRootClass.minpoly_mk]
     exact minpoly.coeff_zero_ne_zero (Algebra.IsIntegral.isIntegral x) hx
-  · rw [← Finsupp.add_sum_erase' v 0 _ (by simp),
+  · conv_lhs => rw [← Finsupp.single_add_erase 0 v]
+    rw [Finsupp.sum_add_index' (by simp) (by simp [add_smul]), Finsupp.sum_single_index (by simp),
       Finsupp.sum_mapDomain_index (by simp) (by simp [add_smul])]
     congr 1
     · simp
@@ -236,15 +241,20 @@ public theorem exists_add_sum_map_aroots_eq_zero {S : Type*}
     apply IntermediateField.subset_adjoin
     rw [mem_rootSet, map_prod, prod_eq_zero_iff]
     exact ⟨prod_ne_zero_iff.mpr fun x hx ↦ minpoly.ne_zero (hs x hx), x, hx, minpoly.aeval _ _⟩
-  let u' : ι → K := fun i ↦ ⟨u i, mem_K (by simp [s])⟩
-  let v' : ι → K := fun i ↦ ⟨v i, mem_K (by simp [s])⟩
+  have u_mem (i) : u i ∈ K := mem_K (mem_union_left _ (mem_image_of_mem _ (mem_univ i)))
+  have v_mem (i) : v i ∈ K := mem_K (mem_union_right _ (mem_image_of_mem _ (mem_univ i)))
+  let u' : ι → K := fun i : ι ↦ ⟨u i, u_mem i⟩
+  let v' : ι → K := fun i : ι ↦ ⟨v i, v_mem i⟩
   obtain ⟨f, f0, hf⟩ : ∃ (f : K[K]), f ≠ 0 ∧
     AddMonoidAlgebra.lift _ _ _
       (φ.comp (algebraMap K S).toAddMonoidHom.toMultiplicative) f = 0 := by
     refine exists_ne_zero_lift_eq_zero _ u' ?_ v' ?_ ?_
     · exact fun i j hij ↦ u_inj (Subtype.mk.inj hij)
-    · exact fun h ↦ v0 congr(($h ·))
+    · simp_rw [Function.ne_iff, Pi.zero_apply] at v0 ⊢
+      exact v0.imp fun i hvi ↦ by rwa [Ne, ← ZeroMemClass.coe_eq_zero]
     · simpa [u', v']
+  have : IsDomain K[K] := NoZeroDivisors.to_isDomain _
+  have : IsDomain ℚ[K] := NoZeroDivisors.to_isDomain _
   open scoped AlgebraMonoidAlgebra in
   obtain ⟨f, f0, hf⟩ := (Algebra.IsIntegral.isIntegral (R := ℚ[K]) f).isAlgebraic
     |>.exists_ne_zero_map_algebraMap_eq_zero _ f0 hf
@@ -255,12 +265,9 @@ public theorem exists_add_sum_map_aroots_eq_zero {S : Type*}
     (Algebra.IsIntegral.isIntegral (R := FixedPoints.subalgebra ℚ ℚ[K] Gal(K/ℚ)) f).isAlgebraic
     |>.exists_ne_zero_map_algebraMap_eq_zero _ f0 hf
   obtain ⟨v, v0, hv⟩ := exists_sum_conjRootClass_eq_zero _ f f0 hf
-  obtain ⟨b, hb, v', hbv, hv'⟩ := IsFractionRing.exists_linearCombination_eq_zero ℤ _ v hv
+  obtain ⟨v', hsupp, hv'⟩ := IsFractionRing.exists_sum_smul_eq_zero ℤ _ v hv
   obtain ⟨w', hw', h⟩ := exists_sum_conjRootClass_eq_add_sum_map_aroots ℤ φ v'
-  refine ⟨v' 0, fun h0 ↦ v0 ?_, w', hw', ?_⟩
-  · have := hbv 0
-    rw [h0, map_zero, eq_comm, smul_eq_zero] at this
-    exact this.resolve_left (nonZeroDivisors.ne_zero hb)
-  · rwa [Finsupp.linearCombination_apply, h, zsmul_one] at hv'
+  refine ⟨v' 0, by rwa [← Finsupp.mem_support_iff, hsupp, Finsupp.mem_support_iff], w', hw', ?_⟩
+  rwa [h, zsmul_one] at hv'
 
 end LindemannWeierstrass
