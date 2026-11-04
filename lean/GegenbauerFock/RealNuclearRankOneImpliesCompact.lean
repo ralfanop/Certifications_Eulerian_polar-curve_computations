@@ -54,8 +54,11 @@ theorem realFiniteNuclearRankOneSum_isCompact
       have hn : IsCompactOperator
           (beta n • rankOne ℝ (u n) (v n) : H →L[ℝ] H) :=
         (realRankOne_isCompact (u n) (v n)).smul (beta n)
-      simpa only [Finset.sum_insert hns, ContinuousLinearMap.add_apply]
-        using hn.add ih
+      rw [Finset.sum_insert hns]
+      change IsCompactOperator (fun x : H =>
+        (beta n • rankOne ℝ (u n) (v n)) x +
+        (∑ k ∈ s, beta k • rankOne ℝ (u k) (v k) : H →L[ℝ] H) x)
+      exact hn.add ih
 
 /-- Every actual real Hilbert 1-nuclear bounded operator is COMPACT:
 an operator-norm limit of compact finite-rank approximants. -/
