@@ -31,6 +31,7 @@ variable {H : Type*} [NormedAddCommGroup H]
 series at one source singular vector without completeness assumptions. -/
 theorem realTwoOrthonormalSingularSeries_basis_apply
     (b c : ℕ → H) (hb : Orthonormal ℝ b)
+    (hc : Orthonormal ℝ c)
     (sigma : ℕ → ℝ) (hs : Summable (fun n => ‖sigma n‖))
     (k : ℕ) :
     (∑' n : ℕ, sigma n • rankOne ℝ (c n) (b n)) (b k) =
@@ -40,9 +41,9 @@ theorem realTwoOrthonormalSingularSeries_basis_apply
     apply Summable.of_norm
     convert hs using 1
     funext n
-    rw [norm_smul, norm_rankOne, hb.norm_eq_one n]
-    simp only [mul_one]
-    simp only [mul_comm]
+    rw [norm_smul, norm_rankOne,
+      hb.norm_eq_one n, hc.norm_eq_one n]
+    ring
   have hsingle :
       HasSum (fun n : ℕ => if n = k then sigma k • c k else 0)
         (sigma k • c k) :=
@@ -104,12 +105,12 @@ theorem realTwoPartialSingularFamilies_nuclear_exact_trace
   have hupper : realNuclearInfimum T ≤ ∑' n : ℕ, sigma n :=
     realNuclearInfimum_le_cost T hmem
   have hnorm : Summable (fun n : ℕ => ‖sigma n‖) :=
-    hs.congr (fun n => (Real.norm_eq_abs (sigma n)).trans
-      (abs_of_nonneg (hpos n)))
+    hs.congr (fun n => ((Real.norm_eq_abs (sigma n)).trans
+      (abs_of_nonneg (hpos n))).symm)
   have hdiag (n : ℕ) :
       inner ℝ (c n) (T (b n)) = sigma n := by
     rw [hseries,
-      realTwoOrthonormalSingularSeries_basis_apply b c hb sigma hnorm n,
+      realTwoOrthonormalSingularSeries_basis_apply b c hb hc sigma hnorm n,
       real_inner_smul_right,
       real_inner_self_eq_norm_sq, hc.norm_eq_one n]
     ring
