@@ -117,11 +117,16 @@ The scalar completion-of-squares and positive-square-root step is now
 Theorem `tikhonov_scalar_energy_noise_bound` proves precisely
 `eps*a²+b²≤c*b ⇒ a≤c/(2√eps)` for `eps>0` and `a,c≥0`.
 
-The **remaining nontrivial operator-level Lean obligation** is to show
-the exact energy identity for the genuine Hilbert operator
-`u=(G+eps I)⁻¹C*η`, and apply Cauchy–Schwarz and this certified scalar
-lemma. The generic bounded-reconstructor bias–noise theorem alone
-does not provide the `1/(2√ε)` factor.
+**This genuine operator-level Hilbert-energy bridge is now kernel-certified**
+by [CI #41822277456](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41822277456)
+(SUCCESS, 4 November 2026). Its proof starts from the actual
+normal equation `(G+eps I)u=C*eta`, invokes the certified
+Hilbert-adjoint pairing `inner (C*eta) u = inner eta (Cu)`,
+and proves the exact identity
+`eps‖u‖²+‖Cu‖² = Re⟨eta,Cu⟩` internally, before Cauchy–Schwarz.
+The positive-square-root and complete-square step is delegated to
+the separately kernel-certified scalar lemma. The final result
+has no assumed singular-value decomposition.
 
 ## Certification boundary
 
@@ -191,8 +196,9 @@ are now fully kernel-certified:
 
 This certificate uses the genuine infinite-dimensional source Hilbert
 space, not finite eigenmode truncations or a diagonal surrogate.
-It does **not** assert operator-norm convergence: the exact norm-one
-obstruction of Step 5 is an independent obligation.
+Strong convergence is not operator-norm convergence: the exact
+norm-one obstruction was separately certified by the Step 5 module
+and CI below.
 
 **Step 5: sharp operator-norm obstruction — KERNEL-CERTIFIED, 4 November 2026.**
 [CI #41808950596](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41808950596)
@@ -225,11 +231,41 @@ and `sourceGramTikhonovReconstructor_noisy_bound` certify
 `R_eps(Cf)-f=-E_eps f` and
 `‖R_eps(Cf+eta)-f‖ ≤ ‖E_eps f‖+‖R_eps‖‖eta‖`.
 
-**Remaining Lean obligation:** prove for this genuine operator
-`eps‖R_eps eta‖²+‖C R_eps eta‖² ≤ ‖eta‖‖C R_eps eta‖`;
-then apply the now-certified scalar energy lemma to replace
-`‖R_eps‖` by `1/(2√eps)`. This sharp data-noise bound is
-*not yet kernel-certified*. No bounded inverse of unshifted compact
-`G` is asserted.
+**Step 7 — complete sharp universal data-noise bound: KERNEL-CERTIFIED
+(4 November 2026).** [CI #41822277456](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41822277456)
+finished SUCCESS at exact SHA
+`6b1acc0fc5f12343dfd8631ae23c15e5a1989905`, job
+`126548090659`, with **9,145 Lean jobs** compiled.
+All five independent `#print axioms` audits contained only
+`propext`, `Classical.choice`, `Quot.sound`, with no
+`sorryAx` or `Lean.ofReduceBool`.
+
+The genuine
+`CanonicalCFCGramTikhonovHilbertEnergy.lean` module certifies:
+
+1. `sourceGramTikhonovReconstructor_normal_equation`:
+   `(G+eps I) R_eps eta = C* eta`.
+2. `sourceGramTikhonovReconstructor_energy_le`:
+   `eps‖R_eps eta‖²+‖C R_eps eta‖²≤‖eta‖‖C R_eps eta‖`,
+   proved using the exact energy identity and Cauchy–Schwarz.
+3. `sourceGramTikhonovReconstructor_pointwise_noise_le`:
+   `‖R_eps eta‖≤‖eta‖/(2√eps)`.
+4. `sourceGramTikhonovReconstructor_opNorm_le`:
+   `‖R_eps‖≤1/(2√eps)`.
+5. `sourceGramTikhonovReconstructor_noisy_bound_explicit`:
+   `‖R_eps(Cf+eta)-f‖≤‖E_eps f‖+‖eta‖/(2√eps)`.
+
+The source blob
+`dad7a9f5787697d0133d87df8a9c2dd8bd2e3eb3`
+was verified identical at the certified commit and on the
+current Draft branch.
+
+This completes the **five-part Tikhonov theorem chain** for genuine
+complex weighted `L²` and full Fock coefficient data, including
+strong convergence, norm-one obstruction, exact bias, and quantified
+deterministic noise amplification. The factor `1/(2√eps)` is a
+**universal upper bound**, not a claim that equality is attained
+for every fixed `C` and `eps`.
+No bounded inverse of the unshifted compact Gram `G` is asserted.
 
 **This note belongs solely to V007. No merge into V097 and no V170 changes.**
