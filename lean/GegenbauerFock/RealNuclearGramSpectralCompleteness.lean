@@ -20,7 +20,7 @@ separate later steps.
 
 noncomputable section
 namespace GegenbauerFock.Ultraspherical
-open InnerProductSpace
+open InnerProductSpace Module End
 
 variable {H : Type*} [NormedAddCommGroup H]
   [InnerProductSpace ℝ H] [CompleteSpace H]
@@ -35,7 +35,8 @@ theorem HasRealNuclearRankOneSeries.gram_eigenspaces_complete
   have hSym : (realNuclearGram T).IsSymmetric :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
       (realNuclearGram_isSelfAdjoint T)
-  exact (hT.gram_isCompactOperator).orthogonalComplement_iSup_eigenspaces_eq_bot hSym
+  exact ContinuousLinearMap.orthogonalComplement_iSup_eigenspaces_eq_bot
+    (hT.gram_isCompactOperator) hSym
 
 /-- Every nonzero real eigenvalue of the genuine nuclear Gram
 has a finite-dimensional eigenspace, with no assumption on ker(T). -/
@@ -44,7 +45,8 @@ theorem HasRealNuclearRankOneSeries.gram_nonzero_eigenspace_finite
     (μ : ℝ) (hμ : μ ≠ 0) :
     FiniteDimensional ℝ
       (eigenspace (realNuclearGram T).toLinearMap μ) :=
-  (hT.gram_isCompactOperator).finite_dimensional_eigenspace μ hμ
+  ContinuousLinearMap.finite_dimensional_eigenspace
+    (hT.gram_isCompactOperator) μ hμ
 
 /-- The genuine real Gram has no negative eigenvalues, by its exact
 quadratic-form positivity. -/
