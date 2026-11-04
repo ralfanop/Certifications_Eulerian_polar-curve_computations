@@ -849,6 +849,91 @@ theorem coisometric_joint_components_tendsto_v007
         2 * ‖T n - S‖ + 4 * ‖U n - V‖ * ‖S‖ at h
     exact h
 
+
+/-!
+## Universal unit-ball cap and refined gap estimates
+
+The real-valued normalized gap cannot exceed one for two nonempty
+linear subspaces, because the target always contains zero. Combining
+this cap with the certified Lipschitz upper bound gives the stronger
+min(1, 4‖U-V‖) bound. No optimality of the factor four is asserted.
+-/
+
+/-- The numerical directed gap is at most one if both sets contain
+zero; this uses the previously certified sInf/sSup bridge. -/
+theorem normalizedDirectedGapValue_le_one_v007
+    (A B : Set (TraceClass H))
+    (hA0 : (0 : TraceClass H) ∈ A)
+    (hB0 : (0 : TraceClass H) ∈ B) :
+    normalizedDirectedGapValue_v007 A B ≤ 1 := by
+  apply normalizedDirectedGapValue_le_of_quantified_v007 A B 1 hA0
+  intro T hT hTnorm
+  refine ⟨0, hB0, ?_⟩
+  simpa using hTnorm
+
+/-- The numerical symmetric normalized gap is universally ≤ 1
+when both sets contain zero. -/
+theorem normalizedBidirectionalGapValue_le_one_v007
+    (A B : Set (TraceClass H))
+    (hA0 : (0 : TraceClass H) ∈ A)
+    (hB0 : (0 : TraceClass H) ∈ B) :
+    normalizedBidirectionalGapValue_v007 A B ≤ 1 := by
+  unfold normalizedBidirectionalGapValue_v007
+  exact max_le
+    (normalizedDirectedGapValue_le_one_v007 A B hA0 hB0)
+    (normalizedDirectedGapValue_le_one_v007 B A hB0 hA0)
+
+/-- Refined numerical two-way gap estimate for closed coisometric
+ranges, uniformly capped by the normalized unit ball radius. -/
+theorem coisometric_embedding_range_numeric_gap_min_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ)) :
+    normalizedBidirectionalGapValue_v007
+      (Set.range (sandwichContinuous U.adjoint U))
+      (Set.range (sandwichContinuous V.adjoint V)) ≤
+      min 1 (4 * ‖U - V‖) := by
+  have h0U :
+      (0 : TraceClass H) ∈
+        Set.range (sandwichContinuous U.adjoint U) :=
+    ⟨0, map_zero _⟩
+  have h0V :
+      (0 : TraceClass H) ∈
+        Set.range (sandwichContinuous V.adjoint V) :=
+    ⟨0, map_zero _⟩
+  exact le_min
+    (normalizedBidirectionalGapValue_le_one_v007 _ _ h0U h0V)
+    (coisometric_embedding_range_numeric_bidirectional_gap_v007
+      U V hUUstar hVVstar hUnorm hVnorm)
+
+/-- Refined numerical two-way gap estimate for closed coisometric
+retraction kernels, uniformly capped by one. -/
+theorem coisometric_retraction_kernel_numeric_gap_min_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ)) :
+    normalizedBidirectionalGapValue_v007
+      {T : TraceClass H | sandwichContinuous U U.adjoint T = 0}
+      {T : TraceClass H | sandwichContinuous V V.adjoint T = 0} ≤
+      min 1 (4 * ‖U - V‖) := by
+  have h0U :
+      (0 : TraceClass H) ∈
+        {T : TraceClass H | sandwichContinuous U U.adjoint T = 0} :=
+    map_zero _
+  have h0V :
+      (0 : TraceClass H) ∈
+        {T : TraceClass H | sandwichContinuous V V.adjoint T = 0} :=
+    map_zero _
+  exact le_min
+    (normalizedBidirectionalGapValue_le_one_v007 _ _ h0U h0V)
+    (coisometric_retraction_kernel_numeric_bidirectional_gap_v007
+      U V hUUstar hVVstar hUnorm hVnorm)
+
+
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_norm_le_one_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_component_dist_le_v007
@@ -877,6 +962,10 @@ theorem coisometric_joint_components_tendsto_v007
 #print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_nonneg_v007
 #print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_symm_v007
 #print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_self_zero_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedDirectedGapValue_le_one_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_le_one_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_embedding_range_numeric_gap_min_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_kernel_numeric_gap_min_v007
 
 #print axioms ProbabilisticTheory.TraceClass.coisometric_joint_components_tendsto_v007
 
