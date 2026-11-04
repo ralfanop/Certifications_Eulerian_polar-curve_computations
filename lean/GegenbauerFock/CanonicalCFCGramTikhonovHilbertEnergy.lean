@@ -77,12 +77,14 @@ theorem sourceGramTikhonovReconstructor_energy_le
     exact C_adjoint_pairing lam alpha hlam ha (C lam alpha hlam ha u) u
   have hg : (inner ℂ (G u) u).re = ‖T u‖ ^ 2 := by
     rw [hgram]
-    exact inner_self_eq_norm_sq (T u)
+    exact inner_self_eq_norm_sq (𝕜 := ℂ) (T u)
+  have hself : (inner ℂ u u).re = ‖u‖ ^ 2 :=
+    inner_self_eq_norm_sq (𝕜 := ℂ) u
   have he : (inner ℂ ((eps : ℂ) • u) u).re = eps * ‖u‖ ^ 2 := by
     rw [inner_smul_left]
     simp only [Complex.conj_ofReal, Complex.mul_re, Complex.ofReal_re,
       Complex.ofReal_im, zero_mul, sub_zero]
-    rw [inner_self_eq_norm_sq]
+    rw [hself]
   have hadj :
       inner ℂ (C_adjoint lam alpha hlam ha eta) u =
         inner ℂ eta (T u) :=
@@ -155,7 +157,7 @@ theorem sourceGramTikhonovReconstructor_noisy_bound_explicit
         ‖sourceGramTikhonovReconstructor lam alpha hlam ha eps‖ * ‖eta‖ := h
     _ ≤ ‖(((eps : ℂ) •
           Ring.inverse (sourceGramPositiveShift lam alpha hlam ha eps)) f)‖ +
-        (1 / (2 * Real.sqrt eps)) * ‖eta‖ := add_le_add_left hmul _
+        (1 / (2 * Real.sqrt eps)) * ‖eta‖ := add_le_add (le_refl _) hmul
     _ = ‖(((eps : ℂ) •
           Ring.inverse (sourceGramPositiveShift lam alpha hlam ha eps)) f)‖ +
         ‖eta‖ / (2 * Real.sqrt eps) := by ring
