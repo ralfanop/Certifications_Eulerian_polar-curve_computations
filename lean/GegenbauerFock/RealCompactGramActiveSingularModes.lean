@@ -78,12 +78,16 @@ theorem realGram_active_singular_pair_adjoint_v007
     T.adjoint ((Real.sqrt mu)⁻¹ • T x) =
       Real.sqrt mu • x := by
   have hroot : Real.sqrt mu ≠ 0 := (Real.sqrt_pos.2 hmu).ne'
-  have hsq : (Real.sqrt mu) ^ 2 = mu :=
-    Real.sq_sqrt hmu.le
+  have hcoef : (Real.sqrt mu)⁻¹ * mu = Real.sqrt mu := by
+    calc
+      (Real.sqrt mu)⁻¹ * mu =
+          (Real.sqrt mu)⁻¹ * (Real.sqrt mu) ^ 2 := by
+        rw [Real.sq_sqrt hmu.le]
+      _ = Real.sqrt mu := by
+        rw [pow_two, ← mul_assoc, inv_mul_cancel₀ hroot, one_mul]
   rw [map_smul]
   change (Real.sqrt mu)⁻¹ • ((T.adjoint ∘L T) x) = _
-  rw [hx, smul_smul, ← hsq, pow_two, ← mul_assoc,
-    inv_mul_cancel₀ hroot, one_mul]
+  rw [hx, smul_smul, hcoef]
 
 /-- Normalizing the actual images on only the POSITIVE source
 Gram eigenmodes produces an orthonormal family in the target.
