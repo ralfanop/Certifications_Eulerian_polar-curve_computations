@@ -1,4 +1,5 @@
 import GegenbauerFock.GramNuclearTrace
+import GegenbauerFock.UltrasphericalLegendreDensityExact
 
 /-!
 # Manuscript 14.1, Section 6 — actual complex L² Eulerian Gram operator
@@ -90,5 +91,43 @@ theorem manuscript14Gram_nuclear_mass_eq_kummer :
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.manuscript14Gram_eq_nuclear_tsum
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.manuscript14Gram_nuclear_mass_eq_diagonal
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.manuscript14Gram_nuclear_mass_eq_kummer
+
+
+/-- Concrete agreement with the normalized Lebesgue law on (-1,1):
+the manuscript's `du/2` is literally the λ=1/2 ultraspherical measure. -/
+theorem manuscript14Gram_nuclear_mass_eq_uniformIntegral :
+    (∑' n : ℕ, ‖gramNuclearTerm
+      (1 / 2) (1 / Real.sqrt 2)
+      eulerianLambdaPos eulerianAlphaPos n‖) =
+      ∫ u : ℝ, Real.exp ((1 / Real.sqrt 8) * u ^ 2)
+        ∂((volume : Measure ℝ).withDensity
+          (fun v : ℝ => ENNReal.ofReal (Ultraspherical.eulerianUniformDensity v))) := by
+  rw [manuscript14Gram_nuclear_mass_eq_diagonal]
+  rw [Ultraspherical.measure_half_eq_uniformDensity]
+  apply integral_congr_ae
+  filter_upwards [] with u
+  congr 1
+  calc
+    u ^ 2 / (4 * (1 / Real.sqrt 2)) =
+        u ^ 2 * (1 / (4 * (1 / Real.sqrt 2))) := by ring
+    _ = u ^ 2 * (1 / Real.sqrt 8) := by rw [manuscript14_gram_parameter]
+    _ = (1 / Real.sqrt 8) * u ^ 2 := by ring
+
+/-- The diagonal trace is independent of the choice of Hilbert basis:
+this is a real numerical trace identity for the actual complex L² Gram. -/
+theorem manuscript14Gram_basis_trace_eq_kummer
+    {ι : Type*}
+    (b : HilbertBasis ι ℂ
+      (Lp ℂ 2 (Ultraspherical.measure (1 / 2 : ℝ)))) :
+    (∑' i : ι,
+      RCLike.re (inner ℂ (manuscript14Gram (b i)) (b i))) =
+        KummerCoefficients.kummerSeries (1 / 2)
+          (1 / (4 * (1 / Real.sqrt 2))) := by
+  exact gram_sourceBasis_trace_eq_kummer
+    (1 / 2) (1 / Real.sqrt 2)
+    eulerianLambdaPos eulerianAlphaPos b
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.manuscript14Gram_nuclear_mass_eq_uniformIntegral
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.manuscript14Gram_basis_trace_eq_kummer
 
 end GegenbauerFock.GeneralUltrasphericalFock
