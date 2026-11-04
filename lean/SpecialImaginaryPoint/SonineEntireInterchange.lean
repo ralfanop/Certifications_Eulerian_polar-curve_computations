@@ -64,7 +64,7 @@ theorem sonine_interval_hasSum (a : ℕ → ℂ) (z : ℂ)
   · intro n
     filter_upwards with u
     intro hu
-    exact sonine_integrand_norm_le a z n u hu
+    exact sonine_integrand_norm_le a z n u (uIoc_subset_uIcc hu)
   · filter_upwards with u
     intro _
     exact h
@@ -72,7 +72,7 @@ theorem sonine_interval_hasSum (a : ℕ → ℂ) (z : ℂ)
   · filter_upwards with u
     intro hu
     exact (h.of_norm_bounded
-      (fun n => sonine_integrand_norm_le a z n u hu)).hasSum
+      (fun n => sonine_integrand_norm_le a z n u (uIoc_subset_uIcc hu))).hasSum
 
 #print axioms Manuscript14Sonine.sonine_interval_hasSum
 
