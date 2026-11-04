@@ -1,0 +1,82 @@
+name: Manuscript 14.1 Sonine Bessel coefficients and Taylor Arb
+
+on:
+  push:
+    branches:
+      - manuscript14-sonine-radial-20261104
+    paths:
+      - 'lean/SpecialImaginaryPoint/SonineBesselCoefficients.lean'
+      - 'lean/SpecialImaginaryPoint/SonineFactorialMoment.lean'
+      - 'numerics/arb/manuscript14_sonine_bessel_tails_arb.py'
+      - '.github/workflows/manuscript14-sonine-bessel.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Lean 4 — Bessel J0 and I0 coefficient transformation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          lake update
+          lake exe cache get
+      - name: Compile exact Bessel coefficient certificates
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineRadialFormal.olean SpecialImaginaryPoint/SonineRadialFormal.lean 2>&1 | tee /tmp/sonine-bessel-lean.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineIntegralMoment.olean SpecialImaginaryPoint/SonineIntegralMoment.lean 2>&1 | tee -a /tmp/sonine-bessel-lean.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineFactorialMoment.olean SpecialImaginaryPoint/SonineFactorialMoment.lean 2>&1 | tee -a /tmp/sonine-bessel-lean.log
+          lake env lean -M16768 SpecialImaginaryPoint/SonineBesselCoefficients.lean 2>&1 | tee -a /tmp/sonine-bessel-lean.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/sonine-bessel-lean.log; then
+            echo "::error::Forbidden axiom"
+            exit 1
+          fi
+      - name: Upload Lean audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-sonine-bessel-lean
+          path: /tmp/sonine-bessel-lean.log
+          if-no-files-found: ignore
+
+  arb:
+    name: Arb 384-bit — Bessel tail enclosures
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install pinned Arb bindings
+        run: python -m pip install python-flint==0.9.0
+      - name: Exact rational and interval enclosures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python numerics/arb/manuscript14_sonine_bessel_tails_arb.py 2>&1 | tee /tmp/sonine-bessel-arb.log
+      - name: Upload Arb audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-sonine-bessel-arb
+          path: /tmp/sonine-bessel-arb.log
+          if-no-files-found: ignore
