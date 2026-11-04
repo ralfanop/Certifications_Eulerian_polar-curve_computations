@@ -56,8 +56,10 @@ theorem sturmRealHeat_has_real_nuclear_rank_one_series_viaS1
     (lam s : ℝ) (hlam : 0 < lam) (hs : 0 < s) :
     HasRealNuclearRankOneSeries
       (sturmRealHeatLimitCLM lam hlam s (le_of_lt hs)) := by
-  exact ((sturmRealHeat_has_positive_real_spectralS1 lam s hlam hs)
-    .toPositiveRealNuclearExpansion).toRealNuclearRankOneSeries
+  have hS1 : HasRealPositiveS1Eigenbasis
+      (sturmRealHeatLimitCLM lam hlam s (le_of_lt hs)) :=
+    sturmRealHeat_has_positive_real_spectralS1 lam s hlam hs
+  exact hS1.toPositiveRealNuclearExpansion.toRealNuclearRankOneSeries
 
 /-- The universal real-Hilbert projective nuclear norm of the ACTUAL
 heat operator is the exact spectral heat trace, not merely an upper
