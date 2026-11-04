@@ -50,9 +50,10 @@ theorem complexLpRe_realToComplexLp (lam : ℝ) (f : HR lam) :
     Complex.reCLM.coeFn_compLpL (realToComplexLp lam f),
     Complex.ofRealCLM.coeFn_compLpL f
   ] with x hre hinc
+  have h := hre.trans (congrArg Complex.reCLM hinc)
   simpa only [complexLpRe, realToComplexLp,
     Complex.reCLM_apply, Complex.ofRealCLM_apply,
-    Complex.ofReal_re] using hre.trans (congrArg Complex.re hinc)
+    Complex.ofReal_re] using h
 
 /-- The imaginary component of a real L² function is zero after
 canonical inclusion into complex weighted L². -/
@@ -61,12 +62,13 @@ theorem complexLpIm_realToComplexLp (lam : ℝ) (f : HR lam) :
   ext1
   filter_upwards [
     Complex.imCLM.coeFn_compLpL (realToComplexLp lam f),
-    Complex.ofRealCLM.coeFn_compLpL f
-  ] with x him hinc
+    Complex.ofRealCLM.coeFn_compLpL f,
+    (Lp.coeFn_zero (E := ℝ) (p := 2) (μ := measure lam))
+  ] with x him hinc hz
+  have h := him.trans (congrArg Complex.imCLM hinc)
   simpa only [complexLpIm, realToComplexLp,
     Complex.imCLM_apply, Complex.ofRealCLM_apply,
-    Complex.ofReal_im, Lp.coeFn_zero, Pi.zero_apply] using
-    him.trans (congrArg Complex.im hinc)
+    Complex.ofReal_im, hz] using h
 
 /-- Every complex-valued weighted L² function is recovered exactly
 from the actual real-valued L² functions formed by its two parts. -/
@@ -76,17 +78,31 @@ theorem complexLp_eq_realToComplex_re_add_I_im
       Complex.I • realToComplexLp lam (complexLpIm lam f) = f := by
   ext1
   filter_upwards [
+    Lp.coeFn_add
+      (realToComplexLp lam (complexLpRe lam f))
+      (Complex.I • realToComplexLp lam (complexLpIm lam f)),
+    Lp.coeFn_smul Complex.I (realToComplexLp lam (complexLpIm lam f)),
     Complex.ofRealCLM.coeFn_compLpL (complexLpRe lam f),
     Complex.ofRealCLM.coeFn_compLpL (complexLpIm lam f),
     Complex.reCLM.coeFn_compLpL f,
     Complex.imCLM.coeFn_compLpL f
-  ] with x hincRe hincIm hre him
-  simpa only [Lp.coeFn_add, Lp.coeFn_smul,
-    Pi.add_apply, Pi.smul_apply,
-    hincRe, hincIm, hre, him,
-    Complex.ofRealCLM_apply, Complex.reCLM_apply,
-    Complex.imCLM_apply, smul_eq_mul, mul_comm] using
-      (Complex.re_add_im (f x))
+  ] with x hadd hsm hincRe hincIm hre him
+  calc
+    (realToComplexLp lam (complexLpRe lam f) +
+      Complex.I • realToComplexLp lam (complexLpIm lam f)) x =
+        (realToComplexLp lam (complexLpRe lam f)) x +
+          Complex.I * (realToComplexLp lam (complexLpIm lam f)) x := by
+            rw [hadd, hsm]
+            rfl
+    _ = ((complexLpRe lam f) x : ℂ) +
+          Complex.I * ((complexLpIm lam f) x : ℂ) := by
+            rw [hincRe, hincIm]
+            simp only [Complex.ofRealCLM_apply]
+    _ = ((f x).re : ℂ) + Complex.I * ((f x).im : ℂ) := by
+            rw [hre, him]
+            simp only [Complex.reCLM_apply, Complex.imCLM_apply]
+    _ = f x := by
+            simpa only [mul_comm] using (Complex.re_add_im (f x))
 
 #print axioms GegenbauerFock.Ultraspherical.complexLpRe_realToComplexLp
 #print axioms GegenbauerFock.Ultraspherical.complexLpIm_realToComplexLp
