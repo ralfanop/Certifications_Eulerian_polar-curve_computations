@@ -101,20 +101,22 @@ theorem sourceGramTikhonov_error_strong_tendsto_zero
         (nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ))) (nhds (0 : ℝ)) := by
     simpa only [mul_zero, zero_mul] using
       hcont.tendsto.mono_left nhdsWithin_le_nhds
-  have hsmall :
-      ∀ᶠ eps : ℝ in nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ)), 2 * eps * ‖y‖ < δ / 2 := by
-    apply hsmalllim.eventually
+  have hzeroSmall : ∀ᶠ z : ℝ in nhds (0 : ℝ), z < δ / 2 := by
     exact isOpen_Iio.mem_nhds
       (show (0 : ℝ) ∈ Set.Iio (δ / 2) by
         change (0 : ℝ) < δ / 2
         linarith)
+  have hsmall :
+      ∀ᶠ eps : ℝ in nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ)),
+        2 * eps * ‖y‖ < δ / 2 :=
+    hsmalllim.eventually hzeroSmall
   filter_upwards [self_mem_nhdsWithin, hsmall] with eps heps hε
   have hbound := sourceGramTikhonov_error_dense_approximation
     lam alpha hlam ha eps heps x y
   calc
     dist (regularizationError lam alpha hlam ha eps x)
         (0 : RegH lam) =
-          ‖regularizationError lam alpha hlam ha eps x‖ := dist_zero_right
+          ‖regularizationError lam alpha hlam ha eps x‖ := dist_zero_right _
     _ ≤ ‖x - gram lam alpha hlam ha y‖ + 2 * eps * ‖y‖ := hbound
     _ < δ / 2 + δ / 2 := add_lt_add hnear hε
     _ = δ := by ring
