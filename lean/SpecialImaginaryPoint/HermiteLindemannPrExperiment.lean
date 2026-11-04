@@ -28,8 +28,10 @@ private theorem a_sq : a ^ 2 = (1 / 2 : ℝ) := by
 
 private theorem a_complex_alg : IsAlgebraic ℤ ((a : ℝ) : ℂ) := by
   have hc : (((a : ℝ) : ℂ)) ^ 2 = (2 : ℂ)⁻¹ := by
-    norm_cast
-    exact a_sq
+    calc
+      (((a : ℝ) : ℂ)) ^ 2 = ((a ^ 2 : ℝ) : ℂ) := by norm_cast
+      _ = ((1 / 2 : ℝ) : ℂ) := by rw [a_sq]
+      _ = (2 : ℂ)⁻¹ := by norm_num
   have htwo : IsAlgebraic ℤ (2 : ℂ) :=
     isAlgebraic_natCast (R := ℤ) (A := ℂ) 2
   have hinv : IsAlgebraic ℤ (2 : ℂ)⁻¹ := htwo.inv
@@ -46,8 +48,14 @@ theorem exp_one_div_sqrt_two_transcendental :
   have hQa : IsAlgebraic ℚ (Real.exp a) := by
     simpa only [a] using hQ
   have hQc : IsAlgebraic ℚ (Complex.exp ((a : ℝ) : ℂ)) := by
-    simpa only [Complex.ofReal_exp] using
-      (hQa.algebraMap (A := ℂ))
+    simpa [Complex.ofReal_exp] using (hQa.algebraMap (A := ℂ))
+  letI : Algebra.IsAlgebraic ℤ ℚ := by
+    refine ⟨fun q => ?_⟩
+    have hnum : IsAlgebraic ℤ ((q.num : ℤ) : ℚ) :=
+      isAlgebraic_intCast (R := ℤ) (A := ℚ) q.num
+    have hden : IsAlgebraic ℤ ((q.den : ℕ) : ℚ) :=
+      isAlgebraic_natCast (R := ℤ) (A := ℚ) q.den
+    simpa [div_eq_mul_inv, Rat.num_div_den] using hnum.mul hden.inv
   have hZc : IsAlgebraic ℤ (Complex.exp ((a : ℝ) : ℂ)) :=
     hQc.restrictScalars ℤ
   exact htrans hZc
