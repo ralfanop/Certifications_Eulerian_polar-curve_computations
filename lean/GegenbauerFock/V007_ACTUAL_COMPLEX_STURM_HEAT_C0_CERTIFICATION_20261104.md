@@ -101,3 +101,35 @@ H_s^C (u+i v) := H_s u + i H_s v
 ```
 
 using the canonical actual-L² real-to-complex inclusion and real/imaginary part maps. This defines bounded complex-linear operators satisfying `H_0^C=I`, `H_(s+t)^C=H_s^C H_t^C` for all nonnegative times, and `||H_s^C f-f||_2 -> 0` as `s↓0` for every complex L² vector. The inclusion of the real weighted L² is isometric and intertwines `H_s` with `H_s^C`. The full `C₀` theorem, its precursors, and its axiom audit are verified in the CI runs above.
+
+
+## 4 November 2026 — additional kernel-certified consequences
+
+### Embedded actual-complex eigenmodes
+
+The new module [`UltrasphericalSturmLiouvilleActualComplexHeatEmbeddedEigenmodes.lean`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/gegenbauer-fock-formalization-20261025/lean/GegenbauerFock/UltrasphericalSturmLiouvilleActualComplexHeatEmbeddedEigenmodes.lean) was independently verified by [CI #41839176206](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41839176206): **SUCCESS, 9,195 compiled jobs**; all three theorem audits list only `propext`, `Classical.choice`, `Quot.sound`.
+
+For each real normalized Gegenbauer basis vector `e_n`, its actual complex image `J(e_n)` is nonzero with norm exactly one and
+
+```text
+H_s^C (J(e_n)) = (exp(-s*n*(n+2*lambda)) : C) • J(e_n),
+lambda>0, s>=0.
+```
+
+The formal theorems are `sturmActualComplexHeatCLM_normalized_Gegenbauer_eigen`, `sturmActualComplexNormalizedGegenbauer_norm_eq_one`, and `sturmActualComplexNormalizedGegenbauer_ne_zero`. **No complex-Hilbert-basis completeness is inferred from these three statements alone.**
+
+### Full complex right-continuity at every nonnegative time
+
+The new module [`UltrasphericalSturmLiouvilleActualComplexHeatRightContinuity.lean`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/gegenbauer-fock-formalization-20261025/lean/GegenbauerFock/UltrasphericalSturmLiouvilleActualComplexHeatRightContinuity.lean) was verified by [CI #41840061365](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41840061365): **SUCCESS, 9,201 compiled jobs**, only standard kernel axioms.
+
+For every `lambda>0`, `t>=0`, and `f` in the ACTUAL complex weighted L²,
+
+```text
+H_(t+h)^C f -> H_t^C f as h decreases to zero through h>=0.
+```
+
+The theorem is `sturmActualComplexHeatCLM_tendsto_at_nonnegative_time_right`. It follows from the exact semigroup law and strong C₀ continuity, with no Gram identification.
+
+### Remaining next-step obligations
+
+The generator on the embedded canonical closed real Sturm domain is formalized in the separate new module `UltrasphericalSturmLiouvilleActualComplexHeatGeneratorRealCore.lean`, but its **CI must be checked** before reporting that result as certified. Full complex generator domain equality, sharp complex contraction norm, and full complex Hilbert-basis completeness remain independent goals.
