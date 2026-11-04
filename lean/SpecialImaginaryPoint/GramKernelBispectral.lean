@@ -118,4 +118,97 @@ theorem closed_graph_core_commutation
 
 #print axioms Manuscript14Gram.closed_graph_core_commutation
 
+
+/-- A bounded perturbation does not destroy graph-core approximation.
+Here `A` is the unbounded spectral operator and `B` the bounded
+quadratic multiplier; the domain remains `D`. -/
+theorem bounded_perturbation_preserves_graph_core
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    (D Core : Set E) (A : E → E) (B : E →L[ℂ] E)
+    (hcore : ∀ f ∈ D, ∃ p : ℕ → E,
+      (∀ n, p n ∈ Core) ∧
+      Filter.Tendsto p Filter.atTop (nhds f) ∧
+      Filter.Tendsto (fun n => A (p n)) Filter.atTop (nhds (A f))) :
+    ∀ f ∈ D, ∃ p : ℕ → E,
+      (∀ n, p n ∈ Core) ∧
+      Filter.Tendsto p Filter.atTop (nhds f) ∧
+      Filter.Tendsto (fun n => A (p n) + B (p n))
+        Filter.atTop (nhds (A f + B f)) := by
+  intro f hf
+  obtain ⟨p, hpCore, hp, hAp⟩ := hcore f hf
+  refine ⟨p, hpCore, hp, ?_⟩
+  have hBp : Filter.Tendsto (fun n => B (p n)) Filter.atTop
+      (nhds (B f)) :=
+    B.continuous.continuousAt.tendsto.comp hp
+  exact hAp.add hBp
+
+/-- The graph of A+B remains sequentially closed when A is sequentially
+closed and B is bounded, with no change of domain. -/
+theorem bounded_perturbation_preserves_sequential_closed_graph
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    (D : Set E) (A : E → E) (B : E →L[ℂ] E)
+    (hclosedA : ∀ x y : E,
+      (∃ p : ℕ → E,
+        (∀ n, p n ∈ D) ∧
+        Filter.Tendsto p Filter.atTop (nhds x) ∧
+        Filter.Tendsto (fun n => A (p n)) Filter.atTop (nhds y)) →
+      x ∈ D ∧ A x = y) :
+    ∀ x y : E,
+      (∃ p : ℕ → E,
+        (∀ n, p n ∈ D) ∧
+        Filter.Tendsto p Filter.atTop (nhds x) ∧
+        Filter.Tendsto (fun n => A (p n) + B (p n))
+          Filter.atTop (nhds y)) →
+      x ∈ D ∧ A x + B x = y := by
+  intro x y hxy
+  obtain ⟨p, hpD, hp, hpAB⟩ := hxy
+  have hBp : Filter.Tendsto (fun n => B (p n)) Filter.atTop
+      (nhds (B x)) :=
+    B.continuous.continuousAt.tendsto.comp hp
+  have hAp : Filter.Tendsto (fun n => A (p n)) Filter.atTop
+      (nhds (y - B x)) := by
+    have hdifference := hpAB.sub hBp
+    have hident : (fun n => A (p n) + B (p n) - B (p n)) =
+        (fun n => A (p n)) := by
+      funext n
+      abel
+    rw [hident] at hdifference
+    exact hdifference
+  obtain ⟨hx, hAx⟩ := hclosedA x (y - B x)
+    ⟨p, hpD, hp, hAp⟩
+  refine ⟨hx, ?_⟩
+  rw [hAx]
+  exact sub_add_cancel y (B x)
+
+/-- Complete abstract closed-domain commutation of a boundedly perturbed
+spectral generator A+B with a bounded Gram operator S, once the
+concrete polynomial-core kernel identity has been established. -/
+theorem closed_bounded_perturbation_commutation
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    (D Core : Set E) (A : E → E) (B S : E →L[ℂ] E)
+    (hcore : ∀ f ∈ D, ∃ p : ℕ → E,
+      (∀ n, p n ∈ Core) ∧
+      Filter.Tendsto p Filter.atTop (nhds f) ∧
+      Filter.Tendsto (fun n => A (p n)) Filter.atTop (nhds (A f)))
+    (hclosedA : ∀ x y : E,
+      (∃ p : ℕ → E,
+        (∀ n, p n ∈ D) ∧
+        Filter.Tendsto p Filter.atTop (nhds x) ∧
+        Filter.Tendsto (fun n => A (p n)) Filter.atTop (nhds y)) →
+      x ∈ D ∧ A x = y)
+    (hCoreD : Core ⊆ D)
+    (hcomm : ∀ p ∈ Core,
+      S p ∈ D ∧ A (S p) + B (S p) = S (A p + B p)) :
+    ∀ f ∈ D,
+      S f ∈ D ∧ A (S f) + B (S f) = S (A f + B f) := by
+  exact closed_graph_core_commutation D Core
+    (fun x => A x + B x) S
+    (bounded_perturbation_preserves_graph_core D Core A B hcore)
+    (bounded_perturbation_preserves_sequential_closed_graph D A B hclosedA)
+    hCoreD hcomm
+
+#print axioms Manuscript14Gram.bounded_perturbation_preserves_graph_core
+#print axioms Manuscript14Gram.bounded_perturbation_preserves_sequential_closed_graph
+#print axioms Manuscript14Gram.closed_bounded_perturbation_commutation
+
 end Manuscript14Gram
