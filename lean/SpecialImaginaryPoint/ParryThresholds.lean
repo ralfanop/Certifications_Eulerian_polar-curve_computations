@@ -458,6 +458,8 @@ continuous polynomial beta^30 * (beta - 1).  At the root the floor
 takes the exact integer 1, so the iterate returns to zero.
 -/
 
+open scoped Topology
+
 /-- On the entire open interval (1, beta31), not merely on a small
 numerical neighborhood, the 31st beta-orbit coordinate is polynomial. -/
 theorem parry31_orbit_left_formula (root beta : ℝ)
@@ -473,19 +475,17 @@ theorem parry31_orbit_left_formula (root beta : ℝ)
       _ = 1 := by linarith
   have hpow : beta ^ 30 ≤ root ^ 30 := by
     gcongr
-    exact hbelow.le
   have hprod : beta ^ 30 * (beta - 1) < 1 := by
     calc
       _ ≤ root ^ 30 * (beta - 1) :=
         mul_le_mul_of_nonneg_right hpow (by linarith)
       _ < root ^ 30 * (root - 1) :=
-        mul_lt_mul_of_pos_left hbelow (by positivity)
+        mul_lt_mul_of_pos_left (sub_lt_sub_right hbelow 1) (by positivity)
       _ = 1 := hrootval
   have hz (k : ℕ) (_hk1 : 1 ≤ k) (hk : k ≤ 30) :
       0 ≤ beta ^ k * (beta - 1) ∧ beta ^ k * (beta - 1) < 1 := by
-    have hpowk : beta ^ k ≤ beta ^ 30 := by
-      gcongr
-      exact hk
+    have hpowk : beta ^ k ≤ beta ^ 30 :=
+      pow_le_pow_right₀ hbeta.le hk
     have hproductk : beta ^ k * (beta - 1) ≤ beta ^ 30 * (beta - 1) :=
       mul_le_mul_of_nonneg_right hpowk (by linarith)
     exact ⟨mul_nonneg (pow_nonneg (by linarith) _) (by linarith),
