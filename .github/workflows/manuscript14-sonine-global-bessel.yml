@@ -6,6 +6,7 @@ on:
       - manuscript14-sonine-radial-20261104
     paths:
       - 'lean/SpecialImaginaryPoint/SonineBesselGlobal.lean'
+      - 'lean/SpecialImaginaryPoint/SonineBesselSummability.lean'
       - '.github/workflows/manuscript14-sonine-global-bessel.yml'
   workflow_dispatch:
 
@@ -46,7 +47,8 @@ jobs:
           lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineEvenComplexPolynomials.olean SpecialImaginaryPoint/SonineEvenComplexPolynomials.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
           lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineEntireInterchange.olean SpecialImaginaryPoint/SonineEntireInterchange.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
           lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineEntireAveraging.olean SpecialImaginaryPoint/SonineEntireAveraging.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
-          lake env lean -M16768 SpecialImaginaryPoint/SonineBesselGlobal.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineBesselGlobal.olean SpecialImaginaryPoint/SonineBesselGlobal.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
+          lake env lean -M16768 SpecialImaginaryPoint/SonineBesselSummability.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/sonine-global-bessel.log; then
             echo "::error::Forbidden Lean axiom"
             exit 1
