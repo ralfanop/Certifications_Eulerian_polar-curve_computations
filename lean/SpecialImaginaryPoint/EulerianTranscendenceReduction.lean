@@ -74,4 +74,34 @@ theorem eulerian_greedy_aperiodic_of_exp_transcendental
 #print axioms Manuscript14Section11.eulerian_parameter_transcendental_of_exp
 #print axioms Manuscript14Section11.eulerian_greedy_aperiodic_of_exp_transcendental
 
+
+/-- The exponent 1/sqrt(2) is nonzero and algebraic over the rationals. -/
+theorem eulerian_exponent_algebraic_nonzero :
+    IsAlgebraic ℚ (1 / Real.sqrt 2 : ℝ) ∧
+      (1 / Real.sqrt 2 : ℝ) ≠ 0 := by
+  constructor
+  · simpa only [one_div] using eulerian_sqrt_two_algebraic.inv
+  · positivity
+
+/-- The Hermite–Lindemann theorem, stated as an *explicit hypothesis*,
+would discharge the sole remaining deep-theorem dependency in
+the genuine Eulerian greedy nonperiodicity assertion. This is not an
+unconditional theorem and does not install any additional axiom. -/
+theorem eulerian_final_reduction_to_hermite_lindemann
+    (hHL : ∀ a : ℝ, IsAlgebraic ℚ a → a ≠ 0 →
+      ¬ IsAlgebraic ℚ (Real.exp a)) :
+    (¬ IsAlgebraic ℚ eulerianParameter) ∧
+      (¬ ∃ m p : ℕ, 0 < p ∧
+        ∀ n, m ≤ n →
+          greedyDigit eulerianParameter (n + p) =
+            greedyDigit eulerianParameter n) := by
+  have ha := eulerian_exponent_algebraic_nonzero
+  have hexp := hHL (1 / Real.sqrt 2) ha.1 ha.2
+  exact ⟨eulerian_parameter_transcendental_of_exp hexp,
+    eulerian_greedy_aperiodic_of_exp_transcendental hexp⟩
+
+#print axioms Manuscript14Section11.eulerian_exponent_algebraic_nonzero
+#print axioms Manuscript14Section11.eulerian_final_reduction_to_hermite_lindemann
+
+
 end Manuscript14Section11
