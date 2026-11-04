@@ -47,7 +47,7 @@ noncomputable def realPhasePartialCLM
 /-- A canonical synthesis map takes a single coefficient-basis mode
 to the supplied orthonormal Hilbert vector. -/
 theorem realPhaseOrthSynthesis_single
-    (b : ι → H) (hb : Orthonormal ℝ b) (i : ι) :
+    [DecidableEq ι] (b : ι → H) (hb : Orthonormal ℝ b) (i : ι) :
     realPhaseOrthSynthesis b hb (lp.single 2 i (1 : ℝ)) = b i := by
   classical
   change hb.orthogonalFamily.linearIsometry (lp.single 2 i 1) = b i
