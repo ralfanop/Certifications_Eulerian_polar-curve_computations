@@ -53,29 +53,29 @@ theorem eulerianParryValue_rational_bracket :
 
   let Splus : ℝ := ∑ m ∈ Finset.range 16, u ^ m / (m.factorial : ℝ)
   let Sminus : ℝ := ∑ m ∈ Finset.range 16, (-u) ^ m / (m.factorial : ℝ)
-  let E : ℝ := (17 : ℝ) * (((16.factorial : ℝ) * 16)⁻¹)
+  let E : ℝ := (17 : ℝ) * ((((Nat.factorial 16 : ℕ) : ℝ) * 16)⁻¹)
   have hEnonneg : 0 ≤ E := by
     dsimp [E]
     positivity
   have hpowle : |u| ^ 16 ≤ (1 : ℝ) :=
     pow_le_one₀ (abs_nonneg _) huabs
   have herror : |u| ^ 16 *
-      ((16 + 1 : ℕ) : ℝ) * (((16.factorial : ℝ) * 16)⁻¹) ≤ E := by
+      ((16 + 1 : ℕ) : ℝ) * ((((Nat.factorial 16 : ℕ) : ℝ) * 16)⁻¹) ≤ E := by
     dsimp [E]
     nlinarith [mul_le_mul_of_nonneg_right hpowle
-      (show (0 : ℝ) ≤ (17 : ℝ) * (((16.factorial : ℝ) * 16)⁻¹) by positivity)]
+      (show (0 : ℝ) ≤ (17 : ℝ) * ((((Nat.factorial 16 : ℕ) : ℝ) * 16)⁻¹) by positivity)]
   have hplus : |Real.exp u - Splus| ≤ E := by
     have h := Real.exp_bound (x := u) huabs (n := 16) (by norm_num)
     have h' : |Real.exp u - Splus| ≤
         |u| ^ 16 * ((16 + 1 : ℕ) : ℝ) *
-          (((16.factorial : ℝ) * 16)⁻¹) := by
+          ((((Nat.factorial 16 : ℕ) : ℝ) * 16)⁻¹) := by
       simpa only [Splus] using h
     exact h'.trans herror
   have hminus : |Real.exp (-u) - Sminus| ≤ E := by
     have h := Real.exp_bound (x := -u) hunegabs (n := 16) (by norm_num)
     have h' : |Real.exp (-u) - Sminus| ≤
         |u| ^ 16 * ((16 + 1 : ℕ) : ℝ) *
-          (((16.factorial : ℝ) * 16)⁻¹) := by
+          ((((Nat.factorial 16 : ℕ) : ℝ) * 16)⁻¹) := by
       simpa only [Sminus, abs_neg] using h
     exact h'.trans herror
   have hdiff :
