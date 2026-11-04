@@ -43,8 +43,7 @@ theorem moment_recurrence (n : ℕ) :
       (2 * (n : ℚ) + 2) * moment n := by
   rw [moment_step]
   have hd : (2 * (n : ℚ) + 3) ≠ 0 := by positivity
-  field_simp [hd]
-  ring
+  field_simp [hd] <;> ring
 
 /-- Formal Sonine transform on coefficients f(t)=Σ a_n t^(2n). -/
 def sonineCoeff (a : ℕ → ℚ) (n : ℕ) : ℚ :=
