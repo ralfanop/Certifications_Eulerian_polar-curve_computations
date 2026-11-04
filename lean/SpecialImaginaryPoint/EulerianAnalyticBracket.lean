@@ -1,4 +1,5 @@
 import Mathlib
+import SpecialImaginaryPoint.ParryThresholds
 
 /-!
 # Analytic enclosure of the Eulerian–Parry parameter
@@ -127,5 +128,41 @@ theorem eulerianParryValue_rational_bracket :
   constructor <;> dsimp [eulerianParryValue] at * <;> linarith
 
 #print axioms Manuscript14Section11.eulerianParryValue_rational_bracket
+
+/-!
+## Removing the analytic-bracket hypothesis from the genuine floor dynamics
+
+This is the complete kernel-checked *dynamical and numerical part*
+of the manuscript's sole Section 11 theorem.  The transcendence and
+non-eventual-periodicity assertions remain distinct obligations.
+-/
+
+/-- No interval hypothesis: the actual Eulerian hyperbolic value satisfies
+the digit prefix, adjacent-root straddling, exact critical-orbit defect
+and the simple-Parry endpoint jump. -/
+theorem eulerian_parry_dynamical_part_unconditional :
+    (greedyDigit eulerianParameter 0 = 1 ∧
+      (∀ k : ℕ, k < 30 → greedyDigit eulerianParameter (k + 1) = 0) ∧
+      greedyDigit eulerianParameter 31 = 1) ∧
+    ((313240 : ℝ) / 10 ^ 9 <
+      1 - (greedyMap eulerianParameter)^[31] 1 ∧
+      1 - (greedyMap eulerianParameter)^[31] 1 <
+        (313241 : ℝ) / 10 ^ 9) ∧
+    (∃ beta32 beta31 : ℝ,
+      (1 < beta32 ∧ beta32 < 2 ∧ beta32 ^ 32 - beta32 ^ 31 - 1 = 0) ∧
+      (1 < beta31 ∧ beta31 < 2 ∧ beta31 ^ 31 - beta31 ^ 30 - 1 = 0) ∧
+      beta32 < eulerianParameter ∧ eulerianParameter < beta31 ∧
+      (greedyMap beta31)^[31] 1 = 0 ∧
+      Filter.Tendsto (fun beta : ℝ => (greedyMap beta)^[31] 1)
+        (𝓝[<] beta31) (𝓝 (1 : ℝ))) := by
+  have hbracket :
+      (1085441641272 : ℝ) / 10 ^ 12 < eulerianParameter ∧
+      eulerianParameter < (1085441641273 : ℝ) / 10 ^ 12 := by
+    simpa [eulerianParameter, eulerianParryValue] using
+      eulerianParryValue_rational_bracket
+  exact eulerian_parry_theorem_conditional hbracket.1 hbracket.2
+
+#print axioms Manuscript14Section11.eulerian_parry_dynamical_part_unconditional
+
 
 end Manuscript14Section11
