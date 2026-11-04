@@ -3,11 +3,11 @@ name: Manuscript 14 — Lindemann upstream compatibility certificate
 on:
   push:
     branches:
-      - manuscript14-section11-parry-cert-20261103
+      - manuscript14-lindemann-pr28013-experiment-20261104
     paths:
-      - 'lean/SpecialImaginaryPoint/UpstreamLindemannAlgebraicPart.lean'
-      - 'lean/SpecialImaginaryPoint/UpstreamLindemannBasic.lean'
-      - 'lean/SpecialImaginaryPoint/HermiteEulerianSpecial.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/SpecialImaginaryPoint/HermiteLindemannPrExperiment.lean'
       - '.github/workflows/manuscript14-lindemann-port.yml'
   workflow_dispatch:
 
@@ -39,17 +39,12 @@ jobs:
         run: |
           lake update
           lake exe cache get
-      - name: Kernel-check Apache-2.0 upstream Lindemann modules
+      - name: Kernel-check Hermite Lindemann PR #28013 theorem and axiom audit
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
-          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/UpstreamLindemannAlgebraicPart.olean SpecialImaginaryPoint/UpstreamLindemannAlgebraicPart.lean 2>&1 | tee /tmp/manuscript14-lindemann.log
-          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/UpstreamLindemannBasic.olean SpecialImaginaryPoint/UpstreamLindemannBasic.lean 2>&1 | tee -a /tmp/manuscript14-lindemann.log
-          if test -f SpecialImaginaryPoint/HermiteEulerianSpecial.lean; then
-            lake env lean -M16768 SpecialImaginaryPoint/HermiteEulerianSpecial.lean 2>&1 | tee -a /tmp/manuscript14-lindemann.log
-          fi
+          lake env lean -M16768 SpecialImaginaryPoint/HermiteLindemannPrExperiment.lean 2>&1 | tee /tmp/manuscript14-lindemann.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/manuscript14-lindemann.log; then
             echo "::error::Forbidden Lean axiom present"
             exit 1
