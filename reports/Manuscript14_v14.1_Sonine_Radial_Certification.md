@@ -32,13 +32,24 @@ Final CI #41840598183 is the last full-run evidence for the new complex-formal L
 
 Kernel-certified extensions: genuine real moments for every natural index; exact real integral action on all even polynomials; complex formal coefficient and `PowerSeries ℂ` intertwining. The linked CI logs have been inspected for standard axiom dependencies and forbidden axioms. These are new research-software certificates, not new general Sonine theory.
 
+## Certified factorial and Bessel transformations (4 November 2026)
+
+The isolated [CI #41848633944](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41848633944) finished **SUCCESS** in both the Lean and Arb jobs.
+
+- [SonineFactorialMoment.lean](../lean/SpecialImaginaryPoint/SonineFactorialMoment.lean): `integralMoment_eq_factorial` verifies in the Lean kernel for every `n : ℕ` the explicit printed formula
+  `(1/2)∫_{-1}¹(1-u²)^n du = 4^n (n!)²/(2n+1)!`.
+- [SonineBesselCoefficients.lean](../lean/SpecialImaginaryPoint/SonineBesselCoefficients.lean): `sonine_modifiedBessel_coefficients` and `sonine_ordinaryBessel_coefficients` certify the coefficientwise transform `c_n /(4^n(n!)²)=1/(2n+1)!` and its `(-1)^n` variant for all n. Their axiom audits show only `propext`, `Classical.choice`, `Quot.sound`.
+- [manuscript14_sonine_bessel_tails_arb.py](../numerics/arb/manuscript14_sonine_bessel_tails_arb.py): **35/35 PASS**, python-flint 0.9.0 at 384-bit precision. This covers exact J₀/I₀-to-spherical coefficients through n=180, and strict spherical Taylor interval bounds for radii 1,2,4,8 and truncations 12,16,24,30.
+
+These results are not a claim that global analytic identities `M(J₀)=j₀` or `M(I₀)=sinhc` are fully formalized: the pointwise interchange of an infinite Taylor sum with the integral is still being checked separately. The exact scalar identity for every monomial **is** already kernel-certified.
+
 ## Outstanding work to formalize full Theorem 4
 
 1. **DISCHARGED**: the actual monomial moment integral equals the formal rational coefficient for all natural indices — [CI #41838692304](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41838692304).
 2. **DISCHARGED**: [SonineEvenPolynomials.lean](../lean/SpecialImaginaryPoint/SonineEvenPolynomials.lean) defines the actual real averaging operator with `sqrt(1-u²)` and proves the exact action on all even monomials and finite even polynomials with real coefficients. [CI #41839414136](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41839414136) — **SUCCESS**; `sonineAverageReal_even_monomial` and `sonineAverageReal_evenPolynomial` audited with only standard axioms.
 3. **DISCHARGED (FORMAL SERIES)**: [SonineRadialComplex.lean](../lean/SpecialImaginaryPoint/SonineRadialComplex.lean) extends `H3 M = M H2` coefficientwise to arbitrary `ℕ → ℂ` and to Mathlib `PowerSeries ℂ`. [CI #41839935793](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41839935793) — **SUCCESS**, with `momentComplex_recurrence`, `radial_intertwining_coeff_complex`, and `radial_intertwining_powerSeries_complex` each using only the three standard axioms.
 4. **OPEN**: show uniform convergence of the even entire Taylor series and its differentiated series on every compact set; use this to justify differentiation and integration termwise, including `t=0`.
-5. **OPEN**: lift `H3 M f = M H2 f` from even polynomials to all even entire functions, and establish `M J0=j0` and `M I0(a)=sinh(a)/a` as analytic identities.
+5. **IN PROGRESS**: [SonineEvenComplexPolynomials.lean](../lean/SpecialImaginaryPoint/SonineEvenComplexPolynomials.lean) targets the actual complex-valued averaging integral on complex even polynomials; [SonineEntireInterchange.lean](../lean/SpecialImaginaryPoint/SonineEntireInterchange.lean) targets the dominated-convergence interchange for a summable complex even Taylor series. These require a successful CI before their statements are counted as certified. Lift `H3 M f = M H2 f` from even polynomials to all even entire functions, and establish `M J0=j0` and `M I0(a)=sinh(a)/a` as analytic identities.
 6. **OPEN**: separately audit the regular modified-Helmholtz profile proposition, especially uniqueness.
 
 ## Integrity
