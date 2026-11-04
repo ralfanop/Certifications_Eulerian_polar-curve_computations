@@ -119,22 +119,10 @@ theorem sturmRealHeat_positive_nuclear_operator_tsum_eq
       ((Submodule.span ℝ (Set.range b)) : Set (SturmH lam)) := by
     apply Submodule.dense_iff_topologicalClosure_eq_top.mpr
     exact b.dense_span
-  have hspan :
-      ∀ x ∈ Submodule.span ℝ (Set.range b), T x = S x := by
-    intro x hx
-    induction hx using Submodule.span_induction with
-    | mem x hx =>
-        rcases hx with ⟨k, rfl⟩
-        exact (hTb k).trans (hSb k).symm
-    | zero => simp
-    | add x y hx hy ihx ihy =>
-        simpa only [map_add, ihx, ihy]
-    | smul a x hx ih =>
-        simpa only [map_smul, ih]
   have hEq : T = S := by
     apply ContinuousLinearMap.ext_on hdense
-    intro x hx
-    exact hspan x hx
+    rintro _ ⟨k, rfl⟩
+    exact (hTb k).trans (hSb k).symm
   change T = _
   simpa only [S, F, beta, hb] using hEq
 
