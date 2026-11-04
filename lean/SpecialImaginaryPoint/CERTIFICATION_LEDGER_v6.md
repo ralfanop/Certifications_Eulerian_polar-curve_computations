@@ -10,9 +10,10 @@ The historic `CERTIFICATION_LEDGER_v5.md` remains unmodified. The autonomous [PR
 | --- | --- | ---: | ---: |
 | Prior Sections 1–10 special-point modules | [#41723312459](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41723312459) | 25 | 37 |
 | Section 11 complete numerical + dynamical certification | [#41806320179](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41806320179) | 28 | 16 |
-| **Verified combined baseline** | Both successful checkpoints | **53** | **53** |
+| Additional affine-orbit algebraicity module | [#41807371625](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41807371625) | 4 | 0 additional (Section 11 Arb rerun: 16 PASS) |
+| **Verified combined baseline** | Three successful checkpoints | **57** | **53** |
 
-The new generic repeated-affine-orbit module is in CI and **is not included in these certified counts** until independently successful. Only `propext`, `Classical.choice`, and `Quot.sound` (or subsets thereof) occur in the successful Lean kernel audit.
+The new generic repeated-affine-orbit module passed its Lean kernel and explicit axiom audit on [#41807371625](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41807371625). Its four statements are included in the 57-declaration total. Only `propext`, `Classical.choice`, and `Quot.sound` (or subsets thereof) occur in the successful Lean kernel audit.
 
 ## Theorem 11.1 — detailed status
 
@@ -25,7 +26,7 @@ The new generic repeated-affine-orbit module is in CI and **is not included in t
 
 ## Active proof module
 
-`lean/SpecialImaginaryPoint/PeriodicOrbitAlgebraicity.lean` attempts four generic intermediary declarations: monic polynomial representation of finite rational-digit affine orbits, evaluation agreement, degree separation, and algebraicity of beta if two orbit states repeat. Its current CI is [#41807371625](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41807371625), not counted as successful before verification.
+`lean/SpecialImaginaryPoint/PeriodicOrbitAlgebraicity.lean` attempts four generic intermediary declarations: monic polynomial representation of finite rational-digit affine orbits, evaluation agreement, degree separation, and algebraicity of beta if two orbit states repeat. All four assertions were verified, without forbidden axioms, in [CI #41807371625](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41807371625), SUCCESS for Lean 4 and Arb. This is an intermediate lemma: it does not prove digit-periodicity implies repeated remainders.
 
 The mathematical proofs and further Lean obligations are recorded in [`research/Manuscript14_Section11_Transcendence_Periodicity_Proof_Obligations.md`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/manuscript14-section11-parry-cert-20261103/research/Manuscript14_Section11_Transcendence_Periodicity_Proof_Obligations.md).
 
