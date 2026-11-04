@@ -120,22 +120,46 @@ audit with only `propext`, `Classical.choice`, `Quot.sound` and no
 `sorryAx` or `Lean.ofReduceBool`. The source blobs of the three Lean modules
 are unchanged on the V007 Draft branch as of 3 November 2026.
 
-**Step 3 (coercivity and contractivity): not yet certified at this checkpoint.**
-The older [CI #41499854005](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41499854005)
-FAILED in `CanonicalCFCGramPositiveShiftCoercivity.lean`, at the real-part
-comparison used in the squared-norm inequality. After introducing an explicit
-nonnegative `RCLike.re` witness in the source, a further representation-normalizing
-correction was committed as
-[`46b9769f`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/commit/46b9769fb8c0be2a44fa0eaa141b8ca2a3ccc89f).
-Its isolated CI [#41717581132](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41717581132)
-was **pending** at the last verification. This new source statement must not
-be described as kernel-certified without checking its own SUCCESS log and axiom audit.
+**Step 3 and dense-range error: KERNEL-CERTIFIED on 4 November 2026.**
+[CI #41804268333](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41804268333)
+is **SUCCESS** at source commit
+[`4144a28d`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/commit/4144a28d8a29b2ac301c320d49fa79c18eeaa641).
+The job compiled **9,127 Lean/Lake targets** and explicitly audited five theorems.
+Their `#print axioms` output listed only `propext`, `Classical.choice`,
+and `Quot.sound`, without `sorryAx` or `Lean.ofReduceBool`:
 
-**Step 4 (unconditional full-`L²` strong convergence)** still requires the density
-argument using `gram_dense_range`, the uniform contraction
-`‖E_eps‖≤1`, and the certified exact dense-image identity
-`E_eps(Gy)=eps(y-E_eps(y))`. Neither a pointwise positive-Gram-eigenmode
-limit nor a dense-image estimate alone proves convergence at arbitrary inputs.
+- `sourceGram_positive_shift_norm_lower` — exact Gram coercivity
+  `eps * ‖x‖ ≤ ‖(G+eps I)x‖`;
+- `sourceGramTikhonov_error_pointwise_contract` —
+  `‖eps (G+eps I)⁻¹ x‖ ≤ ‖x‖`;
+- `sourceGramTikhonov_error_opNorm_le_one` —
+  `‖eps (G+eps I)⁻¹‖ ≤ 1`;
+- `sourceGramTikhonov_error_on_range` —
+  exact identity `E_eps(Gy) = eps(y-E_eps(y))`;
+- `sourceGramTikhonov_error_on_range_norm` —
+  quantitative bound `‖E_eps(Gy)‖ ≤ 2eps‖y‖`.
+
+This certification resolves earlier FAILED CI attempts
+[#41717581132](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41717581132)
+and [#41722695849](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41722695849),
+which failed on proof-tactic elaboration (not on an analytic counterexample).
+
+**Step 4: full-`L²` strong convergence under final dedicated CI review.**
+The new source
+`CanonicalCFCGramTikhonovStrongConvergence.lean` supplies the
+quantitative approximation
+`‖E_eps f‖ ≤ ‖f-Gy‖+2eps‖y‖`, the bridge from the actual
+`gram_dense_range` theorem to `DenseRange G`, and the two desired
+`Tendsto` declarations.
+The first two were compiled with standard-axiom audits in failed CI
+[#41804268427](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41804268427);
+the last two required a neighborhood-filter elaboration correction
+and an explicit argument to `dist_zero_right`. Commit
+[`6331f183`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/commit/6331f183014a76dc14a913105147da64980bea97)
+submitted those corrections to CI
+[#41805350981](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41805350981).
+**Do not treat Step 4 as kernel-certified until this exact-SHA CI
+reports SUCCESS and its four axiom audits have been checked.**
 
 **Step 5 (sharp operator-norm obstruction)** and the data-space noise
 estimate require independent Lean declarations and CI checks. No result about the
