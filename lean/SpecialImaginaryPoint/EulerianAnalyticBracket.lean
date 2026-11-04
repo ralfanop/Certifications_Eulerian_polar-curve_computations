@@ -12,6 +12,8 @@ Only declarations accepted by the kernel and axiom audit are certified.
 
 namespace Manuscript14Section11
 
+open scoped Topology
+
 noncomputable def eulerianParryValue : ℝ :=
   Real.sqrt 2 * Real.sinh (1 / Real.sqrt 2)
 
