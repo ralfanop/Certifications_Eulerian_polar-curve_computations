@@ -48,6 +48,10 @@ jobs:
           lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/UpstreamLindemannAlgebraicPart.olean SpecialImaginaryPoint/UpstreamLindemannAlgebraicPart.lean 2>&1 | tee /tmp/manuscript14-lindemann.log
           lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/UpstreamLindemannBasic.olean SpecialImaginaryPoint/UpstreamLindemannBasic.lean 2>&1 | tee -a /tmp/manuscript14-lindemann.log
           if test -f SpecialImaginaryPoint/HermiteEulerianSpecial.lean; then
+            lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/ParryThresholds.olean SpecialImaginaryPoint/ParryThresholds.lean 2>&1 | tee -a /tmp/manuscript14-lindemann.log
+            lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/EulerianAnalyticBracket.olean SpecialImaginaryPoint/EulerianAnalyticBracket.lean 2>&1 | tee -a /tmp/manuscript14-lindemann.log
+            lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/PeriodicOrbitAlgebraicity.olean SpecialImaginaryPoint/PeriodicOrbitAlgebraicity.lean 2>&1 | tee -a /tmp/manuscript14-lindemann.log
+            lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/EulerianTranscendenceReduction.olean SpecialImaginaryPoint/EulerianTranscendenceReduction.lean 2>&1 | tee -a /tmp/manuscript14-lindemann.log
             lake env lean -M16768 SpecialImaginaryPoint/HermiteEulerianSpecial.lean 2>&1 | tee -a /tmp/manuscript14-lindemann.log
           fi
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/manuscript14-lindemann.log; then
