@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Manuscript 14.9 Sec.11: 256-bit Arb + exact rational checks.
+"""Manuscript 14.10 Theorem 11.1: 256-bit Arb + exact rational checks.
 
 Certifies positive Taylor enclosure, Parry trinomial signs, root isolations,
 and discontinuity defect; it does not formalize analytic, transcendence
@@ -58,6 +58,36 @@ check("defect in Arb interval", ball(defect_lo) < delta < ball(defect_hi))
 check("31st iterate strictly below one", 0 < xe**30*(xe-1) < 1)
 check("first post-initial one at position 32", xe**30*(xe-1)<1<xe**31*(xe-1))
 check("Mersenne integer identity", (2**5-1)==31)
+# Manuscript 14.10 printed proof uses the *seven-term* s_6 enclosure,
+# with a_7 as first omitted term and ratio <= 1/544 for every k >= 7.
+# These rational tests match the TeX proof rather than relying on N=18.
+s6 = sum((a(k) for k in range(7)), Q(0))
+a7 = a(7)
+ratio7 = a(8) / a7
+s6hi = s6 + Q(544, 543) * a7
+check("14.10: omitted-term ratio a8/a7 is exactly 1/544",
+      ratio7 == Q(1, 544))
+check("14.10: ratio monotonicity sample k=7..40",
+      all(a(k + 1) / a(k) <= ratio7 for k in range(7, 41)))
+check("14.10: exact s6 enclosure contains tighter 18-term enclosure",
+      s6 < s < sup < s6hi)
+check("14.10: s6 rational 12-decimal enclosure",
+      Q(1085441641272, 10**12) < s6 < s6hi <
+      Q(1085441641273, 10**12))
+check("14.10: Arb scalar enclosed by printed s6 bound",
+      ball(s6) < xe < ball(s6hi))
+check("14.10: root signs follow from printed s6 endpoints",
+      F(32, s6) > 0 and F(31, s6hi) < 0)
+s6dlo = 1 - s6hi**30 * (s6hi - 1)
+s6dhi = 1 - s6**30 * (s6 - 1)
+check("14.10: defect enclosure follows from s6 bounds",
+      Q(313240, 10**9) < s6dlo < s6dhi < Q(313241, 10**9))
+check("14.10: Arb defect enclosed by s6 rational interval",
+      ball(s6dlo) < delta < ball(s6dhi))
+check("14.10: every precritical greedy remainder is inside [0,1)",
+      all(0 <= xe**k * (xe-1) < 1 for k in range(31)))
+check("14.10: 32nd greedy digit is 1, not 0 or 2",
+      1 < xe**31 * (xe-1) < 2)
 print("Eulerian Arb:", xe.str(65))
 print("Defect Arb:", delta.str(65))
 print(f"ALL {checks} SECTION 11 ARB/RATIONAL CHECKS PASSED")
