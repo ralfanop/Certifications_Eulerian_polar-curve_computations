@@ -352,7 +352,6 @@ theorem eulerian_fourier_imaginary_sinh (b : ℝ) (hb : b ≠ 0) :
   rw [hsinh]
   push_cast
   field_simp [hbC, Complex.I_ne_zero]
-  ring
 
 /-- The Eulerian Fourier profile at i*sqrt(2) is exactly
 sqrt(2)*sinh(1/sqrt(2)), the scalar in Manuscript 14.10. -/
