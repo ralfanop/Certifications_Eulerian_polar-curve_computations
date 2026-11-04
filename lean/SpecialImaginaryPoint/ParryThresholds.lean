@@ -329,4 +329,51 @@ theorem parry31_endpoint_greedy (beta : ℝ)
 
 #print axioms Manuscript14Section11.parry31_endpoint_greedy
 
+/-!
+## Exact Fourier-to-hyperbolic identification at the companion point
+
+This is an exact analytic identity (not a decimal enclosure).  The
+certified 12-place strict rational enclosure is a separate obligation.
+-/
+
+/-- Restricting the Eulerian complex sine-cardinal profile to an
+imaginary argument agrees with the real hyperbolic-sine normalization. -/
+theorem eulerian_fourier_imaginary_sinh (b : ℝ) (hb : b ≠ 0) :
+    (2 : ℂ) * Complex.sin (((b : ℂ) * Complex.I) / 2) /
+        ((b : ℂ) * Complex.I) =
+      ((2 * Real.sinh (b / 2) / b : ℝ) : ℂ) := by
+  have hbC : (b : ℂ) ≠ 0 := by exact_mod_cast hb
+  have harg : ((b : ℂ) * Complex.I) / 2 =
+      ((b : ℂ) / 2) * Complex.I := by ring
+  rw [harg, Complex.sin_mul_I]
+  have hsinh : Complex.sinh ((b : ℂ) / 2) =
+      (Real.sinh (b / 2) : ℂ) := by
+    simpa using (Complex.ofReal_sinh (b / 2)).symm
+  rw [hsinh]
+  push_cast
+  field_simp [hbC, Complex.I_ne_zero]
+  ring
+
+/-- The Eulerian Fourier profile at i*sqrt(2) is exactly
+sqrt(2)*sinh(1/sqrt(2)), the scalar in Manuscript 14.10. -/
+theorem eulerian_fourier_companion_exact :
+    (2 : ℂ) * Complex.sin (((Real.sqrt 2 : ℂ) * Complex.I) / 2) /
+        ((Real.sqrt 2 : ℂ) * Complex.I) =
+      ((Real.sqrt 2 * Real.sinh (1 / Real.sqrt 2) : ℝ) : ℂ) := by
+  have hb : Real.sqrt (2 : ℝ) ≠ 0 := by positivity
+  have hs : (Real.sqrt (2 : ℝ)) ^ 2 = 2 := by norm_num
+  have hhalf : Real.sqrt (2 : ℝ) / 2 = 1 / Real.sqrt 2 := by
+    field_simp [hb]
+    nlinarith [hs]
+  have heq : (2 : ℝ) * Real.sinh (Real.sqrt 2 / 2) / Real.sqrt 2 =
+      Real.sqrt 2 * Real.sinh (1 / Real.sqrt 2) := by
+    rw [hhalf]
+    field_simp [hb]
+    nlinarith [hs]
+  rw [eulerian_fourier_imaginary_sinh (Real.sqrt 2) hb]
+  exact congrArg (fun t : ℝ => (t : ℂ)) heq
+
+#print axioms Manuscript14Section11.eulerian_fourier_imaginary_sinh
+#print axioms Manuscript14Section11.eulerian_fourier_companion_exact
+
 end Manuscript14Section11
