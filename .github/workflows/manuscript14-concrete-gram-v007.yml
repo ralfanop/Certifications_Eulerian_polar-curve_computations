@@ -1,0 +1,58 @@
+name: Manuscript 14.1 — certified V007 concrete Gram specialization
+
+on:
+  push:
+    branches:
+      - manuscript14-v141-concrete-gram-v007-20261104
+    paths:
+      - 'lean/GegenbauerFock/Manuscript14SpecialGramBridge.lean'
+      - '.github/workflows/manuscript14-concrete-gram-v007.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: manuscript14-v007-special-gram-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository-pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile actual Gram kernel, nuclear theorem and special module
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.Manuscript14SpecialGramBridge 2>&1 | tee /tmp/manuscript14-concrete-gram-lean.log
+          lake env lean -M16768 GegenbauerFock/Manuscript14SpecialGramBridge.lean 2>&1 | tee -a /tmp/manuscript14-concrete-gram-lean.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/manuscript14-concrete-gram-lean.log; then
+            echo "::error::Forbidden axiom detected"
+            exit 1
+          fi
+      - name: Upload full Lean audit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-v007-concrete-gram-lean
+          path: /tmp/manuscript14-concrete-gram-lean.log
+          if-no-files-found: ignore
