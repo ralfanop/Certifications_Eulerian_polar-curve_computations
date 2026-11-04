@@ -69,14 +69,14 @@ theorem eulerianParryValue_rational_bracket :
     have h' : |Real.exp u - Splus| ≤
         |u| ^ 16 * ((16 + 1 : ℕ) : ℝ) *
           ((((Nat.factorial 16 : ℕ) : ℝ) * 16)⁻¹) := by
-      simpa only [Splus] using h
+      simpa [Splus, div_eq_mul_inv, mul_assoc] using h
     exact h'.trans herror
   have hminus : |Real.exp (-u) - Sminus| ≤ E := by
     have h := Real.exp_bound (x := -u) hunegabs (n := 16) (by norm_num)
     have h' : |Real.exp (-u) - Sminus| ≤
         |u| ^ 16 * ((16 + 1 : ℕ) : ℝ) *
           ((((Nat.factorial 16 : ℕ) : ℝ) * 16)⁻¹) := by
-      simpa only [Sminus, abs_neg] using h
+      simpa [Sminus, abs_neg, div_eq_mul_inv, mul_assoc] using h
     exact h'.trans herror
   have hdiff :
       |(Real.exp u - Real.exp (-u)) - (Splus - Sminus)| ≤ 2 * E := by
