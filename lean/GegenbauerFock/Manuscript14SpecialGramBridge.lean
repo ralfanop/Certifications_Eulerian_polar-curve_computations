@@ -130,4 +130,21 @@ theorem manuscript14Gram_basis_trace_eq_kummer
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.manuscript14Gram_nuclear_mass_eq_uniformIntegral
 #print axioms GegenbauerFock.GeneralUltrasphericalFock.manuscript14Gram_basis_trace_eq_kummer
 
+
+/-- Selfadjointness of the actual specialised complex-L² Gram C†C. -/
+theorem manuscript14Gram_selfadjoint :
+    manuscript14Gram.adjoint = manuscript14Gram := by
+  exact gram_selfadjoint
+    (1 / 2) (1 / Real.sqrt 2) eulerianLambdaPos eulerianAlphaPos
+
+/-- Genuine positivity of its complex-Hilbert quadratic form. -/
+theorem manuscript14Gram_nonnegative
+    (f : Lp ℂ 2 (Ultraspherical.measure (1 / 2 : ℝ))) :
+    0 ≤ RCLike.re (inner ℂ (manuscript14Gram f) f) := by
+  exact gram_positive
+    (1 / 2) (1 / Real.sqrt 2) eulerianLambdaPos eulerianAlphaPos f
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.manuscript14Gram_selfadjoint
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.manuscript14Gram_nonnegative
+
 end GegenbauerFock.GeneralUltrasphericalFock
