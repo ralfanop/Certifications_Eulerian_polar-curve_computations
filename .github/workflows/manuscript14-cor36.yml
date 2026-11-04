@@ -6,6 +6,7 @@ on:
       - manuscript14-cor36-lean-arb-20261104
     paths:
       - 'lean/SpecialImaginaryPoint/Corollary36.lean'
+      - 'lean/SpecialImaginaryPoint/Corollary36Analytic.lean'
       - 'numerics/arb/manuscript14_cor36_arb.py'
       - '.github/workflows/manuscript14-cor36.yml'
   workflow_dispatch:
@@ -42,7 +43,8 @@ jobs:
           mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
           lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/FormalBorelComplex.olean SpecialImaginaryPoint/FormalBorelComplex.lean 2>&1 | tee /tmp/manuscript14_cor36_lean.log
           lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/BorelAnalyticConvergence.olean SpecialImaginaryPoint/BorelAnalyticConvergence.lean 2>&1 | tee -a /tmp/manuscript14_cor36_lean.log
-          lake env lean -M16768 SpecialImaginaryPoint/Corollary36.lean 2>&1 | tee -a /tmp/manuscript14_cor36_lean.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/Corollary36.olean SpecialImaginaryPoint/Corollary36.lean 2>&1 | tee -a /tmp/manuscript14_cor36_lean.log
+          lake env lean -M16768 SpecialImaginaryPoint/Corollary36Analytic.lean 2>&1 | tee -a /tmp/manuscript14_cor36_lean.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/manuscript14_cor36_lean.log; then
             echo "::error::Forbidden Lean axiom found"
             exit 1
