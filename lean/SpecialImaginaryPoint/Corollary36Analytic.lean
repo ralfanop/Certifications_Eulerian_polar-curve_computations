@@ -14,6 +14,8 @@ for every z ∈ ℂ. The formal operator identities remain in Corollary36.lean.
 
 namespace EulerianSpecialPoint
 
+set_option maxHeartbeats 1000000
+
 /-- Analytic pullback of the true double-Borel entire series. -/
 noncomputable def eulerianEvenAnalytic (z : ℂ) : ℂ :=
   eulerianEntireSeries (-z ^ 2 / 16)
@@ -130,6 +132,11 @@ theorem eulerianEvenAnalytic_deriv_relation (z : ℂ) :
           rw [eulerianEvenAnalytic_mul_eq_sin]
   have hder := (hasDerivAt_id z).mul
     (eulerianEvenAnalytic_analyticAt z).differentiableAt.hasDerivAt
+  have hfunction : (id * eulerianEvenAnalytic) =
+      (fun w : ℂ => w * eulerianEvenAnalytic w) := by
+    funext w
+    rfl
+  rw [hfunction] at hder
   have heqprod :
       id * eulerianEvenAnalytic =
       (fun w : ℂ => w * eulerianEvenAnalytic w) := by
@@ -157,6 +164,11 @@ theorem eulerianEvenAnalytic_second_deriv_relation (z : ℂ) :
   have hd := (eulerianEvenAnalytic_analyticAt z).differentiableAt.hasDerivAt
   have hdd := ((eulerianEvenAnalytic_analyticAt z).deriv).differentiableAt.hasDerivAt
   have hder := hd.add ((hasDerivAt_id z).mul hdd)
+  have hfunction : (eulerianEvenAnalytic + id * deriv eulerianEvenAnalytic) =
+      (fun w : ℂ => eulerianEvenAnalytic w + w * deriv eulerianEvenAnalytic w) := by
+    funext w
+    rfl
+  rw [hfunction] at hder
   have heqsum :
       eulerianEvenAnalytic + id * deriv eulerianEvenAnalytic =
       (fun w : ℂ =>
