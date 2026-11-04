@@ -211,4 +211,68 @@ theorem closed_bounded_perturbation_commutation
 #print axioms Manuscript14Gram.bounded_perturbation_preserves_sequential_closed_graph
 #print axioms Manuscript14Gram.closed_bounded_perturbation_commutation
 
+
+/-!
+## Genuine complex derivatives of the exponential Gram kernel
+
+The following checks turn the polynomial bispectral symbol into the
+actual differentiated kernel. They do not yet carry out the Green
+integration-by-parts argument under the L² integral.
+-/
+
+/-- Actual first complex derivative of Kₐ(u,v) with respect to u. -/
+theorem gramKernel_first_derivative (a u v : ℂ) :
+    deriv (fun w : ℂ => gramKernel a w v) u =
+      (a * v) * gramKernel a u v := by
+  have hinner : HasDerivAt (fun w : ℂ => a * w * v) (a * v) u := by
+    convert (((hasDerivAt_id u).const_mul a).mul_const v) using 1 <;> ring
+  have h := hinner.cexp
+  have hk : HasDerivAt (fun w : ℂ => gramKernel a w v)
+      ((a * v) * gramKernel a u v) u := by
+    convert h using 1 <;> simp [gramKernel, mul_comm]
+  exact hk.deriv
+
+/-- Actual second complex derivative of the entire Gram kernel. -/
+theorem gramKernel_second_derivative (a u v : ℂ) :
+    deriv (deriv (fun w : ℂ => gramKernel a w v)) u =
+      (a * v) ^ 2 * gramKernel a u v := by
+  have hfun : deriv (fun w : ℂ => gramKernel a w v) =
+      (fun w : ℂ => (a * v) * gramKernel a w v) := by
+    funext w
+    exact gramKernel_first_derivative a w v
+  rw [hfun]
+  have hinner : HasDerivAt (fun w : ℂ => a * w * v) (a * v) u := by
+    convert (((hasDerivAt_id u).const_mul a).mul_const v) using 1 <;> ring
+  have hk : HasDerivAt (fun w : ℂ => gramKernel a w v)
+      ((a * v) * gramKernel a u v) u := by
+    convert hinner.cexp using 1 <;> simp [gramKernel, mul_comm]
+  have hscaled := (hk.const_mul (a * v)).deriv
+  convert hscaled using 1 <;> ring
+
+/-- The genuine second-order differential expression applied to the
+exponential kernel, using Mathlib derivatives rather than formal symbols. -/
+noncomputable def gramKernelDifferential (a u v : ℂ) : ℂ :=
+  -(1 - u ^ 2) * deriv (deriv (fun w : ℂ => gramKernel a w v)) u +
+    2 * u * deriv (fun w : ℂ => gramKernel a w v) u -
+    a ^ 2 * u ^ 2 * gramKernel a u v
+
+/-- Actual differentiated-kernel expression equals the exact polynomial symbol. -/
+theorem gramKernelDifferential_eq_symbol (a u v : ℂ) :
+    gramKernelDifferential a u v =
+      gramDifferentialSymbol a u v * gramKernel a u v := by
+  rw [gramKernelDifferential, gramKernel_second_derivative, gramKernel_first_derivative]
+  unfold gramDifferentialSymbol
+  ring
+
+/-- Pointwise bispectral balance after differentiating both complex variables. -/
+theorem gramKernelDifferential_bispectral (a u v : ℂ) :
+    gramKernelDifferential a u v = gramKernelDifferential a v u := by
+  rw [gramKernelDifferential_eq_symbol, gramKernelDifferential_eq_symbol]
+  exact gram_bispectral_kernel_balance a u v
+
+#print axioms Manuscript14Gram.gramKernel_first_derivative
+#print axioms Manuscript14Gram.gramKernel_second_derivative
+#print axioms Manuscript14Gram.gramKernelDifferential_eq_symbol
+#print axioms Manuscript14Gram.gramKernelDifferential_bispectral
+
 end Manuscript14Gram
