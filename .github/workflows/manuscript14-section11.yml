@@ -8,6 +8,7 @@ on:
       - 'lean/SpecialImaginaryPoint/ParryThresholds.lean'
       - 'lean/SpecialImaginaryPoint/EulerianAnalyticBracket.lean'
       - 'lean/SpecialImaginaryPoint/PeriodicOrbitAlgebraicity.lean'
+      - 'lean/SpecialImaginaryPoint/EulerianTranscendenceReduction.lean'
       - 'numerics/arb/manuscript14_section11_arb.py'
       - '.github/workflows/manuscript14-section11.yml'
   workflow_dispatch:
@@ -47,8 +48,9 @@ jobs:
           set -euo pipefail
           mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
           lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/ParryThresholds.olean SpecialImaginaryPoint/ParryThresholds.lean 2>&1 | tee /tmp/manuscript14-parry-lean.log
-          lake env lean -M16768 SpecialImaginaryPoint/EulerianAnalyticBracket.lean 2>&1 | tee -a /tmp/manuscript14-parry-lean.log
-          lake env lean -M16768 SpecialImaginaryPoint/PeriodicOrbitAlgebraicity.lean 2>&1 | tee -a /tmp/manuscript14-parry-lean.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/EulerianAnalyticBracket.olean SpecialImaginaryPoint/EulerianAnalyticBracket.lean 2>&1 | tee -a /tmp/manuscript14-parry-lean.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/PeriodicOrbitAlgebraicity.olean SpecialImaginaryPoint/PeriodicOrbitAlgebraicity.lean 2>&1 | tee -a /tmp/manuscript14-parry-lean.log
+          lake env lean -M16768 SpecialImaginaryPoint/EulerianTranscendenceReduction.lean 2>&1 | tee -a /tmp/manuscript14-parry-lean.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/manuscript14-parry-lean.log; then
             echo "::error::Forbidden Lean axiom present"
             exit 1
