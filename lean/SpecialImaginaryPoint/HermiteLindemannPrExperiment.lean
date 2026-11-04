@@ -65,4 +65,42 @@ theorem exp_one_div_sqrt_two_transcendental :
 
 #print axioms Manuscript14LindemannExperiment.exp_one_div_sqrt_two_transcendental
 
+
+/-- Unconditional transcendence of the actual Eulerian companion value,
+now using the upstream (unmerged) Hermite–Lindemann theorem in the kernel. -/
+theorem eulerian_companion_transcendental :
+    ¬ IsAlgebraic ℚ (Real.sqrt 2 * Real.sinh (1 / Real.sqrt 2)) := by
+  let t : ℝ := 1 / Real.sqrt 2
+  let q : ℝ := Real.sqrt 2
+  have hq : q ≠ 0 := by
+    dsimp [q]
+    positivity
+  have hqalg : IsAlgebraic ℚ q := by
+    have hqsq : q ^ 2 = 2 := by
+      dsimp [q]
+      norm_num
+    apply IsAlgebraic.of_pow (n := 2) (by norm_num)
+    rw [hqsq]
+    exact isAlgebraic_natCast (R := ℚ) (A := ℝ) 2
+  intro hx
+  have hx' : IsAlgebraic ℚ (q * Real.sinh t) := by
+    simpa only [q, t] using hx
+  have hsinh : IsAlgebraic ℚ (Real.sinh t) := by
+    have hm := hx'.mul hqalg.inv
+    have heq : (q * Real.sinh t) * q⁻¹ = Real.sinh t := by
+      field_simp [hq]
+    rw [← heq]
+    exact hm
+  have hcosh2 : IsAlgebraic ℚ ((Real.cosh t) ^ 2) := by
+    rw [Real.cosh_sq']
+    exact (isAlgebraic_one (R := ℚ) (A := ℝ)).add (hsinh.pow 2)
+  have hcosh : IsAlgebraic ℚ (Real.cosh t) :=
+    IsAlgebraic.of_pow (n := 2) (by norm_num) hcosh2
+  have hrealexp : IsAlgebraic ℚ (Real.exp t) := by
+    rw [← Real.sinh_add_cosh]
+    exact hsinh.add hcosh
+  exact exp_one_div_sqrt_two_transcendental (by simpa only [t] using hrealexp)
+
+#print axioms Manuscript14LindemannExperiment.eulerian_companion_transcendental
+
 end Manuscript14LindemannExperiment
