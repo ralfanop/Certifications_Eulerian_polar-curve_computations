@@ -526,4 +526,76 @@ theorem parry31_left_jump (root : ℝ)
 #print axioms Manuscript14Section11.parry31_orbit_left_formula
 #print axioms Manuscript14Section11.parry31_left_jump
 
+/-!
+## Existence and uniqueness of the algebraic endpoint itself
+
+The preceding discontinuity theorem takes the trinomial root as an
+assumption.  This section produces the actual unique root in (1,2)
+by the intermediate value theorem and strict polynomial monotonicity.
+-/
+
+/-- The Parry trinomial factor x^n (x-1) is strictly increasing on
+[1,+infinity). -/
+theorem parry_power_strict_mono (n : ℕ) (x y : ℝ)
+    (hx : 1 ≤ x) (hxy : x < y) :
+    x ^ n * (x - 1) < y ^ n * (y - 1) := by
+  have hp : x ^ n ≤ y ^ n := by
+    gcongr
+  calc
+    _ ≤ y ^ n * (x - 1) :=
+      mul_le_mul_of_nonneg_right hp (by linarith)
+    _ < y ^ n * (y - 1) :=
+      mul_lt_mul_of_pos_left (sub_lt_sub_right hxy 1) (by positivity)
+
+/-- There is exactly one Parry threshold beta_31 in the interval
+(1,2), solving beta^31-beta^30-1=0. -/
+theorem parry31_exists_unique_root :
+    ∃! beta : ℝ, 1 < beta ∧ beta < 2 ∧
+      beta ^ 31 - beta ^ 30 - 1 = 0 := by
+  let f : ℝ → ℝ := fun b => b ^ 30 * (b - 1)
+  have hcont : ContinuousOn f (Set.Icc (1 : ℝ) 2) := by
+    dsimp [f]
+    fun_prop
+  have hmem : (1 : ℝ) ∈ Set.Icc (f 1) (f 2) := by
+    norm_num [f, Set.mem_Icc]
+  obtain ⟨beta, hbeta, hval⟩ :
+      ∃ beta ∈ Set.Icc (1 : ℝ) 2, f beta = 1 :=
+    (intermediate_value_Icc (by norm_num : (1 : ℝ) ≤ 2) hcont) hmem
+  have hb1 : 1 < beta := by
+    rcases lt_or_eq_of_le hbeta.1 with h | h
+    · exact h
+    · subst beta
+      norm_num [f] at hval
+  have hb2 : beta < 2 := by
+    rcases lt_or_eq_of_le hbeta.2 with h | h
+    · exact h
+    · subst beta
+      norm_num [f] at hval
+  change beta ^ 30 * (beta - 1) = 1 at hval
+  have hp : beta ^ 31 - beta ^ 30 - 1 = 0 := by
+    calc
+      beta ^ 31 - beta ^ 30 - 1 =
+          beta ^ 30 * (beta - 1) - 1 := by
+        rw [pow_succ]
+        ring
+      _ = 0 := by rw [hval]; ring
+  refine ⟨beta, ⟨hb1, hb2, hp⟩, ?_⟩
+  intro y hy
+  obtain ⟨hy1, hy2, hyP⟩ := hy
+  have hyval : y ^ 30 * (y - 1) = 1 := by
+    calc
+      y ^ 30 * (y - 1) = y ^ 31 - y ^ 30 := by
+        rw [pow_succ]
+        ring
+      _ = 1 := by linarith
+  rcases lt_trichotomy beta y with hlt | heq | hgt
+  · have hh := parry_power_strict_mono 30 beta y hb1.le hlt
+    linarith
+  · exact heq.symm
+  · have hh := parry_power_strict_mono 30 y beta hy1.le hgt
+    linarith
+
+#print axioms Manuscript14Section11.parry_power_strict_mono
+#print axioms Manuscript14Section11.parry31_exists_unique_root
+
 end Manuscript14Section11
