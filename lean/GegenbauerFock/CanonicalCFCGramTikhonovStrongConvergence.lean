@@ -83,7 +83,7 @@ theorem sourceGramTikhonov_error_strong_tendsto_zero
     (x : RegH lam) :
     Tendsto
       (fun eps : ℝ => regularizationError lam alpha hlam ha eps x)
-      (𝓝[>] (0 : ℝ)) (𝓝 (0 : RegH lam)) := by
+      (nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ))) (nhds (0 : RegH lam)) := by
   apply Metric.tendsto_nhds.mpr
   intro δ hδ
   obtain ⟨y, hy⟩ :=
@@ -98,11 +98,11 @@ theorem sourceGramTikhonov_error_strong_tendsto_zero
     (continuousAt_const.mul continuousAt_id).mul continuousAt_const
   have hsmalllim :
       Tendsto (fun eps : ℝ => 2 * eps * ‖y‖)
-        (𝓝[>] (0 : ℝ)) (𝓝 (0 : ℝ)) := by
+        (nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ))) (nhds (0 : ℝ)) := by
     simpa only [mul_zero, zero_mul] using
       hcont.tendsto.mono_left nhdsWithin_le_nhds
   have hsmall :
-      ∀ᶠ eps : ℝ in 𝓝[>] (0 : ℝ), 2 * eps * ‖y‖ < δ / 2 := by
+      ∀ᶠ eps : ℝ in nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ)), 2 * eps * ‖y‖ < δ / 2 := by
     apply hsmalllim.eventually
     exact isOpen_Iio.mem_nhds
       (show (0 : ℝ) ∈ Set.Iio (δ / 2) by
@@ -126,17 +126,17 @@ theorem sourceGramTikhonovFilter_fullL2_strong_tendsto
     (x : RegH lam) :
     Tendsto
       (fun eps : ℝ => sourceGramTikhonovFilter lam alpha hlam ha eps x)
-      (𝓝[>] (0 : ℝ)) (𝓝 x) := by
+      (nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ))) (nhds x) := by
   have hzero := sourceGramTikhonov_error_strong_tendsto_zero
     lam alpha hlam ha x
   have hsub :
       Tendsto
         (fun eps : ℝ => x - regularizationError lam alpha hlam ha eps x)
-        (𝓝[>] (0 : ℝ)) (𝓝 x) := by
+        (nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ))) (nhds x) := by
     simpa only [sub_zero] using (tendsto_const_nhds.sub hzero)
   have hevent :
       (fun eps : ℝ => sourceGramTikhonovFilter lam alpha hlam ha eps x)
-        =ᶠ[𝓝[>] (0 : ℝ)]
+        =ᶠ[nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ))]
       (fun eps : ℝ => x - regularizationError lam alpha hlam ha eps x) := by
     filter_upwards [self_mem_nhdsWithin] with eps heps
     have heq := sourceGramTikhonov_filter_error_identity
