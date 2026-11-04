@@ -34,11 +34,17 @@ theorem RealNuclearCosts.opNorm_le
     funext n
     rw [norm_smul, norm_rankOne]
     ring
+  have hNormOp : Summable (fun n : ℕ =>
+      ‖β n • rankOne ℝ (u n) (v n)‖) := by
+    convert hs using 1
+    funext n
+    rw [norm_smul, norm_rankOne]
+    ring
   rw [hT]
   calc
     ‖∑' n : ℕ, β n • rankOne ℝ (u n) (v n)‖ ≤
         ∑' n : ℕ, ‖β n • rankOne ℝ (u n) (v n)‖ :=
-      norm_tsum_le_tsum_norm hOp
+      norm_tsum_le_tsum_norm hNormOp
     _ = ∑' n : ℕ, ‖β n‖ * ‖u n‖ * ‖v n‖ := by
       apply tsum_congr
       intro n
