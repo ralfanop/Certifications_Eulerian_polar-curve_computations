@@ -70,6 +70,35 @@ def test_point(label, x2):
 
 test_point("z0, x^2=1/8", arb(1)/8)
 test_point("z1, x^2=1/2", arb(1)/2)
+# Finite spectral resolvent and squared-HS traces at both special shifts.
+# Rigorous analytic tail estimates from the integral comparison:
+# 0 < R-R_N < 1/(pi^2 N), 0 < Q-Q_N < 1/(3 pi^4 N^3).
+def trace_bounds(N, x2):
+    R = arb(0)
+    Q = arb(0)
+    for n in range(1, N+1):
+        den = PI*PI*n*n + x2
+        R += 1/den
+        Q += 1/(den*den)
+    return R, R + 1/(PI*PI*N), Q, Q + 1/(3*PI**4*N**3)
+
+def check_trace(label, x2):
+    a = x2.sqrt()
+    sinh = a.sinh()
+    trace_exact = (a.cosh()/sinh)/(2*a) - 1/(2*x2)
+    var = 1/x2 - 1/(sinh*sinh)
+    squared_exact = (2*trace_exact-var)/(4*x2)
+    lo, hi, slo, shi = trace_bounds(500, x2)
+    check(label+" 500-term shifted resolvent trace Arb enclosure",
+          lo < trace_exact < hi)
+    check(label+" 500-term squared resolvent trace Arb enclosure",
+          slo < squared_exact < shi)
+    print(label, "trace =", trace_exact.str(65))
+    print(label, "trace of squared resolvent =", squared_exact.str(65))
+
+check_trace("z0, shift 1/8", arb(1)/8)
+check_trace("z1, shift 1/2", arb(1)/2)
+
 check("positive parameter and exact reciprocal-ratio relation", (arb(1)/8)*4 == arb(1)/2)
 print("python-flint", flint.__version__, "Arb precision", ctx.prec, "bits")
 print("ALL %d FINITE DIRICHLET ARB/RATIONAL CHECKS PASSED" % checks)
