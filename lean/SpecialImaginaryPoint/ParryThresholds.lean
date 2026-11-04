@@ -449,4 +449,81 @@ theorem parry_real_orbit_defect_tight_interval (beta : ℝ)
 #print axioms Manuscript14Section11.parry_defect_tight_interval
 #print axioms Manuscript14Section11.parry_real_orbit_defect_tight_interval
 
+/-!
+## Left-hand jump at the simple Parry threshold
+
+For every beta strictly below the root, the first 30 greedy digits
+after the leading one vanish; the 31st orbit coordinate is the
+continuous polynomial beta^30 * (beta - 1).  At the root the floor
+takes the exact integer 1, so the iterate returns to zero.
+-/
+
+/-- On the entire open interval (1, beta31), not merely on a small
+numerical neighborhood, the 31st beta-orbit coordinate is polynomial. -/
+theorem parry31_orbit_left_formula (root beta : ℝ)
+    (hroot : 1 < root) (hroot2 : root < 2)
+    (hpoly : root ^ 31 - root ^ 30 - 1 = 0)
+    (hbeta : 1 < beta) (hbelow : beta < root) :
+    (greedyMap beta)^[31] 1 = beta ^ 30 * (beta - 1) := by
+  have hrootval : root ^ 30 * (root - 1) = 1 := by
+    calc
+      root ^ 30 * (root - 1) = root ^ 31 - root ^ 30 := by
+        rw [pow_succ]
+        ring
+      _ = 1 := by linarith
+  have hpow : beta ^ 30 ≤ root ^ 30 := by
+    gcongr
+    exact hbelow.le
+  have hprod : beta ^ 30 * (beta - 1) < 1 := by
+    calc
+      _ ≤ root ^ 30 * (beta - 1) :=
+        mul_le_mul_of_nonneg_right hpow (by linarith)
+      _ < root ^ 30 * (root - 1) :=
+        mul_lt_mul_of_pos_left hbelow (by positivity)
+      _ = 1 := hrootval
+  have hz (k : ℕ) (_hk1 : 1 ≤ k) (hk : k ≤ 30) :
+      0 ≤ beta ^ k * (beta - 1) ∧ beta ^ k * (beta - 1) < 1 := by
+    have hpowk : beta ^ k ≤ beta ^ 30 := by
+      gcongr
+      exact hk
+    have hproductk : beta ^ k * (beta - 1) ≤ beta ^ 30 * (beta - 1) :=
+      mul_le_mul_of_nonneg_right hpowk (by linarith)
+    exact ⟨mul_nonneg (pow_nonneg (by linarith) _) (by linarith),
+      lt_of_le_of_lt hproductk hprod⟩
+  have hrem : greedyRemainder beta 31 = beta ^ 30 * (beta - 1) :=
+    greedy_remainder_zero_run beta hbeta.le (hbelow.trans hroot2) 30 hz 30 le_rfl
+  simpa only [greedyRemainder_eq_iterate] using hrem
+
+/-- Genuine left-hand discontinuity of the 31st iterate, with
+the floor convention used for the terminating greedy expansion. -/
+theorem parry31_left_jump (root : ℝ)
+    (hroot : 1 < root) (hroot2 : root < 2)
+    (hpoly : root ^ 31 - root ^ 30 - 1 = 0) :
+    Filter.Tendsto (fun beta : ℝ => (greedyMap beta)^[31] 1)
+      (𝓝[<] root) (𝓝 (1 : ℝ)) ∧
+    (greedyMap root)^[31] 1 = 0 := by
+  have hrootval : root ^ 30 * (root - 1) = 1 := by
+    calc
+      root ^ 30 * (root - 1) = root ^ 31 - root ^ 30 := by
+        rw [pow_succ]
+        ring
+      _ = 1 := by linarith
+  have hcont : ContinuousAt (fun b : ℝ => b ^ 30 * (b - 1)) root := by
+    fun_prop
+  have hpoly_tendsto : Filter.Tendsto
+      (fun b : ℝ => b ^ 30 * (b - 1))
+      (𝓝[<] root) (𝓝 (1 : ℝ)) := by
+    simpa only [hrootval] using
+      (hcont.tendsto.mono_left nhdsWithin_le_nhds)
+  have heventually :
+      (fun b : ℝ => (greedyMap b)^[31] 1) =ᶠ[𝓝[<] root]
+        (fun b => b ^ 30 * (b - 1)) := by
+    filter_upwards [Ioo_mem_nhdsLT hroot] with b hb
+    exact parry31_orbit_left_formula root b hroot hroot2 hpoly hb.1 hb.2
+  refine ⟨?_, (parry31_endpoint_greedy root hroot hroot2 hpoly).2.2⟩
+  exact hpoly_tendsto.congr' heventually.symm
+
+#print axioms Manuscript14Section11.parry31_orbit_left_formula
+#print axioms Manuscript14Section11.parry31_left_jump
+
 end Manuscript14Section11
