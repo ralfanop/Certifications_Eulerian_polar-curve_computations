@@ -1,0 +1,58 @@
+name: V007 actual complex L2 heat real-linear extension
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleActualComplexHeatRealExtension.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleActualComplexLpDecomposition.lean'
+      - '.github/workflows/v007-actual-complex-heat-real-extension.yml'
+  workflow_dispatch:
+
+jobs:
+  genuine-complex-heat-extension-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel build and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleActualComplexHeatRealExtension 2>&1 | tee /tmp/v007-complex-heat-ext-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleActualComplexHeatRealExtension.lean 2>&1 | tee /tmp/v007-complex-heat-ext-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-complex-heat-ext-build.log /tmp/v007-complex-heat-ext-axioms.log; then
+            echo '::error::Forbidden axiom in actual complex-L2 heat extension.'
+            exit 1
+          fi
+          grep -F "sturmActualComplexHeatRealCLM_embedded_real' depends on axioms:" /tmp/v007-complex-heat-ext-axioms.log
+          grep -F "sturmActualComplexHeatRealCLM_embedded_real_part' depends on axioms:" /tmp/v007-complex-heat-ext-axioms.log
+          echo 'V007 actual complex L2 heat extension audited.'
