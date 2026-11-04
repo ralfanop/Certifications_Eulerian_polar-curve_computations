@@ -82,8 +82,9 @@ theorem sourceGramTikhonov_error_on_range_norm
   calc
     ‖E (gram lam alpha hlam ha y)‖ =
         ‖(eps : ℂ) • (y - E y)‖ := by exact congrArg norm heq
+    _ ≤ ‖(eps : ℂ)‖ * ‖y - E y‖ := norm_smul_le _ _
     _ = eps * ‖y - E y‖ := by
-        simp [norm_smul, Complex.norm_real, Real.norm_eq_abs, abs_of_pos heps]
+        rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos heps]
     _ ≤ eps * (2 * ‖y‖) :=
         mul_le_mul_of_nonneg_left hsub heps.le
     _ = 2 * eps * ‖y‖ := by ring
