@@ -57,15 +57,17 @@ theorem sonineAverageComplex_even_monomial (n : ℕ) (z : ℂ) :
   rw [heq, intervalIntegral.integral_const_mul]
   simp_rw [← Complex.ofReal_pow]
   rw [intervalIntegral.integral_ofReal]
-  have hm : (1 / 2 : ℂ) *
-      (↑(∫ u in (-1 : ℝ)..1, (1-u^2)^n) : ℂ) = (moment n : ℂ) := by
-    exact_mod_cast integral_monomial_sonine n
+  let J : ℝ := ∫ u in (-1 : ℝ)..1, (1-u^2)^n
+  have hm_real : (1 / 2 : ℝ) * J = (moment n : ℝ) := by
+    simpa [J] using integral_monomial_sonine n
+  have hm : (1 / 2 : ℂ) * (J : ℂ) = (moment n : ℂ) := by
+    exact_mod_cast hm_real
+  change (1 / 2 : ℂ) * (z^(2*n) * (J : ℂ)) =
+    (moment n : ℂ) * z^(2*n)
   calc
-    (1 / 2 : ℂ) * (z ^ (2*n) *
-       (↑(∫ u in (-1 : ℝ)..1, (1-u^2)^n) : ℂ)) =
-      ((1 / 2 : ℂ) *
-       (↑(∫ u in (-1 : ℝ)..1, (1-u^2)^n) : ℂ)) * z^(2*n) := by ring
-    _ = (moment n : ℂ) * z ^ (2*n) := by rw [hm]
+    (1 / 2 : ℂ) * (z^(2*n) * (J : ℂ)) =
+      ((1 / 2 : ℂ) * (J : ℂ)) * z^(2*n) := by ring
+    _ = (moment n : ℂ) * z^(2*n) := by rw [hm]
 
 def evenPolynomialComplex (s : Finset ℕ) (a : ℕ → ℂ) (z : ℂ) : ℂ :=
   ∑ n ∈ s, a n * z^(2*n)
