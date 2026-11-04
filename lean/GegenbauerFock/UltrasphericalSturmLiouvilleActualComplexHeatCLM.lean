@@ -36,12 +36,14 @@ theorem complexLpRe_I_smul (lam : ℝ) (f : HC lam) :
     Complex.imCLM.coeFn_compLpL f,
     Lp.coeFn_neg (complexLpIm lam f)
   ] with x hre hmul him hneg
+  have him' : (complexLpIm lam f) x = (f x).im := by
+    simpa only [complexLpIm, Complex.imCLM_apply] using him
   calc
     (complexLpRe lam (Complex.I • f)) x =
         Complex.reCLM ((Complex.I • f) x) := hre
     _ = (Complex.I * f x).re := by rw [hmul]; rfl
     _ = -(f x).im := Complex.I_mul_re (f x)
-    _ = -(complexLpIm lam f) x := by rw [him]; rfl
+    _ = -(complexLpIm lam f) x := by rw [him']
     _ = (-complexLpIm lam f) x := hneg.symm
 
 /-- Actual imaginary part under multiplication by I. -/
@@ -53,12 +55,14 @@ theorem complexLpIm_I_smul (lam : ℝ) (f : HC lam) :
     Lp.coeFn_smul Complex.I f,
     Complex.reCLM.coeFn_compLpL f
   ] with x him hmul hre
+  have hre' : (complexLpRe lam f) x = (f x).re := by
+    simpa only [complexLpRe, Complex.reCLM_apply] using hre
   calc
     (complexLpIm lam (Complex.I • f)) x =
         Complex.imCLM ((Complex.I • f) x) := him
     _ = (Complex.I * f x).im := by rw [hmul]; rfl
     _ = (f x).re := Complex.I_mul_im (f x)
-    _ = (complexLpRe lam f) x := hre.symm
+    _ = (complexLpRe lam f) x := hre'.symm
 
 /-- The genuine real-linear heat extension COMMUTES with I on every
 complex weighted-L2 vector, not merely on embedded real vectors. -/
@@ -89,12 +93,13 @@ noncomputable def sturmActualComplexHeatCLM
       sturmActualComplexHeatRealCLM_I_smul lam hlam s hs x
     have hreal (r : ℝ) (x : HC lam) :
         T ((r : ℂ) • x) = (r : ℂ) • T x := by
+      have hcast (v : HC lam) : (r : ℂ) • v = r • v := by
+        change (algebraMap ℝ ℂ r) • v = r • v
+        exact IsScalarTower.algebraMap_smul ℂ r v
       calc
-        T ((r : ℂ) • x) = T (r • x) := by
-          rw [IsScalarTower.algebraMap_smul ℂ r x]
+        T ((r : ℂ) • x) = T (r • x) := congrArg T (hcast x)
         _ = r • T x := T.map_smul r x
-        _ = (r : ℂ) • T x :=
-          (IsScalarTower.algebraMap_smul ℂ r (T x)).symm
+        _ = (r : ℂ) • T x := (hcast (T x)).symm
     change T (z • f) = z • T f
     calc
       T (z • f) =
