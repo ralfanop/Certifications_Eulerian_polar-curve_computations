@@ -26,8 +26,9 @@ Seven explicitly audited Lean declarations; `#print axioms` lists only `propext`
 
 Extended trace modules and script at `1948522cb4b43dd36731f52d8656ededc4585c0f`:
 [CI 41825497267](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41825497267).
-The Arb job has **13/13 PASS** at 256 bits with python-flint 0.9.0.
-Check the *final* workflow status and the Lean job independently before calling this extended commit fully certified.
+**SUCCESS for Lean and Arb**, verified from the completed workflow jobs and Lean log.
+Fourteen project Lean declarations (seven determinant and seven trace) were explicitly audited by `#print axioms` and list only `propext`, `Classical.choice`, and `Quot.sound` without `sorryAx` or `Lean.ofReduceBool`.
+All **13/13 Arb/exact rational checks PASS**, at 256 bits with pinned python-flint 0.9.0.
 
 At both `t=1/8` and `t=1/2`, numerical ball checks compare the first 500 factors and resolvent terms with their hyperbolic closed forms. The tail estimates used in the analytical comparison are:
 ```
