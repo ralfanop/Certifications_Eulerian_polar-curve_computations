@@ -144,22 +144,31 @@ This certification resolves earlier FAILED CI attempts
 and [#41722695849](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41722695849),
 which failed on proof-tactic elaboration (not on an analytic counterexample).
 
-**Step 4: full-`L²` strong convergence under final dedicated CI review.**
-The new source
-`CanonicalCFCGramTikhonovStrongConvergence.lean` supplies the
-quantitative approximation
-`‖E_eps f‖ ≤ ‖f-Gy‖+2eps‖y‖`, the bridge from the actual
-`gram_dense_range` theorem to `DenseRange G`, and the two desired
-`Tendsto` declarations.
-The first two were compiled with standard-axiom audits in failed CI
-[#41804268427](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41804268427);
-the last two required a neighborhood-filter elaboration correction
-and an explicit argument to `dist_zero_right`. Commit
-[`6331f183`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/commit/6331f183014a76dc14a913105147da64980bea97)
-submitted those corrections to CI
-[#41805350981](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41805350981).
-**Do not treat Step 4 as kernel-certified until this exact-SHA CI
-reports SUCCESS and its four axiom audits have been checked.**
+**Step 4: full-`L²` strong convergence — KERNEL-CERTIFIED, 4 November 2026.**
+The exact [CI #41805350981](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41805350981)
+finished **SUCCESS** at source commit
+[`6331f183`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/commit/6331f183014a76dc14a913105147da64980bea97).
+The pinned Lean toolchain compiled **9,128 jobs**. Its complete
+`#print axioms` audit contains only `propext`, `Classical.choice`
+and `Quot.sound`, and no `sorryAx` or `Lean.ofReduceBool`.
+
+All four declarations in
+[`CanonicalCFCGramTikhonovStrongConvergence.lean`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/6331f183014a76dc14a913105147da64980bea97/lean/GegenbauerFock/CanonicalCFCGramTikhonovStrongConvergence.lean)
+are now fully kernel-certified:
+
+1. `sourceGramTikhonov_error_dense_approximation`:
+   `‖E_eps f‖ ≤ ‖f-Gy‖ + 2 eps ‖y‖` for every `f,y` in actual source `L²`.
+2. `sourceGram_denseRange_for_tikhonov`: the actual `G=C* C`
+   has `DenseRange`, using the independently certified Gram result.
+3. `sourceGramTikhonov_error_strong_tendsto_zero`:
+   `E_eps f → 0` for **every** `f` as `eps↓0`.
+4. `sourceGramTikhonovFilter_fullL2_strong_tendsto`:
+   `G(G+eps I)⁻¹ f → f` for **every** `f` as `eps↓0`.
+
+This certificate uses the genuine infinite-dimensional source Hilbert
+space, not finite eigenmode truncations or a diagonal surrogate.
+It does **not** assert operator-norm convergence: the exact norm-one
+obstruction of Step 5 is an independent obligation.
 
 **Step 5 (sharp operator-norm obstruction)** and the data-space noise
 estimate require independent Lean declarations and CI checks. No result about the
