@@ -277,4 +277,56 @@ theorem eulerian_greedy_prefix_floor (beta : ℝ)
 #print axioms Manuscript14Section11.greedyDigit_next_one
 #print axioms Manuscript14Section11.eulerian_greedy_prefix_floor
 
+/-!
+## Exact endpoint: the simple-Parry trinomial root
+
+At a real root beta of beta^31-beta^30-1 the first 31 digits terminate
+with 1, and the 31st genuine floor iterate is zero.
+-/
+
+theorem parry31_endpoint_greedy (beta : ℝ)
+    (hb : 1 < beta) (hlt2 : beta < 2)
+    (hpoly : beta ^ 31 - beta ^ 30 - 1 = 0) :
+    (∀ k : ℕ, k < 29 → greedyDigit beta (k + 1) = 0) ∧
+      greedyDigit beta 30 = 1 ∧
+      (greedyMap beta)^[31] 1 = 0 := by
+  have hboundary : beta ^ 30 * (beta - 1) = 1 := by
+    calc
+      beta ^ 30 * (beta - 1) = beta ^ 31 - beta ^ 30 := by
+        rw [pow_succ]
+        ring
+      _ = 1 := by linarith
+  have hz (k : ℕ) (_hk1 : 1 ≤ k) (hk29 : k ≤ 29) :
+      0 ≤ beta ^ k * (beta - 1) ∧ beta ^ k * (beta - 1) < 1 := by
+    constructor
+    · exact mul_nonneg (pow_nonneg (by linarith) _) (by linarith)
+    · have hp : beta ^ k < beta ^ 30 :=
+        pow_lt_pow_right₀ hb (by omega)
+      have hmul := mul_lt_mul_of_pos_right hp (by linarith : 0 < beta - 1)
+      rwa [hboundary] at hmul
+  have hrem : greedyRemainder beta 30 = beta ^ 29 * (beta - 1) :=
+    greedy_remainder_zero_run beta hb.le hlt2 29 hz 29 le_rfl
+  have hproduct : beta * (beta ^ 29 * (beta - 1)) = 1 := by
+    calc
+      _ = beta ^ 30 * (beta - 1) := by
+        rw [pow_succ]
+        ring
+      _ = 1 := hboundary
+  have hdigit : greedyDigit beta 30 = 1 := by
+    unfold greedyDigit
+    rw [hrem, hproduct]
+    norm_num
+  have hreturn : greedyRemainder beta 31 = 0 := by
+    change greedyMap beta (greedyRemainder beta 30) = 0
+    rw [hrem]
+    unfold greedyMap
+    rw [hproduct]
+    norm_num
+  refine ⟨?_, hdigit, ?_⟩
+  · intro k hk
+    exact greedyDigit_zero_run beta hb.le hlt2 29 hz k hk
+  · simpa only [greedyRemainder_eq_iterate] using hreturn
+
+#print axioms Manuscript14Section11.parry31_endpoint_greedy
+
 end Manuscript14Section11
