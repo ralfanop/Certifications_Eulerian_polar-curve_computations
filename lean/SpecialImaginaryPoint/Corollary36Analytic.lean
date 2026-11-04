@@ -85,20 +85,35 @@ theorem eulerianEvenAnalytic_eq_sinc (z : ℂ) :
 /-- The Borel pullback is a genuine globally analytic function of z. -/
 theorem eulerianEvenAnalytic_analyticAt (z : ℂ) :
     AnalyticAt ℂ eulerianEvenAnalytic z := by
-  have hp : AnalyticAt ℂ (fun w : ℂ => -w ^ 2 / 16) z := by fun_prop
+  have hi : AnalyticAt ℂ (fun w : ℂ => w) z := analyticAt_id
+  have hs : AnalyticAt ℂ (fun w : ℂ => w ^ 2) z := by
+    simpa only [id_eq] using hi.fun_pow 2
+  have hn : AnalyticAt ℂ (fun w : ℂ => -(w ^ 2)) z := by
+    simpa only [Pi.neg_apply] using hs.neg
+  have hp : AnalyticAt ℂ (fun w : ℂ => -w ^ 2 / 16) z := hn.div_const
   exact (eulerianEntireSeries_analyticAt (-z ^ 2 / 16)).fun_comp hp
 
 private theorem sin_half_scaled_deriv (z : ℂ) :
     deriv (fun w : ℂ => 2 * Complex.sin (w / 2)) z =
       Complex.cos (z / 2) := by
-  have h := (((hasDerivAt_id z).div_const 2).csin).const_mul (2 : ℂ)
-  convert h.deriv using 1 <;> ring
+  have hs : HasDerivAt (fun w : ℂ => Complex.sin (w / 2))
+      (Complex.cos (z / 2) * (1 / 2)) z := by
+    simpa only [id_eq] using ((hasDerivAt_id z).div_const 2).csin
+  calc
+    deriv (fun w : ℂ => 2 * Complex.sin (w / 2)) z =
+      2 * (Complex.cos (z / 2) * (1 / 2)) := (hs.const_mul 2).deriv
+    _ = Complex.cos (z / 2) := by ring
 
 private theorem cos_half_deriv (z : ℂ) :
     deriv (fun w : ℂ => Complex.cos (w / 2)) z =
       -Complex.sin (z / 2) / 2 := by
-  have h := ((hasDerivAt_id z).div_const 2).ccos
-  convert h.deriv using 1 <;> ring
+  have hs : HasDerivAt (fun w : ℂ => Complex.cos (w / 2))
+      (-Complex.sin (z / 2) * (1 / 2)) z := by
+    simpa only [id_eq] using ((hasDerivAt_id z).div_const 2).ccos
+  calc
+    deriv (fun w : ℂ => Complex.cos (w / 2)) z =
+      -Complex.sin (z / 2) * (1 / 2) := hs.deriv
+    _ = -Complex.sin (z / 2) / 2 := by ring
 
 /-- First derivative identity of actual analytic functions, valid at zero. -/
 theorem eulerianEvenAnalytic_deriv_relation (z : ℂ) :
@@ -115,10 +130,15 @@ theorem eulerianEvenAnalytic_deriv_relation (z : ℂ) :
           rw [eulerianEvenAnalytic_mul_eq_sin]
   have hder := (hasDerivAt_id z).mul
     (eulerianEvenAnalytic_analyticAt z).differentiableAt.hasDerivAt
+  have heqprod :
+      id * eulerianEvenAnalytic =
+      (fun w : ℂ => w * eulerianEvenAnalytic w) := by
+    funext w
+    rfl
   calc
     eulerianEvenAnalytic z + z * deriv eulerianEvenAnalytic z =
       deriv (fun w : ℂ => w * eulerianEvenAnalytic w) z := by
-        simpa using hder.deriv.symm
+        simpa only [heqprod] using hder.deriv.symm
     _ = deriv (fun w : ℂ => 2 * Complex.sin (w / 2)) z := by rw [hfun]
     _ = Complex.cos (z / 2) := sin_half_scaled_deriv z
 
@@ -137,12 +157,28 @@ theorem eulerianEvenAnalytic_second_deriv_relation (z : ℂ) :
   have hd := (eulerianEvenAnalytic_analyticAt z).differentiableAt.hasDerivAt
   have hdd := ((eulerianEvenAnalytic_analyticAt z).deriv).differentiableAt.hasDerivAt
   have hder := hd.add ((hasDerivAt_id z).mul hdd)
+  have heqsum :
+      eulerianEvenAnalytic + id * deriv eulerianEvenAnalytic =
+      (fun w : ℂ =>
+        eulerianEvenAnalytic w + w * deriv eulerianEvenAnalytic w) := by
+    funext w
+    rfl
   calc
     2 * deriv eulerianEvenAnalytic z +
       z * deriv (deriv eulerianEvenAnalytic) z =
       deriv (fun w : ℂ =>
         eulerianEvenAnalytic w + w * deriv eulerianEvenAnalytic w) z := by
-          convert hder.deriv.symm using 1 <;> ring
+          calc
+            _ = deriv eulerianEvenAnalytic z +
+                  (1 * deriv eulerianEvenAnalytic z +
+                    (id z) * deriv (deriv eulerianEvenAnalytic) z) := by
+                      simp only [id_eq]
+                      ring
+            _ = deriv (eulerianEvenAnalytic + id * deriv eulerianEvenAnalytic) z :=
+                  hder.deriv.symm
+            _ = deriv (fun w : ℂ =>
+                  eulerianEvenAnalytic w + w * deriv eulerianEvenAnalytic w) z := by
+                    rw [heqsum]
     _ = deriv (fun w : ℂ => Complex.cos (w / 2)) z := by rw [hfun]
     _ = -Complex.sin (z / 2) / 2 := cos_half_deriv z
 
