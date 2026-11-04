@@ -61,7 +61,11 @@ theorem sonineAverageComplex_even_monomial (n : ℕ) (z : ℂ) :
   have hm_real : (1 / 2 : ℝ) * J = (moment n : ℝ) := by
     simpa [J] using integral_monomial_sonine n
   have hm : (1 / 2 : ℂ) * (J : ℂ) = (moment n : ℂ) := by
-    exact_mod_cast hm_real
+    calc
+      (1 / 2 : ℂ) * (J : ℂ) = (((1 / 2 : ℝ) * J) : ℂ) := by
+        norm_num
+      _ = ((moment n : ℝ) : ℂ) := by rw [hm_real]
+      _ = (moment n : ℂ) := by norm_cast
   change (1 / 2 : ℂ) * (z^(2*n) * (J : ℂ)) =
     (moment n : ℂ) * z^(2*n)
   calc
