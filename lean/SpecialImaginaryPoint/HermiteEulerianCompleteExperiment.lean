@@ -12,6 +12,8 @@ No additional axioms and no merge to the officially pinned PR #30.
 
 namespace Manuscript14Section11
 
+open scoped Topology
+
 /-- Full Theorem 11.1: the genuine Eulerian value has the established
 floor-driven greedy block, the adjacent unique trinomial roots and the
 exact orbit jump/defect; it is also transcendental and has an
