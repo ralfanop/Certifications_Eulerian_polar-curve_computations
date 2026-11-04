@@ -166,7 +166,9 @@ theorem HasRealNuclearRankOneSeries.bounded_two_sided
     (hT : HasRealNuclearRankOneSeries T) :
     HasRealNuclearRankOneSeries
       (realNuclearBoundedLeftCLM A (realNuclearBoundedRightCLM B T)) :=
-  (hT.bounded_right B T).bounded_left A (realNuclearBoundedRightCLM B T)
+  HasRealNuclearRankOneSeries.bounded_left
+    A (realNuclearBoundedRightCLM B T)
+    (HasRealNuclearRankOneSeries.bounded_right B T hT)
 
 #print axioms GegenbauerFock.Ultraspherical.realNuclearBoundedRightCLM_rankOne
 #print axioms GegenbauerFock.Ultraspherical.RealNuclearCosts.bounded_right
