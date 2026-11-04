@@ -1,0 +1,54 @@
+name: V007 real nuclear Gram positive support S1
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/RealNuclearGramPositiveSupportS1.lean'
+      - 'lean/GegenbauerFock/RealNuclearGeneralIndexSingularSummability.lean'
+      - 'lean/GegenbauerFock/RealCompactGramActiveSingularModes.lean'
+      - '.github/workflows/v007-real-nuclear-gram-positive-support-s1.yml'
+  workflow_dispatch:
+
+jobs:
+  gram-positive-support-s1:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Check actual positive-support Gram S1 summability
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealNuclearGramPositiveSupportS1 2>&1 | tee /tmp/v007-positive-support-s1.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-positive-support-s1.log; then
+            echo '::error::Forbidden axiom in real positive-support S1.'
+            exit 1
+          fi
+          for theorem in \
+            realNuclearGram_positiveSupport_source_orthonormal \
+            HasRealNuclearRankOneSeries.gram_positiveSupport_summable \
+            HasRealNuclearRankOneSeries.gram_positiveSupport_tsum_le_infimum; do
+            grep -F "'GegenbauerFock.Ultraspherical.${theorem}' depends on axioms:" /tmp/v007-positive-support-s1.log
+          done
+          echo 'Actual real Gram positive-support S1 summability kernel-certified.'
