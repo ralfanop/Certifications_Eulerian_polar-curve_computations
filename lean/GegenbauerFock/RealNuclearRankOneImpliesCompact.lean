@@ -31,8 +31,13 @@ theorem realRankOne_isCompact (u v : H) :
   have hg : Continuous (fun a : ℝ => a • u) :=
     continuous_id.smul continuous_const
   have hcomp := hf.continuous_comp hg
-  simpa only [Function.comp_def, InnerProductSpace.rankOne_apply,
-    innerSL_apply_apply] using hcomp
+  have hfun :
+      (fun x : H => inner ℝ v x • u) =
+        (rankOne ℝ u v : H →L[ℝ] H) := by
+    funext x
+    simp only [InnerProductSpace.rankOne_apply]
+  rw [← hfun]
+  simpa only [Function.comp_def, innerSL_apply_apply] using hcomp
 
 /-- Arbitrary finite real Hilbert nuclear rank-one sums are compact
 operators (not only finite sums with positive coefficients). -/
@@ -49,7 +54,8 @@ theorem realFiniteNuclearRankOneSum_isCompact
       have hn : IsCompactOperator
           (beta n • rankOne ℝ (u n) (v n) : H →L[ℝ] H) :=
         (realRankOne_isCompact (u n) (v n)).smul (beta n)
-      simpa only [Finset.sum_insert hns] using hn.add ih
+      simpa only [Finset.sum_insert hns, ContinuousLinearMap.add_apply]
+        using hn.add ih
 
 /-- Every actual real Hilbert 1-nuclear bounded operator is COMPACT:
 an operator-norm limit of compact finite-rank approximants. -/
