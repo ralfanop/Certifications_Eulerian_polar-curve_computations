@@ -90,8 +90,7 @@ theorem eulerianEvenAnalytic_analyticAt (z : ℂ) :
   have hi : AnalyticAt ℂ (fun w : ℂ => w) z := analyticAt_id
   have hs : AnalyticAt ℂ (fun w : ℂ => w ^ 2) z := by
     simpa only [id_eq] using hi.fun_pow 2
-  have hn : AnalyticAt ℂ (fun w : ℂ => -(w ^ 2)) z := by
-    simpa only [Pi.neg_apply] using hs.neg
+  have hn : AnalyticAt ℂ (fun w : ℂ => -(w ^ 2)) z := hs.fun_neg
   have hp : AnalyticAt ℂ (fun w : ℂ => -w ^ 2 / 16) z := hn.div_const
   exact (eulerianEntireSeries_analyticAt (-z ^ 2 / 16)).fun_comp hp
 
@@ -145,7 +144,7 @@ theorem eulerianEvenAnalytic_deriv_relation (z : ℂ) :
   calc
     eulerianEvenAnalytic z + z * deriv eulerianEvenAnalytic z =
       deriv (fun w : ℂ => w * eulerianEvenAnalytic w) z := by
-        simpa only [heqprod] using hder.deriv.symm
+        simpa only [heqprod, id_eq, one_mul] using hder.deriv.symm
     _ = deriv (fun w : ℂ => 2 * Complex.sin (w / 2)) z := by rw [hfun]
     _ = Complex.cos (z / 2) := sin_half_scaled_deriv z
 
