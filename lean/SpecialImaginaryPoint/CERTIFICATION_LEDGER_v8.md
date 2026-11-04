@@ -42,7 +42,7 @@ These 74 are declarations in the project modules, **not** 74 original research t
 
 **Numerical certification:** 37 prior exact/Arb checks + 26 Section 11 checks = **63 distinct PASS**, with all ten v14.10 seven-term Taylor bounds included. See Arb success in [#41809439359](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41809439359) and [#41809760282](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41809760282). CI failure of #41809439359 was from an independent redundant Lean tactic; Arb itself succeeded and a later Lean run is SUCCESS.
 
-**Additional joint verification:** the main combined workflow is [#41812736721](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41812736721); verify its conclusion independently before calling it successful.
+**Final joint verification:** [CI #41812736721](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41812736721) is **SUCCESS for Lean and Arb**. The same Lean kernel compiled and axiom-audited the unconditional theorem and all local dependencies. The Arb job reports **ALL 26 SECTION 11 ARB/RATIONAL CHECKS PASSED**. No Lean errors, `sorryAx` or `Lean.ofReduceBool` appeared in the successful theorem audits.
 
 ## Precise scope and remaining maintenance
 
