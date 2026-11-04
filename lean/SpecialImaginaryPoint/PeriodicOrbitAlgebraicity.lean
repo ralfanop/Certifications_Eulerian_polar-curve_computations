@@ -1,4 +1,5 @@
 import Mathlib
+import SpecialImaginaryPoint.ParryThresholds
 
 /-!
 # Algebraicity forced by a repeated affine greedy remainder
@@ -189,6 +190,79 @@ theorem algebraic_of_eventually_periodic_affine_digits
 #print axioms Manuscript14Section11.affine_shift_difference
 #print axioms Manuscript14Section11.affine_remainder_repeat_of_eventually_periodic_digits
 #print axioms Manuscript14Section11.algebraic_of_eventually_periodic_affine_digits
+
+
+
+/-!
+## Applying the theorem to the actual greedy beta transformation
+
+All digits below are *the literal integer floors* of beta times
+the actual iterated remainders. There is no abstract digit hypothesis.
+-/
+
+/-- Every genuine greedy remainder is in the closed unit interval. -/
+theorem greedyRemainder_unit_interval (beta : ℝ) (n : ℕ) :
+    0 ≤ greedyRemainder beta n ∧ greedyRemainder beta n ≤ 1 := by
+  cases n with
+  | zero => simp [greedyRemainder]
+  | succ n =>
+      change 0 ≤ greedyMap beta (greedyRemainder beta n) ∧
+        greedyMap beta (greedyRemainder beta n) ≤ 1
+      have hnonneg :
+          0 ≤ Int.fract (beta * greedyRemainder beta n) :=
+        Int.fract_nonneg _
+      have hlt :
+          Int.fract (beta * greedyRemainder beta n) < 1 :=
+        Int.fract_lt_one _
+      constructor
+      · simpa only [greedyMap, Int.fract] using hnonneg
+      · simpa only [greedyMap, Int.fract] using hlt.le
+
+/-- The actual floor-based map satisfies a rational-digit affine
+recurrence; the digit is an integer, hence rational. -/
+theorem greedyRemainder_affine_step (beta : ℝ) (n : ℕ) :
+    greedyRemainder beta (n + 1) =
+      beta * greedyRemainder beta n -
+        ((((greedyDigit beta n : ℤ) : ℚ) : ℝ)) := by
+  simp [greedyRemainder, greedyMap, greedyDigit]
+
+/-- Eventual periodicity of the genuine greedy floor digits forces
+algebraicity of the actual beta parameter. -/
+theorem algebraic_of_eventually_periodic_greedy_digits
+    (beta : ℝ) (hbeta : 1 < beta)
+    (m p : ℕ) (hp : 0 < p)
+    (hperiod : ∀ n, m ≤ n →
+      greedyDigit beta (n + p) = greedyDigit beta n) :
+    IsAlgebraic ℚ beta := by
+  let d : ℕ → ℚ := fun n => ((greedyDigit beta n : ℤ) : ℚ)
+  have hd : ∀ n, m ≤ n → d (n + p) = d n := by
+    intro n hn
+    dsimp [d]
+    exact_mod_cast hperiod n hn
+  have hzero : greedyRemainder beta 0 = 1 := rfl
+  have hstep : ∀ n,
+      greedyRemainder beta (n + 1) =
+        beta * greedyRemainder beta n - (d n : ℝ) := by
+    intro n
+    simpa only [d] using greedyRemainder_affine_step beta n
+  exact algebraic_of_eventually_periodic_affine_digits
+    d beta hbeta (greedyRemainder beta) hzero
+    (greedyRemainder_unit_interval beta) hstep m p hp hd
+
+/-- A transcendental beta in (1,2) cannot have an eventually periodic
+greedy digit expansion, even though the digits themselves are integers. -/
+theorem greedy_digits_not_eventually_periodic_of_transcendental
+    (beta : ℝ) (hbeta : 1 < beta) (htrans : ¬ IsAlgebraic ℚ beta) :
+    ¬ ∃ m p : ℕ, 0 < p ∧
+      ∀ n, m ≤ n → greedyDigit beta (n + p) = greedyDigit beta n := by
+  rintro ⟨m, p, hp, hperiod⟩
+  exact htrans (algebraic_of_eventually_periodic_greedy_digits
+    beta hbeta m p hp hperiod)
+
+#print axioms Manuscript14Section11.greedyRemainder_unit_interval
+#print axioms Manuscript14Section11.greedyRemainder_affine_step
+#print axioms Manuscript14Section11.algebraic_of_eventually_periodic_greedy_digits
+#print axioms Manuscript14Section11.greedy_digits_not_eventually_periodic_of_transcendental
 
 
 end Manuscript14Section11
