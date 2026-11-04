@@ -166,7 +166,8 @@ private theorem floor_one_of_mem (x : ℝ) (hx1 : 1 ≤ x) (hx2 : x < 2) :
   apply (Int.floor_eq_iff).2
   constructor
   · simpa using hx1
-  · simpa using hx2
+  · change x < 2
+    exact hx2
 
 private theorem floor_zero_of_mem (x : ℝ) (hx0 : 0 ≤ x) (hx1 : x < 1) :
     ⌊x⌋ = (0 : ℤ) := by
@@ -215,7 +216,8 @@ theorem greedy_remainder_zero_run (beta : ℝ)
       change greedyMap beta (greedyRemainder beta (k + 1)) =
         beta ^ (k + 1) * (beta - 1)
       rw [ih hkprev]
-      simp [greedyMap, hd, heq]
+      rw [greedyMap, hd, heq]
+      simp
 
 /-- All the intermediate digits are literally the floor of the iterate, and zero. -/
 theorem greedyDigit_zero_run (beta : ℝ)
@@ -268,7 +270,7 @@ theorem eulerian_greedy_prefix_floor (beta : ℝ)
   refine ⟨greedyDigit_first beta hb hb2, ?_, ?_⟩
   · intro k hk
     exact greedyDigit_zero_run beta hb hb2 30 hz k hk
-  · exact greedyDigit_next_one beta hb hb2 30 hz hnext.1.le hnext.2.2
+  · exact greedyDigit_next_one beta hb hb2 30 hz hnext.1.le hnext.2
 
 #print axioms Manuscript14Section11.greedyRemainder_eq_iterate
 #print axioms Manuscript14Section11.greedy_remainder_zero_run
