@@ -40,7 +40,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.RealCompactGramPositiveSingularBasisBridge 2>&1 | tee /tmp/v007-real-gram-full-zero-modes.log
+          lake build GegenbauerFock.RealCompactGramFullBasisZeroModesNuclear 2>&1 | tee /tmp/v007-real-gram-full-zero-modes.log
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-real-gram-full-zero-modes.log; then
             echo '::error::Forbidden axiom in real Gram zero-mode nuclear certificate.'
             exit 1
