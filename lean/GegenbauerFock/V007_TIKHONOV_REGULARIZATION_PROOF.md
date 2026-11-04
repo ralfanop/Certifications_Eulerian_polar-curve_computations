@@ -94,10 +94,25 @@ Thus the customary deterministic estimate is
 
 `‖f_ε−f‖ ≤ ‖E_εf‖ + ‖η‖/(2√ε)`.
 
-Its full formalization in Lean requires the singular-value spectral
-mapping and an operator norm estimate for the Fock-to-source
-reconstruction map, which is *not* inferred from positive-shift
-invertibility alone.
+The factor `1/(2√ε)` also admits a **direct Hilbert-energy proof**
+without an explicit singular-value decomposition. Define
+`R_ε=(G+εI)⁻¹ C*` and set `u=R_ε η`. The exact normal equation
+`(G+εI)u=C*η`, together with `G=C*C`, gives
+
+`ε‖u‖² + ‖Cu‖² = Re⟨η,Cu⟩ ≤ ‖η‖‖Cu‖`.
+
+Completing the square,
+
+`ε‖u‖² ≤ ‖η‖‖Cu‖ − ‖Cu‖² ≤ ‖η‖²/4`.
+
+Thus `‖R_ε η‖ ≤ ‖η‖/(2√ε)`, for each `ε>0`, and the
+corresponding operator-norm inequality follows.
+
+This proof identifies a **remaining Lean obligation**: formalize
+the exact Hilbert adjoint energy identity, Cauchy–Schwarz,
+completion of squares and the positive square-root normalization.
+The existing generic bounded-reconstructor bias–noise theorem
+by itself does not provide the `1/(2√ε)` factor.
 
 ## Certification boundary
 
