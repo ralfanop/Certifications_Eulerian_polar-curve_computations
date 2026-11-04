@@ -1,0 +1,51 @@
+name: V007 real full Gram basis with zero modes nuclear certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/RealCompactGramFullBasisZeroModesNuclear.lean'
+      - 'lean/GegenbauerFock/RealNuclearOneCompleteSourceSingularS1.lean'
+      - 'lean/GegenbauerFock/RealNuclearTwoOrthonormalAllCostsDual.lean'
+      - '.github/workflows/v007-real-gram-full-basis-zero-modes-nuclear.yml'
+  workflow_dispatch:
+
+jobs:
+  real-gram-full-zero-modes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel audit of real Gram full basis with zero modes
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealCompactGramPositiveSingularBasisBridge 2>&1 | tee /tmp/v007-real-gram-full-zero-modes.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-real-gram-full-zero-modes.log; then
+            echo '::error::Forbidden axiom in real Gram zero-mode nuclear certificate.'
+            exit 1
+          fi
+          for theorem in realGram_fullBasis_image_norm_eq_sqrt_v007 realGram_fullBasis_rankOne_summable_v007 realGram_fullBasis_operator_tsum_eq_v007 realGram_fullBasis_nuclear_upper_v007; do
+            grep -F "'GegenbauerFock.Ultraspherical.${theorem}' depends on axioms:" /tmp/v007-real-gram-full-zero-modes.log
+          done
+          echo 'Real complete Gram eigenbasis with zero modes and nuclear upper bound kernel-certified.'
