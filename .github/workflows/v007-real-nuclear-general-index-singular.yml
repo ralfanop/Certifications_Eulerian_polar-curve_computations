@@ -1,0 +1,57 @@
+name: V007 arbitrary-index real nuclear singular mass
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/RealNuclearGeneralIndexSingularSummability.lean'
+      - '.github/workflows/v007-real-nuclear-general-index-singular.yml'
+  workflow_dispatch:
+
+jobs:
+  general-index-singular-dual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Check arbitrary-index real nuclear singular duality
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealNuclearGeneralIndexSingularSummability 2>&1 | tee /tmp/v007-general-index-singular.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-general-index-singular.log; then
+            echo '::error::Forbidden axiom in general-index singular duality.'
+            exit 1
+          fi
+          for theorem in \
+            realGeneralIndexFiniteTransfer_norm_le \
+            realGeneralIndexFiniteTrace_rankOne_eq \
+            realGeneralIndexFiniteTrace_rankOne_abs_le \
+            realGeneralIndexFiniteTraceCLM_apply \
+            realGeneralIndexFiniteTrace_abs_le_nuclearCost \
+            realGeneralIndexSingularFamily_sum_le_cost \
+            HasRealNuclearRankOneSeries.generalIndexSingular_summable \
+            HasRealNuclearRankOneSeries.generalIndexSingular_tsum_le_infimum; do
+            grep -F "'GegenbauerFock.Ultraspherical.${theorem}' depends on axioms:" /tmp/v007-general-index-singular.log
+          done
+          echo 'General-index real nuclear singular duality kernel-certified.'
