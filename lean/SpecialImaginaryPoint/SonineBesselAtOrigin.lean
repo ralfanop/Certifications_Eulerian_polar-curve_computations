@@ -23,16 +23,16 @@ theorem modifiedBesselSeries_zero : modifiedBesselSeries 0 = 1 := by
   rw [tsum_eq_single 0]
   · norm_num [modifiedBesselCoefficient]
   · intro n hn
-    have hp : 0 < 2*n := by omega
-    simp [zero_pow hp]
+    have hp : 2 * n ≠ 0 := by omega
+    simp [hp]
 
 theorem ordinaryBesselSeries_zero : ordinaryBesselSeries 0 = 1 := by
   unfold ordinaryBesselSeries evenEntireSeries
   rw [tsum_eq_single 0]
   · norm_num [ordinaryBesselCoefficient, modifiedBesselCoefficient]
   · intro n hn
-    have hp : 0 < 2*n := by omega
-    simp [zero_pow hp]
+    have hp : 2 * n ≠ 0 := by omega
+    simp [hp]
 
 noncomputable def complexSphericalSinc (z : ℂ) : ℂ :=
   if z = 0 then 1 else Complex.sin z / z
