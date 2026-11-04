@@ -41,7 +41,8 @@ theorem sourceGramTikhonovFilter_eigenmode_tendsto
   have hcomplex : Tendsto
       (fun eps : ℝ => ((mu / (mu + eps) : ℝ) : ℂ))
       (nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ))) (nhds (1 : ℂ)) := by
-    simpa using Complex.continuous_ofReal.continuousAt.tendsto.comp hreal
+    simpa only [Function.comp_def, Complex.ofReal_div, Complex.ofReal_add] using
+      Complex.continuous_ofReal.continuousAt.tendsto.comp hreal
   have hvector : Tendsto
       (fun eps : ℝ => ((mu / (mu + eps) : ℝ) : ℂ) • u)
       (nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ))) (nhds u) := by
