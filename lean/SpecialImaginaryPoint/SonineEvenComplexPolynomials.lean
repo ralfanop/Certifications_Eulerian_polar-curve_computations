@@ -54,8 +54,9 @@ theorem sonineAverageComplex_even_monomial (n : ℕ) (z : ℂ) :
     apply intervalIntegral.integral_congr
     intro u hu
     exact complex_even_power n z u (interval_nonneg u hu)
-  rw [heq, intervalIntegral.integral_const_mul,
-      intervalIntegral.integral_ofReal]
+  rw [heq, intervalIntegral.integral_const_mul]
+  simp_rw [← Complex.ofReal_pow]
+  rw [intervalIntegral.integral_ofReal]
   have hm : (1 / 2 : ℂ) *
       (↑(∫ u in (-1 : ℝ)..1, (1-u^2)^n) : ℂ) = (moment n : ℂ) := by
     exact_mod_cast integral_monomial_sonine n
