@@ -98,7 +98,7 @@ theorem eulerianEvenAnalytic_analyticAt (z : ℂ) :
     eulerianEntireSeries_analyticAt _
   have hc : AnalyticAt ℂ (fun w : ℂ => eulerianEntireSeries (-w ^ 2 / 16)) z :=
     AnalyticAt.fun_comp hg hp
-  simpa only [eulerianEvenAnalytic] using hc
+  exact hc
 
 private theorem sin_half_scaled_deriv (z : ℂ) :
     deriv (fun w : ℂ => 2 * Complex.sin (w / 2)) z =
