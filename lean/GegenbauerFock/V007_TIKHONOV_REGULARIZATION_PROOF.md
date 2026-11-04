@@ -108,11 +108,20 @@ Completing the square,
 Thus `‖R_ε η‖ ≤ ‖η‖/(2√ε)`, for each `ε>0`, and the
 corresponding operator-norm inequality follows.
 
-This proof identifies a **remaining Lean obligation**: formalize
-the exact Hilbert adjoint energy identity, Cauchy–Schwarz,
-completion of squares and the positive square-root normalization.
-The existing generic bounded-reconstructor bias–noise theorem
-by itself does not provide the `1/(2√ε)` factor.
+The scalar completion-of-squares and positive-square-root step is now
+**kernel-certified** by
+[CI #41810718245](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41810718245):
+**SUCCESS**, 3,137 jobs, with only `propext`, `Classical.choice`,
+`Quot.sound` and no forbidden axioms. Source:
+`CanonicalCFCGramTikhonovScalarEnergy.lean`, commit `9e8dfc08`.
+Theorem `tikhonov_scalar_energy_noise_bound` proves precisely
+`eps*a²+b²≤c*b ⇒ a≤c/(2√eps)` for `eps>0` and `a,c≥0`.
+
+The **remaining nontrivial operator-level Lean obligation** is to show
+the exact energy identity for the genuine Hilbert operator
+`u=(G+eps I)⁻¹C*η`, and apply Cauchy–Schwarz and this certified scalar
+lemma. The generic bounded-reconstructor bias–noise theorem alone
+does not provide the `1/(2√ε)` factor.
 
 ## Certification boundary
 
