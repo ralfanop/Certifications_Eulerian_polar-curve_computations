@@ -53,8 +53,16 @@ theorem realNuclearInfimum_bounded_two_sided_le
         RealNuclearCosts.bounded_two_sided A B T hc
       have hle : realNuclearInfimum target ≤ c' :=
         realNuclearInfimum_le_cost target hc'
-      exact (div_le_iff₀ hk).mpr (hle.trans hbound)
-    exact (div_le_iff₀ hk).mp hdiv
+      have hbound' : realNuclearInfimum target ≤ c * k := by
+        calc
+          realNuclearInfimum target ≤ c' := hle
+          _ ≤ (‖A‖ * ‖B‖) * c := hbound
+          _ = c * k := by dsimp [k]; ring
+      exact (div_le_iff₀ hk).mpr hbound'
+    calc
+      realNuclearInfimum target ≤ realNuclearInfimum T * k :=
+        (div_le_iff₀ hk).mp hdiv
+      _ = k * realNuclearInfimum T := mul_comm _ _
   · have hkzero : k = 0 :=
       le_antisymm (le_of_not_gt hk) hk0
     obtain ⟨c, hc⟩ := hnonempty
