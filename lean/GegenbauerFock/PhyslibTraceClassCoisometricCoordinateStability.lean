@@ -934,6 +934,107 @@ theorem coisometric_retraction_kernel_numeric_gap_min_v007
       U V hUUstar hVVstar hUnorm hVnorm)
 
 
+/-!
+## Stability of unique split coordinates and closed-subspace gaps
+
+The previously certified simultaneous convergence theorem extends to
+the unique coordinates in actual coisometric splittings. Moreover the
+real-valued normalized gaps between their closed ranges and kernels
+vanish when the coisometric multipliers converge in operator norm.
+-/
+
+/-- The uniquely determined source and kernel coordinates converge in
+the genuine Schatten S₁ norm for simultaneously varying data and
+coisometries. No positivity or selfadjointness is assumed. -/
+theorem coisometric_unique_coordinates_tendsto_v007
+    (U : ℕ → H →L[ℂ] H) (V : H →L[ℂ] H)
+    (T X Y : ℕ → TraceClass H) (S X₀ Y₀ : TraceClass H)
+    (hUU : ∀ n, U n * (U n).adjoint = 1)
+    (hVV : V * V.adjoint = 1)
+    (hUn : ∀ n, ‖U n‖ ≤ (1 : ℝ))
+    (hV : ‖V‖ ≤ (1 : ℝ))
+    (hSplit : ∀ n, T n =
+      sandwichContinuous (U n).adjoint (U n) (X n) + Y n)
+    (hKer : ∀ n, sandwichContinuous (U n) (U n).adjoint (Y n) = 0)
+    (hLimitSplit : S = sandwichContinuous V.adjoint V X₀ + Y₀)
+    (hLimitKer : sandwichContinuous V V.adjoint Y₀ = 0)
+    (hUt : Filter.Tendsto U Filter.atTop (nhds V))
+    (hTt : Filter.Tendsto T Filter.atTop (nhds S)) :
+    Filter.Tendsto X Filter.atTop (nhds X₀) ∧
+      Filter.Tendsto Y Filter.atTop (nhds Y₀) := by
+  have hX (n : ℕ) :
+      X n = sandwichContinuous (U n) (U n).adjoint (T n) :=
+    (coisometric_split_coordinates_unique_v007
+      (U n) (hUU n) (T n) (X n) (Y n)
+      (hSplit n) (hKer n)).1
+  have hY (n : ℕ) :
+      Y n = coisometric_complementaryProjection_v007 (U n) (T n) :=
+    (coisometric_split_coordinates_unique_v007
+      (U n) (hUU n) (T n) (X n) (Y n)
+      (hSplit n) (hKer n)).2
+  obtain ⟨hX₀, hY₀⟩ :=
+    coisometric_split_coordinates_unique_v007
+      V hVV S X₀ Y₀ hLimitSplit hLimitKer
+  obtain ⟨hR, _, hQ⟩ :=
+    coisometric_joint_components_tendsto_v007
+      U V T S hUn hV hUt hTt
+  constructor
+  · change Filter.Tendsto (fun n => X n) Filter.atTop (nhds X₀)
+    simpa only [hX, hX₀] using hR
+  · change Filter.Tendsto (fun n => Y n) Filter.atTop (nhds Y₀)
+    simpa only [hY, hY₀] using hQ
+
+/-- Operator-norm convergence of coisometries implies convergence to
+zero of the actual normalized bidirectional gaps between the associated
+closed Schatten S₁ embedding ranges and retraction kernels. -/
+theorem coisometric_numeric_subspace_gaps_tendsto_zero_v007
+    (U : ℕ → H →L[ℂ] H) (V : H →L[ℂ] H)
+    (hUU : ∀ n, U n * (U n).adjoint = 1)
+    (hVV : V * V.adjoint = 1)
+    (hUn : ∀ n, ‖U n‖ ≤ (1 : ℝ))
+    (hV : ‖V‖ ≤ (1 : ℝ))
+    (hUt : Filter.Tendsto U Filter.atTop (nhds V)) :
+    Filter.Tendsto
+      (fun n => normalizedBidirectionalGapValue_v007
+        (Set.range (sandwichContinuous (U n).adjoint (U n)))
+        (Set.range (sandwichContinuous V.adjoint V)))
+      Filter.atTop (nhds (0 : ℝ)) ∧
+    Filter.Tendsto
+      (fun n => normalizedBidirectionalGapValue_v007
+        {T : TraceClass H |
+          sandwichContinuous (U n) (U n).adjoint T = 0}
+        {T : TraceClass H | sandwichContinuous V V.adjoint T = 0})
+      Filter.atTop (nhds (0 : ℝ)) := by
+  have hNorm :
+      Filter.Tendsto (fun n => ‖U n - V‖)
+        Filter.atTop (nhds (0 : ℝ)) :=
+    tendsto_iff_norm_sub_tendsto_zero.mp hUt
+  have hMajor :
+      Filter.Tendsto (fun n => (4 : ℝ) * ‖U n - V‖)
+        Filter.atTop (nhds (0 : ℝ)) := by
+    simpa only [mul_zero] using
+      ((tendsto_const_nhds : Filter.Tendsto
+        (fun _ : ℕ => (4 : ℝ)) Filter.atTop (nhds (4 : ℝ))).mul hNorm)
+  constructor
+  · apply squeeze_zero
+    · intro n
+      apply normalizedBidirectionalGapValue_nonneg_v007
+      · exact ⟨0, map_zero _⟩
+      · exact ⟨0, map_zero _⟩
+    · intro n
+      exact coisometric_embedding_range_numeric_bidirectional_gap_v007
+        (U n) V (hUU n) hVV (hUn n) hV
+    · exact hMajor
+  · apply squeeze_zero
+    · intro n
+      apply normalizedBidirectionalGapValue_nonneg_v007
+      · exact map_zero _
+      · exact map_zero _
+    · intro n
+      exact coisometric_retraction_kernel_numeric_bidirectional_gap_v007
+        (U n) V (hUU n) hVV (hUn n) hV
+    · exact hMajor
+
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_norm_le_one_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_dist_le_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_component_dist_le_v007
@@ -968,5 +1069,8 @@ theorem coisometric_retraction_kernel_numeric_gap_min_v007
 #print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_kernel_numeric_gap_min_v007
 
 #print axioms ProbabilisticTheory.TraceClass.coisometric_joint_components_tendsto_v007
+
+#print axioms ProbabilisticTheory.TraceClass.coisometric_unique_coordinates_tendsto_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_numeric_subspace_gaps_tendsto_zero_v007
 
 end ProbabilisticTheory.TraceClass
