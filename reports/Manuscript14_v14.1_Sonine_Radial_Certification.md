@@ -69,3 +69,21 @@ The next [SonineBesselGlobal.lean](../lean/SpecialImaginaryPoint/SonineBesselGlo
 The earlier 14.1 audit also identified outstanding results in §6 (actual Gram-domain commutation), §7 (Fredholm/zeta and resolvent traces), and §§2–3, 5, 8. Their status is unchanged. Existing Corollary 3.6 and Theorem 11.1 certificates are separate and not recomputed by this Sonine workflow.
 
 The original toolchain pin Lean `v4.35.0-rc3` and Mathlib `0272bbe1c093d038d7257ab15306abd58245f9ff` are not changed.
+
+
+## Full complex Bessel series: kernel certified, outside the origin
+
+[CI #41852338210](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41852338210) is **SUCCESS** and confirms, via [SonineBesselGlobal.lean](../lean/SpecialImaginaryPoint/SonineBesselGlobal.lean) and [SonineBesselSummability.lean](../lean/SpecialImaginaryPoint/SonineBesselSummability.lean):
+
+- Absolute summability for every complex z of the two coefficient sequences `(±1)^n z^(2n)/(4^n(n!)²)`, using a genuine exponential-series majorant. This discharges earlier summability hypotheses.
+- For the **series-defined** cylindrical functions `I0_ser(z)=∑' z^(2n)/(4^n(n!)²)` and `J0_ser(z)=∑' (-1)^n z^(2n)/(4^n(n!)²)`, the actual Sonine averaging integrals satisfy
+  `z M(I0_ser)(z)=sinh(z)` and `z M(J0_ser)(z)=sin(z)` for every z∈ℂ; hence their familiar quotient identities for z≠0.
+- The six new declarations have axiom audits involving only `propext`, `Classical.choice`, and `Quot.sound`. No forbidden axioms or admitted proofs.
+
+[SonineBesselAtOrigin.lean](../lean/SpecialImaginaryPoint/SonineBesselAtOrigin.lean) separately proves the regular value at zero as a future certification target; it must not be counted until its own successful CI.
+
+## Entire radial series-level intertwining: certified
+
+[CI #41852735785](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41852735785) completed **SUCCESS** and accepted `sonine_entire_radial_series_intertwining` with only the three standard axioms. This is an equality of actual complex *function values*, using the genuine Sonine integral and the series-defined radial generators, with the explicit hypothesis that the radial input coefficient series is absolutely summable for every complex z.
+
+The crucial remaining logical bridge for the fully printed §4 theorem is to identify these **radial coefficient series** with the **classical analytic differential operators** `f''+(1/z)f'` and `f''+(2/z)f'` on the appropriate even-entire domain, including removable values at the origin. This derivative/domain equivalence has not yet been kernel-checked. Do not claim complete §4 certification based only on the series-level identity.
