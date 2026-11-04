@@ -416,7 +416,9 @@ theorem parry_defect_tight_interval (beta : ℝ)
       1 - U ^ 30 * (U - 1) := by norm_num [U]
   have hnumUpper : 1 - L ^ 30 * (L - 1) <
       (313241 : ℝ) / 10 ^ 9 := by norm_num [L]
-  constructor <;> linarith
+  constructor
+  · exact lt_of_lt_of_le hnumLower (sub_le_sub_left hbetaUpper 1)
+  · exact lt_of_le_of_lt (sub_le_sub_left hbetaLower 1) hnumUpper
 
 /-- The 31st iterate, using the actual floor map, has the
 strictly enclosed critical-orbit defect on the tight rational interval. -/
