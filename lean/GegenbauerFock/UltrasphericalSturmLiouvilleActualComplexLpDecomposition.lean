@@ -66,9 +66,11 @@ theorem complexLpIm_realToComplexLp (lam : ℝ) (f : HR lam) :
     (Lp.coeFn_zero (E := ℝ) (p := 2) (μ := measure lam))
   ] with x him hinc hz
   have h := him.trans (congrArg Complex.imCLM hinc)
-  simpa only [complexLpIm, realToComplexLp,
-    Complex.imCLM_apply, Complex.ofRealCLM_apply,
-    Complex.ofReal_im, hz] using h
+  have hzero : (complexLpIm lam (realToComplexLp lam f)) x = (0 : ℝ) := by
+    simpa only [complexLpIm, realToComplexLp,
+      Complex.imCLM_apply, Complex.ofRealCLM_apply,
+      Complex.ofReal_im] using h
+  exact hzero.trans hz.symm
 
 /-- Every complex-valued weighted L² function is recovered exactly
 from the actual real-valued L² functions formed by its two parts. -/
