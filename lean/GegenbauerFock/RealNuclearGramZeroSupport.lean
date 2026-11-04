@@ -35,17 +35,15 @@ even when the target cokernel has a different dimension. -/
 theorem realNuclearGram_nonzero_mode_orthogonal_kernel
     (T : H →L[ℝ] H) (mu : ℝ) (hmu : mu ≠ 0)
     (x : H) (hx : realNuclearGram T x = mu • x)
-    (y : H) (hy : y ∈ T.ker) :
+    (y : H) (hy : T y = 0) :
     inner ℝ y x = 0 := by
-  have hyzero : T y = 0 := by
-    simpa only [LinearMap.mem_ker] using hy
   have hpair :
       inner ℝ y (realNuclearGram T x) =
         inner ℝ (T y) (T x) := by
     change inner ℝ y (T.adjoint (T x)) =
       inner ℝ (T y) (T x)
     exact T.adjoint_inner_right y (T x)
-  rw [hx, real_inner_smul_right, hyzero] at hpair
+  rw [hx, real_inner_smul_right, hy] at hpair
   simp only [inner_zero_left] at hpair
   exact (mul_eq_zero.mp hpair).resolve_left hmu
 
@@ -55,7 +53,7 @@ theorem realNuclearGram_nonzero_family_orthogonal_kernel
     (T : H →L[ℝ] H) (b : ℕ → H)
     (mu : ℕ → ℝ) (hmu : ∀ n, mu n ≠ 0)
     (heig : ∀ n, realNuclearGram T (b n) = mu n • b n)
-    (y : H) (hy : y ∈ T.ker) (n : ℕ) :
+    (y : H) (hy : T y = 0) (n : ℕ) :
     inner ℝ y (b n) = 0 :=
   realNuclearGram_nonzero_mode_orthogonal_kernel
     T (mu n) (hmu n) (b n) (heig n) y hy
