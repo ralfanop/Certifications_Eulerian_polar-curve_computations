@@ -225,7 +225,9 @@ theorem gramKernel_first_derivative (a u v : ℂ) :
     deriv (fun w : ℂ => gramKernel a w v) u =
       (a * v) * gramKernel a u v := by
   have hinner : HasDerivAt (fun w : ℂ => a * w * v) (a * v) u := by
-    convert (((hasDerivAt_id u).const_mul a).mul_const v) using 1 <;> ring
+    convert (((hasDerivAt_id u).const_mul a).mul_const v) using 1
+      <;> try { funext w; simp only [id_eq] }
+      <;> ring
   have h := hinner.cexp
   have hk : HasDerivAt (fun w : ℂ => gramKernel a w v)
       ((a * v) * gramKernel a u v) u := by
@@ -242,7 +244,9 @@ theorem gramKernel_second_derivative (a u v : ℂ) :
     exact gramKernel_first_derivative a w v
   rw [hfun]
   have hinner : HasDerivAt (fun w : ℂ => a * w * v) (a * v) u := by
-    convert (((hasDerivAt_id u).const_mul a).mul_const v) using 1 <;> ring
+    convert (((hasDerivAt_id u).const_mul a).mul_const v) using 1
+      <;> try { funext w; simp only [id_eq] }
+      <;> ring
   have hk : HasDerivAt (fun w : ℂ => gramKernel a w v)
       ((a * v) * gramKernel a u v) u := by
     convert hinner.cexp using 1 <;> simp [gramKernel, mul_comm]
