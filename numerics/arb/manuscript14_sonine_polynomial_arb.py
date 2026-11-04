@@ -2,7 +2,7 @@
 """Independent exact-Q and Arb checks of the polynomial Sonine integral.
 
 Scope: finite-degree regression checks of the genuine real Sonine
-averaging operator and its differential intertwiner; 256-bit Arb
+averaging operator and its differential intertwiner; 384-bit Arb
 special-value bounds. Global integral/entire identities are proved,
 where available, by Lean, NOT by this finite test.
 """
@@ -11,7 +11,7 @@ from math import factorial, comb
 from flint import arb, acb, ctx
 import flint
 
-ctx.prec = 256
+ctx.prec = 384
 checks = 0
 
 def check(label, prop):
