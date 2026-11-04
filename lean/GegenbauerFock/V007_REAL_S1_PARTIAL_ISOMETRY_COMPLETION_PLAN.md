@@ -21,9 +21,15 @@ All listed successful CI logs had explicit `#print axioms` checks with only `pro
 
 These claims apply on their precisely stated domains; in particular, two full bases and a global unitary phase do not cover unequal kernel/cokernel defect dimensions.
 
-## Still pending exact-SHA Lean certification
+## General real nuclear compactness — certified 4 November 2026
 
-- `RealNuclearRankOneImpliesCompact.lean`, [CI #41724362531](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41724362531), attempts to prove that every real nuclear operator is compact, using rank-one factorization through the scalar field and norm-closedness of compact operators. Do not cite the theorem as certified until a successful job and clean kernel axiom audit.
+- `RealNuclearRankOneImpliesCompact.lean`, [CI #41805396014](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41805396014), **SUCCESS**, 9,105 Lake jobs, clean axiom audit: `realRankOne_isCompact`, `realFiniteNuclearRankOneSum_isCompact` and `HasRealNuclearRankOneSeries.isCompactOperator`. Every absolutely norm-summable real Hilbert rank-one operator series defines a compact operator, without positivity, normality or unitary polar phase. The earlier failed CI #41724362531 is superseded.
+
+**Other certificates verified 4 November 2026, with separate exact scopes:**
+
+- [CI #41803696481](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41803696481), **SUCCESS**, 9,159 jobs: comparison of real nuclear projective norm with complex trace norm only under *shared positive spectral data*, not for arbitrary real operators.
+- [CI #41804412794](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41804412794), **SUCCESS**, 9,140 jobs: the actual positive-time real Gegenbauer heat operator has exact universal nuclear projective infimum `sum_n exp(-s*n*(n+2λ))` for `λ,s>0`, using the finite-trace dual lower bound against all admissible nuclear costs.
+- A new independent left bounded-operator ideal theorem was deposited in `RealNuclearBoundedLeftIdeal.lean`, commit `b1637f4eb3f2b8bb7ba63d0b12fde0d1502a6df7`; [CI #41805680462](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41805680462) was **still in progress at this checkpoint**. Do not identify the result as kernel-certified until that job passes.
 
 ## Important mathematical gap: an arbitrary nuclear operator need NOT have a global unitary phase
 
@@ -39,7 +45,7 @@ A full real Schatten theory must use a **partial isometry** `W` on the support o
 
 ## Exact remaining kernel-level milestones
 
-1. Nuclear-series membership implies compactness of `T`, using compactness of each real rank-one term, stability under finite sums, and closedness of compact operators in operator norm.
+1. **COMPLETE — CI #41805396014:** Nuclear-series membership implies compactness of `T`, by compact rank-one terms, finite sums and operator-norm closure.
 2. Construct the genuine real CFC positive square root `|T| = (T* T)^{1/2}` for arbitrary compact `T`; establish the correct support and kernel statements and its relation to singular values.
 3. Obtain a complete source eigenbasis (and a potentially incomplete output orthonormal singular family) for `|T|` by real compact selfadjoint spectral theory.
 4. Prove a **two-orthonormal-family** finite nuclear trace dual bound, with coefficient one, for `sum_{n<N} inner(v_n, T(b_n))`, using Bessel/Cauchy–Schwarz on both sides; no complete output basis or unitary phase is assumed.
