@@ -83,8 +83,13 @@ theorem sourceGramTikhonovReconstructor_energy_le
     simp only [Complex.conj_ofReal, Complex.mul_re, Complex.ofReal_re,
       Complex.ofReal_im, zero_mul, sub_zero]
     rw [inner_self_eq_norm_sq]
+  have hadj :
+      inner ℂ (C_adjoint lam alpha hlam ha eta) u =
+        inner ℂ eta (T u) :=
+    C_adjoint_pairing lam alpha hlam ha eta u
   have hreal := congrArg Complex.re
     (congrArg (fun z : EnergyH lam => inner ℂ z u) hnormal)
+  rw [hadj] at hreal
   have hsum :
       eps * ‖u‖ ^ 2 + ‖T u‖ ^ 2 =
         (inner ℂ eta (T u)).re := by
