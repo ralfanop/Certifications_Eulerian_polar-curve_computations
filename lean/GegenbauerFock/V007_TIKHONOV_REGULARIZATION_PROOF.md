@@ -170,8 +170,22 @@ space, not finite eigenmode truncations or a diagonal surrogate.
 It does **not** assert operator-norm convergence: the exact norm-one
 obstruction of Step 5 is an independent obligation.
 
-**Step 5 (sharp operator-norm obstruction)** and the data-space noise
-estimate require independent Lean declarations and CI checks. No result about the
-unshifted bounded inverse of compact `G` is asserted.
+**Step 5: sharp operator-norm obstruction — KERNEL-CERTIFIED, 4 November 2026.**
+[CI #41808950596](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/41808950596)
+finished **SUCCESS** at exact source commit `65e6a53eb02b5ac90564d45cf55aa91fed9303ac`.
+The job compiled **9,129 Lean targets** and `#print axioms` showed only
+`propext`, `Classical.choice` and `Quot.sound`, without `sorryAx`
+or `Lean.ofReduceBool`.
+
+- `sourceGramTikhonov_error_opNorm_eq_one`: `‖eps(G+eps I)⁻¹‖=1`.
+- `sourceGramTikhonov_filter_error_opNorm_eq_one`: `‖I-G(G+eps I)⁻¹‖=1`.
+
+Both theorems apply to the genuine operator on the full weighted complex
+`L²` for every `eps>0`, not to finite truncations. The source blob
+`c860bf4be4ab08531bcce561c5250ee42ee0b204` was verified
+identical at the certified commit and on the Draft branch.
+
+The **remaining data-space noise estimate** is a distinct Lean proof
+obligation. No bounded inverse of the unshifted compact Gram `G` is asserted.
 
 **This note belongs solely to V007. No merge into V097 and no V170 changes.**
