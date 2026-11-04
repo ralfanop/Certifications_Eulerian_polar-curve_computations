@@ -545,7 +545,7 @@ theorem parry_power_strict_mono (n : ℕ) (x y : ℝ)
     _ ≤ y ^ n * (x - 1) :=
       mul_le_mul_of_nonneg_right hp (by linarith)
     _ < y ^ n * (y - 1) :=
-      mul_lt_mul_of_pos_left (sub_lt_sub_right hxy 1) (by positivity)
+      mul_lt_mul_of_pos_left (sub_lt_sub_right hxy 1) (pow_pos (by linarith) n)
 
 /-- There is exactly one Parry threshold beta_31 in the interval
 (1,2), solving beta^31-beta^30-1=0. -/
