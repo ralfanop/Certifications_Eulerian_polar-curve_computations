@@ -1,0 +1,58 @@
+Arb ball arithmetic, FLINT 3.3.1, precision 1024 bits
+
+I_1 = sqrt8 log(1+sqrt2)     (6)  printed 2.49290
+    enclosure [2.4929009605609220536 +/- 2.40e-20]
+    ROUNDED: certified; also TRUNCATED
+2 log(1+sqrt2)/pi            (9)  printed 0.561100
+    enclosure [0.561099852339180127136 +/- 2.81e-22]
+    ROUNDED: certified
+M_0 = L_8(1)                 (11, 82)  printed 0.623225
+    enclosure [0.623225240140230513394 +/- 2.01e-23]
+    ROUNDED: certified; also TRUNCATED
+sqrt2 log(1+sqrt2)/(8 pi^2)  (25)  printed 0.015786
+    enclosure [0.0157864797516970883423 +/- 4.21e-23]
+    ROUNDED: certified; also TRUNCATED
+log(1+sqrt2)/(sqrt2 sqrt(2pi)) (27)  printed 0.24863
+    enclosure [0.24863089850527405785 +/- 1.77e-21]
+    ROUNDED: certified; also TRUNCATED
+log(1+sqrt2)/(sqrt2 pi^2)    (29)  printed 0.0631459
+    enclosure [0.06314591900678835336903 +/- 1.75e-24]
+    ROUNDED: certified; also TRUNCATED
+2 log(1+sqrt2)/sqrt(pi)      (31)  printed 0.99452
+    enclosure [0.99452359402109623139 +/- 2.96e-21]
+    ROUNDED: certified; also TRUNCATED
+gamma_1(1/8)                 (33)  printed -16.64171976
+    enclosure [-16.641719763609315662842 +/- 7.38e-23]
+    ROUNDED: certified; also TRUNCATED
+    closed form (33) as printed minus gamma_1(1/8): [+/- 3.59e-306]
+
+L_8(1) from Hurwitz minus log(1+sqrt2)/sqrt2: [+/- 5.67e-308]
+gamma_8 (Euler-Kronecker)    (40)  printed 1.20933063094138118664026424093547097334700909059315456011578210585217390057
+    enclosure [1.2093306309413811866402642409354709733470090905931545601157821058521739005651050614602724 +/- 4.67e-89]
+    ROUNDED: certified
+    (39) log(2 pi e^{2 gamma}) + Rsum/(2 log(1+sqrt2)) minus gamma_8: [+/- 4.73e-307]
+
+log(1+sqrt2) = 2F1(1/2,1/2;3/2;-1) (64)  printed 0.88137
+    enclosure [0.88137358701954302523 +/- 2.61e-21]
+    ROUNDED: certified; also TRUNCATED
+pi/2 = 2F1(1/2,1/2;3/2;1)    (65)  printed 1.57080
+    enclosure [1.5707963267948966192 +/- 3.14e-20]
+    ROUNDED: certified
+K_R = pi/(2 log(1+sqrt2))    (66)  printed 1.78221
+    enclosure [1.7822139781913691118 +/- 2.56e-20]
+    ROUNDED: certified; also TRUNCATED
+L_{-8}(1) = pi/sqrt8         (83)  printed 1.11072
+    enclosure [1.1107207345395915618 +/- 4.61e-20]
+    ROUNDED: certified; also TRUNCATED
+prod k = sqrt(2 pi)          (84)  printed 2.50663
+    enclosure [2.5066282746310005024 +/- 1.58e-20]
+    ROUNDED: certified
+prod p = 4 pi^2              (85)  printed 39.47842
+    enclosure [39.478417604357434475 +/- 3.38e-19]
+    ROUNDED: certified
+P_A = 1/(2 pi)               (86)  printed 0.15915
+    enclosure [0.15915494309189533577 +/- 1.12e-21]
+    ROUNDED: certified; also TRUNCATED
+P_gamma = arctan(1/2)/pi     (88)  printed 0.14758
+    enclosure [0.14758361765043327418 +/- 4.60e-21]
+    ROUNDED: certified; also TRUNCATED
