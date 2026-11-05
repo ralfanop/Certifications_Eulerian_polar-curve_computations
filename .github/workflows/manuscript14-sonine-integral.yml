@@ -1,0 +1,65 @@
+name: Manuscript 14.1 Sonine actual integral moments — Lean
+
+on:
+  push:
+    branches:
+      - manuscript14-sonine-radial-20261104
+    paths:
+      - 'lean/SpecialImaginaryPoint/SonineRadialFormal.lean'
+      - 'lean/SpecialImaginaryPoint/SonineIntegralMoment.lean'
+      - 'lean/SpecialImaginaryPoint/SonineEvenPolynomials.lean'
+      - 'lean/SpecialImaginaryPoint/SonineFactorialMoment.lean'
+      - 'lean/SpecialImaginaryPoint/SonineEvenComplexPolynomials.lean'
+      - 'lean/SpecialImaginaryPoint/SonineEntireInterchange.lean'
+      - 'lean/SpecialImaginaryPoint/SonineEntireAveraging.lean'
+      - '.github/workflows/manuscript14-sonine-integral.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Lean 4 — actual Sonine integral moments
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Obtain pinned Mathlib cache
+        working-directory: lean
+        run: |
+          lake update
+          lake exe cache get
+      - name: Compile formal and integral certificates
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineRadialFormal.olean SpecialImaginaryPoint/SonineRadialFormal.lean 2>&1 | tee /tmp/manuscript14-sonine-integral.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineIntegralMoment.olean SpecialImaginaryPoint/SonineIntegralMoment.lean 2>&1 | tee -a /tmp/manuscript14-sonine-integral.log
+          lake env lean -M16768 SpecialImaginaryPoint/SonineFactorialMoment.lean 2>&1 | tee -a /tmp/manuscript14-sonine-integral.log
+          lake env lean -M16768 SpecialImaginaryPoint/SonineEvenPolynomials.lean 2>&1 | tee -a /tmp/manuscript14-sonine-integral.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineEvenComplexPolynomials.olean SpecialImaginaryPoint/SonineEvenComplexPolynomials.lean 2>&1 | tee -a /tmp/manuscript14-sonine-integral.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineEntireInterchange.olean SpecialImaginaryPoint/SonineEntireInterchange.lean 2>&1 | tee -a /tmp/manuscript14-sonine-integral.log
+          lake env lean -M16768 SpecialImaginaryPoint/SonineEntireAveraging.lean 2>&1 | tee -a /tmp/manuscript14-sonine-integral.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/manuscript14-sonine-integral.log; then
+            echo '::error::Forbidden Lean axiom in audit'
+            exit 1
+          fi
+      - name: Upload proof audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-sonine-integral-lean
+          path: /tmp/manuscript14-sonine-integral.log
+          if-no-files-found: ignore

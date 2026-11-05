@@ -1,0 +1,64 @@
+name: Manuscript 14.1 classical Bessel Sonine integral bridge — Lean
+
+on:
+  push:
+    branches:
+      - manuscript14-sonine-radial-20261104
+    paths:
+      - 'lean/SpecialImaginaryPoint/SonineBesselGlobal.lean'
+      - 'lean/SpecialImaginaryPoint/SonineBesselSummability.lean'
+      - 'lean/SpecialImaginaryPoint/SonineBesselAtOrigin.lean'
+      - '.github/workflows/manuscript14-sonine-global-bessel.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Lean 4 — actual Sonine Bessel integral and sin/sinh
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          lake update
+          lake exe cache get
+      - name: Verify actual Bessel integrals and audit axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineRadialFormal.olean SpecialImaginaryPoint/SonineRadialFormal.lean 2>&1 | tee /tmp/sonine-global-bessel.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineIntegralMoment.olean SpecialImaginaryPoint/SonineIntegralMoment.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineFactorialMoment.olean SpecialImaginaryPoint/SonineFactorialMoment.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineBesselCoefficients.olean SpecialImaginaryPoint/SonineBesselCoefficients.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineEvenComplexPolynomials.olean SpecialImaginaryPoint/SonineEvenComplexPolynomials.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineEntireInterchange.olean SpecialImaginaryPoint/SonineEntireInterchange.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineEntireAveraging.olean SpecialImaginaryPoint/SonineEntireAveraging.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineBesselGlobal.olean SpecialImaginaryPoint/SonineBesselGlobal.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineBesselSummability.olean SpecialImaginaryPoint/SonineBesselSummability.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
+          lake env lean -M16768 SpecialImaginaryPoint/SonineBesselAtOrigin.lean 2>&1 | tee -a /tmp/sonine-global-bessel.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/sonine-global-bessel.log; then
+            echo "::error::Forbidden Lean axiom"
+            exit 1
+          fi
+      - name: Upload Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-sonine-global-bessel-lean
+          path: /tmp/sonine-global-bessel.log
+          if-no-files-found: ignore
