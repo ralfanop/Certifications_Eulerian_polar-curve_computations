@@ -1,0 +1,79 @@
+name: Manuscript 14.1 complex formal Sonine intertwining — Lean and Arb
+
+on:
+  push:
+    branches:
+      - manuscript14-sonine-radial-20261104
+    paths:
+      - 'lean/SpecialImaginaryPoint/SonineRadialComplex.lean'
+      - 'numerics/arb/manuscript14_sonine_polynomial_arb.py'
+      - '.github/workflows/manuscript14-sonine-complex.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Lean 4 — complex formal radial intertwining
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Obtain pinned Mathlib cache
+        working-directory: lean
+        run: |
+          lake update
+          lake exe cache get
+      - name: Audit complex Sonine formal intertwining
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SonineRadialFormal.olean SpecialImaginaryPoint/SonineRadialFormal.lean 2>&1 | tee /tmp/manuscript14-sonine-complex.log
+          lake env lean -M16768 SpecialImaginaryPoint/SonineRadialComplex.lean 2>&1 | tee -a /tmp/manuscript14-sonine-complex.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/manuscript14-sonine-complex.log; then
+            echo '::error::Forbidden Lean axiom in audit'
+            exit 1
+          fi
+      - name: Upload kernel audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-sonine-complex-lean
+          path: /tmp/manuscript14-sonine-complex.log
+          if-no-files-found: ignore
+
+  arb:
+    name: Arb 384-bit / exact Q — polynomial Sonine
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install pinned Arb bindings
+        run: python -m pip install python-flint==0.9.0
+      - name: Verify polynomial integrals and Eulerian special values
+        shell: bash
+        run: |
+          set -euo pipefail
+          python numerics/arb/manuscript14_sonine_polynomial_arb.py 2>&1 | tee /tmp/manuscript14-sonine-polynomial-arb.log
+      - name: Upload numerical audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-sonine-polynomial-arb
+          path: /tmp/manuscript14-sonine-polynomial-arb.log
+          if-no-files-found: ignore
