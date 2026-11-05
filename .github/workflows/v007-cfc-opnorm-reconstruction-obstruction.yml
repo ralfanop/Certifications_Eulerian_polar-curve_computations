@@ -1,0 +1,64 @@
+name: V007 sharp CFC Fock Gram operator norm reconstruction obstruction
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/CanonicalCFCRootOperatorNormReconstructionObstruction.lean'
+      - '.github/workflows/v007-cfc-opnorm-reconstruction-obstruction.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: v007-cfc-opnorm-reconstruction-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  cfc-opnorm-reconstruction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Certify operator norm obstruction and audit kernel axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.CanonicalCFCRootOperatorNormReconstructionObstruction 2>&1 | tee /tmp/v007-cfc-opnorm-build.log
+          lake env lean -M16768 GegenbauerFock/CanonicalCFCRootOperatorNormReconstructionObstruction.lean 2>&1 | tee /tmp/v007-cfc-opnorm-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' \
+              /tmp/v007-cfc-opnorm-build.log /tmp/v007-cfc-opnorm-axioms.log; then
+            echo '::error::Forbidden axioms in CFC operator norm reconstruction proof.'
+            exit 1
+          fi
+          grep -F "opNorm_id_sub_reconstruction_ge_one_of_unit_null' depends on axioms:" /tmp/v007-cfc-opnorm-axioms.log
+          grep -F "cfc_fock_gram_uniform_reconstruction_error_ge_one' depends on axioms:" /tmp/v007-cfc-opnorm-axioms.log
+          echo 'V007 operator-norm reconstruction obstruction successfully audited.'

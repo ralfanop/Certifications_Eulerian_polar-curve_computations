@@ -1,0 +1,57 @@
+name: V007 adaptive noisy Gaussian alpha recovery from genuine Fock S2 norm
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireHSAlphaNormNoisyRecovery.lean'
+      - '.github/workflows/v007-intrinsic-fock-hs-alpha-norm-noisy-recovery.yml'
+  workflow_dispatch:
+
+jobs:
+  alpha-norm-noisy-recovery:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit adaptive noisy Gaussian alpha recovery from genuine S2 norm
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GegenbauerIntrinsicEntireHSAlphaNormNoisyRecovery 2>&1 | tee /tmp/v007-alpha-norm-noisy-recovery.log
+          lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireHSAlphaNormNoisyRecovery.lean 2>&1 | tee -a /tmp/v007-alpha-norm-noisy-recovery.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-alpha-norm-noisy-recovery.log; then
+            echo "::error::Forbidden axiom in norm identifiability"
+            exit 1
+          fi
+          for name in \
+            kummerSeries_alpha_sqrt_noisy_recovery \
+            C_intrinsicEntire_basisHSNorm_alpha_noisy_recovery; do
+            grep -F "${name}' depends on axioms:" /tmp/v007-alpha-norm-noisy-recovery.log
+          done
+          echo 'V007 adaptive noisy alpha recovery from true S2 norm: kernel checked.'

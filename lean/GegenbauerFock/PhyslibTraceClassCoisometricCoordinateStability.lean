@@ -1,0 +1,1076 @@
+import GegenbauerFock.PhyslibTraceClassCoisometricClosedRanges
+import GegenbauerFock.PhyslibTraceClassCoisometricUniqueness
+import GegenbauerFock.PhyslibTraceClassConjugationPerturbation
+
+/-!
+# V007 — quantitative stability of the canonical coisometric S₁ coordinates
+
+The certified splitting T=E(R T)+Q T, with E(X)=U† X U and
+R(T)=U T U†, is topological, but its coordinate maps also have
+quantitative trace-norm stability.
+
+Assuming the coisometry U satisfies U U† = 1 and ‖U‖ ≤ 1,
+the true CFC Schatten-S₁ coordinate bounds are
+
+  ‖R(T)-R(V)‖₁ ≤ ‖T-V‖₁,
+  ‖P(T)-P(V)‖₁ ≤ ‖T-V‖₁,
+  ‖Q(T)-Q(V)‖₁ ≤ 2‖T-V‖₁.
+
+Thus *any* exact decompositions T=E(X)+Y, V=E(X')+Y'
+with R(Y)=R(Y')=0 have 1- and 2-Lipschitz respective
+coordinates. No positivity, finite rank or singular-value model.
+-/
+
+noncomputable section
+namespace ProbabilisticTheory.TraceClass
+
+variable {H : Type*}
+variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
+
+/-- The coisometric retraction is a contraction on the genuine
+CFC trace-normed Schatten S₁ space, with no surjectivity claim
+for the companion embedding. -/
+theorem coisometric_retraction_norm_le_one_v007
+    (U : H →L[ℂ] H) (hUnorm : ‖U‖ ≤ (1 : ℝ)) :
+    ‖sandwichContinuous U U.adjoint‖ ≤ 1 := by
+  have hAdj : ‖U.adjoint‖ = ‖U‖ := by
+    rw [← ContinuousLinearMap.star_eq_adjoint]
+    exact norm_star U
+  have hsq : ‖U‖ ^ 2 ≤ (1 : ℝ) := by
+    simpa only [one_pow] using
+      ((sq_le_sq₀ (norm_nonneg _) zero_le_one).2 hUnorm)
+  calc
+    ‖sandwichContinuous U U.adjoint‖ ≤
+        ‖U‖ * ‖U.adjoint‖ :=
+      sandwichContinuous_norm_le U U.adjoint
+    _ = ‖U‖ ^ 2 := by rw [hAdj]; ring
+    _ ≤ 1 := hsq
+
+/-- The source coordinate map R is 1-Lipschitz on true Schatten S₁. -/
+theorem coisometric_retraction_dist_le_v007
+    (U : H →L[ℂ] H) (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (T V : TraceClass H) :
+    dist (sandwichContinuous U U.adjoint T)
+         (sandwichContinuous U U.adjoint V) ≤ dist T V := by
+  calc
+    dist (sandwichContinuous U U.adjoint T)
+         (sandwichContinuous U U.adjoint V) =
+        ‖sandwichContinuous U U.adjoint (T - V)‖ := by
+      rw [dist_eq_norm, map_sub]
+    _ ≤ ‖sandwichContinuous U U.adjoint‖ * ‖T - V‖ :=
+      ContinuousLinearMap.le_opNorm _ _
+    _ ≤ 1 * ‖T - V‖ :=
+      mul_le_mul_of_nonneg_right
+        (coisometric_retraction_norm_le_one_v007 U hUnorm)
+        (norm_nonneg _)
+    _ = dist T V := by rw [dist_eq_norm, one_mul]
+
+/-- Quantitative 1- and 2-Lipschitz continuity of the certified
+projection onto range(E) and its kernel complement. -/
+theorem coisometric_component_dist_le_v007
+    (U : H →L[ℂ] H) (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (T V : TraceClass H) :
+    dist (coisometric_sandwich_projection_v007 U T)
+         (coisometric_sandwich_projection_v007 U V) ≤ dist T V ∧
+    dist (coisometric_complementaryProjection_v007 U T)
+         (coisometric_complementaryProjection_v007 U V) ≤
+      2 * dist T V := by
+  obtain ⟨hP, hQ⟩ :=
+    coisometric_closed_components_norm_le_v007 U hUnorm (T - V)
+  constructor
+  · simpa only [dist_eq_norm, map_sub] using hP
+  · simpa only [dist_eq_norm, map_sub] using hQ
+
+/-- Any two exact coisometric S₁ decompositions have source and
+kernel coordinates with explicit Lipschitz bounds. -/
+theorem coisometric_unique_coordinates_dist_le_v007
+    (U : H →L[ℂ] H) (hUUstar : U * U.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (T V X Y X' Y' : TraceClass H)
+    (hT : T = sandwichContinuous U.adjoint U X + Y)
+    (hV : V = sandwichContinuous U.adjoint U X' + Y')
+    (hY : sandwichContinuous U U.adjoint Y = 0)
+    (hY' : sandwichContinuous U U.adjoint Y' = 0) :
+    dist X X' ≤ dist T V ∧ dist Y Y' ≤ 2 * dist T V := by
+  obtain ⟨hX, hYcoord⟩ :=
+    coisometric_split_coordinates_unique_v007 U hUUstar T X Y hT hY
+  obtain ⟨hX', hYcoord'⟩ :=
+    coisometric_split_coordinates_unique_v007 U hUUstar V X' Y' hV hY'
+  constructor
+  · rw [hX, hX']
+    exact coisometric_retraction_dist_le_v007 U hUnorm T V
+  · rw [hYcoord, hYcoord']
+    exact (coisometric_component_dist_le_v007 U hUnorm T V).2
+
+/-- In particular the unique source coordinate has norm at most
+‖T‖₁ and the unique kernel coordinate norm at most 2‖T‖₁. -/
+theorem coisometric_unique_coordinates_norm_le_v007
+    (U : H →L[ℂ] H) (hUUstar : U * U.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (T X Y : TraceClass H)
+    (hT : T = sandwichContinuous U.adjoint U X + Y)
+    (hY : sandwichContinuous U U.adjoint Y = 0) :
+    ‖X‖ ≤ ‖T‖ ∧ ‖Y‖ ≤ 2 * ‖T‖ := by
+  obtain ⟨hX, hYcoord⟩ :=
+    coisometric_split_coordinates_unique_v007 U hUUstar T X Y hT hY
+  rw [hX, hYcoord]
+  constructor
+  · calc
+      ‖sandwichContinuous U U.adjoint T‖ ≤
+        ‖sandwichContinuous U U.adjoint‖ * ‖T‖ :=
+          ContinuousLinearMap.le_opNorm _ _
+      _ ≤ 1 * ‖T‖ :=
+        mul_le_mul_of_nonneg_right
+          (coisometric_retraction_norm_le_one_v007 U hUnorm)
+          (norm_nonneg _)
+      _ = ‖T‖ := one_mul _
+  · exact (coisometric_closed_components_norm_le_v007 U hUnorm T).2
+
+
+/-- Simultaneous perturbation of data and the *retraction* multiplier.
+The true S₁ estimate does not require the coisometry identity: the
+contractivity hypotheses alone suffice. -/
+theorem coisometric_retraction_joint_traceNorm_le_v007
+    (U V : H →L[ℂ] H) (T S : TraceClass H)
+    (hU : ‖U‖ ≤ (1 : ℝ)) (hV : ‖V‖ ≤ (1 : ℝ)) :
+    traceNorm H
+      (sandwichContinuous U U.adjoint T -
+       sandwichContinuous V V.adjoint S) ≤
+      traceNorm H (T - S) + 2 * ‖U - V‖ * traceNorm H S := by
+  have hAdjU : ‖U.adjoint‖ ≤ (1 : ℝ) := by
+    rw [← ContinuousLinearMap.star_eq_adjoint]
+    simpa only [norm_star] using hU
+  have hAdjV : ‖V.adjoint‖ ≤ (1 : ℝ) := by
+    rw [← ContinuousLinearMap.star_eq_adjoint]
+    simpa only [norm_star] using hV
+  have h := conjugation_traceNorm_joint_input_contractions_dist_le_v007
+    U.adjoint V.adjoint T S hAdjU hAdjV
+  change traceNorm H
+    (sandwich T U U.adjoint - sandwich S V V.adjoint) ≤
+      traceNorm H (T - S) + 2 * ‖U - V‖ * traceNorm H S
+  simpa only [conjugate, ContinuousLinearMap.adjoint_adjoint,
+    conjugation_adjoint_sub_norm_eq_v007 U V] using h
+
+/-- The canonical range components for *different* contractive
+coisometric multipliers are jointly Lipschitz in the data and the
+multiplier, with explicit coefficient four on multiplier variation. -/
+theorem coisometric_projection_joint_traceNorm_le_v007
+    (U V : H →L[ℂ] H) (T S : TraceClass H)
+    (hU : ‖U‖ ≤ (1 : ℝ)) (hV : ‖V‖ ≤ (1 : ℝ)) :
+    traceNorm H
+      (coisometric_sandwich_projection_v007 U T -
+       coisometric_sandwich_projection_v007 V S) ≤
+      traceNorm H (T - S) + 4 * ‖U - V‖ * traceNorm H S := by
+  let RT : TraceClass H := sandwichContinuous U U.adjoint T
+  let RS : TraceClass H := sandwichContinuous V V.adjoint S
+  have hR : traceNorm H (RT - RS) ≤
+      traceNorm H (T - S) + 2 * ‖U - V‖ * traceNorm H S :=
+    coisometric_retraction_joint_traceNorm_le_v007 U V T S hU hV
+  have hRS : traceNorm H RS ≤ traceNorm H S := by
+    change ‖RS‖ ≤ ‖S‖
+    calc
+      ‖RS‖ ≤ ‖sandwichContinuous V V.adjoint‖ * ‖S‖ :=
+        ContinuousLinearMap.le_opNorm _ _
+      _ ≤ 1 * ‖S‖ :=
+        mul_le_mul_of_nonneg_right
+          (coisometric_retraction_norm_le_one_v007 V hV) (norm_nonneg _)
+      _ = ‖S‖ := one_mul _
+  have hInner :=
+    conjugation_traceNorm_joint_input_contractions_dist_le_v007
+      U V RT RS hU hV
+  have hMult :
+      2 * ‖U - V‖ * traceNorm H RS ≤
+        2 * ‖U - V‖ * traceNorm H S :=
+    mul_le_mul_of_nonneg_left hRS (by positivity)
+  change traceNorm H (conjugate RT U - conjugate RS V) ≤
+    traceNorm H (T - S) + 4 * ‖U - V‖ * traceNorm H S
+  calc
+    traceNorm H (conjugate RT U - conjugate RS V) ≤
+        traceNorm H (RT - RS) +
+          2 * ‖U - V‖ * traceNorm H RS := hInner
+    _ ≤ (traceNorm H (T - S) +
+          2 * ‖U - V‖ * traceNorm H S) +
+          2 * ‖U - V‖ * traceNorm H S :=
+      add_le_add hR hMult
+    _ = traceNorm H (T - S) +
+          4 * ‖U - V‖ * traceNorm H S := by ring
+
+set_option maxHeartbeats 1200000
+
+/-- The canonical complementary components for different coisometries
+are stable with coefficient two for input perturbations and four for
+multiplier perturbations, in the genuine trace norm. -/
+theorem coisometric_complement_joint_traceNorm_le_v007
+    (U V : H →L[ℂ] H) (T S : TraceClass H)
+    (hU : ‖U‖ ≤ (1 : ℝ)) (hV : ‖V‖ ≤ (1 : ℝ)) :
+    traceNorm H
+      (coisometric_complementaryProjection_v007 U T -
+       coisometric_complementaryProjection_v007 V S) ≤
+      2 * traceNorm H (T - S) +
+        4 * ‖U - V‖ * traceNorm H S := by
+  have hP := coisometric_projection_joint_traceNorm_le_v007
+    U V T S hU hV
+  change ‖coisometric_sandwich_projection_v007 U T -
+    coisometric_sandwich_projection_v007 V S‖ ≤
+      ‖T - S‖ + 4 * ‖U - V‖ * ‖S‖ at hP
+  have hQ :
+      coisometric_complementaryProjection_v007 U T -
+          coisometric_complementaryProjection_v007 V S =
+        (T - S) -
+          (coisometric_sandwich_projection_v007 U T -
+           coisometric_sandwich_projection_v007 V S) := by
+    change (T - coisometric_sandwich_projection_v007 U T) -
+      (S - coisometric_sandwich_projection_v007 V S) = _
+    abel
+  calc
+    traceNorm H
+        (coisometric_complementaryProjection_v007 U T -
+         coisometric_complementaryProjection_v007 V S) =
+        ‖(T - S) -
+          (coisometric_sandwich_projection_v007 U T -
+           coisometric_sandwich_projection_v007 V S)‖ := by
+      rw [hQ]
+      exact (norm_eq_genuineTraceNorm _).symm
+    _ ≤ ‖T - S‖ +
+        ‖coisometric_sandwich_projection_v007 U T -
+         coisometric_sandwich_projection_v007 V S‖ := norm_sub_le _ _
+    _ ≤ ‖T - S‖ + (‖T - S‖ + 4 * ‖U - V‖ * ‖S‖) :=
+      add_le_add (le_refl _) hP
+    _ = 2 * traceNorm H (T - S) +
+        4 * ‖U - V‖ * traceNorm H S := by
+      rw [← norm_eq_genuineTraceNorm (T - S),
+        ← norm_eq_genuineTraceNorm S]
+      ring
+
+set_option maxHeartbeats 200000
+
+/-- Quantitative stability of the uniquely determined source and kernel
+coordinates when both the input and the coisometry vary. Exact
+coisometry equations guarantee uniqueness; the numerical constants
+come from the separate contractive perturbation estimates. -/
+theorem coisometric_unique_coordinates_joint_traceNorm_le_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ))
+    (T S X Y X' Y' : TraceClass H)
+    (hT : T = sandwichContinuous U.adjoint U X + Y)
+    (hS : S = sandwichContinuous V.adjoint V X' + Y')
+    (hY : sandwichContinuous U U.adjoint Y = 0)
+    (hY' : sandwichContinuous V V.adjoint Y' = 0) :
+    traceNorm H (X - X') ≤
+        traceNorm H (T - S) + 2 * ‖U - V‖ * traceNorm H S ∧
+    traceNorm H (Y - Y') ≤
+        2 * traceNorm H (T - S) + 4 * ‖U - V‖ * traceNorm H S := by
+  obtain ⟨hX, hYcoord⟩ :=
+    coisometric_split_coordinates_unique_v007 U hUUstar T X Y hT hY
+  obtain ⟨hX', hYcoord'⟩ :=
+    coisometric_split_coordinates_unique_v007 V hVVstar S X' Y' hS hY'
+  constructor
+  · rw [hX, hX']
+    exact coisometric_retraction_joint_traceNorm_le_v007
+      U V T S hUnorm hVnorm
+  · rw [hYcoord, hYcoord']
+    exact coisometric_complement_joint_traceNorm_le_v007
+      U V T S hUnorm hVnorm
+
+/-- The retraction operators themselves vary 2-Lipschitzly in
+operator norm on the genuine CFC Schatten S₁ space. Only contractivity
+of U and V is needed; the coisometry identities are not required. -/
+theorem coisometric_retraction_operator_perturbation_v007
+    (U V : H →L[ℂ] H)
+    (hU : ‖U‖ ≤ (1 : ℝ)) (hV : ‖V‖ ≤ (1 : ℝ)) :
+    ‖sandwichContinuous U U.adjoint -
+      sandwichContinuous V V.adjoint‖ ≤ 2 * ‖U - V‖ := by
+  have hAdjU : ‖U.adjoint‖ ≤ (1 : ℝ) := by
+    rw [← ContinuousLinearMap.star_eq_adjoint]
+    simpa only [norm_star] using hU
+  have hAdjV : ‖V.adjoint‖ ≤ (1 : ℝ) := by
+    rw [← ContinuousLinearMap.star_eq_adjoint]
+    simpa only [norm_star] using hV
+  have h := conjugationContinuous_contractions_dist_le_v007
+    U.adjoint V.adjoint hAdjU hAdjV
+  simpa only [ContinuousLinearMap.adjoint_adjoint,
+    conjugation_adjoint_sub_norm_eq_v007 U V] using h
+
+/-- The range projections P_U and P_V differ by at most
+4 ‖U-V‖ in B(S₁), for two contractive bounded multipliers. -/
+theorem coisometric_projection_operator_perturbation_v007
+    (U V : H →L[ℂ] H)
+    (hU : ‖U‖ ≤ (1 : ℝ)) (hV : ‖V‖ ≤ (1 : ℝ)) :
+    ‖coisometric_sandwich_projection_v007 U -
+      coisometric_sandwich_projection_v007 V‖ ≤
+      4 * ‖U - V‖ := by
+  apply ContinuousLinearMap.opNorm_le_bound _ (by positivity)
+  intro T
+  have h := coisometric_projection_joint_traceNorm_le_v007
+    U V T T hU hV
+  change ‖coisometric_sandwich_projection_v007 U T -
+    coisometric_sandwich_projection_v007 V T‖ ≤
+      ‖T - T‖ + 4 * ‖U - V‖ * ‖T‖ at h
+  calc
+    ‖(coisometric_sandwich_projection_v007 U -
+       coisometric_sandwich_projection_v007 V) T‖ =
+        ‖coisometric_sandwich_projection_v007 U T -
+          coisometric_sandwich_projection_v007 V T‖ := by
+      rw [ContinuousLinearMap.sub_apply]
+    _ ≤ ‖T - T‖ + 4 * ‖U - V‖ * ‖T‖ := h
+    _ = (4 * ‖U - V‖) * ‖T‖ := by simp
+
+/-- The complementary projections Q_U and Q_V have the same
+4-Lipschitz perturbation bound on the genuine Schatten S₁ space. -/
+theorem coisometric_complement_operator_perturbation_v007
+    (U V : H →L[ℂ] H)
+    (hU : ‖U‖ ≤ (1 : ℝ)) (hV : ‖V‖ ≤ (1 : ℝ)) :
+    ‖coisometric_complementaryProjection_v007 U -
+      coisometric_complementaryProjection_v007 V‖ ≤
+      4 * ‖U - V‖ := by
+  apply ContinuousLinearMap.opNorm_le_bound _ (by positivity)
+  intro T
+  have h := coisometric_complement_joint_traceNorm_le_v007
+    U V T T hU hV
+  change ‖coisometric_complementaryProjection_v007 U T -
+    coisometric_complementaryProjection_v007 V T‖ ≤
+      2 * ‖T - T‖ + 4 * ‖U - V‖ * ‖T‖ at h
+  calc
+    ‖(coisometric_complementaryProjection_v007 U -
+       coisometric_complementaryProjection_v007 V) T‖ =
+        ‖coisometric_complementaryProjection_v007 U T -
+          coisometric_complementaryProjection_v007 V T‖ := by
+      rw [ContinuousLinearMap.sub_apply]
+    _ ≤ 2 * ‖T - T‖ + 4 * ‖U - V‖ * ‖T‖ := h
+    _ = (4 * ‖U - V‖) * ‖T‖ := by simp
+
+/-- Directed quantitative gap for the closed embedded S₁ ranges
+under perturbation of coisometries. For each source T in range(E_U),
+the explicit target approximation is P_V(T), with trace-norm error
+at most 4 ‖U-V‖ ‖T‖. This is an upper bound, not an optimality claim. -/
+theorem coisometric_embedding_range_directed_gap_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ))
+    (T : TraceClass H)
+    (hT : T ∈ Set.range (sandwichContinuous U.adjoint U)) :
+    ∃ S : TraceClass H,
+      S ∈ Set.range (sandwichContinuous V.adjoint V) ∧
+      dist T S ≤ 4 * ‖U - V‖ * ‖T‖ := by
+  obtain ⟨X, hX⟩ := hT
+  have hFix : coisometric_sandwich_projection_v007 U T = T := by
+    rw [← hX]
+    exact coisometric_projection_fixes_image_v007 U hUUstar X
+  let S : TraceClass H := coisometric_sandwich_projection_v007 V T
+  have hRange : S ∈ Set.range (sandwichContinuous V.adjoint V) := by
+    refine ⟨sandwichContinuous V V.adjoint T, ?_⟩
+    rfl
+  refine ⟨S, hRange, ?_⟩
+  have hOp :=
+    coisometric_projection_operator_perturbation_v007
+      U V hUnorm hVnorm
+  calc
+    dist T S =
+        ‖(coisometric_sandwich_projection_v007 U -
+           coisometric_sandwich_projection_v007 V) T‖ := by
+      rw [dist_eq_norm, ContinuousLinearMap.sub_apply, hFix]
+    _ ≤ ‖coisometric_sandwich_projection_v007 U -
+            coisometric_sandwich_projection_v007 V‖ * ‖T‖ :=
+      ContinuousLinearMap.le_opNorm _ _
+    _ ≤ (4 * ‖U - V‖) * ‖T‖ :=
+      mul_le_mul_of_nonneg_right hOp (norm_nonneg _)
+    _ = 4 * ‖U - V‖ * ‖T‖ := by ring
+
+/-- Directed quantitative gap of the closed kernels ker(R_U).
+For T in ker(R_U), the canonical target approximation is Q_V(T),
+which lies in ker(R_V), with error bounded in the genuine S₁ norm. -/
+theorem coisometric_retraction_kernel_directed_gap_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ))
+    (T : TraceClass H)
+    (hT : sandwichContinuous U U.adjoint T = 0) :
+    ∃ S : TraceClass H,
+      sandwichContinuous V V.adjoint S = 0 ∧
+      dist T S ≤ 4 * ‖U - V‖ * ‖T‖ := by
+  have hFix : coisometric_complementaryProjection_v007 U T = T :=
+    (coisometric_retraction_kernel_iff_complement_fixed_v007
+      U hUUstar T).mp hT
+  let S : TraceClass H := coisometric_complementaryProjection_v007 V T
+  have hKer : sandwichContinuous V V.adjoint S = 0 :=
+    coisometric_retraction_complement_zero_v007 V hVVstar T
+  refine ⟨S, hKer, ?_⟩
+  have hOp :=
+    coisometric_complement_operator_perturbation_v007
+      U V hUnorm hVnorm
+  calc
+    dist T S =
+        ‖(coisometric_complementaryProjection_v007 U -
+           coisometric_complementaryProjection_v007 V) T‖ := by
+      rw [dist_eq_norm, ContinuousLinearMap.sub_apply, hFix]
+    _ ≤ ‖coisometric_complementaryProjection_v007 U -
+            coisometric_complementaryProjection_v007 V‖ * ‖T‖ :=
+      ContinuousLinearMap.le_opNorm _ _
+    _ ≤ (4 * ‖U - V‖) * ‖T‖ :=
+      mul_le_mul_of_nonneg_right hOp (norm_nonneg _)
+    _ = 4 * ‖U - V‖ * ‖T‖ := by ring
+
+/-- Complementary and range projections have exactly opposite
+operator perturbations, without any coisometry or norm hypothesis.
+This improves the paired upper bounds to an exact equality of
+the associated operator-norm variations. -/
+theorem coisometric_complement_operator_difference_eq_neg_projection_v007
+    (U V : H →L[ℂ] H) :
+    coisometric_complementaryProjection_v007 U -
+      coisometric_complementaryProjection_v007 V =
+    -(coisometric_sandwich_projection_v007 U -
+      coisometric_sandwich_projection_v007 V) := by
+  change
+    ((ContinuousLinearMap.id ℂ (TraceClass H) -
+        coisometric_sandwich_projection_v007 U) -
+      (ContinuousLinearMap.id ℂ (TraceClass H) -
+        coisometric_sandwich_projection_v007 V)) =
+      -(coisometric_sandwich_projection_v007 U -
+        coisometric_sandwich_projection_v007 V)
+  abel
+
+/-- Exact equality of operator perturbation norms of the
+complementary and range projections on true CFC Schatten S₁. -/
+theorem coisometric_complement_operator_difference_norm_eq_projection_v007
+    (U V : H →L[ℂ] H) :
+    ‖coisometric_complementaryProjection_v007 U -
+      coisometric_complementaryProjection_v007 V‖ =
+    ‖coisometric_sandwich_projection_v007 U -
+      coisometric_sandwich_projection_v007 V‖ := by
+  rw [coisometric_complement_operator_difference_eq_neg_projection_v007 U V,
+    norm_neg]
+
+
+/-- An explicit upper bound for the normalized directed gap from A
+to B. The source vector is restricted to the closed unit ball, and
+the target point may be any point in B. This is the quantified
+upper-bound formulation of the supremum of point-to-set distances. -/
+def normalizedDirectedGapLE_v007
+    (A B : Set (TraceClass H)) (eps : ℝ) : Prop :=
+  ∀ T : TraceClass H, T ∈ A → ‖T‖ ≤ 1 →
+    ∃ S : TraceClass H, S ∈ B ∧ dist T S ≤ eps
+
+/-- The two-sided normalized gap upper bound: both directed unit-ball
+distance bounds hold with the same prescribed epsilon. -/
+def normalizedBidirectionalGapLE_v007
+    (A B : Set (TraceClass H)) (eps : ℝ) : Prop :=
+  normalizedDirectedGapLE_v007 A B eps ∧
+    normalizedDirectedGapLE_v007 B A eps
+
+/-- Coisometric closed embedding ranges have normalized two-sided
+gap at most 4 ‖U-V‖ in the true Schatten S₁ Banach topology. -/
+theorem coisometric_embedding_range_normalized_bidirectional_gap_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ)) :
+    normalizedBidirectionalGapLE_v007
+      (Set.range (sandwichContinuous U.adjoint U))
+      (Set.range (sandwichContinuous V.adjoint V))
+      (4 * ‖U - V‖) := by
+  constructor
+  · intro T hT hTnorm
+    obtain ⟨S, hS, hdist⟩ :=
+      coisometric_embedding_range_directed_gap_v007
+        U V hUUstar hUnorm hVnorm T hT
+    refine ⟨S, hS, ?_⟩
+    calc
+      dist T S ≤ 4 * ‖U - V‖ * ‖T‖ := hdist
+      _ ≤ 4 * ‖U - V‖ * 1 :=
+        mul_le_mul_of_nonneg_left hTnorm (by positivity)
+      _ = 4 * ‖U - V‖ := by ring
+  · intro T hT hTnorm
+    obtain ⟨S, hS, hdist⟩ :=
+      coisometric_embedding_range_directed_gap_v007
+        V U hVVstar hVnorm hUnorm T hT
+    refine ⟨S, hS, ?_⟩
+    calc
+      dist T S ≤ 4 * ‖V - U‖ * ‖T‖ := hdist
+      _ ≤ 4 * ‖V - U‖ * 1 :=
+        mul_le_mul_of_nonneg_left hTnorm (by positivity)
+      _ = 4 * ‖U - V‖ := by rw [norm_sub_rev]; ring
+
+/-- The complementary closed kernels of the coisometric retractions
+have normalized bidirectional gap at most 4 ‖U-V‖. No assertion of
+optimality or finite-dimensionality is involved. -/
+theorem coisometric_retraction_kernel_normalized_bidirectional_gap_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ)) :
+    normalizedBidirectionalGapLE_v007
+      {T : TraceClass H | sandwichContinuous U U.adjoint T = 0}
+      {T : TraceClass H | sandwichContinuous V V.adjoint T = 0}
+      (4 * ‖U - V‖) := by
+  constructor
+  · intro T hT hTnorm
+    obtain ⟨S, hS, hdist⟩ :=
+      coisometric_retraction_kernel_directed_gap_v007
+        U V hUUstar hVVstar hUnorm hVnorm T hT
+    refine ⟨S, hS, ?_⟩
+    calc
+      dist T S ≤ 4 * ‖U - V‖ * ‖T‖ := hdist
+      _ ≤ 4 * ‖U - V‖ * 1 :=
+        mul_le_mul_of_nonneg_left hTnorm (by positivity)
+      _ = 4 * ‖U - V‖ := by ring
+  · intro T hT hTnorm
+    obtain ⟨S, hS, hdist⟩ :=
+      coisometric_retraction_kernel_directed_gap_v007
+        V U hVVstar hUUstar hVnorm hUnorm T hT
+    refine ⟨S, hS, ?_⟩
+    calc
+      dist T S ≤ 4 * ‖V - U‖ * ‖T‖ := hdist
+      _ ≤ 4 * ‖V - U‖ * 1 :=
+        mul_le_mul_of_nonneg_left hTnorm (by positivity)
+      _ = 4 * ‖U - V‖ := by rw [norm_sub_rev]; ring
+
+
+
+/-!
+## Numerical normalized gaps
+
+The preceding predicates encode sharp-to-the-quantifiers upper bounds.
+Here we additionally construct actual real-valued gaps using sInf
+(point-to-subspace distance) followed by sSup (over the unit ball).
+The bridge theorems are valid whenever the target gap upper bound has
+been proved and the source contains zero.
+-/
+
+/-- Actual real-valued point-to-set distance, represented by sInf
+over all distances to points of B. For nonempty B this agrees with
+the usual distance-to-set construction. -/
+noncomputable def normalizedPointToSetGapValue_v007
+    (T : TraceClass H) (B : Set (TraceClass H)) : ℝ :=
+  sInf {r : ℝ | ∃ S : TraceClass H, S ∈ B ∧ r = dist T S}
+
+/-- Actual numerical directed gap: sSup of point-to-set distances
+over the unit ball of A. Its target B is a nonempty closed subspace
+in the coisometric applications below. -/
+noncomputable def normalizedDirectedGapValue_v007
+    (A B : Set (TraceClass H)) : ℝ :=
+  sSup {r : ℝ | ∃ T : TraceClass H,
+    T ∈ A ∧ ‖T‖ ≤ 1 ∧ r = normalizedPointToSetGapValue_v007 T B}
+
+/-- Symmetric numerical normalized gap, the maximum of two directed
+numerical gaps defined by sSup and sInf in the real numbers. -/
+noncomputable def normalizedBidirectionalGapValue_v007
+    (A B : Set (TraceClass H)) : ℝ :=
+  max (normalizedDirectedGapValue_v007 A B)
+    (normalizedDirectedGapValue_v007 B A)
+
+/-- The quantified normalized directed-gap bound controls the
+actual sSup/sInf numerical directed gap, provided A contains zero. -/
+theorem normalizedDirectedGapValue_le_of_quantified_v007
+    (A B : Set (TraceClass H)) (eps : ℝ)
+    (hA0 : (0 : TraceClass H) ∈ A)
+    (hGap : normalizedDirectedGapLE_v007 A B eps) :
+    normalizedDirectedGapValue_v007 A B ≤ eps := by
+  have hNe :
+      ({r : ℝ | ∃ T : TraceClass H,
+        T ∈ A ∧ ‖T‖ ≤ 1 ∧
+        r = normalizedPointToSetGapValue_v007 T B}).Nonempty := by
+    refine ⟨normalizedPointToSetGapValue_v007 (0 : TraceClass H) B, ?_⟩
+    exact ⟨0, hA0, by simp, rfl⟩
+  unfold normalizedDirectedGapValue_v007
+  apply csSup_le hNe
+  intro r hr
+  obtain ⟨T, hT, hTnorm, rfl⟩ := hr
+  obtain ⟨S, hS, hdist⟩ := hGap T hT hTnorm
+  have hBdd :
+      BddBelow {x : ℝ | ∃ S' : TraceClass H,
+        S' ∈ B ∧ x = dist T S'} := by
+    refine ⟨0, ?_⟩
+    intro x hx
+    obtain ⟨S', hS', rfl⟩ := hx
+    exact dist_nonneg
+  have hInf :
+      normalizedPointToSetGapValue_v007 T B ≤ dist T S := by
+    unfold normalizedPointToSetGapValue_v007
+    exact csInf_le hBdd ⟨S, hS, rfl⟩
+  exact le_trans hInf hdist
+
+/-- A bidirectional quantified estimate yields a numerical
+sSup/sInf gap bound whenever both source sets contain zero. -/
+theorem normalizedBidirectionalGapValue_le_of_quantified_v007
+    (A B : Set (TraceClass H)) (eps : ℝ)
+    (hA0 : (0 : TraceClass H) ∈ A)
+    (hB0 : (0 : TraceClass H) ∈ B)
+    (hGap : normalizedBidirectionalGapLE_v007 A B eps) :
+    normalizedBidirectionalGapValue_v007 A B ≤ eps := by
+  unfold normalizedBidirectionalGapValue_v007
+  exact max_le
+    (normalizedDirectedGapValue_le_of_quantified_v007 A B eps hA0 hGap.1)
+    (normalizedDirectedGapValue_le_of_quantified_v007 B A eps hB0 hGap.2)
+
+/-- Real-valued normalized bidirectional gap of the two embedded
+closed Schatten S₁ ranges is bounded by 4 ‖U-V‖. The numerical
+gap is explicitly represented by nested sSup and sInf. -/
+theorem coisometric_embedding_range_numeric_bidirectional_gap_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ)) :
+    normalizedBidirectionalGapValue_v007
+      (Set.range (sandwichContinuous U.adjoint U))
+      (Set.range (sandwichContinuous V.adjoint V)) ≤
+      4 * ‖U - V‖ := by
+  have h0U :
+      (0 : TraceClass H) ∈
+        Set.range (sandwichContinuous U.adjoint U) :=
+    ⟨0, map_zero _⟩
+  have h0V :
+      (0 : TraceClass H) ∈
+        Set.range (sandwichContinuous V.adjoint V) :=
+    ⟨0, map_zero _⟩
+  exact normalizedBidirectionalGapValue_le_of_quantified_v007
+    _ _ _ h0U h0V
+    (coisometric_embedding_range_normalized_bidirectional_gap_v007
+      U V hUUstar hVVstar hUnorm hVnorm)
+
+/-- The actual numerical normalized bidirectional gap between the
+closed Schatten S₁ kernels of R_U and R_V is ≤ 4 ‖U-V‖. -/
+theorem coisometric_retraction_kernel_numeric_bidirectional_gap_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ)) :
+    normalizedBidirectionalGapValue_v007
+      {T : TraceClass H | sandwichContinuous U U.adjoint T = 0}
+      {T : TraceClass H | sandwichContinuous V V.adjoint T = 0} ≤
+      4 * ‖U - V‖ := by
+  have h0U :
+      (0 : TraceClass H) ∈
+        {T : TraceClass H | sandwichContinuous U U.adjoint T = 0} :=
+    map_zero _
+  have h0V :
+      (0 : TraceClass H) ∈
+        {T : TraceClass H | sandwichContinuous V V.adjoint T = 0} :=
+    map_zero _
+  exact normalizedBidirectionalGapValue_le_of_quantified_v007
+    _ _ _ h0U h0V
+    (coisometric_retraction_kernel_normalized_bidirectional_gap_v007
+      U V hUUstar hVVstar hUnorm hVnorm)
+
+
+
+/-!
+## Basic structural properties of the numerical normalized gap
+
+The real sInf/sSup model is symmetric after taking the two-sided
+maximum, is nonnegative when both sets contain zero, and vanishes
+for two copies of the same set containing zero. These facts rely
+on conditional completeness of the real numbers, not on an
+uncertified distance-to-set abstraction.
+-/
+
+/-- Nonnegativity of the sInf point-to-set distance for a nonempty target. -/
+theorem normalizedPointToSetGapValue_nonneg_v007
+    (T : TraceClass H) (B : Set (TraceClass H))
+    (hB : B.Nonempty) :
+    0 ≤ normalizedPointToSetGapValue_v007 T B := by
+  rcases hB with ⟨S, hS⟩
+  unfold normalizedPointToSetGapValue_v007
+  apply le_csInf
+  · exact ⟨dist T S, S, hS, rfl⟩
+  · intro r hr
+    rcases hr with ⟨S', hS', rfl⟩
+    exact dist_nonneg
+
+/-- If zero belongs to the target, its numerical sInf distance is
+bounded above by the source norm, uniformly for arbitrary sources. -/
+theorem normalizedPointToSetGapValue_le_norm_v007
+    (T : TraceClass H) (B : Set (TraceClass H))
+    (hB0 : (0 : TraceClass H) ∈ B) :
+    normalizedPointToSetGapValue_v007 T B ≤ ‖T‖ := by
+  have hBelow :
+      BddBelow {r : ℝ | ∃ S : TraceClass H, S ∈ B ∧ r = dist T S} := by
+    refine ⟨0, ?_⟩
+    intro r hr
+    obtain ⟨S, hS, rfl⟩ := hr
+    exact dist_nonneg
+  unfold normalizedPointToSetGapValue_v007
+  calc
+    sInf {r : ℝ | ∃ S : TraceClass H, S ∈ B ∧ r = dist T S} ≤
+        dist T (0 : TraceClass H) :=
+      csInf_le hBelow ⟨0, hB0, rfl⟩
+    _ = ‖T‖ := by simp
+
+/-- The real numerical directed unit-ball gap is nonnegative
+when both source and target contain zero. -/
+theorem normalizedDirectedGapValue_nonneg_v007
+    (A B : Set (TraceClass H))
+    (hA0 : (0 : TraceClass H) ∈ A)
+    (hB0 : (0 : TraceClass H) ∈ B) :
+    0 ≤ normalizedDirectedGapValue_v007 A B := by
+  have hAbove :
+      BddAbove {r : ℝ | ∃ T : TraceClass H,
+        T ∈ A ∧ ‖T‖ ≤ 1 ∧
+        r = normalizedPointToSetGapValue_v007 T B} := by
+    refine ⟨1, ?_⟩
+    intro r hr
+    obtain ⟨T, hT, hTnorm, rfl⟩ := hr
+    exact (normalizedPointToSetGapValue_le_norm_v007 T B hB0).trans hTnorm
+  have hPoint :
+      0 ≤ normalizedPointToSetGapValue_v007 (0 : TraceClass H) B :=
+    normalizedPointToSetGapValue_nonneg_v007
+      0 B ⟨0, hB0⟩
+  unfold normalizedDirectedGapValue_v007
+  calc
+    0 ≤ normalizedPointToSetGapValue_v007 (0 : TraceClass H) B := hPoint
+    _ ≤ sSup {r : ℝ | ∃ T : TraceClass H,
+        T ∈ A ∧ ‖T‖ ≤ 1 ∧
+        r = normalizedPointToSetGapValue_v007 T B} :=
+      le_csSup hAbove ⟨0, hA0, by simp, rfl⟩
+
+/-- The numerical bidirectional gap is nonnegative on sets containing zero. -/
+theorem normalizedBidirectionalGapValue_nonneg_v007
+    (A B : Set (TraceClass H))
+    (hA0 : (0 : TraceClass H) ∈ A)
+    (hB0 : (0 : TraceClass H) ∈ B) :
+    0 ≤ normalizedBidirectionalGapValue_v007 A B := by
+  unfold normalizedBidirectionalGapValue_v007
+  exact (normalizedDirectedGapValue_nonneg_v007 A B hA0 hB0).trans
+    (le_max_left _ _)
+
+/-- Symmetry of the actual numerical sSup/sInf bidirectional gap. -/
+theorem normalizedBidirectionalGapValue_symm_v007
+    (A B : Set (TraceClass H)) :
+    normalizedBidirectionalGapValue_v007 A B =
+      normalizedBidirectionalGapValue_v007 B A := by
+  unfold normalizedBidirectionalGapValue_v007
+  exact max_comm _ _
+
+/-- The numerical normalized gap between a nonempty subspace
+containing zero and itself is exactly zero. -/
+theorem normalizedBidirectionalGapValue_self_zero_v007
+    (A : Set (TraceClass H))
+    (hA0 : (0 : TraceClass H) ∈ A) :
+    normalizedBidirectionalGapValue_v007 A A = 0 := by
+  have hReflexive : normalizedBidirectionalGapLE_v007 A A 0 := by
+    constructor
+    · intro T hT hTnorm
+      exact ⟨T, hT, by simp⟩
+    · intro T hT hTnorm
+      exact ⟨T, hT, by simp⟩
+  apply le_antisymm
+  · exact normalizedBidirectionalGapValue_le_of_quantified_v007
+      A A 0 hA0 hA0 hReflexive
+  · exact normalizedBidirectionalGapValue_nonneg_v007 A A hA0 hA0
+
+
+/-- Simultaneous strong trace-norm convergence of the canonical
+coisometric coordinate components when both the bounded multiplier
+and trace-class input converge. The numerical argument only requires
+contractivity, hence covers arbitrary convergent sequences of
+coisometries as a special case. For actual coisometries the components
+are the unique certified split coordinates. -/
+theorem coisometric_joint_components_tendsto_v007
+    (U : ℕ → H →L[ℂ] H) (V : H →L[ℂ] H)
+    (T : ℕ → TraceClass H) (S : TraceClass H)
+    (hUn : ∀ n, ‖U n‖ ≤ (1 : ℝ))
+    (hV : ‖V‖ ≤ (1 : ℝ))
+    (hUt : Filter.Tendsto U Filter.atTop (nhds V))
+    (hTt : Filter.Tendsto T Filter.atTop (nhds S)) :
+    Filter.Tendsto
+      (fun n => sandwichContinuous (U n) (U n).adjoint (T n))
+      Filter.atTop (nhds (sandwichContinuous V V.adjoint S)) ∧
+    Filter.Tendsto
+      (fun n => coisometric_sandwich_projection_v007 (U n) (T n))
+      Filter.atTop (nhds (coisometric_sandwich_projection_v007 V S)) ∧
+    Filter.Tendsto
+      (fun n => coisometric_complementaryProjection_v007 (U n) (T n))
+      Filter.atTop (nhds (coisometric_complementaryProjection_v007 V S)) := by
+  have hData :
+      Filter.Tendsto (fun n => ‖T n - S‖)
+        Filter.atTop (nhds (0 : ℝ)) :=
+    tendsto_iff_norm_sub_tendsto_zero.mp hTt
+  have hMultiplier :
+      Filter.Tendsto (fun n => ‖U n - V‖)
+        Filter.atTop (nhds (0 : ℝ)) :=
+    tendsto_iff_norm_sub_tendsto_zero.mp hUt
+  have hMajorAux :
+      Filter.Tendsto
+        (fun n => (2 : ℝ) * ‖T n - S‖ +
+          ((4 : ℝ) * ‖U n - V‖) * ‖S‖)
+        Filter.atTop
+        (nhds ((2 : ℝ) * 0 + ((4 : ℝ) * 0) * ‖S‖)) :=
+    (tendsto_const_nhds.mul hData).add
+      ((tendsto_const_nhds.mul hMultiplier).mul tendsto_const_nhds)
+  have hMajor :
+      Filter.Tendsto
+        (fun n => (2 : ℝ) * ‖T n - S‖ +
+          4 * ‖U n - V‖ * ‖S‖)
+        Filter.atTop (nhds (0 : ℝ)) := by
+    simpa only [mul_zero, zero_mul, add_zero] using hMajorAux
+  have hConvergence (F : ℕ → TraceClass H) (Z : TraceClass H)
+      (hBound : ∀ n,
+        ‖F n - Z‖ ≤
+          2 * ‖T n - S‖ + 4 * ‖U n - V‖ * ‖S‖) :
+      Filter.Tendsto F Filter.atTop (nhds Z) := by
+    apply tendsto_iff_norm_sub_tendsto_zero.mpr
+    exact squeeze_zero (fun n => norm_nonneg (F n - Z)) hBound hMajor
+  constructor
+  · apply hConvergence
+    intro n
+    have h := coisometric_retraction_joint_traceNorm_le_v007
+      (U n) V (T n) S (hUn n) hV
+    change ‖sandwichContinuous (U n) (U n).adjoint (T n) -
+      sandwichContinuous V V.adjoint S‖ ≤
+        ‖T n - S‖ + 2 * ‖U n - V‖ * ‖S‖ at h
+    have hn : 0 ≤ ‖T n - S‖ := norm_nonneg _
+    have hm : 0 ≤ ‖U n - V‖ * ‖S‖ :=
+      mul_nonneg (norm_nonneg _) (norm_nonneg _)
+    nlinarith
+  constructor
+  · apply hConvergence
+    intro n
+    have h := coisometric_projection_joint_traceNorm_le_v007
+      (U n) V (T n) S (hUn n) hV
+    change ‖coisometric_sandwich_projection_v007 (U n) (T n) -
+      coisometric_sandwich_projection_v007 V S‖ ≤
+        ‖T n - S‖ + 4 * ‖U n - V‖ * ‖S‖ at h
+    nlinarith [norm_nonneg (T n - S)]
+  · apply hConvergence
+    intro n
+    have h := coisometric_complement_joint_traceNorm_le_v007
+      (U n) V (T n) S (hUn n) hV
+    change ‖coisometric_complementaryProjection_v007 (U n) (T n) -
+      coisometric_complementaryProjection_v007 V S‖ ≤
+        2 * ‖T n - S‖ + 4 * ‖U n - V‖ * ‖S‖ at h
+    exact h
+
+
+/-!
+## Universal unit-ball cap and refined gap estimates
+
+The real-valued normalized gap cannot exceed one for two nonempty
+linear subspaces, because the target always contains zero. Combining
+this cap with the certified Lipschitz upper bound gives the stronger
+min(1, 4‖U-V‖) bound. No optimality of the factor four is asserted.
+-/
+
+/-- The numerical directed gap is at most one if both sets contain
+zero; this uses the previously certified sInf/sSup bridge. -/
+theorem normalizedDirectedGapValue_le_one_v007
+    (A B : Set (TraceClass H))
+    (hA0 : (0 : TraceClass H) ∈ A)
+    (hB0 : (0 : TraceClass H) ∈ B) :
+    normalizedDirectedGapValue_v007 A B ≤ 1 := by
+  apply normalizedDirectedGapValue_le_of_quantified_v007 A B 1 hA0
+  intro T hT hTnorm
+  refine ⟨0, hB0, ?_⟩
+  simpa using hTnorm
+
+/-- The numerical symmetric normalized gap is universally ≤ 1
+when both sets contain zero. -/
+theorem normalizedBidirectionalGapValue_le_one_v007
+    (A B : Set (TraceClass H))
+    (hA0 : (0 : TraceClass H) ∈ A)
+    (hB0 : (0 : TraceClass H) ∈ B) :
+    normalizedBidirectionalGapValue_v007 A B ≤ 1 := by
+  unfold normalizedBidirectionalGapValue_v007
+  exact max_le
+    (normalizedDirectedGapValue_le_one_v007 A B hA0 hB0)
+    (normalizedDirectedGapValue_le_one_v007 B A hB0 hA0)
+
+/-- Refined numerical two-way gap estimate for closed coisometric
+ranges, uniformly capped by the normalized unit ball radius. -/
+theorem coisometric_embedding_range_numeric_gap_min_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ)) :
+    normalizedBidirectionalGapValue_v007
+      (Set.range (sandwichContinuous U.adjoint U))
+      (Set.range (sandwichContinuous V.adjoint V)) ≤
+      min 1 (4 * ‖U - V‖) := by
+  have h0U :
+      (0 : TraceClass H) ∈
+        Set.range (sandwichContinuous U.adjoint U) :=
+    ⟨0, map_zero _⟩
+  have h0V :
+      (0 : TraceClass H) ∈
+        Set.range (sandwichContinuous V.adjoint V) :=
+    ⟨0, map_zero _⟩
+  exact le_min
+    (normalizedBidirectionalGapValue_le_one_v007 _ _ h0U h0V)
+    (coisometric_embedding_range_numeric_bidirectional_gap_v007
+      U V hUUstar hVVstar hUnorm hVnorm)
+
+/-- Refined numerical two-way gap estimate for closed coisometric
+retraction kernels, uniformly capped by one. -/
+theorem coisometric_retraction_kernel_numeric_gap_min_v007
+    (U V : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (hVVstar : V * V.adjoint = 1)
+    (hUnorm : ‖U‖ ≤ (1 : ℝ))
+    (hVnorm : ‖V‖ ≤ (1 : ℝ)) :
+    normalizedBidirectionalGapValue_v007
+      {T : TraceClass H | sandwichContinuous U U.adjoint T = 0}
+      {T : TraceClass H | sandwichContinuous V V.adjoint T = 0} ≤
+      min 1 (4 * ‖U - V‖) := by
+  have h0U :
+      (0 : TraceClass H) ∈
+        {T : TraceClass H | sandwichContinuous U U.adjoint T = 0} :=
+    map_zero _
+  have h0V :
+      (0 : TraceClass H) ∈
+        {T : TraceClass H | sandwichContinuous V V.adjoint T = 0} :=
+    map_zero _
+  exact le_min
+    (normalizedBidirectionalGapValue_le_one_v007 _ _ h0U h0V)
+    (coisometric_retraction_kernel_numeric_bidirectional_gap_v007
+      U V hUUstar hVVstar hUnorm hVnorm)
+
+
+/-!
+## Stability of unique split coordinates and closed-subspace gaps
+
+The previously certified simultaneous convergence theorem extends to
+the unique coordinates in actual coisometric splittings. Moreover the
+real-valued normalized gaps between their closed ranges and kernels
+vanish when the coisometric multipliers converge in operator norm.
+-/
+
+/-- The uniquely determined source and kernel coordinates converge in
+the genuine Schatten S₁ norm for simultaneously varying data and
+coisometries. No positivity or selfadjointness is assumed. -/
+theorem coisometric_unique_coordinates_tendsto_v007
+    (U : ℕ → H →L[ℂ] H) (V : H →L[ℂ] H)
+    (T X Y : ℕ → TraceClass H) (S X₀ Y₀ : TraceClass H)
+    (hUU : ∀ n, U n * (U n).adjoint = 1)
+    (hVV : V * V.adjoint = 1)
+    (hUn : ∀ n, ‖U n‖ ≤ (1 : ℝ))
+    (hV : ‖V‖ ≤ (1 : ℝ))
+    (hSplit : ∀ n, T n =
+      sandwichContinuous (U n).adjoint (U n) (X n) + Y n)
+    (hKer : ∀ n, sandwichContinuous (U n) (U n).adjoint (Y n) = 0)
+    (hLimitSplit : S = sandwichContinuous V.adjoint V X₀ + Y₀)
+    (hLimitKer : sandwichContinuous V V.adjoint Y₀ = 0)
+    (hUt : Filter.Tendsto U Filter.atTop (nhds V))
+    (hTt : Filter.Tendsto T Filter.atTop (nhds S)) :
+    Filter.Tendsto X Filter.atTop (nhds X₀) ∧
+      Filter.Tendsto Y Filter.atTop (nhds Y₀) := by
+  have hX (n : ℕ) :
+      X n = sandwichContinuous (U n) (U n).adjoint (T n) :=
+    (coisometric_split_coordinates_unique_v007
+      (U n) (hUU n) (T n) (X n) (Y n)
+      (hSplit n) (hKer n)).1
+  have hY (n : ℕ) :
+      Y n = coisometric_complementaryProjection_v007 (U n) (T n) :=
+    (coisometric_split_coordinates_unique_v007
+      (U n) (hUU n) (T n) (X n) (Y n)
+      (hSplit n) (hKer n)).2
+  obtain ⟨hX₀, hY₀⟩ :=
+    coisometric_split_coordinates_unique_v007
+      V hVV S X₀ Y₀ hLimitSplit hLimitKer
+  obtain ⟨hR, _, hQ⟩ :=
+    coisometric_joint_components_tendsto_v007
+      U V T S hUn hV hUt hTt
+  constructor
+  · change Filter.Tendsto (fun n => X n) Filter.atTop (nhds X₀)
+    simpa only [hX, hX₀] using hR
+  · change Filter.Tendsto (fun n => Y n) Filter.atTop (nhds Y₀)
+    simpa only [hY, hY₀] using hQ
+
+/-- Operator-norm convergence of coisometries implies convergence to
+zero of the actual normalized bidirectional gaps between the associated
+closed Schatten S₁ embedding ranges and retraction kernels. -/
+theorem coisometric_numeric_subspace_gaps_tendsto_zero_v007
+    (U : ℕ → H →L[ℂ] H) (V : H →L[ℂ] H)
+    (hUU : ∀ n, U n * (U n).adjoint = 1)
+    (hVV : V * V.adjoint = 1)
+    (hUn : ∀ n, ‖U n‖ ≤ (1 : ℝ))
+    (hV : ‖V‖ ≤ (1 : ℝ))
+    (hUt : Filter.Tendsto U Filter.atTop (nhds V)) :
+    Filter.Tendsto
+      (fun n => normalizedBidirectionalGapValue_v007
+        (Set.range (sandwichContinuous (U n).adjoint (U n)))
+        (Set.range (sandwichContinuous V.adjoint V)))
+      Filter.atTop (nhds (0 : ℝ)) ∧
+    Filter.Tendsto
+      (fun n => normalizedBidirectionalGapValue_v007
+        {T : TraceClass H |
+          sandwichContinuous (U n) (U n).adjoint T = 0}
+        {T : TraceClass H | sandwichContinuous V V.adjoint T = 0})
+      Filter.atTop (nhds (0 : ℝ)) := by
+  have hNorm :
+      Filter.Tendsto (fun n => ‖U n - V‖)
+        Filter.atTop (nhds (0 : ℝ)) :=
+    tendsto_iff_norm_sub_tendsto_zero.mp hUt
+  have hMajor :
+      Filter.Tendsto (fun n => (4 : ℝ) * ‖U n - V‖)
+        Filter.atTop (nhds (0 : ℝ)) := by
+    simpa only [mul_zero] using
+      ((tendsto_const_nhds : Filter.Tendsto
+        (fun _ : ℕ => (4 : ℝ)) Filter.atTop (nhds (4 : ℝ))).mul hNorm)
+  constructor
+  · apply squeeze_zero
+    · intro n
+      apply normalizedBidirectionalGapValue_nonneg_v007
+      · exact ⟨0, map_zero _⟩
+      · exact ⟨0, map_zero _⟩
+    · intro n
+      exact coisometric_embedding_range_numeric_bidirectional_gap_v007
+        (U n) V (hUU n) hVV (hUn n) hV
+    · exact hMajor
+  · apply squeeze_zero
+    · intro n
+      apply normalizedBidirectionalGapValue_nonneg_v007
+      · exact map_zero _
+      · exact map_zero _
+    · intro n
+      exact coisometric_retraction_kernel_numeric_bidirectional_gap_v007
+        (U n) V (hUU n) hVV (hUn n) hV
+    · exact hMajor
+
+#print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_norm_le_one_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_dist_le_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_component_dist_le_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_unique_coordinates_dist_le_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_unique_coordinates_norm_le_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_joint_traceNorm_le_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_projection_joint_traceNorm_le_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_complement_joint_traceNorm_le_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_unique_coordinates_joint_traceNorm_le_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_operator_perturbation_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_projection_operator_perturbation_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_complement_operator_perturbation_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_complement_operator_difference_eq_neg_projection_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_complement_operator_difference_norm_eq_projection_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_embedding_range_directed_gap_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_kernel_directed_gap_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_embedding_range_normalized_bidirectional_gap_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_kernel_normalized_bidirectional_gap_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedDirectedGapValue_le_of_quantified_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_le_of_quantified_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_embedding_range_numeric_bidirectional_gap_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_kernel_numeric_bidirectional_gap_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedPointToSetGapValue_nonneg_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedPointToSetGapValue_le_norm_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedDirectedGapValue_nonneg_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_nonneg_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_symm_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_self_zero_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedDirectedGapValue_le_one_v007
+#print axioms ProbabilisticTheory.TraceClass.normalizedBidirectionalGapValue_le_one_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_embedding_range_numeric_gap_min_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_retraction_kernel_numeric_gap_min_v007
+
+#print axioms ProbabilisticTheory.TraceClass.coisometric_joint_components_tendsto_v007
+
+#print axioms ProbabilisticTheory.TraceClass.coisometric_unique_coordinates_tendsto_v007
+#print axioms ProbabilisticTheory.TraceClass.coisometric_numeric_subspace_gaps_tendsto_zero_v007
+
+end ProbabilisticTheory.TraceClass

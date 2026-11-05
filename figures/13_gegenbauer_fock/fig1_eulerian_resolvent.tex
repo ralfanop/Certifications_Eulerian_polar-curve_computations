@@ -1,0 +1,35 @@
+\documentclass[12pt]{standalone}
+\usepackage{amsmath}
+\input{style.tex}
+\begin{document}
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=1 by 2, vertical sep=3.1cm},
+  ojac, xmin=0, xmax=8*pi, domain=0:8*pi,
+  xtick={0,6.283185,12.566371,18.849556,25.132741},
+  xticklabels={$0$,$2\pi$,$4\pi$,$6\pi$,$8\pi$},
+  minor xtick={3.141593,9.424778,15.707963,21.991149},
+  xlabel={$\rho$}]
+\nextgroupplot[ymin=-0.3, ymax=1.15, ytick={-0.25,0,0.25,0.5,0.75,1},
+  yticklabels={$-0.25$,$0$,$0.25$,$0.50$,$0.75$,$1.00$},
+  ylabel={$r_E(\rho)$}]
+  \addplot[black!35, line width=0.4pt, forget plot] coordinates {(0,0) (25.132741,0)};
+  \addplot[ojacblue, line width=1.6pt] table[x=rho,y=y] {fig1_im.dat};
+  \addlegendentry{$r_E(\rho)=\sin(\rho/2)/(\rho/2)$}
+  \addplot[red, line width=0.9pt, dashed, dash pattern=on 5pt off 3pt] table[x=rho,y=y] {fig1_im.dat};
+  \addlegendentry{$8\pi\operatorname{Im}G^{\mathrm{out}}_{3,\frac12}(\rho)$}
+  \addplot[only marks, mark=*, mark size=1.6pt, black, forget plot]
+    coordinates {(0,1) (6.283185,0) (12.566371,0) (18.849556,0) (25.132741,0)};
+  \node[font=\small, anchor=west] at (axis cs:0.55,1.045) {$(0,1)$};
+  \node[font=\fontsize{16.4}{19.7}\selectfont, anchor=south east, inner sep=3pt] at (axis cs:25.13,-0.3) {(a)};
+\nextgroupplot[ymin=-0.62, ymax=2.6, ytick={-0.5,0,0.5,1,1.5,2,2.5},
+  yticklabels={$-0.5$,$0$,$0.5$,$1.0$,$1.5$,$2.0$,$2.5$},
+  ylabel={$8\pi\operatorname{Re}G^{\mathrm{out}}_{3,\frac12}(\rho)$, $8\pi\operatorname{Im}G^{\mathrm{out}}_{3,\frac12}(\rho)$}]
+  \addplot[black!35, line width=0.4pt, forget plot] coordinates {(0,0) (25.132741,0)};
+  \addplot[ojacblue, line width=1.3pt] table[x=rho,y=y] {fig1_im.dat};
+  \addlegendentry{$8\pi\operatorname{Im}G^{\mathrm{out}}_{3,\frac12}(\rho)=2\sin(\rho/2)/\rho$}
+  \addplot[red, line width=1.1pt, restrict y to domain=-3:3, unbounded coords=jump] table[x=rho,y=y] {fig1_re.dat};
+  \addlegendentry{$8\pi\operatorname{Re}G^{\mathrm{out}}_{3,\frac12}(\rho)=2\cos(\rho/2)/\rho$}
+  \node[font=\fontsize{16.4}{19.7}\selectfont, anchor=south east, inner sep=3pt] at (axis cs:25.13,-0.62) {(b)};
+\end{groupplot}
+\end{tikzpicture}
+\end{document}

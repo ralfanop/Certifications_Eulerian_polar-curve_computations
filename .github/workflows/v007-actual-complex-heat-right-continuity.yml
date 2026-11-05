@@ -1,0 +1,57 @@
+name: V007 actual complex Sturm heat all-time right continuity
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleActualComplexHeatRightContinuity.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleActualComplexHeatFullC0.lean'
+      - '.github/workflows/v007-actual-complex-heat-right-continuity.yml'
+  workflow_dispatch:
+
+jobs:
+  all-time-right-continuity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and kernel-audit all-time right continuity
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleActualComplexHeatRightContinuity 2>&1 | tee /tmp/v007-complex-right-cont-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleActualComplexHeatRightContinuity.lean 2>&1 | tee /tmp/v007-complex-right-cont-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-complex-right-cont-build.log /tmp/v007-complex-right-cont-axioms.log; then
+            echo '::error::Forbidden axiom in genuine complex Sturm all-time right continuity.'
+            exit 1
+          fi
+          grep -F "sturmActualComplexHeatCLM_tendsto_at_nonnegative_time_right' depends on axioms:" /tmp/v007-complex-right-cont-axioms.log
+          echo 'V007 actual complex Sturm all-time right continuity audited.'

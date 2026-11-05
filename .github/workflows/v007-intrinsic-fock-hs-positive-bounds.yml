@@ -1,0 +1,57 @@
+name: V007 intrinsic Fock strict nonvacuum Kummer energy bounds
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireHSBounds.lean'
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireHSRealGammaIntegral.lean'
+      - '.github/workflows/v007-intrinsic-fock-hs-positive-bounds.yml'
+  workflow_dispatch:
+
+jobs:
+  intrinsic-fock-positive-energy:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Restore pinned Mathlib and cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit actual analytic Fock positive Kummer trace bounds
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GegenbauerIntrinsicEntireHSBounds 2>&1 | tee /tmp/v007-intrinsic-fock-hs-bounds.log
+          lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireHSBounds.lean 2>&1 | tee -a /tmp/v007-intrinsic-fock-hs-bounds.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-intrinsic-fock-hs-bounds.log; then
+            echo "::error::Forbidden axioms in intrinsic Fock HS positive bounds"
+            exit 1
+          fi
+          grep -F "C_intrinsicEntire_HS_energy_two_sided_bound' depends on axioms:" /tmp/v007-intrinsic-fock-hs-bounds.log
+          grep -F "C_intrinsicEntire_HS_energy_gt_one' depends on axioms:" /tmp/v007-intrinsic-fock-hs-bounds.log
+          grep -F "C_intrinsicEntire_Gram_trace_two_sided_bound' depends on axioms:" /tmp/v007-intrinsic-fock-hs-bounds.log
+          grep -F "C_intrinsicEntire_opNorm_le_sqrt_kummer' depends on axioms:" /tmp/v007-intrinsic-fock-hs-bounds.log
+          echo 'Intrinsic Fock HS and Gram strict positive Kummer bounds: kernel and axioms clean.'

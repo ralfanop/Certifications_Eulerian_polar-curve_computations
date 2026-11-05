@@ -1,0 +1,57 @@
+name: V007 uniform canonical-domain heat difference quotient bound
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatGeneratorGraphSlopeBound.lean'
+      - '.github/workflows/v007-sturm-heat-generator-graph-slope-bound.yml'
+  workflow_dispatch:
+
+jobs:
+  heat-graph-slope-bound:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and kernel audit all-domain heat slope norm estimate
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealHeatGeneratorGraphSlopeBound 2>&1 | tee /tmp/v007-heat-slope-bound-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatGeneratorGraphSlopeBound.lean 2>&1 | tee /tmp/v007-heat-slope-bound-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-heat-slope-bound-build.log /tmp/v007-heat-slope-bound-axioms.log; then
+            echo '::error::Forbidden axiom in canonical-domain heat slope bound.'
+            exit 1
+          fi
+          grep -F "sturmRealHeat_closed_domain_slope_norm_le' depends on axioms:" /tmp/v007-heat-slope-bound-axioms.log
+          echo 'V007 genuine closed graph heat difference quotient norm bound kernel-certified.'

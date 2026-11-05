@@ -1,0 +1,61 @@
+name: V007 bilateral Gram negative-real resolvent Lean certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/TwoSidedGramNegativeResolvent.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramPositiveSpectrum.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramSpectrumEquality.lean'
+      - '.github/workflows/gegenbauer-fock-gram-negative-resolvent.yml'
+  workflow_dispatch:
+
+jobs:
+  bilateral-negative-resolvent:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4 with retries
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Restore exact pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile both negative-real resolvents and audit kernel axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramNegativeResolvent 2>&1 | tee /tmp/v007-negative-resolvent.log
+          for theorem in two_sided_gram_resolventSet_eq \
+            source_gram_negative_real_mem_resolventSet \
+            output_gram_negative_real_mem_resolventSet; do
+            grep -qF "${theorem}' depends on axioms:" /tmp/v007-negative-resolvent.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-negative-resolvent.log; then
+            echo '::error::Forbidden axiom in negative-real resolvent certificate.'
+            exit 1
+          fi
+          echo 'Both full Gram resolvent sets coincide; negative-real regularization kernel certified.'

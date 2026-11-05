@@ -1,0 +1,55 @@
+name: V007 Fourier–Bochner local imaginary-segment uniqueness
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireLocalFourierUniqueness.lean'
+      - '.github/workflows/v007-intrinsic-fock-local-fourier-uniqueness.yml'
+  workflow_dispatch:
+
+jobs:
+  local-fourier-uniqueness:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Restore pinned Mathlib and cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile imaginary-axis uniqueness and audit all axioms
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GegenbauerIntrinsicEntireLocalFourierUniqueness 2>&1 | tee /tmp/v007-local-fourier-build.log
+          lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireLocalFourierUniqueness.lean 2>&1 | tee /tmp/v007-local-fourier-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-local-fourier-build.log /tmp/v007-local-fourier-axioms.log; then
+            echo "::error::Forbidden axiom in local Fourier uniqueness"
+            exit 1
+          fi
+          for name in C_intrinsicEntire_injective_of_imaginary_segment ultraspherical_fourierBochner_injective_on_imaginary_segment C_intrinsicEntire_crossAlpha_injective_of_imaginary_segment; do
+            grep -F "${name}' depends on axioms:" /tmp/v007-local-fourier-axioms.log
+          done
+          echo 'V007 local Fourier–Bochner uniqueness compilation and axiom audit successful.'

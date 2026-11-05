@@ -1,0 +1,55 @@
+name: V007 decay of Gegenbauer Sturm resolvent spectral multipliers
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventMultiplierDecay.lean'
+      - '.github/workflows/v007-ultraspherical-sturm-resolvent-multiplier-decay.yml'
+  workflow_dispatch:
+
+jobs:
+  resolvent-multiplier-decay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then exit 0; fi
+            sleep "$((attempt * 8))"
+          done
+          exit 1
+      - name: Prepare exact Mathlib dependencies
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Certify multipliers' positivity and vanishing at infinity
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleResolventMultiplierDecay 2>&1 | tee /tmp/gf-resolvent-multiplier-decay.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleResolventMultiplierDecay.lean 2>&1 | tee /tmp/gf-resolvent-multiplier-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-resolvent-multiplier-decay.log /tmp/gf-resolvent-multiplier-axioms.log; then
+            echo '::error::Nonstandard axiom in resolvent multiplier decay.'
+            exit 1
+          fi
+          for theorem in sturmResolventMultiplier_pos sturmResolventMultiplier_tendsto_zero; do
+            grep -F "${theorem}' depends on axioms:" /tmp/gf-resolvent-multiplier-axioms.log
+          done
+          echo 'V007 resolvent multiplier positivity and decay kernel-certified.'

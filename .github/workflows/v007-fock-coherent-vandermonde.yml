@@ -1,0 +1,54 @@
+name: V007 finite Gaussian coherent Vandermonde separation
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/GaussianAreaFiniteCoherentVandermonde.lean'
+      - '.github/workflows/v007-fock-coherent-vandermonde.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: v007-fock-coherent-vandermonde-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  gaussian-coherent-vandermonde:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lake" --version
+      - name: Restore pinned Mathlib cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile Vandermonde separation and audit axioms
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GaussianAreaFiniteCoherentVandermonde 2>&1 | tee /tmp/v007-fock-vandermonde.log
+          lake env lean -M16768 GegenbauerFock/GaussianAreaFiniteCoherentVandermonde.lean 2>&1 | tee -a /tmp/v007-fock-vandermonde.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-fock-vandermonde.log; then
+            echo "::error::Forbidden axiom in finite coherent Vandermonde proof."
+            exit 1
+          fi
+          grep -F "finite_vandermonde_moments_zero_coefficients' depends on axioms:" /tmp/v007-fock-vandermonde.log
+          grep -F "finite_conjugate_vandermonde_moments_zero_coefficients' depends on axioms:" /tmp/v007-fock-vandermonde.log
+          echo 'V007 coherent Vandermonde separation: Lean and axiom audit clean.'

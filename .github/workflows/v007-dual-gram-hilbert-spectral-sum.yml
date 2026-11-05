@@ -1,0 +1,62 @@
+name: V007 dual Gram Hilbert spectral sum certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/DualGramHilbertSpectralSum.lean'
+      - '.github/workflows/v007-dual-gram-hilbert-spectral-sum.yml'
+  workflow_dispatch:
+
+jobs:
+  dual-gram-hilbert-spectral-sum:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then
+              ok=1
+              break
+            fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-compile and audit bilateral Hilbert spectral sums
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.DualGramHilbertSpectralSum 2>&1 | tee /tmp/v007-hilbert-spectral-build.log
+          lake env lean -M16768 GegenbauerFock/DualGramHilbertSpectralSum.lean 2>&1 | tee /tmp/v007-hilbert-spectral-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-hilbert-spectral-build.log /tmp/v007-hilbert-spectral-axioms.log; then
+            echo '::error::Forbidden axiom in bilateral Hilbert spectral sum.'
+            exit 1
+          fi
+          for name in sourceGram_eigenspaces_closure_top outputGram_eigenspaces_closure_top sourceGram_eigenspaces_isHilbertSum outputGram_eigenspaces_isHilbertSum; do
+            grep -F "${name}' depends on axioms:" /tmp/v007-hilbert-spectral-axioms.log
+          done
+          echo 'Bilateral Hilbert spectral sum declarations kernel-checked and audited.'

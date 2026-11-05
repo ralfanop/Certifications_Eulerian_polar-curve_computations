@@ -1,0 +1,107 @@
+import GegenbauerFock.GegenbauerIntrinsicEntireGramPairing
+import GegenbauerFock.GramNuclearTrace
+
+/-!
+# V007 — basis-independent Hilbert–Schmidt Kummer energy in true analytic Fock
+
+The ultraspherical-to-Gaussian entire-L² operator is a genuine
+bounded operator between Hilbert spaces. Its squared Hilbert–Schmidt
+source-basis energy is summable for EVERY complete source Hilbert
+basis, and equals the unregularized Kummer series independently
+certified for the coefficient-space transform.
+
+The result is phrased using the already certified basis-defined S₂
+criterion, and does not quietly identify that criterion with a
+different external Schatten ideal implementation.
+-/
+
+noncomputable section
+
+open MeasureTheory
+
+namespace GegenbauerFock.GeneralUltrasphericalFock
+
+/-- On every complete source Hilbert basis, the true holomorphic
+Gaussian L² transform has summable squared output norms. -/
+theorem C_intrinsicEntire_HS_basis_summable
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    {ι : Type*}
+    (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
+    Summable (fun i : ι =>
+      ‖C_intrinsicEntire lam alpha hlam ha (b i)‖ ^ 2) := by
+  letI : IsProbabilityMeasure (Ultraspherical.measure lam) :=
+    Ultraspherical.probability lam hlam
+  have h :
+      Summable (fun i : ι => ‖C lam alpha hlam ha (b i)‖ ^ 2) := by
+    change Summable (fun i : ι =>
+      ‖ConcreteFock.operator (Ultraspherical.measure lam)
+        (ae_abs_le_one lam) alpha ha (b i)‖ ^ 2)
+    exact FockEnergy.concrete_sourceBasis_energy_summable
+      (Ultraspherical.measure lam) (ae_abs_le_one lam) alpha ha b
+  simpa only [C_intrinsicEntire_norm] using h
+
+/-- The exact basis-independent S₂ energy on the actual analytic
+Bargmann–Fock codomain equals the unregularized Kummer series. -/
+theorem C_intrinsicEntire_HS_energy_eq_kummer
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    {ι : Type*}
+    (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
+    (∑' i : ι, ‖C_intrinsicEntire lam alpha hlam ha (b i)‖ ^ 2) =
+      KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) := by
+  calc
+    (∑' i : ι, ‖C_intrinsicEntire lam alpha hlam ha (b i)‖ ^ 2) =
+        ∑' i : ι, ‖C lam alpha hlam ha (b i)‖ ^ 2 := by
+          apply tsum_congr
+          intro i
+          rw [C_intrinsicEntire_norm lam alpha hlam ha]
+    _ = KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) :=
+      C_sourceBasis_HSEnergy_eq_kummer lam alpha hlam ha b
+
+/-- Consequently the actual intrinsic Fock source-Gram diagonal trace
+has the same Kummer value in every complete source Hilbert basis. -/
+theorem C_intrinsicEntire_Gram_basis_trace_eq_kummer
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    {ι : Type*}
+    (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
+    (∑' i : ι,
+      RCLike.re (inner ℂ
+        (C_intrinsicEntire_gram lam alpha hlam ha (b i)) (b i))) =
+      KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) := by
+  calc
+    (∑' i : ι,
+        RCLike.re (inner ℂ
+          (C_intrinsicEntire_gram lam alpha hlam ha (b i)) (b i))) =
+      (∑' i : ι, ‖C_intrinsicEntire lam alpha hlam ha (b i)‖ ^ 2) := by
+        apply tsum_congr
+        intro i
+        calc
+          RCLike.re (inner ℂ
+              (C_intrinsicEntire_gram lam alpha hlam ha (b i)) (b i)) =
+            RCLike.re (inner ℂ
+              (gram lam alpha hlam ha (b i)) (b i)) :=
+              C_intrinsicEntire_gram_energy lam alpha hlam ha (b i)
+          _ = ‖C lam alpha hlam ha (b i)‖ ^ 2 :=
+              (HilbertGram.gram_norm_sq (C lam alpha hlam ha) (b i)).symm
+          _ = ‖C_intrinsicEntire lam alpha hlam ha (b i)‖ ^ 2 := by
+              rw [C_intrinsicEntire_norm lam alpha hlam ha]
+    _ = KummerCoefficients.kummerSeries lam (1 / (4 * alpha)) :=
+      C_intrinsicEntire_HS_energy_eq_kummer lam alpha hlam ha b
+
+/-- The source-basis S₂ norm expression for the intrinsic analytic
+ultraspherical transform equals the square root of Kummer. The
+basis-defined norm does not presume a global completeness instance. -/
+theorem C_intrinsicEntire_basisHSNorm_eq_sqrt_kummer
+    (lam alpha : ℝ) (hlam : 0 < lam) (ha : 0 < alpha)
+    {ι : Type*}
+    (b : HilbertBasis ι ℂ (Lp ℂ 2 (Ultraspherical.measure lam))) :
+    Real.sqrt
+      (∑' i : ι, ‖C_intrinsicEntire lam alpha hlam ha (b i)‖ ^ 2) =
+        Real.sqrt (KummerCoefficients.kummerSeries lam (1 / (4 * alpha))) := by
+  rw [C_intrinsicEntire_HS_energy_eq_kummer lam alpha hlam ha b]
+
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_HS_basis_summable
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_HS_energy_eq_kummer
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_basisHSNorm_eq_sqrt_kummer
+#print axioms GegenbauerFock.GeneralUltrasphericalFock.C_intrinsicEntire_Gram_basis_trace_eq_kummer
+
+end GegenbauerFock.GeneralUltrasphericalFock

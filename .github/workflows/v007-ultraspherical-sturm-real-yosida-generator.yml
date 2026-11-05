@@ -1,0 +1,78 @@
+name: V007 bounded dissipative Sturm Yosida generator
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaGenerator.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaGeneratorConvergence.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaEuler.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaEulerPowers.lean'
+      - '.github/workflows/v007-ultraspherical-sturm-real-yosida-generator.yml'
+  workflow_dispatch:
+
+jobs:
+  yosida-generator:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit bounded dissipative Yosida generator
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealYosidaGenerator 2>&1 | tee /tmp/v007-yosida-generator-build.log
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealYosidaGeneratorConvergence 2>&1 | tee /tmp/v007-yosida-convergence-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaGenerator.lean 2>&1 | tee /tmp/v007-yosida-generator-axioms.log
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealYosidaEuler 2>&1 | tee /tmp/v007-yosida-euler-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaGeneratorConvergence.lean 2>&1 | tee /tmp/v007-yosida-convergence-axioms.log
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealYosidaEulerPowers 2>&1 | tee /tmp/v007-yosida-euler-powers-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaEuler.lean 2>&1 | tee /tmp/v007-yosida-euler-axioms.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaEulerPowers.lean 2>&1 | tee /tmp/v007-yosida-euler-powers-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-yosida-generator-build.log /tmp/v007-yosida-generator-axioms.log /tmp/v007-yosida-convergence-build.log /tmp/v007-yosida-convergence-axioms.log /tmp/v007-yosida-euler-build.log /tmp/v007-yosida-euler-axioms.log /tmp/v007-yosida-euler-powers-build.log /tmp/v007-yosida-euler-powers-axioms.log; then
+            echo '::error::Forbidden axiom in Yosida generator proof.'
+            exit 1
+          fi
+          grep -F "sturmRealYosidaGenerator_apply' depends on axioms:" /tmp/v007-yosida-generator-axioms.log
+          grep -F "sturmRealYosidaGenerator_inner_nonpos' depends on axioms:" /tmp/v007-yosida-generator-axioms.log
+          grep -F "sturmRealYosidaGenerator_norm_le' depends on axioms:" /tmp/v007-yosida-generator-axioms.log
+          grep -F "sturmRealYosidaGenerator_on_closed_domain' depends on axioms:" /tmp/v007-yosida-convergence-axioms.log
+          grep -F "sturmRealYosidaGenerator_closed_domain_norm_le' depends on axioms:" /tmp/v007-yosida-convergence-axioms.log
+          grep -F "sturmRealYosidaGenerator_closed_domain_strong_approximation' depends on axioms:" /tmp/v007-yosida-convergence-axioms.log
+          grep -F "sturmRealYosidaGenerator_isSelfAdjoint' depends on axioms:" /tmp/v007-yosida-euler-axioms.log
+          grep -F "sturmRealYosidaEulerStep_apply' depends on axioms:" /tmp/v007-yosida-euler-axioms.log
+          grep -F "sturmRealYosidaEulerStep_norm_le' depends on axioms:" /tmp/v007-yosida-euler-axioms.log
+          grep -F "sturmRealYosidaEulerStep_opNorm_le' depends on axioms:" /tmp/v007-yosida-euler-axioms.log
+          grep -F "sturmRealYosidaEulerIterate_opNorm_le' depends on axioms:" /tmp/v007-yosida-euler-powers-axioms.log
+          grep -F "sturmRealYosidaEulerIterate_norm_le' depends on axioms:" /tmp/v007-yosida-euler-powers-axioms.log
+          grep -F "sturmRealYosidaEulerIterate_add' depends on axioms:" /tmp/v007-yosida-euler-powers-axioms.log
+          echo 'V007 Yosida generator, strong convergence, self-adjointness and finite Euler contraction kernel-certified.'

@@ -1,0 +1,62 @@
+name: V007 exact dual Gram squared-analysis-norm spectral band certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/TwoSidedGramExactSpectralNormBand.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramExactOperatorNorm.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramJointSpectralBand.lean'
+      - 'lean/GegenbauerFock/TwoSidedGramNonrealResolvent.lean'
+      - '.github/workflows/gegenbauer-fock-gram-exact-spectral-norm-band.yml'
+  workflow_dispatch:
+
+jobs:
+  exact-spectral-band:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository-pinned Lean with retry
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for i in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((i * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for i in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((i * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib exactly
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check exact common spectral interval and its complex resolvent complement
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramExactSpectralNormBand 2>&1 | tee /tmp/v007-exact-spectral-norm.log
+          for theorem in sourceGram_spectrum_bounded_by_analysis_norm_sq \
+            outputGram_spectrum_bounded_by_analysis_norm_sq \
+            two_sided_gram_outside_norm_sq_interval_resolvent; do
+            grep -qF "${theorem}' depends on axioms:" /tmp/v007-exact-spectral-norm.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-exact-spectral-norm.log; then
+            echo '::error::Nonstandard axioms found in spectral norm interval certificate.'
+            exit 1
+          fi
+          echo 'Kernel-certified exact common squared-analysis-norm spectral enclosure.'

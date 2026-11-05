@@ -1,0 +1,58 @@
+name: V007 exact full-L2 source Gram Tikhonov strong convergence
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/CanonicalCFCGramTikhonovStrongConvergence.lean'
+      - 'lean/GegenbauerFock/CanonicalCFCGramPositiveShiftCoercivity.lean'
+      - 'lean/GegenbauerFock/CanonicalCFCGramTikhonovContraction.lean'
+      - 'lean/GegenbauerFock/CanonicalCFCGramTikhonovDenseRangeError.lean'
+      - '.github/workflows/v007-gram-tikhonov-full-l2-strong.yml'
+  workflow_dispatch:
+concurrency:
+  group: v007-gram-full-l2-tikhonov-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  strong-full-l2:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit full-L2 Gram Tikhonov strong convergence
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.CanonicalCFCGramTikhonovStrongConvergence 2>&1 | tee /tmp/v007-tikhonov-full-l2-build.log
+          lake env lean -M16768 GegenbauerFock/CanonicalCFCGramTikhonovStrongConvergence.lean 2>&1 | tee /tmp/v007-tikhonov-full-l2-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-tikhonov-full-l2-build.log /tmp/v007-tikhonov-full-l2-axioms.log; then
+            echo '::error::Untrusted axiom detected in full-L2 Gram Tikhonov strong convergence.'
+            exit 1
+          fi
+          for theorem in sourceGramTikhonov_error_dense_approximation sourceGram_denseRange_for_tikhonov sourceGramTikhonov_error_strong_tendsto_zero sourceGramTikhonovFilter_fullL2_strong_tendsto; do
+            grep -F "${theorem}' depends on axioms:" /tmp/v007-tikhonov-full-l2-axioms.log
+          done
+          echo 'V007 full-L2 genuine source Gram Tikhonov strong convergence kernel certified.'

@@ -1,0 +1,58 @@
+name: V007 genuine heat positive nuclear expansion and compactness
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatPositiveNuclear.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatTraceBasisSummable.lean'
+      - '.github/workflows/v007-sturm-heat-positive-nuclear.yml'
+  workflow_dispatch:
+
+jobs:
+  heat-positive-nuclear-kernel-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check real heat nuclear series and compactness
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealHeatPositiveNuclear 2>&1 | tee /tmp/v007-heat-nuclear-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatPositiveNuclear.lean 2>&1 | tee /tmp/v007-heat-nuclear-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-heat-nuclear-build.log /tmp/v007-heat-nuclear-axioms.log; then
+            echo '::error::Forbidden axiom in V007 heat nuclear/compactness certificate.'
+            exit 1
+          fi
+          grep -F "sturmRealHeat_positive_time_isCompactOperator' depends on axioms:" /tmp/v007-heat-nuclear-axioms.log
+          grep -F "sturmRealHeat_has_positive_real_nuclear_expansion' depends on axioms:" /tmp/v007-heat-nuclear-axioms.log
+          echo 'V007 genuine heat compactness and nuclear series audited.'

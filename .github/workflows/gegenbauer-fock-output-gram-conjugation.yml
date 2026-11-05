@@ -1,0 +1,70 @@
+name: V007 output-Gram positive CFC S1 conjugation certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/PhyslibOutputGramConjugationBound.lean'
+      - '.github/workflows/gegenbauer-fock-output-gram-conjugation.yml'
+  workflow_dispatch:
+
+jobs:
+  output-gram-conjugation:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain without changing project
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL \
+            --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then
+              installed=1
+              break
+            fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then
+              installed=1
+              break
+            fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Restore pinned Mathlib and compiled cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile output Gram conjugation CFC trace-bound lemmas
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.PhyslibOutputGramConjugationBound 2>&1 | tee /tmp/v007-output-conjugation-build.log
+      - name: Kernel axiom audit and forbidden-axiom check
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 GegenbauerFock/PhyslibOutputGramConjugationBound.lean 2>&1 | tee /tmp/v007-output-conjugation-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-output-conjugation-axioms.log; then
+            echo '::error::Forbidden axiom in output Gram conjugation theorem.'
+            exit 1
+          fi
+          grep -F 'outputGramAfterLeft_eq_conjugated' /tmp/v007-output-conjugation-axioms.log
+          grep -F 'outputGramAfterLeft_inPhyslibS1_and_S2' /tmp/v007-output-conjugation-axioms.log
+          grep -F 'outputGramAfterLeft_traceNorm_le_kummer' /tmp/v007-output-conjugation-axioms.log
+          grep -F 'outputGramAfterLeft_traceNorm_le_outputGram' /tmp/v007-output-conjugation-axioms.log

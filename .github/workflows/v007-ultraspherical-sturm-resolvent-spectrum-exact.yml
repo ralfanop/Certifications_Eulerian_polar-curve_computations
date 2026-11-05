@@ -1,0 +1,57 @@
+name: V007 exact spectrum of the closed Sturm resolvent (13, Cor. 5.2)
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/DiagonalMultiplierSpectrum.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventSpectrumExact.lean'
+      - '.github/workflows/v007-ultraspherical-sturm-resolvent-spectrum-exact.yml'
+  workflow_dispatch:
+jobs:
+  sturm-spectrum-exact:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit V007 exact spectrum of the closed Sturm resolvent (13, Cor. 5.2)
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleResolventSpectrumExact 2>&1 | tee /tmp/sturm-spectrum-exact-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleResolventSpectrumExact.lean 2>&1 | tee /tmp/sturm-spectrum-exact-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/sturm-spectrum-exact-build.log /tmp/sturm-spectrum-exact-axioms.log; then
+            echo '::error::Forbidden axiom in UltrasphericalSturmLiouvilleResolventSpectrumExact.'
+            exit 1
+          fi
+          grep -F "GegenbauerFock.Ultraspherical.sturmRealResolvent_spectrum_eq' depends on axioms:" /tmp/sturm-spectrum-exact-axioms.log
+          grep -F "GegenbauerFock.Ultraspherical.corollary_5_2' depends on axioms:" /tmp/sturm-spectrum-exact-axioms.log
+          echo 'V007 exact spectrum of the closed Sturm resolvent (13, Cor. 5.2): kernel-certified.'

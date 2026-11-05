@@ -1,0 +1,60 @@
+name: V007 genuine symmetric real L2 polynomial-domain Sturm linear operator
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealDomainLinear.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealDomainOperator.lean'
+      - '.github/workflows/v007-ultraspherical-sturm-real-domain-linear.yml'
+  workflow_dispatch:
+
+jobs:
+  genuine-real-Sturm-linear-domain:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit actual real Sturm domain linear operator
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealDomainLinear 2>&1 | tee /tmp/v007-sturm-domain-linear-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealDomainLinear.lean 2>&1 | tee /tmp/v007-sturm-domain-linear-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-sturm-domain-linear-build.log /tmp/v007-sturm-domain-linear-axioms.log; then
+            echo '::error::Forbidden axiom in real Sturm polynomial-domain linear operator.'
+            exit 1
+          fi
+          grep -F "sturmRealDomainOperator_add' depends on axioms:" /tmp/v007-sturm-domain-linear-axioms.log
+          grep -F "sturmRealDomainOperator_smul' depends on axioms:" /tmp/v007-sturm-domain-linear-axioms.log
+          grep -F "sturmRealDomainLinear_symmetric' depends on axioms:" /tmp/v007-sturm-domain-linear-axioms.log
+          echo 'V007 genuine weighted real L2 Sturm polynomial-domain real-linear symmetric operator certified.'

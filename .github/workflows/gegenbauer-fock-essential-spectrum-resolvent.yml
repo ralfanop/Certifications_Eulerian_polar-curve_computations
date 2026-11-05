@@ -1,0 +1,55 @@
+name: V007 Fredholm essential spectrum contained in operator spectrum
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/FredholmEssentialSpectrumResolventExclusion.lean'
+      - '.github/workflows/gegenbauer-fock-essential-spectrum-resolvent.yml'
+  workflow_dispatch:
+
+jobs:
+  essential-resolvent:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+      - name: Prepare pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check essential-spectrum inclusion and negative-real exclusion
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.FredholmEssentialSpectrumResolventExclusion 2>&1 | tee /tmp/v007-essential-resolvent.log
+          for theorem in fredholmEssentialSpectrum_subset_spectrum sourceGram_negative_not_fredholm_essential_spectrum outputGram_negative_not_fredholm_essential_spectrum two_sided_gram_essential_zero_and_negative_exclusion; do
+            grep -qF "${theorem}' depends on axioms" /tmp/v007-essential-resolvent.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-essential-resolvent.log; then
+            echo '::error::Forbidden proof axiom in Fredholm essential-spectrum resolvent exclusion'
+            exit 1
+          fi
+          echo 'V007 Fredholm essential spectra lie in operator spectra and exclude negative real axis: audited.'

@@ -1,0 +1,53 @@
+name: V007 bilateral Riesz-Schauder spectral classification
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/TwoSidedGramRieszSchauderClassification.lean'
+      - '.github/workflows/gegenbauer-fock-gram-riesz-schauder.yml'
+  workflow_dispatch:
+jobs:
+  bilateral-riesz-schauder:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then break; fi
+            if [ "$attempt" -eq 6 ]; then exit 1; fi
+            sleep "$((attempt * 8))"
+          done
+      - name: Prepare pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check all Riesz-Schauder theorems and audit axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.TwoSidedGramRieszSchauderClassification 2>&1 | tee /tmp/v007-riesz-schauder.log
+          for theorem in sourceGram_nonzero_spectrum_iff_positive_eigenvalue outputGram_nonzero_spectrum_iff_positive_eigenvalue two_sided_gram_nonzero_outside_spectrum_resolvent two_sided_gram_nonzero_riesz_schauder_classification; do
+            grep -qF "${theorem}' depends on axioms" /tmp/v007-riesz-schauder.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-riesz-schauder.log; then
+            echo '::error::Forbidden axiom in bilateral Riesz-Schauder classification'
+            exit 1
+          fi
+          echo 'V007 bilateral Riesz-Schauder spectral classification: kernel-audited.'

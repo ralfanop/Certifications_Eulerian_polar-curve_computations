@@ -1,0 +1,64 @@
+name: V007 actual source Gram Tikhonov shifted inverse
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/CanonicalCFCGramTikhonovShift.lean'
+      - 'lean/GegenbauerFock/CanonicalCFCGramTikhonovEigenmodes.lean'
+      - 'lean/GegenbauerFock/CanonicalCFCGramTikhonovEigenmodeStrongLimit.lean'
+      - 'lean/GegenbauerFock/CanonicalCFCGramTikhonovErrorIdentity.lean'
+      - '.github/workflows/v007-gram-tikhonov-shift.yml'
+  workflow_dispatch:
+concurrency:
+  group: v007-gram-tikhonov-shift-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  shift:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Restore pinned dependencies
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile actual Gram Tikhonov inverse and audit
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.CanonicalCFCGramTikhonovEigenmodes GegenbauerFock.CanonicalCFCGramTikhonovEigenmodeStrongLimit GegenbauerFock.CanonicalCFCGramTikhonovErrorIdentity 2>&1 | tee /tmp/v007-shift-build.log
+          lake env lean -M16768 GegenbauerFock/CanonicalCFCGramTikhonovShift.lean 2>&1 | tee /tmp/v007-shift-axioms.log
+          lake env lean -M16768 GegenbauerFock/CanonicalCFCGramTikhonovEigenmodes.lean 2>&1 | tee -a /tmp/v007-shift-axioms.log
+          lake env lean -M16768 GegenbauerFock/CanonicalCFCGramTikhonovEigenmodeStrongLimit.lean 2>&1 | tee -a /tmp/v007-shift-axioms.log
+          lake env lean -M16768 GegenbauerFock/CanonicalCFCGramTikhonovErrorIdentity.lean 2>&1 | tee -a /tmp/v007-shift-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-shift-build.log /tmp/v007-shift-axioms.log; then
+            echo '::error::Forbidden axiom in Tikhonov shift'
+            exit 1
+          fi
+          grep -F "sourceGramPositiveShift_isUnit' depends on axioms:" /tmp/v007-shift-axioms.log
+          grep -F "sourceGramPositiveShift_two_sided_inverse' depends on axioms:" /tmp/v007-shift-axioms.log
+          grep -F "sourceGramPositiveShift_inv_eigenmode' depends on axioms:" /tmp/v007-shift-axioms.log
+          grep -F "sourceGramTikhonovFilter_eigenmode' depends on axioms:" /tmp/v007-shift-axioms.log
+          grep -F "sourceGramTikhonovFilter_eigenmode_tendsto' depends on axioms:" /tmp/v007-shift-axioms.log
+          grep -F "sourceGramTikhonov_filter_error_identity' depends on axioms:" /tmp/v007-shift-axioms.log
+          echo 'V007 genuine Tikhonov shifted inverse, eigenmodes and error identity audited'

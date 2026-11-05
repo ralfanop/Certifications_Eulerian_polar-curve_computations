@@ -1,0 +1,70 @@
+name: V007 Section 4 resolvent-Gegenbauer identities and positive-definite kernel (13, Thm 4.1, Cor 4.2, Prop 4.3, Prop 4.4, Table 1)
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/Section4Resolvent.lean'
+      - '.github/workflows/v007-section4-resolvent.yml'
+  workflow_dispatch:
+jobs:
+  section4-resolvent:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit V007 Section 4 resolvent-Gegenbauer identities and positive-definite kernel (13, Thm 4.1, Cor 4.2, Prop 4.3, Prop 4.4, Table 1)
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.Section4Resolvent 2>&1 | tee /tmp/section4-resolvent-build.log
+          lake env lean -M16768 GegenbauerFock/Section4Resolvent.lean 2>&1 | tee /tmp/section4-resolvent-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/section4-resolvent-build.log /tmp/section4-resolvent-axioms.log; then
+            echo '::error::Forbidden axiom in Section4Resolvent.'
+            exit 1
+          fi
+          grep -F "GegenbauerFock.Section4Resolvent.theorem_4_1' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.theorem_4_1_extension' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.theorem_4_1_diagonal' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.corollary_4_2' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.corollary_4_2_origin' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.besselJ_half' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.besselJ_neg_half' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.Gout_three' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.Gout_one' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.proposition_4_3' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.proposition_4_3_origin' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.nuEndpoint_moment_limit' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.sphere_average' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.proposition_4_4' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.table_1' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          grep -F "GegenbauerFock.Section4Resolvent.table_1_endpoints' depends on axioms:" /tmp/section4-resolvent-axioms.log
+          echo 'V007 Section 4 resolvent-Gegenbauer identities and positive-definite kernel (13, Thm 4.1, Cor 4.2, Prop 4.3, Prop 4.4, Table 1): kernel-certified.'

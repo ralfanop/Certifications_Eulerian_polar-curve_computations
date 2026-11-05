@@ -1,0 +1,58 @@
+name: V007 actual real Gegenbauer heat versus complex CFC S1
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatComplexCFCS1Bridge.lean'
+      - 'lean/GegenbauerFock/RealComplexPositiveSpectralAutomaticTraceClassBridge.lean'
+      - '.github/workflows/v007-actual-real-heat-to-complex-cfc-s1.yml'
+  workflow_dispatch:
+
+jobs:
+  real-heat-complex-cfc-s1:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Check actual heat to complex CFC S1 and audit axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealHeatComplexCFCS1Bridge 2>&1 | tee /tmp/v007-heat-complex-cfcS1-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealHeatComplexCFCS1Bridge.lean 2>&1 | tee /tmp/v007-heat-complex-cfcS1-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-heat-complex-cfcS1-build.log /tmp/v007-heat-complex-cfcS1-axioms.log; then
+            echo '::error::Forbidden axiom in actual real heat to complex CFC trace-norm bridge.'
+            exit 1
+          fi
+          grep -F "sturmRealHeat_realS1_eq_complexCFC_autoClass_of_matching_spectrum' depends on axioms:" /tmp/v007-heat-complex-cfcS1-axioms.log
+          grep -F "sturmRealHeat_realS1_eq_complexCFC_autoClass_of_intertwining' depends on axioms:" /tmp/v007-heat-complex-cfcS1-axioms.log
+          echo 'V007 actual real heat to complex CFC S1 bridge audited.'

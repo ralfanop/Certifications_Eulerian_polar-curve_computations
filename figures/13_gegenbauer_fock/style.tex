@@ -1,0 +1,17 @@
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
+\usetikzlibrary{arrows.meta,cd,calc}
+\definecolor{ojacblue}{HTML}{1F77B4}
+\pgfplotsset{ojac/.style={
+  width=16cm, height=7.6cm, scale only axis=false,
+  axis line style={line width=0.6pt},
+  tick align=inside, xtick pos=both, ytick pos=both,
+  major tick length=4pt, minor tick length=2pt,
+  every tick/.style={line width=0.5pt, black},
+  tick label style={font=\small},
+  label style={font=\normalsize},
+  legend style={font=\small, draw=black!40, fill=white, line width=0.4pt,
+    at={(0.985,0.975)}, anchor=north east, cells={anchor=west}, inner sep=4pt,
+    row sep=1.5pt, nodes={text height=2.1ex, text depth=1.35ex, inner ysep=1pt}},
+  legend cell align=left}}

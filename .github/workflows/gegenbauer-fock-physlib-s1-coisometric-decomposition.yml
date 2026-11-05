@@ -1,0 +1,112 @@
+name: V007 coisometric CFC S1 range-kernel decomposition independent certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/PhyslibTraceClassCoisometricDecomposition.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassCoisometricComplement.lean'
+      - '.github/workflows/gegenbauer-fock-physlib-s1-coisometric-decomposition.yml'
+  workflow_dispatch:
+
+jobs:
+  coisometric-decomposition:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Verify available 16 GB runner memory budget
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'Public Ubuntu runner nominal RAM budget: 16 GB total per job.'
+          free -h
+          grep -E '^MemTotal:' /proc/meminfo
+          if [ -f /sys/fs/cgroup/memory.max ]; then
+            printf 'cgroup memory.max: '
+            cat /sys/fs/cgroup/memory.max
+          fi
+          mem_kib=$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)
+          # 16 GB nominal VMs report slightly less after reserved memory.
+          if [ "$mem_kib" -lt 14500000 ]; then
+            echo "::error::Runner has less memory than the nominal 16 GB public runner."
+            exit 1
+          fi
+          echo '16 GB public runner memory tier confirmed.'
+      - uses: actions/checkout@v4
+
+      # The existing certification repository does not check in a
+      # lake-manifest.json. The lean-action composite itself refuses to
+      # initialize without it, even with auto-config: false; install
+      # elan directly and run lake update before requesting Mathlib cache.
+      - name: Install elan and pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Upstream GitHub and Lean release endpoints can return transient HTTP 504.
+          # Retry downloads, but never change lean/lean-toolchain or Mathlib pins.
+          curl --proto '=https' --tlsv1.2 -fsSL \
+            --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then
+              installed=1
+              break
+            fi
+            echo "::warning::elan bootstrap failed, attempt ${attempt}/6"
+            sleep "$((attempt * 8))"
+          done
+          if [ "$installed" -ne 1 ]; then
+            echo "::error::elan bootstrap unavailable after six attempts"
+            exit 1
+          fi
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            # lean --version triggers installation of the EXACT pinned
+            # toolchain (lean/lean-toolchain); some failures originate here.
+            if "$HOME/.elan/bin/lean" --version &&
+               "$HOME/.elan/bin/lake" --version; then
+              ready=1
+              break
+            fi
+            echo "::warning::pinned Lean toolchain download failed, attempt ${attempt}/6"
+            sleep "$((attempt * 8))"
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "::error::pinned Lean installation unavailable after six attempts"
+            exit 1
+          fi
+
+      - name: Generate Lake manifest for existing pinned Mathlib
+        working-directory: lean
+        run: lake update
+
+      - name: Fetch Mathlib build artifacts
+        working-directory: lean
+        run: lake exe cache get
+
+      # All Lake builds inherit weakLeanArgs = ["-M16768"] from
+      # lean/lakefile.toml. Direct lake env lean invocations below
+      # receive the same flag explicitly.
+      - name: Check per-process Lean -M16768 option
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 --version
+
+      # Isolate constructive rank-one S1 results from unrelated new Banach proofs.
+
+      - name: Compile and audit actual CFC S1 range-kernel decomposition
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.PhyslibTraceClassCoisometricDecomposition 2>&1 | tee /tmp/gf-s1-coisometric-decomposition.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-s1-coisometric-decomposition.log; then
+            echo '::error::Forbidden axiom in coisometric S1 decomposition.'
+            exit 1
+          fi
+          echo 'Coisometric CFC S1 range-kernel decomposition: clean axiom audit.'

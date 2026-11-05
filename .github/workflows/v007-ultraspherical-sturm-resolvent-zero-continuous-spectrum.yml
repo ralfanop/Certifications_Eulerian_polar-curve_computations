@@ -1,0 +1,57 @@
+name: V007 continuous spectrum zero for genuine real Sturm resolvent
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealResolventZeroContinuousSpectrum.lean'
+      - '.github/workflows/v007-ultraspherical-sturm-resolvent-zero-continuous-spectrum.yml'
+  workflow_dispatch:
+
+jobs:
+  sturm-real-resolvent-zero-continuous-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then installed=2; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 2
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build and kernel audit real Sturm resolvent dense nonclosed range
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealResolventZeroContinuousSpectrum 2>&1 | tee /tmp/v007-reszero-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealResolventZeroContinuousSpectrum.lean 2>&1 | tee /tmp/v007-reszero-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-reszero-build.log /tmp/v007-reszero-axioms.log; then
+            echo '::error::Forbidden axiom in real Sturm resolvent zero spectrum.'
+            exit 1
+          fi
+          for theorem in sturmRealResolvent_exists_unit_small_image sturmRealResolvent_not_bounded_below sturmRealResolvent_not_surjective sturmRealResolvent_dense_range sturmRealResolvent_range_not_closed; do
+            grep -F "$theorem' depends on axioms:" /tmp/v007-reszero-axioms.log
+          done
+          echo 'V007 real closed Sturm resolvent zero-range theorem audited.'

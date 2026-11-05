@@ -1,0 +1,61 @@
+name: V007 canonical CFC positive square root and full unitary polar factorization
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/CanonicalCFCPolarSquareRoot.lean'
+      - 'lean/GegenbauerFock/PositivePolarAmplitude.lean'
+      - 'lean/GegenbauerFock/SelfAdjointPolarAmplitude.lean'
+      - 'lean/GegenbauerFock/CompletePositiveSingularFamily.lean'
+      - '.github/workflows/v007-canonical-cfc-polar-sqrt.yml'
+  workflow_dispatch:
+
+jobs:
+  canonical-cfc-polar-sqrt:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit canonical continuous-functional-calculus polar square root
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.CanonicalCFCPolarSquareRoot 2>&1 | tee /tmp/v007-cfc-polar-sqrt-build.log
+          lake env lean -M16768 GegenbauerFock/CanonicalCFCPolarSquareRoot.lean 2>&1 | tee /tmp/v007-cfc-polar-sqrt-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-cfc-polar-sqrt-build.log /tmp/v007-cfc-polar-sqrt-axioms.log; then
+            echo '::error::Forbidden axiom in canonical positive CFC polar square root.'
+            exit 1
+          fi
+          grep -F "exists_cfc_sqrt_polar_unitary_kummer' depends on axioms:" /tmp/v007-cfc-polar-sqrt-axioms.log
+          grep -F "exists_cfc_sqrt_full_polar_adjoint_outputGram_kummer' depends on axioms:" /tmp/v007-cfc-polar-sqrt-axioms.log
+          echo 'V007 canonical CFC polar square-root theorem verified and audited.'

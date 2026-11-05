@@ -1,0 +1,70 @@
+name: V007 full-L2 constant equilibrium projection and intertwining
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealEquilibriumProjection.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealEquilibriumSharp.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealEquilibriumOptimal.lean'
+      - '.github/workflows/v007-sturm-equilibrium-projection.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: v007-equilibrium-projection-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  real-weighted-L2-equilibrium-projection:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile four equilibrium projection and commutation theorems
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealEquilibriumProjection 2>&1 | tee /tmp/v007-equilibrium-proj-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealEquilibriumProjection.lean 2>&1 | tee /tmp/v007-equilibrium-proj-audit.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-equilibrium-proj-build.log /tmp/v007-equilibrium-proj-audit.log; then
+            echo '::error::Forbidden axiom in V007 equilibrium projection.'
+            exit 1
+          fi
+          for theorem in \
+            sturmRealConstantEquilibrium_idempotent \
+            sturmRealConstantEquilibrium_norm_eq \
+            sturmRealConstantEquilibrium_heat_left \
+            sturmRealConstantEquilibrium_resolvent_left
+          do
+            grep -F "${theorem}' depends on axioms:" /tmp/v007-equilibrium-proj-audit.log
+          done
+          echo 'V007 full weighted L2 equilibrium projection identities: kernel-certified.'

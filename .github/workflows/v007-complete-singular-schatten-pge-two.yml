@@ -1,0 +1,59 @@
+name: V007 genuine Gegenbauer Fock all real Schatten p ge 2
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/CompleteSingularSchattenPgeTwo.lean'
+      - '.github/workflows/v007-complete-singular-schatten-pge-two.yml'
+  workflow_dispatch:
+
+jobs:
+  schatten-pge-two:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit all real Schatten p ge 2 singular powers
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.CompleteSingularSchattenPgeTwo 2>&1 | tee /tmp/v007-schatten-pge2-build.log
+          lake env lean -M16768 GegenbauerFock/CompleteSingularSchattenPgeTwo.lean 2>&1 | tee /tmp/v007-schatten-pge2-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-schatten-pge2-build.log /tmp/v007-schatten-pge2-axioms.log; then
+            echo '::error::Forbidden axiom in real Schatten p ge 2 singular proof.'
+            exit 1
+          fi
+          grep -F "summable_real_powers_of_square_summable' depends on axioms:" /tmp/v007-schatten-pge2-axioms.log
+          grep -F "exists_complete_singular_schatten_pge_two' depends on axioms:" /tmp/v007-schatten-pge2-axioms.log
+          echo 'V007 true singular system all real Schatten p ge 2 kernel checked and audited.'

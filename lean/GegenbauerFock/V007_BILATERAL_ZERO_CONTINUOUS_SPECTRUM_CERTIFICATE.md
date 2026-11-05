@@ -1,0 +1,721 @@
+# V007 — Bilateral continuous zero spectrum and inverse ill-posedness
+
+**Scope:** isolated V007 Gegenbauer–Fock research formalization on PR #16. Both Hilbert spaces and both genuine infinite-dimensional Gram operators are retained. The approved V097 manuscript and `main` are not modified; **PR #16 remains DRAFT and MUST NOT BE MERGED** without express approval.
+
+For every real `lam, alpha > 0`, denote the actual coefficient analysis map by `C` and its two positive, compact and selfadjoint Grams by `Gsrc = C†C` on ultraspherical `L²(ν_lam)` and `Gout = CC†` on the complete Gaussian–Fock coefficient Hilbert space. They act on *different* spaces.
+
+## Established theorem hierarchy
+
+1. `TwoSidedGramZeroNonEigen.lean`: zero is in both genuine operator spectra, yet both zero eigenspaces vanish. Previous audited Lean SUCCESS:
+   - https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40744819476
+2. `TwoSidedGramNotSurjective.lean`, `TwoSidedGramProperDenseRange.lean`, `TwoSidedGramNonclosedRange.lean` establish that **each** Gram has injective, proper, dense, nonclosed image.
+3. `TwoSidedGramContinuousSpectrum.lean` defines `IsContinuousSpectralPointAtZero` explicitly by spectrum membership, trivial kernel, dense range and nonsurjectivity; `two_sided_gram_zero_continuous_spectrum` proves this for each Gram. This is a definition of the **classical zero continuous-spectrum criterion** rather than a claim that Mathlib already supplies this exact spectral-subset API.
+4. `TwoSidedGramInverseInstability.lean`: for every finite `K : ℝ≥0`, the two theorems `sourceGram_inverse_unbounded_on_range` and `outputGram_inverse_unbounded_on_range` exhibit an actual input with `K * ‖G x‖ < ‖x‖`. Hence inverses defined on the respective ranges have no finite operator-norm/Lipschitz stability bound. Kernel compilation and `#print axioms` audit: **SUCCESS**, build 9106 jobs:
+   - https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40754055831
+5. `OutputGramApproximateZeroSpectrum.lean`: constructs a unit output-Gram approximate-zero sequence. The consolidated `two_sided_gram_normalized_approximate_zero_sequences` combines it with the previously certified unit source-Gram sequence. Kernel compilation and `#print axioms` audit: **SUCCESS**, build 9107 jobs:
+   - https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40754215848
+6. `TwoSidedGramNoContinuousReconstruction.lean`: no globally defined exact (including nonlinear) left inverse of either Gram can be continuous at zero. Kernel compilation and `#print axioms` audit: **SUCCESS**, build 9108 jobs:
+   - https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40755332247
+
+The successful logs for the independently audited modules report only `propext`,
+`Classical.choice`, and `Quot.sound` in checked declarations; they reject
+`sorryAx` and `Lean.ofReduceBool`. Every claim remains SHA-scoped.
+
+7. `TwoSidedGramApproximateZeroNoStrongLimit.lean`: both normalized
+   approximate-null sequences have no strong limit. Checked in full by
+   Lean 4 plus `#print axioms`: **SUCCESS** (9108 jobs):
+   - https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40756217237
+8. `TwoSidedGramInverseOnRangeDiscontinuous.lean`: for each Gram
+   the exact inverse **on its actual range equipped with the induced
+   topology** is discontinuous at zero, with no global inverse extension
+   assumption. The first CI exposed a subtype-zero proof mismatch;
+   that issue was fixed and the source independently rechecked by Lean 4
+   plus `#print axioms`: **SUCCESS** (9108 jobs):
+   - https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40761338859
+9. `TwoSidedGramNoStronglyConvergentSubsequence.lean`: for each
+   normalized approximate-zero sequence, **every strictly increasing
+   subsequence fails to converge in norm**. Kernel compilation and
+   `#print axioms` audit: **SUCCESS** (9108 jobs):
+   - https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40852729755
+
+## Next independently audited candidate
+
+`TwoSidedGramWeakOnDenseRange.lean` establishes vanishing of the
+inner products with **every test vector belonging to the range**
+of the respective selfadjoint Gram. Both images are dense, so the
+statement supplies the exact dense-test component for a later full
+weak-convergence theorem. It does not claim to have formalized
+weak-topology convergence against arbitrary Hilbert vectors.
+
+The dedicated CI is:
+- https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40853101401
+
+The dedicated workflow above completed **SUCCESS** with 9108 Lean jobs,
+and the direct `#print axioms` inspection confirms only `propext`,
+`Classical.choice`, `Quot.sound` for all three declarations. This
+certifies convergence against the two **dense range** test families,
+not yet every Hilbert test vector.
+
+Full weak convergence is formalized separately in
+`TwoSidedGramWeakConvergence.lean` using uniform unit norms and
+Cauchy–Schwarz for the dense-range extension. The first CI exposed
+three Lean elaboration errors (operator coercion and the metric
+`∃ N, ∀ n ≥ N` form); the source was corrected in SHA
+`77285f669ee30b5b6735441310daccc15e95846b`.
+The new pending kernel/audit run is:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40855929809
+
+**Do not call the full-weak-convergence candidate certified without
+a successful CI and an inspection of its actual `#print axioms` logs.**
+
+## Operator-theoretic interpretation
+
+Because the Grams are selfadjoint, injectivity eliminates the zero point spectrum and makes their ranges dense. Since zero still lies in their spectra, neither operator is invertible on its entire Hilbert space; their ranges are proper and nonclosed. The inverses are algebraically defined on those ranges, but are unbounded there. This is not a contradiction: uniquely reconstructible does not mean stably reconstructible.
+
+These statements do **not** identify the two Hilbert spaces, prove that zero is an eigenvalue, or assert any unsupported finite-dimensional spectral truncation.
+
+
+## Update — 29 October 2026: exact bilateral spectrum
+
+The pinned Lean 4/Mathlib workflow
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40852466607
+completed **SUCCESS** for code at SHA `a25efdbad1d60d6f4c5ccd3eb16f664529f7c389`.
+
+- `TwoSidedGramSpectrumEquality.lean` proves
+  `two_sided_gram_hasEigenvalue_iff`: equal nonzero point spectra;
+  `two_sided_gram_nonzero_spectrum_iff`: equal nonzero *operator*
+  spectra by Mathlib's compact Fredholm alternative; and
+  `two_sided_gram_spectrum_eq`: equality of the **entire complex spectra**
+  of the concrete operators `C†C` and `CC†`, including zero.
+- The corresponding dedicated build and theorem-axiom checks passed.
+  This theorem does **not** identify the underlying Hilbert spaces and
+  does **not** claim that `C` is surjective.
+- `TwoSidedGramPositiveSpectrum.lean` attempts the stronger claim
+  that the common spectrum is real and nonnegative, with strictly
+  positive nonzero values. Its earlier failed run
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40852515575
+  reported an expression mismatch between `Complex.re` and
+  `RCLike.re`. The correction was committed as
+  `aabdfbc73c897973aec38fb1876953c16ed9e32a`.
+  The recheck is
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40855060907;
+  **do not claim its success unless that run actually completes SUCCESS**.
+- The independently compiled Weyl-sequence geometry and dense-range
+  testing is recorded in successful run
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40853101401.
+  The later full weak-convergence strengthening is a **separate**
+  candidate awaiting the dedicated run
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40855092208.
+
+**Independent Gaussian area work:** developments in the intrinsic
+Gaussian Bargmann–Fock (L^2) realization are on the same PR branch
+but are separate from the bilateral Gram-spectrum theorem.
+Never transfer certification from a successful Gram workflow to an
+unverified Gaussian module, or conversely.
+
+**Repository invariant:** PR #16 stays Draft and unmerged; approved V097
+and `main` remain untouched.
+
+## Update — 29 October 2026: full weak convergence and essential-spectrum candidates
+
+The **full test-vector weak convergence** theorem is now independently
+kernel-certified at source commit `654192d18507894e043033b7143c8d5960c4fac1`:
+- `TwoSidedGramWeakConvergence.lean` —
+  `sourceGram_unit_approximate_zero_weakly_null`,
+  `outputGram_unit_approximate_zero_weakly_null`, and the bilateral theorem.
+- SUCCESS, 9109 Lean jobs, clean three-standard-axiom audit:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40860310262
+- The sequence vectors are normalized, their actual Gram images tend to
+  zero in norm, and **every** complex inner product with a Hilbert test
+  vector tends to zero. The density argument uses uniform unit norms
+  and Cauchy–Schwarz; no assertion of strong convergence of the
+  original sequences is made.
+
+Two further dedicated modules are deposited and must be checked separately:
+- `TwoSidedGramSingularWeylZero.lean` explicitly defines
+  `IsSingularWeylSequenceAtZero` by unit norms, strong convergence
+  of Gram images to zero and full weak convergence of test inner
+  products, with one witness in each actual Hilbert space.
+  **SUCCESS**, 9110 jobs and clean axiom audit at SHA
+  `59d3da457ebd09fc4ce91976afcd5379b378e115`:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40860754934
+  This is a certified sequence-level predicate, not an unproved
+  equality with a Mathlib essential-spectrum set API.
+- `TwoSidedGramZeroNotFredholm.lean` proves each actual Gram is
+  **not** `ContinuousLinearMap.IsFredholm` directly from the
+  previously certified nonclosed range, connecting to the Fredholm
+  definition of essential spectrum without relying on a separate
+  singular-Weyl/essential-spectrum API.
+  CI: https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40861103876
+
+**The singular Weyl module is certified; the direct non-Fredholm
+module remains pending until its own kernel build and axiom audit
+return SUCCESS.**
+
+## Update — 29 October 2026: positive spectrum and regularized invertibility verified
+
+The following dedicated Lean 4/Mathlib runs have **completed SUCCESS**,
+including the two-standard/three-standard axiom audits with no
+`sorryAx` or `Lean.ofReduceBool`:
+
+1. `TwoSidedGramPositiveSpectrum.lean`, SHA
+   `3a8009aeefd94d5243810c43efee69a2dd7a4e5d`:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40860557124.
+   Both genuine compact Gram spectra lie on the nonnegative real axis;
+   each nonzero spectral value is a strictly positive real scalar.
+2. `TwoSidedGramNegativeResolvent.lean`, SHA
+   `b2510286a8e2438d394146b0fea0a3057afb608e`:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40860919589.
+   The entire scalar resolvent sets of the two true Grams coincide,
+   and every strictly negative real scalar lies in each resolvent:
+   both positive Tikhonov shifts `G + tI`, `t > 0`, are invertible.
+3. `TwoSidedGramZeroNotFredholm.lean`, SHA
+   `2f2c9c576e3e`:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40861103876.
+   Both genuine Grams are non-Fredholm at zero. This supersedes the
+   preceding **pending** label for the direct non-Fredholm theorem.
+4. `TwoSidedGramWeakConvergence.lean` and
+   `TwoSidedGramSingularWeylZero.lean` are separately certified by
+   runs 40860310262 and 40860754934 respectively; see the preceding
+   checkpoint for exact statement boundaries.
+
+**New quantitative candidate:**
+`TwoSidedGramJointSpectralBand.lean` combines positivity, common full
+spectrum, and the universal spectral norm bound to enclose all shared
+spectral values in the real interval from zero to the *minimum* of
+both operator norms. It also establishes a common right-halfplane
+resolvent above this minimum bound. Its dedicated workflow is
+the workflow `.github/workflows/gegenbauer-fock-gram-joint-spectral-band.yml`;
+this candidate must not be called kernel certified before a verified
+SUCCESS run and a clean theorem-axiom audit.
+
+PR #16 remains Draft/unmerged, with `main` and approved V097 untouched.
+
+## Update — 29 October 2026: Fredholm essential spectral zero certified
+
+The actual Fredholm essential-spectrum sets are defined as
+`fredholmEssentialSpectrum T = {z : ℂ | ¬ ContinuousLinearMap.IsFredholm (T - z • 1)}`.
+The two different true Hilbert-space Gram operators `G1=C†C` and
+`G2=CC†` satisfy **0∈σess(G1)∩σess(G2)**.
+
+- `TwoSidedGramZeroNotFredholm.lean`: both Grams are non-Fredholm,
+  by their previously certified nonclosed ranges.
+  **SUCCESS**, 9105 Lean jobs:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40861103876
+- `TwoSidedGramFredholmEssentialSpectrum.lean`: zero belongs to both
+  explicitly defined Fredholm essential-spectrum sets. In addition,
+  `two_sided_gram_zero_essential_and_singular_weyl` supplies
+  independently proven singular Weyl sequences in both Hilbert spaces.
+  **SUCCESS**, 9112 Lean jobs, audited SHA
+  `5b5ca5d15516418ec92010fbe1e649088cb973c9`:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40864759761
+
+Both success logs include direct `#print axioms` inspections with only
+`propext`, `Classical.choice`, `Quot.sound`; neither includes
+`sorryAx` or `Lean.ofReduceBool`.
+
+A separate proposed inclusion
+`fredholmEssentialSpectrum T ⊆ spectrum ℂ T`, with exclusion of every
+strictly negative real scalar for the two positive Grams, is deposited
+as `FredholmEssentialSpectrumResolventExclusion.lean` and is subject
+to an **independent** Lean workflow audit:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40865662295
+
+This second inclusion is *not yet certified*. Neither module claims
+the stronger equality `σess(Gi) = {0}`. Do not transfer certification
+between workflow source SHAs. PR #16 remains Draft/unmerged; `main`
+and approved V097 are untouched.
+
+## Update — 29 October 2026: independently checked Fredholm inclusion and Gram trace
+
+**SUCCESS:** the Fredholm essential-spectrum inclusion and exclusion of negative
+parameters in `FredholmEssentialSpectrumResolventExclusion.lean`
+is independently certified with axiom audit:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40865662295.
+This replaces the preceding *pending* statement, but is **not** a
+proof that the entire Fredholm essential spectrum is exactly `{0}`.
+
+**SUCCESS:** the full Gram positive trace-diagonal identities in
+`DualGramPositiveTraceDiagonal.lean` passed the dedicated Lean build after
+correcting the malformed dependent lambda binder, commit
+`c9adac5f5e493d93d0c8187f728ce05a936cf664`:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40865197477.
+These are statements about summability and the diagonal trace in genuine
+Hilbert bases, not numerical spectral eigenvalue estimates.
+
+**SUCCESS:** the Gaussian radial-circle bridge also passed its isolated
+workflows, including:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40864894029
+and
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40865868626.
+
+**Pending new quantitative enclosure:** The first isolated compilation of
+`TwoSidedGramJointSpectralBand.lean`,
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40865087179,
+failed because `spectrum.norm_le_norm_of_mem` requires a
+`NormOneClass` instance that is not present for general continuous
+endomorphisms. The replacement in commit
+`f22b3bf0e18f98702eb142a2b6fdfa3a907518bd`
+uses `spectrum.norm_le_norm_mul_of_mem` and the separately verified
+operator inequality `‖id‖ ≤ 1`, without assuming nontriviality of either
+Hilbert space. The dedicated CI is:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40868388808.
+A new SUCCESS and standard-axiom audit are required before claiming it
+as kernel certified.
+
+The newly attempted enclosure uses the minimum of the **two** Gram
+operator norms because their full complex spectra are proven equal,
+not because the two operators have been identified.
+
+PR #16 remains Draft/unmerged. Neither `main` nor approved V097
+has been modified.
+
+## Update — 29 October 2026: remaining Fredholm singleton step
+
+The Fredholm essential-spectrum inclusion and negative-real exclusion
+are independently kernel-certified in workflows
+[40865429368](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40865429368)
+and
+[40865662295](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40865662295).
+Each reports **SUCCESS**, 9116 Lean jobs, and only standard axioms in
+the `#print axioms` checks.
+
+**Exact remaining substantive obligation for**
+`σess(Gsrc) = {0} = σess(Gout)`:
+prove, for every `mu : ℂ` with `mu ≠ 0`, that
+`ContinuousLinearMap.IsFredholm (Gsrc - mu • 1)`
+and
+`ContinuousLinearMap.IsFredholm (Gout - mu • 1)`.
+
+Existing Mathlib ingredients (actual API names):
+- `IsCompactOperator.hasEigenvalue_or_mem_resolventSet` and
+  `IsCompactOperator.hasEigenvalue_iff_mem_spectrum`
+  in `Mathlib.Analysis.Normed.Operator.Compact.FredholmAlternative`;
+- `ContinuousLinearMap.finite_dimensional_eigenspace` in
+  `Mathlib.Analysis.InnerProductSpace.Spectrum`;
+- `LinearMap.IsSymmetric.invariant_orthogonalComplement_eigenspace`
+  in the same module, ensuring invariant orthogonal complements;
+- `ContinuousLinearMap.IsFredholm.of_isInvertible_restrict`
+  in `Mathlib.Analysis.Normed.Operator.Fredholm.Basic`.
+
+A viable formal proof must show the restriction of each shifted Gram
+to the orthogonal complement of its `mu`-eigenspace is a continuous
+linear isomorphism, then show that this complementary subspace has
+finite codimension, applying `IsFredholm.of_isInvertible_restrict`.
+The complementary restriction's invertibility follows from the compact
+Fredholm alternative once absence of `mu`-eigenvectors there is
+formally checked. **Finite dimensionality of eigenspaces alone does not
+certify Fredholmness**; closed range and finite cokernel must be proved
+through that restriction argument.
+
+New independently auditable candidates:
+- `TwoSidedGramNonzeroFiniteEigenspaces.lean` using the exact compact
+  spectral theorem, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40868644877.
+- `TwoSidedGramEssentialSpectralBand.lean` encloses both essential
+  spectra in the common real nonnegative norm interval; it relies only
+  on already independently certified positive-spectrum and Fredholm
+  inclusion lemmas. The last candidate uses
+  `spectrum.norm_le_norm_mul_of_mem` together with
+  `ContinuousLinearMap.norm_id_le` because the stronger generic
+  `spectrum.norm_le_norm_of_mem` silently requires a `NormOneClass`
+  instance unavailable for arbitrary zero-capable Hilbert spaces. CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869119820.
+
+**Do not label either of these two candidate modules kernel-certified
+until their exact CI is successful and the individual theorem-axiom
+logs have been checked. Do not label the singleton essential-spectrum
+equality as proved until the nonzero-shift Fredholm argument above is
+kernel-certified.** The PR remains Draft and unmerged.
+
+
+## Update — 29 October 2026: nonreal resolvent and independent operator norm candidates
+
+**Certified at SHA `fc20054c3387`:** the full complex nonreal resolvent
+theorem in `TwoSidedGramNonrealResolvent.lean` passed 9,109 Lean jobs and
+the direct `#print axioms` audit (only standard axioms):
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40868661363.
+Thus every complex scalar with nonzero imaginary part belongs to the
+resolvent of **both** genuine Grams.
+
+**Certified:** the genuine bilateral Hilbert-sum spectral decomposition
+in `DualGramHilbertSpectralSum.lean` passed its dedicated kernel build:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40868504255.
+This uses orthogonality and complete eigenspaces; it does not claim that
+the two different Hilbert spaces are identical.
+
+**New quantitative candidate:** `TwoSidedGramExactOperatorNorm.lean`
+proposes the true C-star norm identities
+`‖C†C‖ = ‖CC†‖ = ‖C‖²` for the actual analysis transform C.
+Its dedicated Lean workflow is
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869826883.
+Do not call it certified without a completed SUCCESS and axiom audit.
+
+**Proof repairs awaiting CI:**
+- `TwoSidedGramJointSpectralBand.lean`: explicit `CompleteSpace E`
+  typeclass for the spectral norm inequality used with operator
+  algebras, SHA `088b2dc316f5`, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869175172.
+- `TwoSidedGramEssentialSpectralBand.lean`: same necessary Banach
+  typeclass, SHA `79a663fbdd87`, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869357059.
+- `TwoSidedGramNonzeroFiniteEigenspaces.lean`: qualified Mathlib
+  namespace `ContinuousLinearMap.finite_dimensional_eigenspace`,
+  SHA `1a909f0913ee`, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40870029300.
+
+These are distinct Lean obligations; no success is inferred across
+workflows or commits. PR #16 remains Draft and unmerged, and neither
+approved V097 nor `main` is modified.
+
+
+## Update — 29 October 2026: exact Gram norm and analytic Fock closedness certified
+
+The following **independently checked** pin-locked Lean 4 workflows have
+finished `completed/success`:
+
+1. `TwoSidedGramExactOperatorNorm.lean`: the exact C-star identities
+   `‖C†C‖ = ‖CC†‖ = ‖C‖ * ‖C‖` on the two different Hilbert spaces.
+   SHA `288a309fc016`, dedicated kernel and axiom audit:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869826883
+2. `TwoSidedGramJointSpectralBand.lean`: the **entire shared scalar spectrum**
+   lies in the real interval `[0,min(‖C†C‖,‖CC†‖)]`;
+   the two open half-planes outside this interval are in the common
+   resolvent set. SHA `088b2dc316f5`, CI:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869175172
+3. `TwoSidedGramEssentialSpectralBand.lean`: both genuine Fredholm
+   essential spectra are contained in that same real interval.
+   SHA `79a663fbdd87`, CI:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869357059
+4. `TwoSidedGramNonzeroFiniteEigenspaces.lean`: all nonzero source
+   and target Gram eigenspaces have finite geometric dimension.
+   SHA `1a909f0913ee`, CI:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40870029300
+5. `GaussianAreaFullFockClosedPolynomialDensity.lean`: the independently
+   specified entire Gaussian `L²` submodule is closed in ambient
+   Gaussian `L²`; it equals the entire coefficient synthesis range,
+   and finite holomorphic polynomials approximate all intrinsic
+   entire classes. This is not a mere definition of the subspace
+   as a polynomial closure. SHA `d1c488969f82`, CI:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869981283
+6. `GaussianArea` intrinsic Bochner Gram and compact transform have
+   independently passed their dedicated checks:
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40871802263
+   and
+   https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40871558289.
+
+**Fresh candidate, not yet independently certified:**
+`TwoSidedGramExactSpectralNormBand.lean` combines these facts to place
+the shared full spectrum in `[0,‖C‖²]` and every complex parameter
+outside this closed real segment in the common resolvent. Source
+commit `004d6a3244dc`, workflow:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40875159254.
+This candidate **must not** be called certified until this exact CI and
+axiom audit complete SUCCESS.
+
+The existence of actual global Hilbert eigenbases with a multiplicity-
+counted Kummer trace sum remains separately pending. Certified
+orthogonal Hilbert direct-sum decompositions are not themselves
+a certificate of that stronger construction. In particular, finite
+geometric multiplicity does not alone prove `σess(G)={0}`; the
+nonzero-shift Fredholm proof is a distinct open obligation.
+
+PR #16 remains Draft, open and **unmerged**; neither `main` nor approved
+manuscript V097 is modified.
+
+
+## Update — 29 October 2026: sharp interval completed and exact essential band candidate
+
+The previous checkpoint's candidate is **now certified**:
+- `TwoSidedGramExactSpectralNormBand.lean`, source SHA
+  `48919709aa686c3511c1f4e8c1d4390ec219acce`,
+  CI **SUCCESS** with dedicated Lean build and forbidden-axiom check:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40875159254.
+  Thus the common full operator spectrum is contained in
+  `[0, ‖C‖²]`, and every complex parameter outside this real segment
+  is in the common scalar resolvent of both genuine Grams.
+
+The intrinsic Gaussian Fock Gram now has its own **independent**
+certification of zero spectral/non-eigen/Fredholm-essential behavior:
+- `GaussianArea` intrinsic Fock Gram spectral transfer,
+  CI **SUCCESS**:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40875161399.
+  This is a distinct realization in the intrinsic entire Gaussian L²
+  space, not merely the abstract coefficient space.
+
+**New target, not yet kernel-certified:**
+- `TwoSidedGramExactEssentialNormBand.lean`, source SHA
+  `4eeab68cb6648ed0714987125a4191ee8378da1e`.
+  This combines the *already certified* Fredholm essential norm band
+  with exact Gram norm equality, asserting both Fredholm essential
+  spectra contain zero and are bounded in `[0,‖C‖²]`. Dedicated
+  independent run:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40879928940.
+  Do not claim this candidate is certified until that run and its
+  individual `#print axioms` checks finish SUCCESS.
+
+**Remaining separate obligations:** the globally constructed compact
+eigen-Hilbert bases and *multiplicity-counted* Kummer eigenvalue
+trace sums are affected by the general trace-basis-invariance proof
+port. Its repaired source has independent CI runs underway. A
+standalone demonstration of `σess(G) = {0}` additionally requires
+Fredholmness of every nonzero shift. Neither is inferred from the
+certified common spectral band.
+
+PR #16 stays Draft/unmerged; neither `main` nor approved V097 is
+modified.
+
+
+## Update — 29 October 2026: independently certified compact eigenbases and Kummer sums
+
+The Hilbert-basis trace bottleneck is now resolved **without axioms of
+admitted proofs**. Exact-commit dedicated SUCCESS runs:
+
+- `PhyslibTraceBasisIndependence.lean`: invariance of the true CFC
+  absolute diagonal and trace norm in arbitrary Hilbert bases,
+  based on a square-root quadratic form and Hilbert-space Parseval.
+  SHA `45bc54527319`, CI:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40879559227.
+  The logs of the relevant theorems contain only
+  `propext`, `Classical.choice`, `Quot.sound`.
+- `DualGramEigenbasisTrace.lean`: for arbitrary actual full eigenbases
+  of either positive Gram, the real eigenvalue family is summable
+  and its sum is exactly the unregularized Kummer series, with
+  index multiplicities retained. CI:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40879620213.
+- `CompactGramEigenHilbertBasis.lean`: **unconditional existence**
+  of complete real-eigenvalue Hilbert bases for both genuine Gram
+  operators, followed by the sum-with-multiplicities identities.
+  **SUCCESS**, 9,105 Lean build jobs and individual axiom audit:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40879627683.
+  Certified:
+  `exists_compact_realEigenHilbertBasis`,
+  `exists_sourceGram_eigenHilbertBasis_kummer`,
+  `exists_outputGram_eigenHilbertBasis_kummer`.
+  The result does **not** equate the source L² and target coefficient
+  Hilbert spaces or rely on finite-rank cutoffs.
+
+A separate audit of the Physlib trace-class Hilbert–Schmidt polar
+factorization also completed SUCCESS:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40879558972.
+
+**Still not certified:** equality of the *Fredholm essential spectrum*
+with the singleton `{0}`. A complete eigenbasis and finite geometric
+eigenspaces alone do not establish the Fredholm property of every
+nonzero spectral shift. The stronger closed-range/finite-cokernel
+argument remains necessary.
+
+The new precise bound
+`TwoSidedGramExactEssentialNormBand.lean` is independently compiling:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40879928940.
+Do not attribute SUCCESS to it until its own run completes and the
+axiom audit passes.
+
+PR #16 remains Draft/unmerged, and neither `main` nor approved
+manuscript V097 has been modified.
+
+
+## Update — 29 October 2026: exact Fredholm-essential norm bound certified
+
+**SUCCESS**: `TwoSidedGramExactEssentialNormBand.lean`, source
+`f3e419b0070aea5cc8e48bbe09d6867bd4b222e6`, completed
+9,119 pinned Lean 4/Mathlib jobs with independent individual
+`#print axioms` for three theorems. The only axioms printed are
+`propext`, `Classical.choice`, and `Quot.sound`;
+neither `sorryAx` nor `Lean.ofReduceBool` is required:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40879928940.
+
+Both actual Fredholm essential spectra contain zero, and each is
+contained in the closed real segment `[0,‖C‖²]`, where `C` is
+the genuine ultraspherical-to-Fock coefficient analysis operator.
+The two distinct Hilbert spaces have **not** been identified.
+
+A separate formalization of Fredholmness at every nonzero shift
+was deposited as `TwoSidedGramNonzeroShiftFredholm.lean`, and a
+consequence as `TwoSidedGramEssentialSpectrumSingleton.lean`;
+their independent workflows are:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40880474952
+and
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40880657522.
+
+**Do not claim the singleton Fredholm essential-spectrum equality
+until those runs complete successfully and their axiom audits are
+verified.** PR #16 remains open in Draft, unmerged; `main` and
+approved V097 are unchanged.
+
+## Update — 29 October 2026: final nonzero Fredholm shift proof candidate
+
+The three previously pending special-purpose statements are now
+independently **Lean kernel-certified** and `#print axioms` audited:
+
+- `TwoSidedGramNonzeroFiniteEigenspaces.lean`:
+  [CI 40870029300](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40870029300),
+  **SUCCESS**, 9107 jobs, standard axioms only;
+- `TwoSidedGramEssentialSpectralBand.lean`:
+  [CI 40869357059](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869357059),
+  **SUCCESS**, 9117 jobs, standard axioms only;
+- `TwoSidedGramJointSpectralBand.lean`:
+  [CI 40869175172](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40869175172),
+  **SUCCESS**, 9109 jobs, standard axioms only.
+
+**Important: the proof of `σess(Gsrc)=σess(Gout)={0}` is a new
+source candidate, not a certified theorem as of this handover.**
+
+The candidate module `TwoSidedGramNonzeroShiftFredholm.lean`
+decomposes the Hilbert space into the finite-dimensional `mu`
+eigenspace of each compact symmetric Gram and its closed orthogonal
+complement `Q`. The restricted Gram is still compact and has no
+`mu` eigenvector on `Q`; the compact Fredholm alternative gives
+an inverse to the shifted restricted operator.
+`ContinuousLinearMap.IsFredholm.of_isInvertible_restrict`
+then yields Fredholmness of the original nonzero shift.
+
+Its exact-source, independent kernel-check workflows are:
+- https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40881053876
+- https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40881053866
+
+The final candidate `TwoSidedGramEssentialSpectrumSingleton.lean`
+combines the already certified non-Fredholmness at zero with
+the proposed Fredholmness of **all** nonzero shifts to prove
+`fredholmEssentialSpectrum Gsrc = {0}` and
+`fredholmEssentialSpectrum Gout = {0}`. Its CI is the latter
+singletons workflow above, and the former nonzero-shift workflow
+is a dependency.
+
+The source is edited concurrently by the V007 automation. Do not
+infer a current SHA from an earlier audit; inspect exact CI SHA and
+`#print axioms`. Until the final two workflows return SUCCESS,
+these are **unverified candidates**, not claimed Lean certificates.
+
+PR #16 stays Draft and unmerged. Approved V097 and main unchanged.
+
+
+## Update — 29 October 2026: complete singular Hilbert bases and Fourier expansions audited
+
+Two fresh exact-source, dedicated Lean 4/Mathlib workflows completed
+**SUCCESS** and printed no `sorryAx` nor `Lean.ofReduceBool`:
+
+- `CompletePositiveSingularHilbertBasis.lean`, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40884336683
+  (9,107 build jobs). This constructs complete singular Hilbert bases
+  on the two genuine Hilbert spaces with strictly positive singular
+  values and exact Kummer mass, retaining the multiplicity count.
+- `CompleteSingularFourierExpansions.lean`, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40884568401
+  (9,108 build jobs). This proves the corresponding bilateral singular
+  Fourier expansions and norm-convergent reconstructions, rather than
+  replacing either genuine infinite-dimensional Hilbert space by a
+  finite-dimensional matrix.
+
+Both logs show only standard axioms `propext`,
+`Classical.choice`, and `Quot.sound` for the final statements.
+
+**Fredholm singleton proof is NOT yet certified.** Earlier failed
+CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40881053876
+identified an unavailable `FG.cofg_of_isCompl` namespace and an
+operator/linear-map-restriction elaboration mismatch. A repaired
+version at SHA `e7b6c6df9e1c` is being tested by
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40886194258
+and the dependent essential singleton proof by
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40886194109.
+Neither theorem should be described as kernel-certified until its
+individual CI completes SUCCESS and the axiom audit is clean.
+
+PR #16 remains open Draft, unmerged. `main` and approved V097
+are untouched.
+
+
+## Certified checkpoint — 29 October 2026: full Fredholm essential spectra {0}
+
+**The earlier statements in this dossier describing the Fredholm singleton
+proof as pending are superseded.** Dedicated pinned Lean 4/Mathlib
+SUCCESS runs verify all three statements with clean individual
+`#print axioms` (only `propext`, `Classical.choice`, `Quot.sound`):
+
+- Nonzero shifts of both actual compact Grams are Fredholm:
+  `TwoSidedGramNonzeroShiftFredholm.lean`, SHA `e7b6c6df9e1c`,
+  CI https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40886194258.
+- Both actual Fredholm essential spectra are exactly the singleton
+  `{0}`: `TwoSidedGramEssentialSpectrumSingleton.lean`,
+  same SHA, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40886194109.
+- The true intrinsic entire-Gaussian source Gram has the same ordinary
+  spectrum as the coefficient output Gram, and its Fredholm essential
+  spectrum is also `{0}`:
+  `GegenbauerIntrinsicEntireGramEssentialSingleton.lean`,
+  SHA `a6eccaf5214b`, CI
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40886955697.
+
+Separate SUCCESS checks also cover the multiplicity-aware complete
+singular bases and norm-convergent singular Fourier reconstructions:
+CI 40884336683 and CI 40884568401.
+
+**Still pending independent kernel success:** any more recent
+cofinite spectral-decay/threshold-counting, Gaussian Riesz diagonal,
+holomorphic output Gram positivity, and intrinsic Fock Hilbert--Schmidt
+Gamma/Pochhammer identities. Do not transfer success between workflows.
+
+PR #16 remains Draft and unmerged. `main` and approved V097 remain
+unchanged.
+
+
+## Certified checkpoint — 29 October 2026: cofinite decay of positive singular spectrum
+
+The `CompleteSingularCofiniteDecay.lean` independent build
+**SUCCESS** at commit `4fb845c2fd8b`:
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40888114039.
+It completed 9,108 Lean jobs and the direct theorem-axiom audit
+printed only `propext`, `Classical.choice`, `Quot.sound`.
+
+The multiplicity-indexed positive singular Gram eigenvalue family
+is summable and tends to zero in the **cofinite-filter** sense.
+Consequently, for every real `ε>0`, the set of singular basis indices
+with `μ_i≥ε` is **finite**. The two singular Hilbert bases are complete
+and the spectral mass equals the exact unregularized Kummer series.
+This asserts neither an artificial ordering nor a finite cutoff of
+the underlying infinite-dimensional operator.
+
+The stronger exact finite-mode counting inequality, bilateral
+weighted Parseval formula, genuine Gaussian Riesz diagonal, and
+intrinsic output Gram quadratic positivity remain subject to
+their own dedicated CI outcomes.
+
+
+## Checkpoint 29 October 2026, 15:16 UTC — intrinsic sharp spectral package
+
+Dedicated exact-source SUCCESS kernel builds with audited axioms:
+
+- Positive compact spectral theorem in the **genuine holomorphic
+  output Gram**, CI 40890363413:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40890363413
+- Complete bilateral singular weighted Parseval equalities and
+  exact Kummer spectral mass, CI 40895386832:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40895386832
+- Exact bilateral diagonal coordinates in the complete singular
+  Hilbert bases, CI 40895395374:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40895395374
+- Ultraspherical Sturm--Liouville polynomial domain core,
+  CI 40890429949:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40890429949
+- Positive singular-mode threshold count bounded by exact
+  Kummer spectral mass, CI 40889135410:
+  https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40889135410
+
+**Additional independent candidate (NOT YET CERTIFIED):**
+`GegenbauerIntrinsicEntireGramSharpSpectrum.lean` combines the
+already audited operator equality for the genuine Gaussian entire
+source Gram, the exact scalar spectral enclosure `[0,‖C‖²]`,
+common resolvent outside that interval, and the complete Fredholm
+essential singleton result. A fourth theorem gives the precise
+Fredholm-shift equivalence:
+`IsFredholm (G_hol - μI) ↔ μ ≠ 0`.
+Source commits `29f3dfccbb66` and `90ac3027df9a`;
+dedicated four-theorem kernel and axiom CI at
+https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/40900681177.
+It is not appropriate to mark the new package as certified
+before this exact CI reports SUCCESS and clean per-theorem axiom audit.
+
+Other independent full intrinsic Gaussian Fock output zero-spectrum,
+singular-Weyl, and quantitative inverse-instability workflows are
+in progress and are not promoted from historical failing runs.
+No merge. `main` and approved manuscript V097 remain untouched.

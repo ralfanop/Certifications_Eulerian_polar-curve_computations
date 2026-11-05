@@ -1,0 +1,57 @@
+name: V007 bounded Sturm Yosida exponential norm
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaExponentialNorm.lean'
+      - '.github/workflows/v007-ultraspherical-sturm-real-yosida-exponential-norm.yml'
+  workflow_dispatch:
+
+jobs:
+  bounded-yosida-exponential-norm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit the bounded operator exponential norm
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealYosidaExponentialNorm 2>&1 | tee /tmp/v007-exp-norm-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealYosidaExponentialNorm.lean 2>&1 | tee /tmp/v007-exp-norm-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-exp-norm-build.log /tmp/v007-exp-norm-axioms.log; then
+            echo '::error::Forbidden axiom in bounded operator exponential norm bound.'
+            exit 1
+          fi
+          grep -F "sturmRealOperatorExponential_norm_le_exp_norm' depends on axioms:" /tmp/v007-exp-norm-axioms.log
+          echo 'V007 Banach-algebra operator exponential norm bound kernel-certified.'

@@ -1,6 +1,11 @@
 name = "EulerianCert"
 defaultTargets = ["EulerianCert"]
 
+# V007: per-Lean-process soft memory cap in megabytes (not reserved RAM).
+# weakLeanArgs applies to Lean invoked by Lake builds without forcing
+# an otherwise unnecessary full rebuild when this operational cap changes.
+weakLeanArgs = ["-M16768"]
+
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4"
@@ -11,3 +16,6 @@ name = "EulerianCert"
 
 [[lean_lib]]
 name = "UniformLanczos"
+
+[[lean_lib]]
+name = "GegenbauerFock"

@@ -1,0 +1,61 @@
+name: V007 integrated closed Sturm resolvent spectral certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealResolventIntegratedCertificate.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealResolventFullSpectrum.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleResolventCompactExact.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleRealResolventInverseOnRange.lean'
+      - 'lean/GegenbauerFock/UltrasphericalSturmLiouvilleExactGegenbauerSpectralClosure.lean'
+      - '.github/workflows/v007-sturm-resolvent-integrated-certificate.yml'
+  workflow_dispatch:
+
+jobs:
+  integrated-sturm-resolvent-certificate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then installed=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Joint Lean build and axioms audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.UltrasphericalSturmLiouvilleRealResolventIntegratedCertificate 2>&1 | tee /tmp/v007-sturm-master-build.log
+          lake env lean -M16768 GegenbauerFock/UltrasphericalSturmLiouvilleRealResolventIntegratedCertificate.lean 2>&1 | tee /tmp/v007-sturm-master-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-sturm-master-build.log /tmp/v007-sturm-master-axioms.log; then
+            echo '::error::Forbidden axiom in integrated V007 Sturm resolvent proof.'
+            exit 1
+          fi
+          for theorem in sturmRealClosedResolvent_spectral_dichotomy sturmRealClosedResolvent_compact_spectrum_and_exact_cutoffs sturmRealClosed_eq_exact_monicGegenbauer_spectral_realization sturmRealResolvent_inverse_on_range_discontinuous_at_zero; do
+            grep -F "${theorem}' depends on axioms:" /tmp/v007-sturm-master-axioms.log
+          done
+          echo 'V007 integrated real Sturm resolvent certified.'

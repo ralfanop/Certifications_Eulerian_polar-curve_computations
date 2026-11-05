@@ -1,0 +1,53 @@
+name: V007 sharp real Young scaling optimization certificate
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/SchattenYoungSharpReal.lean'
+      - '.github/workflows/gegenbauer-fock-schatten-young-sharp-real.yml'
+  workflow_dispatch:
+
+jobs:
+  young-sharp-real:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then installed=1; break; fi
+            sleep "$((attempt*8))"
+          done
+          test "$installed" = 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt*8))"
+          done
+          test "$ready" = 1
+      - name: Resolve pinned Mathlib dependency
+        working-directory: lean
+        run: lake update
+      - name: Download Mathlib pinned cache
+        working-directory: lean
+        run: lake exe cache get
+      - name: Prove Young optimization with exact sharp constant
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.SchattenYoungSharpReal 2>&1 | tee /tmp/gf-schatten-young-real.log
+          grep -F "GegenbauerFock.SchattenYoung.all_scales_implies_sq_le_mul' depends on axioms:" /tmp/gf-schatten-young-real.log
+          grep -F "GegenbauerFock.SchattenYoung.all_scales_implies_le_sqrt_mul' depends on axioms:" /tmp/gf-schatten-young-real.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-schatten-young-real.log; then
+            echo '::error::Nonstandard axiom.'
+            exit 1
+          fi
+          echo 'Sharp scalar Young minimization independently audited.'

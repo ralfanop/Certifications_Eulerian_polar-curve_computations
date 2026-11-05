@@ -1,0 +1,88 @@
+name: V007 infinite-dimensional Hilbert-Schmidt row-basis iff certificate
+
+on:
+  push:
+    branches:
+      - gegenbauer-fock-formalization-20261025
+    paths:
+      - 'lean/GegenbauerFock/HSRowBasisGeneral.lean'
+      - 'lean/GegenbauerFock/HSRowBasisConverse.lean'
+      - 'lean/GegenbauerFock/HSRowRightIdealGeneral.lean'
+      - '.github/workflows/gegenbauer-fock-hs-basis-converse.yml'
+  # New commits touching these modules are checked by the path-scoped push
+  # trigger above. Recheck the entire PR at opening/reopening/readiness only;
+  # synchronize otherwise matches the FULL accumulated PR diff and reruns
+  # this costly independent certificate on every unrelated PR commit.
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+    paths:
+      - 'lean/GegenbauerFock/HSRowBasisGeneral.lean'
+      - 'lean/GegenbauerFock/HSRowBasisConverse.lean'
+      - 'lean/GegenbauerFock/HSRowRightIdealGeneral.lean'
+      - '.github/workflows/gegenbauer-fock-hs-basis-converse.yml'
+  workflow_dispatch:
+
+jobs:
+  hs-row-basis-iff:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Verify 16 GB public runner memory
+        run: |
+          set -euo pipefail
+          free -h
+          mem_kib=$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)
+          test "$mem_kib" -ge 14500000
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4 without changing toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL \
+            --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            -o /tmp/elan-init.sh
+          installed=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then
+              installed=1
+              break
+            fi
+            sleep "$((attempt * 8))"
+          done
+          test "$installed" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then
+              ready=1
+              break
+            fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Resolve pinned Mathlib
+        working-directory: lean
+        run: lake update
+      - name: Download pinned Mathlib cache
+        working-directory: lean
+        run: lake exe cache get
+      - name: Verify pinned Lean memory budget
+        working-directory: lean
+        run: lake env lean -M16768 --version
+      - name: Certify complete S2 row-basis equivalence and right ideal
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.HSRowBasisGeneral \
+            GegenbauerFock.HSRowBasisConverse \
+            GegenbauerFock.HSRowRightIdealGeneral 2>&1 | tee /tmp/gf-hs-converse.log
+          grep -F "GegenbauerFock.FockEnergy.sourceBasis_HS_iff_summableRows' depends on axioms:" /tmp/gf-hs-converse.log
+          grep -F "GegenbauerFock.FockEnergy.sourceBasis_HS_energy_eq_rows' depends on axioms:" /tmp/gf-hs-converse.log
+          grep -F "GegenbauerFock.FockEnergy.sourceBasis_HS_basis_independent' depends on axioms:" /tmp/gf-hs-converse.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/gf-hs-converse.log; then
+            echo '::error::Forbidden axiom in infinite-dimensional HS converse.'
+            exit 1
+          fi
+          echo 'S2 row-basis iff: exact pinned Lean kernel certification clean.'

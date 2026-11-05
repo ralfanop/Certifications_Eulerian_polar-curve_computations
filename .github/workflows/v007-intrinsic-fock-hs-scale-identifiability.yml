@@ -1,0 +1,54 @@
+name: V007 exact Gaussian width identifiability from Fock S2 and Gram mass
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireHSScaleIdentifiability.lean'
+      - '.github/workflows/v007-intrinsic-fock-hs-scale-identifiability.yml'
+  workflow_dispatch:
+
+jobs:
+  scale-uniqueness:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit exact Gaussian Fock Hilbert-Schmidt scale uniqueness
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GegenbauerIntrinsicEntireHSScaleIdentifiability 2>&1 | tee /tmp/v007-gaussian-width-unique.log
+          lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireHSScaleIdentifiability.lean 2>&1 | tee -a /tmp/v007-gaussian-width-unique.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-gaussian-width-unique.log; then
+            echo "::error::Forbidden axiom in Gaussian width uniqueness"
+            exit 1
+          fi
+          grep -F "C_intrinsicEntire_HS_energy_identifies_alpha' depends on axioms:" /tmp/v007-gaussian-width-unique.log
+          grep -F "C_intrinsicEntire_Gram_trace_identifies_alpha' depends on axioms:" /tmp/v007-gaussian-width-unique.log
+          echo 'V007 exact Fock S2 and intrinsic Gram scalar scale identifiability kernel verified.'

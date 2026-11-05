@@ -1,0 +1,57 @@
+name: V007 Section 8 all-p factorial/Schatten domination bridge
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/Section8SchattenDomination.lean'
+      - 'lean/GegenbauerFock/Section8Section9.lean'
+      - '.github/workflows/v007-section8-schatten-domination.yml'
+  workflow_dispatch:
+jobs:
+  section8-schatten-domination:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ok=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ok" -eq 1
+      - name: Restore pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit actual truncation and factorial all-p domination bridges
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.Section8SchattenDomination 2>&1 | tee /tmp/v007-schatten-domination-build.log
+          lake env lean -M16768 GegenbauerFock/Section8SchattenDomination.lean 2>&1 | tee /tmp/v007-schatten-domination-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-schatten-domination-build.log /tmp/v007-schatten-domination-axioms.log; then
+            echo '::error::Forbidden axiom in all-p domination bridge'
+            exit 1
+          fi
+          grep -F "summable_powers_below_actual_truncation_errors' depends on axioms:" /tmp/v007-schatten-domination-axioms.log
+          grep -F "summable_powers_below_factorial_tails' depends on axioms:" /tmp/v007-schatten-domination-axioms.log
+          echo 'All-p truncation/factorial domination bridges kernel-certified (singular value ordering remains separate).'

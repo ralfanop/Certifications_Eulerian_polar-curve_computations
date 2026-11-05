@@ -1,0 +1,58 @@
+name: V007 full spectrum equality for true analytic source and output Grams
+
+on:
+  push:
+    branches: [gegenbauer-fock-formalization-20261025]
+    paths:
+      - 'lean/GegenbauerFock/GegenbauerIntrinsicEntireTwoGramFullSpectrum.lean'
+      - '.github/workflows/v007-intrinsic-two-gram-full-spectrum.yml'
+  workflow_dispatch:
+
+jobs:
+  full-spectrum-equality:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if sh /tmp/elan-init.sh -y --default-toolchain none; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          ready=0
+          for attempt in 1 2 3 4 5 6; do
+            if "$HOME/.elan/bin/lean" --version && "$HOME/.elan/bin/lake" --version; then ready=1; break; fi
+            sleep "$((attempt * 8))"
+          done
+          test "$ready" -eq 1
+      - name: Restore pinned Mathlib cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Check 3 genuine source/output spectrum equalities and axioms
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GegenbauerIntrinsicEntireTwoGramFullSpectrum 2>&1 | tee /tmp/v007-real-fock-full-spectrum.log
+          lake env lean -M16768 GegenbauerFock/GegenbauerIntrinsicEntireTwoGramFullSpectrum.lean 2>&1 | tee -a /tmp/v007-real-fock-full-spectrum.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/v007-real-fock-full-spectrum.log; then
+            echo "::error::Forbidden axiom in genuine output Gram full spectrum equality"
+            exit 1
+          fi
+          for theorem in \
+            outputGram_hasEigenvalue_iff_intrinsicEntire \
+            outputGram_nonzero_spectrum_iff_intrinsicEntire \
+            C_intrinsicEntire_two_gram_full_spectrum_eq; do
+              grep -F "$theorem' depends on axioms:" /tmp/v007-real-fock-full-spectrum.log
+          done
+          echo 'V007 genuine entire Gaussian source/output ordinary spectra equal, audited.'
