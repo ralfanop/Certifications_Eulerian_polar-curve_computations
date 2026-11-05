@@ -1,0 +1,7 @@
+(S1) 3/8 - sqrt6/2 = -0.84974487 +/- 5.8775e-39  < 0 OK
+c^3 T3 <= 0.018533817 +/- 1.2729e-39 for c >= 8
+(S2) kappa^2 - K(s*) >= 0.025876481 +/- 5.8775e-39  > 0 OK
+(S3) s*^2 = 25/(16 c^2) <= 6, sqrt(5/2) < 8, 2 (1/sqrt2)(5/4)/8 < 8, S0^2 = sqrt6 c >= 19.5 > 3.8: OK
+branch and bound: 2224 boxes processed, 1624 certified, worst lower bound of c^3 (d - T1 - T2 - T3) = 1.954104e-04
+  at f in [0.000000, 0.024544], r in [0.984375, 1.000000], u in [7.324e-03, 7.568e-03]
+CERTIFIED: J(c, a) < d(c) for every unit a and every c >= 8

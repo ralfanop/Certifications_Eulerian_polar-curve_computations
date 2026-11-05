@@ -1,0 +1,10 @@
+nodes: subinterval 0/80
+nodes: subinterval 50/80
+matrix product...
+error bounds: subinterval 0/80
+error bounds: subinterval 20/80
+error bounds: subinterval 40/80
+error bounds: subinterval 60/80
+outer cells: 72, root cells: 0, total root width 0.000e+00
+outer radii: n=0 max 1.420e-114, n>=1 max 4.501e-64
+done; tail bound = (1023202022 * 2^-146)
