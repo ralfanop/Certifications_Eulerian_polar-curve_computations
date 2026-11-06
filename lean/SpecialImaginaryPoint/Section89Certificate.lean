@@ -309,7 +309,7 @@ theorem Q_two_mul (τ : ℂ) : Q (2 * τ) = 4 * Q τ := by
 
 /-- **Theorem 8.1 (iv)**: `q ↦ 1/(4q)` and `q ↦ 4q` agree exactly at `q = ±1/4`. -/
 theorem actions_agree (q : ℂ) (hq : q ≠ 0) : 1 / (4 * q) = 4 * q ↔ q = 1 / 4 ∨ q = -(1 / 4) := by
-  have h4 : (4 : ℂ) * q ≠ 0 := mul_ne_zero four_ne_zero hq
+  have h4 : (4 : ℂ) * q ≠ 0 := mul_ne_zero (by norm_num) hq
   rw [div_eq_iff h4, ← sq_eq_sq_iff_eq_or_eq_neg]
   constructor
   · intro h
@@ -465,7 +465,7 @@ theorem cot_trace (y : ℝ) (hy0 : 0 < y) (hyπ : y < π) :
     ring
   exact mul_left_cancel₀ hπ h''
 
-/-- **Proposition 8.2 (i)**, (113): `C₀ = 1/2 + ∑ₙ 1/(π²n² - 1/2) = 1/2 + Tr (A + z₀²)⁻¹`. -/
+/-- **Proposition 8.2 (i)**, (114): `C₀ = 1/2 + ∑ₙ 1/(π²n² - 1/2) = 1/2 + Tr (A + z₀²)⁻¹`. -/
 theorem mt_trace : C0 = 1 / 2 + TM (1 / 2) := by
   have h := cot_trace b b_pos b_lt_pi
   rw [b_sq] at h
@@ -621,7 +621,7 @@ theorem exp_neg_two_Kc : Real.exp (-(2 * Kc)) = Real.sqrt 2 - 1 := by
   field_simp
   nlinarith [sqrt_two_sq]
 
-/-- (117): `sinh 2K = 1`. -/
+/-- (118): `sinh 2K = 1`. -/
 theorem sinh_two_Kc : Real.sinh (2 * Kc) = 1 := by
   rw [Real.sinh_eq, exp_two_Kc, exp_neg_two_Kc]
   ring
@@ -630,7 +630,7 @@ theorem cosh_two_Kc : Real.cosh (2 * Kc) = Real.sqrt 2 := by
   rw [Real.cosh_eq, exp_two_Kc, exp_neg_two_Kc]
   ring
 
-/-- **Proposition 8.4 (ii)**, (120): `tanh 2K = |z₀| = b` and `cosh 2K = |z₁| = 1/b`. -/
+/-- **Proposition 8.4 (ii)**, (121): `tanh 2K = |z₀| = b` and `cosh 2K = |z₁| = 1/b`. -/
 theorem tanh_two_Kc : Real.tanh (2 * Kc) = b ∧ Real.cosh (2 * Kc) = 1 / b := by
   constructor
   · rw [Real.tanh_eq_sinh_div_cosh, sinh_two_Kc, cosh_two_Kc]
@@ -639,7 +639,7 @@ theorem tanh_two_Kc : Real.tanh (2 * Kc) = b ∧ Real.cosh (2 * Kc) = 1 / b := b
     unfold b
     rw [one_div_one_div]
 
-/-- **Proposition 8.4 (ii)**, (121): `tanh K = e^{-2K} = √2 - 1 = 2Z*`. -/
+/-- **Proposition 8.4 (ii)**, (122): `tanh K = e^{-2K} = √2 - 1 = 2Z*`. -/
 theorem tanh_Kc : Real.tanh Kc = Real.sqrt 2 - 1 ∧ Real.exp (-(2 * Kc)) = Real.sqrt 2 - 1 ∧
     2 * Zstar = Real.sqrt 2 - 1 := by
   refine ⟨?_, exp_neg_two_Kc, by unfold Zstar; ring⟩
@@ -666,9 +666,7 @@ theorem sinh_two_mul_tanh (x : ℝ) : Real.sinh (2 * x) = 2 * Real.tanh x / (1 -
   have hc : Real.cosh x ≠ 0 := (Real.cosh_pos x).ne'
   have key := Real.cosh_sq_sub_sinh_sq x
   have h1 : 1 - Real.tanh x ^ 2 = (Real.cosh x ^ 2)⁻¹ := by
-    rw [Real.tanh_eq_sinh_div_cosh, div_pow, eq_inv_iff_mul_eq_one₀ (pow_ne_zero 2 hc), sub_mul,
-      div_mul_cancel₀ _ (pow_ne_zero 2 hc), one_mul]
-    linarith
+    rw [Real.tanh_eq_sinh_div_cosh, div_pow, one_sub_div (pow_ne_zero 2 hc), key, one_div]
   rw [h1, Real.sinh_two_mul, Real.tanh_eq_sinh_div_cosh]
   first
     | (field_simp; ring)
@@ -680,7 +678,7 @@ theorem selfdual_iff (t : ℝ) (ht : t ^ 2 ≠ 1) : 2 * t / (1 - t ^ 2) = 1 ↔ 
   rw [div_eq_iff h]
   constructor <;> intro e <;> linarith
 
-/-- **Proposition 8.4 (iii)**, (122): `arctan z₀ = 2iK`. -/
+/-- **Proposition 8.4 (iii)**, (123): `arctan z₀ = 2iK`. -/
 theorem arctan_z0 : Complex.arctan z0 = 2 * (Kc : ℂ) * Complex.I := by
   have hs := sqrt_two_pos.ne'
   have hs1 : Real.sqrt 2 + 1 ≠ 0 := by positivity
@@ -758,6 +756,7 @@ theorem T2_a (n : ℕ) :
   have h : Real.sqrtTwoAddSeries 0 (n + 1) ^ 2 = 2 + Real.sqrtTwoAddSeries 0 n := by
     simp only [Real.sqrtTwoAddSeries]
     exact Real.sq_sqrt (by linarith [Real.sqrtTwoAddSeries_zero_nonneg n])
+  generalize Real.sqrtTwoAddSeries 0 (n + 1) = u at h ⊢
   rw [Polynomial.Chebyshev.T_two]
   simp
   linear_combination (1 / 2 : ℝ) * h
@@ -938,7 +937,7 @@ theorem walk_term (n j : ℕ) (hj : j ≤ n) :
   rw [div_eq_iff (by positivity), ← h2, ← h1]
   ring
 
-/-- **Proposition 8.7**, (126): `∑ⱼ (2n)!/(j!²(n-j)!²) = C(2n,n)²`. -/
+/-- **Proposition 8.7**, (127): `∑ⱼ (2n)!/(j!²(n-j)!²) = C(2n,n)²`. -/
 theorem walk_count (n : ℕ) :
     ∑ j ∈ Finset.range (n + 1),
       ((2 * n).factorial : ℚ) / ((j.factorial : ℚ) ^ 2 * ((n - j).factorial : ℚ) ^ 2) =
@@ -965,7 +964,7 @@ theorem poch_half (n : ℕ) :
     rw [← ih]
     ring
 
-/-- **Proposition 8.7**, (127): `(1/2)ₙ² 16ⁿ/(n!)² = C(2n,n)²`. -/
+/-- **Proposition 8.7**, (129): `(1/2)ₙ² 16ⁿ/(n!)² = C(2n,n)²`. -/
 theorem hyper_coeff (n : ℕ) :
     (∏ k ∈ Finset.range n, ((1 : ℝ) / 2 + k)) ^ 2 * 16 ^ n / (n.factorial : ℝ) ^ 2 =
       ((2 * n).choose n : ℝ) ^ 2 := by
@@ -1166,7 +1165,11 @@ theorem thermal_trace (x : ℝ) : (Real.exp x + Real.exp (-x)) / 2 = Real.cosh x
 /-- **Proposition 9.5 (i)**: time reversal maps the thermal state in the field `x` to that in `-x`. -/
 theorem Θ_thermal (x : ℝ) (ψ : Fin 2 → ℂ) : Θ (thermal x ψ) = thermal (-x) (Θ ψ) := by
   funext i
-  fin_cases i <;> simp [Θ, thermal, map_mul, Complex.conj_ofReal]
+  fin_cases i <;> first
+    | (simp [Θ, thermal, ← Complex.exp_conj]; done)
+    | (simp [Θ, thermal, ← Complex.exp_conj]; ring)
+    | (simp only [Θ, thermal, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons, Fin.zero_eta,
+        Fin.mk_one, map_mul, map_neg, Complex.conj_ofReal, neg_neg]; ring)
 
 /-! ## Proposition 9.7: comparison of the involutions -/
 
