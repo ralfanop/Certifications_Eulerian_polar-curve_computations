@@ -9,7 +9,7 @@ import sys
 import flint
 from flint import arb, acb, ctx
 
-ctx.prec = 256
+ctx.prec = 2000
 failures = []
 
 def check(desc, condition):
@@ -115,7 +115,7 @@ rounded_50("Draft 0.10r5 HS norm squared", hs_squared,
 # Draft 0.10r6: modular companion z1 = i*sqrt(2), b = 1/sqrt(2).
 # The two Fourier values are different, even though Klein j agrees.
 # All five extra displayed 50-significant-digit values are verified as
-# correctly rounded using independent 256-bit Arb balls.
+# correctly rounded using independent 2000-bit Arb balls.
 b = arb(2).rsqrt()
 r_companion = b.sinh() / b
 mean_companion = b.coth() - 1/b

@@ -1,0 +1,60 @@
+name: Manuscript 14 — all Arb certificates at 2000 bits
+
+# Re-runs every numerical certificate of manuscript 14 with the Arb working
+# precision raised from 256/384 to 2000 bits (python-flint 0.9.0), plus the
+# new Proposition 4.1 certificate (Langevin mean and variance at a = 1/sqrt 8).
+# The exact-rational truncation bounds and the printed-digit rounding checks
+# are unchanged; only the ball precision of the Arb evaluations is raised.
+
+on:
+  push:
+    branches:
+      - manuscript14-arb-2000bit-20261106
+    paths:
+      - 'numerics/arb/manuscript14_*.py'
+      - 'numerics/arb/special_point_i_sqrt2_arb.py'
+      - '.github/workflows/manuscript14-arb-2000bit.yml'
+  workflow_dispatch:
+
+jobs:
+  arb:
+    name: Arb 2000-bit / exact Q — manuscript 14, nine certificates
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install python-flint 0.9.0
+        run: python -m pip install python-flint==0.9.0
+      - name: Run the nine certificates at 2000 bits
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/arb2000
+          for s in \
+            special_point_i_sqrt2_arb \
+            manuscript14_section11_arb \
+            manuscript14_cor36_arb \
+            manuscript14_sonine_radial_arb \
+            manuscript14_sonine_polynomial_arb \
+            manuscript14_sonine_bessel_tails_arb \
+            manuscript14_gram_resolvent_arb \
+            manuscript14_dirichlet_finite_arb \
+            manuscript14_prop41_langevin_arb ; do
+            echo "=== numerics/arb/$s.py"
+            python "numerics/arb/$s.py" 2>&1 | tee "/tmp/arb2000/$s.log"
+            if grep -q "FAIL" "/tmp/arb2000/$s.log"; then
+              echo "::error::FAIL in $s"
+              exit 1
+            fi
+          done
+          grep -h "precision\|PASSED" /tmp/arb2000/*.log
+      - name: Upload numerical logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-arb-2000bit-logs
+          path: /tmp/arb2000/
+          if-no-files-found: ignore

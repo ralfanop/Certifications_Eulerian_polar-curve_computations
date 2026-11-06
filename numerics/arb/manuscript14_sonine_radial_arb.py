@@ -5,7 +5,7 @@ Certificate scope:
 - exact rational moment recurrence and finite binomial-integral evaluations;
 - exact rational polynomial samples of H3*M=M*H2;
 - coefficientwise J0/I0 -> spherical j0/sinhc tests;
-- 256-bit real/complex Arb enclosures at the Eulerian special parameter.
+- 2000-bit real/complex Arb enclosures at the Eulerian special parameter.
 
 Finite sample checks and interval enclosures are not a proof of the
 universal Sonine integral identity or entire-function interchange.
@@ -16,7 +16,7 @@ from math import factorial, comb
 from flint import arb, acb, ctx
 import flint
 
-ctx.prec = 256
+ctx.prec = 2000
 checks = 0
 
 def check(label, proposition):
