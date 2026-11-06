@@ -47,7 +47,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.GramIntegralComplete GegenbauerFock.UltrasphericalSturmLiouvillePolynomialCore GegenbauerFock.UltrasphericalSturmLiouvilleMonicRealL2Nonzero GegenbauerFock.UltrasphericalLegendreDensityExact 2>&1 | tail -n 40
+          lake build GegenbauerFock.GramIntegralComplete GegenbauerFock.UltrasphericalSturmLiouvillePolynomialCore GegenbauerFock.UltrasphericalSturmLiouvilleMonicRealL2Nonzero GegenbauerFock.UltrasphericalLegendreDensityExact GegenbauerFock.OutputComplexHolomorphy 2>&1 | tail -n 40
       - name: Type-check the skeleton and audit its axioms
         working-directory: lean
         shell: bash

@@ -4,6 +4,7 @@ import GegenbauerFock.GramIntegralComplete
 import GegenbauerFock.UltrasphericalSturmLiouvillePolynomialCore
 import GegenbauerFock.UltrasphericalSturmLiouvilleMonicRealL2Nonzero
 import GegenbauerFock.UltrasphericalLegendreDensityExact
+import GegenbauerFock.OutputComplexHolomorphy
 
 /-!
 # Manuscript 14, Theorem 5.2 (domain-level commutation): statement and proof skeleton
@@ -17,12 +18,13 @@ domain), and reduces it to four analytic lemmas, each stated in full:
                                  (two integrations by parts; the boundary terms carry the
                                  factor `1-u²`, which vanishes at `±1`) — **proved**
                                  (`ibp_once`, `green_identity`);
-* `gramSeries_smooth`         — `S f` is an explicit entire power series in `u` for every
-                                 `f ∈ H` (series–integral interchange, no differentiation
-                                 under the integral sign);
+* `SFun_contDiff`             — `u ↦ (S f)(u)` is `C^∞` for every `f ∈ H`: the restriction
+                                 of the certified entire Fock evaluation — **proved**;
+  `SFun_hasDerivAt`           — the Leibniz derivative of the kernel form (one Mathlib
+                                 lemma, `hasDerivAt_integral_of_dominated_loc_of_deriv_le`);
 * `core_commutation`          — the pointwise identity `𝒜_c (S p) = S (𝒜_c p)` on the
-                                 polynomial core (bispectral kernel balance + Green in the
-                                 `v` variable);
+                                 polynomial core (Leibniz twice, bispectral kernel balance,
+                                 Green in the `v` variable);
 * `smooth_mem_closure_domain` — every `C²` function lies in the domain of the graph closure of
                                  the polynomial operator `𝒜_c⁰`, on which the closure acts as
                                  the differential expression (Weierstrass approximation of
@@ -100,12 +102,14 @@ theorem integral_nu (g : ℝ → ℂ) :
     funext v
     unfold GegenbauerFock.Ultraspherical.eulerianUniformDensity
     by_cases hv : -1 < v ∧ v < 1
-    · rw [if_pos hv, ENNReal.toReal_ofReal (by norm_num), Set.indicator_of_mem hv,
+    · have hv' : v ∈ Set.Ioo (-1 : ℝ) 1 := hv
+      rw [if_pos hv, ENNReal.toReal_ofReal (by norm_num), Set.indicator_of_mem hv',
         Complex.real_smul]
       push_cast
       ring
-    · rw [if_neg hv, ENNReal.ofReal_zero, ENNReal.toReal_zero, zero_smul,
-        Set.indicator_of_notMem hv]
+    · have hv' : v ∉ Set.Ioo (-1 : ℝ) 1 := hv
+      rw [if_neg hv, ENNReal.ofReal_zero, ENNReal.toReal_zero, zero_smul,
+        Set.indicator_of_notMem hv']
   rw [hpt, integral_indicator measurableSet_Ioo, ← integral_Ioc_eq_integral_Ioo,
     ← intervalIntegral.integral_of_le (by norm_num : (-1 : ℝ) ≤ 1),
     intervalIntegral.integral_const_mul]
@@ -167,14 +171,14 @@ theorem polyLinear_injective : Function.Injective polyLinear := by
   intro p q hpq
   by_contra hne
   have hd : p - q ≠ 0 := sub_ne_zero.mpr hne
-  letI : NullSingletonClass ν :=
+  have : NullSingletonClass ν :=
     GegenbauerFock.Ultraspherical.measure_nullSingletonClass (1 / 2 : ℝ) half_pos
   have hpq' : polyLp p = polyLp q := hpq
   have hae : polyFun p =ᵐ[ν] polyFun q := by
     refine (polyLp_ae_eq p).symm.trans ?_
     rw [hpq']
     exact polyLp_ae_eq q
-  have hz : ∀ᵐ u ∂ν, (p - q).eval (u : ℂ) = 0 := by
+  have hz : ∀ᵐ u : ℝ ∂ν, (p - q).eval (u : ℂ) = 0 := by
     filter_upwards [hae] with u hu
     have hu' : p.eval (u : ℂ) = q.eval (u : ℂ) := hu
     simp [hu']
@@ -182,7 +186,7 @@ theorem polyLinear_injective : Function.Injective polyLinear := by
     Polynomial.finite_setOfPred_isRoot hd
   have hfin : {u : ℝ | (p - q).eval (u : ℂ) = 0}.Finite :=
     hroots.preimage Complex.ofReal_injective.injOn
-  have hn : ∀ᵐ u ∂ν, (p - q).eval (u : ℂ) ≠ 0 := hfin.countable.ae_notMem ν
+  have hn : ∀ᵐ u : ℝ ∂ν, (p - q).eval (u : ℂ) ≠ 0 := hfin.countable.ae_notMem ν
   have hfalse : ∀ᵐ u ∂ν, False := (hz.and hn).mono (fun _ h => h.2 h.1)
   obtain ⟨_, hu⟩ := hfalse.exists
   exact hu
@@ -267,8 +271,21 @@ def S (c : ℝ) (hc : 0 < c) : H →L[ℂ] H :=
 def SFun (c : ℝ) (f : ℝ → ℂ) (u : ℝ) : ℂ :=
   ∫ v : ℝ, (Real.exp (c * u * v) : ℂ) * f v ∂ν
 
-/-- `S f` is the `L²` class of its kernel form (certified identity `gram_eq_integralLp`,
-plus the parameter identity `u v / (4 · (1/(4c))) = c u v`). -/
+/-- The kernel form coincides with the library's `gramKernelIntegral` at `α = 1/(4c)`
+(parameter identity `u v / (4 · (1/(4c))) = c u v`). -/
+theorem SFun_eq_gramKernelIntegral (c : ℝ) (hc : 0 < c) (f : H) (u : ℝ) :
+    SFun c (f : ℝ → ℂ) u =
+      GegenbauerFock.GeneralUltrasphericalFock.gramKernelIntegral (1 / 2) (1 / (4 * c)) f u := by
+  unfold GegenbauerFock.GeneralUltrasphericalFock.gramKernelIntegral SFun
+  congr 1
+  funext v
+  have hc' : c ≠ 0 := ne_of_gt hc
+  have : u * v / (4 * (1 / (4 * c))) = c * u * v := by
+    field_simp
+    try ring
+  rw [this, mul_comm]
+
+/-- `S f` is the `L²` class of its kernel form (certified identity `gram_eq_integralLp`). -/
 theorem S_apply_ae (c : ℝ) (hc : 0 < c) (f : H) :
     (S c hc f : ℝ → ℂ) =ᵐ[ν] SFun c (f : ℝ → ℂ) := by
   have h1 : S c hc f =
@@ -281,14 +298,96 @@ theorem S_apply_ae (c : ℝ) (hc : 0 < c) (f : H) :
     (1 / (4 * c)) half_pos (by positivity) f).coeFn_toLp
   refine h2.trans ?_
   filter_upwards with u
-  unfold GegenbauerFock.GeneralUltrasphericalFock.gramKernelIntegral SFun
-  congr 1
-  funext v
-  have hc' : c ≠ 0 := ne_of_gt hc
-  have : u * v / (4 * (1 / (4 * c))) = c * u * v := by
-    field_simp
-    try ring
-  rw [this, mul_comm]
+  exact (SFun_eq_gramKernelIntegral c hc f u).symm
+
+/-- **Lemma 2 (smoothness of `S f`).**  For every `f ∈ H`, `u ↦ (S f)(u)` is `C^n` for
+every `n`: by the certified identity `evaluation_imaginary_eq_gramKernelIntegral` it is the
+restriction to the segment `u ↦ -i u/(2α)` of the entire function `z ↦ ⟨k_z, C f⟩` of the
+Fock model (`differentiable_evaluation_complex`), so no differentiation under the integral
+sign is needed for smoothness. -/
+theorem SFun_contDiff (c : ℝ) (hc : 0 < c) (f : H) (n : WithTop ℕ∞) :
+    ContDiff ℝ n (SFun c (f : ℝ → ℂ)) := by
+  have hα : (0 : ℝ) < 1 / (4 * c) := by positivity
+  have hE : Differentiable ℂ (fun z : ℂ =>
+      GegenbauerFock.FockEvaluation.evaluation (1 / (4 * c)) hα z
+        (GegenbauerFock.GeneralUltrasphericalFock.C (1 / 2) (1 / (4 * c)) half_pos hα f)) :=
+    GegenbauerFock.FockEvaluation.differentiable_evaluation_complex (1 / (4 * c)) hα _
+  have hfun : SFun c (f : ℝ → ℂ) = fun u : ℝ =>
+      GegenbauerFock.FockEvaluation.evaluation (1 / (4 * c)) hα
+        (-Complex.I * (u : ℂ) / (2 * ((1 / (4 * c) : ℝ) : ℂ)))
+        (GegenbauerFock.GeneralUltrasphericalFock.C (1 / 2) (1 / (4 * c)) half_pos hα f) := by
+    funext u
+    rw [SFun_eq_gramKernelIntegral c hc f u,
+      ← GegenbauerFock.GeneralUltrasphericalFock.evaluation_imaginary_eq_gramKernelIntegral
+        (1 / 2) (1 / (4 * c)) half_pos hα f u]
+  rw [hfun]
+  have hlin : ContDiff ℝ n (fun u : ℝ =>
+      -Complex.I * (u : ℂ) / (2 * ((1 / (4 * c) : ℝ) : ℂ))) := by
+    have h := ((contDiff_const (c := -Complex.I)).mul
+      (Complex.ofRealCLM.contDiff (𝕜 := ℝ) (n := n))).div_const (2 * ((1 / (4 * c) : ℝ) : ℂ))
+    simpa using h
+  exact (hE.contDiff.restrict_scalars (𝕜 := ℝ)).comp hlin
+
+/-- The Leibniz derivative of the kernel form: `(S f)'(u) = ∫ c v e^{c u v} f(v) dν(v)`.
+Proof: `hasDerivAt_integral_of_dominated_loc_of_deriv_le` with the kernel derivative
+`∂_u e^{c u v} = c v e^{c u v}`, bounded on `[-1,1]` by `c e^{c(|u|+1)}`, and `f ∈ L¹(ν)`. -/
+theorem SFun_hasDerivAt (c : ℝ) (hc : 0 < c) (f : H) (u : ℝ) :
+    HasDerivAt (SFun c (f : ℝ → ℂ))
+      (∫ v : ℝ, ((c * v : ℝ) : ℂ) * (Real.exp (c * u * v) : ℂ) * f v ∂ν) u := by
+  have hfint : Integrable (f : ℝ → ℂ) ν := (Lp.memLp f).integrable one_le_two
+  set M : ℝ := Real.exp (c * (|u| + 1)) with hM
+  have hker : ∀ x ∈ Metric.ball u 1, ∀ v ∈ Set.Icc (-1 : ℝ) 1,
+      Real.exp (c * x * v) ≤ M := by
+    intro x hx v hv
+    rw [hM, Real.exp_le_exp]
+    have hdist : |x - u| < 1 := by
+      have := Metric.mem_ball.mp hx
+      rwa [Real.dist_eq] at this
+    have h1 : |x| ≤ |u| + 1 := by
+      calc |x| = |(x - u) + u| := by ring_nf
+        _ ≤ |x - u| + |u| := abs_add_le _ _
+        _ ≤ |u| + 1 := by linarith
+    have h2 : |v| ≤ 1 := abs_le.mpr ⟨hv.1, hv.2⟩
+    calc c * x * v ≤ |c * x * v| := le_abs_self _
+      _ = c * (|x| * |v|) := by rw [abs_mul, abs_mul, abs_of_pos hc]; ring
+      _ ≤ c * ((|u| + 1) * 1) := by gcongr
+      _ = c * (|u| + 1) := by ring
+  have hF_meas : ∀ x : ℝ,
+      AEStronglyMeasurable (fun v : ℝ => (Real.exp (c * x * v) : ℂ) * f v) ν := by
+    intro x
+    exact (Continuous.aestronglyMeasurable (by fun_prop)).mul (Lp.aestronglyMeasurable f)
+  have hF'_meas : ∀ x : ℝ, AEStronglyMeasurable
+      (fun v : ℝ => ((c * v : ℝ) : ℂ) * (Real.exp (c * x * v) : ℂ) * f v) ν := by
+    intro x
+    exact (Continuous.aestronglyMeasurable (by fun_prop)).mul (Lp.aestronglyMeasurable f)
+  have hFint : Integrable (fun v : ℝ => (Real.exp (c * u * v) : ℂ) * f v) ν := by
+    refine hfint.bdd_mul (c := M) (Continuous.aestronglyMeasurable (by fun_prop)) ?_
+    filter_upwards [ae_mem_Icc] with v hv
+    rw [Complex.norm_real, Real.norm_eq_abs, Real.abs_exp]
+    exact hker u (Metric.mem_ball_self one_pos) v hv
+  have key := hasDerivAt_integral_of_dominated_loc_of_deriv_le (μ := ν)
+    (F := fun x v => (Real.exp (c * x * v) : ℂ) * f v)
+    (F' := fun x v => ((c * v : ℝ) : ℂ) * (Real.exp (c * x * v) : ℂ) * f v)
+    (x₀ := u) (s := Metric.ball u 1) (bound := fun v => c * M * ‖f v‖)
+    (Metric.ball_mem_nhds u one_pos) (Filter.Eventually.of_forall hF_meas) hFint
+    (hF'_meas u) ?_ (hfint.norm.const_mul (c * M)) ?_
+  · exact key.2
+  · filter_upwards [ae_mem_Icc] with v hv x hx
+    rw [norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs,
+      Real.norm_eq_abs, Real.abs_exp, abs_mul, abs_of_pos hc]
+    have h2 : |v| ≤ 1 := abs_le.mpr ⟨hv.1, hv.2⟩
+    have h3 := hker x hx v hv
+    calc c * |v| * Real.exp (c * x * v) * ‖f v‖ ≤ c * 1 * M * ‖f v‖ := by gcongr
+      _ = c * M * ‖f v‖ := by ring
+  · filter_upwards with v x _
+    have h1 : HasDerivAt (fun x : ℝ => c * x * v) (c * v) x := by
+      simpa using ((hasDerivAt_id x).const_mul c).mul_const v
+    have h2 : HasDerivAt (fun x : ℝ => Real.exp (c * x * v))
+        (Real.exp (c * x * v) * (c * v)) x := h1.exp
+    have h3 := (h2.ofReal_comp).mul_const (f v)
+    convert h3 using 1
+    push_cast
+    ring
 
 /-! ## The four analytic lemmas -/
 
@@ -353,34 +452,15 @@ theorem green_identity (f g : ℝ → ℂ) (hf : ContDiff ℝ 2 f) (hg : ContDif
   intro u _
   ring
 
-/-- The `k`-th moment `m_k(f) = ∫ v^k f(v) dν(v)` of `f ∈ L²(ν)`; for a polynomial `f` it is
-an exact rational combination of the coefficients. -/
-def moment (f : ℝ → ℂ) (k : ℕ) : ℂ := ∫ v : ℝ, (v : ℂ) ^ k * f v ∂ν
-
-/-- The explicit entire series `u ↦ ∑_k c^k u^k / k! · m_k(f)`. -/
-def gramSeries (c : ℝ) (f : ℝ → ℂ) (u : ℝ) : ℂ :=
-  ∑' k : ℕ, ((c : ℂ) ^ k * (u : ℂ) ^ k / (Nat.factorial k : ℂ)) * moment f k
-
-/-- **Lemma 2 (series representation, no differentiation under the integral).**
-For every `f ∈ H`, `(S f)(u) = ∑_k c^k u^k/k! · m_k(f)` for every real `u`, and the series
-is a `C^∞` function of `u`.  Proof: `exp(c u v) = ∑ (c u v)^k/k!`; the interchange with the
-`ν`-integral is dominated convergence with the summable majorant `(c|u|)^k/k! · ‖f‖_{L¹}`
-on `[-1,1]` (`MeasureTheory.hasSum_integral_of_dominated_convergence`, the pattern of
-`Manuscript14Sonine.sonine_interval_hasSum`); the resulting power series has infinite radius
-of convergence, since `|m_k(f)| ≤ ‖f‖_{L²}` by Cauchy–Schwarz. -/
-theorem gramSeries_smooth (c : ℝ) (hc : 0 < c) (f : H) :
-    (∀ u : ℝ, SFun c (f : ℝ → ℂ) u = gramSeries c (f : ℝ → ℂ) u) ∧
-      ContDiff ℝ ∞ (gramSeries c (f : ℝ → ℂ)) := by
-  sorry
-
 /-- **Lemma 3 (commutation on the core).**  For a polynomial `p`,
-`𝒜_c (S p) = S (𝒜_c p)` pointwise on `[-1,1]`.  Proof: by Lemma 2, `𝒜_c` acts on `S p`
-termwise; the bispectral balance `Manuscript14Gram.gram_bispectral_kernel_balance` moves the
-differential expression from `u` to `v`, and Lemma 1 in the `v` variable (with `p` in place
-of `g`) moves it onto `p`. -/
+`𝒜_c (S p) = S (𝒜_c p)` pointwise on `[-1,1]`.  Proof: `SFun_hasDerivAt` twice gives
+`𝒜_c (S p)(u) = ∫ (A^{(u)} K)(u,v) p(v) dν(v)`; the bispectral balance
+`Manuscript14Gram.gram_bispectral_kernel_balance` moves the differential expression from
+`u` to `v`; `integral_nu` and `green_identity` in the `v` variable (with `p` in place of
+`g`) move it onto `p`. -/
 theorem core_commutation (c : ℝ) (hc : 0 < c) (p : ℂ[X]) :
     ∀ u ∈ Set.Icc (-1 : ℝ) 1,
-      AExpr c (gramSeries c (polyFun p)) u = SFun c (polyFun (APoly c p)) u := by
+      AExpr c (SFun c (polyFun p)) u = SFun c (polyFun (APoly c p)) u := by
   sorry
 
 /-- **Lemma 4 (domain inclusion).**  Every `C²` function `g` defines an element of the domain
@@ -398,10 +478,17 @@ theorem smooth_mem_closure_domain (c : ℝ) (g : ℝ → ℂ) (hg : ContDiff ℝ
 /-! ## Theorem 5.2 -/
 
 /-- **Theorem 5.2 (domain-level commutation), first half:** `S_{1/2,c} H ⊂ Dom(𝒜_c)`.
-From Lemmas 2 and 4 and the kernel identity `S_apply_ae`. -/
+From `SFun_contDiff`, Lemma 4 and the kernel identity `S_apply_ae`; it is complete as soon
+as Lemma 4 is. -/
 theorem S_range_subset_domain (c : ℝ) (hc : 0 < c) (f : H) :
     S c hc f ∈ (AClosed c).domain := by
-  sorry
+  have hs : ContDiff ℝ 2 (SFun c (f : ℝ → ℂ)) := SFun_contDiff c hc f 2
+  have heq : S c hc f = cLp (SFun c (f : ℝ → ℂ)) hs.continuous := by
+    apply Lp.ext
+    exact (S_apply_ae c hc f).trans (cLp_ae_eq _ _).symm
+  rw [heq]
+  obtain ⟨hmem, _⟩ := smooth_mem_closure_domain c (SFun c (f : ℝ → ℂ)) hs
+  exact hmem
 
 /-- **Theorem 5.2 (domain-level commutation), second half:** for every `f ∈ Dom(𝒜_c)`,
 `𝒜_c S_{1/2,c} f = S_{1/2,c} 𝒜_c f`.  Assembled from Lemmas 2, 3, 4 through the abstract
