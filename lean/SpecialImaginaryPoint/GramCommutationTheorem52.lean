@@ -5,6 +5,7 @@ import GegenbauerFock.UltrasphericalSturmLiouvillePolynomialCore
 import GegenbauerFock.UltrasphericalSturmLiouvilleMonicRealL2Nonzero
 import GegenbauerFock.UltrasphericalLegendreDensityExact
 import GegenbauerFock.OutputComplexHolomorphy
+import GegenbauerFock.UltrasphericalContinuousDensity
 
 /-!
 # Manuscript 14, Theorem 5.2 (domain-level commutation): statement and proof skeleton
@@ -69,7 +70,7 @@ Conventions.  `ν` is the normalised Lebesgue measure of `[-1,1]` (the ultrasphe
 noncomputable section
 
 open MeasureTheory Polynomial
-open scoped Real ContDiff
+open scoped Real ContDiff InnerProductSpace ENNReal
 
 namespace Manuscript14Gram.Theorem52
 
@@ -78,10 +79,10 @@ namespace Manuscript14Gram.Theorem52
 /-- `ν = ν_{1/2}`: the normalised Lebesgue measure of `[-1,1]`. -/
 abbrev ν : Measure ℝ := GegenbauerFock.Ultraspherical.measure (1 / 2 : ℝ)
 
-theorem half_pos : (0 : ℝ) < 1 / 2 := by norm_num
+theorem hhalf : (0 : ℝ) < 1 / 2 := by norm_num
 
 instance : IsProbabilityMeasure ν :=
-  GegenbauerFock.Ultraspherical.probability (1 / 2 : ℝ) half_pos
+  GegenbauerFock.Ultraspherical.probability (1 / 2 : ℝ) hhalf
 
 /-- `H = H_{1/2}`, the complex `L²` space of `ν`. -/
 abbrev H : Type := Lp ℂ 2 ν
@@ -179,7 +180,7 @@ theorem polyLinear_injective : Function.Injective polyLinear := by
   by_contra hne
   have hd : p - q ≠ 0 := sub_ne_zero.mpr hne
   have : NullSingletonClass ν :=
-    GegenbauerFock.Ultraspherical.measure_nullSingletonClass (1 / 2 : ℝ) half_pos
+    GegenbauerFock.Ultraspherical.measure_nullSingletonClass (1 / 2 : ℝ) hhalf
   have hpq' : polyLp p = polyLp q := hpq
   have hae : polyFun p =ᵐ[ν] polyFun q := by
     refine (polyLp_ae_eq p).symm.trans ?_
@@ -248,10 +249,12 @@ def APoly (c : ℝ) : ℂ[X] →ₗ[ℂ] ℂ[X] where
 
 theorem APoly_eq (c : ℝ) (p : ℂ[X]) : APoly c p = DPoly p - C ((c : ℂ) ^ 2) * X ^ 2 * p := rfl
 
+theorem DPoly_apply (p : ℂ[X]) :
+    DPoly p = -((1 - X ^ 2) * derivative (derivative p) - C (2 : ℂ) * X * derivative p) := rfl
+
 theorem DPoly_eq_neg_derivative (p : ℂ[X]) :
     DPoly p = -derivative ((1 - X ^ 2) * derivative p) := by
-  show -((1 - X ^ 2) * derivative (derivative p) - C (2 : ℂ) * X * derivative p) = _
-  rw [derivative_mul, derivative_sub, derivative_one, derivative_X_sq]
+  rw [DPoly_apply, derivative_mul, derivative_sub, derivative_one, derivative_X_sq]
   ring
 
 theorem polyEquiv_apply (p : ℂ[X]) :
@@ -353,7 +356,7 @@ theorem MLin_norm_le (f : H) : ‖MLin f‖ ≤ ‖f‖ := by
   change ‖(mulUsqFun_memLp f).toLp (mulUsqFun f)‖ ≤ ‖f‖
   rw [Lp.norm_toLp, Lp.norm_def]
   apply ENNReal.toReal_mono (Lp.eLpNorm_ne_top f)
-  exact eLpNorm_mono_ae (mulUsqFun_memLp f).1
+  exact eLpNorm_mono_ae (mulUsqFun_memLp f).aestronglyMeasurable
     (Filter.Eventually.of_forall fun u => mulUsqFun_norm_le f u)
 
 /-- The bounded operator `M_{u²}`, `‖M‖ ≤ 1`. -/
@@ -377,7 +380,7 @@ theorem AClosed_apply (c : ℝ) (x : DClosed.domain) :
 /-- `S_{1/2,c}`: the certified bounded selfadjoint operator `gram (1/2) (1/(4c))` of the
 GegenbauerFock library, whose kernel is `exp(u v/(4α)) = exp(c u v)`. -/
 def S (c : ℝ) (hc : 0 < c) : H →L[ℂ] H :=
-  GegenbauerFock.GeneralUltrasphericalFock.gram (1 / 2) (1 / (4 * c)) half_pos
+  GegenbauerFock.GeneralUltrasphericalFock.gram (1 / 2) (1 / (4 * c)) hhalf
     (by positivity)
 
 /-- The kernel form `(S f)(u) = ∫ exp(c u v) f(v) dν(v)`, as a function of `u`. -/
@@ -403,12 +406,12 @@ theorem S_apply_ae (c : ℝ) (hc : 0 < c) (f : H) :
     (S c hc f : ℝ → ℂ) =ᵐ[ν] SFun c (f : ℝ → ℂ) := by
   have h1 : S c hc f =
       GegenbauerFock.GeneralUltrasphericalFock.gramKernelIntegralLp (1 / 2) (1 / (4 * c))
-        half_pos (by positivity) f :=
+        hhalf (by positivity) f :=
     GegenbauerFock.GeneralUltrasphericalFock.gram_eq_integralLp _ _ _ _ f
   rw [h1]
   unfold GegenbauerFock.GeneralUltrasphericalFock.gramKernelIntegralLp
   have h2 := (GegenbauerFock.GeneralUltrasphericalFock.gramKernelIntegral_memLp (1 / 2)
-    (1 / (4 * c)) half_pos (by positivity) f).coeFn_toLp
+    (1 / (4 * c)) hhalf (by positivity) f).coeFn_toLp
   refine h2.trans ?_
   filter_upwards with u
   exact (SFun_eq_gramKernelIntegral c hc f u).symm
@@ -423,16 +426,16 @@ theorem SFun_contDiff (c : ℝ) (hc : 0 < c) (f : H) (n : WithTop ℕ∞) :
   have hα : (0 : ℝ) < 1 / (4 * c) := by positivity
   have hE : Differentiable ℂ (fun z : ℂ =>
       GegenbauerFock.FockEvaluation.evaluation (1 / (4 * c)) hα z
-        (GegenbauerFock.GeneralUltrasphericalFock.C (1 / 2) (1 / (4 * c)) half_pos hα f)) :=
+        (GegenbauerFock.GeneralUltrasphericalFock.C (1 / 2) (1 / (4 * c)) hhalf hα f)) :=
     GegenbauerFock.FockEvaluation.differentiable_evaluation_complex (1 / (4 * c)) hα _
   have hfun : SFun c (f : ℝ → ℂ) = fun u : ℝ =>
       GegenbauerFock.FockEvaluation.evaluation (1 / (4 * c)) hα
         (-Complex.I * (u : ℂ) / (2 * ((1 / (4 * c) : ℝ) : ℂ)))
-        (GegenbauerFock.GeneralUltrasphericalFock.C (1 / 2) (1 / (4 * c)) half_pos hα f) := by
+        (GegenbauerFock.GeneralUltrasphericalFock.C (1 / 2) (1 / (4 * c)) hhalf hα f) := by
     funext u
     rw [SFun_eq_gramKernelIntegral c hc f u,
       ← GegenbauerFock.GeneralUltrasphericalFock.evaluation_imaginary_eq_gramKernelIntegral
-        (1 / 2) (1 / (4 * c)) half_pos hα f u]
+        (1 / 2) (1 / (4 * c)) hhalf hα f u]
   rw [hfun]
   have hlin : ContDiff ℝ n (fun u : ℝ =>
       -Complex.I * (u : ℂ) / (2 * ((1 / (4 * c) : ℝ) : ℂ))) := by
@@ -795,12 +798,11 @@ theorem polyFun_pconj (p : ℂ[X]) (v : ℝ) :
   exact h
 
 theorem DPoly_pconj (p : ℂ[X]) : DPoly (pconj p) = pconj (DPoly p) := by
-  show -((1 - X ^ 2) * derivative (derivative (pconj p)) - C (2 : ℂ) * X * derivative (pconj p))
-    = pconj (-((1 - X ^ 2) * derivative (derivative p) - C (2 : ℂ) * X * derivative p))
+  rw [DPoly_apply, DPoly_apply]
   unfold pconj
   simp only [Polynomial.derivative_map, Polynomial.map_neg, Polynomial.map_sub,
     Polynomial.map_mul, Polynomial.map_one, Polynomial.map_pow, Polynomial.map_X,
-    Polynomial.map_C, map_ofNat]
+    Polynomial.map_C, Polynomial.map_ofNat, map_ofNat]
 
 theorem polyFun_DPoly (p : ℂ[X]) (v : ℝ) : polyFun (DPoly p) v = DExpr (polyFun p) v := by
   rw [DPoly_eq_neg_derivative]
@@ -901,7 +903,7 @@ theorem exists_poly_near (f : BoundedContinuousFunction ℝ ℂ) (eps : ℝ) (he
 /-- The polynomials are dense in `H` (Weierstrass and the certified density of the bounded
 continuous functions, `boundedContinuous_toLp_denseRange`). -/
 theorem polyCore_dense : Dense (polyCore : Set H) := by
-  have hRange : Set.range (GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) half_pos)
+  have hRange : Set.range (GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) hhalf)
       ⊆ closure (polyCore : Set H) := by
     rintro y ⟨f, rfl⟩
     rw [Metric.mem_closure_iff]
@@ -909,28 +911,28 @@ theorem polyCore_dense : Dense (polyCore : Set H) := by
     obtain ⟨P, hP⟩ := exists_poly_near f (eps / 2) (half_pos heps)
     refine ⟨polyLp P, LinearMap.mem_range_self polyLinear P, ?_⟩
     rw [dist_eq_norm]
-    have hf : ((GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) half_pos f : H)
+    have hf : ((GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) hhalf f : H)
         : ℝ → ℂ) =ᵐ[ν] f := by
       change ((BoundedContinuousFunction.toLp (2 : ℝ≥0∞) ν ℂ f : H) : ℝ → ℂ) =ᵐ[ν] f
       exact BoundedContinuousFunction.coeFn_toLp (2 : ℝ≥0∞) ν ℂ f
-    have hdiff : ((GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) half_pos f
+    have hdiff : ((GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) hhalf f
         - polyLp P : H) : ℝ → ℂ) =ᵐ[ν] fun u => f u - polyFun P u := by
       filter_upwards [Lp.coeFn_sub
-        (GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) half_pos f) (polyLp P),
+        (GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) hhalf f) (polyLp P),
         hf, polyLp_ae_eq P] with u hsub hfu hpu
       rw [hsub, Pi.sub_apply, hfu, hpu]
     rw [Lp.norm_def, eLpNorm_congr_ae hdiff]
     have hb := GegenbauerFock.Ultraspherical.eLpNorm_sub_le_of_uniform_error_unit_interval
-      (1 / 2) half_pos f (polyFun P) f.continuous (polyFun_continuous P) (eps / 2)
+      (1 / 2) hhalf f (polyFun P) f.continuous (polyFun_continuous P) (eps / 2)
       (fun u hu => (hP u hu).le)
     calc (eLpNorm (fun u => f u - polyFun P u) 2 ν).toReal
         ≤ (ENNReal.ofReal (eps / 2)).toReal := ENNReal.toReal_mono ENNReal.ofReal_ne_top hb
       _ = eps / 2 := ENNReal.toReal_ofReal (half_pos heps).le
       _ < eps := half_lt_self heps
-  have hD := GegenbauerFock.Ultraspherical.boundedContinuous_toLp_denseRange (1 / 2) half_pos
+  have hD := GegenbauerFock.Ultraspherical.boundedContinuous_toLp_denseRange (1 / 2) hhalf
   intro x
   have hx : x ∈ closure (Set.range
-      (GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) half_pos)) := by
+      (GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) hhalf)) := by
     rw [hD.closure_range]
     trivial
   exact closure_minimal hRange isClosed_closure hx
@@ -949,39 +951,420 @@ theorem DClosed_isClosed : DClosed.IsClosed := DPMap_isClosable.closure_isClosed
 
 /-! ## Lemma 4: the domain of `D̄` contains the `C²` functions -/
 
+/-- **Abstract closure criterion.**  Let `A` be a closable, symmetric, densely defined operator
+on a Hilbert space with `‖p‖ ≤ ‖A p + p‖` on its domain and `Ran(A + I)` dense.  Then every
+`g` satisfying the adjoint relation `⟪A p, g⟫ = ⟪p, h⟫` for all `p` in the domain lies in the
+domain of the closure, and the closure sends `g` to `h`.  (This is the inclusion
+`Dom(A*) ⊆ Dom(Ā)`, i.e. essential selfadjointness, in the form needed here.) -/
+theorem mem_closure_domain_of_adjoint_relation
+    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
+    (A : E →ₗ.[ℂ] E) (hA : A.IsClosable) (hsymm : A.IsFormalAdjoint A)
+    (hcoerc : ∀ p : A.domain, ‖(p : E)‖ ≤ ‖A p + (p : E)‖)
+    (hdense : Dense (Set.range (fun p : A.domain => A p + (p : E))))
+    (g h : E) (hrel : ∀ p : A.domain, ⟪A p, g⟫_ℂ = ⟪(p : E), h⟫_ℂ) :
+    ∃ hmem : g ∈ A.closure.domain, A.closure ⟨g, hmem⟩ = h := by
+  obtain ⟨q, hqmem, hqlim⟩ := mem_closure_iff_seq_limit.mp (hdense (h + g))
+  simp only [Set.mem_range] at hqmem
+  choose p hp using hqmem
+  have hT : Filter.Tendsto (fun n => A (p n) + (p n : E)) Filter.atTop (nhds (h + g)) := by
+    have hfun : (fun n => A (p n) + (p n : E)) = q := funext hp
+    rw [hfun]
+    exact hqlim
+  have hcauchy : CauchySeq (fun n => (p n : E)) := by
+    rw [Metric.cauchySeq_iff]
+    intro ε hε
+    obtain ⟨N, hN⟩ := Metric.cauchySeq_iff.mp hT.cauchySeq ε hε
+    refine ⟨N, fun m hm n hn => ?_⟩
+    have hc := hcoerc (p m - p n)
+    rw [LinearPMap.map_sub, Submodule.coe_sub] at hc
+    rw [dist_eq_norm]
+    calc ‖(p m : E) - (p n : E)‖
+        ≤ ‖(A (p m) - A (p n)) + ((p m : E) - (p n : E))‖ := hc
+      _ = ‖(A (p m) + (p m : E)) - (A (p n) + (p n : E))‖ := by congr 1; abel
+      _ < ε := by rw [← dist_eq_norm]; exact hN m hm n hn
+  obtain ⟨g', hg'⟩ := cauchySeq_tendsto_of_complete hcauchy
+  have hAp : Filter.Tendsto (fun n => A (p n)) Filter.atTop (nhds ((h + g) - g')) := by
+    have h1 := hT.sub hg'
+    simpa only [add_sub_cancel_right] using h1
+  have hgraph : (g', (h + g) - g') ∈ A.closure.graph := by
+    rw [← hA.graph_closure_eq_closure_graph]
+    show (g', (h + g) - g') ∈ closure (A.graph : Set (E × E))
+    refine mem_closure_of_tendsto (hg'.prodMk_nhds hAp) ?_
+    filter_upwards with n
+    exact LinearPMap.mem_graph A (p n)
+  have hgg : g' = g := by
+    rw [← sub_eq_zero]
+    apply hdense.eq_zero_of_inner_right
+    rintro _ ⟨r, rfl⟩
+    have h1 : Filter.Tendsto (fun n => ⟪A r + (r : E), (p n : E)⟫_ℂ) Filter.atTop
+        (nhds ⟪A r + (r : E), g'⟫_ℂ) := tendsto_const_nhds.inner hg'
+    have h2 : Filter.Tendsto (fun n => ⟪A r + (r : E), (p n : E)⟫_ℂ) Filter.atTop
+        (nhds ⟪(r : E), h + g⟫_ℂ) := by
+      have h3 : (fun n => ⟪A r + (r : E), (p n : E)⟫_ℂ)
+          = fun n => ⟪(r : E), A (p n) + (p n : E)⟫_ℂ := by
+        funext n
+        rw [inner_add_left, inner_add_right, hsymm r (p n)]
+      rw [h3]
+      exact tendsto_const_nhds.inner hT
+    have h4 : ⟪A r + (r : E), g'⟫_ℂ = ⟪(r : E), h + g⟫_ℂ := tendsto_nhds_unique h1 h2
+    rw [inner_sub_right, h4, inner_add_left, hrel r, inner_add_right, sub_self]
+  obtain ⟨z, hz1, hz2⟩ := (LinearPMap.mem_graph_iff A.closure).mp hgraph
+  rw [hgg] at hz1 hz2
+  have hmem : g ∈ A.closure.domain := by
+    rw [← hz1]
+    exact z.2
+  refine ⟨hmem, ?_⟩
+  have hz : (⟨g, hmem⟩ : A.closure.domain) = z := Subtype.ext hz1.symm
+  rw [hz, hz2]
+  abel
+
+/-- `⟪D⁰ p, p⟫ = ½ ∫_{-1}^{1} (1-v²) |p'(v)|² dv ≥ 0`. -/
+theorem DPMap_inner_self_nonneg (x : DPMap.domain) :
+    0 ≤ RCLike.re ⟪DPMap x, (x : H)⟫_ℂ := by
+  obtain ⟨p, hp⟩ := LinearMap.mem_range.mp x.2
+  have hx : x = ⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩ := Subtype.ext hp.symm
+  subst hx
+  rw [DPMap_apply]
+  show 0 ≤ RCLike.re ⟪polyLp (DPoly p), polyLp p⟫_ℂ
+  unfold polyLp
+  rw [inner_cLp, integral_nu]
+  have hG := ibp_once (polyFun (pconj p)) (polyFun p) (polyFun_contDiff _ 2) (polyFun_contDiff _ 2)
+  rw [oneSubSq_mul_deriv_polyFun, polyFun_deriv] at hG
+  have e1 : ∀ v : ℝ, (starRingEnd ℂ) (polyFun (DPoly p) v)
+      = -(polyFun (derivative ((1 - X ^ 2) * derivative (pconj p))) v) := by
+    intro v
+    rw [← polyFun_pconj, ← DPoly_pconj, DPoly_eq_neg_derivative]
+    simp [polyFun, eval_neg]
+  simp_rw [e1]
+  simp only [neg_mul, intervalIntegral.integral_neg]
+  rw [hG, neg_neg]
+  have e3 : ∀ v : ℝ, ((1 - v ^ 2 : ℝ) : ℂ) * deriv (polyFun (pconj p)) v * deriv (polyFun p) v
+      = (((1 - v ^ 2) * ‖deriv (polyFun p) v‖ ^ 2 : ℝ) : ℂ) := by
+    intro v
+    have hconj : deriv (polyFun (pconj p)) v = (starRingEnd ℂ) (deriv (polyFun p) v) := by
+      rw [polyFun_deriv, polyFun_deriv, ← polyFun_pconj]
+      unfold pconj
+      rw [Polynomial.derivative_map]
+    rw [hconj, mul_assoc, Complex.conj_mul']
+    push_cast
+    ring
+  simp_rw [e3]
+  rw [intervalIntegral.integral_ofReal]
+  have hnn : 0 ≤ ∫ v in (-1 : ℝ)..1, (1 - v ^ 2) * ‖deriv (polyFun p) v‖ ^ 2 := by
+    apply intervalIntegral.integral_nonneg (by norm_num)
+    intro v hv
+    have h1 : 0 ≤ 1 - v ^ 2 := by nlinarith [hv.1, hv.2]
+    positivity
+  have hcast : (1 / 2 : ℂ) * ((∫ v in (-1 : ℝ)..1, (1 - v ^ 2) * ‖deriv (polyFun p) v‖ ^ 2 : ℝ) : ℂ)
+      = (((1 / 2) * ∫ v in (-1 : ℝ)..1, (1 - v ^ 2) * ‖deriv (polyFun p) v‖ ^ 2 : ℝ) : ℂ) := by
+    push_cast
+    ring
+  rw [hcast, RCLike.re_to_complex, Complex.ofReal_re]
+  exact mul_nonneg (by norm_num) hnn
+
+/-- Coercivity of `D⁰ + I`: `‖p‖ ≤ ‖D⁰ p + p‖`. -/
+theorem DPMap_coercive (x : DPMap.domain) : ‖(x : H)‖ ≤ ‖DPMap x + (x : H)‖ := by
+  have h := DPMap_inner_self_nonneg x
+  have hsq : ‖(x : H)‖ ^ 2 ≤ ‖DPMap x + (x : H)‖ ^ 2 := by
+    rw [norm_add_sq (𝕜 := ℂ)]
+    nlinarith [sq_nonneg ‖DPMap x‖]
+  exact le_of_pow_le_pow_left₀ two_ne_zero (norm_nonneg _) hsq
+
+/-- `D⁰` does not raise the degree. -/
+theorem natDegree_DPoly_le (p : ℂ[X]) : (DPoly p).natDegree ≤ p.natDegree := by
+  rw [DPoly_apply, natDegree_neg]
+  refine (natDegree_sub_le _ _).trans (max_le ?_ ?_)
+  · by_cases h2 : p.natDegree ≤ 1
+    · have h0 : (derivative p).natDegree = 0 := by
+        have := natDegree_derivative_le p
+        omega
+      rw [derivative_of_natDegree_zero h0, mul_zero, natDegree_zero]
+      exact Nat.zero_le _
+    · push_neg at h2
+      have hd1 := natDegree_derivative_le p
+      have hd2 := natDegree_derivative_le (derivative p)
+      have h12 : (1 - X ^ 2 : ℂ[X]).natDegree ≤ 2 := by
+        refine (natDegree_sub_le _ _).trans (max_le ?_ ?_)
+        · simp
+        · simp
+      calc ((1 - X ^ 2) * derivative (derivative p)).natDegree
+          ≤ (1 - X ^ 2 : ℂ[X]).natDegree + (derivative (derivative p)).natDegree :=
+            natDegree_mul_le
+        _ ≤ 2 + (p.natDegree - 1 - 1) :=
+            Nat.add_le_add h12 (hd2.trans (Nat.sub_le_sub_right hd1 1))
+        _ ≤ p.natDegree := by omega
+  · by_cases h0 : p.natDegree = 0
+    · rw [derivative_of_natDegree_zero h0, mul_zero, natDegree_zero]
+      exact Nat.zero_le _
+    · have hd1 := natDegree_derivative_le p
+      calc (C (2 : ℂ) * X * derivative p).natDegree
+          ≤ (C (2 : ℂ) * X : ℂ[X]).natDegree + (derivative p).natDegree := natDegree_mul_le
+        _ ≤ 1 + (p.natDegree - 1) :=
+            Nat.add_le_add ((natDegree_C_mul_le _ _).trans natDegree_X_le) hd1
+        _ ≤ p.natDegree := by omega
+
+/-- `T = D⁰ + I` on polynomials. -/
+def TPoly : ℂ[X] →ₗ[ℂ] ℂ[X] := DPoly + LinearMap.id
+
+theorem TPoly_apply (p : ℂ[X]) : TPoly p = DPoly p + p := rfl
+
+theorem TPoly_mem_degreeLT {N : ℕ} {p : ℂ[X]} (hp : p ∈ degreeLT ℂ N) :
+    TPoly p ∈ degreeLT ℂ N := by
+  rw [mem_degreeLT] at hp ⊢
+  rw [TPoly_apply]
+  by_cases hp0 : p = 0
+  · subst hp0
+    simpa using hp
+  have hD : (DPoly p).degree ≤ p.degree := by
+    calc (DPoly p).degree ≤ ((DPoly p).natDegree : WithBot ℕ) := degree_le_natDegree
+      _ ≤ (p.natDegree : WithBot ℕ) := by exact_mod_cast natDegree_DPoly_le p
+      _ = p.degree := (degree_eq_natDegree hp0).symm
+  calc (DPoly p + p).degree ≤ max (DPoly p).degree p.degree := degree_add_le _ _
+    _ ≤ p.degree := max_le hD le_rfl
+    _ < N := hp
+
+/-- `T` is injective on polynomials, by coercivity in `L²(ν)`. -/
+theorem TPoly_injective : Function.Injective TPoly := by
+  rw [← LinearMap.ker_eq_bot, LinearMap.ker_eq_bot']
+  intro p hp
+  change DPoly p + p = 0 at hp
+  have hx := DPMap_coercive ⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩
+  rw [DPMap_apply] at hx
+  change ‖polyLp p‖ ≤ ‖polyLp (DPoly p) + polyLp p‖ at hx
+  have h0 : polyLp (DPoly p) + polyLp p = 0 := by
+    rw [← polyLp_add, hp]
+    exact polyLinear.map_zero
+  rw [h0, norm_zero] at hx
+  have h1 : polyLp p = 0 := norm_le_zero_iff.mp hx
+  exact polyLinear_injective (h1.trans polyLinear.map_zero.symm)
+
+/-- `T` restricted to the polynomials of degree `≤ N`. -/
+def TN (N : ℕ) : degreeLT ℂ (N + 1) →ₗ[ℂ] degreeLT ℂ (N + 1) :=
+  TPoly.restrict (fun _ hp => TPoly_mem_degreeLT hp)
+
+/-- `T` is surjective on polynomials: on each finite-dimensional space `degreeLT (N+1)` it is
+an injective endomorphism. -/
+theorem TPoly_surjective : Function.Surjective TPoly := by
+  intro q
+  have hq : q ∈ degreeLT ℂ (q.natDegree + 1) := by
+    rw [mem_degreeLT]
+    exact lt_of_le_of_lt degree_le_natDegree (by exact_mod_cast Nat.lt_succ_self q.natDegree)
+  haveI : FiniteDimensional ℂ (degreeLT ℂ (q.natDegree + 1)) :=
+    (degreeLTEquiv ℂ (q.natDegree + 1)).symm.finiteDimensional
+  have hinj : Function.Injective (TN q.natDegree) := by
+    intro x y hxy
+    apply Subtype.ext
+    apply TPoly_injective
+    have h := congrArg Subtype.val hxy
+    simpa [TN, LinearMap.restrict_apply] using h
+  obtain ⟨x, hx⟩ := LinearMap.injective_iff_surjective.mp hinj ⟨q, hq⟩
+  refine ⟨x.1, ?_⟩
+  have h := congrArg Subtype.val hx
+  simpa [TN, LinearMap.restrict_apply] using h
+
+/-- `Ran(D⁰ + I)` contains the polynomials, hence is dense in `H`. -/
+theorem range_T_dense : Dense (Set.range (fun p : DPMap.domain => DPMap p + (p : H))) := by
+  apply Dense.mono _ polyCore_dense
+  intro y hy
+  obtain ⟨q, hq⟩ := LinearMap.mem_range.mp hy
+  obtain ⟨p, hp⟩ := TPoly_surjective q
+  refine ⟨⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩, ?_⟩
+  show DPMap ⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩ + polyLp p = y
+  rw [DPMap_apply, ← polyLp_add, ← hq]
+  show polyLp (DPoly p + p) = polyLinear q
+  rw [← hp]
+  rfl
+
 /-- **Lemma 4 (domain inclusion).**  Every `C²` function `g` defines an element of the domain
 of the closed operator `D̄`, on which `D̄` acts as the differential expression `DExpr g`
-(almost everywhere).  Proof (to be formalised): `Ran(D⁰ + I)` is dense and `D⁰ ≥ 0`, so
-every `g` satisfying the adjoint relation `⟪D⁰ p, g⟫ = ⟪p, h⟫` for all polynomials `p`
-(here `h = DExpr g`, by `inner_DPoly_cLp`) lies in the closure's domain with `D̄ g = h`. -/
+(almost everywhere): the adjoint relation `⟪D⁰ p, g⟫ = ⟪p, D g⟫` (Green, `inner_DPoly_cLp`)
+and the abstract criterion `mem_closure_domain_of_adjoint_relation`. -/
 theorem smooth_mem_closure_domain (g : ℝ → ℂ) (hg : ContDiff ℝ 2 g) :
     ∃ hmem : cLp g hg.continuous ∈ DClosed.domain,
       ((DClosed ⟨cLp g hg.continuous, hmem⟩ : H) : ℝ → ℂ) =ᵐ[ν] DExpr g := by
-  sorry
+  have hrel : ∀ x : DPMap.domain, ⟪DPMap x, cLp g hg.continuous⟫_ℂ
+      = ⟪(x : H), cLp (DExpr g) (DExpr_continuous g hg)⟫_ℂ := by
+    intro x
+    obtain ⟨p, hp⟩ := LinearMap.mem_range.mp x.2
+    have hx : x = ⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩ := Subtype.ext hp.symm
+    subst hx
+    rw [DPMap_apply]
+    exact inner_DPoly_cLp p g hg
+  obtain ⟨hmem, hval⟩ := mem_closure_domain_of_adjoint_relation DPMap DPMap_isClosable
+    DPMap_formalSymmetric DPMap_coercive range_T_dense _ _ hrel
+  refine ⟨hmem, ?_⟩
+  show ((DPMap.closure ⟨cLp g hg.continuous, hmem⟩ : H) : ℝ → ℂ) =ᵐ[ν] DExpr g
+  rw [hval]
+  exact cLp_ae_eq _ _
 
 /-! ## Theorem 5.2 -/
+
+/-- `S f` is the `L²` class of its (smooth) kernel form. -/
+theorem S_eq_cLp (c : ℝ) (hc : 0 < c) (f : H) :
+    S c hc f = cLp (SFun c (f : ℝ → ℂ)) (SFun_contDiff c hc f 2).continuous := by
+  apply Lp.ext
+  exact (S_apply_ae c hc f).trans (cLp_ae_eq _ _).symm
 
 /-- **Theorem 5.2 (domain-level commutation), first half:** `S_{1/2,c} H ⊂ Dom(𝒜_c)`.
 From `SFun_contDiff`, Lemma 4 and the kernel identity `S_apply_ae`. -/
 theorem S_range_subset_domain (c : ℝ) (hc : 0 < c) (f : H) :
     S c hc f ∈ (AClosed c).domain := by
-  have hs : ContDiff ℝ 2 (SFun c (f : ℝ → ℂ)) := SFun_contDiff c hc f 2
-  have heq : S c hc f = cLp (SFun c (f : ℝ → ℂ)) hs.continuous := by
-    apply Lp.ext
-    exact (S_apply_ae c hc f).trans (cLp_ae_eq _ _).symm
-  rw [heq]
-  obtain ⟨hmem, _⟩ := smooth_mem_closure_domain (SFun c (f : ℝ → ℂ)) hs
+  rw [AClosed_domain, S_eq_cLp]
+  obtain ⟨hmem, _⟩ := smooth_mem_closure_domain (SFun c (f : ℝ → ℂ)) (SFun_contDiff c hc f 2)
   exact hmem
+
+/-- `D̄` agrees with `D⁰` on polynomials. -/
+theorem DClosed_polyLp (q : ℂ[X]) (hq : polyLp q ∈ DClosed.domain) :
+    DClosed ⟨polyLp q, hq⟩ = polyLp (DPoly q) := by
+  rw [← DPMap_apply q (LinearMap.mem_range_self polyLinear q)]
+  exact (DPMap_le_DClosed.2 (x := ⟨polyLp q, LinearMap.mem_range_self polyLinear q⟩)
+    (y := ⟨polyLp q, hq⟩) rfl).symm
+
+/-- `M_{u²}` on polynomials. -/
+theorem M_polyLp (q : ℂ[X]) : M (polyLp q) = polyLp (X ^ 2 * q) := by
+  apply Lp.ext
+  refine (M_apply_ae (polyLp q)).trans ?_
+  refine Filter.EventuallyEq.trans ?_ (polyLp_ae_eq (X ^ 2 * q)).symm
+  filter_upwards [polyLp_ae_eq q] with u hu
+  rw [hu]
+  simp only [polyFun, eval_mul, eval_pow, eval_X]
+  push_cast
+  ring
+
+theorem polyLp_APoly (c : ℝ) (q : ℂ[X]) :
+    polyLp (APoly c q) = polyLp (DPoly q) - ((c : ℂ) ^ 2) • polyLp (X ^ 2 * q) := by
+  rw [APoly_eq, ← polyLp_smul, smul_eq_C_mul, ← mul_assoc]
+  exact polyLinear.map_sub _ _
+
+/-- `𝒜_c` on polynomials is `APoly c`. -/
+theorem AClosed_polyLp (c : ℝ) (q : ℂ[X]) (hq : polyLp q ∈ DClosed.domain) :
+    AClosed c ⟨polyLp q, hq⟩ = polyLp (APoly c q) := by
+  rw [AClosed_apply, DClosed_polyLp, M_polyLp, polyLp_APoly]
+
+/-- The total function realising `𝒜_c` (zero outside the domain), for the abstract transport
+theorem. -/
+def Afun (c : ℝ) : H → H :=
+  fun x => if h : x ∈ DClosed.domain then AClosed c ⟨x, h⟩ else 0
+
+theorem Afun_apply (c : ℝ) (x : H) (h : x ∈ DClosed.domain) :
+    Afun c x = AClosed c ⟨x, h⟩ := dif_pos h
+
+/-- The core commutation on `H`: `𝒜_c (S p) = S (𝒜_c p)` for polynomials, from Lemmas 3, 4
+and the kernel identities. -/
+theorem AClosed_S_polyLp (c : ℝ) (hc : 0 < c) (q : ℂ[X]) (hq : polyLp q ∈ DClosed.domain) :
+    AClosed c ⟨S c hc (polyLp q), S_range_subset_domain c hc (polyLp q)⟩
+      = S c hc (AClosed c ⟨polyLp q, hq⟩) := by
+  rw [AClosed_polyLp]
+  have hs : ContDiff ℝ 2 (SFun c (polyLp q : ℝ → ℂ)) := SFun_contDiff c hc (polyLp q) 2
+  obtain ⟨hmem, hval⟩ := smooth_mem_closure_domain (SFun c (polyLp q : ℝ → ℂ)) hs
+  have hsub : (⟨S c hc (polyLp q), S_range_subset_domain c hc (polyLp q)⟩ : DClosed.domain)
+      = ⟨cLp (SFun c (polyLp q : ℝ → ℂ)) hs.continuous, hmem⟩ :=
+    Subtype.ext (S_eq_cLp c hc (polyLp q))
+  rw [AClosed_apply, hsub]
+  apply Lp.ext
+  have hM : ((M (S c hc (polyLp q)) : H) : ℝ → ℂ)
+      =ᵐ[ν] fun u => ((u ^ 2 : ℝ) : ℂ) * SFun c (polyFun q) u := by
+    refine (M_apply_ae _).trans ?_
+    filter_upwards [S_apply_ae c hc (polyLp q)] with u hu
+    rw [hu, SFun_polyLp]
+  have hR : ((S c hc (polyLp (APoly c q)) : H) : ℝ → ℂ) =ᵐ[ν] SFun c (polyFun (APoly c q)) := by
+    refine (S_apply_ae c hc _).trans ?_
+    rw [SFun_polyLp]
+  filter_upwards [Lp.coeFn_sub (DClosed ⟨cLp (SFun c (polyLp q : ℝ → ℂ)) hs.continuous, hmem⟩)
+      (((c : ℂ) ^ 2) • M (S c hc (polyLp q))),
+    Lp.coeFn_smul ((c : ℂ) ^ 2) (M (S c hc (polyLp q))), hval, hM, hR, ae_mem_Icc]
+    with u hsub' hsmul hD hMu hRu hu
+  rw [hsub', Pi.sub_apply, hsmul, Pi.smul_apply, hD, hMu, hRu, SFun_polyLp,
+    ← core_commutation c hc q u hu, AExpr_eq, smul_eq_mul]
+  push_cast
+  ring
+
+/-- `hcore` for the transport theorem: every `f ∈ Dom(D̄)` is the limit of polynomials `p n`
+with `𝒜_c p n → 𝒜_c f` (graph closure, plus continuity of `M`). -/
+theorem Afun_core (c : ℝ) (f : H) (hf : f ∈ DClosed.domain) :
+    ∃ p : ℕ → H, (∀ n, p n ∈ (polyCore : Set H)) ∧
+      Filter.Tendsto p Filter.atTop (nhds f) ∧
+      Filter.Tendsto (fun n => Afun c (p n)) Filter.atTop (nhds (Afun c f)) := by
+  have hgraph : (f, DClosed ⟨f, hf⟩) ∈ closure (DPMap.graph : Set (H × H)) := by
+    have h : ((⟨f, hf⟩ : DPMap.closure.domain) : H, DPMap.closure ⟨f, hf⟩) ∈ DPMap.closure.graph :=
+      LinearPMap.mem_graph DPMap.closure ⟨f, hf⟩
+    rw [← DPMap_isClosable.graph_closure_eq_closure_graph] at h
+    exact h
+  obtain ⟨z, hz, hzlim⟩ := mem_closure_iff_seq_limit.mp hgraph
+  have hz' : ∀ n, ∃ y : DPMap.domain, (y : H) = (z n).1 ∧ DPMap y = (z n).2 :=
+    fun n => (LinearPMap.mem_graph_iff DPMap).mp (hz n)
+  choose y hy1 hy2 using hz'
+  refine ⟨fun n => (z n).1, fun n => ?_, ?_, ?_⟩
+  · rw [← hy1 n]
+    exact (y n).2
+  · exact (continuous_fst.tendsto _).comp hzlim
+  · have hmem : ∀ n, (z n).1 ∈ DClosed.domain := fun n => by
+      rw [← hy1 n]
+      exact DPMap_le_DClosed.1 (y n).2
+    have hA : ∀ n, Afun c ((z n).1) = (z n).2 - ((c : ℂ) ^ 2) • M ((z n).1) := by
+      intro n
+      rw [Afun_apply c _ (hmem n), AClosed_apply]
+      congr 1
+      rw [← hy2 n]
+      exact (DPMap_le_DClosed.2 (x := y n) (y := ⟨(z n).1, hmem n⟩) (hy1 n)).symm
+    rw [Afun_apply c f hf, AClosed_apply]
+    simp_rw [hA]
+    refine Filter.Tendsto.sub ((continuous_snd.tendsto _).comp hzlim) ?_
+    exact Filter.Tendsto.const_smul
+      ((M.continuous.tendsto f).comp ((continuous_fst.tendsto _).comp hzlim)) _
+
+/-- `hclosed` for the transport theorem: `𝒜_c` is closed (graph closure of `D⁰` plus the
+bounded perturbation). -/
+theorem Afun_closed (c : ℝ) (x y : H)
+    (h : ∃ p : ℕ → H, (∀ n, p n ∈ DClosed.domain) ∧
+      Filter.Tendsto p Filter.atTop (nhds x) ∧
+      Filter.Tendsto (fun n => Afun c (p n)) Filter.atTop (nhds y)) :
+    x ∈ DClosed.domain ∧ Afun c x = y := by
+  obtain ⟨p, hp, hpx, hpy⟩ := h
+  have hD : ∀ n, DClosed ⟨p n, hp n⟩ = Afun c (p n) + ((c : ℂ) ^ 2) • M (p n) := by
+    intro n
+    rw [Afun_apply c _ (hp n), AClosed_apply]
+    abel
+  have hlim : Filter.Tendsto (fun n => DClosed ⟨p n, hp n⟩) Filter.atTop
+      (nhds (y + ((c : ℂ) ^ 2) • M x)) := by
+    simp_rw [hD]
+    exact hpy.add (Filter.Tendsto.const_smul ((M.continuous.tendsto x).comp hpx) _)
+  have hcl : IsClosed (DClosed.graph : Set (H × H)) := DClosed_isClosed
+  have hgraph : (x, y + ((c : ℂ) ^ 2) • M x) ∈ (DClosed.graph : Set (H × H)) := by
+    refine hcl.mem_of_tendsto (hpx.prodMk_nhds hlim) ?_
+    filter_upwards with n
+    exact LinearPMap.mem_graph DClosed ⟨p n, hp n⟩
+  obtain ⟨z, hz1, hz2⟩ := (LinearPMap.mem_graph_iff DClosed).mp hgraph
+  have hx : x ∈ DClosed.domain := by
+    rw [← hz1]
+    exact z.2
+  refine ⟨hx, ?_⟩
+  rw [Afun_apply c x hx, AClosed_apply]
+  have hzx : (⟨x, hx⟩ : DClosed.domain) = z := Subtype.ext hz1.symm
+  rw [hzx, hz2]
+  abel
 
 /-- **Theorem 5.2 (domain-level commutation), second half:** for every `f ∈ Dom(𝒜_c)`,
 `𝒜_c S_{1/2,c} f = S_{1/2,c} 𝒜_c f`.  Assembled from Lemmas 3 and 4 through the abstract
 transport theorem `Manuscript14Gram.closed_graph_core_commutation`, with `D = Dom(D̄)`,
-`Core = 𝒫`, `hcore` from `DClosed_hasCore`, `hclosed` from `DClosed_isClosed` and the
-boundedness of `M`. -/
+`Core = 𝒫`, `hcore = Afun_core`, `hclosed = Afun_closed`, `hcomm = AClosed_S_polyLp`. -/
 theorem gram_commutes_with_perturbed_legendre (c : ℝ) (hc : 0 < c)
     (f : (AClosed c).domain) :
     (AClosed c) ⟨S c hc f, S_range_subset_domain c hc f⟩ = S c hc ((AClosed c) f) := by
-  sorry
+  have hmain := Manuscript14Gram.closed_graph_core_commutation
+    (DClosed.domain : Set H) (polyCore : Set H) (Afun c) (S c hc)
+    (Afun_core c) (Afun_closed c) DPMap_le_DClosed.1 ?_ f f.2
+  · have h := hmain.2
+    rw [Afun_apply c _ (S_range_subset_domain c hc f), Afun_apply c _ f.2] at h
+    exact h
+  · intro x hx
+    obtain ⟨q, hq⟩ := LinearMap.mem_range.mp hx
+    have hxq : x = polyLp q := hq.symm
+    subst hxq
+    refine ⟨S_range_subset_domain c hc (polyLp q), ?_⟩
+    rw [Afun_apply c _ (S_range_subset_domain c hc (polyLp q)),
+      Afun_apply c _ (DPMap_le_DClosed.1 hx)]
+    exact AClosed_S_polyLp c hc q (DPMap_le_DClosed.1 hx)
 
 #print axioms Manuscript14Gram.Theorem52.S_range_subset_domain
 #print axioms Manuscript14Gram.Theorem52.gram_commutes_with_perturbed_legendre
