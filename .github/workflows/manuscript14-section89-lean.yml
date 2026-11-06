@@ -1,0 +1,72 @@
+name: Manuscript 14 — Lean 4 certificate of Sections 8 and 9
+
+# Manuscript 14, Sections 8 and 9: Theorem 8.1 (the quadratic covering Q(τ) = τ²/2 at the
+# special point, its deck involution, the factorisation r_E = E ∘ Q, the fibre over -1/4,
+# the actions of the modular inversion and of the dilation), Proposition 8.2 (the
+# Montgomery–Taylor constant as a resolvent trace and logarithmic derivative, the
+# companion identity), Proposition 8.4 (the self-dual Ising coupling), Proposition 8.6
+# (Chebyshev, path P7, Viète), Proposition 8.7 (square-lattice walk counts), and Section 9
+# (time reversal Θ = -iσ₂K, Kramers degeneracy, the Bloch map, the Brillouin splitting,
+# the involutions of Proposition 9.7).  The module imports only the pinned Mathlib.  The
+# job fails on any compile error, on any `sorry`, and on any axiom other than propext,
+# Classical.choice and Quot.sound in the thirty-three audited statements.
+
+on:
+  push:
+    branches:
+      - manuscript14-section89-lean-arb-20261106
+    paths:
+      - 'lean/SpecialImaginaryPoint/Section89Certificate.lean'
+      - '.github/workflows/manuscript14-section89-lean.yml'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    name: Lean 4 kernel check of the Sections 8–9 certificate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository-pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check the Sections 8–9 certificate and audit its axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/Section89Certificate.lean 2>&1 | tee /tmp/s89.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/s89.log; then
+            echo '::error::Compile error in the Sections 8–9 certificate'
+            exit 1
+          fi
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'declaration uses' /tmp/s89.log; then
+            echo '::error::Forbidden axiom or sorry in the Sections 8–9 certificate'
+            exit 1
+          fi
+          n_all="$(grep -c "depends on axioms: \[" /tmp/s89.log || true)"
+          n_std="$(grep -cE "depends on axioms: \[((propext|Classical\.choice|Quot\.sound)(, )?)+\]" /tmp/s89.log || true)"
+          echo "audited statements: $n_all, of which within the standard three axioms: $n_std"
+          test "$n_all" -eq 33
+          test "$n_std" -eq 33
+          echo 'Sections 8–9: no sorry, no sorryAx, no Lean.ofReduceBool; thirty-three audited statements'
+      - name: Upload Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-section89-lean
+          path: /tmp/s89.log
+          if-no-files-found: ignore
