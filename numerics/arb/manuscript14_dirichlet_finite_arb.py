@@ -3,7 +3,7 @@
 
 Universal finite product positivity and monotonicity: Lean 4.
 Exact rational polynomial logarithmic-derivative tests: finite cases only.
-Arb tests: 256-bit validated ball inequalities comparing Euler-product
+Arb tests: 2000-bit validated ball inequalities comparing Euler-product
 truncations with sinh(x)/x at the two Eulerian points.
 The infinite-dimensional Fredholm/zeta identity is NOT certified here.
 """
@@ -11,7 +11,7 @@ from fractions import Fraction as Q
 from flint import arb, ctx
 import flint
 
-ctx.prec = 256
+ctx.prec = 2000
 checks = 0
 
 def check(label, condition):

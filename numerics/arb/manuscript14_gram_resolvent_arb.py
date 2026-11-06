@@ -16,7 +16,7 @@ from math import factorial
 from flint import arb, ctx
 import flint
 
-ctx.prec = 256
+ctx.prec = 2000
 checks = 0
 
 def check(label, condition):

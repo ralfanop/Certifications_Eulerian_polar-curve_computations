@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Manuscript 14.1: Arb certification for Corollary 3.6 ONLY.
 
-256-bit Arb enclosures and exact-Q finite regression checks.
+2000-bit Arb enclosures and exact-Q finite regression checks.
 The universal identities are Lean theorems, not finite numerical tests.
 """
 from fractions import Fraction as Q
@@ -10,7 +10,7 @@ import sys
 from flint import arb, acb, ctx
 import flint
 
-ctx.prec = 256
+ctx.prec = 2000
 checks = 0
 
 def check(label, assertion):

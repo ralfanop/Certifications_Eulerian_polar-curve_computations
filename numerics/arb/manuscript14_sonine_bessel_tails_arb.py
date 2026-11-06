@@ -13,7 +13,7 @@ from math import factorial
 from flint import arb, ctx
 import flint
 
-ctx.prec = 384
+ctx.prec = 2000
 passed = 0
 
 def check(label, ok):
@@ -61,11 +61,11 @@ for R in radii:
         S=sum((term(n) for n in range(N+1)),Q(0))
         q=Q(R*R,(2*N+4)*(2*N+5))
         upper=S+term(N+1)/(1-q)
-        check(f"strict 384-bit modified spherical enclosure R={R}, N={N}",
+        check(f"strict 2000-bit modified spherical enclosure R={R}, N={N}",
               qball(S) < value_i < qball(upper))
         alt=sum(((-1)**n*term(n) for n in range(N+1)),Q(0))
         low,high=(alt-term(N+1),alt) if N%2==0 else (alt,alt+term(N+1))
-        check(f"strict 384-bit ordinary spherical enclosure R={R}, N={N}",
+        check(f"strict 2000-bit ordinary spherical enclosure R={R}, N={N}",
               qball(low) < value_j < qball(high))
 print("flint version",flint.__version__,"Arb precision",ctx.prec)
 print(f"ALL {passed} SONINE BESSEL COEFFICIENT / TAIL CHECKS PASSED")

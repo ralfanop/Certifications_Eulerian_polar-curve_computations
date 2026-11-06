@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Manuscript 14.10 Theorem 11.1: 256-bit Arb + exact rational checks.
+"""Manuscript 14.10 Theorem 11.1: 2000-bit Arb + exact rational checks.
 
 Certifies positive Taylor enclosure, Parry trinomial signs, root isolations,
 and discontinuity defect; it does not formalize analytic, transcendence
@@ -10,7 +10,7 @@ from math import factorial
 from flint import arb, ctx
 import flint
 
-ctx.prec = 256
+ctx.prec = 2000
 checks = 0
 def check(label, condition):
     global checks
