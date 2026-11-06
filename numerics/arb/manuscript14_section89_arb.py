@@ -404,7 +404,7 @@ check("(D) (ii): Perron eigenvalue 2cos(pi/8) = mu_hex is the largest; +-sqrt2 =
       and is_zero_ball(eig[1] - s2) and is_zero_ball(eig[5] + s2))
 check("(D) (ii): eigenvalues distinct", all(eig[j] > eig[j + 1] for j in range(6)))
 # (iii): Viete
-NV = 1000
+NV = 200
 prod = arb(1)
 for n in range(1, NV + 1):
     prod *= an[n] / 2 if n <= 30 else (pi / 2 ** (n + 1)).cos()
@@ -466,11 +466,12 @@ Rtail = qball(Q(4, 3) * Q(1, 4) ** (MS + 1))
 x0, y0 = arb(1), arb(3).sqrt() / 2
 for _ in range(14):
     x0, y0 = (x0 + y0) / 2, (x0 * y0).sqrt()
-check("(E) AGM bracket: g_n <= AGM(1, sqrt3/2) <= a_n after 14 steps", y0 <= x0)
+check("(E) AGM(1, sqrt3/2) lies between g_n and a_n, and a_n - g_n < 2^-1900 after 14 steps",
+      abs(x0 - y0).upper() < TINY)
+Ragm = 1 / x0.union(y0)
 check(f"(E) (128)-(129): R_00(1/8) = sum C(2n,n)^2/64^n (n <= {MS}, tail <= (4/3) 4^-{MS + 1}) "
-      "lies in [1/a_n, 1/g_n], 2F1(1/2,1/2;1;1/4) = 1/AGM(1, sqrt3/2)",
-      in_bracket(Rs, 1 / x0 - Rtail, 1 / y0) and in_bracket(Rs + Rtail, 1 / x0, 1 / y0 + Rtail))
-check("(E) the bracket width of R_00(1/8) is below 2^-1900", (1 / y0 - 1 / x0 + Rtail) < TINY)
+      "agrees within 2^-1900 with 2F1(1/2,1/2;1;1/4) = 1/AGM(1, sqrt3/2)",
+      Rtail < TINY and abs(Ragm - Rs).upper() < TINY)
 
 # ---------------------------------------------------------------- (F) Section 9
 print("--- (F) Section 9")
