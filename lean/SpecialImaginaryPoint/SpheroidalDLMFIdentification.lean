@@ -295,7 +295,7 @@ theorem spheroidal_DLMF_identification (hc : 0 < c) (D : OblateInput c) :
     have h0 : ⟪b i, b j⟫_ℂ = 0 := b.orthonormal.inner_eq_zero hne
     rw [hb i, hbj, inner_smul_left, inner_smul_right] at h0
     have hai : (starRingEnd ℂ) (a i) ≠ 0 := by
-      rw [map_ne_zero]
+      rw [_root_.map_ne_zero]
       exact ha i
     exact mul_ne_zero hai (mul_ne_zero (ha j) hPP) h0
   -- `N` is surjective
