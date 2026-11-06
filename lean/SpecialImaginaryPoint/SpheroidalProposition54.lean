@@ -631,14 +631,15 @@ theorem vec_orthonormal : Orthonormal ℂ (vec c hc) := by
   constructor
   · rintro ⟨q, i⟩
     show ‖vec c hc ⟨q, i⟩‖ = 1
-    rw [vec_coe, Submodule.coe_norm]
-    exact (Bas c hc q).orthonormal.1 i
+    have h1 : ‖Bas c hc q i‖ = 1 := (Bas c hc q).orthonormal.1 i
+    rw [vec_coe]
+    exact h1
   · rintro ⟨q, i⟩ ⟨q', j⟩ hij
     show ⟪vec c hc ⟨q, i⟩, vec c hc ⟨q', j⟩⟫_ℂ = 0
     by_cases hq : q = q'
     · subst hq
       have hne : i ≠ j := fun h => hij (by rw [h])
-      have h0 := (Bas c hc q).orthonormal.2 hne
+      have h0 : ⟪Bas c hc q i, Bas c hc q j⟫_ℂ = 0 := (Bas c hc q).orthonormal.2 hne
       rw [Submodule.coe_inner] at h0
       rw [vec_coe, vec_coe]
       exact h0
