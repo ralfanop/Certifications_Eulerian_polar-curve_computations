@@ -231,16 +231,22 @@ theorem eB_polynomial (n : ℕ) :
       (∃ r : ℝ, 0 < r ∧ (q n).leadingCoeff = (r : ℂ)) ∧
       DPoly (q n) = ((eig n : ℝ) : ℂ) • q n := by
   have hc : ((nrm n : ℝ) : ℂ) ≠ 0 := by exact_mod_cast (nrm_pos n).ne'
-  have hreg : IsSMulRegular ℂ[X] ((nrm n : ℝ) : ℂ) :=
-    (isUnit_iff_ne_zero.mpr hc).isSMulRegular ℂ[X]
+  have hreg : IsSMulRegular ℂ ((nrm n : ℝ) : ℂ) :=
+    (isUnit_iff_ne_zero.mpr hc).isSMulRegular ℂ
   have hmonic : (Q n).Monic :=
     (GegenbauerFock.Ultraspherical.sturmMonicEigenCandidate_monic (1 / 2) n).map
       Complex.ofRealHom
   refine ⟨by rw [eB_apply, e_eq_polyLp], ?_, ⟨nrm n, nrm_pos n, ?_⟩, DPoly_q n⟩
-  · rw [q, natDegree_smul_of_smul_regular _ hreg, Q,
-      natDegree_map_eq_of_injective Complex.ofRealHom.injective, G,
+  · rw [q]
+    first
+      | rw [natDegree_smul_of_smul_regular _ hreg]
+      | rw [smul_eq_C_mul, natDegree_C_mul hc]
+    rw [Q, natDegree_map_eq_of_injective Complex.ofRealHom.injective, G,
       GegenbauerFock.Ultraspherical.sturmMonicEigenCandidate_natDegree]
-  · rw [q, leadingCoeff_smul_of_smul_regular _ hreg, hmonic.leadingCoeff, smul_eq_mul, mul_one]
+  · rw [q]
+    first
+      | rw [leadingCoeff_smul_of_smul_regular _ hreg, hmonic.leadingCoeff, smul_eq_mul, mul_one]
+      | rw [smul_eq_C_mul, leadingCoeff_mul, leadingCoeff_C, hmonic.leadingCoeff, mul_one]
 
 /-! ## The spectral realisation (8)–(9) -/
 
@@ -283,7 +289,6 @@ theorem DClosed_domain_iff (f : H) :
       intro n
       rw [← HilbertBasis.repr_apply_apply]
       simp only [g, LinearIsometryEquiv.apply_symm_apply]
-      rfl
     let s : ℕ → H := fun N => ∑ n ∈ Finset.range N, ⟪eB n, f⟫_ℂ • eB n
     let t : ℕ → H := fun N => ∑ n ∈ Finset.range N, a n • eB n
     have hgraph : ∀ N, (s N, t N) ∈ (DClosed.graph : Set (H × H)) := by
@@ -301,9 +306,8 @@ theorem DClosed_domain_iff (f : H) :
         intro n _
         rw [map_smul]
         change ⟪eB n, f⟫_ℂ • DClosed ⟨e n, e_mem n⟩ = a n • eB n
-        rw [DClosed_e, smul_smul, eB_apply]
-        simp only [a]
-        rw [mul_comm]
+        rw [DClosed_e, smul_smul, mul_comm]
+        simp only [a, eB_apply]
       rw [SetLike.mem_coe, LinearPMap.mem_graph_iff]
       exact ⟨y, hy1, hy2⟩
     have hsf : Tendsto s atTop (𝓝 f) := by
@@ -332,7 +336,7 @@ theorem DClosed_isSelfAdjoint : IsSelfAdjoint DClosed := by
   rw [LinearPMap.isSelfAdjoint_def]
   have hdense : Dense (DClosed.domain : Set H) := DPMap_domain_dense.mono DPMap_le_DClosed.1
   have hle : DClosed ≤ DClosed.adjoint :=
-    ((fun x y => DClosed_symm x y : DClosed.IsFormalAdjoint DClosed)).le_adjoint hdense
+    LinearPMap.IsFormalAdjoint.le_adjoint hdense (fun x y => DClosed_symm x y)
   have hdom : DClosed.adjoint.domain ≤ DClosed.domain := by
     intro y hy
     rw [DClosed_domain_iff]
@@ -341,7 +345,6 @@ theorem DClosed_isSelfAdjoint : IsSelfAdjoint DClosed := by
     rw [DClosed_e, inner_smul_right] at h
     have h' : ⟪eB n, DClosed.adjoint ⟨y, hy⟩⟫_ℂ = ((eig n : ℝ) : ℂ) * ⟪eB n, y⟫_ℂ := by
       rw [eB_apply, ← inner_conj_symm, h, map_mul, Complex.conj_ofReal, inner_conj_symm]
-      rfl
     rw [h', norm_mul, Complex.norm_real, Real.norm_eq_abs, mul_pow, sq_abs]
   have hdomeq : DClosed.adjoint.domain = DClosed.domain := le_antisymm hdom hle.1
   refine LinearPMap.ext hdomeq ?_
@@ -477,24 +480,19 @@ theorem rankOne_compact (v : H) :
   (isCompactOperator_of_locallyCompactSpace_rng
     (ContinuousLinearMap.toSpanSingleton ℂ v)).comp_clm (innerSL ℂ v)
 
-theorem sum_compact (s : Finset ℕ) (T : ℕ → H →L[ℂ] H) (hT : ∀ n, IsCompactOperator (T n)) :
-    IsCompactOperator (∑ n ∈ s, T n) := by
-  classical
-  induction s using Finset.induction_on with
-  | empty =>
-    rw [Finset.sum_empty, ContinuousLinearMap.coe_zero]
-    exact isCompactOperator_zero
-  | insert a s ha ih =>
-    rw [Finset.sum_insert ha, ContinuousLinearMap.coe_add]
-    exact (hT a).add ih
-
 /-- The finite spectral truncations of `(D̄ + t)⁻¹`. -/
 def trunc (t : ℝ) (N : ℕ) : H →L[ℂ] H :=
   ∑ n ∈ Finset.range N,
     rmult t n • (ContinuousLinearMap.toSpanSingleton ℂ (eB n)).comp (innerSL ℂ (eB n))
 
-theorem trunc_compact (t : ℝ) (N : ℕ) : IsCompactOperator (trunc t N) :=
-  sum_compact _ _ fun n => (rankOne_compact (eB n)).smul (rmult t n)
+/-- The truncations are compact: finite sums in the submodule `compactOperator` of
+rank-one operators. -/
+theorem trunc_compact (t : ℝ) (N : ℕ) : IsCompactOperator (trunc t N) := by
+  show (∑ n ∈ Finset.range N,
+      rmult t n • (ContinuousLinearMap.toSpanSingleton ℂ (eB n)).comp (innerSL ℂ (eB n))) ∈
+    compactOperator (RingHom.id ℂ) H H
+  exact Submodule.sum_mem _ fun n _ =>
+    Submodule.smul_mem _ (rmult t n) (rankOne_compact (eB n))
 
 theorem inner_trunc (t : ℝ) (N : ℕ) (f : H) (m : ℕ) :
     ⟪eB m, trunc t N f⟫_ℂ = if m < N then rmult t m * ⟪eB m, f⟫_ℂ else 0 := by
@@ -523,9 +521,7 @@ theorem tail_bound (t : ℝ) (ht : 0 < t) (N n : ℕ) : ‖tail t N n‖ ≤ (t 
 
 theorem Rt_sub_trunc (t : ℝ) (ht : 0 < t) (N : ℕ) :
     Rt t ht - trunc t N = mulOp (tail t N) (t + eig N)⁻¹ (tail_bound t ht N) := by
-  ext f
-  apply eB_ext
-  intro m
+  refine ContinuousLinearMap.ext fun f => eB_ext fun m => ?_
   rw [ContinuousLinearMap.sub_apply, inner_sub_right, Rt_inner, inner_trunc, mulOp_inner, tail]
   split_ifs <;> ring
 
@@ -566,7 +562,8 @@ theorem AClosed_compact_resolvent (c : ℝ) :
     refine ⟨((c : ℂ) ^ 2) • M.comp (Rt (c ^ 2 + 1) ht), fun z => rfl, ?_⟩
     have h1 : ‖((c : ℂ) ^ 2) • M.comp (Rt (c ^ 2 + 1) ht)‖ ≤ c ^ 2 * (c ^ 2 + 1)⁻¹ := by
       calc ‖((c : ℂ) ^ 2) • M.comp (Rt (c ^ 2 + 1) ht)‖
-          ≤ ‖((c : ℂ) ^ 2)‖ * ‖M.comp (Rt (c ^ 2 + 1) ht)‖ := norm_smul_le _ _
+          ≤ ‖((c : ℂ) ^ 2)‖ * ‖M.comp (Rt (c ^ 2 + 1) ht)‖ :=
+            ContinuousLinearMap.opNorm_smul_le _ _
         _ ≤ c ^ 2 * (‖M‖ * ‖Rt (c ^ 2 + 1) ht‖) :=
             mul_le_mul (le_of_eq hnorm) (ContinuousLinearMap.opNorm_comp_le _ _)
               (norm_nonneg _) (sq_nonneg c)
