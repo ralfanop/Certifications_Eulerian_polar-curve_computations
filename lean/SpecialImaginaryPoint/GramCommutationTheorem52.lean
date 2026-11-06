@@ -1268,8 +1268,9 @@ theorem AClosed_S_polyLp (c : ℝ) (hc : 0 < c) (q : ℂ[X]) (hq : polyLp q ∈ 
     filter_upwards [S_apply_ae c hc (polyLp q)] with u hu
     rw [hu, SFun_polyLp]
   have hR : ((S c hc (polyLp (APoly c q)) : H) : ℝ → ℂ) =ᵐ[ν] SFun c (polyFun (APoly c q)) := by
-    refine (S_apply_ae c hc _).trans ?_
-    rw [SFun_polyLp]
+    have h0 := S_apply_ae c hc (polyLp (APoly c q))
+    rw [SFun_polyLp] at h0
+    exact h0
   filter_upwards [Lp.coeFn_sub (DClosed ⟨cLp (SFun c (polyLp q : ℝ → ℂ)) hs.continuous, hmem⟩)
       (((c : ℂ) ^ 2) • M (S c hc (polyLp q))),
     Lp.coeFn_smul ((c : ℂ) ^ 2) (M (S c hc (polyLp q))), hval, hM, hR, ae_mem_Icc]
