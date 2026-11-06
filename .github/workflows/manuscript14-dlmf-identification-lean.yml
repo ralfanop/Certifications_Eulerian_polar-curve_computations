@@ -1,0 +1,98 @@
+name: Manuscript 14 — Lean 4 identification of the Proposition 5.4 eigenvectors with DLMF §30
+
+# Manuscript 14, Proposition 5.4: the eigenvectors of A_c = D - c^2 M_{u^2}
+# are the angular spheroidal wave functions Ps_n^0(., -c^2) of DLMF §30, with
+# lambda_n^0(-c^2) = chi_n + c^2.  The DLMF definition (eigenvalues, bounded
+# solutions of (30.2.1), uniqueness) enters as the explicit hypothesis
+# structure OblateInput.  The module is compiled against the pinned Mathlib,
+# the GegenbauerFock library and the Theorem 5.2 and Proposition 5.4
+# certificates, and the job fails on any compile error, on any `sorry`, and on
+# the axioms sorryAx / Lean.ofReduceBool.  The audit must show only propext,
+# Classical.choice and Quot.sound for the three audited statements.
+
+on:
+  push:
+    branches:
+      - manuscript14-dlmf-identification-20261106
+    paths:
+      - 'lean/SpecialImaginaryPoint/SpheroidalDLMFIdentification.lean'
+      - 'lean/SpecialImaginaryPoint/SpheroidalProposition54.lean'
+      - 'lean/SpecialImaginaryPoint/GramCommutationTheorem52.lean'
+      - 'lean/SpecialImaginaryPoint/GramKernelBispectral.lean'
+      - '.github/workflows/manuscript14-dlmf-identification-lean.yml'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    name: Lean 4 kernel check of the DLMF §30 identification
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository-pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build the GegenbauerFock modules imported by Theorem 5.2 and Proposition 5.4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GramIntegralComplete GegenbauerFock.UltrasphericalSturmLiouvillePolynomialCore \
+            GegenbauerFock.UltrasphericalSturmLiouvilleMonicRealL2Nonzero GegenbauerFock.UltrasphericalLegendreDensityExact \
+            GegenbauerFock.OutputComplexHolomorphy GegenbauerFock.UltrasphericalContinuousDensity \
+            GegenbauerFock.GramSpectralKernel GegenbauerFock.GramKernelSeries \
+            GegenbauerFock.UltrasphericalComplexWeierstrass GegenbauerFock.DualGramEigenbasisTrace 2>&1 | tail -n 40
+      - name: Compile the Theorem 5.2 and Proposition 5.4 certificates to oleans
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/GramKernelBispectral.olean \
+            SpecialImaginaryPoint/GramKernelBispectral.lean 2>&1 | tee /tmp/prop54-deps.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/GramCommutationTheorem52.olean \
+            SpecialImaginaryPoint/GramCommutationTheorem52.lean 2>&1 | tee -a /tmp/prop54-deps.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/SpheroidalProposition54.olean \
+            SpecialImaginaryPoint/SpheroidalProposition54.lean 2>&1 | tee -a /tmp/prop54-deps.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/prop54-deps.log; then
+            echo '::error::Compile error in the Theorem 5.2 dependencies'
+            exit 1
+          fi
+      - name: Kernel-check the DLMF identification and audit its axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/SpheroidalDLMFIdentification.lean 2>&1 | tee /tmp/dlmf.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/dlmf.log; then
+            echo '::error::Compile error in the DLMF identification certificate'
+            exit 1
+          fi
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'declaration uses' /tmp/dlmf.log; then
+            echo '::error::Forbidden axiom or sorry in the DLMF identification certificate'
+            exit 1
+          fi
+          test "$(grep -c "depends on axioms: \[propext, Classical.choice, Quot.sound\]" /tmp/dlmf.log)" -eq 3
+          echo 'DLMF identification: no sorry, no sorryAx, no Lean.ofReduceBool; three audited statements'
+      - name: Upload Lean logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-dlmf-identification-lean
+          path: |
+            /tmp/dlmf.log
+            /tmp/prop54-deps.log
+          if-no-files-found: ignore
