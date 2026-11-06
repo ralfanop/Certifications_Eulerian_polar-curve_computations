@@ -20,7 +20,7 @@ with r_E(z_0) = sinh(a)/a, a = 1/sqrt(8).  The checks are:
       Bernoulli form with an exact rational tail majorant (N = 60 terms), and between
       the partial sum of the eight displayed terms and that sum plus the ninth term
       (alternating series with decreasing terms);
-  (E) the value of log r_E(z_0) to 600 digits, with correct rounding proved by the ball.
+  (E) the value of log r_E(z_0) to 590 digits, with correct rounding proved by the ball.
 Every Arb quantity is a ball (midpoint + rigorous radius); comparisons between balls and
 exact rationals are certified ball inequalities.  Requires python-flint 0.9.0.
 """
@@ -145,11 +145,13 @@ def radius_bits(x):
     return float(arb(rr).log()/arb(2).log()) if rr > 0 else float('-inf')
 print(f"    log r_E(z_0) = {logrE.str(60)}  (radius 2^{radius_bits(logrE):.1f})")
 check("log r_E(z_0): enclosure radius below 2^-1980", logrE.rad() < arb(2)**(-1980))
-s600 = logrE.str(600, radius=False)
-d600 = Decimal(s600); center = Q(d600); half = Q(1, 2*10**(-d600.as_tuple().exponent))
-check("600-digit value of log r_E(z_0) correctly rounded (certified half-ULP comparison)",
+# 590 significant digits: the half-ULP 5e-592 exceeds the ball radius (about 2^-1997 = 6e-602),
+# so the rounding is certified; 600 digits would be within the radius.
+s590 = logrE.str(590, radius=False)
+d590 = Decimal(s590); center = Q(d590); half = Q(1, 2*10**(-d590.as_tuple().exponent))
+check("590-digit value of log r_E(z_0) correctly rounded (certified half-ULP comparison)",
       logrE > qball(center-half) and logrE < qball(center+half))
-print(f"    log r_E(z_0) to 600 digits: {s600}")
+print(f"    log r_E(z_0) to 590 digits: {s590}")
 print(f"    r_E(z_0) to 60 digits: {rE.str(60, radius=False)}")
 
 print(f"python-flint {flint.__version__}, precision {ctx.prec} bits")
