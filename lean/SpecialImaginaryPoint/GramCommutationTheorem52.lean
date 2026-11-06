@@ -156,7 +156,8 @@ def APoly (c : ℝ) : ℂ[X] →ₗ[ℂ] ℂ[X] where
     ring
   map_smul' := by
     intro a p
-    simp only [derivative_smul, smul_eq_C_mul, RingHom.id_apply]
+    simp only [derivative_smul]
+    simp only [smul_eq_C_mul, RingHom.id_apply]
     ring
 
 /-- The polynomial-domain operator `𝒜_c⁰ : 𝒫 → H`, `polyLp p ↦ polyLp (APoly c p)`,
@@ -168,13 +169,17 @@ def APMap (c : ℝ) : H →ₗ.[ℂ] H where
 theorem polyEquiv_apply (p : ℂ[X]) :
     polyEquiv p = ⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩ := by
   apply Subtype.ext
-  exact LinearEquiv.ofInjective_apply polyLinear_injective p
+  rfl
 
-theorem APMap_apply (c : ℝ) (p : ℂ[X]) :
-    APMap c ⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩ = polyLp (APoly c p) := by
-  rw [← polyEquiv_apply]
-  show polyLinear (APoly c (polyEquiv.symm (polyEquiv p))) = polyLinear (APoly c p)
-  rw [polyEquiv.symm_apply_apply]
+theorem polyEquiv_symm_apply (p : ℂ[X]) (hp : polyLp p ∈ polyCore) :
+    polyEquiv.symm ⟨polyLp p, hp⟩ = p := by
+  apply polyEquiv.injective
+  rw [LinearEquiv.apply_symm_apply, polyEquiv_apply]
+
+theorem APMap_apply (c : ℝ) (p : ℂ[X]) (hp : polyLp p ∈ (APMap c).domain) :
+    APMap c ⟨polyLp p, hp⟩ = polyLp (APoly c p) := by
+  show polyLinear (APoly c (polyEquiv.symm ⟨polyLp p, hp⟩)) = polyLinear (APoly c p)
+  rw [polyEquiv_symm_apply]
 
 /-- **Bookkeeping (sorry).**  `𝒜_c⁰` is closable: it is densely defined (Weierstrass) and
 symmetric (Green on polynomials), hence contained in its closed adjoint.  This is the complex
@@ -217,8 +222,9 @@ theorem S_apply_ae (c : ℝ) (hc : 0 < c) (f : H) :
     GegenbauerFock.GeneralUltrasphericalFock.gram_eq_integralLp _ _ _ _ f
   rw [h1]
   unfold GegenbauerFock.GeneralUltrasphericalFock.gramKernelIntegralLp
-  refine (GegenbauerFock.GeneralUltrasphericalFock.gramKernelIntegral_memLp _ _ _ _
-    f).coeFn_toLp.trans ?_
+  have h2 := (GegenbauerFock.GeneralUltrasphericalFock.gramKernelIntegral_memLp (1 / 2)
+    (1 / (4 * c)) half_pos (by positivity) f).coeFn_toLp
+  refine h2.trans ?_
   filter_upwards with u
   unfold GegenbauerFock.GeneralUltrasphericalFock.gramKernelIntegral SFun
   congr 1
@@ -231,16 +237,66 @@ theorem S_apply_ae (c : ℝ) (hc : 0 < c) (f : H) :
 
 /-! ## The four analytic lemmas -/
 
+/-- `C¹`-regularity of the factor `t ↦ (1 - t²)` viewed in `ℂ`. -/
+theorem contDiff_oneSubSq : ContDiff ℝ 1 (fun t : ℝ => ((1 - t ^ 2 : ℝ) : ℂ)) := by
+  have h := (Complex.ofRealCLM.contDiff (𝕜 := ℝ) (n := 1)).comp
+    ((contDiff_const (c := (1 : ℝ))).sub (contDiff_id.pow 2))
+  simpa [Function.comp_def] using h
+
+/-- One integration by parts on `[-1,1]`: `∫ [(1-u²) f']' g = -∫ (1-u²) f' g'`.  The boundary
+term `g · (1-u²) f'` vanishes at `±1`. -/
+theorem ibp_once (f g : ℝ → ℂ) (hf : ContDiff ℝ 2 f) (hg : ContDiff ℝ 2 g) :
+    ∫ u in (-1 : ℝ)..1, deriv (fun t : ℝ => ((1 - t ^ 2 : ℝ) : ℂ) * deriv f t) u * g u
+      = -∫ u in (-1 : ℝ)..1, ((1 - u ^ 2 : ℝ) : ℂ) * deriv f u * deriv g u := by
+  set φ : ℝ → ℂ := fun t => ((1 - t ^ 2 : ℝ) : ℂ) * deriv f t with hφdef
+  have hf2 : ContDiff ℝ (1 + 1) f := by norm_num; exact hf
+  have hfd : ContDiff ℝ 1 (deriv f) := hf2.deriv'
+  have hg1 : ContDiff ℝ 1 g := hg.of_le (by norm_num)
+  have hφC1 : ContDiff ℝ 1 φ := contDiff_oneSubSq.mul hfd
+  have key := intervalIntegral.integral_mul_deriv_eq_deriv_mul
+    (u := g) (v := φ) (u' := deriv g) (v' := deriv φ) (a := -1) (b := 1)
+    (fun x _ => (hg1.differentiable one_ne_zero x).hasDerivAt)
+    (fun x _ => (hφC1.differentiable one_ne_zero x).hasDerivAt)
+    ((hg1.continuous_deriv le_rfl).intervalIntegrable _ _)
+    ((hφC1.continuous_deriv le_rfl).intervalIntegrable _ _)
+  have hφ1 : φ 1 = 0 := by norm_num [hφdef]
+  have hφm1 : φ (-1) = 0 := by norm_num [hφdef]
+  rw [hφ1, hφm1] at key
+  simp only [mul_zero, sub_zero, zero_sub] at key
+  calc ∫ u in (-1 : ℝ)..1, deriv φ u * g u
+      = ∫ u in (-1 : ℝ)..1, g u * deriv φ u := by
+        apply intervalIntegral.integral_congr
+        intro u _
+        ring
+    _ = -∫ u in (-1 : ℝ)..1, deriv g u * φ u := key
+    _ = -∫ u in (-1 : ℝ)..1, ((1 - u ^ 2 : ℝ) : ℂ) * deriv f u * deriv g u := by
+        congr 1
+        apply intervalIntegral.integral_congr
+        intro u _
+        simp only [hφdef]
+        ring
+
 /-- **Lemma 1 (Green).**  For `f, g` of class `C²` on the real line,
-`∫_{-1}^{1} [(1-u²) f']' g = ∫_{-1}^{1} f [(1-u²) g']'`.  Two integrations by parts
-(`intervalIntegral.integral_mul_deriv_eq_deriv_mul`); the boundary terms contain the factor
-`1 - u²`, which vanishes at `±1`.  The endpoint-flux lemmas
-`Manuscript14Gram.gram_endpoint_flux_plus/minus` are these boundary terms for the kernel. -/
+`∫_{-1}^{1} [(1-u²) f']' g = ∫_{-1}^{1} f [(1-u²) g']'`: both sides equal
+`-∫_{-1}^{1} (1-u²) f' g'` by `ibp_once`. -/
 theorem green_identity (f g : ℝ → ℂ) (hf : ContDiff ℝ 2 f) (hg : ContDiff ℝ 2 g) :
     ∫ u in (-1 : ℝ)..1, deriv (fun t : ℝ => ((1 - t ^ 2 : ℝ) : ℂ) * deriv f t) u * g u
       = ∫ u in (-1 : ℝ)..1,
           f u * deriv (fun t : ℝ => ((1 - t ^ 2 : ℝ) : ℂ) * deriv g t) u := by
-  sorry
+  rw [ibp_once f g hf hg]
+  have h2 := ibp_once g f hg hf
+  have h3 : ∫ u in (-1 : ℝ)..1,
+        f u * deriv (fun t : ℝ => ((1 - t ^ 2 : ℝ) : ℂ) * deriv g t) u
+      = ∫ u in (-1 : ℝ)..1,
+        deriv (fun t : ℝ => ((1 - t ^ 2 : ℝ) : ℂ) * deriv g t) u * f u := by
+    apply intervalIntegral.integral_congr
+    intro u _
+    ring
+  rw [h3, h2]
+  congr 1
+  apply intervalIntegral.integral_congr
+  intro u _
+  ring
 
 /-- The `k`-th moment `m_k(f) = ∫ v^k f(v) dν(v)` of `f ∈ L²(ν)`; for a polynomial `f` it is
 an exact rational combination of the coefficients. -/
