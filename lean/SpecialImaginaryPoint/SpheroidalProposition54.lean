@@ -417,9 +417,8 @@ theorem eigen_simple_parity (c : ℝ) (hc : 0 < c) (χ : ℂ) (e : Bool)
   have h0 := eigen_zero_of_parity c hc χ e _ hw hwe hwj
   rw [Submodule.coe_sub, Submodule.coe_smul, Submodule.coe_smul, sub_eq_zero] at h0
   refine ⟨(starRingEnd ℂ) (mom (g : H) (jdx e)) / (starRingEnd ℂ) (mom (f : H) (jdx e)), ?_⟩
-  have ha0' : (starRingEnd ℂ) (mom (f : H) (jdx e)) ≠ 0 := by
-    rw [map_ne_zero]
-    exact ha0
+  have ha0' : (starRingEnd ℂ) (mom (f : H) (jdx e)) ≠ 0 :=
+    (_root_.map_ne_zero (starRingEnd ℂ)).mpr ha0
   rw [div_eq_mul_inv, mul_comm, ← smul_smul, h0, smul_smul, inv_mul_cancel₀ ha0', one_smul]
 
 /-! ## Eigenvectors of definite parity are eigenvectors of `S_{1/2,c}` -/
@@ -454,14 +453,11 @@ theorem parity_eigen_S_eigen (c : ℝ) (hc : 0 < c) (χ : ℂ) (e : Bool)
   obtain ⟨t, ht⟩ := eigen_simple_parity c hc χ e x ⟨S c hc x, S_range_subset_domain c hc x⟩
     hx hy hxe hye hx0
   have ht' : S c hc x = t • (x : H) := ht
-  have hnorm : ‖(x : H)‖ ≠ 0 := norm_ne_zero_iff.mpr hx0
-  have hn : ((‖(x : H)‖ : ℂ)) ^ 2 ≠ 0 := by
-    apply pow_ne_zero
-    exact_mod_cast hnorm
-  have h1 : ⟪(x : H), S c hc x⟫_ℂ = t * (‖(x : H)‖ : ℂ) ^ 2 := by
-    rw [ht', inner_smul_right, inner_self_eq_norm_sq_to_K]
-  have h2 : ⟪S c hc x, (x : H)⟫_ℂ = (starRingEnd ℂ) t * (‖(x : H)‖ : ℂ) ^ 2 := by
-    rw [ht', inner_smul_left, inner_self_eq_norm_sq_to_K]
+  have hn : ⟪(x : H), (x : H)⟫_ℂ ≠ 0 := inner_self_ne_zero.mpr hx0
+  have h1 : ⟪(x : H), S c hc x⟫_ℂ = t * ⟪(x : H), (x : H)⟫_ℂ := by
+    rw [ht', inner_smul_right]
+  have h2 : ⟪S c hc x, (x : H)⟫_ℂ = (starRingEnd ℂ) t * ⟪(x : H), (x : H)⟫_ℂ := by
+    rw [ht', inner_smul_left]
   have hsym := S_symm c hc x x
   rw [h1, h2] at hsym
   have hconj : (starRingEnd ℂ) t = t := mul_right_cancel₀ hn hsym
@@ -478,16 +474,14 @@ theorem parity_eigen_S_eigen (c : ℝ) (hc : 0 < c) (χ : ℂ) (e : Bool)
   have hpos := GegenbauerFock.GeneralUltrasphericalFock.gram_positive (1 / 2) (1 / (4 * c))
     hhalf (by positivity) x
   have hpos' : 0 ≤ RCLike.re ⟪S c hc x, (x : H)⟫_ℂ := hpos
-  rw [h2, hconj] at hpos'
-  have hre : RCLike.re (t * (‖(x : H)‖ : ℂ) ^ 2) = t.re * ‖(x : H)‖ ^ 2 := by
-    have : ((‖(x : H)‖ : ℂ)) ^ 2 = ((‖(x : H)‖ ^ 2 : ℝ) : ℂ) := (Complex.ofReal_pow _ _).symm
-    rw [this, RCLike.re_to_complex, Complex.re_mul_ofReal]
-  rw [hre] at hpos'
-  have hsq : 0 < ‖(x : H)‖ ^ 2 := by positivity
+  have hnn : (⟪(x : H), (x : H)⟫_ℂ).re = ‖(x : H)‖ ^ 2 := by
+    have h := inner_self_eq_norm_sq (𝕜 := ℂ) (x : H)
+    rwa [RCLike.re_to_complex] at h
+  rw [h2, hconj, RCLike.re_to_complex, ← hreal, Complex.re_ofReal_mul, hnn] at hpos'
+  have hsq : 0 < ‖(x : H)‖ ^ 2 := pow_pos (norm_pos_iff.mpr hx0) 2
   have htre : 0 ≤ t.re := by
     by_contra hneg
-    push_neg at hneg
-    have : t.re * ‖(x : H)‖ ^ 2 < 0 := mul_neg_of_neg_of_pos hneg hsq
+    have : t.re * ‖(x : H)‖ ^ 2 < 0 := mul_neg_of_neg_of_pos (not_le.mp hneg) hsq
     linarith
   refine ⟨t.re, lt_of_le_of_ne htre (Ne.symm htre0), ?_⟩
   rw [hreal]
@@ -513,7 +507,8 @@ def Fsp (μ : ℂ) (e : Bool) : Submodule ℂ H :=
 theorem mem_Fsp {μ : ℂ} {e : Bool} {x : H} :
     x ∈ Fsp c hc μ e ↔ S c hc x = μ • x ∧ Par x = sgn e • x := by
   unfold Fsp
-  rw [Submodule.mem_inf, mem_eigenspace_iff, mem_eigenspace_iff] <;> rfl
+  rw [Submodule.mem_inf, mem_eigenspace_iff, mem_eigenspace_iff]
+  rfl
 
 theorem Fsp_le_domain (μ : ℂ) (e : Bool) : Fsp c hc μ e ≤ (AClosed c).domain := by
   intro x hx
@@ -561,7 +556,7 @@ theorem Fsp_fd (μ : ℂ) (e : Bool) : FiniteDimensional ℂ (Fsp c hc μ e) := 
       exact S_injective c hc (hS.trans (map_zero _).symm)
     rw [hbot]
     infer_instance
-  · haveI : FiniteDimensional ℂ (eigenspace (S c hc).toLinearMap μ) :=
+  · have : FiniteDimensional ℂ (eigenspace (S c hc).toLinearMap μ) :=
       ContinuousLinearMap.finite_dimensional_eigenspace (S_compact c hc) μ hμ
     exact Submodule.finiteDimensional_of_le (S₂ := eigenspace (S c hc).toLinearMap μ) inf_le_left
 
@@ -600,9 +595,15 @@ theorem AF_Bas (q : ℂ × Bool) (i : Fin (finrank ℂ (Fsp c hc q.1 q.2))) :
 abbrev JIdx : Type := Σ q : ℂ × Bool, Fin (finrank ℂ (Fsp c hc q.1 q.2))
 
 /-- The joint eigenvectors, as vectors of `H`. -/
-def vec (a : JIdx c hc) : H := ((Bas c hc a.1 a.2 : Fsp c hc a.1.1 a.1.2) : H)
+def vec (a : JIdx c hc) : H := (Fsp c hc a.1.1 a.1.2).subtypeₗᵢ (Bas c hc a.1 a.2)
 
-theorem vec_mem (a : JIdx c hc) : vec c hc a ∈ Fsp c hc a.1.1 a.1.2 := (Bas c hc a.1 a.2).2
+theorem vec_coe (a : JIdx c hc) :
+    vec c hc a = ((Bas c hc a.1 a.2 : Fsp c hc a.1.1 a.1.2) : H) := by
+  rw [vec, Submodule.coe_subtypeₗᵢ, Submodule.coe_subtype]
+
+theorem vec_mem (a : JIdx c hc) : vec c hc a ∈ Fsp c hc a.1.1 a.1.2 := by
+  rw [vec_coe]
+  exact (Bas c hc a.1 a.2).2
 
 theorem Fsp_orthogonal : OrthogonalFamily ℂ (fun q : ℂ × Bool => Fsp c hc q.1 q.2)
     (fun q => (Fsp c hc q.1 q.2).subtypeₗᵢ) := by
@@ -641,7 +642,7 @@ theorem Fsp_le_span (q : ℂ × Bool) :
   intro i _
   apply Submodule.smul_mem
   apply Submodule.subset_span
-  exact ⟨⟨q, i⟩, rfl⟩
+  exact ⟨⟨q, i⟩, vec_coe c hc ⟨q, i⟩⟩
 
 theorem eigenspace_le_span (μ : ℂ) :
     eigenspace (S c hc).toLinearMap μ ≤ Submodule.span ℂ (Set.range (vec c hc)) := by
@@ -693,7 +694,10 @@ theorem vec_A (a : JIdx c hc) :
     AClosed c ⟨vec c hc a, vec_domain c hc a⟩ = (eigA c hc a.1 a.2 : ℂ) • vec c hc a := by
   have h := congrArg (fun z : Fsp c hc a.1.1 a.1.2 => (z : H)) (AF_Bas c hc a.1 a.2)
   simp only [AF_coe, Submodule.coe_smul] at h
-  exact h
+  have hv : (⟨vec c hc a, vec_domain c hc a⟩ : (AClosed c).domain) =
+      Submodule.inclusion (Fsp_le_domain c hc a.1.1 a.1.2) (Bas c hc a.1 a.2) :=
+    Subtype.ext (vec_coe c hc a)
+  rw [hv, h, vec_coe]
 
 theorem vec_Par (a : JIdx c hc) : Par (vec c hc a) = sgn a.1.2 • vec c hc a :=
   ((mem_Fsp c hc).mp (vec_mem c hc a)).2
