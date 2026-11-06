@@ -269,7 +269,7 @@ theorem polyEquiv_symm_apply (p : ℂ[X]) (hp : polyLp p ∈ polyCore) :
 
 /-- The polynomial-domain operator `D⁰ : 𝒫 → H`, `polyLp p ↦ polyLp (DPoly p)`, as a
 partially defined linear map with domain `𝒫`. -/
-def DPMap : H →ₗ.[ℂ] H where
+abbrev DPMap : H →ₗ.[ℂ] H where
   domain := polyCore
   toFun := polyLinear ∘ₗ DPoly ∘ₗ polyEquiv.symm.toLinearMap
 
@@ -366,7 +366,7 @@ theorem M_apply_ae (f : H) : (M f : ℝ → ℂ) =ᵐ[ν] fun u => ((u ^ 2 : ℝ
   MLin_apply_ae f
 
 /-- `𝒜_c := D̄ - c² M_{u²}` on `Dom(D̄)` (Definition 5.1 of the manuscript). -/
-def AClosed (c : ℝ) : H →ₗ.[ℂ] H where
+abbrev AClosed (c : ℝ) : H →ₗ.[ℂ] H where
   domain := DClosed.domain
   toFun := DClosed.toFun - ((c : ℂ) ^ 2) • (M.toLinearMap.comp DClosed.domain.subtype)
 
@@ -1003,12 +1003,14 @@ theorem mem_closure_domain_of_adjoint_relation
       have h3 : (fun n => ⟪A r + (r : E), (p n : E)⟫_ℂ)
           = fun n => ⟪(r : E), A (p n) + (p n : E)⟫_ℂ := by
         funext n
-        rw [inner_add_left, inner_add_right, hsymm r (p n)]
+        rw [inner_add_left (𝕜 := ℂ), inner_add_right (𝕜 := ℂ), hsymm r (p n)]
       rw [h3]
       exact tendsto_const_nhds.inner hT
     have h4 : ⟪A r + (r : E), g'⟫_ℂ = ⟪(r : E), h + g⟫_ℂ := tendsto_nhds_unique h1 h2
-    rw [inner_sub_right, h4, inner_add_left, hrel r, inner_add_right, sub_self]
+    rw [inner_sub_right (𝕜 := ℂ), h4, inner_add_left (𝕜 := ℂ), hrel r,
+      inner_add_right (𝕜 := ℂ), sub_self]
   obtain ⟨z, hz1, hz2⟩ := (LinearPMap.mem_graph_iff A.closure).mp hgraph
+  dsimp only at hz1 hz2
   rw [hgg] at hz1 hz2
   have hmem : g ∈ A.closure.domain := by
     rw [← hz1]
@@ -1243,11 +1245,13 @@ theorem AClosed_polyLp (c : ℝ) (q : ℂ[X]) (hq : polyLp q ∈ DClosed.domain)
 
 /-- The total function realising `𝒜_c` (zero outside the domain), for the abstract transport
 theorem. -/
+open Classical in
 def Afun (c : ℝ) : H → H :=
   fun x => if h : x ∈ DClosed.domain then AClosed c ⟨x, h⟩ else 0
 
 theorem Afun_apply (c : ℝ) (x : H) (h : x ∈ DClosed.domain) :
-    Afun c x = AClosed c ⟨x, h⟩ := dif_pos h
+    Afun c x = AClosed c ⟨x, h⟩ := by
+  simp [Afun, h]
 
 /-- The core commutation on `H`: `𝒜_c (S p) = S (𝒜_c p)` for polynomials, from Lemmas 3, 4
 and the kernel identities. -/
@@ -1287,7 +1291,8 @@ theorem Afun_core (c : ℝ) (f : H) (hf : f ∈ DClosed.domain) :
       Filter.Tendsto p Filter.atTop (nhds f) ∧
       Filter.Tendsto (fun n => Afun c (p n)) Filter.atTop (nhds (Afun c f)) := by
   have hgraph : (f, DClosed ⟨f, hf⟩) ∈ closure (DPMap.graph : Set (H × H)) := by
-    have h : ((⟨f, hf⟩ : DPMap.closure.domain) : H, DPMap.closure ⟨f, hf⟩) ∈ DPMap.closure.graph :=
+    have h : ((((⟨f, hf⟩ : DPMap.closure.domain) : H)), DPMap.closure ⟨f, hf⟩)
+        ∈ DPMap.closure.graph :=
       LinearPMap.mem_graph DPMap.closure ⟨f, hf⟩
     rw [← DPMap_isClosable.graph_closure_eq_closure_graph] at h
     exact h
@@ -1336,6 +1341,7 @@ theorem Afun_closed (c : ℝ) (x y : H)
     filter_upwards with n
     exact LinearPMap.mem_graph DClosed ⟨p n, hp n⟩
   obtain ⟨z, hz1, hz2⟩ := (LinearPMap.mem_graph_iff DClosed).mp hgraph
+  dsimp only at hz1 hz2
   have hx : x ∈ DClosed.domain := by
     rw [← hz1]
     exact z.2
