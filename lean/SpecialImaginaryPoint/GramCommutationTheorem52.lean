@@ -202,6 +202,8 @@ theorem polyLinear_injective : Function.Injective polyLinear := by
 /-- The polynomial core `𝒫 ⊂ H` as a submodule. -/
 abbrev polyCore : Submodule ℂ H := LinearMap.range polyLinear
 
+theorem polyLp_mem (p : ℂ[X]) : polyLp p ∈ polyCore := ⟨p, rfl⟩
+
 /-- `𝒫 ≃ ℂ[X]`, the inverse of polynomial evaluation. -/
 def polyEquiv : ℂ[X] ≃ₗ[ℂ] polyCore := LinearEquiv.ofInjective polyLinear polyLinear_injective
 
@@ -258,7 +260,7 @@ theorem DPoly_eq_neg_derivative (p : ℂ[X]) :
   ring
 
 theorem polyEquiv_apply (p : ℂ[X]) :
-    polyEquiv p = ⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩ := by
+    polyEquiv p = ⟨polyLp p, polyLp_mem p⟩ := by
   apply Subtype.ext
   rfl
 
@@ -850,8 +852,8 @@ theorem DPMap_formalSymmetric : DPMap.IsFormalAdjoint DPMap := by
   intro x y
   obtain ⟨p, hp⟩ := LinearMap.mem_range.mp x.2
   obtain ⟨q, hq⟩ := LinearMap.mem_range.mp y.2
-  have hx : x = ⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩ := Subtype.ext hp.symm
-  have hy : y = ⟨polyLp q, LinearMap.mem_range_self polyLinear q⟩ := Subtype.ext hq.symm
+  have hx : x = ⟨polyLp p, polyLp_mem p⟩ := Subtype.ext hp.symm
+  have hy : y = ⟨polyLp q, polyLp_mem q⟩ := Subtype.ext hq.symm
   subst hx
   subst hy
   rw [DPMap_apply, DPMap_apply]
@@ -909,7 +911,7 @@ theorem polyCore_dense : Dense (polyCore : Set H) := by
     rw [Metric.mem_closure_iff]
     intro eps heps
     obtain ⟨P, hP⟩ := exists_poly_near f (eps / 2) (half_pos heps)
-    refine ⟨polyLp P, LinearMap.mem_range_self polyLinear P, ?_⟩
+    refine ⟨polyLp P, polyLp_mem P, ?_⟩
     rw [dist_eq_norm]
     have hf : ((GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) hhalf f : H)
         : ℝ → ℂ) =ᵐ[ν] f := by
@@ -994,7 +996,7 @@ theorem mem_closure_domain_of_adjoint_relation
     exact LinearPMap.mem_graph A (p n)
   have hgg : g' = g := by
     rw [← sub_eq_zero]
-    apply hdense.eq_zero_of_inner_right
+    apply Dense.eq_zero_of_inner_right (𝕜 := ℂ) hdense
     rintro _ ⟨r, rfl⟩
     have h1 : Filter.Tendsto (fun n => ⟪A r + (r : E), (p n : E)⟫_ℂ) Filter.atTop
         (nhds ⟪A r + (r : E), g'⟫_ℂ) := tendsto_const_nhds.inner hg'
@@ -1024,7 +1026,7 @@ theorem mem_closure_domain_of_adjoint_relation
 theorem DPMap_inner_self_nonneg (x : DPMap.domain) :
     0 ≤ RCLike.re ⟪DPMap x, (x : H)⟫_ℂ := by
   obtain ⟨p, hp⟩ := LinearMap.mem_range.mp x.2
-  have hx : x = ⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩ := Subtype.ext hp.symm
+  have hx : x = ⟨polyLp p, polyLp_mem p⟩ := Subtype.ext hp.symm
   subst hx
   rw [DPMap_apply]
   show 0 ≤ RCLike.re ⟪polyLp (DPoly p), polyLp p⟫_ℂ
@@ -1130,7 +1132,7 @@ theorem TPoly_injective : Function.Injective TPoly := by
   rw [← LinearMap.ker_eq_bot, LinearMap.ker_eq_bot']
   intro p hp
   change DPoly p + p = 0 at hp
-  have hx := DPMap_coercive ⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩
+  have hx := DPMap_coercive ⟨polyLp p, polyLp_mem p⟩
   rw [DPMap_apply] at hx
   change ‖polyLp p‖ ≤ ‖polyLp (DPoly p) + polyLp p‖ at hx
   have h0 : polyLp (DPoly p) + polyLp p = 0 := by
@@ -1170,8 +1172,8 @@ theorem range_T_dense : Dense (Set.range (fun p : DPMap.domain => DPMap p + (p :
   intro y hy
   obtain ⟨q, hq⟩ := LinearMap.mem_range.mp hy
   obtain ⟨p, hp⟩ := TPoly_surjective q
-  refine ⟨⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩, ?_⟩
-  show DPMap ⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩ + polyLp p = y
+  refine ⟨⟨polyLp p, polyLp_mem p⟩, ?_⟩
+  show DPMap ⟨polyLp p, polyLp_mem p⟩ + polyLp p = y
   rw [DPMap_apply, ← polyLp_add, ← hq]
   show polyLp (DPoly p + p) = polyLinear q
   rw [← hp]
@@ -1188,7 +1190,7 @@ theorem smooth_mem_closure_domain (g : ℝ → ℂ) (hg : ContDiff ℝ 2 g) :
       = ⟪(x : H), cLp (DExpr g) (DExpr_continuous g hg)⟫_ℂ := by
     intro x
     obtain ⟨p, hp⟩ := LinearMap.mem_range.mp x.2
-    have hx : x = ⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩ := Subtype.ext hp.symm
+    have hx : x = ⟨polyLp p, polyLp_mem p⟩ := Subtype.ext hp.symm
     subst hx
     rw [DPMap_apply]
     exact inner_DPoly_cLp p g hg
@@ -1218,8 +1220,8 @@ theorem S_range_subset_domain (c : ℝ) (hc : 0 < c) (f : H) :
 /-- `D̄` agrees with `D⁰` on polynomials. -/
 theorem DClosed_polyLp (q : ℂ[X]) (hq : polyLp q ∈ DClosed.domain) :
     DClosed ⟨polyLp q, hq⟩ = polyLp (DPoly q) := by
-  rw [← DPMap_apply q (LinearMap.mem_range_self polyLinear q)]
-  exact (DPMap_le_DClosed.2 (x := ⟨polyLp q, LinearMap.mem_range_self polyLinear q⟩)
+  rw [← DPMap_apply q (polyLp_mem q)]
+  exact (DPMap_le_DClosed.2 (x := ⟨polyLp q, polyLp_mem q⟩)
     (y := ⟨polyLp q, hq⟩) rfl).symm
 
 /-- `M_{u²}` on polynomials. -/
@@ -1243,9 +1245,9 @@ theorem AClosed_polyLp (c : ℝ) (q : ℂ[X]) (hq : polyLp q ∈ DClosed.domain)
     AClosed c ⟨polyLp q, hq⟩ = polyLp (APoly c q) := by
   rw [AClosed_apply, DClosed_polyLp, M_polyLp, polyLp_APoly]
 
+open Classical in
 /-- The total function realising `𝒜_c` (zero outside the domain), for the abstract transport
 theorem. -/
-open Classical in
 def Afun (c : ℝ) : H → H :=
   fun x => if h : x ∈ DClosed.domain then AClosed c ⟨x, h⟩ else 0
 
@@ -1266,18 +1268,19 @@ theorem AClosed_S_polyLp (c : ℝ) (hc : 0 < c) (q : ℂ[X]) (hq : polyLp q ∈ 
     Subtype.ext (S_eq_cLp c hc (polyLp q))
   rw [AClosed_apply, hsub]
   apply Lp.ext
-  have hM : ((M (S c hc (polyLp q)) : H) : ℝ → ℂ)
+  have hM : ((M (cLp (SFun c (polyLp q : ℝ → ℂ)) hs.continuous) : H) : ℝ → ℂ)
       =ᵐ[ν] fun u => ((u ^ 2 : ℝ) : ℂ) * SFun c (polyFun q) u := by
     refine (M_apply_ae _).trans ?_
-    filter_upwards [S_apply_ae c hc (polyLp q)] with u hu
+    filter_upwards [cLp_ae_eq (SFun c (polyLp q : ℝ → ℂ)) hs.continuous] with u hu
     rw [hu, SFun_polyLp]
   have hR : ((S c hc (polyLp (APoly c q)) : H) : ℝ → ℂ) =ᵐ[ν] SFun c (polyFun (APoly c q)) := by
     have h0 := S_apply_ae c hc (polyLp (APoly c q))
     rw [SFun_polyLp] at h0
     exact h0
   filter_upwards [Lp.coeFn_sub (DClosed ⟨cLp (SFun c (polyLp q : ℝ → ℂ)) hs.continuous, hmem⟩)
-      (((c : ℂ) ^ 2) • M (S c hc (polyLp q))),
-    Lp.coeFn_smul ((c : ℂ) ^ 2) (M (S c hc (polyLp q))), hval, hM, hR, ae_mem_Icc]
+      (((c : ℂ) ^ 2) • M (cLp (SFun c (polyLp q : ℝ → ℂ)) hs.continuous)),
+    Lp.coeFn_smul ((c : ℂ) ^ 2) (M (cLp (SFun c (polyLp q : ℝ → ℂ)) hs.continuous)),
+    hval, hM, hR, ae_mem_Icc]
     with u hsub' hsmul hD hMu hRu hu
   rw [hsub', Pi.sub_apply, hsmul, Pi.smul_apply, hD, hMu, hRu, SFun_polyLp,
     ← core_commutation c hc q u hu, AExpr_eq, smul_eq_mul]
@@ -1301,7 +1304,8 @@ theorem Afun_core (c : ℝ) (f : H) (hf : f ∈ DClosed.domain) :
     fun n => (LinearPMap.mem_graph_iff DPMap).mp (hz n)
   choose y hy1 hy2 using hz'
   refine ⟨fun n => (z n).1, fun n => ?_, ?_, ?_⟩
-  · rw [← hy1 n]
+  · show (z n).1 ∈ polyCore
+    rw [← hy1 n]
     exact (y n).2
   · exact (continuous_fst.tendsto _).comp hzlim
   · have hmem : ∀ n, (z n).1 ∈ DClosed.domain := fun n => by
@@ -1348,7 +1352,7 @@ theorem Afun_closed (c : ℝ) (x y : H)
   refine ⟨hx, ?_⟩
   rw [Afun_apply c x hx, AClosed_apply]
   have hzx : (⟨x, hx⟩ : DClosed.domain) = z := Subtype.ext hz1.symm
-  rw [hzx, hz2]
+  rw [hzx, hz2, hz1]
   abel
 
 /-- **Theorem 5.2 (domain-level commutation), second half:** for every `f ∈ Dom(𝒜_c)`,
