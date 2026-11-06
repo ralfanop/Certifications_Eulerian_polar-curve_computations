@@ -461,9 +461,8 @@ theorem trace_master (x : ℝ) (hx : 0 < x) : Lval x = 2 * x * TD x := by
       div_mul_I, hu]
     simp only [Lval]
     push_cast
-    first
-      | ring
-      | (field_simp; ring)
+    simp only [one_div, inv_div]
+    ring
   have hR : ∀ n : ℕ, 1 / ((u : ℂ) * Complex.I - ((n : ℂ) + 1)) +
       1 / ((u : ℂ) * Complex.I + ((n : ℂ) + 1)) =
       -(((2 * π * x * tdTerm x n : ℝ) : ℂ) * Complex.I) := by
