@@ -33,6 +33,7 @@ from flint import arb, ctx
 
 PREC = 2000
 ctx.prec = PREC
+sys.set_int_max_str_digits(0)   # the exact Dirichlet partial sums have numerators beyond 4300 digits
 failures = []
 
 def check(desc, cond):
@@ -43,7 +44,7 @@ def check(desc, cond):
 
 def qball(q):
     q = Q(q)
-    return arb(str(q.numerator)) / arb(str(q.denominator))
+    return arb(q.numerator) / arb(q.denominator)      # exact integers, then one rounded division
 
 print(f"Python {sys.version.split()[0]}, python-flint {flint.__version__}, Arb precision {ctx.prec} bits")
 
