@@ -2,6 +2,8 @@ import Mathlib
 import SpecialImaginaryPoint.GramKernelBispectral
 import GegenbauerFock.GramIntegralComplete
 import GegenbauerFock.UltrasphericalSturmLiouvillePolynomialCore
+import GegenbauerFock.UltrasphericalSturmLiouvilleMonicRealL2Nonzero
+import GegenbauerFock.UltrasphericalLegendreDensityExact
 
 /-!
 # Manuscript 14, Theorem 5.2 (domain-level commutation): statement and proof skeleton
@@ -9,11 +11,12 @@ import GegenbauerFock.UltrasphericalSturmLiouvillePolynomialCore
 This module fixes, in Lean 4, the exact statement of Theorem 5.2 of manuscript 14
 (the Legendre–Gram operator `S_{1/2,c}` maps `H_{1/2}` into the domain of the perturbed
 Gegenbauer operator `𝒜_c = D_{1/2} - c² M_{u²}` and commutes with it on the whole closed
-domain), and reduces it to four analytic lemmas, each stated in full and left as `sorry`:
+domain), and reduces it to four analytic lemmas, each stated in full:
 
 * `green_identity`            — the single Green identity on `C²` functions
                                  (two integrations by parts; the boundary terms carry the
-                                 factor `1-u²`, which vanishes at `±1`);
+                                 factor `1-u²`, which vanishes at `±1`) — **proved**
+                                 (`ibp_once`, `green_identity`);
 * `gramSeries_smooth`         — `S f` is an explicit entire power series in `u` for every
                                  `f ∈ H` (series–integral interchange, no differentiation
                                  under the integral sign);
@@ -25,11 +28,13 @@ domain), and reduces it to four analytic lemmas, each stated in full and left as
                                  the differential expression (Weierstrass approximation of
                                  `g''`, integrated twice; no Legendre coefficient analysis).
 
-Two bookkeeping facts are also left as `sorry` and are listed as such:
+Bookkeeping facts:
 
-* `polyLp_injective`          — two polynomials with the same `L²(ν)` class coincide
+* `polyLinear_injective`      — two polynomials with the same `L²(ν)` class coincide
                                  (`ν` has no atoms, so the zero set of the difference is
-                                 infinite);
+                                 infinite) — **proved**;
+* `integral_nu`               — `∫ g dν = ½ ∫_{-1}^{1} g` — **proved** from the certified
+                                 density of `ν`;
 * `APMap_isClosable`          — `𝒜_c⁰` is closable (densely defined and symmetric on complex
                                  `L²`; the complex counterpart of
                                  `GegenbauerFock.Ultraspherical.sturmRealPMap_isClosable`).
@@ -40,8 +45,8 @@ the bispectral kernel balance (`Manuscript14Gram.gram_bispectral_kernel_balance`
 endpoint fluxes, and the bounded complex-`L²` Gram operator with its kernel-integral identity
 (`GegenbauerFock.GeneralUltrasphericalFock.gram_eq_integralLp`).
 
-**Status: skeleton.**  Every declaration below is type-checked; the lemmas named above carry
-`sorry`, and the final theorem therefore depends on `sorryAx`.  The axiom audit at the end of
+**Status: skeleton in progress.**  Every declaration below is type-checked; the lemmas not
+marked as proved carry `sorry`, and the final theorem therefore depends on `sorryAx`.  The axiom audit at the end of
 the file prints this explicitly.  This file must NOT be cited as a certificate until that
 audit shows no `sorryAx`.
 
@@ -75,6 +80,35 @@ abbrev H : Type := Lp ℂ 2 ν
 /-- Almost every point of `ν` lies in `[-1,1]`. -/
 theorem ae_mem_Icc : ∀ᵐ u ∂ν, u ∈ Set.Icc (-1 : ℝ) 1 :=
   GegenbauerFock.Ultraspherical.ae_mem_unit_interval (1 / 2 : ℝ)
+
+/-- `ν` is the normalised Lebesgue measure of `(-1,1)`: `∫ g dν = ½ ∫_{-1}^{1} g` for every
+`g : ℝ → ℂ` (from the certified density `measure_half_eq_uniformDensity`). -/
+theorem integral_nu (g : ℝ → ℂ) :
+    ∫ u, g u ∂ν = (1 / 2 : ℂ) * ∫ u in (-1 : ℝ)..1, g u := by
+  have hmeas : Measurable (fun v : ℝ =>
+      ENNReal.ofReal (GegenbauerFock.Ultraspherical.eulerianUniformDensity v)) := by
+    apply ENNReal.measurable_ofReal.comp
+    unfold GegenbauerFock.Ultraspherical.eulerianUniformDensity
+    exact Measurable.ite measurableSet_Ioo measurable_const measurable_const
+  change ∫ u, g u ∂(GegenbauerFock.Ultraspherical.measure (1 / 2 : ℝ)) = _
+  rw [GegenbauerFock.Ultraspherical.measure_half_eq_uniformDensity,
+    integral_withDensity_eq_integral_toReal_smul hmeas
+      (Filter.Eventually.of_forall fun v => ENNReal.ofReal_lt_top) g]
+  have hpt : (fun v : ℝ =>
+      (ENNReal.ofReal (GegenbauerFock.Ultraspherical.eulerianUniformDensity v)).toReal • g v)
+      = Set.indicator (Set.Ioo (-1 : ℝ) 1) (fun v => (1 / 2 : ℂ) * g v) := by
+    funext v
+    unfold GegenbauerFock.Ultraspherical.eulerianUniformDensity
+    by_cases hv : -1 < v ∧ v < 1
+    · rw [if_pos hv, ENNReal.toReal_ofReal (by norm_num), Set.indicator_of_mem hv,
+        Complex.real_smul]
+      push_cast
+      ring
+    · rw [if_neg hv, ENNReal.ofReal_zero, ENNReal.toReal_zero, zero_smul,
+        Set.indicator_of_notMem hv]
+  rw [hpt, integral_indicator measurableSet_Ioo, ← integral_Ioc_eq_integral_Ioo,
+    ← intervalIntegral.integral_of_le (by norm_num : (-1 : ℝ) ≤ 1),
+    intervalIntegral.integral_const_mul]
 
 /-- A continuous function is square integrable for `ν`, since `ν` lives on `[-1,1]`. -/
 theorem memLp_of_continuous (g : ℝ → ℂ) (hg : Continuous g) : MemLp g 2 ν := by
@@ -126,11 +160,32 @@ def polyLinear : ℂ[X] →ₗ[ℂ] H where
   map_add' := polyLp_add
   map_smul' := polyLp_smul
 
-/-- **Bookkeeping (sorry).**  Two polynomials with the same `L²(ν)` class are equal:
+/-- Two polynomials with the same `L²(ν)` class are equal:
 `ν` is absolutely continuous with a positive density on `(-1,1)`, so the difference vanishes
 on an infinite set and is the zero polynomial. -/
 theorem polyLinear_injective : Function.Injective polyLinear := by
-  sorry
+  intro p q hpq
+  by_contra hne
+  have hd : p - q ≠ 0 := sub_ne_zero.mpr hne
+  letI : NullSingletonClass ν :=
+    GegenbauerFock.Ultraspherical.measure_nullSingletonClass (1 / 2 : ℝ) half_pos
+  have hpq' : polyLp p = polyLp q := hpq
+  have hae : polyFun p =ᵐ[ν] polyFun q := by
+    refine (polyLp_ae_eq p).symm.trans ?_
+    rw [hpq']
+    exact polyLp_ae_eq q
+  have hz : ∀ᵐ u ∂ν, (p - q).eval (u : ℂ) = 0 := by
+    filter_upwards [hae] with u hu
+    have hu' : p.eval (u : ℂ) = q.eval (u : ℂ) := hu
+    simp [hu']
+  have hroots : {z : ℂ | (p - q).eval z = 0}.Finite :=
+    Polynomial.finite_setOfPred_isRoot hd
+  have hfin : {u : ℝ | (p - q).eval (u : ℂ) = 0}.Finite :=
+    hroots.preimage Complex.ofReal_injective.injOn
+  have hn : ∀ᵐ u ∂ν, (p - q).eval (u : ℂ) ≠ 0 := hfin.countable.ae_notMem ν
+  have hfalse : ∀ᵐ u ∂ν, False := (hz.and hn).mono (fun _ h => h.2 h.1)
+  obtain ⟨_, hu⟩ := hfalse.exists
+  exact hu
 
 /-- The polynomial core `𝒫 ⊂ H` as a submodule. -/
 abbrev polyCore : Submodule ℂ H := LinearMap.range polyLinear
@@ -176,9 +231,9 @@ theorem polyEquiv_symm_apply (p : ℂ[X]) (hp : polyLp p ∈ polyCore) :
   apply polyEquiv.injective
   rw [LinearEquiv.apply_symm_apply, polyEquiv_apply]
 
-theorem APMap_apply (c : ℝ) (p : ℂ[X]) (hp : polyLp p ∈ (APMap c).domain) :
+theorem APMap_apply (c : ℝ) (p : ℂ[X]) (hp : polyLp p ∈ polyCore) :
     APMap c ⟨polyLp p, hp⟩ = polyLp (APoly c p) := by
-  show polyLinear (APoly c (polyEquiv.symm ⟨polyLp p, hp⟩)) = polyLinear (APoly c p)
+  show polyLinear (APoly c (polyEquiv.symm (⟨polyLp p, hp⟩ : polyCore))) = polyLinear (APoly c p)
   rw [polyEquiv_symm_apply]
 
 /-- **Bookkeeping (sorry).**  `𝒜_c⁰` is closable: it is densely defined (Weierstrass) and
@@ -232,7 +287,7 @@ theorem S_apply_ae (c : ℝ) (hc : 0 < c) (f : H) :
   have hc' : c ≠ 0 := ne_of_gt hc
   have : u * v / (4 * (1 / (4 * c))) = c * u * v := by
     field_simp
-    ring
+    try ring
   rw [this, mul_comm]
 
 /-! ## The four analytic lemmas -/
