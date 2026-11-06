@@ -1,0 +1,96 @@
+name: Manuscript 14 Proposition 5.4 — Lean 4 certificate (parity, simple spectrum, joint eigenbasis)
+
+# Proposition 5.4 of manuscript 14: the parity operator commutes with
+# A_c = D - c^2 M_{u^2} and with the Legendre-Gram operator S_{1/2,c};
+# eigenvalues of A_c are simple on each parity subspace; eigenvectors of
+# definite parity are S-eigenvectors with positive eigenvalues; H has a
+# Hilbert basis of joint eigenvectors whose S-eigenvalues sum to
+# 1F1(1/2; 3/2; c).  The module is compiled against the pinned Mathlib, the
+# GegenbauerFock library and the Theorem 5.2 certificate, and the job fails on
+# any compile error, on any `sorry`, and on the axioms sorryAx /
+# Lean.ofReduceBool.  The audit must show only propext, Classical.choice and
+# Quot.sound.
+
+on:
+  push:
+    branches:
+      - manuscript14-prop54-lean-20261106
+    paths:
+      - 'lean/SpecialImaginaryPoint/SpheroidalProposition54.lean'
+      - 'lean/SpecialImaginaryPoint/GramCommutationTheorem52.lean'
+      - 'lean/SpecialImaginaryPoint/GramKernelBispectral.lean'
+      - '.github/workflows/manuscript14-prop54-lean.yml'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    name: Lean 4 kernel check of Proposition 5.4
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository-pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build the GegenbauerFock modules imported by Theorem 5.2 and Proposition 5.4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GramIntegralComplete GegenbauerFock.UltrasphericalSturmLiouvillePolynomialCore \
+            GegenbauerFock.UltrasphericalSturmLiouvilleMonicRealL2Nonzero GegenbauerFock.UltrasphericalLegendreDensityExact \
+            GegenbauerFock.OutputComplexHolomorphy GegenbauerFock.UltrasphericalContinuousDensity \
+            GegenbauerFock.GramSpectralKernel GegenbauerFock.GramKernelSeries \
+            GegenbauerFock.UltrasphericalComplexWeierstrass GegenbauerFock.DualGramEigenbasisTrace 2>&1 | tail -n 40
+      - name: Compile the Theorem 5.2 certificate to oleans
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/GramKernelBispectral.olean \
+            SpecialImaginaryPoint/GramKernelBispectral.lean 2>&1 | tee /tmp/prop54-deps.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/GramCommutationTheorem52.olean \
+            SpecialImaginaryPoint/GramCommutationTheorem52.lean 2>&1 | tee -a /tmp/prop54-deps.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/prop54-deps.log; then
+            echo '::error::Compile error in the Theorem 5.2 dependencies'
+            exit 1
+          fi
+      - name: Kernel-check Proposition 5.4 and audit its axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/SpheroidalProposition54.lean 2>&1 | tee /tmp/prop54.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/prop54.log; then
+            echo '::error::Compile error in the Proposition 5.4 certificate'
+            exit 1
+          fi
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'declaration uses' /tmp/prop54.log; then
+            echo '::error::Forbidden axiom or sorry in the Proposition 5.4 certificate'
+            exit 1
+          fi
+          test "$(grep -c "depends on axioms: \[propext, Classical.choice, Quot.sound\]" /tmp/prop54.log)" -eq 5
+          echo 'Proposition 5.4: no sorry, no sorryAx, no Lean.ofReduceBool; five audited statements'
+      - name: Upload Lean logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-prop54-lean
+          path: |
+            /tmp/prop54.log
+            /tmp/prop54-deps.log
+          if-no-files-found: ignore
