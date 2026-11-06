@@ -103,8 +103,9 @@ theorem ω3_gt (ζ : ℂ) : -1 < ω3 ζ := by
 theorem one_add_ω3 (ζ : ℂ) : 1 + ω3 ζ = 2 / (1 + ‖ζ‖ ^ 2) := by
   have hpos : (1 + ‖ζ‖ ^ 2) ≠ 0 := by positivity
   unfold ω3
-  field_simp
-  ring
+  first
+    | (field_simp; ring)
+    | field_simp
 
 /-- The inverse chart `(ω₁ + i ω₂)/(1 + ω₃)`. -/
 def chartInv (v : ℝ × ℝ × ℝ) : ℂ := ⟨v.1 / (1 + v.2.2), v.2.1 / (1 + v.2.2)⟩
@@ -131,24 +132,26 @@ theorem bloch_chartInv (v : ℝ × ℝ × ℝ) (hv : v.1 ^ 2 + v.2.1 ^ 2 + v.2.2
   have hn : ‖chartInv (a, b, c)‖ ^ 2 = (1 - c) / (1 + c) := by
     rw [← norm_sq_eq]
     simp only [chartInv]
-    rw [show (a / (1 + c)) ^ 2 + (b / (1 + c)) ^ 2 = (a ^ 2 + b ^ 2) / (1 + c) ^ 2 by ring, hab]
-    rw [div_eq_div_iff (pow_ne_zero 2 hc) hc]
+    rw [div_pow, div_pow, ← add_div, hab, div_eq_div_iff (pow_ne_zero 2 hc) hc]
     ring
   refine ⟨?_, ?_, ?_⟩
   · unfold ω1
     rw [hn]
     simp only [chartInv]
-    field_simp
-    ring
+    first
+      | (field_simp; ring)
+      | field_simp
   · unfold ω2
     rw [hn]
     simp only [chartInv]
-    field_simp
-    ring
+    first
+      | (field_simp; ring)
+      | field_simp
   · unfold ω3
     rw [hn]
-    field_simp
-    ring
+    first
+      | (field_simp; ring)
+      | field_simp
 
 /-- The azimuth of `ω_B(ζ)` is `arg ζ`: `ω₁ = √(1 - ω₃²) cos(arg ζ)`. -/
 theorem azimuth_ω1 (ζ : ℂ) : ω1 ζ = Real.sqrt (1 - ω3 ζ ^ 2) * Real.cos (Complex.arg ζ) := by
@@ -156,8 +159,9 @@ theorem azimuth_ω1 (ζ : ℂ) : ω1 ζ = Real.sqrt (1 - ω3 ζ ^ 2) * Real.cos 
   have hs : 1 - ω3 ζ ^ 2 = (2 * ‖ζ‖ / (1 + ‖ζ‖ ^ 2)) ^ 2 := by
     unfold ω3
     rw [div_pow, div_pow, eq_div_iff (by positivity)]
-    field_simp
-    ring
+    first
+      | (field_simp; ring)
+      | field_simp
   rw [hs, Real.sqrt_sq (by positivity), mul_comm, ← mul_div_assoc, mul_comm (Real.cos _),
     mul_assoc, Complex.norm_mul_cos_arg]
   unfold ω1
@@ -169,8 +173,9 @@ theorem azimuth_ω2 (ζ : ℂ) : ω2 ζ = Real.sqrt (1 - ω3 ζ ^ 2) * Real.sin 
   have hs : 1 - ω3 ζ ^ 2 = (2 * ‖ζ‖ / (1 + ‖ζ‖ ^ 2)) ^ 2 := by
     unfold ω3
     rw [div_pow, div_pow, eq_div_iff (by positivity)]
-    field_simp
-    ring
+    first
+      | (field_simp; ring)
+      | field_simp
   rw [hs, Real.sqrt_sq (by positivity), mul_comm, ← mul_div_assoc, mul_comm (Real.sin _),
     mul_assoc, Complex.norm_mul_sin_arg]
   unfold ω2
@@ -187,8 +192,9 @@ theorem hasDerivAt_w (r : ℝ) : HasDerivAt w (w' r) r := by
   have h := h1.div h2 hd
   unfold w w'
   convert h using 1
-  field_simp
-  ring
+  first
+    | (field_simp; ring)
+    | field_simp
 
 theorem abs_w' {r : ℝ} (hr : 0 < r) : |w' r| = 4 * r / (1 + r ^ 2) ^ 2 := by
   have hneg : w' r < 0 := by
@@ -217,8 +223,9 @@ theorem w_image : w '' Ioi 0 = Ioo (-1) 1 := by
     have h1y : (1 + y) ≠ 0 := by linarith
     unfold w
     rw [Real.sq_sqrt hq.le]
-    field_simp
-    ring
+    first
+      | (field_simp; ring)
+      | field_simp
 
 theorem w_injOn : InjOn w (Ioi 0) := by
   intro a ha b hb hab
@@ -279,7 +286,7 @@ theorem lintegral_bloch_coords (g : ℝ × ℝ → ℝ≥0∞) (hg : Measurable 
     (fun r _ => (hasDerivAt_w r).hasDerivWithinAt) w_injOn
     (fun y => ∫⁻ θ in Ioo (-π) π, g (y, θ))
   rw [w_image] at hcv
-  dsimp only at hcv
+  try dsimp only at hcv
   rw [hcv, ← lintegral_const_mul' (ENNReal.ofReal (1 / (4 * π))) _ ENNReal.ofReal_ne_top]
   apply setLIntegral_congr_fun measurableSet_Ioi
   intro r hr
@@ -287,8 +294,9 @@ theorem lintegral_bloch_coords (g : ℝ × ℝ → ℝ≥0∞) (hg : Measurable 
   dsimp only
   rw [abs_w' hr', ← mul_assoc, ← ENNReal.ofReal_mul (by positivity)]
   congr 2
-  field_simp
-  ring
+  first
+    | (field_simp; ring)
+    | field_simp
 
 /-- **Theorem 9.3**, (131): the image of `μ` under `ζ ↦ (ω₃(ζ), arg ζ)` is `(4π)⁻¹ dw dφ`. -/
 theorem map_bloch_coords :
@@ -306,7 +314,10 @@ theorem map_bloch_coords :
   rw [← hR, ← h, ← lintegral_indicator_one (hΦ hs)]
   apply lintegral_congr
   intro ζ
-  simp only [Set.indicator_apply, Set.mem_preimage, Pi.one_apply]
+  classical
+  first
+    | rfl
+    | simp only [Set.indicator_apply, Set.mem_preimage, Pi.one_apply]
 
 /-- `μ` is a probability measure. -/
 theorem μFS_univ : μFS univ = 1 := by
@@ -321,8 +332,9 @@ theorem μFS_univ : μFS univ = 1 := by
     congr 2
     ring
   have h4 : (1 : ℝ) / (4 * π) * (2 * π * 2) = 1 := by
-    field_simp
-    ring
+    first
+      | (field_simp; ring)
+      | field_simp
   calc μFS univ = ∫⁻ _ζ, (1 : ℝ≥0∞) ∂μFS := (lintegral_one).symm
     _ = ENNReal.ofReal (1 / (4 * π)) *
         ∫⁻ _y in Ioo (-1 : ℝ) 1, ∫⁻ _θ in Ioo (-π) π, (1 : ℝ≥0∞) := h
@@ -344,8 +356,9 @@ theorem lintegral_axial (h : ℝ → ℝ≥0∞) (hh : Measurable h) :
     congr 2
     ring
   have h4 : (1 : ℝ) / (4 * π) * (2 * π) = 1 / 2 := by
-    field_simp
-    ring
+    first
+      | (field_simp; ring)
+      | field_simp
   calc ∫⁻ ζ, h (ω3 ζ) ∂μFS =
         ENNReal.ofReal (1 / (4 * π)) * ∫⁻ y in Ioo (-1 : ℝ) 1, ∫⁻ _θ in Ioo (-π) π, h y := H
     _ = ENNReal.ofReal (1 / (4 * π)) * ∫⁻ y in Ioo (-1 : ℝ) 1, h y * ENNReal.ofReal (2 * π) := by
@@ -372,8 +385,9 @@ theorem integral_exp_mul (x : ℝ) (hx : x ≠ 0) :
     ((by fun_prop : Continuous fun y => Real.exp (x * y)).intervalIntegrable _ _)]
   simp only [mul_one, mul_neg]
   rw [Real.sinh_eq]
-  field_simp
-  ring
+  first
+    | (field_simp; ring)
+    | field_simp
 
 theorem integral_one_add_mul_exp (x : ℝ) (hx : x ≠ 0) :
     ∫ y in Ioo (-1 : ℝ) 1, (1 + y) * Real.exp (x * y) =
@@ -390,14 +404,16 @@ theorem integral_one_add_mul_exp (x : ℝ) (hx : x ≠ 0) :
     have h := h1.mul h2
     simp only [id, mul_one] at h
     convert h using 1
-    field_simp
-    ring
+    first
+      | (field_simp; ring)
+      | field_simp
   rw [intervalIntegral.integral_eq_sub_of_hasDerivAt hd
     ((by fun_prop : Continuous fun y => (1 + y) * Real.exp (x * y)).intervalIntegrable _ _)]
   simp only [mul_one, mul_neg]
   rw [Real.sinh_eq, Real.cosh_eq]
-  field_simp
-  ring
+  first
+    | (field_simp; ring)
+    | field_simp
 
 /-- **Corollary 9.4**, (132): `∫ exp(x ω₃) dμ = sinh x / x`. -/
 theorem partition_function (x : ℝ) (hx : x ≠ 0) :
@@ -455,8 +471,9 @@ theorem mean_axial (x : ℝ) (hx : x ≠ 0) :
     intro h
     exact hx (Real.sinh_eq_zero.mp h)
   unfold L
-  field_simp
-  ring
+  first
+    | (field_simp; ring)
+    | field_simp
 
 /-! ## Time reversal and the axial law -/
 
@@ -472,12 +489,13 @@ theorem ω3_Θ (ζ : ℂ) (hζ : ζ ≠ 0) : ω3 (Θc ζ) = -ω3 ζ := by
   unfold ω3
   rw [hn]
   have hd1 : (1 + ‖ζ‖ ^ 2) ≠ 0 := by positivity
-  field_simp
-  ring
+  first
+    | (field_simp; ring)
+    | field_simp
 
 theorem μFS_ae_ne_zero : ∀ᵐ ζ ∂μFS, ζ ≠ 0 := by
   have h0 : μFS {0} = 0 :=
-    (Measure.withDensity_absolutelyContinuous _ _) (measure_singleton 0)
+    (withDensity_absolutelyContinuous _ _) (measure_singleton 0)
   rw [ae_iff]
   convert h0 using 2
   ext ζ
@@ -492,7 +510,8 @@ theorem lintegral_Ioo_neg (h : ℝ → ℝ≥0∞) :
       exact ⟨by linarith [hz.2], by linarith [hz.1]⟩
     · intro hy
       exact ⟨-y, ⟨by linarith [hy.2], by linarith [hy.1]⟩, neg_neg y⟩
-  have hcv := lintegral_image_eq_lintegral_abs_deriv_mul measurableSet_Ioo
+  have hcv := lintegral_image_eq_lintegral_abs_deriv_mul
+    (measurableSet_Ioo : MeasurableSet (Ioo (-1 : ℝ) 1))
     (fun y _ => (hasDerivAt_neg y).hasDerivWithinAt) neg_injective.injOn h
   rw [himg] at hcv
   rw [hcv]
