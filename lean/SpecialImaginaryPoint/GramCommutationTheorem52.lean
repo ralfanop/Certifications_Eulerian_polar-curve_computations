@@ -8,57 +8,46 @@ import GegenbauerFock.OutputComplexHolomorphy
 import GegenbauerFock.UltrasphericalContinuousDensity
 
 /-!
-# Manuscript 14, Theorem 5.2 (domain-level commutation): statement and proof skeleton
+# Manuscript 14, Theorem 5.2 (domain-level commutation): complete kernel-checked proof
 
-This module fixes, in Lean 4, the exact statement of Theorem 5.2 of manuscript 14
-(the Legendre–Gram operator `S_{1/2,c}` maps `H_{1/2}` into the domain of the perturbed
-Gegenbauer operator `𝒜_c = D_{1/2} - c² M_{u²}` and commutes with it on the whole closed
-domain), and reduces it to four analytic lemmas, each stated in full:
+This module proves, in Lean 4, Theorem 5.2 of manuscript 14: the Legendre–Gram operator
+`S_{1/2,c}` maps `H_{1/2}` into the domain of the perturbed Gegenbauer operator
+`𝒜_c = D̄ - c² M_{u²}` (`S_range_subset_domain`) and commutes with it on the whole closed
+domain (`gram_commutes_with_perturbed_legendre`), for every `c > 0`.  Here `D̄` is the graph
+closure of the Legendre operator `D⁰ p = -[(1 - u²) p']'` on the polynomials of `L²(ν_{1/2}; ℂ)`,
+`M_{u²}` the bounded multiplication operator, and `S_{1/2,c} = gram (1/2, 1/(4c))` the certified
+Gram operator of the GegenbauerFock library (Definition 5.1 of the manuscript).
 
-* `green_identity`            — the single Green identity on `C²` functions
-                                 (two integrations by parts; the boundary terms carry the
-                                 factor `1-u²`, which vanishes at `±1`) — **proved**
-                                 (`ibp_once`, `green_identity`);
-* `SFun_contDiff`             — `u ↦ (S f)(u)` is `C^∞` for every `f ∈ H`: the restriction
-                                 of the certified entire Fock evaluation — **proved**;
-  `SFun_hasDerivAt`           — the Leibniz derivative of the kernel form (one Mathlib
-                                 lemma, `hasDerivAt_integral_of_dominated_loc_of_deriv_le`);
-* `core_commutation`          — the pointwise identity `𝒜_c (S p) = S (𝒜_c p)` on the
-                                 polynomial core (Leibniz twice, bispectral kernel balance,
-                                 Green in the `v` variable) — **proved**;
-* `smooth_mem_closure_domain` — every `C²` function lies in the domain of the graph closure
-                                 `D̄` of the polynomial Legendre operator `D⁰`, on which `D̄`
-                                 acts as the differential expression.  Route: `Ran(D⁰ + I)`
-                                 is dense and `D⁰ ≥ 0`, so the adjoint relation
-                                 `⟪D⁰ p, g⟫ = ⟪p, D g⟫` (Green, `inner_DPoly_cLp`) already
-                                 places `g` in the closure's domain; no Legendre coefficient
-                                 analysis.
+Structure of the proof.
 
-The closed operator is `𝒜_c = D̄ - c² M_{u²}` on `Dom(D̄)`, exactly as in Definition 5.1 of
-the manuscript, with `M_{u²}` the bounded multiplication operator (`M`, `‖M‖ ≤ 1`).
+* `green_identity` (`ibp_once`): the single Green identity on `C²` functions; the boundary
+  terms carry the factor `1 - u²`, which vanishes at `±1`.
+* `SFun_contDiff`: `u ↦ (S f)(u)` is `C^∞` for every `f ∈ H`, as the restriction of the certified
+  entire Fock evaluation (`differentiable_evaluation_complex`) through the certified identity
+  `evaluation_imaginary_eq_gramKernelIntegral`; `SFun_hasDerivAt`: the Leibniz derivative of
+  the kernel form.
+* `core_commutation`: `𝒜_c (S p) = S (𝒜_c p)` pointwise for polynomials `p` (Leibniz twice,
+  the bispectral balance of the kernel as a polynomial identity, Green in the `v` variable).
+* `polyCore_dense`, `DPMap_formalSymmetric`, `DPMap_isClosable`: the polynomials are dense
+  (Weierstrass, real and imaginary parts, and the certified density of the bounded continuous
+  functions), `D⁰` is symmetric (Green) and hence closable.
+* `mem_closure_domain_of_adjoint_relation`: the abstract criterion `Dom(A*) ⊆ Dom(Ā)` for a
+  symmetric `A` with `‖p‖ ≤ ‖A p + p‖` and `Ran(A + I)` dense; `DPMap_coercive`
+  (`⟪D⁰ p, p⟫ = ½ ∫ (1-v²)|p'|² ≥ 0`) and `range_T_dense` (`D⁰ + I` is an injective, hence
+  surjective, endomorphism of each `degreeLT`) supply its hypotheses, and
+  `smooth_mem_closure_domain` (Lemma 4) follows from Green (`inner_DPoly_cLp`).
+* The assembly uses the abstract transport theorem
+  `Manuscript14Gram.closed_graph_core_commutation` with `D = Dom(D̄)`, `Core = 𝒫`,
+  `hcore = Afun_core`, `hclosed = Afun_closed`, `hcomm = AClosed_S_polyLp`.
 
-Bookkeeping facts:
+Imported certified inputs: `Manuscript14Gram.gram_differential_symbol_symmetric` (kernel
+balance), the GegenbauerFock Gram operator with `gram_eq_integralLp`, the Fock holomorphy,
+the density of ν, `measure_nullSingletonClass`, `boundedContinuous_toLp_denseRange` and
+`eLpNorm_sub_le_of_uniform_error_unit_interval`.
 
-* `polyLinear_injective`      — two polynomials with the same `L²(ν)` class coincide
-                                 (`ν` has no atoms, so the zero set of the difference is
-                                 infinite) — **proved**;
-* `integral_nu`               — `∫ g dν = ½ ∫_{-1}^{1} g` — **proved** from the certified
-                                 density of `ν`;
-* `DPMap_isClosable`          — `D⁰` is closable (densely defined and symmetric on complex
-                                 `L²`; the complex counterpart of
-                                 `GegenbauerFock.Ultraspherical.sturmRealPMap_isClosable`)
-                                 — **proved** (`polyCore_dense`, `DPMap_formalSymmetric`).
-
-The remaining steps are already kernel-checked in this repository:
-the abstract closed-graph-core transport (`Manuscript14Gram.closed_graph_core_commutation`),
-the bispectral kernel balance (`Manuscript14Gram.gram_bispectral_kernel_balance`), the
-endpoint fluxes, and the bounded complex-`L²` Gram operator with its kernel-integral identity
-(`GegenbauerFock.GeneralUltrasphericalFock.gram_eq_integralLp`).
-
-**Status: skeleton in progress.**  Every declaration below is type-checked; the lemmas not
-marked as proved carry `sorry`, and the final theorem therefore depends on `sorryAx`.  The
-axiom audit at the end of the file prints this explicitly.  This file must NOT be cited as a certificate until that
-audit shows no `sorryAx`.
+**Status: complete.**  The axiom audit at the end of the file lists only `propext`,
+`Classical.choice` and `Quot.sound` for both statements (no `sorryAx`, no
+`Lean.ofReduceBool`).
 
 Conventions.  `ν` is the normalised Lebesgue measure of `[-1,1]` (the ultraspherical law at
 `λ = 1/2`), `H = L²(ν; ℂ)`.  The Sturm expression of the GegenbauerFock library is

@@ -1,13 +1,10 @@
-name: Manuscript 14 Theorem 5.2 — Lean statement skeleton (type-check, sorry audit)
+name: Manuscript 14 Theorem 5.2 — Lean 4 certificate (domain-level commutation)
 
-# Stage 0 of the Theorem 5.2 formalisation (manuscript 14, Section 5):
-# the complete statement of the theorem and of its four analytic lemmas is
-# type-checked against the pinned Mathlib and the GegenbauerFock library.
-# At this stage the lemmas carry `sorry`; the job FAILS on any compile error
-# and REPORTS (does not fail on) `sorryAx`, printing the number of `sorry`
-# occurrences so that progress is visible run by run.  The file is not a
-# certificate until the sorry count is zero and the audit shows only
-# propext, Classical.choice and Quot.sound.
+# Theorem 5.2 of manuscript 14 (domain-level commutation of the Legendre-Gram
+# operator with A_c = D - c^2 M_{u^2}): the module is compiled against the
+# pinned Mathlib and the GegenbauerFock library, and the job fails on any
+# compile error, on any `sorry`, and on the axioms sorryAx / Lean.ofReduceBool.
+# The audit must show only propext, Classical.choice and Quot.sound.
 
 on:
   push:
@@ -21,7 +18,7 @@ on:
 
 jobs:
   lean:
-    name: Lean 4 type-check of the Theorem 5.2 statement
+    name: Lean 4 kernel check of Theorem 5.2
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
@@ -48,7 +45,7 @@ jobs:
         run: |
           set -euo pipefail
           lake build GegenbauerFock.GramIntegralComplete GegenbauerFock.UltrasphericalSturmLiouvillePolynomialCore GegenbauerFock.UltrasphericalSturmLiouvilleMonicRealL2Nonzero GegenbauerFock.UltrasphericalLegendreDensityExact GegenbauerFock.OutputComplexHolomorphy GegenbauerFock.UltrasphericalContinuousDensity 2>&1 | tail -n 40
-      - name: Type-check the skeleton and audit its axioms
+      - name: Kernel-check Theorem 5.2 and audit its axioms
         working-directory: lean
         shell: bash
         run: |
@@ -61,14 +58,11 @@ jobs:
             echo '::error::Compile error in the Theorem 5.2 skeleton'
             exit 1
           fi
-          SORRIES=$(grep -c 'declaration uses .sorry.' /tmp/theorem52-skeleton.log || true)
-          echo "sorry declarations: ${SORRIES}"
-          echo "::notice::Theorem 5.2 skeleton: ${SORRIES} declaration(s) still use sorry"
-          if grep -nF 'Lean.ofReduceBool' /tmp/theorem52-skeleton.log; then
-            echo '::error::Forbidden axiom Lean.ofReduceBool'
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'declaration uses' /tmp/theorem52-skeleton.log; then
+            echo '::error::Forbidden axiom or sorry in the Theorem 5.2 certificate'
             exit 1
           fi
-          grep -nF 'sorryAx' /tmp/theorem52-skeleton.log && echo '::warning::sorryAx present (expected at the skeleton stage)' || echo 'no sorryAx: the file is a complete certificate'
+          echo 'Theorem 5.2: no sorry, no sorryAx, no Lean.ofReduceBool'
       - name: Upload Lean log
         if: always()
         uses: actions/upload-artifact@v4
