@@ -4,7 +4,9 @@ name: Manuscript 14 — all Arb certificates at 2000 bits
 # precision raised from 256/384 to 2000 bits (python-flint 0.9.0), plus the
 # new Proposition 4.1 certificate (Langevin mean and variance at a = 1/sqrt 8),
 # and the Proposition 6.5 certificate (even-zeta / Bernoulli expansion of
-# log r_E(z_0), displays (77)-(78)).
+# log r_E(z_0), displays (77)-(78)), and the Remark 4.4 certificate (Ising
+# readings: binary decomposition of the Langevin dipole, descent spins and
+# kernel, Harper's independent-spin form, n-vector partition functions).
 # The exact-rational truncation bounds and the printed-digit rounding checks
 # are unchanged; only the ball precision of the Arb evaluations is raised.
 
@@ -13,6 +15,7 @@ on:
     branches:
       - manuscript14-arb-2000bit-20261106
       - manuscript14-prop65-zeta-bernoulli-20261106
+      - manuscript14-rem44-ising-20261106
     paths:
       - 'numerics/arb/manuscript14_*.py'
       - 'numerics/arb/special_point_i_sqrt2_arb.py'
@@ -21,7 +24,7 @@ on:
 
 jobs:
   arb:
-    name: Arb 2000-bit / exact Q — manuscript 14, ten certificates
+    name: Arb 2000-bit / exact Q — manuscript 14, eleven certificates
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -31,7 +34,7 @@ jobs:
           python-version: '3.13'
       - name: Install python-flint 0.9.0
         run: python -m pip install python-flint==0.9.0
-      - name: Run the ten certificates at 2000 bits
+      - name: Run the eleven certificates at 2000 bits
         shell: bash
         run: |
           set -euo pipefail
@@ -46,7 +49,8 @@ jobs:
             manuscript14_gram_resolvent_arb \
             manuscript14_dirichlet_finite_arb \
             manuscript14_prop41_langevin_arb \
-            manuscript14_prop65_zeta_bernoulli_arb ; do
+            manuscript14_prop65_zeta_bernoulli_arb \
+            manuscript14_rem44_ising_readings_arb ; do
             echo "=== numerics/arb/$s.py"
             python "numerics/arb/$s.py" 2>&1 | tee "/tmp/arb2000/$s.log"
             if grep -q "FAIL" "/tmp/arb2000/$s.log"; then
