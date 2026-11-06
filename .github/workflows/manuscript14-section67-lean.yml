@@ -1,0 +1,66 @@
+name: Manuscript 14 — Lean 4 scalar certificate of Sections 6 and 7
+
+# Manuscript 14, Sections 6 and 7: Lemma 7.1 (the dilation fixed point of the modular
+# inversion), Theorem 7.2 (the modular duplication (91), the factorisation (92), the
+# companion form (93), the duplications (94)-(96) and the explicit companion values),
+# the Euler products (13)-(14) and (71)-(73) of Proposition 6.2 over the spectra (68) and
+# (70), and the spectral sums (74)-(84) of Proposition 6.3 and Corollary 6.4.  The module
+# imports only the pinned Mathlib.  The job fails on any compile error, on any `sorry`,
+# and on any axiom other than propext, Classical.choice and Quot.sound in the nineteen
+# audited statements.
+
+on:
+  push:
+    branches:
+      - manuscript14-section67-lean-arb-20261106
+    paths:
+      - 'lean/SpecialImaginaryPoint/Section67ScalarCertificate.lean'
+      - '.github/workflows/manuscript14-section67-lean.yml'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    name: Lean 4 kernel check of the Sections 6–7 scalar certificate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository-pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check the Sections 6–7 certificate and audit its axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/Section67ScalarCertificate.lean 2>&1 | tee /tmp/s67.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/s67.log; then
+            echo '::error::Compile error in the Sections 6–7 certificate'
+            exit 1
+          fi
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'declaration uses' /tmp/s67.log; then
+            echo '::error::Forbidden axiom or sorry in the Sections 6–7 certificate'
+            exit 1
+          fi
+          test "$(grep -c "depends on axioms: \[propext, Classical.choice, Quot.sound\]" /tmp/s67.log)" -eq 19
+          echo 'Sections 6–7: no sorry, no sorryAx, no Lean.ofReduceBool; nineteen audited statements'
+      - name: Upload Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-section67-lean
+          path: /tmp/s67.log
+          if-no-files-found: ignore
