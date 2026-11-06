@@ -466,6 +466,7 @@ theorem polyFun_deriv (p : ℂ[X]) : deriv (polyFun p) = polyFun (derivative p) 
 theorem polyFun_contDiff (p : ℂ[X]) (n : WithTop ℕ∞) : ContDiff ℝ n (polyFun p) := by
   have h := ((Polynomial.differentiable p).contDiff (n := n)).restrict_scalars (𝕜 := ℝ)
     |>.comp (Complex.ofRealCLM.contDiff (𝕜 := ℝ) (n := n))
+  unfold polyFun
   simpa [Function.comp_def] using h
 
 /-- `(1-t²) · (polyFun p)'` is the polynomial `(1 - X²) p'`. -/
@@ -486,7 +487,8 @@ theorem ker_hasDerivAt (c u t : ℝ) :
   have h1 : HasDerivAt (fun t : ℝ => c * u * t) (c * u) t := by
     simpa using (hasDerivAt_id t).const_mul (c * u)
   have h2 := (h1.exp).ofReal_comp
-  convert h2 using 1
+  have h3 : HasDerivAt (ker c u) ((Real.exp (c * u * t) * (c * u) : ℝ) : ℂ) t := h2
+  convert h3 using 1
   unfold ker
   push_cast
   ring
@@ -494,7 +496,8 @@ theorem ker_hasDerivAt (c u t : ℝ) :
 theorem ker_contDiff (c u : ℝ) (n : WithTop ℕ∞) : ContDiff ℝ n (ker c u) := by
   have h := (Complex.ofRealCLM.contDiff (𝕜 := ℝ) (n := n)).comp
     (Real.contDiff_exp.comp ((contDiff_const (c := c * u)).mul contDiff_id))
-  simpa [Function.comp_def, ker] using h
+  unfold ker
+  simpa [Function.comp_def, Complex.ofReal_exp] using h
 
 /-- Derivative of `(1-t²) (ker c u)'` at `v`: `[(-2 c u) v + c² u² (1 - v²)] e^{c u v}`. -/
 theorem oneSubSq_mul_deriv_ker_hasDerivAt (c u v : ℝ) :
@@ -605,7 +608,9 @@ theorem core_commutation (c : ℝ) (hc : 0 < c) (p : ℂ[X]) :
         * (ker c u v * polyFun (X * (X * p)) v)) ν := (hint _).const_mul _
     have h3 : Integrable (fun v => ((c ^ 2 * u ^ 2 : ℝ) : ℂ) * (ker c u v * polyFun p v)) ν :=
       (hint _).const_mul _
-    rw [hsplit, integral_sub (h1.sub h2) h3, integral_sub h1 h2, integral_const_mul,
+    have h12 : Integrable (fun v => ((2 * c * u : ℝ) : ℂ) * (ker c u v * polyFun (X * p) v)
+        - (((1 - u ^ 2) * c ^ 2 : ℝ) : ℂ) * (ker c u v * polyFun (X * (X * p)) v)) ν := h1.sub h2
+    rw [hsplit, integral_sub h12 h3, integral_sub h1 h2, integral_const_mul,
       integral_const_mul, integral_const_mul]
     push_cast
     ring
@@ -622,7 +627,7 @@ theorem core_commutation (c : ℝ) (hc : 0 < c) (p : ℂ[X]) :
       apply integral_congr_ae
       filter_upwards with v
       simp only [polyFun, APoly, LinearMap.coe_mk, AddHom.coe_mk, eval_sub, eval_neg, eval_mul,
-        eval_add, eval_one, eval_pow, eval_X, eval_C, derivative_mul, derivative_sub,
+        eval_add, eval_one, eval_zero, eval_pow, eval_X, eval_C, derivative_mul, derivative_sub,
         derivative_one, derivative_X_sq]
       push_cast
       ring
@@ -634,6 +639,7 @@ theorem core_commutation (c : ℝ) (hc : 0 < c) (p : ℂ[X]) :
       rw [← hG]
       apply intervalIntegral.integral_congr
       intro v _
+      beta_reduce
       rw [(oneSubSq_mul_deriv_ker_hasDerivAt c u v).deriv]
       ring
     have hn : Integrable (fun v => -(ker c u v
