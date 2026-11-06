@@ -1,0 +1,78 @@
+name: Manuscript 14 Theorem 5.2 — Lean statement skeleton (type-check, sorry audit)
+
+# Stage 0 of the Theorem 5.2 formalisation (manuscript 14, Section 5):
+# the complete statement of the theorem and of its four analytic lemmas is
+# type-checked against the pinned Mathlib and the GegenbauerFock library.
+# At this stage the lemmas carry `sorry`; the job FAILS on any compile error
+# and REPORTS (does not fail on) `sorryAx`, printing the number of `sorry`
+# occurrences so that progress is visible run by run.  The file is not a
+# certificate until the sorry count is zero and the audit shows only
+# propext, Classical.choice and Quot.sound.
+
+on:
+  push:
+    branches:
+      - manuscript14-theorem52-skeleton-20261106
+    paths:
+      - 'lean/SpecialImaginaryPoint/GramCommutationTheorem52.lean'
+      - 'lean/SpecialImaginaryPoint/GramKernelBispectral.lean'
+      - '.github/workflows/manuscript14-theorem52-skeleton.yml'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    name: Lean 4 type-check of the Theorem 5.2 statement
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository-pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build the GegenbauerFock modules imported by the skeleton
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.GramIntegralComplete GegenbauerFock.UltrasphericalSturmLiouvillePolynomialCore 2>&1 | tail -n 40
+      - name: Type-check the skeleton and audit its axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/GramKernelBispectral.olean \
+            SpecialImaginaryPoint/GramKernelBispectral.lean 2>&1 | tee /tmp/theorem52-skeleton.log
+          lake env lean -M16768 SpecialImaginaryPoint/GramCommutationTheorem52.lean 2>&1 | tee -a /tmp/theorem52-skeleton.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/theorem52-skeleton.log; then
+            echo '::error::Compile error in the Theorem 5.2 skeleton'
+            exit 1
+          fi
+          SORRIES=$(grep -c 'declaration uses .sorry.' /tmp/theorem52-skeleton.log || true)
+          echo "sorry declarations: ${SORRIES}"
+          echo "::notice::Theorem 5.2 skeleton: ${SORRIES} declaration(s) still use sorry"
+          if grep -nF 'Lean.ofReduceBool' /tmp/theorem52-skeleton.log; then
+            echo '::error::Forbidden axiom Lean.ofReduceBool'
+            exit 1
+          fi
+          grep -nF 'sorryAx' /tmp/theorem52-skeleton.log && echo '::warning::sorryAx present (expected at the skeleton stage)' || echo 'no sorryAx: the file is a complete certificate'
+      - name: Upload Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-theorem52-skeleton-lean
+          path: /tmp/theorem52-skeleton.log
+          if-no-files-found: ignore
