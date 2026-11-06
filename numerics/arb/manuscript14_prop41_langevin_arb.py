@@ -67,7 +67,6 @@ for k in range(1, N+1):
 # remainder bound: |term_k| <= 2*2^{2k} x2^k/(2 pi)^{2k} /(1-2^{1-2k}) <= 4 (x2/pi^2)^k <= 4 (1/78)^k
 r = Q(1, 78)
 rem = 4*r**(N+1)/(1-r)
-L_series = S/a                            # exact rational coefficient times the ball 1/a
 check("L(a) inside Bernoulli-series enclosure with exact rational remainder",
       (qball(S-rem)/a) < mean and mean < (qball(S+rem)/a))
 
