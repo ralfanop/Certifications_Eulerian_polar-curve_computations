@@ -24,11 +24,17 @@ domain), and reduces it to four analytic lemmas, each stated in full:
                                  lemma, `hasDerivAt_integral_of_dominated_loc_of_deriv_le`);
 * `core_commutation`          — the pointwise identity `𝒜_c (S p) = S (𝒜_c p)` on the
                                  polynomial core (Leibniz twice, bispectral kernel balance,
-                                 Green in the `v` variable);
-* `smooth_mem_closure_domain` — every `C²` function lies in the domain of the graph closure of
-                                 the polynomial operator `𝒜_c⁰`, on which the closure acts as
-                                 the differential expression (Weierstrass approximation of
-                                 `g''`, integrated twice; no Legendre coefficient analysis).
+                                 Green in the `v` variable) — **proved**;
+* `smooth_mem_closure_domain` — every `C²` function lies in the domain of the graph closure
+                                 `D̄` of the polynomial Legendre operator `D⁰`, on which `D̄`
+                                 acts as the differential expression.  Route: `Ran(D⁰ + I)`
+                                 is dense and `D⁰ ≥ 0`, so the adjoint relation
+                                 `⟪D⁰ p, g⟫ = ⟪p, D g⟫` (Green, `inner_DPoly_cLp`) already
+                                 places `g` in the closure's domain; no Legendre coefficient
+                                 analysis.
+
+The closed operator is `𝒜_c = D̄ - c² M_{u²}` on `Dom(D̄)`, exactly as in Definition 5.1 of
+the manuscript, with `M_{u²}` the bounded multiplication operator (`M`, `‖M‖ ≤ 1`).
 
 Bookkeeping facts:
 
@@ -37,9 +43,10 @@ Bookkeeping facts:
                                  infinite) — **proved**;
 * `integral_nu`               — `∫ g dν = ½ ∫_{-1}^{1} g` — **proved** from the certified
                                  density of `ν`;
-* `APMap_isClosable`          — `𝒜_c⁰` is closable (densely defined and symmetric on complex
+* `DPMap_isClosable`          — `D⁰` is closable (densely defined and symmetric on complex
                                  `L²`; the complex counterpart of
-                                 `GegenbauerFock.Ultraspherical.sturmRealPMap_isClosable`).
+                                 `GegenbauerFock.Ultraspherical.sturmRealPMap_isClosable`)
+                                 — **proved** (`polyCore_dense`, `DPMap_formalSymmetric`).
 
 The remaining steps are already kernel-checked in this repository:
 the abstract closed-graph-core transport (`Manuscript14Gram.closed_graph_core_commutation`),
@@ -48,8 +55,8 @@ endpoint fluxes, and the bounded complex-`L²` Gram operator with its kernel-int
 (`GegenbauerFock.GeneralUltrasphericalFock.gram_eq_integralLp`).
 
 **Status: skeleton in progress.**  Every declaration below is type-checked; the lemmas not
-marked as proved carry `sorry`, and the final theorem therefore depends on `sorryAx`.  The axiom audit at the end of
-the file prints this explicitly.  This file must NOT be cited as a certificate until that
+marked as proved carry `sorry`, and the final theorem therefore depends on `sorryAx`.  The
+axiom audit at the end of the file prints this explicitly.  This file must NOT be cited as a certificate until that
 audit shows no `sorryAx`.
 
 Conventions.  `ν` is the normalised Lebesgue measure of `[-1,1]` (the ultraspherical law at
@@ -197,12 +204,32 @@ abbrev polyCore : Submodule ℂ H := LinearMap.range polyLinear
 /-- `𝒫 ≃ ℂ[X]`, the inverse of polynomial evaluation. -/
 def polyEquiv : ℂ[X] ≃ₗ[ℂ] polyCore := LinearEquiv.ofInjective polyLinear polyLinear_injective
 
-/-! ## The operator `𝒜_c` -/
+/-! ## The operators `D_{1/2}`, `M_{u²}` and `𝒜_c` -/
 
 /-- The differential expression `𝒜_c g = -[(1-u²) g']' - c² u² g` on functions `ℝ → ℂ`. -/
 def AExpr (c : ℝ) (g : ℝ → ℂ) : ℝ → ℂ :=
   fun u => -(deriv (fun t : ℝ => ((1 - t ^ 2 : ℝ) : ℂ) * deriv g t) u)
     - ((c ^ 2 * u ^ 2 : ℝ) : ℂ) * g u
+
+/-- The differential expression `D_{1/2} g = -[(1-u²) g']'`. -/
+def DExpr (g : ℝ → ℂ) : ℝ → ℂ :=
+  fun u => -(deriv (fun t : ℝ => ((1 - t ^ 2 : ℝ) : ℂ) * deriv g t) u)
+
+theorem AExpr_eq (c : ℝ) (g : ℝ → ℂ) (u : ℝ) :
+    AExpr c g u = DExpr g u - ((c ^ 2 * u ^ 2 : ℝ) : ℂ) * g u := rfl
+
+/-- `D_{1/2}` on polynomials: `-sturmPolynomial (1/2) p = -[(1 - X²) p']'`, as a linear map. -/
+def DPoly : ℂ[X] →ₗ[ℂ] ℂ[X] where
+  toFun := fun p => -((1 - X ^ 2) * derivative (derivative p) - C (2 : ℂ) * X * derivative p)
+  map_add' := by
+    intro p q
+    simp only [derivative_add]
+    ring
+  map_smul' := by
+    intro a p
+    simp only [derivative_smul]
+    simp only [smul_eq_C_mul, RingHom.id_apply]
+    ring
 
 /-- `𝒜_c` on polynomials: `-sturmPolynomial (1/2) p - c² X² p`, as a linear map. -/
 def APoly (c : ℝ) : ℂ[X] →ₗ[ℂ] ℂ[X] where
@@ -219,11 +246,13 @@ def APoly (c : ℝ) : ℂ[X] →ₗ[ℂ] ℂ[X] where
     simp only [smul_eq_C_mul, RingHom.id_apply]
     ring
 
-/-- The polynomial-domain operator `𝒜_c⁰ : 𝒫 → H`, `polyLp p ↦ polyLp (APoly c p)`,
-as a partially defined linear map with domain `𝒫`. -/
-def APMap (c : ℝ) : H →ₗ.[ℂ] H where
-  domain := polyCore
-  toFun := polyLinear ∘ₗ APoly c ∘ₗ polyEquiv.symm.toLinearMap
+theorem APoly_eq (c : ℝ) (p : ℂ[X]) : APoly c p = DPoly p - C ((c : ℂ) ^ 2) * X ^ 2 * p := rfl
+
+theorem DPoly_eq_neg_derivative (p : ℂ[X]) :
+    DPoly p = -derivative ((1 - X ^ 2) * derivative p) := by
+  show -((1 - X ^ 2) * derivative (derivative p) - C (2 : ℂ) * X * derivative p) = _
+  rw [derivative_mul, derivative_sub, derivative_one, derivative_X_sq]
+  ring
 
 theorem polyEquiv_apply (p : ℂ[X]) :
     polyEquiv p = ⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩ := by
@@ -235,29 +264,113 @@ theorem polyEquiv_symm_apply (p : ℂ[X]) (hp : polyLp p ∈ polyCore) :
   apply polyEquiv.injective
   rw [LinearEquiv.apply_symm_apply, polyEquiv_apply]
 
-theorem APMap_apply (c : ℝ) (p : ℂ[X]) (hp : polyLp p ∈ polyCore) :
-    APMap c ⟨polyLp p, hp⟩ = polyLp (APoly c p) := by
-  show polyLinear (APoly c (polyEquiv.symm (⟨polyLp p, hp⟩ : polyCore))) = polyLinear (APoly c p)
+/-- The polynomial-domain operator `D⁰ : 𝒫 → H`, `polyLp p ↦ polyLp (DPoly p)`, as a
+partially defined linear map with domain `𝒫`. -/
+def DPMap : H →ₗ.[ℂ] H where
+  domain := polyCore
+  toFun := polyLinear ∘ₗ DPoly ∘ₗ polyEquiv.symm.toLinearMap
+
+theorem DPMap_apply (p : ℂ[X]) (hp : polyLp p ∈ polyCore) :
+    DPMap ⟨polyLp p, hp⟩ = polyLp (DPoly p) := by
+  show polyLinear (DPoly (polyEquiv.symm (⟨polyLp p, hp⟩ : polyCore))) = polyLinear (DPoly p)
   rw [polyEquiv_symm_apply]
 
-/-- **Bookkeeping (sorry).**  `𝒜_c⁰` is closable: it is densely defined (Weierstrass) and
-symmetric (Green on polynomials), hence contained in its closed adjoint.  This is the complex
-counterpart of `GegenbauerFock.Ultraspherical.sturmRealPMap_isClosable`. -/
-theorem APMap_isClosable (c : ℝ) : (APMap c).IsClosable := by
-  sorry
+/-- The closed operator `D̄ = D_{1/2}`: the graph closure of `D⁰`.  (Its closability,
+`DPMap_isClosable`, is proved below from symmetry and density.) -/
+def DClosed : H →ₗ.[ℂ] H := DPMap.closure
 
-/-- The closed operator `𝒜_c`: the graph closure of `𝒜_c⁰`. -/
-def AClosed (c : ℝ) : H →ₗ.[ℂ] H := (APMap c).closure
+theorem DPMap_le_DClosed : DPMap ≤ DClosed := LinearPMap.le_closure DPMap
 
-theorem AClosed_isClosed (c : ℝ) : (AClosed c).IsClosed :=
-  (APMap_isClosable c).closure_isClosed
+/-- The polynomials are a graph core of `D̄`. -/
+theorem DClosed_hasCore : DClosed.HasCore DPMap.domain := LinearPMap.closureHasCore DPMap
 
-/-- The polynomials are a graph core of `𝒜_c`. -/
-theorem AClosed_hasCore (c : ℝ) : (AClosed c).HasCore (APMap c).domain :=
-  LinearPMap.closureHasCore (APMap c)
+/-! ### The multiplication operator `M_{u²}` -/
 
-theorem APMap_le_AClosed (c : ℝ) : APMap c ≤ AClosed c :=
-  LinearPMap.le_closure (APMap c)
+/-- A bounded continuous function equal to `u²` on `[-1,1]`. -/
+def usq (u : ℝ) : ℝ := (max (-1) (min u 1)) ^ 2
+
+theorem usq_continuous : Continuous usq := by
+  unfold usq
+  fun_prop
+
+theorem usq_eq {u : ℝ} (hu : u ∈ Set.Icc (-1 : ℝ) 1) : usq u = u ^ 2 := by
+  unfold usq
+  rw [min_eq_left hu.2, max_eq_right hu.1]
+
+theorem usq_abs_le_one (u : ℝ) : |usq u| ≤ 1 := by
+  unfold usq
+  have h1 : -1 ≤ max (-1) (min u 1) := le_max_left _ _
+  have h2 : max (-1) (min u 1) ≤ 1 := max_le (by norm_num) (min_le_right _ _)
+  rw [abs_of_nonneg (sq_nonneg _)]
+  nlinarith
+
+/-- `u ↦ u² f(u)` with the bounded version of `u²`. -/
+def mulUsqFun (f : ℝ → ℂ) : ℝ → ℂ := fun u => (usq u : ℂ) * f u
+
+theorem usq_complex_continuous : Continuous (fun u : ℝ => (usq u : ℂ)) :=
+  Complex.continuous_ofReal.comp usq_continuous
+
+theorem mulUsqFun_norm_le (f : ℝ → ℂ) (u : ℝ) : ‖mulUsqFun f u‖ ≤ ‖f u‖ := by
+  unfold mulUsqFun
+  rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+  calc |usq u| * ‖f u‖ ≤ 1 * ‖f u‖ := by gcongr; exact usq_abs_le_one u
+    _ = ‖f u‖ := one_mul _
+
+theorem mulUsqFun_memLp (f : H) : MemLp (mulUsqFun f) 2 ν :=
+  (Lp.memLp f).of_le (usq_complex_continuous.aestronglyMeasurable.mul (Lp.aestronglyMeasurable f))
+    (Filter.Eventually.of_forall fun u => mulUsqFun_norm_le f u)
+
+/-- `M_{u²}` as a linear map. -/
+def MLin : H →ₗ[ℂ] H where
+  toFun := fun f => (mulUsqFun_memLp f).toLp (mulUsqFun f)
+  map_add' := by
+    intro f g
+    apply Lp.ext
+    refine (mulUsqFun_memLp (f + g)).coeFn_toLp.trans ?_
+    refine Filter.EventuallyEq.trans ?_ (Lp.coeFn_add _ _).symm
+    refine Filter.EventuallyEq.trans ?_
+      ((mulUsqFun_memLp f).coeFn_toLp.add (mulUsqFun_memLp g).coeFn_toLp).symm
+    filter_upwards [Lp.coeFn_add f g] with u hu
+    simp only [mulUsqFun, Pi.add_apply, hu]
+    ring
+  map_smul' := by
+    intro a f
+    apply Lp.ext
+    refine (mulUsqFun_memLp (a • f)).coeFn_toLp.trans ?_
+    refine Filter.EventuallyEq.trans ?_ (Lp.coeFn_smul a _).symm
+    refine Filter.EventuallyEq.trans ?_ ((mulUsqFun_memLp f).coeFn_toLp.const_smul a).symm
+    filter_upwards [Lp.coeFn_smul a f] with u hu
+    simp only [mulUsqFun, Pi.smul_apply, hu, smul_eq_mul, RingHom.id_apply]
+    ring
+
+theorem MLin_apply_ae (f : H) :
+    (MLin f : ℝ → ℂ) =ᵐ[ν] fun u => ((u ^ 2 : ℝ) : ℂ) * f u := by
+  refine (mulUsqFun_memLp f).coeFn_toLp.trans ?_
+  filter_upwards [ae_mem_Icc] with u hu
+  simp only [mulUsqFun, usq_eq hu]
+
+theorem MLin_norm_le (f : H) : ‖MLin f‖ ≤ ‖f‖ := by
+  change ‖(mulUsqFun_memLp f).toLp (mulUsqFun f)‖ ≤ ‖f‖
+  rw [Lp.norm_toLp, Lp.norm_def]
+  apply ENNReal.toReal_mono (Lp.eLpNorm_ne_top f)
+  exact eLpNorm_mono_ae (mulUsqFun_memLp f).1
+    (Filter.Eventually.of_forall fun u => mulUsqFun_norm_le f u)
+
+/-- The bounded operator `M_{u²}`, `‖M‖ ≤ 1`. -/
+def M : H →L[ℂ] H := MLin.mkContinuous 1 (fun f => by simpa using MLin_norm_le f)
+
+theorem M_apply_ae (f : H) : (M f : ℝ → ℂ) =ᵐ[ν] fun u => ((u ^ 2 : ℝ) : ℂ) * f u :=
+  MLin_apply_ae f
+
+/-- `𝒜_c := D̄ - c² M_{u²}` on `Dom(D̄)` (Definition 5.1 of the manuscript). -/
+def AClosed (c : ℝ) : H →ₗ.[ℂ] H where
+  domain := DClosed.domain
+  toFun := DClosed.toFun - ((c : ℂ) ^ 2) • (M.toLinearMap.comp DClosed.domain.subtype)
+
+theorem AClosed_domain (c : ℝ) : (AClosed c).domain = DClosed.domain := rfl
+
+theorem AClosed_apply (c : ℝ) (x : DClosed.domain) :
+    AClosed c x = DClosed x - ((c : ℂ) ^ 2) • M x := rfl
 
 /-! ## The Gram operator `S_{1/2,c}` -/
 
@@ -668,23 +781,188 @@ theorem core_commutation (c : ℝ) (hc : 0 < c) (p : ℂ[X]) :
   push_cast
   ring
 
+/-! ## Symmetry of `D⁰`, density of the polynomials and closability -/
+
+/-- Complex conjugation of a polynomial. -/
+def pconj (p : ℂ[X]) : ℂ[X] := p.map (starRingEnd ℂ)
+
+theorem polyFun_pconj (p : ℂ[X]) (v : ℝ) :
+    polyFun (pconj p) v = (starRingEnd ℂ) (polyFun p v) := by
+  have h := Polynomial.eval₂_at_apply (p := p) (starRingEnd ℂ) (v : ℂ)
+  rw [Complex.conj_ofReal] at h
+  unfold polyFun pconj
+  rw [Polynomial.eval_map]
+  exact h
+
+theorem DPoly_pconj (p : ℂ[X]) : DPoly (pconj p) = pconj (DPoly p) := by
+  show -((1 - X ^ 2) * derivative (derivative (pconj p)) - C (2 : ℂ) * X * derivative (pconj p))
+    = pconj (-((1 - X ^ 2) * derivative (derivative p) - C (2 : ℂ) * X * derivative p))
+  unfold pconj
+  simp only [Polynomial.derivative_map, Polynomial.map_neg, Polynomial.map_sub,
+    Polynomial.map_mul, Polynomial.map_one, Polynomial.map_pow, Polynomial.map_X,
+    Polynomial.map_C, map_ofNat]
+
+theorem polyFun_DPoly (p : ℂ[X]) (v : ℝ) : polyFun (DPoly p) v = DExpr (polyFun p) v := by
+  rw [DPoly_eq_neg_derivative]
+  unfold DExpr
+  rw [oneSubSq_mul_deriv_polyFun, polyFun_deriv]
+  simp [polyFun, eval_neg]
+
+/-- The `L²(ν)` inner product of two continuous functions. -/
+theorem inner_cLp (f g : ℝ → ℂ) (hf : Continuous f) (hg : Continuous g) :
+    ⟪cLp f hf, cLp g hg⟫_ℂ = ∫ v, (starRingEnd ℂ) (f v) * g v ∂ν := by
+  rw [MeasureTheory.L2.inner_def]
+  apply integral_congr_ae
+  filter_upwards [cLp_ae_eq f hf, cLp_ae_eq g hg] with v hfv hgv
+  rw [hfv, hgv, RCLike.inner_apply']
+
+theorem DExpr_continuous (g : ℝ → ℂ) (hg : ContDiff ℝ 2 g) : Continuous (DExpr g) := by
+  have hg2 : ContDiff ℝ (1 + 1) g := by norm_num; exact hg
+  have h : ContDiff ℝ 1 (fun t : ℝ => ((1 - t ^ 2 : ℝ) : ℂ) * deriv g t) :=
+    contDiff_oneSubSq.mul hg2.deriv'
+  exact (h.continuous_deriv le_rfl).neg
+
+/-- Green's identity in the `L²(ν)` inner product: `⟪D⁰ p, g⟫ = ⟪p, D g⟫` for `g ∈ C²`. -/
+theorem inner_DPoly_cLp (p : ℂ[X]) (g : ℝ → ℂ) (hg : ContDiff ℝ 2 g) :
+    ⟪polyLp (DPoly p), cLp g hg.continuous⟫_ℂ
+      = ⟪polyLp p, cLp (DExpr g) (DExpr_continuous g hg)⟫_ℂ := by
+  unfold polyLp
+  rw [inner_cLp, inner_cLp, integral_nu, integral_nu]
+  congr 1
+  have hG := green_identity (polyFun (pconj p)) g (polyFun_contDiff _ 2) hg
+  rw [oneSubSq_mul_deriv_polyFun, polyFun_deriv] at hG
+  have e1 : ∀ v : ℝ, (starRingEnd ℂ) (polyFun (DPoly p) v)
+      = -(polyFun (derivative ((1 - X ^ 2) * derivative (pconj p))) v) := by
+    intro v
+    rw [← polyFun_pconj, ← DPoly_pconj, DPoly_eq_neg_derivative]
+    simp [polyFun, eval_neg]
+  have e2 : ∀ v : ℝ, (starRingEnd ℂ) (polyFun p v) = polyFun (pconj p) v :=
+    fun v => (polyFun_pconj p v).symm
+  simp_rw [e1, e2]
+  unfold DExpr
+  simp only [neg_mul, mul_neg, intervalIntegral.integral_neg]
+  rw [hG]
+
+/-- `D⁰` is symmetric on the polynomials. -/
+theorem DPMap_formalSymmetric : DPMap.IsFormalAdjoint DPMap := by
+  intro x y
+  obtain ⟨p, hp⟩ := LinearMap.mem_range.mp x.2
+  obtain ⟨q, hq⟩ := LinearMap.mem_range.mp y.2
+  have hx : x = ⟨polyLp p, LinearMap.mem_range_self polyLinear p⟩ := Subtype.ext hp.symm
+  have hy : y = ⟨polyLp q, LinearMap.mem_range_self polyLinear q⟩ := Subtype.ext hq.symm
+  subst hx
+  subst hy
+  rw [DPMap_apply, DPMap_apply]
+  show ⟪polyLp (DPoly p), polyLp q⟫_ℂ = ⟪polyLp p, polyLp (DPoly q)⟫_ℂ
+  have h := inner_DPoly_cLp p (polyFun q) (polyFun_contDiff q 2)
+  have h2 : cLp (DExpr (polyFun q)) (DExpr_continuous _ (polyFun_contDiff q 2))
+      = polyLp (DPoly q) := by
+    apply Lp.ext
+    refine (cLp_ae_eq _ _).trans ?_
+    refine Filter.EventuallyEq.trans ?_ (polyLp_ae_eq (DPoly q)).symm
+    filter_upwards with v
+    exact (polyFun_DPoly q v).symm
+  rw [← h2]
+  exact h
+
+/-- Complex Weierstrass on `[-1,1]`: every bounded continuous `f : ℝ → ℂ` is uniformly
+approximated by complex polynomials (real and imaginary parts separately). -/
+theorem exists_poly_near (f : BoundedContinuousFunction ℝ ℂ) (eps : ℝ) (heps : 0 < eps) :
+    ∃ P : ℂ[X], ∀ u ∈ Set.Icc (-1 : ℝ) 1, ‖f u - polyFun P u‖ < eps := by
+  obtain ⟨P, hP⟩ := exists_polynomial_near_of_continuousOn (-1 : ℝ) 1 (fun u => (f u).re)
+    ((Complex.continuous_re.comp f.continuous).continuousOn) (eps / 2) (half_pos heps)
+  obtain ⟨Q, hQ⟩ := exists_polynomial_near_of_continuousOn (-1 : ℝ) 1 (fun u => (f u).im)
+    ((Complex.continuous_im.comp f.continuous).continuousOn) (eps / 2) (half_pos heps)
+  refine ⟨P.map Complex.ofRealHom + C Complex.I * Q.map Complex.ofRealHom, ?_⟩
+  intro u hu
+  have hPu : (P.map Complex.ofRealHom).eval (u : ℂ) = ((P.eval u : ℝ) : ℂ) := by
+    rw [Polynomial.eval_map, ← Complex.ofRealHom_eq_coe]
+    exact Polynomial.eval₂_at_apply (p := P) Complex.ofRealHom u
+  have hQu : (Q.map Complex.ofRealHom).eval (u : ℂ) = ((Q.eval u : ℝ) : ℂ) := by
+    rw [Polynomial.eval_map, ← Complex.ofRealHom_eq_coe]
+    exact Polynomial.eval₂_at_apply (p := Q) Complex.ofRealHom u
+  have hre : (f u - polyFun (P.map Complex.ofRealHom + C Complex.I * Q.map Complex.ofRealHom) u).re
+      = (f u).re - P.eval u := by
+    simp [polyFun, hPu, hQu]
+  have him : (f u - polyFun (P.map Complex.ofRealHom + C Complex.I * Q.map Complex.ofRealHom) u).im
+      = (f u).im - Q.eval u := by
+    simp [polyFun, hPu, hQu]
+  calc ‖f u - polyFun (P.map Complex.ofRealHom + C Complex.I * Q.map Complex.ofRealHom) u‖
+      ≤ |(f u - polyFun (P.map Complex.ofRealHom + C Complex.I * Q.map Complex.ofRealHom) u).re|
+        + |(f u - polyFun (P.map Complex.ofRealHom + C Complex.I * Q.map Complex.ofRealHom) u).im| :=
+        Complex.norm_le_abs_re_add_abs_im _
+    _ < eps / 2 + eps / 2 := by
+        rw [hre, him]
+        apply add_lt_add
+        · rw [abs_sub_comm]; exact hP u hu
+        · rw [abs_sub_comm]; exact hQ u hu
+    _ = eps := by ring
+
+/-- The polynomials are dense in `H` (Weierstrass and the certified density of the bounded
+continuous functions, `boundedContinuous_toLp_denseRange`). -/
+theorem polyCore_dense : Dense (polyCore : Set H) := by
+  have hRange : Set.range (GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) half_pos)
+      ⊆ closure (polyCore : Set H) := by
+    rintro y ⟨f, rfl⟩
+    rw [Metric.mem_closure_iff]
+    intro eps heps
+    obtain ⟨P, hP⟩ := exists_poly_near f (eps / 2) (half_pos heps)
+    refine ⟨polyLp P, LinearMap.mem_range_self polyLinear P, ?_⟩
+    rw [dist_eq_norm]
+    have hf : ((GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) half_pos f : H)
+        : ℝ → ℂ) =ᵐ[ν] f := by
+      change ((BoundedContinuousFunction.toLp (2 : ℝ≥0∞) ν ℂ f : H) : ℝ → ℂ) =ᵐ[ν] f
+      exact BoundedContinuousFunction.coeFn_toLp (2 : ℝ≥0∞) ν ℂ f
+    have hdiff : ((GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) half_pos f
+        - polyLp P : H) : ℝ → ℂ) =ᵐ[ν] fun u => f u - polyFun P u := by
+      filter_upwards [Lp.coeFn_sub
+        (GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) half_pos f) (polyLp P),
+        hf, polyLp_ae_eq P] with u hsub hfu hpu
+      rw [hsub, Pi.sub_apply, hfu, hpu]
+    rw [Lp.norm_def, eLpNorm_congr_ae hdiff]
+    have hb := GegenbauerFock.Ultraspherical.eLpNorm_sub_le_of_uniform_error_unit_interval
+      (1 / 2) half_pos f (polyFun P) f.continuous (polyFun_continuous P) (eps / 2)
+      (fun u hu => (hP u hu).le)
+    calc (eLpNorm (fun u => f u - polyFun P u) 2 ν).toReal
+        ≤ (ENNReal.ofReal (eps / 2)).toReal := ENNReal.toReal_mono ENNReal.ofReal_ne_top hb
+      _ = eps / 2 := ENNReal.toReal_ofReal (half_pos heps).le
+      _ < eps := half_lt_self heps
+  have hD := GegenbauerFock.Ultraspherical.boundedContinuous_toLp_denseRange (1 / 2) half_pos
+  intro x
+  have hx : x ∈ closure (Set.range
+      (GegenbauerFock.Ultraspherical.boundedContinuousToLp (1 / 2) half_pos)) := by
+    rw [hD.closure_range]
+    trivial
+  exact closure_minimal hRange isClosed_closure hx
+
+theorem DPMap_domain_dense : Dense (DPMap.domain : Set H) := polyCore_dense
+
+/-- `D⁰` is closable: densely defined and symmetric, hence contained in its closed adjoint
+(the complex counterpart of `GegenbauerFock.Ultraspherical.sturmRealPMap_isClosable`). -/
+theorem DPMap_isClosable : DPMap.IsClosable := by
+  have hdense := DPMap_domain_dense
+  have hle : DPMap ≤ DPMap.adjoint := DPMap_formalSymmetric.le_adjoint hdense
+  have hclosed : DPMap.adjoint.IsClosed := LinearPMap.adjoint_isClosed hdense
+  exact hclosed.isClosable.leIsClosable hle
+
+theorem DClosed_isClosed : DClosed.IsClosed := DPMap_isClosable.closure_isClosed
+
+/-! ## Lemma 4: the domain of `D̄` contains the `C²` functions -/
+
 /-- **Lemma 4 (domain inclusion).**  Every `C²` function `g` defines an element of the domain
-of the closed operator `𝒜_c`, on which `𝒜_c` acts as the differential expression `AExpr c g`
-(almost everywhere).  Proof: by Weierstrass, choose polynomials `q_n → g''` uniformly on
-`[-1,1]`; put `p_n(u) = g(-1) + g'(-1)(u+1) + ∫_{-1}^{u}∫_{-1}^{t} q_n`.  Then
-`p_n, p_n', p_n'' → g, g', g''` uniformly on `[-1,1]`, so `p_n → g` and `𝒜_c p_n → AExpr c g`
-in `L²(ν)`, and the graph closure contains the limit.  No Legendre coefficient analysis is
-needed. -/
-theorem smooth_mem_closure_domain (c : ℝ) (g : ℝ → ℂ) (hg : ContDiff ℝ 2 g) :
-    ∃ hmem : cLp g hg.continuous ∈ (AClosed c).domain,
-      ((AClosed c) ⟨cLp g hg.continuous, hmem⟩ : ℝ → ℂ) =ᵐ[ν] AExpr c g := by
+of the closed operator `D̄`, on which `D̄` acts as the differential expression `DExpr g`
+(almost everywhere).  Proof (to be formalised): `Ran(D⁰ + I)` is dense and `D⁰ ≥ 0`, so
+every `g` satisfying the adjoint relation `⟪D⁰ p, g⟫ = ⟪p, h⟫` for all polynomials `p`
+(here `h = DExpr g`, by `inner_DPoly_cLp`) lies in the closure's domain with `D̄ g = h`. -/
+theorem smooth_mem_closure_domain (g : ℝ → ℂ) (hg : ContDiff ℝ 2 g) :
+    ∃ hmem : cLp g hg.continuous ∈ DClosed.domain,
+      ((DClosed ⟨cLp g hg.continuous, hmem⟩ : H) : ℝ → ℂ) =ᵐ[ν] DExpr g := by
   sorry
 
 /-! ## Theorem 5.2 -/
 
 /-- **Theorem 5.2 (domain-level commutation), first half:** `S_{1/2,c} H ⊂ Dom(𝒜_c)`.
-From `SFun_contDiff`, Lemma 4 and the kernel identity `S_apply_ae`; it is complete as soon
-as Lemma 4 is. -/
+From `SFun_contDiff`, Lemma 4 and the kernel identity `S_apply_ae`. -/
 theorem S_range_subset_domain (c : ℝ) (hc : 0 < c) (f : H) :
     S c hc f ∈ (AClosed c).domain := by
   have hs : ContDiff ℝ 2 (SFun c (f : ℝ → ℂ)) := SFun_contDiff c hc f 2
@@ -692,13 +970,14 @@ theorem S_range_subset_domain (c : ℝ) (hc : 0 < c) (f : H) :
     apply Lp.ext
     exact (S_apply_ae c hc f).trans (cLp_ae_eq _ _).symm
   rw [heq]
-  obtain ⟨hmem, _⟩ := smooth_mem_closure_domain c (SFun c (f : ℝ → ℂ)) hs
+  obtain ⟨hmem, _⟩ := smooth_mem_closure_domain (SFun c (f : ℝ → ℂ)) hs
   exact hmem
 
 /-- **Theorem 5.2 (domain-level commutation), second half:** for every `f ∈ Dom(𝒜_c)`,
-`𝒜_c S_{1/2,c} f = S_{1/2,c} 𝒜_c f`.  Assembled from Lemmas 2, 3, 4 through the abstract
-transport theorem `Manuscript14Gram.closed_graph_core_commutation`, with `D = Dom(𝒜_c)`,
-`Core = 𝒫`, `hcore` from `AClosed_hasCore`, `hclosed` from `AClosed_isClosed`. -/
+`𝒜_c S_{1/2,c} f = S_{1/2,c} 𝒜_c f`.  Assembled from Lemmas 3 and 4 through the abstract
+transport theorem `Manuscript14Gram.closed_graph_core_commutation`, with `D = Dom(D̄)`,
+`Core = 𝒫`, `hcore` from `DClosed_hasCore`, `hclosed` from `DClosed_isClosed` and the
+boundedness of `M`. -/
 theorem gram_commutes_with_perturbed_legendre (c : ℝ) (hc : 0 < c)
     (f : (AClosed c).domain) :
     (AClosed c) ⟨S c hc f, S_range_subset_domain c hc f⟩ = S c hc ((AClosed c) f) := by
