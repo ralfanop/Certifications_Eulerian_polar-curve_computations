@@ -452,16 +452,215 @@ theorem green_identity (f g : ℝ → ℂ) (hf : ContDiff ℝ 2 f) (hg : ContDif
   intro u _
   ring
 
+/-! ### Calculus of polynomials, of the kernel and of `S` on polynomials -/
+
+/-- Derivative of a polynomial along the real line. -/
+theorem polyFun_hasDerivAt (p : ℂ[X]) (u : ℝ) :
+    HasDerivAt (polyFun p) ((derivative p).eval (u : ℂ)) u :=
+  (Polynomial.hasDerivAt p (u : ℂ)).comp_ofReal
+
+theorem polyFun_deriv (p : ℂ[X]) : deriv (polyFun p) = polyFun (derivative p) := by
+  funext u
+  exact (polyFun_hasDerivAt p u).deriv
+
+theorem polyFun_contDiff (p : ℂ[X]) (n : WithTop ℕ∞) : ContDiff ℝ n (polyFun p) := by
+  have h := ((Polynomial.differentiable p).contDiff (n := n)).restrict_scalars (𝕜 := ℝ)
+    |>.comp (Complex.ofRealCLM.contDiff (𝕜 := ℝ) (n := n))
+  simpa [Function.comp_def] using h
+
+/-- `(1-t²) · (polyFun p)'` is the polynomial `(1 - X²) p'`. -/
+theorem oneSubSq_mul_deriv_polyFun (p : ℂ[X]) :
+    (fun t : ℝ => ((1 - t ^ 2 : ℝ) : ℂ) * deriv (polyFun p) t)
+      = polyFun ((1 - X ^ 2) * derivative p) := by
+  funext t
+  rw [polyFun_deriv]
+  simp only [polyFun, eval_mul, eval_sub, eval_one, eval_pow, eval_X]
+  push_cast
+  ring
+
+/-- The kernel `t ↦ e^{c u t}` as a complex-valued function of the real variable `t`. -/
+def ker (c u t : ℝ) : ℂ := (Real.exp (c * u * t) : ℂ)
+
+theorem ker_hasDerivAt (c u t : ℝ) :
+    HasDerivAt (ker c u) (((c * u : ℝ) : ℂ) * ker c u t) t := by
+  have h1 : HasDerivAt (fun t : ℝ => c * u * t) (c * u) t := by
+    simpa using (hasDerivAt_id t).const_mul (c * u)
+  have h2 := (h1.exp).ofReal_comp
+  convert h2 using 1
+  unfold ker
+  push_cast
+  ring
+
+theorem ker_contDiff (c u : ℝ) (n : WithTop ℕ∞) : ContDiff ℝ n (ker c u) := by
+  have h := (Complex.ofRealCLM.contDiff (𝕜 := ℝ) (n := n)).comp
+    (Real.contDiff_exp.comp ((contDiff_const (c := c * u)).mul contDiff_id))
+  simpa [Function.comp_def, ker] using h
+
+/-- Derivative of `(1-t²) (ker c u)'` at `v`: `[(-2 c u) v + c² u² (1 - v²)] e^{c u v}`. -/
+theorem oneSubSq_mul_deriv_ker_hasDerivAt (c u v : ℝ) :
+    HasDerivAt (fun t : ℝ => ((1 - t ^ 2 : ℝ) : ℂ) * deriv (ker c u) t)
+      ((((-2 * c * u) * v + c ^ 2 * u ^ 2 * (1 - v ^ 2) : ℝ) : ℂ) * ker c u v) v := by
+  have hd : deriv (ker c u) = fun t => ((c * u : ℝ) : ℂ) * ker c u t := by
+    funext t
+    exact (ker_hasDerivAt c u t).deriv
+  rw [hd]
+  have ha : HasDerivAt (fun t : ℝ => ((1 - t ^ 2 : ℝ) : ℂ)) (((-(2 * v)) : ℝ) : ℂ) v := by
+    have := ((hasDerivAt_pow 2 v).const_sub 1).ofReal_comp
+    convert this using 1
+    push_cast
+    ring
+  have hb := (ker_hasDerivAt c u v).const_mul (((c * u : ℝ) : ℂ))
+  convert ha.mul hb using 1
+  unfold ker
+  push_cast
+  ring
+
+/-- Continuous functions are `ν`-integrable. -/
+theorem integrable_of_continuous (g : ℝ → ℂ) (hg : Continuous g) : Integrable g ν :=
+  (memLp_of_continuous g hg).integrable one_le_two
+
+/-- The kernel form of `S` on the `L²` class of a polynomial is its kernel form on the
+polynomial itself. -/
+theorem SFun_polyLp (c : ℝ) (p : ℂ[X]) :
+    SFun c (polyLp p : ℝ → ℂ) = SFun c (polyFun p) := by
+  funext u
+  unfold SFun
+  apply integral_congr_ae
+  filter_upwards [polyLp_ae_eq p] with v hv
+  rw [hv]
+
+theorem SFun_poly_contDiff (c : ℝ) (hc : 0 < c) (p : ℂ[X]) (n : WithTop ℕ∞) :
+    ContDiff ℝ n (SFun c (polyFun p)) := by
+  rw [← SFun_polyLp]
+  exact SFun_contDiff c hc (polyLp p) n
+
+/-- `(S p)' = c · S (X p)` on polynomials. -/
+theorem SFun_poly_hasDerivAt (c : ℝ) (hc : 0 < c) (p : ℂ[X]) (u : ℝ) :
+    HasDerivAt (SFun c (polyFun p)) ((c : ℂ) * SFun c (polyFun (X * p)) u) u := by
+  have h := SFun_hasDerivAt c hc (polyLp p) u
+  rw [SFun_polyLp] at h
+  convert h using 1
+  unfold SFun
+  rw [← integral_const_mul]
+  apply integral_congr_ae
+  filter_upwards [polyLp_ae_eq p] with v hv
+  rw [hv]
+  simp only [polyFun, eval_mul, eval_X]
+  push_cast
+  ring
+
+theorem SFun_poly_deriv (c : ℝ) (hc : 0 < c) (p : ℂ[X]) :
+    deriv (SFun c (polyFun p)) = fun u => (c : ℂ) * SFun c (polyFun (X * p)) u := by
+  funext u
+  exact (SFun_poly_hasDerivAt c hc p u).deriv
+
+/-- `S q (u) = ∫ e^{c u v} q(v) dν(v)` written with the kernel `ker`. -/
+theorem SFun_poly_eq (c u : ℝ) (q : ℂ[X]) :
+    SFun c (polyFun q) u = ∫ v, ker c u v * polyFun q v ∂ν := rfl
+
 /-- **Lemma 3 (commutation on the core).**  For a polynomial `p`,
-`𝒜_c (S p) = S (𝒜_c p)` pointwise on `[-1,1]`.  Proof: `SFun_hasDerivAt` twice gives
-`𝒜_c (S p)(u) = ∫ (A^{(u)} K)(u,v) p(v) dν(v)`; the bispectral balance
-`Manuscript14Gram.gram_bispectral_kernel_balance` moves the differential expression from
-`u` to `v`; `integral_nu` and `green_identity` in the `v` variable (with `p` in place of
-`g`) move it onto `p`. -/
+`𝒜_c (S p) = S (𝒜_c p)` pointwise.  Proof: `SFun_poly_hasDerivAt` twice gives
+`𝒜_c (S p)(u) = ∫ e^{c u v} [2cu v - (1-u²)c² v² - c² u²] p(v) dν(v)`; `green_identity` in the
+`v` variable (with `p` in place of `f` and the kernel in place of `g`) and `integral_nu`
+give `S (𝒜_c p)(u) = ∫ e^{c u v} [2cu v - c² v² + c²u² v² - c² u²] p(v) dν(v)`; the two
+polynomial weights coincide (this is the bispectral balance
+`Manuscript14Gram.gram_differential_symbol_symmetric`). -/
 theorem core_commutation (c : ℝ) (hc : 0 < c) (p : ℂ[X]) :
     ∀ u ∈ Set.Icc (-1 : ℝ) 1,
       AExpr c (SFun c (polyFun p)) u = SFun c (polyFun (APoly c p)) u := by
-  sorry
+  intro u _
+  -- integrability of the integrands that occur
+  have hint : ∀ q : ℂ[X], Integrable (fun v => ker c u v * polyFun q v) ν := fun q =>
+    integrable_of_continuous _ (((ker_contDiff c u 0).continuous).mul (polyFun_continuous q))
+  -- left-hand side: two derivatives of `S p`
+  have hprod : HasDerivAt
+      (fun t : ℝ => ((1 - t ^ 2 : ℝ) : ℂ) * deriv (SFun c (polyFun p)) t)
+      ((((-(2 * u)) : ℝ) : ℂ) * ((c : ℂ) * SFun c (polyFun (X * p)) u)
+        + ((1 - u ^ 2 : ℝ) : ℂ) * ((c : ℂ) * ((c : ℂ) * SFun c (polyFun (X * (X * p))) u))) u := by
+    rw [SFun_poly_deriv c hc p]
+    have ha : HasDerivAt (fun t : ℝ => ((1 - t ^ 2 : ℝ) : ℂ)) (((-(2 * u)) : ℝ) : ℂ) u := by
+      have := ((hasDerivAt_pow 2 u).const_sub 1).ofReal_comp
+      convert this using 1
+      push_cast
+      ring
+    exact ha.mul ((SFun_poly_hasDerivAt c hc (X * p) u).const_mul (c : ℂ))
+  have hL : AExpr c (SFun c (polyFun p)) u
+      = ∫ v, ker c u v * polyFun p v
+          * (((2 * c * u) * v - (1 - u ^ 2) * c ^ 2 * v ^ 2 - c ^ 2 * u ^ 2 : ℝ) : ℂ) ∂ν := by
+    unfold AExpr
+    rw [hprod.deriv, SFun_poly_eq, SFun_poly_eq, SFun_poly_eq]
+    have hsplit : ∫ v, ker c u v * polyFun p v
+          * (((2 * c * u) * v - (1 - u ^ 2) * c ^ 2 * v ^ 2 - c ^ 2 * u ^ 2 : ℝ) : ℂ) ∂ν
+        = ∫ v, (((2 * c * u : ℝ) : ℂ) * (ker c u v * polyFun (X * p) v)
+            - (((1 - u ^ 2) * c ^ 2 : ℝ) : ℂ) * (ker c u v * polyFun (X * (X * p)) v))
+            - ((c ^ 2 * u ^ 2 : ℝ) : ℂ) * (ker c u v * polyFun p v) ∂ν := by
+      apply integral_congr_ae
+      filter_upwards with v
+      simp only [polyFun, eval_mul, eval_X]
+      push_cast
+      ring
+    have h1 : Integrable (fun v => ((2 * c * u : ℝ) : ℂ) * (ker c u v * polyFun (X * p) v)) ν :=
+      (hint _).const_mul _
+    have h2 : Integrable (fun v => (((1 - u ^ 2) * c ^ 2 : ℝ) : ℂ)
+        * (ker c u v * polyFun (X * (X * p)) v)) ν := (hint _).const_mul _
+    have h3 : Integrable (fun v => ((c ^ 2 * u ^ 2 : ℝ) : ℂ) * (ker c u v * polyFun p v)) ν :=
+      (hint _).const_mul _
+    rw [hsplit, integral_sub (h1.sub h2) h3, integral_sub h1 h2, integral_const_mul,
+      integral_const_mul, integral_const_mul]
+    push_cast
+    ring
+  -- right-hand side: Green in the `v` variable
+  have hG := green_identity (ker c u) (polyFun p) (ker_contDiff c u 2) (polyFun_contDiff p 2)
+  rw [oneSubSq_mul_deriv_polyFun p, polyFun_deriv] at hG
+  have hR : SFun c (polyFun (APoly c p)) u
+      = ∫ v, ker c u v * polyFun p v
+          * (((2 * c * u) * v - c ^ 2 * v ^ 2 + c ^ 2 * u ^ 2 * v ^ 2 - c ^ 2 * u ^ 2 : ℝ) : ℂ) ∂ν := by
+    have h1 : SFun c (polyFun (APoly c p)) u
+        = ∫ v, -(ker c u v * polyFun (derivative ((1 - X ^ 2) * derivative p)) v)
+          - ((c : ℂ) ^ 2) * (ker c u v * polyFun (X ^ 2 * p) v) ∂ν := by
+      rw [SFun_poly_eq]
+      apply integral_congr_ae
+      filter_upwards with v
+      simp only [polyFun, APoly, LinearMap.coe_mk, AddHom.coe_mk, eval_sub, eval_neg, eval_mul,
+        eval_add, eval_one, eval_pow, eval_X, eval_C, derivative_mul, derivative_sub,
+        derivative_one, derivative_X_sq]
+      push_cast
+      ring
+    have h2 : ∫ v, ker c u v * polyFun (derivative ((1 - X ^ 2) * derivative p)) v ∂ν
+        = ∫ v, ker c u v * polyFun p v
+            * ((((-2 * c * u) * v + c ^ 2 * u ^ 2 * (1 - v ^ 2) : ℝ) : ℂ)) ∂ν := by
+      rw [integral_nu, integral_nu]
+      congr 1
+      rw [← hG]
+      apply intervalIntegral.integral_congr
+      intro v _
+      rw [(oneSubSq_mul_deriv_ker_hasDerivAt c u v).deriv]
+      ring
+    have hn : Integrable (fun v => -(ker c u v
+        * polyFun (derivative ((1 - X ^ 2) * derivative p)) v)) ν := (hint _).neg
+    have hm : Integrable (fun v => ((c : ℂ) ^ 2) * (ker c u v * polyFun (X ^ 2 * p) v)) ν :=
+      (hint _).const_mul _
+    rw [h1, integral_sub hn hm, integral_neg, integral_const_mul, h2]
+    have hsplit : ∫ v, ker c u v * polyFun p v
+          * (((2 * c * u) * v - c ^ 2 * v ^ 2 + c ^ 2 * u ^ 2 * v ^ 2 - c ^ 2 * u ^ 2 : ℝ) : ℂ) ∂ν
+        = ∫ v, -(ker c u v * polyFun p v
+            * ((((-2 * c * u) * v + c ^ 2 * u ^ 2 * (1 - v ^ 2) : ℝ) : ℂ)))
+            - ((c : ℂ) ^ 2) * (ker c u v * polyFun (X ^ 2 * p) v) ∂ν := by
+      apply integral_congr_ae
+      filter_upwards with v
+      simp only [polyFun, eval_mul, eval_pow, eval_X]
+      push_cast
+      ring
+    have hq : Integrable (fun v => -(ker c u v * polyFun p v
+        * ((((-2 * c * u) * v + c ^ 2 * u ^ 2 * (1 - v ^ 2) : ℝ) : ℂ)))) ν := by
+      refine (integrable_of_continuous _ ?_).neg
+      exact ((ker_contDiff c u 0).continuous.mul (polyFun_continuous p)).mul (by fun_prop)
+    rw [hsplit, integral_sub hq hm, integral_neg, integral_const_mul]
+  rw [hL, hR]
+  apply integral_congr_ae
+  filter_upwards with v
+  push_cast
+  ring
 
 /-- **Lemma 4 (domain inclusion).**  Every `C²` function `g` defines an element of the domain
 of the closed operator `𝒜_c`, on which `𝒜_c` acts as the differential expression `AExpr c g`
