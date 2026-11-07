@@ -1,0 +1,68 @@
+name: Manuscript 14 — Lean 4 certificate of Proposition 8.7 (quartic of the residue integral)
+
+# Manuscript 14, Proposition 8.7 (displays (139)-(147)): the roots of the quartic minimal polynomial
+# 32x^4 - 16x^2 + 1, varpi = sqrt(2 + sqrt2)/sqrt8 and varpi' = 1/(2 sqrt(2 + sqrt2)), their relations
+# with a = 1/sqrt8, the ratio 1 + sqrt2, and Bender's characteristic polynomial of two oscillators with
+# balanced loss and gain. The module imports only the pinned Mathlib. The job fails on any compile
+# error, on any `sorry`, and on any axiom other than propext, Classical.choice and Quot.sound in
+# the fourteen audited statements.
+
+on:
+  push:
+    branches:
+      - manuscript14-evening-cert-20261107
+    paths:
+      - 'lean/SpecialImaginaryPoint/QuarticResidueCertificate.lean'
+      - '.github/workflows/manuscript14-quartic-lean.yml'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    name: Lean 4 kernel check of the quartic certificate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository-pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check the quartic certificate and audit its axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/QuarticResidueCertificate.lean 2>&1 | tee /tmp/qr.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/qr.log; then
+            echo '::error::Compile error in the quartic certificate'
+            exit 1
+          fi
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'declaration uses' /tmp/qr.log; then
+            echo '::error::Forbidden axiom or sorry in the quartic certificate'
+            exit 1
+          fi
+          n_all="$(grep -c "depends on axioms: \[" /tmp/qr.log || true)"
+          n_std="$(grep -cE "depends on axioms: \[((propext|Classical\.choice|Quot\.sound)(, )?)+\]" /tmp/qr.log || true)"
+          echo "audited statements: $n_all, of which within the standard three axioms: $n_std"
+          test "$n_all" -eq 14
+          test "$n_std" -eq 14
+          echo 'Quartic: no sorry, no sorryAx, no Lean.ofReduceBool; fourteen audited statements'
+      - name: Upload Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-quartic-lean
+          path: /tmp/qr.log
+          if-no-files-found: ignore
