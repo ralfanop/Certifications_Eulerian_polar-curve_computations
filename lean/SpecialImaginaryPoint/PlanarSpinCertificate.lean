@@ -208,7 +208,7 @@ theorem planar_spin_52 (x : ℝ) :
   congr 1
   have hs : ∀ k : ℕ, (x ^ 2 / 4) ^ k / ((k ! : ℝ) * (k ! : ℝ)) = (x ^ 2 / 4) ^ k / ((k ! : ℝ) ^ 2) := by
     intro k
-    rw [sq]
+    rw [sq (k ! : ℝ)]
   simp_rw [hs]
   rw [(planar_spin_series x).tsum_eq]
   ring
