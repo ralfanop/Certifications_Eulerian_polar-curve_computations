@@ -1,0 +1,70 @@
+name: Manuscript 14 — Lean 4 certificate of Theorem 4.2
+
+# Manuscript 14, Theorem 4.2 (the Eulerian distribution in a magnetic field): (i) the mean field
+# of the quasi-power and its derivative, the tilted mean and variance as derivatives of log Z;
+# (ii) the descent probabilities 1/2, 1/6, 1/4 of a uniform permutation, the spin correlations
+# -1/3 and 0, the mean (n-1)/2 and variance (n+1)/12, the generating function of the descent
+# kernel; (iii) the factorisation into independent Ising spins and their fields; (iv) the special
+# fields and the modular inversion on the field axis. The module imports only the pinned Mathlib.
+# The job fails on any compile error, on any `sorry`, and on any axiom other than propext,
+# Classical.choice and Quot.sound in the twenty-one audited statements.
+
+on:
+  push:
+    branches:
+      - manuscript14-theorem42-lean-20261107
+    paths:
+      - 'lean/SpecialImaginaryPoint/Theorem42Certificate.lean'
+      - '.github/workflows/manuscript14-theorem42-lean.yml'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    name: Lean 4 kernel check of the Theorem 4.2 certificate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository-pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check the Theorem 4.2 certificate and audit its axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/Theorem42Certificate.lean 2>&1 | tee /tmp/t42.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/t42.log; then
+            echo '::error::Compile error in the Theorem 4.2 certificate'
+            exit 1
+          fi
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'declaration uses' /tmp/t42.log; then
+            echo '::error::Forbidden axiom or sorry in the Theorem 4.2 certificate'
+            exit 1
+          fi
+          n_all="$(grep -c "depends on axioms: \[" /tmp/t42.log || true)"
+          n_std="$(grep -cE "depends on axioms: \[((propext|Classical\.choice|Quot\.sound)(, )?)+\]" /tmp/t42.log || true)"
+          echo "audited statements: $n_all, of which within the standard three axioms: $n_std"
+          test "$n_all" -eq 21
+          test "$n_std" -eq 21
+          echo 'Theorem 4.2: no sorry, no sorryAx, no Lean.ofReduceBool; twenty-one audited statements'
+      - name: Upload Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-theorem42-lean
+          path: /tmp/t42.log
+          if-no-files-found: ignore
