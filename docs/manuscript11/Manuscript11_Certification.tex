@@ -1,0 +1,59 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,amsmath,amssymb,booktabs,array,xcolor,microtype}
+\usepackage[a4paper,left=2.3cm,right=2.3cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true]{hyperref}
+\definecolor{ojacblue}{rgb}{0,0,0.8}
+\hypersetup{linkcolor=ojacblue,citecolor=ojacblue,urlcolor=ojacblue}
+\renewcommand{\baselinestretch}{1.08}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlength{\emergencystretch}{3em}
+\newcommand{\R}{https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations}
+\newcommand{\dir}[1]{\href{\R/tree/main/#1}{\texttt{#1}}}
+\newcommand{\fil}[1]{\href{\R/blob/main/#1}{\texttt{#1}}}
+\newcommand{\eq}[1]{(#1)}
+\begin{document}
+
+\begin{center}
+{\Large\bfseries Manuscript 11: Lean~4 and Arb certification record}\\[6pt]
+{\large Best approximation of the Eulerian polar curve by convex Pascal lima\c{c}ons and sharp Fourier truncation errors}\\[6pt]
+Roberto Alfano, 7~November~2026
+\end{center}
+
+\section*{1. Scope.}
+This record states, for manuscript~11, which results are kernel-checked in Lean~4 and how every displayed decimal is certified in interval and Arb ball arithmetic~[3]. It replaces the certification remarks formerly made in the text of the article (Introduction, Section~3 and Conclusions), the corresponding sentences of its Data Availability statement and of its declaration on generative AI, and the reference-list entry of the repository \url{\R}. Equation and statement numbers are those of manuscript~11, which are those of V001. The detailed map from every claim to its script, log and Lean module is the \fil{README.md} of the repository (its Sections~2--5 use the numbering of V478; its Section~5a gives the status in the numbering of V001).
+
+\section*{2. Lean~4 formalisation.}
+Every numbered statement of the article, from Definition~2.1 to Remark~3.16, is formalised in Lean~4, with the exception of the numerical values and finite exact computations, which are certified by interval and exact integer arithmetic (Section~3 below), and of the meaning of $E(n,k)$ as the number of permutations with $k$ ascents, which is classical [1, pp.~95--9] (see also [2, pp.~209--10]); in the formalisation $E(n,k)$ is defined by its recurrence. In particular:
+\begin{itemize}\setlength{\itemsep}{1pt}\raggedright
+\item Lemma~3.2 is formalised for the polar curves as subsets of $\mathbb C$, including the Hausdorff-distance identity;
+\item Theorems~3.12 and~3.13 are formalised, including the convexity of $\Omega_h$, Eq.~\eq{73}, the uniqueness of the minimiser and the scalar-balance argument that turns $Q(L)>L$, $Q(U)<U$ into $L<h_*<U$;
+\item in Remark~3.16 the integer inequalities that give $\alpha_{669}>\vartheta_E>\alpha_{671}$ after Eq.~\eq{93} are also verified by kernel evaluation.
+\end{itemize}
+The library \texttt{EulerianCert}, in the directory \dir{lean/EulerianCert}, is compiled with the Lean~4 toolchain \texttt{v4.35.0-rc3} and Mathlib commit \texttt{0272bbe1c093}; it is built with \texttt{lake exe cache get} and \texttt{lake build}, and \texttt{lake env lean AxiomCheck.lean} repeats the axiom audit. Two intermediate estimates of the proof of Lemma~3.15, Eqs.~\eq{88}--\eq{90}, are also proved verbatim in the library \texttt{V001} of \dir{lean/EulerianGrothendieck} (Lean~4.24.0, Mathlib \texttt{f897ebcf}).
+
+\section*{3. Certified decimals.}
+A displayed decimal is certified when a rigorous enclosure $[L,U]$ of the exact quantity lies inside the rounding cell of that decimal. Decimal values of exact quantities were certified by outward-rounded interval arithmetic (\texttt{mpmath.iv}) with explicit series remainders, and independently replayed in an exact-integer fixed-point interval arithmetic written for this purpose (\fil{numerics/ia_fixed.py}); every displayed decimal is also certified in the ball arithmetic of Arb~[3] (\dir{numerics/arb}). In particular:
+\begin{itemize}\setlength{\itemsep}{1pt}\raggedright
+\item the sharp uniform radial error \eq{29} of Corollary~3.5 is certified to 80 decimal places;
+\item $D_\kappa$ in \eq{50} is enclosed by validated Taylor integration (order~30, 56 steps on $[0,\pi]$) of the arclength-matching equation $\varphi'=(L_L/L_E)\,\sigma_E(\theta)/\sigma_L(\varphi)$, where $\sigma=\sqrt{r^2+r'^2}$, with Lagrange remainders bounded through a Picard a~priori enclosure, in both interval arithmetics (\fil{numerics/dkappa_cert.py}, \dir{numerics/arb/dkappa});
+\item the decimals of Theorem~3.12 are certified (\fil{numerics/epsrad_cert.py});
+\item $h_*$ in \eq{70} is certified correctly rounded to 80 decimal places (\fil{numerics/hstar_cert.py}, \fil{numerics/hstar_certificate.json}, \dir{numerics/arb/hstar80}). The 80-place decimal used in the proof of Theorem~3.13 is
+\begin{align*}
+d=0.&0492979483\,2571833570\,7036623003\,9670122802\\
+&4147449936\,0414188045\,3238853121\,8517828559,
+\end{align*}
+with $L=d-\tfrac12 10^{-80}$ and $U=d+\tfrac12 10^{-80}$; the checks $Q(L)>L$ and $Q(U)<U$ described in that proof are run on both interval backends, and the negative controls of \fil{numerics/hstar_negative_controls.py} shift $d$ by $\pm10^{-80}$ and make the corresponding check fail;
+\item the integer comparison \eq{93} of Remark~3.16 is checked by exact integer arithmetic (\fil{numerics/eulerian_bracket.py}).
+\end{itemize}
+
+\section*{References.}
+\begin{enumerate}\setlength{\itemsep}{1pt}
+\item[{[1]}] E. Deza, \emph{Eulerian Numbers}, Selected Chapters of Number Theory: Special Numbers, Vol.~5, World Scientific, New Jersey, 2026. ISBN 9789819818655. \url{https://doi.org/10.1142/14464}.
+\item[{[2]}] P. Flajolet, R. Sedgewick, \emph{Analytic Combinatorics}, 1st edition, Cambridge University Press, Cambridge, 2009. ISBN 9780511801655. \url{https://doi.org/10.1017/CBO9780511801655}.
+\item[{[3]}] F. Johansson, Arb: efficient arbitrary-precision midpoint-radius interval arithmetic, \emph{IEEE Trans. Comput.} \textbf{66} (2017), no.~8, 1281--1292. \url{https://doi.org/10.1109/TC.2017.2690633}.
+\end{enumerate}
+
+\end{document}
