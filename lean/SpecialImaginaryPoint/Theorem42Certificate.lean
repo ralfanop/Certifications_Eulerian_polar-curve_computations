@@ -53,9 +53,13 @@ theorem sinh_ne_zero {y : ℝ} (hy : y ≠ 0) : Real.sinh y ≠ 0 := fun h => hy
 theorem exp_sub_one_div_pos {H : ℝ} (hH : H ≠ 0) : 0 < (Real.exp H - 1) / H := by
   rcases lt_or_gt_of_ne hH with h | h
   · apply div_pos_of_neg_of_neg _ h
-    linarith [Real.exp_lt_one.mpr h]
+    have := Real.exp_lt_exp.mpr h
+    rw [Real.exp_zero] at this
+    linarith
   · apply div_pos _ h
-    linarith [Real.one_lt_exp.mpr h]
+    have := Real.exp_lt_exp.mpr h
+    rw [Real.exp_zero] at this
+    linarith
 
 /-- `e^H/(e^H - 1) - 1/H = [1 + L(H/2)]/2`. -/
 theorem mean_field_eq {H : ℝ} (hH : H ≠ 0) :
@@ -308,7 +312,6 @@ theorem cnt_and_comm (A B : Equiv.Perm (Fin n) → Prop) :
   unfold cnt
   apply Finset.sum_congr rfl
   intro σ _
-  show (if A σ ∧ B σ then 1 else 0) = (if B σ ∧ A σ then 1 else 0)
   by_cases h : A σ ∧ B σ
   · rw [if_pos h, if_pos h.symm]
   · rw [if_neg h, if_neg (fun h' => h h'.symm)]
