@@ -1,6 +1,6 @@
 # Manuscript 14: Lean 4 and Arb certification record
 
-*Ising magnets and paramagnetism from Eulerian Fourier profiles at the special point* $i/\sqrt2$, version 14.91. Roberto Alfano, 7 November 2026. A PDF version of this record is [Manuscript14_Certification.pdf](Manuscript14_Certification.pdf).
+*Ising magnets and paramagnetism from the Eulerian profile at the special point* $i/\sqrt2$, version 14.91. Roberto Alfano, 7 November 2026. A PDF version of this record is [Manuscript14_Certification.pdf](Manuscript14_Certification.pdf).
 
 ## 1. Scope.
 
