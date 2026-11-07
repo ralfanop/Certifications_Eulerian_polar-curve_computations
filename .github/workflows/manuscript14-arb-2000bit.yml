@@ -10,7 +10,8 @@ name: Manuscript 14 — all Arb certificates at 2000 bits
 # Sections 6-7 certificate (Lemma 7.1, Theorem 7.2 (91)-(96), the Euler products
 # and resolvent traces with rigorous tails, the Remark 7.5 decimals), and the
 # Sections 8-9 certificate (Theorem 8.1, Propositions 8.2, 8.4, 8.6, 8.7, Lemma 9.2,
-# Theorem 9.3, Corollary 9.4, Propositions 9.5 and 9.7).
+# Theorem 9.3, Corollary 9.4, Propositions 9.5 and 9.7), and the planar-spin certificate
+# (display (52) at lambda = 0).
 # The exact-rational truncation bounds and the printed-digit rounding checks
 # are unchanged; only the ball precision of the Arb evaluations is raised.
 
@@ -22,6 +23,7 @@ on:
       - manuscript14-rem44-ising-20261106
       - manuscript14-section67-lean-arb-20261106
       - manuscript14-section89-lean-arb-20261106
+      - manuscript14-planar-spin-lean-arb-20261107
     paths:
       - 'numerics/arb/manuscript14_*.py'
       - 'numerics/arb/special_point_i_sqrt2_arb.py'
@@ -30,7 +32,7 @@ on:
 
 jobs:
   arb:
-    name: Arb 2000-bit / exact Q — manuscript 14, thirteen certificates
+    name: Arb 2000-bit / exact Q — manuscript 14, fourteen certificates
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -40,7 +42,7 @@ jobs:
           python-version: '3.13'
       - name: Install python-flint 0.9.0
         run: python -m pip install python-flint==0.9.0
-      - name: Run the thirteen certificates at 2000 bits
+      - name: Run the fourteen certificates at 2000 bits
         shell: bash
         run: |
           set -euo pipefail
@@ -58,7 +60,8 @@ jobs:
             manuscript14_prop65_zeta_bernoulli_arb \
             manuscript14_rem44_ising_readings_arb \
             manuscript14_section7_arb \
-            manuscript14_section89_arb ; do
+            manuscript14_section89_arb \
+            manuscript14_planar_spin_arb ; do
             echo "=== numerics/arb/$s.py"
             python "numerics/arb/$s.py" 2>&1 | tee "/tmp/arb2000/$s.log"
             if grep -q "FAIL" "/tmp/arb2000/$s.log"; then

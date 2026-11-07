@@ -1,0 +1,68 @@
+name: Manuscript 14 — Lean 4 certificate of display (52) at lambda = 0 (planar spin)
+
+# Manuscript 14, display (52) at lambda = 0: the arcsine law nu_0 as the image of the uniform
+# angle, its normalisation and moments, and the Fourier-Laplace transform of nu_0 as the series
+# sum (x^2/4)^k/(k! (1)_k) = I_0(x), the partition function of the planar spin; the same average
+# over the full circle. The module imports only the pinned Mathlib. The job fails on any compile
+# error, on any `sorry`, and on any axiom other than propext, Classical.choice and Quot.sound in
+# the eight audited statements.
+
+on:
+  push:
+    branches:
+      - manuscript14-planar-spin-lean-arb-20261107
+    paths:
+      - 'lean/SpecialImaginaryPoint/PlanarSpinCertificate.lean'
+      - '.github/workflows/manuscript14-planar-spin-lean.yml'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    name: Lean 4 kernel check of the planar-spin certificate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository-pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check the planar-spin certificate and audit its axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/PlanarSpinCertificate.lean 2>&1 | tee /tmp/ps.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/ps.log; then
+            echo '::error::Compile error in the planar-spin certificate'
+            exit 1
+          fi
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'declaration uses' /tmp/ps.log; then
+            echo '::error::Forbidden axiom or sorry in the planar-spin certificate'
+            exit 1
+          fi
+          n_all="$(grep -c "depends on axioms: \[" /tmp/ps.log || true)"
+          n_std="$(grep -cE "depends on axioms: \[((propext|Classical\.choice|Quot\.sound)(, )?)+\]" /tmp/ps.log || true)"
+          echo "audited statements: $n_all, of which within the standard three axioms: $n_std"
+          test "$n_all" -eq 8
+          test "$n_std" -eq 8
+          echo 'Planar spin: no sorry, no sorryAx, no Lean.ofReduceBool; eight audited statements'
+      - name: Upload Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-planar-spin-lean
+          path: /tmp/ps.log
+          if-no-files-found: ignore
