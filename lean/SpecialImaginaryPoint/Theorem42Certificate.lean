@@ -53,9 +53,9 @@ theorem sinh_ne_zero {y : ℝ} (hy : y ≠ 0) : Real.sinh y ≠ 0 := fun h => hy
 theorem exp_sub_one_div_pos {H : ℝ} (hH : H ≠ 0) : 0 < (Real.exp H - 1) / H := by
   rcases lt_or_gt_of_ne hH with h | h
   · apply div_pos_of_neg_of_neg _ h
-    linarith [Real.exp_lt_one_of_neg h]
+    linarith [Real.exp_lt_one.mpr h]
   · apply div_pos _ h
-    linarith [Real.one_lt_exp_of_pos h]
+    linarith [Real.one_lt_exp.mpr h]
 
 /-- `e^H/(e^H - 1) - 1/H = [1 + L(H/2)]/2`. -/
 theorem mean_field_eq {H : ℝ} (hH : H ≠ 0) :
@@ -93,7 +93,7 @@ theorem mean_field_eq {H : ℝ} (hH : H ≠ 0) :
     apply ht1
     linear_combination h
   first
-    | (field_simp; ring)
+    | (field_simp; ring1)
     | field_simp
 
 /-- **Theorem 4.2 (i)**: `d/dH log B(e^H) = e^H/(e^H - 1) - 1/H = [1 + L(H/2)]/2`. -/
@@ -111,7 +111,7 @@ theorem logB_hasDerivAt {H : ℝ} (hH : H ≠ 0) :
     rw [h0, zero_div] at this
     exact lt_irrefl _ this
   first
-    | (field_simp; ring)
+    | (field_simp; ring1)
     | field_simp
 
 /-- **Theorem 4.2 (i)**: the mean `(n + 1)[1 + L(H/2)]/2` of the quasi-power `B(u)^{n+1}`. -/
@@ -137,7 +137,7 @@ theorem L_hasDerivAt {y : ℝ} (hy : y ≠ 0) : HasDerivAt L (L' y) y := by
     linarith
   rw [hc']
   first
-    | (field_simp; ring)
+    | (field_simp; ring1)
     | field_simp
 
 /-- **Theorem 4.2 (i)**: the derivative of the mean field is `L'(H/2)/4`. -/
@@ -147,7 +147,7 @@ theorem meanField_hasDerivAt {H : ℝ} (hH : H ≠ 0) :
   have h := ((L_hasDerivAt hH2).comp H ((hasDerivAt_id H).div_const 2)).const_add 1
   have h' := h.div_const 2
   convert h' using 1 <;> first
-    | ring
+    | ring1
     | (funext x; simp [Function.comp_def])
     | rfl
 
@@ -168,9 +168,10 @@ theorem Z_hasDerivAt (N : ℕ) (p : ℕ → ℝ) (H : ℝ) : HasDerivAt (Z N p) 
     simp only [id, mul_one] at this
     convert this using 1
     ring
-  have h := HasDerivAt.sum hterm
   unfold Z Z1
-  exact h
+  first
+    | exact HasDerivAt.fun_sum hterm
+    | (convert HasDerivAt.sum hterm using 1; funext y; simp [Finset.sum_apply])
 
 theorem Z1_hasDerivAt (N : ℕ) (p : ℕ → ℝ) (H : ℝ) : HasDerivAt (Z1 N p) (Z2 N p H) H := by
   have hterm : ∀ k ∈ range N, HasDerivAt (fun H : ℝ => p k * k * Real.exp (k * H))
@@ -180,9 +181,10 @@ theorem Z1_hasDerivAt (N : ℕ) (p : ℕ → ℝ) (H : ℝ) : HasDerivAt (Z1 N p
     simp only [id, mul_one] at this
     convert this using 1
     ring
-  have h := HasDerivAt.sum hterm
   unfold Z1 Z2
-  exact h
+  first
+    | exact HasDerivAt.fun_sum hterm
+    | (convert HasDerivAt.sum hterm using 1; funext y; simp [Finset.sum_apply])
 
 /-- **Theorem 4.2 (i)**: the tilted mean is `d/dH log Z = u ∂_u log A_n(u)`. -/
 theorem tilt_mean (N : ℕ) (p : ℕ → ℝ) (H : ℝ) (hZ : 0 < Z N p H) :
@@ -197,7 +199,7 @@ theorem tilt_variance (N : ℕ) (p : ℕ → ℝ) (H : ℝ) (hZ : Z N p H ≠ 0)
   have h := (Z1_hasDerivAt N p H).div (Z_hasDerivAt N p H) hZ
   convert h using 1
   first
-    | (field_simp; ring)
+    | (field_simp; ring1)
     | field_simp
 
 /-! ## (ii) The descent spins of a uniform permutation -/
@@ -230,38 +232,42 @@ theorem cnt_pair (a b : Fin n) (hab : a ≠ b) :
     2 * cnt (fun σ : Equiv.Perm (Fin n) => σ b < σ a) = n ! := by
   apply cnt_of_partition _ ![1, Equiv.swap a b]
   intro σ
-  have h1 : (σ a).val ≠ (σ b).val := fun h => hab (σ.injective (Fin.ext h))
+  have hne : σ a ≠ σ b := σ.injective.ne hab
   simp only [Fin.sum_univ_succ, Fin.sum_univ_zero, Matrix.cons_val_zero, Matrix.cons_val_succ,
-    Equiv.Perm.mul_apply, Equiv.Perm.one_apply, Equiv.swap_apply_left, Equiv.swap_apply_right,
-    Fin.lt_iff_val_lt_val]
-  split_ifs <;> omega
+    Equiv.Perm.mul_apply, Equiv.Perm.one_apply, Equiv.swap_apply_left, Equiv.swap_apply_right]
+  rcases lt_or_gt_of_ne hne with h | h <;> simp [h, lt_asymm h]
 
 theorem cnt_triple (a b c : Fin n) (hab : a ≠ b) (hbc : b ≠ c) (hac : a ≠ c) :
     6 * cnt (fun σ : Equiv.Perm (Fin n) => σ b < σ a ∧ σ c < σ b) = n ! := by
   apply cnt_of_partition _ ![1, Equiv.swap a b, Equiv.swap b c, Equiv.swap a c,
     Equiv.swap a b * Equiv.swap b c, Equiv.swap b c * Equiv.swap a b]
   intro σ
-  have h1 : (σ a).val ≠ (σ b).val := fun h => hab (σ.injective (Fin.ext h))
-  have h2 : (σ b).val ≠ (σ c).val := fun h => hbc (σ.injective (Fin.ext h))
-  have h3 : (σ a).val ≠ (σ c).val := fun h => hac (σ.injective (Fin.ext h))
+  have hne1 : σ a ≠ σ b := σ.injective.ne hab
+  have hne2 : σ b ≠ σ c := σ.injective.ne hbc
+  have hne3 : σ a ≠ σ c := σ.injective.ne hac
   simp only [Fin.sum_univ_succ, Fin.sum_univ_zero, Matrix.cons_val_zero, Matrix.cons_val_succ,
     Equiv.Perm.mul_apply, Equiv.Perm.one_apply, Equiv.swap_apply_left, Equiv.swap_apply_right,
     Equiv.swap_apply_of_ne_of_ne, hab, hbc, hac, hab.symm, hbc.symm, hac.symm, ne_eq,
-    not_false_eq_true, Fin.lt_iff_val_lt_val]
-  split_ifs <;> (try simp only [not_and_or, not_lt] at *) <;> omega
+    not_false_eq_true]
+  rcases lt_or_gt_of_ne hne1 with h1 | h1 <;> rcases lt_or_gt_of_ne hne2 with h2 | h2 <;>
+    rcases lt_or_gt_of_ne hne3 with h3 | h3 <;>
+    first
+      | (exfalso; simp only [Fin.lt_iff_val_lt_val, gt_iff_lt] at h1 h2 h3; omega)
+      | simp [h1, h2, h3, lt_asymm h1, lt_asymm h2, lt_asymm h3]
 
 theorem cnt_quad (a b c d : Fin n) (hab : a ≠ b) (hcd : c ≠ d) (hac : a ≠ c) (had : a ≠ d)
     (hbc : b ≠ c) (hbd : b ≠ d) :
     4 * cnt (fun σ : Equiv.Perm (Fin n) => σ b < σ a ∧ σ d < σ c) = n ! := by
   apply cnt_of_partition _ ![1, Equiv.swap a b, Equiv.swap c d, Equiv.swap a b * Equiv.swap c d]
   intro σ
-  have h1 : (σ a).val ≠ (σ b).val := fun h => hab (σ.injective (Fin.ext h))
-  have h2 : (σ c).val ≠ (σ d).val := fun h => hcd (σ.injective (Fin.ext h))
+  have hne1 : σ a ≠ σ b := σ.injective.ne hab
+  have hne2 : σ c ≠ σ d := σ.injective.ne hcd
   simp only [Fin.sum_univ_succ, Fin.sum_univ_zero, Matrix.cons_val_zero, Matrix.cons_val_succ,
     Equiv.Perm.mul_apply, Equiv.Perm.one_apply, Equiv.swap_apply_left, Equiv.swap_apply_right,
     Equiv.swap_apply_of_ne_of_ne, hab, hcd, hac, had, hbc, hbd, hab.symm, hcd.symm, hac.symm,
-    had.symm, hbc.symm, hbd.symm, ne_eq, not_false_eq_true, Fin.lt_iff_val_lt_val]
-  split_ifs <;> (try simp only [not_and_or, not_lt] at *) <;> omega
+    had.symm, hbc.symm, hbd.symm, ne_eq, not_false_eq_true]
+  rcases lt_or_gt_of_ne hne1 with h1 | h1 <;> rcases lt_or_gt_of_ne hne2 with h2 | h2 <;>
+    simp [h1, h2, lt_asymm h1, lt_asymm h2]
 
 /-- The descent at position `i`: `σ(i) > σ(i+1)` (positions counted from `0`). -/
 def D (i : ℕ) (σ : Equiv.Perm (Fin n)) : Prop := ∃ h : i + 1 < n, σ ⟨i + 1, h⟩ < σ ⟨i, by omega⟩
@@ -302,13 +308,26 @@ theorem cnt_and_comm (A B : Equiv.Perm (Fin n) → Prop) :
   unfold cnt
   apply Finset.sum_congr rfl
   intro σ _
-  rw [show (A σ ∧ B σ) = (B σ ∧ A σ) from propext and_comm]
+  show (if A σ ∧ B σ then 1 else 0) = (if B σ ∧ A σ then 1 else 0)
+  by_cases h : A σ ∧ B σ
+  · rw [if_pos h, if_pos h.symm]
+  · rw [if_neg h, if_neg (fun h' => h h'.symm)]
 
 theorem cast_cnt (A : Equiv.Perm (Fin n) → Prop) :
     (cnt A : ℚ) = ∑ σ : Equiv.Perm (Fin n), if A σ then (1 : ℚ) else 0 := by
   unfold cnt
   push_cast
   try rfl
+
+theorem sum_ite_and (A B : Equiv.Perm (Fin n) → Prop) :
+    (∑ σ : Equiv.Perm (Fin n), if A σ ∧ B σ then (1 : ℚ) else 0) =
+      (cnt (fun σ => A σ ∧ B σ) : ℚ) := by
+  rw [cast_cnt]
+  apply Finset.sum_congr rfl
+  intro σ _
+  by_cases h : A σ ∧ B σ
+  · rw [if_pos h, if_pos h]
+  · rw [if_neg h, if_neg h]
 
 theorem spin_corr_sum (A B : Equiv.Perm (Fin n) → Prop) :
     (∑ σ : Equiv.Perm (Fin n), (if A σ then (1 : ℚ) else -1) * (if B σ then (1 : ℚ) else -1)) =
@@ -318,9 +337,10 @@ theorem spin_corr_sum (A B : Equiv.Perm (Fin n) → Prop) :
         2 * (if B σ then (1 : ℚ) else 0) + 1 := by
     intro σ
     by_cases hA : A σ <;> by_cases hB : B σ <;> simp [hA, hB] <;> norm_num
-  rw [Finset.sum_congr rfl (fun σ _ => hpt σ), cast_cnt, cast_cnt, cast_cnt]
+  rw [Finset.sum_congr rfl (fun σ _ => hpt σ)]
   simp only [Finset.sum_add_distrib, Finset.sum_sub_distrib, ← Finset.mul_sum, Finset.sum_const,
     Finset.card_univ, Fintype.card_perm, Fintype.card_fin, nsmul_eq_mul, mul_one]
+  rw [sum_ite_and, ← cast_cnt, ← cast_cnt]
 
 /-- **Theorem 4.2 (ii)**: `E[s_i s_{i+1}] = -1/3` for the descent spins `s_i = 2 D_i - 1`. -/
 theorem spin_corr_adjacent (i : ℕ) (hi : i + 2 < n) :
@@ -460,7 +480,7 @@ theorem descent_mean (m : ℕ) :
   rw [Finset.sum_comm, show m + 1 - 1 = m by omega, Finset.sum_congr rfl hc, Finset.sum_const,
     Finset.card_range, nsmul_eq_mul]
   first
-    | (field_simp; ring)
+    | (field_simp; ring1)
     | field_simp
 
 /-- **Theorem 4.2 (ii)**: `Var[∑ D_i] = (n + 1)/12` for `n = m + 2 ≥ 2` letters. -/
@@ -486,7 +506,7 @@ theorem descent_variance (k : ℕ) :
     rw [Finset.sum_comm]
     apply Finset.sum_congr rfl
     intro j _
-    rw [cast_cnt]
+    exact sum_ite_and (D i) (D j)
   rw [hsq]
   have hq : ∀ i ∈ range (k + 1), ∀ j ∈ range (k + 1),
       (cnt (fun σ : Equiv.Perm (Fin (k + 2)) => D i σ ∧ D j σ) : ℚ) =
@@ -526,7 +546,7 @@ theorem descent_kernel (z : ℂ) (hz : z ≠ 0) (hez : Complex.exp z ≠ 1) :
     linear_combination h
   rw [hsinh, hcosh]
   first
-    | (field_simp; ring)
+    | (field_simp; ring1)
     | field_simp
 
 /-! ## (iii) Independent Ising spins -/
@@ -542,7 +562,7 @@ theorem ising_factor {m : ℕ} (α : Fin m → ℝ) (hα : ∀ j, α j < 0) (u t
   have h1 : u - α j ≠ 0 := by linarith [hα j]
   have h2 : 1 - α j ≠ 0 := by linarith [hα j]
   first
-    | (field_simp; ring)
+    | (field_simp; ring1)
     | field_simp
 
 /-- **Theorem 4.2 (iii)**: `q_j = u/(u - α_j) = e^{h_j}/(e^{h_j} + e^{-h_j})` with
@@ -567,11 +587,12 @@ theorem ising_field (α H : ℝ) (hα : α < 0) :
   have e : E / (E + E⁻¹) = E ^ 2 / (E ^ 2 + 1) := by
     rw [div_eq_div_iff hs1 hs2]
     first
-      | (field_simp; ring)
+      | (field_simp; ring1)
       | field_simp
   rw [e, hE2, div_add_one hα', div_div_div_cancel_right₀ hα']
-  congr 1
-  ring
+  all_goals first
+    | (congr 1; ring1)
+    | congr 1
 
 /-! ## (iv) The special fields -/
 
@@ -587,7 +608,7 @@ theorem field_profile {H : ℝ} (hH : H ≠ 0) :
   rw [Real.sinh_eq, Real.exp_neg, ← ht, he]
   have ht0 : t ≠ 0 := htpos.ne'
   first
-    | (field_simp; ring)
+    | (field_simp; ring1)
     | field_simp
 
 /-- **Theorem 4.2 (iv)**: at `H₀ = -1/√2`, `e^{a} B(e^{-2a}) = sinh(a)/a = r_E(z₀)`,
@@ -613,7 +634,7 @@ theorem H0_eq : 2 / Real.sqrt 8 = 1 / Real.sqrt 2 := by
   have h2 : 0 < Real.sqrt 2 := Real.sqrt_pos.mpr (by norm_num)
   rw [h8]
   first
-    | (field_simp; ring)
+    | (field_simp; ring1)
     | field_simp
     | (rw [div_mul_eq_div_div, div_self (by norm_num : (2 : ℝ) ≠ 0)])
 
@@ -673,9 +694,11 @@ theorem H1_eq : 2 * (-(1 / Real.sqrt 2)) = 1 / (-(1 / Real.sqrt 2)) ∧
     2 * (-(1 / Real.sqrt 2)) = -Real.sqrt 2 := by
   have h2 : 0 < Real.sqrt 2 := Real.sqrt_pos.mpr (by norm_num)
   have hs : Real.sqrt 2 * Real.sqrt 2 = 2 := Real.mul_self_sqrt (by norm_num)
+  have e0 : 2 * (1 / Real.sqrt 2) = Real.sqrt 2 := by
+    rw [mul_one_div, div_eq_iff h2.ne']
+    linarith [hs]
   have e1 : 2 * (-(1 / Real.sqrt 2)) = -Real.sqrt 2 := by
-    rw [mul_neg, neg_inj, ← hs]
-    field_simp
+    rw [mul_neg, e0]
   refine ⟨?_, e1⟩
   rw [e1, one_div_neg_eq_neg_one_div, one_div_one_div]
 
