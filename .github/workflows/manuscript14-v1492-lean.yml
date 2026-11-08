@@ -1,0 +1,70 @@
+name: Manuscript 14 — Lean 4 certificate of the discriminants added in version 14.92
+
+# Manuscript 14, version 14.92 (8 November 2026): the discriminant (-1)^(n-1)[n^n + (n-1)^(n-1)] of the
+# Parry trinomial t^n - t^(n-1) - 1 from the trinomial formula of Gelfand-Kapranov-Zelevinsky (Section 2.1),
+# and, after Proposition 8.7, the discriminant 2^23 of (139) and that of Bender's polynomial (142), with its
+# value s^12/128 on (144)-(145), its zero set (coalescing and vanishing frequencies). The module imports
+# only the pinned Mathlib. The job fails on any compile error, on any `sorry`, and on any axiom other
+# than propext, Classical.choice and Quot.sound in the nine audited statements.
+
+on:
+  push:
+    branches:
+      - manuscript14-v1492-cert-20261108
+    paths:
+      - 'lean/SpecialImaginaryPoint/V1492AdditionsCertificate.lean'
+      - '.github/workflows/manuscript14-v1492-lean.yml'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    name: Lean 4 kernel check of the version-14.92 certificate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository-pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check the version-14.92 certificate and audit its axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V1492AdditionsCertificate.lean 2>&1 | tee /tmp/v1492.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/v1492.log; then
+            echo '::error::Compile error in the version-14.92 certificate'
+            exit 1
+          fi
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'declaration uses' /tmp/v1492.log; then
+            echo '::error::Forbidden axiom or sorry in the version-14.92 certificate'
+            exit 1
+          fi
+          # Lean wraps long axiom lists over two lines: join the log before counting.
+          tr '\n' ' ' < /tmp/v1492.log | grep -oE "depends on axioms: \[[^]]*\]" | sed -E 's/ +/ /g' > /tmp/v1492.axioms || true
+          n_all="$(grep -c "depends on axioms" /tmp/v1492.axioms || true)"
+          n_std="$(grep -cE "depends on axioms: \[((propext|Classical\.choice|Quot\.sound)(, )?)+\]" /tmp/v1492.axioms || true)"
+          echo "audited statements: $n_all, of which within the standard three axioms: $n_std"
+          test "$n_all" -eq 9
+          test "$n_std" -eq 9
+          echo 'Version 14.92: no sorry, no sorryAx, no Lean.ofReduceBool; nine audited statements'
+      - name: Upload Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-v1492-lean
+          path: /tmp/v1492.log
+          if-no-files-found: ignore
