@@ -1,0 +1,71 @@
+name: Manuscript 14 — Lean 4 certificate of the Langevin curve of Section 4.5 (version 14.118)
+
+# Manuscript 14, version 14.118 (8 November 2026): the Langevin function is odd, the symmetry
+# m(-H) = 1 - m(H), coth(H/2) = (e^H + 1)/(e^H - 1), the exact form m(H) = 1 + 1/(e^H - 1) - 1/H, the bounds
+# 1 - 1/H < m(H) < 1 (H > 0) and 0 < m(H) < -1/H (H < 0), H(1 - m(H)) = 1 - H/(e^H - 1), and the limits
+# H(1 - m(H)) -> 1 (H -> +oo) and -H m(H) -> 1 (H -> -oo): the saturation values of Figure 1 approached as
+# 1/|H|. The module imports only the pinned Mathlib. The job fails on any compile error, on any `sorry`, and
+# on any axiom other than propext, Classical.choice and Quot.sound in the nine audited statements.
+
+on:
+  push:
+    branches:
+      - manuscript14-v14118-cert-20261108
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14118Section45Certificate.lean'
+      - '.github/workflows/manuscript14-v14118-lean.yml'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    name: Lean 4 kernel check of the version-14.118 Section 4.5 certificate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository-pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check the version-14.118 certificate and audit its axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V14118Section45Certificate.lean 2>&1 | tee /tmp/v14118.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/v14118.log; then
+            echo '::error::Compile error in the version-14.118 certificate'
+            exit 1
+          fi
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'declaration uses' /tmp/v14118.log; then
+            echo '::error::Forbidden axiom or sorry in the version-14.118 certificate'
+            exit 1
+          fi
+          # Lean wraps long axiom lists over two lines: join the log before counting.
+          tr '\n' ' ' < /tmp/v14118.log | grep -oE "depends on axioms: \[[^]]*\]" | sed -E 's/ +/ /g' > /tmp/v14118.axioms || true
+          n_none="$(grep -c "does not depend on any axioms" /tmp/v14118.log || true)"
+          n_all="$(grep -c "depends on axioms" /tmp/v14118.axioms || true)"
+          n_std="$(grep -cE "depends on axioms: \[((propext|Classical\.choice|Quot\.sound)(, )?)+\]" /tmp/v14118.axioms || true)"
+          echo "audited statements: $((n_all + n_none)), of which within the standard three axioms: $((n_std + n_none))"
+          test "$((n_all + n_none))" -eq 9
+          test "$((n_std + n_none))" -eq 9
+          echo 'Version 14.118: no sorry, no sorryAx, no Lean.ofReduceBool; nine audited statements'
+      - name: Upload Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-v14118-lean
+          path: /tmp/v14118.log
+          if-no-files-found: ignore
