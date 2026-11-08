@@ -68,7 +68,8 @@ theorem magn_exact (H : ℝ) (hH : H ≠ 0) :
   have he1 : Real.exp H - 1 ≠ 0 := exp_sub_one_ne_zero hH
   unfold magn langevin
   rw [coth_half H hH]
-  field_simp <;> ring
+  field_simp
+  ring
 
 theorem magn_bounds (H : ℝ) (hH : 0 < H) : 1 - 1 / H < magn H ∧ magn H < 1 := by
   have he : H + 1 < Real.exp H := Real.add_one_lt_exp hH.ne'
@@ -93,7 +94,8 @@ theorem mul_one_sub_magn (H : ℝ) (hH : H ≠ 0) :
     H * (1 - magn H) = 1 - H / (Real.exp H - 1) := by
   have he1 : Real.exp H - 1 ≠ 0 := exp_sub_one_ne_zero hH
   rw [magn_exact H hH]
-  field_simp <;> ring
+  field_simp
+  ring
 
 theorem tendsto_mul_one_sub_magn :
     Tendsto (fun H : ℝ => H * (1 - magn H)) atTop (𝓝 1) := by
