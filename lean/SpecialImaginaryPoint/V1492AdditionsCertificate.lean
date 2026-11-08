@@ -57,7 +57,7 @@ theorem gkz_trinomial_parry (k : ℕ) :
   rw [e1, e4, e2, e3]
   have h := neg_one_pow_k_k2 k
   try push_cast
-  try simp only [one_pow, pow_one, pow_zero, mul_one]
+  try simp only [one_pow, mul_one]
   linear_combination ((-1 : ℤ) ^ (k + 1) * ((k : ℤ) + 1) ^ (k + 1)) * h
 
 theorem parry_discriminant_ne_zero (k : ℕ) :

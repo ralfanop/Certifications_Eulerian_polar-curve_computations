@@ -53,8 +53,10 @@ jobs:
             echo '::error::Forbidden axiom or sorry in the version-14.92 certificate'
             exit 1
           fi
-          n_all="$(grep -c "depends on axioms: \[" /tmp/v1492.log || true)"
-          n_std="$(grep -cE "depends on axioms: \[((propext|Classical\.choice|Quot\.sound)(, )?)+\]" /tmp/v1492.log || true)"
+          # Lean wraps long axiom lists over two lines: join the log before counting.
+          tr '\n' ' ' < /tmp/v1492.log | grep -oE "depends on axioms: \[[^]]*\]" | sed -E 's/ +/ /g' > /tmp/v1492.axioms || true
+          n_all="$(grep -c "depends on axioms" /tmp/v1492.axioms || true)"
+          n_std="$(grep -cE "depends on axioms: \[((propext|Classical\.choice|Quot\.sound)(, )?)+\]" /tmp/v1492.axioms || true)"
           echo "audited statements: $n_all, of which within the standard three axioms: $n_std"
           test "$n_all" -eq 9
           test "$n_std" -eq 9
