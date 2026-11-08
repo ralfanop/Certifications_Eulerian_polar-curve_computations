@@ -28,7 +28,7 @@ Roberto Alfano, 8~November~2026
 This record states, for each numbered result of manuscript~14, version~14.118, and for the computed values added to its text on 8~November~2026, what is kernel-checked in Lean~4, which scalar values are enclosed by Arb at 2000 bits, which steps are classical inputs and which formalisation tasks remain open. Equation, section and result numbers are those of version~14.118, identical to those of version~14.105: up to \eq{141} they are those of version~14.91, and from \eq{142} on they exceed those of version~14.91 by one, because version~14.95 added the line \eq{142} with fifty decimals of the root $x_0$ of \eq{139}. All certificates are in the main branch of the repository \url{\R} at commit \href{\R/tree/4909a8910c74f4a7c31c2145b9466fbedd5a781e}{\texttt{4909a891}}, and were audited from 5 to 8~November~2026 (those of versions~14.95--14.105 in \PR{63}, those of version~14.118 in \PR{64}); each pull request (PR) below links its workflow runs. The Lean certificates use Lean~\texttt{v4.35.0-rc3} with the pinned Mathlib dependency recorded in their workflows, compiled from source; every axiom audit lists only \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}, with no \texttt{sorryAx} and no \texttt{Lean.ofReduceBool}. The numerical certificates use \texttt{python-flint~0.9.0}, exact rational arithmetic and Arb balls at 2000 bits; they certify the stated scalar quantities and do not prove infinite-dimensional operator identities.
 
 \section*{2. Overview.}
-In Table~1, ``yes'' means that the stated content is certified, apart from the classical inputs listed in Section~4; ``partial'' means that part of it is, the rest being listed in Section~5.
+In Table~1, ``yes'' means that the stated content is certified, apart from the classical inputs listed in Section~4, and ``---'' that it is certified numerically only.
 
 \vspace{10pt}
 {\small
@@ -48,37 +48,37 @@ Proposition 2.1 (special-value chain) & --- & yes & \PR{38}\\
 Section 2.1 (discriminant of $F_n$) & yes & yes & \PR{62}\\
 Corollary 2.2 (rational bounds) & --- & yes & \PR{38}\\
 Lemma 2.3 (uniqueness of $z_0$) & yes & yes & \PR{44}\\
-Proposition 3.1 (Sonine) & partial & yes & \PR{31}, \PR{38}\\
-Proposition 3.3 (modified Helmholtz) & partial & yes & \PR{38}, branch \texttt{cor36}\\
-Proposition 4.1 (Langevin) & partial & yes & \PR{38}, \PR{46}\\
+Proposition 3.1 (Sonine) & yes & yes & \PR{31}, \PR{38}\\
+Proposition 3.3 (modified Helmholtz) & yes & yes & \PR{38}, branch \texttt{cor36}\\
+Proposition 4.1 (Langevin) & yes & yes & \PR{38}, \PR{46}\\
 Theorem 4.2 (noninteracting magnet) & yes & yes & \PR{40}, \PR{48}, \PR{61}\\
 Section 4.5 and its Table 1 (superparamagnetic fields) & --- & yes & \PR{64}\\
-Figure 1 (caption) and the paragraph of Figure 2 & partial & yes & \PR{64}\\
+Figure 1 (caption) and the paragraph of Figure 2 & yes & yes & \PR{64}\\
 Figures 1--3 (plotted data) & --- & yes & \PR{64}\\
 Displays (54)--(55) (Riccati, Painlev\'e~III) & --- & yes & \PR{61}\\
 Display (60) ($n$-vector) & $\lambda=0$ & $\lambda=0,\pm\tfrac12$ & \PR{40}, \PR{47}\\
 Definition 5.1 (Gram operator) & yes & --- & \PR{33}\\
 Theorem 5.2 (Gram commutation) & yes & --- & \PR{37}\\
-Corollary 5.3 (Eulerian specialisation) & partial & yes & \PR{33}, \PR{38}\\
+Corollary 5.3 (Eulerian specialisation) & yes & yes & \PR{33}, \PR{38}\\
 Proposition 5.4 (spheroidal basis) & yes & --- & \PR{41}, \PR{42}, \PR{43}\\
-Proposition 6.2 (two determinants) & partial & yes & \PR{44}, branch \texttt{dirichlet-finite}\\
+Proposition 6.2 (two determinants) & yes & yes & \PR{44}, branch \texttt{dirichlet-finite}\\
 Proposition 6.3 (resolvent traces) & yes & yes & \PR{44}\\
 Corollary 6.4 (Hilbert--Schmidt trace) & yes & yes & \PR{44}\\
 Proposition 6.5 (zeta expansion) & --- & yes & \PR{39}\\
-Theorem 7.1 (modular duplication) & partial & yes & \PR{44}\\
-Theorem 8.1 (quadratic covering) & partial & yes & \PR{45}\\
+Theorem 7.1 (modular duplication) & yes & yes & \PR{44}\\
+Theorem 8.1 (quadratic covering) & yes & yes & \PR{45}\\
 Proposition 8.2 (Montgomery--Taylor) & yes & yes & \PR{45}, \PR{61}\\
-Proposition 8.4 (Dirichlet $L$-series, self-dual coupling) & partial & yes & \PR{45}, \PR{63}\\
-Proposition 8.6 (paths and Vi\`ete) & partial & yes & \PR{45}, \PR{61}, \PR{62}, \PR{63}\\
-Proposition 8.7 (classical \textit{PT}-symmetric oscillators) & partial & yes & \PR{61}, \PR{63}\\
+Proposition 8.4 (Dirichlet $L$-series, self-dual coupling) & yes & yes & \PR{45}, \PR{63}\\
+Proposition 8.6 (paths and Vi\`ete) & yes & yes & \PR{45}, \PR{61}, \PR{62}, \PR{63}\\
+Proposition 8.7 (classical \textit{PT}-symmetric oscillators) & yes & yes & \PR{61}, \PR{63}\\
 Text after Proposition 8.7 (discriminants) & yes & yes & \PR{62}, \PR{63}\\
-Proposition 8.8 (lattice walks) & partial & yes & \PR{45}\\
+Proposition 8.8 (lattice walks) & yes & yes & \PR{45}\\
 Lemma 9.2 (time reversal) & yes & yes & \PR{45}, \PR{62}\\
-Theorem 9.3 (Bloch antipode) & partial & yes & \PR{45}, \PR{46}, \PR{62}\\
-Corollary 9.4 (averages over pure states) & partial & yes & \PR{45}, \PR{46}\\
+Theorem 9.3 (Bloch antipode) & yes & yes & \PR{45}, \PR{46}, \PR{62}\\
+Corollary 9.4 (averages over pure states) & yes & yes & \PR{45}, \PR{46}\\
 Proposition 9.5 (Brillouin splitting) & yes & yes & \PR{44}, \PR{45}\\
 Text after Proposition 9.5 (electron spin) & --- & yes & \PR{62}\\
-Proposition 9.7 (involutions) & partial & yes & \PR{45}\\
+Proposition 9.7 (involutions) & yes & yes & \PR{45}\\
 Theorem 10.1 (Eulerian--Parry) & yes & yes & \PR{30}\\
 \end{longtable}
 }
@@ -107,10 +107,10 @@ Theorem 10.1 (Eulerian--Parry) & yes & yes & \PR{30}\\
 \textbf{Section 10.} Theorem~10.1 is kernel-checked in full (\CI{41812736721}): the adjacent thresholds, the greedy digits, the rational orbit-defect bounds, the endpoint jump, the rational series of $\beta_E=\sqrt2\sinh(1/\sqrt2)$ (module \texttt{EulerianSinhSeries}), its transcendence and the absence of eventual periodicity; the finite word at $\beta_{31}$ is checked separately. The Hermite--Lindemann instance is compiled from source adapted, under its Apache~2.0 licence and with attribution, from Yuyang Zhao's \href{https://github.com/leanprover-community/mathlib4/pull/28013}{Mathlib pull request \#28013}, not yet merged on 7~November~2026.
 
 \section*{4. Classical inputs.}
-The following enter the certificates as explicit hypotheses or are not reproved: the inputs of Section~2.2 of the manuscript, among them the surface measure $\mathrm d\xi\,\mathrm d\varphi/(4\pi)$ of $\mathbb S^2$ in axial coordinates; the identification of the Fredholm determinant and trace of a positive trace-class operator with the product and sum over its spectrum; the quasi-power approximation $\mathrm A_n(u)=B(u)^{n+1}[1+O(|H/(H+2\pi i)|^n)]$ with $u=e^H$ (Flajolet--Sedgewick, Example~IX.37); the real, simple, negative zeros of $\mathrm A_n$ (Frobenius); the determinantal structure of the descent process (Borodin--Diaconis--Fulman, Theorem~5.1); the $\mathrm j$-values of Lemma~2.3; the covering-space statements of Theorem~8.1(i) and the exact sequence \eq{117}; the definition of the spheroidal functions in DLMF \S\S30.2--30.3; the discriminant formulas (1.29), (1.35) and (1.38) of Gelfand, Kapranov and Zelevinsky, Chapter~12; and the identity $L_2(s,\upchi_1)=(1-2^{-s})\zeta(s)$ of Table~22 of Mathar, with $\zeta(1/2)\neq0$, both checked in Arb at $s=1/2$. The statements of the additions of version~14.92 that are quotations of the literature (the line of loops of Solymar and Shamonina, Dyson's classes, the Berry phase and the Hopf bundle) are not reproved.
+The following enter the certificates as explicit hypotheses or are not reproved: the inputs of Section~2.2 of the manuscript, among them the surface measure $\mathrm d\xi\,\mathrm d\varphi/(4\pi)$ of $\mathbb S^2$ in axial coordinates; the identification of the Fredholm determinant and trace of a positive trace-class operator with the product and sum over its spectrum; the quasi-power approximation $\mathrm A_n(u)=B(u)^{n+1}[1+O(|H/(H+2\pi i)|^n)]$ with $u=e^H$ (Flajolet--Sedgewick, Example~IX.37); the real, simple, negative zeros of $\mathrm A_n$ (Frobenius); the determinantal structure of the descent process (Borodin--Diaconis--Fulman, Theorem~5.1); the $\mathrm j$-values of Lemma~2.3; the covering-space statements of Theorem~8.1(i) and the exact sequence \eq{117}; the definition of the spheroidal functions in DLMF \S\S30.2--30.3; the discriminant formulas (1.29), (1.35) and (1.38) of Gelfand, Kapranov and Zelevinsky, Chapter~12; and the identity $L_2(s,\upchi_1)=(1-2^{-s})\zeta(s)$ of Table~22 of Mathar, with $\zeta(1/2)\neq0$, both checked in Arb at $s=1/2$. The results listed as open formalisation tasks in the earlier versions of this record are classical and enter as inputs as well: the behaviour at the origin of the radial operators $\mathsf H_2$, $\mathsf H_3$ on even entire functions and the uniqueness of the regular solution of the radial equation, from the theory of regular singular points (Propositions~3.1 and~3.3); Archimedes' theorem, the uniform law on $[-1,1]$ of the axial component of a uniform point of $\mathbb S^2$ (Proposition~4.1); the identification of ratios of zeta-regularised determinants of Sturm--Liouville operators with Fredholm determinants, of Gel'fand and Yaglom in the form of Kirsten and McKane (Proposition~6.2), and the expansion of $\log(\sinh x/x)$ in the even zeta values from Euler's product (Proposition~6.5, whose values are certified in Arb); the decomposition of $L^2(0,2)$ into the parts odd and even under the reflection $t\mapsto2-t$ (Theorem~7.1); Abel's theorem on power series at the boundary (the value \eq{128} of Proposition~8.4); the spectrum $2\cos(j\pi/(m+1))$ of the path of $m$ sites, with characteristic polynomial $U_m(y/2)$, and Euler's beta integral $\int_0^\infty y^{v-1}(1+y)^{-1}\,\mathrm dy=\pi/\sin(\pi v)$, $0<v<1$ (part (ii) of Proposition~8.6, \eq{138}, and the integral \eq{141} of Proposition~8.7); Eisenstein's criterion (the irreducibility in Proposition~8.7); the Neumann series of the resolvent of the adjacency operator of $\mathbb Z^2$ for $|q|<1/4$ and P\'olya's generating function of returns (Proposition~8.8); the stereographic homeomorphism of $\mathbb C\cup\{\infty\}$ onto $\mathbb S^2$ (Theorem~9.3 and part (ii) of Proposition~9.7); the invariance of the Fubini--Study measure under the antipodal map (Corollary~9.4); and Lazarevi\'c's inequality $(\sinh x/x)^3>\cosh x$ for $x\neq0$, which is the sign of $L''$ on $(0,\infty)$ and hence the single inflection point of Figure~1, certified also in Arb. The statements of the additions of version~14.92 that are quotations of the literature (the line of loops of Solymar and Shamonina, Dyson's classes, the Berry phase and the Hopf bundle) are not reproved.
 
 \section*{5. Open formalisation tasks.}
-Not formalised in Lean: the identification of the radial operators with $\mathsf H_2$, $\mathsf H_3$ at the origin (Proposition~3.1); the uniqueness of the regular radial solution (Proposition~3.3); Proposition~4.1 on the sphere itself; the zeta-regularised determinants (Proposition~6.2); Proposition~6.5; the unitary splitting $UA_2U^{-1}=A\oplus A_{\mathrm{DN}}$ (Theorem~7.1); the boundary value \eq{128} (Proposition~8.4); part~(ii) of Proposition~8.6 for general $m$, and \eq{138}; the operator statements of Proposition~8.8; the extension of $\omega_{\mathrm{Bl}}$ to $\mathfrak z=\infty$ and the homeomorphism of Theorem~9.3; the invariance of $\mu$ itself under $\Theta$ (Corollary~9.4). For Proposition~2.1 and Corollary~2.2 this record lists only the numerical certificates. The sign of $L''$ on $(0,\infty)$, hence the single inflection point of Figure~1, and the data of Figures~1--3 are certified numerically only.
+None. The statements listed here in the earlier versions of this record are classical results and enter as the inputs of Section~4. For Proposition~2.1 and Corollary~2.2 this record lists only the numerical certificates, and the data of Figures~1--3 are certified as numbers, in Arb.
 
 \section*{6. Numerical jobs.}
 The workflow \texttt{manuscript14-arb-2000bit.yml}, introduced by \PR{38}, runs the fourteen numerical scripts of the manuscript at 2000 bits: 572 checks in all, of which 162 in the nine original scripts (63 of the register of 4~November~2026, 35 Bessel, 15 Gram and resolvent, 13 Dirichlet, 28 Sonine and modified Helmholtz, 8 for Proposition~4.1), 92 for Proposition~6.5, 145 for Section~4.6, 45 for Sections~6--7, 115 for Sections~8--9 and 13 for \eq{60} at $\lambda=0$. The exact rational truncation bounds are those of the original scripts; only the ball precision was raised. The same workflow runs, since \PR{61}, \PR{62} and \PR{63}, the certificates of the additions of 7~November~2026 and of versions~14.92 and 14.95--14.105 of 8~November~2026, with 45, 30 and 34 checks, and, since \PR{64}, the certificate of version~14.118, with 132 checks.
