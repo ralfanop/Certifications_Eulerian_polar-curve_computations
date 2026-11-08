@@ -15,7 +15,9 @@ name: Manuscript 14 — all Arb certificates at 2000 bits
 # (Section 4.3, the value of B_1 in the proof of Theorem 4.2, (122), (138) and Proposition 8.7), and the
 # certificate of the additions of version 14.92 of 8 November 2026 (the discriminants of the Parry
 # trinomials, of (139) and of Bender's polynomial, the electron spin at x = a, the line of loops, the
-# quaternion unit and the Hopf projection).
+# quaternion unit and the Hopf projection), and the certificate of versions 14.95-14.104 of 8 November 2026
+# (the 50 decimals of (142), the monic (139) and its discriminant, Bender's (143)-(148), (126)-(127), (137),
+# and the Dirichlet L-series forms of (128)-(129)).
 # The exact-rational truncation bounds and the printed-digit rounding checks
 # are unchanged; only the ball precision of the Arb evaluations is raised.
 
@@ -30,6 +32,7 @@ on:
       - manuscript14-planar-spin-lean-arb-20261107
       - manuscript14-evening-cert-20261107
       - manuscript14-v1492-cert-20261108
+      - manuscript14-v14104-cert-20261108
     paths:
       - 'numerics/arb/manuscript14_*.py'
       - 'numerics/arb/special_point_i_sqrt2_arb.py'
@@ -38,7 +41,7 @@ on:
 
 jobs:
   arb:
-    name: Arb 2000-bit / exact Q — manuscript 14, sixteen certificates
+    name: Arb 2000-bit / exact Q — manuscript 14, seventeen certificates
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -48,7 +51,7 @@ jobs:
           python-version: '3.13'
       - name: Install python-flint 0.9.0
         run: python -m pip install python-flint==0.9.0
-      - name: Run the sixteen certificates at 2000 bits
+      - name: Run the seventeen certificates at 2000 bits
         shell: bash
         run: |
           set -euo pipefail
@@ -69,7 +72,8 @@ jobs:
             manuscript14_section89_arb \
             manuscript14_planar_spin_arb \
             manuscript14_evening_additions_arb \
-            manuscript14_v1492_additions_arb ; do
+            manuscript14_v1492_additions_arb \
+            manuscript14_v14104_additions_arb ; do
             echo "=== numerics/arb/$s.py"
             python "numerics/arb/$s.py" 2>&1 | tee "/tmp/arb2000/$s.log"
             if grep -q "FAIL" "/tmp/arb2000/$s.log"; then
