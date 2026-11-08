@@ -1,7 +1,8 @@
 \documentclass[12pt,border=0pt]{standalone}
 \input{style.tex}
-% Figure 3 of manuscript 14 (Theorem 10.1). Version 14.91, 7 November 2026: greedy map written \mathcal T_beta; its label set horizontally above the vertical axis, so that the box widens to an axis width of 419.755 pt and the picture is still exactly 16.0 cm wide in the present TeX installation. Previously version 14.56, 6 November 2026 (complete picture, labels included, exactly 16.0 cm wide, inside the text block):
-% the Eulerian parameter beta_E (formerly x_E) is marked by a dashed vertical line at s_E and by a
+% Figure 3 of manuscript 14 (Theorem 10.1). Version 14.118, 8 November 2026: the rescaled abscissa is written h
+% (s is reserved for complex variables). Version 14.91, 7 November 2026: greedy map written \mathcal T_beta; its label set horizontally above the vertical axis, so that the box widens to an axis width of 419.755 pt and the picture is still exactly 16.0 cm wide in the present TeX installation. Previously version 14.56, 6 November 2026 (complete picture, labels included, exactly 16.0 cm wide, inside the text block):
+% the Eulerian parameter beta_E (formerly x_E) is marked by a dashed vertical line at h_E and by a
 % black marker on the curve k=31; the open marker of the left limit is drawn last,
 % so that it stays visible above the black marker.
 \begin{document}
@@ -26,7 +27,7 @@
   \addplot3[figthreeblue,line width=0.55pt,mark=*,mark size=1.7pt,mark repeat=9,mark options={fill=figthreeblue,draw=white,line width=0.35pt}] table[x=x,y=y,z=z] {../data/fig06_orbit_k25.dat};
   \addplot3[figthreeblue,line width=0.55pt,mark=*,mark size=1.7pt,mark repeat=9,mark options={fill=figthreeblue,draw=white,line width=0.35pt}] table[x=x,y=y,z=z] {../data/fig06_orbit_k30.dat};
   \addplot3[ojacred,line width=1.65pt,mark=*,mark size=0.95pt,mark repeat=5] table[x=x,y=y,z=z] {../data/fig06_orbit_k31.dat};
-  % Dashed vertical line at s_E=(beta_E-beta_32)/(beta_31-beta_32) on the k=31 wall, from the floor to the curve.
+  % Dashed vertical line at h_E=(beta_E-beta_32)/(beta_31-beta_32) on the k=31 wall, from the floor to the curve.
   \addplot3[black,dashed,line width=0.6pt,no marks] coordinates {(0.996073416735,31,0) (0.996073416735,31,0.999686759384684)};
   % The Eulerian parameter on the curve k=31.
   \addplot3[only marks,mark=*,mark size=3.3pt,black]
@@ -43,10 +44,10 @@
   % Label of the vertical axis, set horizontally above its upper end (the left vertical edge of the box).
   \coordinate (ztop) at (axis cs:0,31,1.08);
 \end{axis}
-% The rescaled abscissa, a true fraction centred below the front edge of the box (the s axis).
+% The rescaled abscissa, a true fraction centred below the front edge of the box (the h axis).
 \node[font=\normalsize,inner sep=0pt,anchor=north]
   at ([xshift=7pt,yshift=-24pt]$(sfront)!0.66!(sback)$)
-  {$s=\dfrac{\beta-\beta_{32}}{\beta_{31}-\beta_{32}}$};
+  {$h=\dfrac{\beta-\beta_{32}}{\beta_{31}-\beta_{32}}$};
 % The label of the vertical axis, centred on that axis, above the box.
 \node[font=\normalsize,inner sep=0pt,anchor=south] at ([yshift=12pt]ztop) {$\mathcal T_\beta^k(1)$};
 % Horizontal text for the second axis in the horizontal plane.
