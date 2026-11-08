@@ -39,6 +39,7 @@ a = 1/sqrt8 = |H_0|/2, b = 1/sqrt2 = |H_1|/2.
       beta = beta_32 + s (beta_31 - beta_32), of fig06_orbit_k*.dat within 1e-12 of its Arb value, every
       floor decided by the ball; s_E = 0.9961 and T^31_{beta_E}(1) of beta_E = sqrt2 sinh(1/sqrt2); at
       beta_31 the thirtieth remainder is 1/beta_31 and T^31(1) = 0, with left limit 1.
+  (G) The display of Tr(2/(2A+I)) = coth(b)/sqrt2 - 1, printed to 52 decimals in version 14.118.
 """
 from fractions import Fraction as Q
 import os
@@ -305,7 +306,8 @@ for n in range(2, NMAX + 1):
         Z = sum(w[1:], w[0])
         q = [wk / Z for wk in w]
         mean = sum((xk * qk for xk, qk in zip(xs, q)), arb(0))
-        var = (n + 1) * sum(((xk - mean) ** 2 * qk for xk, qk in zip(xs, q)), arb(0))
+        dev = [xk - mean for xk in xs]           # products, not ** 2: Arb's pow takes the exp-log
+        var = (n + 1) * sum((dk * dk * qk for dk, qk in zip(dev, q)), arb(0))   # route at a zero midpoint
         for val, printed in ((mean, cent[n][2 * j]), (var, cent[n][2 * j + 1])):
             n_val += 1
             d = abs(val - qball(Q(printed)))
@@ -422,6 +424,13 @@ check("(F) fig06_endpoint.dat = (1, 31, 0), fig06_leftlimit.dat = (1, 31, 1)",
 src3 = open(os.path.join(ROOT, "Theorem_8.1_Eulerian_Parry_Boundary.tex")).read()
 check("(F) Figure 3 draws the dashed line of beta_E at s_E from z = 0 to the plotted T^31_{beta_E}(1)",
       "coordinates {(0.996073416735,31,0) (0.996073416735,31,0.999686759384684)}" in src3)
+
+# ---------------------------------------------------------------------------------------------------
+print("(G) the display of Tr(2/(2A+I)), printed to 52 decimals")
+# Tr(2/(2A+I)) = coth(b)/sqrt2 - 1 (Theorem 7.2; its series form is certified in manuscript14_section7_arb.py,
+# which checks the first 50 decimals); version 14.118 prints 52.
+rounded("(G) Tr(2/(2A+I)) = coth(b)/sqrt2 - 1, the display (companion-t-num)", b.coth() / SQRT2 - 1,
+        "0.1613630697302135425959636855281220737173049616172233")
 
 print(f"python-flint {flint.__version__}, precision {PREC} bits, {count} checks")
 if failures:
