@@ -36,8 +36,8 @@ a = 1/sqrt8 = |H_0|/2, b = 1/sqrt2 = |H_1|/2.
       only at the top vertex p_{3,2}(1) = 2/3; the dashed and dotted lines at m(H_0), m(H_1) and 1/2.
   (F) Figure 3: the Parry roots beta_31 > beta_32 (roots in (1, 2) of x^n - x^(n-1) - 1, n = 31, 32)
       isolated by exact rational sign changes; every plotted remainder T_beta^k(1),
-      beta = beta_32 + s (beta_31 - beta_32), of fig06_orbit_k*.dat within 1e-12 of its Arb value, every
-      floor decided by the ball; s_E = 0.9961 and T^31_{beta_E}(1) of beta_E = sqrt2 sinh(1/sqrt2); at
+      beta = beta_32 + h (beta_31 - beta_32), of fig06_orbit_k*.dat within 1e-12 of its Arb value, every
+      floor decided by the ball; h_E = 0.9961 and T^31_{beta_E}(1) of beta_E = sqrt2 sinh(1/sqrt2); at
       beta_31 the thirtieth remainder is 1/beta_31 and T^31(1) = 0, with left limit 1.
   (G) The display of Tr(2/(2A+I)) = coth(b)/sqrt2 - 1, printed to 52 decimals in version 14.118.
 """
@@ -390,22 +390,22 @@ for k in (1, 5, 10, 15, 20, 25, 30, 31):
         t = greedy(beta, k)
         if t is None or int(ys_) != k:
             good = False
-            print(f"    k = {k}, s = {xs_}: floor not decided")
+            print(f"    k = {k}, h = {xs_}: floor not decided")
             continue
         d = abs(t - qball(Q(zs_)))
         worst = max(worst, fl(d))
         if not d < qball(Q(1, 10 ** 12)):
             good = False
-            print(f"    k = {k}, s = {xs_}: plotted {zs_}, Arb {t.str(12)}")
+            print(f"    k = {k}, h = {xs_}: plotted {zs_}, Arb {t.str(12)}")
     check(f"(F) fig06_orbit_k{k:02d}.dat: {len(rows)} remainders T^{k}(1) within 1e-12, every floor decided", good)
     print(f"    k = {k}: largest deviation {worst:.3e}")
 betaE = SQRT2 * (1 / SQRT2).sinh()
-sE = (betaE - b32) / (b31 - b32)
+hE = (betaE - b32) / (b31 - b32)
 sp = read("fig06_special.dat")
-print(f"    beta_E = {betaE.str(20, radius=False)}, s_E = {sE.str(20, radius=False)}")
+print(f"    beta_E = {betaE.str(20, radius=False)}, h_E = {hE.str(20, radius=False)}")
 check("(F) beta_32 < beta_E < beta_31", betaE > b32 and betaE < b31)
-rounded("(F) fig06_special.dat and the dashed line of Figure 3: s_E", sE, sp[0][0])
-rounded("(F) caption: s_E", sE, "0.9961")
+rounded("(F) fig06_special.dat and the dashed line of Figure 3: h_E", hE, sp[0][0])
+rounded("(F) caption: h_E", hE, "0.9961")
 tE = greedy(betaE, 31)
 check("(F) fig06_special.dat: T^31_{beta_E}(1) within 1e-12 of the plotted value, every floor decided",
       tE is not None and abs(tE - qball(Q(sp[0][2]))) < qball(Q(1, 10 ** 12)))
@@ -422,7 +422,7 @@ ll = read("fig06_leftlimit.dat")
 check("(F) fig06_endpoint.dat = (1, 31, 0), fig06_leftlimit.dat = (1, 31, 1)",
       ep[0] == ["1", "31", "0"] and ll[0] == ["1", "31", "1"])
 src3 = open(os.path.join(ROOT, "Theorem_8.1_Eulerian_Parry_Boundary.tex")).read()
-check("(F) Figure 3 draws the dashed line of beta_E at s_E from z = 0 to the plotted T^31_{beta_E}(1)",
+check("(F) Figure 3 draws the dashed line of beta_E at h_E from z = 0 to the plotted T^31_{beta_E}(1)",
       "coordinates {(0.996073416735,31,0) (0.996073416735,31,0.999686759384684)}" in src3)
 
 # ---------------------------------------------------------------------------------------------------
