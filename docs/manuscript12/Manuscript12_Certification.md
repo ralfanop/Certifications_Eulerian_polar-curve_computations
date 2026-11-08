@@ -4,7 +4,7 @@
 
 ## 1. Scope.
 
-This record states, for manuscript 12, which results are kernel-checked in Lean 4 \[2\], which values are certified in Arb ball arithmetic \[1\], how the libraries are rebuilt and audited, and which formalisation tasks remain open. It replaces Appendices B, C and D of the article (Lean 4 certification) and the description of the supplementary packages formerly given in its Data Availability statement. Equation, section and result numbers are those of the article that cites this record; in it the subsections of Section 5 are numbered 5.1–5.7. All directories named below are in the repository <https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations>.
+This record states, for manuscript 12, which results are kernel-checked in Lean 4 \[2\], which values are certified in Arb ball arithmetic \[1\] and how the libraries are rebuilt and audited. It replaces Appendices B, C and D of the article (Lean 4 certification) and the description of the supplementary packages formerly given in its Data Availability statement. Equation, section and result numbers are those of the article that cites this record; in it the subsections of Section 5 are numbered 5.1–5.7. All directories named below are in the repository <https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations>.
 
 ## 2. The proportional regime: the library `UniformLanczos`.
 
