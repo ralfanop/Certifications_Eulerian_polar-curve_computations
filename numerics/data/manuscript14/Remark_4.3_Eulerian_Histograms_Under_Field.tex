@@ -1,0 +1,29 @@
+\documentclass[12pt,border=0pt]{standalone}
+\input{style.tex}
+% Figure 2 of manuscript 14 (Remark 4.3), version 14.56 (complete picture, labels included, exactly 16.0 cm wide, inside the text block): Eulerian histograms n=3..670 under the
+% fields u=1, u=e^{H_0}, u=e^{2H_0}. The 2004 polylines (exact Eulerian numbers) are the vector
+% file fig02_curves.pdf placed in axis coordinates; the frame, ticks, lines and text are pgfplots.
+% v14.91: frame and inward ticks (0.3 pt, as in Figure 1) drawn on top of the curves, so that the ticks are visible;
+% labels of the three fields 50% larger (16.4 pt), clear of the frame, the ticks and the curves; axis width 412.696 pt
+% so that the picture is again exactly 16.0 cm wide with the present TeX installation.
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[ojac,scale only axis=true,width=412.696pt,height=19.5cm,
+ axis on top=true,axis line style={line width=0.3pt,black},every tick/.style={line width=0.3pt,black},
+ xmin=0.095,xmax=0.86,ymin=0,ymax=0.7,
+ xlabel={$x_{n,k}=\dfrac{k}{n+1}$},
+ ylabel={$p_{n,k}(u)$},
+ xtick={0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8},
+ xticklabel style={/pgf/number format/fixed,/pgf/number format/precision=1},ytick={0,0.1,0.2,0.3,0.4,0.5,0.6,0.7},
+ yticklabel style={/pgf/number format/fixed,/pgf/number format/precision=1},
+ clip=false]
+  \addplot graphics[xmin=0.095,xmax=0.86,ymin=0,ymax=0.7] {fig02_curves.pdf};
+  \addplot[black,dotted,line width=0.6pt,no marks] coordinates {(0.5,0) (0.5,0.7)};
+  \addplot[figthreeblue,dashed,line width=0.7pt,no marks] coordinates {(0.441559707648,0) (0.441559707648,0.7)};
+  \addplot[ojacred,dashed,line width=0.7pt,no marks] coordinates {(0.385899079161,0) (0.385899079161,0.7)};
+  \node[font=\fontsize{16.4}{19.7}\selectfont,anchor=north east,black!60] at (axis cs:0.845,0.684) {$u=1$};
+  \node[font=\fontsize{16.4}{19.7}\selectfont,anchor=north east,figthreeblue] at (axis cs:0.845,0.654) {$u=e^{H_0}$};
+  \node[font=\fontsize{16.4}{19.7}\selectfont,anchor=north east,ojacred] at (axis cs:0.845,0.624) {$u=e^{2H_0}$};
+\end{axis}
+\end{tikzpicture}
+\end{document}
