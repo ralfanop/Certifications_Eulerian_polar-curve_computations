@@ -39,20 +39,28 @@ jobs:
           set -euo pipefail
           lake update
           lake exe cache get
-      - name: Build all actual V007 operator-trace dependencies and model
+      - name: Build registered GegenbauerFock trace-class dependencies
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          lake build SpecialImaginaryPoint.V14119Priority3TraceClassModel 2>&1 |
+          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge 2>&1 |
             tee /tmp/priority3-traceclass-build.log
+      - name: Kernel compile section 6 Euler product dependency and actual spectral model
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/Section67ScalarCertificate.olean SpecialImaginaryPoint/Section67ScalarCertificate.lean 2>&1 |
+            tee /tmp/priority3-traceclass-section67.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3TraceClassModel.olean SpecialImaginaryPoint/V14119Priority3TraceClassModel.lean 2>&1 |
+            tee /tmp/priority3-traceclass-axioms.log
       - name: Kernel audit of seven inverse and trace-class statements
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3TraceClassModel.lean 2>&1 |
-            tee /tmp/priority3-traceclass-axioms.log
           python3 - <<'PY'
           import pathlib
           import re
