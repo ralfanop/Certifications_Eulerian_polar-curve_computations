@@ -1,0 +1,144 @@
+name: "Manuscript 14.119 Corollary 2.2 independent CI recovery"
+
+on:
+  push:
+    branches:
+      - main
+      - manuscript14-v14119-cor22-ci-recovery-20261109
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Cor22Certificate.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Cor22ProfileBridge.lean'
+      - 'lean/SpecialImaginaryPoint/V14119TailBound.lean'
+      - 'lean/SpecialImaginaryPoint/V14119SpecialValueBridge.lean'
+      - 'lean/SpecialImaginaryPoint/V14119PrioritiesCertificate.lean'
+      - 'lean/SpecialImaginaryPoint/EulerianSinhSeries.lean'
+      - 'lean/SpecialImaginaryPoint/Corollary36Analytic.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-v14119-cor22-ci-recovery.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Cor22Certificate.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Cor22ProfileBridge.lean'
+      - 'lean/SpecialImaginaryPoint/V14119TailBound.lean'
+      - 'lean/SpecialImaginaryPoint/V14119SpecialValueBridge.lean'
+      - 'lean/SpecialImaginaryPoint/V14119PrioritiesCertificate.lean'
+      - 'lean/SpecialImaginaryPoint/EulerianSinhSeries.lean'
+      - 'lean/SpecialImaginaryPoint/Corollary36Analytic.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-v14119-cor22-ci-recovery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: Runner-start diagnostic
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Confirm runner startup
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s\n' 'GitHub Actions runner started successfully'
+
+  proof:
+    name: Kernel-check all-N tail and actual Eulerian profile
+    needs: probe
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned Lean 4
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Fetch pinned Mathlib cache
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+
+      - name: Compile proofs and their dependencies
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in FormalBorelComplex BorelAnalyticConvergence Corollary36 Corollary36Analytic \
+                   EulerianSinhSeries V14119PrioritiesCertificate V14119SpecialValueBridge \
+                   V14119TailBound V14119Cor22Certificate; do
+            echo "Kernel-checking $f"
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/$f.log"
+          done
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Cor22ProfileBridge.lean 2>&1 \
+            | tee /tmp/V14119Cor22ProfileBridge.log
+
+      - name: Audit 11 exact theorem names and kernel axioms
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib
+          import re
+          allowed = {"propext", "Classical.choice", "Quot.sound"}
+          checks = {
+              "V14119Cor22Certificate": [
+                  "coeff_pos", "denom_strictMono", "ratio_antitone",
+                  "ratio_strict_anti_step", "ratio_small", "coeff_succ",
+                  "coeff_majorized", "coeff_summable", "rational_tail_bound",
+              ],
+              "V14119Cor22ProfileBridge": [
+                  "specialPoint_eq_z0", "eulerian_profile_corollary22",
+              ],
+          }
+          failures = []
+          for module, names in checks.items():
+              log = pathlib.Path(f"/tmp/{module}.log").read_text()
+              declarations = {}
+              for m in re.finditer(
+                  r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",
+                  log, flags=re.MULTILINE):
+                  name = m.group(1) or m.group(3)
+                  axioms = {v.strip() for v in (m.group(2) or "").split(",") if v.strip()}
+                  declarations[name] = axioms
+              prefix = "SpecialImaginaryPoint.V14119Cor22"
+              if module.endswith("ProfileBridge"):
+                  prefix += "Profile"
+              for suffix in names:
+                  name = prefix + "." + suffix
+                  if name not in declarations:
+                      failures.append(f"MISSING axiom report: {name}")
+                  else:
+                      extras = declarations[name] - allowed
+                      print(f"{name}: axioms={sorted(declarations[name])}")
+                      if extras:
+                          failures.append(f"NONSTANDARD axioms for {name}: {extras}")
+              if "sorryAx" in log or "Lean.ofReduceBool" in log:
+                  failures.append(f"Forbidden axiom appears in {module} log")
+              if re.search(r"(^|\n)\S+:\d+:\d+: error", log):
+                  failures.append(f"Lean errors present in {module} log")
+          if failures:
+              raise SystemExit("\n".join(failures))
+          print("SUCCESS: all 11 named Lean theorems have only standard axioms.")
+          PY
+
+      - name: Preserve audit logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-v14119-cor22-kernel-audit
+          path: /tmp/*.log
+          if-no-files-found: warn
