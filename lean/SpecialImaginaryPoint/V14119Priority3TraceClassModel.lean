@@ -26,8 +26,7 @@ theorem inverse_isTraceClass :
   have hs : Summable (fun n : ℕ =>
       (inner ℂ (b n) (inverse (b n))).re) :=
     σ_summable.congr (fun n => (inverse_diagonal n).symm)
-  exact GegenbauerFock.Ultraspherical.
-    complex_nonneg_isTraceClass_of_summable_natBasis_diagonal
+  exact GegenbauerFock.Ultraspherical.complex_nonneg_isTraceClass_of_summable_natBasis_diagonal
       inverse inverse_nonneg b hs
 
 /-- The genuine CFC trace norm equals the sum of positive Dirichlet
@@ -35,8 +34,7 @@ inverse eigenvalues, independently of the trace-class witness basis. -/
 theorem inverse_traceNorm_eq :
     ProbabilisticTheory.traceNorm inverse inverse_isTraceClass =
       ∑' n : ℕ, σ n := by
-  rw [GegenbauerFock.HilbertSchmidtBasis.
-    positiveTrace_traceNorm_eq_diagonal_tsum
+  rw [GegenbauerFock.HilbertSchmidtBasis.positiveTrace_traceNorm_eq_diagonal_tsum
       inverse inverse_isTraceClass inverse_nonneg b]
   exact tsum_congr inverse_diagonal
 
