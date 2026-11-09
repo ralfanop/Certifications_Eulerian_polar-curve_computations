@@ -22,7 +22,7 @@ def b : HilbertBasis ℕ ℂ H := default
 
 /-- Exact Dirichlet inverse eigenvalues with n indexed from zero. -/
 def σ (n : ℕ) : ℝ :=
-  1 / (Real.pi ^ 2 * ((n : ℝ) + 1) ^ 2)
+  (Real.pi ^ 2 * ((n : ℝ) + 1) ^ 2)⁻¹
 
 theorem σ_pos (n : ℕ) : 0 < σ n := by
   unfold σ
@@ -37,9 +37,9 @@ def term (n : ℕ) : H →L[ℂ] H :=
   (σ n : ℂ) • rankOne ℂ (b n) (b n)
 
 theorem term_norm (n : ℕ) : ‖term n‖ = σ n := by
-  rw [term, norm_smul, norm_rankOne, b.orthonormal.norm_eq_one,
-    b.orthonormal.norm_eq_one]
-  simp [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (σ_pos n).le]
+  simp [term, norm_smul, norm_rankOne,
+    b.orthonormal.norm_eq_one n, Complex.norm_real,
+    Real.norm_eq_abs, abs_of_nonneg (σ_pos n).le]
 
 /-- The series of actual bounded rank-one operators converges in OPERATOR NORM. -/
 theorem term_summable : Summable term := by
@@ -55,7 +55,7 @@ theorem inverse_eigen (n : ℕ) :
     inverse (b n) = (σ n : ℂ) • b n := by
   have hs := term_summable
   unfold inverse
-  rw [hs.tsum_apply (b n)]
+  rw [tsum_apply hs (b n)]
   rw [tsum_eq_single n]
   · simp [term, rankOne_apply, inner_self_eq_norm_sq_to_K,
       b.orthonormal.norm_eq_one n]
