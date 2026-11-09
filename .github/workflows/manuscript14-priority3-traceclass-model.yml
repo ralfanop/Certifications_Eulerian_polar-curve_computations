@@ -6,10 +6,12 @@ on:
       - manuscript14-priority3-traceclass-diagonal-20261109
     paths:
       - 'lean/SpecialImaginaryPoint/V14119Priority3TraceClassModel.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3DirichletDiagonal.lean'
       - '.github/workflows/manuscript14-priority3-traceclass-model.yml'
   pull_request:
     paths:
       - 'lean/SpecialImaginaryPoint/V14119Priority3TraceClassModel.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3DirichletDiagonal.lean'
       - '.github/workflows/manuscript14-priority3-traceclass-model.yml'
   workflow_dispatch:
 
@@ -54,6 +56,8 @@ jobs:
           mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
           lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/Section67ScalarCertificate.olean SpecialImaginaryPoint/Section67ScalarCertificate.lean 2>&1 |
             tee /tmp/priority3-traceclass-section67.log
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3DirichletDiagonal.olean SpecialImaginaryPoint/V14119Priority3DirichletDiagonal.lean 2>&1 |
+            tee /tmp/priority3-traceclass-diagonal.log
           lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3TraceClassModel.olean SpecialImaginaryPoint/V14119Priority3TraceClassModel.lean 2>&1 |
             tee /tmp/priority3-traceclass-axioms.log
       - name: Kernel audit of seven inverse and trace-class statements
@@ -64,7 +68,7 @@ jobs:
           python3 - <<'PY'
           import pathlib
           import re
-          src = pathlib.Path("/tmp/priority3-traceclass-axioms.log").read_text()
+          src = (pathlib.Path("/tmp/priority3-traceclass-diagonal.log").read_text() + "\n" + pathlib.Path("/tmp/priority3-traceclass-axioms.log").read_text())
           names = [
             "σ_summable", "term_summable", "inverse_eigen",
             "inverse_nonneg", "inverse_diagonal",
