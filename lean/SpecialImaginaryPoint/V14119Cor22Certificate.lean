@@ -142,6 +142,10 @@ theorem rational_tail_bound (N : ℕ) :
     coeff_pos coeff_summable hsmall.1 hsmall.2 hstep hstrict
   simpa [prefixSum, k] using h
 
+#print axioms Summable.of_nonneg_of_le
+#print axioms summable_geometric_of_lt_one
+#print axioms div_le_self
+#print axioms Nat.factorial_pos
 #print axioms SpecialImaginaryPoint.V14119Cor22.coeff_pos
 #print axioms SpecialImaginaryPoint.V14119Cor22.denom_strictMono
 #print axioms SpecialImaginaryPoint.V14119Cor22.ratio_antitone
