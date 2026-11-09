@@ -11,7 +11,7 @@
 \setlength{\parskip}{4pt}
 \setlength{\emergencystretch}{3em}
 \newcommand{\R}{https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations}
-\newcommand{\dir}[1]{\href{\R/tree/main/#1}{\texttt{#1}}}
+\newcommand{\dir}[1]{\href{\R/tree/main/#1}{\texttt{\detokenize{#1}}}}
 \newcommand{\eq}[1]{(#1)}
 \begin{document}
 
@@ -22,7 +22,7 @@ Roberto Alfano, 7~November~2026
 \end{center}
 
 \section*{1. Scope.}
-This record states, for manuscript~12, which results are kernel-checked in Lean~4~[2], which values are certified in Arb ball arithmetic~[1], how the libraries are rebuilt and audited, and which formalisation tasks remain open. It replaces Appendices~B, C and~D of the article (Lean~4 certification) and the description of the supplementary packages formerly given in its Data Availability statement. Equation, section and result numbers are those of the article that cites this record; in it the subsections of Section~5 are numbered 5.1--5.7. All directories named below are in the repository \url{\R}.
+This record states, for manuscript~12, which results are kernel-checked in Lean~4~[2], which values are certified in Arb ball arithmetic~[1] and how the libraries are rebuilt and audited. It replaces Appendices~B, C and~D of the article (Lean~4 certification) and the description of the supplementary packages formerly given in its Data Availability statement. Equation, section and result numbers are those of the article that cites this record; in it the subsections of Section~5 are numbered 5.1--5.7. All directories named below are in the repository \url{\R}.
 
 \section*{2. The proportional regime: the library \texttt{UniformLanczos}.}
 The Lean~4 formalisation of this section comprises 76 theorems and 48 lemmas in 11 modules. The library \texttt{UniformLanczos}, in the directory \dir{lean/UniformLanczos}, is compiled with the Lean~4 toolchain \texttt{v4.35.0-rc3} and Mathlib commit \texttt{0272bbe1c093}; it contains no \texttt{sorry}, and every main declaration depends only on the axioms \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}. It certifies the following statements.
