@@ -1,0 +1,65 @@
+name: Manuscript 14.119 — equation (177) hyperbolic Taylor remainder Lean
+
+on:
+  push:
+    branches:
+      - manuscript14-v14119-asymptotic177-taylor-20261109
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Taylor.lean'
+      - '.github/workflows/manuscript14-v14119-asymptotic177-taylor-lean.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Taylor.lean'
+      - '.github/workflows/manuscript14-v14119-asymptotic177-taylor-lean.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Kernel proof — uniform sinh and epsilon remainder
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Check uniform Taylor remainder and standard axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Asymptotic177Taylor.lean 2>&1 \
+            | tee /tmp/asymptotic177-taylor.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'declaration uses' \
+            /tmp/asymptotic177-taylor.log; then exit 1; fi
+          tr '\n' ' ' < /tmp/asymptotic177-taylor.log | grep -oE 'depends on axioms: \[[^]]*\]' \
+            | sed -E 's/ +/ /g' > /tmp/asymptotic177-taylor.axioms || true
+          n_none="$(grep -c 'does not depend on any axioms' /tmp/asymptotic177-taylor.log || true)"
+          n_all="$(grep -c 'depends on axioms' /tmp/asymptotic177-taylor.axioms || true)"
+          n_std="$(grep -cE 'depends on axioms: \[((propext|Classical\.choice|Quot\.sound)(, )?)+\]' \
+            /tmp/asymptotic177-taylor.axioms || true)"
+          echo "Audited statements: $((n_all+n_none)); standard only: $((n_std+n_none))"
+          test "$((n_all+n_none))" -eq 2
+          test "$((n_std+n_none))" -eq 2
+      - name: Upload proof log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-asymptotic177-taylor
+          path: /tmp/asymptotic177-taylor.log
+          if-no-files-found: ignore
