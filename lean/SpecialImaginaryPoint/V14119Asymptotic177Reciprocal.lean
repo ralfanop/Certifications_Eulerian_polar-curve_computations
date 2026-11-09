@@ -42,8 +42,9 @@ private theorem reciprocal_denominator_from_error
     have heq : v = (v + t / 30) - t / 30 := by ring
     rw [heq]
     calc
-      |(v + t / 30) - t / 30| ≤ |v + t / 30| + |t / 30| :=
-        abs_sub_le _ _
+      |(v + t / 30) - t / 30| ≤ |v + t / 30| + |t / 30| := by
+        simpa only [sub_eq_add_neg, abs_neg] using
+          (abs_add_le (v + t / 30) (-(t / 30)))
       _ ≤ 3 * t ^ 2 / 20 + t / 30 := by
         rw [abs_of_pos (show 0 < t / 30 by positivity)]
         linarith [hve]
