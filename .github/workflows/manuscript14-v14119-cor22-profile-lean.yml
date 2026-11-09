@@ -3,7 +3,7 @@ name: Manuscript 14.119 — fully linked Corollary 2.2 at z0, Lean kernel
 on:
   push:
     branches:
-      - manuscript14-v14119-priorities-continuation-20261109
+      - manuscript14-v14119-cor22-final-audit-20261109
     paths:
       - 'lean/SpecialImaginaryPoint/V14119Cor22ProfileBridge.lean'
       - 'lean/SpecialImaginaryPoint/V14119Cor22Certificate.lean'
