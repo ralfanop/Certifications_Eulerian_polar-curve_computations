@@ -38,6 +38,26 @@ This is a scalar spectral product theorem; its name and docstring deliberately
 do not identify that product with a zeta determinant or with a determinant
 of a trace-class operator. Certification status is the CI of this module.
 
+## Second bridge: actual spectral inverse on complex Hilbert space
+
+The new `V14119Priority3DirichletDiagonal.lean` module constructs a **genuine**
+bounded positive operator on `ℓ²(ℕ, ℂ)` as the operator-norm convergent series
+of Dirichlet inverse spectral rank-one projections with coefficients
+`(π²(n+1)²)⁻¹`. It certifies summability, convergence, the exact eigenbasis
+action, Loewner positivity and the corresponding real diagonal values.
+[Kernel CI #42701424154](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/42701424154)
+finished **SUCCESS** with five audited theorems and only standard axioms.
+
+The separate `V14119Priority3TraceClassModel.lean` attempts to strengthen
+this to the source-compatible **complex CFC-absolute** trace-class predicate
+from V007 and its basis-independent trace norm. This result is NOT certified
+until that separate kernel CI succeeds.
+
+Neither module so far identifies the spectral model via a proved unitary
+map with the differential realisation of `-d²/dx²` on `L²(0,1)` with
+Dirichlet boundary conditions. This is a distinct open obligation, not
+a consequence of matching eigenvalues by definition.
+
 ## Remaining obligations: determinant bridge
 
 1. Construct or identify the positive Dirichlet Sturm–Liouville operator
