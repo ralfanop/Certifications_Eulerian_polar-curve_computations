@@ -1,4 +1,4 @@
-name: "Manuscript 14.119 Priority 3 — Dirichlet spectral product bridge"
+name: "Manuscript 14.119 Priority 3 — Dirichlet and mixed spectral products"
 
 on:
   push:
@@ -63,6 +63,8 @@ jobs:
             "Manuscript14Priority3.finite_dirichlet_product",
             "Manuscript14Priority3.finite_dirichlet_product_tendsto",
             "Manuscript14Priority3.spectralProduct_sq",
+            "Manuscript14Priority3.finite_mixed_product_tendsto",
+            "Manuscript14Priority3.mixedSpectralProduct_eq_cosh",
           ]
           found = {}
           for m in re.finditer(
@@ -79,7 +81,7 @@ jobs:
               print(f"{name}: {sorted(found[name])}")
           assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
           assert not re.search(r"\.lean:\d+:\d+: error:", log)
-          print("SUCCESS: 4 exact Dirichlet spectral product theorems, only standard axioms")
+          print("SUCCESS: 6 exact Dirichlet/mixed spectral product theorems, only standard axioms")
           PY
       - name: Upload proof logs
         if: always()
