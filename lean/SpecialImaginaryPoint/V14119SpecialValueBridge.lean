@@ -26,9 +26,8 @@ theorem eulerian_profile_pure_imaginary (x : ℝ) (hx : x ≠ 0) :
   rw [EulerianSpecialPoint.eulerianEvenAnalytic_eq_sinc]
   simp only [EulerianSpecialPoint.eulerianSinc, if_neg hz]
   have harg : (2 * (x : ℂ) * Complex.I) / 2 = (x : ℂ) * Complex.I := by ring
-  rw [harg, Complex.sin_mul_I, ← Complex.ofReal_sinh, ← Complex.ofReal_div]
-  field_simp [hxc, hI]
-  ring
+  rw [harg, Complex.sin_mul_I, ← Complex.ofReal_sinh, Complex.ofReal_div]
+  field_simp [hxc, hI] <;> ring
 
 private theorem sqrt8_nonzero : Real.sqrt (8 : ℝ) ≠ 0 := by positivity
 
@@ -47,8 +46,7 @@ theorem eulerian_profile_special_series :
     positivity
   have hs : Real.sinh a / a = Real.sqrt 8 * Real.sinh (1 / Real.sqrt 8) := by
     dsimp [a]
-    field_simp [sqrt8_nonzero]
-    ring
+    field_simp [sqrt8_nonzero] <;> ring
   change EulerianSpecialPoint.eulerianEvenAnalytic (2 * (a : ℂ) * Complex.I) = _
   rw [eulerian_profile_pure_imaginary a ha, hs]
   exact_mod_cast V14119Priorities.real_special_value_eq_series
@@ -62,15 +60,14 @@ theorem eulerian_profile_special_bracket :
   have ha : (1 / Real.sqrt (8 : ℝ) : ℝ) ≠ 0 := by positivity
   have hs : Real.sinh (1 / Real.sqrt 8) / (1 / Real.sqrt 8) =
       Real.sqrt 8 * Real.sinh (1 / Real.sqrt 8) := by
-    field_simp [sqrt8_nonzero]
-    ring
+    field_simp [sqrt8_nonzero] <;> ring
   have heq := eulerian_profile_pure_imaginary (1 / Real.sqrt 8) ha
   change EulerianSpecialPoint.eulerianEvenAnalytic specialPoint = _ at heq
   rw [hs] at heq
   have hre : (EulerianSpecialPoint.eulerianEvenAnalytic specialPoint).re =
       Real.sqrt 8 * Real.sinh (1 / Real.sqrt 8) := by
     rw [heq]
-    simp
+    exact Complex.ofReal_re _
   rw [hre]
   exact V14119Priorities.real_special_value_rational_bracket
 
