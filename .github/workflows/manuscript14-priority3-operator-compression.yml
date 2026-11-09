@@ -60,7 +60,10 @@ jobs:
           names=[
              "compressedInverse_eq_diagonal",
              "finiteOperatorShift_eq_diagonal",
-             "finiteOperatorShift_det"
+             "finiteOperatorShift_det",
+             "factor_eq_real",
+             "finiteOperatorShift_det_eq_spectral",
+             "finiteOperatorShift_det_tendsto"
           ]
           found={}
           for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",log):
@@ -73,7 +76,7 @@ jobs:
               print(name,sorted(found[name]))
           assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
           assert not re.search(r"\.lean:\d+:\d+: error:",log)
-          print("SUCCESS: 3 genuine finite Hilbert inverse compression theorems, standard axioms")
+          print("SUCCESS: 6 genuine compressed inverse determinant and convergence theorems, standard axioms")
           PY
       - name: Upload proof logs
         if: always()
