@@ -74,9 +74,37 @@ theorem spectralProduct_sq (x : ℝ) (hx : x ≠ 0) :
   rw [hfun]
   exact (Manuscript14Section67.hasProd_sinh x hx).tprod_eq
 
+/-- Dirichlet–Neumann mixed-boundary finite spectral truncations.
+The actual mixed-boundary unbounded operator remains a separate task. -/
+noncomputable def finiteMixedProduct (N : ℕ) (x : ℝ) : ℝ :=
+  ∏ n ∈ Finset.range N, Manuscript14Section67.coshFac x n
+
+/-- Genuine infinite spectral product of the mixed-boundary eigenvalue factors. -/
+noncomputable def mixedSpectralProduct (x : ℝ) : ℝ :=
+  ∏' n : ℕ, Manuscript14Section67.coshFac x n
+
+/-- Analytic convergence of the finite mixed-boundary spectral products. -/
+theorem finite_mixed_product_tendsto (x : ℝ) (hx : x ≠ 0) :
+    Tendsto (fun N : ℕ => finiteMixedProduct N x) atTop (𝓝 (Real.cosh x)) := by
+  have hconv :
+      Tendsto (fun N : ℕ =>
+        ∏ n ∈ Finset.range N, Manuscript14Section67.coshFac x n)
+        atTop (𝓝 (Real.cosh x)) :=
+    (Manuscript14Section67.multipliable_coshFac x).hasProd_iff_tendsto_nat.mp
+      (Manuscript14Section67.hasProd_cosh x hx)
+  exact hconv
+
+/-- The exact infinite product over the mixed-boundary spectrum is cosh x. -/
+theorem mixedSpectralProduct_eq_cosh (x : ℝ) (hx : x ≠ 0) :
+    mixedSpectralProduct x = Real.cosh x := by
+  unfold mixedSpectralProduct
+  exact (Manuscript14Section67.hasProd_cosh x hx).tprod_eq
+
 #print axioms Manuscript14Priority3.dirichlet_factor_sq
 #print axioms Manuscript14Priority3.finite_dirichlet_product
 #print axioms Manuscript14Priority3.finite_dirichlet_product_tendsto
 #print axioms Manuscript14Priority3.spectralProduct_sq
+#print axioms Manuscript14Priority3.finite_mixed_product_tendsto
+#print axioms Manuscript14Priority3.mixedSpectralProduct_eq_cosh
 
 end Manuscript14Priority3
