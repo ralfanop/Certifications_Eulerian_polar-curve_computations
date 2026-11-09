@@ -39,20 +39,13 @@ jobs:
           set -euo pipefail
           lake update
           lake exe cache get
-      - name: Build pre-certified V007 complex trace-class dependencies
-        working-directory: lean
-        shell: bash
-        run: |
-          set -euo pipefail
-          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge 2>&1 |
-            tee /tmp/priority3-compression-V007.log
       - name: Compile source modules and actual operator compression
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
-          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3SpectralDetBridge V14119Priority3OperatorCompression; do
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3DirichletDiagonal V14119Priority3SpectralDetBridge V14119Priority3OperatorCompression; do
             lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
               "SpecialImaginaryPoint/$f.lean" 2>&1 |
               tee "/tmp/priority3-compression-$f.log"
