@@ -37,9 +37,9 @@ def term (n : ℕ) : H →L[ℂ] H :=
   (σ n : ℂ) • rankOne ℂ (b n) (b n)
 
 theorem term_norm (n : ℕ) : ‖term n‖ = σ n := by
-  simp [term, norm_smul, norm_rankOne,
-    b.orthonormal.norm_eq_one n, Complex.norm_real,
-    Real.norm_eq_abs, abs_of_nonneg (σ_pos n).le]
+  change ‖(σ n : ℂ) • rankOne ℂ (b n) (b n)‖ = σ n
+  rw [norm_smul, norm_rankOne, b.orthonormal.norm_eq_one n]
+  simp [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (σ_pos n).le]
 
 /-- The series of actual bounded rank-one operators converges in OPERATOR NORM. -/
 theorem term_summable : Summable term := by
@@ -57,10 +57,13 @@ theorem inverse_eigen (n : ℕ) :
   unfold inverse
   rw [tsum_apply hs (b n)]
   rw [tsum_eq_single n]
-  · simp [term, rankOne_apply, inner_self_eq_norm_sq_to_K,
-      b.orthonormal.norm_eq_one n]
+  · change ((σ n : ℂ) • rankOne ℂ (b n) (b n)) (b n) = (σ n : ℂ) • b n
+    rw [smul_apply, rankOne_apply]
+    simp [inner_self_eq_norm_sq_to_K, b.orthonormal.norm_eq_one n]
   · intro k hk
-    simp [term, rankOne_apply, b.orthonormal.inner_eq_zero hk]
+    change ((σ k : ℂ) • rankOne ℂ (b k) (b k)) (b n) = 0
+    rw [smul_apply, rankOne_apply, b.orthonormal.inner_eq_zero hk]
+    simp
 
 /-- Positivity of each actual nuclear summand. -/
 theorem term_isPositive (n : ℕ) : (term n).IsPositive := by
