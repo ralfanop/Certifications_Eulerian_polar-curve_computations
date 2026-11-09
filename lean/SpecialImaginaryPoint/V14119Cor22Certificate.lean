@@ -104,9 +104,12 @@ theorem coeff_summable : Summable coeff := by
     exact_mod_cast hnat
   have heq :
       coeff n = (1 / 8 : ℝ) ^ n / (((2 * n + 1).factorial : ℕ) : ℝ) := by
-    simp only [coeff, one_div, inv_pow, div_eq_mul_inv, mul_inv_rev]
-    simp only [one_div]
-    ring
+    calc
+      coeff n = 1 / ((8 : ℝ) ^ n * (((2 * n + 1).factorial : ℕ) : ℝ)) := rfl
+      _ = (1 / (8 : ℝ) ^ n) / (((2 * n + 1).factorial : ℕ) : ℝ) :=
+        (div_div_eq_div_mul _ _ _).symm
+      _ = (1 / 8 : ℝ) ^ n / (((2 * n + 1).factorial : ℕ) : ℝ) := by
+        rw [one_div_pow]
   rw [heq]
   exact div_le_self (by positivity) hfac
 
