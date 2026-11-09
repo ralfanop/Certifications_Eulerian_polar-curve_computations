@@ -93,25 +93,32 @@ theorem coeff_succ (n : ℕ) : coeff (n + 1) = coeff n * ratio n := by
   push_cast
   field_simp [hpow, hfac, h2, h3] <;> ring
 
+/-- Majorization by a geometric series via the *certified coefficient
+ratio*, avoiding casts and analytic Taylor estimates entirely. -/
+theorem coeff_majorized (n : ℕ) : coeff n ≤ (1 / 8 : ℝ) ^ n := by
+  induction n with
+  | zero =>
+    norm_num [coeff]
+  | succ n ih =>
+    have hratio0 : ratio 0 = (1 / 48 : ℝ) := by
+      norm_num [ratio, denom]
+    have hr : ratio n ≤ (1 / 8 : ℝ) := by
+      calc
+        ratio n ≤ ratio 0 := ratio_antitone (Nat.zero_le n)
+        _ = 1 / 48 := hratio0
+        _ ≤ 1 / 8 := by norm_num
+    rw [coeff_succ, pow_succ]
+    calc
+      coeff n * ratio n ≤ (1 / 8 : ℝ) ^ n * ratio n :=
+        mul_le_mul_of_nonneg_right ih (ratio_small n).1
+      _ ≤ (1 / 8 : ℝ) ^ n * (1 / 8 : ℝ) :=
+        mul_le_mul_of_nonneg_left hr (pow_nonneg (by norm_num) n)
+
 theorem coeff_summable : Summable coeff := by
   have hgeo : Summable (fun n : ℕ => (1 / 8 : ℝ) ^ n) :=
     summable_geometric_of_lt_one (by norm_num) (by norm_num)
-  apply Summable.of_nonneg_of_le (fun n => le_of_lt (coeff_pos n)) ?_ hgeo
-  intro n
-  have hfac : (1 : ℝ) ≤ (((2 * n + 1).factorial : ℕ) : ℝ) := by
-    have hnat : (1 : ℕ) ≤ (2 * n + 1).factorial :=
-      Nat.succ_le_iff.mpr (Nat.factorial_pos _)
-    exact_mod_cast hnat
-  have heq :
-      coeff n = (1 / 8 : ℝ) ^ n / (((2 * n + 1).factorial : ℕ) : ℝ) := by
-    calc
-      coeff n = 1 / ((8 : ℝ) ^ n * (((2 * n + 1).factorial : ℕ) : ℝ)) := rfl
-      _ = (1 / (8 : ℝ) ^ n) / (((2 * n + 1).factorial : ℕ) : ℝ) :=
-        (div_div_eq_div_mul _ _ _).symm
-      _ = (1 / 8 : ℝ) ^ n / (((2 * n + 1).factorial : ℕ) : ℝ) := by
-        rw [one_div_pow]
-  rw [heq]
-  exact div_le_self (by positivity) hfac
+  exact Summable.of_nonneg_of_le
+    (fun n => le_of_lt (coeff_pos n)) coeff_majorized hgeo
 
 /-- Corollary 2.2 for every N. Strict on *both* sides; the second
 strictness exploits strict decrease of the successive factorial ratios. -/
@@ -148,6 +155,7 @@ theorem rational_tail_bound (N : ℕ) :
 #print axioms SpecialImaginaryPoint.V14119Cor22.ratio_strict_anti_step
 #print axioms SpecialImaginaryPoint.V14119Cor22.ratio_small
 #print axioms SpecialImaginaryPoint.V14119Cor22.coeff_succ
+#print axioms SpecialImaginaryPoint.V14119Cor22.coeff_majorized
 #print axioms SpecialImaginaryPoint.V14119Cor22.coeff_summable
 #print axioms SpecialImaginaryPoint.V14119Cor22.rational_tail_bound
 
