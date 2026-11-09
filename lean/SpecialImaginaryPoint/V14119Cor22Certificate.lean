@@ -93,30 +93,26 @@ theorem coeff_succ (n : ℕ) : coeff (n + 1) = coeff n * ratio n := by
   push_cast
   field_simp [hpow, hfac, h2, h3] <;> ring
 
-/-- All factorial denominators are at least one. -/
-theorem factorial_lower_bound (n : ℕ) :
-    (1 : ℝ) ≤ (((2 * n + 1).factorial : ℕ) : ℝ) := by
-  have hnat : (1 : ℕ) ≤ (2 * n + 1).factorial :=
-    Nat.succ_le_iff.mpr (Nat.factorial_pos _)
-  exact_mod_cast hnat
-
-/-- Direct positivity-and-reciprocal proof, avoiding any truncated-series
-calculation or analytic assumption. -/
+/-- Majorization by a geometric series via the *certified coefficient
+ratio*, avoiding casts and analytic Taylor estimates entirely. -/
 theorem coeff_majorized (n : ℕ) : coeff n ≤ (1 / 8 : ℝ) ^ n := by
-  have hpow : (0 : ℝ) < (8 : ℝ) ^ n := pow_pos (by norm_num) _
-  have hf := factorial_lower_bound n
-  have hden : (8 : ℝ) ^ n ≤ (8 : ℝ) ^ n *
-      (((2 * n + 1).factorial : ℕ) : ℝ) := by
-    nlinarith [mul_le_mul_of_nonneg_left hf hpow.le]
-  have hrec :
-      (1 : ℝ) / ((8 : ℝ) ^ n * (((2 * n + 1).factorial : ℕ) : ℝ)) ≤
-      1 / ((8 : ℝ) ^ n) :=
-    one_div_le_one_div_of_le hpow hden
-  change (1 : ℝ) / ((8 : ℝ) ^ n * (((2 * n + 1).factorial : ℕ) : ℝ)) ≤
-    (1 / 8 : ℝ) ^ n
-  calc
-    _ ≤ 1 / (8 : ℝ) ^ n := hrec
-    _ = (1 / 8 : ℝ) ^ n := by rw [one_div_pow]
+  induction n with
+  | zero =>
+    norm_num [coeff]
+  | succ n ih =>
+    have hratio0 : ratio 0 = (1 / 48 : ℝ) := by
+      norm_num [ratio, denom]
+    have hr : ratio n ≤ (1 / 8 : ℝ) := by
+      calc
+        ratio n ≤ ratio 0 := ratio_antitone (Nat.zero_le n)
+        _ = 1 / 48 := hratio0
+        _ ≤ 1 / 8 := by norm_num
+    rw [coeff_succ, pow_succ]
+    calc
+      coeff n * ratio n ≤ (1 / 8 : ℝ) ^ n * ratio n :=
+        mul_le_mul_of_nonneg_right ih (ratio_small n).1
+      _ ≤ (1 / 8 : ℝ) ^ n * (1 / 8 : ℝ) :=
+        mul_le_mul_of_nonneg_left hr (pow_nonneg (by norm_num) n)
 
 theorem coeff_summable : Summable coeff := by
   have hgeo : Summable (fun n : ℕ => (1 / 8 : ℝ) ^ n) :=
@@ -159,10 +155,6 @@ theorem rational_tail_bound (N : ℕ) :
 #print axioms SpecialImaginaryPoint.V14119Cor22.ratio_strict_anti_step
 #print axioms SpecialImaginaryPoint.V14119Cor22.ratio_small
 #print axioms SpecialImaginaryPoint.V14119Cor22.coeff_succ
-#print axioms Nat.succ_le_iff
-#print axioms one_div_pow
-#print axioms div_div_eq_div_mul
-#print axioms SpecialImaginaryPoint.V14119Cor22.factorial_lower_bound
 #print axioms SpecialImaginaryPoint.V14119Cor22.coeff_majorized
 #print axioms SpecialImaginaryPoint.V14119Cor22.coeff_summable
 #print axioms SpecialImaginaryPoint.V14119Cor22.rational_tail_bound
