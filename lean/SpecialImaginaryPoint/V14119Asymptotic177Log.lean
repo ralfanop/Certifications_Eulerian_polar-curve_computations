@@ -22,6 +22,7 @@ theorem log_one_add_taylor1 (y : ℝ) (hy0 : 0 ≤ y) (hy : y ≤ 1 / 2) :
       (∑ i ∈ Finset.range 1, (-y) ^ (i + 1) / ((i : ℝ) + 1)) = -y := by
     norm_num [Finset.sum_range_succ]
   rw [hsum] at h
+  simp only [sub_neg_eq_add] at h
   have hleft : |-y + Real.log (1 + y)| = |Real.log (1 + y) - y| := by
     congr 1
     ring
@@ -42,9 +43,9 @@ theorem log_one_add_taylor2 (y : ℝ) (hy0 : 0 ≤ y) (hy : y ≤ 1 / 2) :
   have hsum :
       (∑ i ∈ Finset.range 2, (-y) ^ (i + 1) / ((i : ℝ) + 1)) =
         -y + y ^ 2 / 2 := by
-    norm_num [Finset.sum_range_succ]
-    ring
+    norm_num [Finset.sum_range_succ] <;> ring
   rw [hsum] at h
+  simp only [sub_neg_eq_add] at h
   have hleft :
       |-y + y ^ 2 / 2 + Real.log (1 + y)| =
         |Real.log (1 + y) - (y - y ^ 2 / 2)| := by
