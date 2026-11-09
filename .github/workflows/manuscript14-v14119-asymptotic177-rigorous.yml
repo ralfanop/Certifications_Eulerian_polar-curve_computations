@@ -3,7 +3,9 @@ name: "Manuscript 14.119 equation 177 — quantitative analytic remainder"
 on:
   push:
     branches:
+      - main
       - manuscript14-v14119-asymptotic177-rigorous-20261109
+      - manuscript14-v14119-asymptotic177-main-ci-20261109
     paths:
       - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Taylor.lean'
       - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Log.lean'
@@ -13,6 +15,9 @@ on:
       - 'lean/SpecialImaginaryPoint/V14119Asymptotic177NumeratorIdentity.lean'
       - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Reciprocal.lean'
       - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Quotient.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
       - '.github/workflows/manuscript14-v14119-asymptotic177-rigorous.yml'
   pull_request:
     paths:
@@ -24,6 +29,9 @@ on:
       - 'lean/SpecialImaginaryPoint/V14119Asymptotic177NumeratorIdentity.lean'
       - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Reciprocal.lean'
       - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Quotient.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
       - '.github/workflows/manuscript14-v14119-asymptotic177-rigorous.yml'
   workflow_dispatch:
 
