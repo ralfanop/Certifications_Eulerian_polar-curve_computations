@@ -3,15 +3,26 @@ name: "Manuscript 14.119 Priority 3 — genuine S1 compression tails"
 on:
   push:
     branches:
+      - main
       - manuscript14-priority3-S1-compression-tail-20261109
     paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3DirichletDiagonal.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3TraceClassModel.lean'
       - 'lean/SpecialImaginaryPoint/V14119Priority3RankOneS1.lean'
       - 'lean/SpecialImaginaryPoint/V14119Priority3S1Truncation.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
       - '.github/workflows/manuscript14-priority3-S1-compression.yml'
   pull_request:
     paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3DirichletDiagonal.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3TraceClassModel.lean'
       - 'lean/SpecialImaginaryPoint/V14119Priority3RankOneS1.lean'
       - 'lean/SpecialImaginaryPoint/V14119Priority3S1Truncation.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
       - '.github/workflows/manuscript14-priority3-S1-compression.yml'
   workflow_dispatch:
 
