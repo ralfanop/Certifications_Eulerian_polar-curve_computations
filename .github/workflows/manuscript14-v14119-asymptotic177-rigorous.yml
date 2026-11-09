@@ -1,0 +1,112 @@
+name: "Manuscript 14.119 equation 177 — quantitative analytic remainder"
+
+on:
+  push:
+    branches:
+      - manuscript14-v14119-asymptotic177-rigorous-20261109
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Taylor.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Log.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Epsilon.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Numerator.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Denominator.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177NumeratorIdentity.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Reciprocal.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Quotient.lean'
+      - '.github/workflows/manuscript14-v14119-asymptotic177-rigorous.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Taylor.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Log.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Epsilon.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Numerator.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Denominator.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177NumeratorIdentity.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Reciprocal.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Quotient.lean'
+      - '.github/workflows/manuscript14-v14119-asymptotic177-rigorous.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Lean 4 kernel check — explicit sinh and logarithm Taylor bounds
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile analytic remainder lemmas
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in V14119Asymptotic177Taylor V14119Asymptotic177Log V14119Asymptotic177Epsilon V14119Asymptotic177Numerator V14119Asymptotic177Denominator V14119Asymptotic177NumeratorIdentity V14119Asymptotic177Reciprocal V14119Asymptotic177Quotient; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/$f.log"
+          done
+      - name: Exact axiom audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib
+          import re
+          names = [
+             "SpecialImaginaryPoint.V14119Asymptotic177.sinh_taylor5_bound",
+             "SpecialImaginaryPoint.V14119Asymptotic177.epsilon_taylor_bound",
+             "SpecialImaginaryPoint.V14119Asymptotic177.log_one_add_taylor1",
+             "SpecialImaginaryPoint.V14119Asymptotic177.log_one_add_taylor2",
+             "SpecialImaginaryPoint.V14119Asymptotic177.epsilon_positive_enclosure",
+             "SpecialImaginaryPoint.V14119Asymptotic177.normalized_epsilon_bounds",
+             "SpecialImaginaryPoint.V14119Asymptotic177.epsilon_factorization",
+             "SpecialImaginaryPoint.V14119Asymptotic177.normalized_epsilon_taylor",
+             "SpecialImaginaryPoint.V14119Asymptotic177.normalized_log_taylor",
+             "SpecialImaginaryPoint.V14119Asymptotic177.denominator_log_taylor",
+             "SpecialImaginaryPoint.V14119Asymptotic177.numerator_log_exact",
+             "SpecialImaginaryPoint.V14119Asymptotic177.numerator_log_taylor",
+             "SpecialImaginaryPoint.V14119Asymptotic177.reciprocal_denominator_taylor",
+             "SpecialImaginaryPoint.V14119Asymptotic177.parry_index_uniform_L",
+             "SpecialImaginaryPoint.V14119Asymptotic177.parry_index_uniform_log_inv",
+          ]
+          logs = "".join(pathlib.Path("/tmp/" + f + ".log").read_text() for f in
+             ["V14119Asymptotic177Taylor", "V14119Asymptotic177Log", "V14119Asymptotic177Epsilon", "V14119Asymptotic177Numerator", "V14119Asymptotic177Denominator", "V14119Asymptotic177NumeratorIdentity", "V14119Asymptotic177Reciprocal", "V14119Asymptotic177Quotient"])
+          found = {}
+          for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms", logs):
+              found[m.group(1) or m.group(3)] = {
+                  x.strip() for x in (m.group(2) or "").split(",") if x.strip()
+              }
+          allowed = {"propext", "Quot.sound", "Classical.choice"}
+          for name in names:
+              assert name in found, f"No kernel axiom report: {name}"
+              extras = found[name] - allowed
+              assert not extras, f"Forbidden axioms for {name}: {extras}"
+              print(name, "axioms:", sorted(found[name]))
+          assert "sorryAx" not in logs and "Lean.ofReduceBool" not in logs
+          print("SUCCESS: fifteen quantitative analytic lemmas, only standard kernel axioms")
+          PY
+      - name: Upload Lean compilation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-v14119-177-analytic-audit
+          path: /tmp/V14119Asymptotic177*.log
+          if-no-files-found: ignore
