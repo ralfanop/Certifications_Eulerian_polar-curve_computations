@@ -3,8 +3,31 @@ name: "Manuscript 14.119 Corollary 2.2 independent CI recovery"
 on:
   push:
     branches:
+      - main
       - manuscript14-v14119-cor22-ci-recovery-20261109
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Cor22Certificate.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Cor22ProfileBridge.lean'
+      - 'lean/SpecialImaginaryPoint/V14119TailBound.lean'
+      - 'lean/SpecialImaginaryPoint/V14119SpecialValueBridge.lean'
+      - 'lean/SpecialImaginaryPoint/V14119PrioritiesCertificate.lean'
+      - 'lean/SpecialImaginaryPoint/EulerianSinhSeries.lean'
+      - 'lean/SpecialImaginaryPoint/Corollary36Analytic.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-v14119-cor22-ci-recovery.yml'
   pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Cor22Certificate.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Cor22ProfileBridge.lean'
+      - 'lean/SpecialImaginaryPoint/V14119TailBound.lean'
+      - 'lean/SpecialImaginaryPoint/V14119SpecialValueBridge.lean'
+      - 'lean/SpecialImaginaryPoint/V14119PrioritiesCertificate.lean'
+      - 'lean/SpecialImaginaryPoint/EulerianSinhSeries.lean'
+      - 'lean/SpecialImaginaryPoint/Corollary36Analytic.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-v14119-cor22-ci-recovery.yml'
   workflow_dispatch:
 
 permissions:
