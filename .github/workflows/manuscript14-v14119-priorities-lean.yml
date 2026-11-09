@@ -1,0 +1,75 @@
+name: Manuscript 14.119 — priority 1 and 2 Lean kernel audit (incremental)
+
+on:
+  push:
+    branches:
+      - manuscript14-v14119-asymptotic-specialvalue-20261109
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119PrioritiesCertificate.lean'
+      - '.github/workflows/manuscript14-v14119-priorities-lean.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119PrioritiesCertificate.lean'
+      - '.github/workflows/manuscript14-v14119-priorities-lean.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Lean 4 kernel check — exact series, rational enclosure, asymptotic algebra
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check and audit priority certificates
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/EulerianSinhSeries.olean \
+            SpecialImaginaryPoint/EulerianSinhSeries.lean 2>&1 | tee /tmp/v14119-priorities-dependency.log
+          lake env lean -M16768 SpecialImaginaryPoint/V14119PrioritiesCertificate.lean \
+            2>&1 | tee /tmp/v14119-priorities.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/v14119-priorities.log; then
+            echo '::error::Lean compilation failed'
+            exit 1
+          fi
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'declaration uses' /tmp/v14119-priorities.log; then
+            echo '::error::Forbidden axioms or sorry found'
+            exit 1
+          fi
+          tr '\n' ' ' < /tmp/v14119-priorities.log | grep -oE "depends on axioms: \[[^]]*\]" \
+            | sed -E 's/ +/ /g' > /tmp/v14119-priorities.axioms || true
+          n_none="$(grep -c "does not depend on any axioms" /tmp/v14119-priorities.log || true)"
+          n_all="$(grep -c "depends on axioms" /tmp/v14119-priorities.axioms || true)"
+          n_std="$(grep -cE "depends on axioms: \[((propext|Classical\.choice|Quot\.sound)(, )?)+\]" \
+            /tmp/v14119-priorities.axioms || true)"
+          echo "audited statements: $((n_all + n_none)), standard-only: $((n_std + n_none))"
+          test "$((n_all + n_none))" -eq 4
+          test "$((n_std + n_none))" -eq 4
+      - name: Upload Lean audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-v14119-priorities-lean
+          path: /tmp/v14119-priorities*.log
+          if-no-files-found: ignore
