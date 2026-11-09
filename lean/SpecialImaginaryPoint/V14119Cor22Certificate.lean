@@ -21,7 +21,7 @@ noncomputable def denom (n : ℕ) : ℝ :=
 
 noncomputable def ratio (n : ℕ) : ℝ := 1 / denom n
 
-noncomputable def partial (N : ℕ) : ℝ :=
+noncomputable def prefixSum (N : ℕ) : ℝ :=
   ∑ n ∈ Finset.range (N + 1), coeff n
 
 theorem coeff_pos (n : ℕ) : 0 < coeff n := by
@@ -67,8 +67,8 @@ theorem ratio_small (k : ℕ) : 0 ≤ ratio k ∧ ratio k < 1 := by
       ratio k ≤ ratio 0 := ratio_antitone (Nat.zero_le k)
       _ = 1 / 48 := h0
   constructor
-  · dsimp [ratio]
-    positivity
+  · change 0 ≤ 1 / denom k
+    exact le_of_lt (one_div_pos.mpr (denom_pos k))
   · linarith
 
 theorem coeff_succ (n : ℕ) : coeff (n + 1) = coeff n * ratio n := by
@@ -79,12 +79,10 @@ theorem coeff_succ (n : ℕ) : coeff (n + 1) = coeff n * ratio n := by
       (2 * (n + 1) + 1).factorial = ((2 * n + 2) + 1).factorial := by
         congr 1 <;> omega
       _ = (2 * n + 3) * (2 * n + 2).factorial := by
-        rw [Nat.factorial_succ]
-        congr 1 <;> omega
+        rw [Nat.factorial_succ] <;> omega
       _ = (2 * n + 3) * ((2 * n + 2) * (2 * n + 1).factorial) := by
         rw [show 2 * n + 2 = (2 * n + 1) + 1 by omega,
-          Nat.factorial_succ]
-        ring
+          Nat.factorial_succ] <;> ring
       _ = (2 * n + 3) * (2 * n + 2) * (2 * n + 1).factorial := by ring
   have hpow : (8 : ℝ) ^ n ≠ 0 := by positivity
   have hfac : (((2 * n + 1).factorial : ℕ) : ℝ) ≠ 0 := by positivity
@@ -106,16 +104,17 @@ theorem coeff_summable : Summable coeff := by
     exact_mod_cast hnat
   have heq :
       coeff n = (1 / 8 : ℝ) ^ n / (((2 * n + 1).factorial : ℕ) : ℝ) := by
-    simp [coeff, div_pow, one_div, mul_inv_rev, mul_comm, mul_left_comm, mul_assoc]
+    simp only [coeff, one_div, inv_pow, div_eq_mul_inv, mul_inv_rev]
+    ring
   rw [heq]
   exact div_le_self (by positivity) hfac
 
 /-- Corollary 2.2 for every N. Strict on *both* sides; the second
 strictness exploits strict decrease of the successive factorial ratios. -/
 theorem rational_tail_bound (N : ℕ) :
-    partial N < (∑' n, coeff n) ∧
+    prefixSum N < (∑' n, coeff n) ∧
       (∑' n, coeff n) <
-        partial N + coeff (N + 1) / (1 - ratio (N + 1)) := by
+        prefixSum N + coeff (N + 1) / (1 - ratio (N + 1)) := by
   let k : ℕ := N + 1
   have hsmall := ratio_small k
   have hstep : ∀ n, k ≤ n → coeff (n + 1) ≤ ratio k * coeff n := by
@@ -137,7 +136,7 @@ theorem rational_tail_bound (N : ℕ) :
       _ = ratio k * coeff (k + 1) := mul_comm _ _
   have h := V14119Tail.positive_series_tail_strict coeff k (ratio k)
     coeff_pos coeff_summable hsmall.1 hsmall.2 hstep hstrict
-  simpa [partial, k] using h
+  simpa [prefixSum, k] using h
 
 #print axioms SpecialImaginaryPoint.V14119Cor22.coeff_pos
 #print axioms SpecialImaginaryPoint.V14119Cor22.denom_strictMono
