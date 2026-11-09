@@ -64,12 +64,15 @@ theorem positive_series_tail_strict
   have hpositive_tail : 0 < (∑' n : ℕ, f (n + k)) := by
     have hle : f (0 + k) ≤ ∑' n : ℕ, f (n + k) :=
       hshift.le_tsum 0 (fun n _ => le_of_lt (hpos (n + k)))
-    simpa only [zero_add] using (lt_of_lt_of_le (hpos k) hle)
+    simp only [zero_add] at hle
+    exact lt_of_lt_of_le (hpos k) hle
   have hdecomp := Summable.sum_add_tsum_nat_add k hsum
   constructor
   · linarith
   · rw [← hdecomp]
-    exact add_lt_add_left (lt_of_lt_of_eq htail_lt hgeo) _
+    simpa only [add_comm] using
+      (add_lt_add_right (lt_of_lt_of_eq htail_lt hgeo)
+        (∑ n ∈ Finset.range k, f n))
 
 #print axioms SpecialImaginaryPoint.V14119Tail.positive_series_tail_strict
 
