@@ -48,8 +48,7 @@ theorem term_isTraceClass (n : ℕ) :
     rw [term_diagonal]
     have hne : k ≠ n := by simpa using hk
     simp [hne]
-  exact GegenbauerFock.Ultraspherical.
-    complex_nonneg_isTraceClass_of_summable_natBasis_diagonal
+  exact GegenbauerFock.Ultraspherical.complex_nonneg_isTraceClass_of_summable_natBasis_diagonal
       (term n) hpos b hdiag
 
 /-- Exact CFC-absolute genuine Schatten-S₁ norm of each summand,
