@@ -93,25 +93,36 @@ theorem coeff_succ (n : ℕ) : coeff (n + 1) = coeff n * ratio n := by
   push_cast
   field_simp [hpow, hfac, h2, h3] <;> ring
 
+/-- All factorial denominators are at least one. -/
+theorem factorial_lower_bound (n : ℕ) :
+    (1 : ℝ) ≤ (((2 * n + 1).factorial : ℕ) : ℝ) := by
+  have hnat : (1 : ℕ) ≤ (2 * n + 1).factorial :=
+    Nat.succ_le_iff.mpr (Nat.factorial_pos _)
+  exact_mod_cast hnat
+
+/-- Direct positivity-and-reciprocal proof, avoiding any truncated-series
+calculation or analytic assumption. -/
+theorem coeff_majorized (n : ℕ) : coeff n ≤ (1 / 8 : ℝ) ^ n := by
+  have hpow : (0 : ℝ) < (8 : ℝ) ^ n := pow_pos (by norm_num) _
+  have hf := factorial_lower_bound n
+  have hden : (8 : ℝ) ^ n ≤ (8 : ℝ) ^ n *
+      (((2 * n + 1).factorial : ℕ) : ℝ) := by
+    nlinarith [mul_le_mul_of_nonneg_left hf hpow.le]
+  have hrec :
+      (1 : ℝ) / ((8 : ℝ) ^ n * (((2 * n + 1).factorial : ℕ) : ℝ)) ≤
+      1 / ((8 : ℝ) ^ n) :=
+    one_div_le_one_div_of_le hpow hden
+  change (1 : ℝ) / ((8 : ℝ) ^ n * (((2 * n + 1).factorial : ℕ) : ℝ)) ≤
+    (1 / 8 : ℝ) ^ n
+  calc
+    _ ≤ 1 / (8 : ℝ) ^ n := hrec
+    _ = (1 / 8 : ℝ) ^ n := by rw [one_div_pow]
+
 theorem coeff_summable : Summable coeff := by
   have hgeo : Summable (fun n : ℕ => (1 / 8 : ℝ) ^ n) :=
     summable_geometric_of_lt_one (by norm_num) (by norm_num)
-  apply Summable.of_nonneg_of_le (fun n => le_of_lt (coeff_pos n)) ?_ hgeo
-  intro n
-  have hfac : (1 : ℝ) ≤ (((2 * n + 1).factorial : ℕ) : ℝ) := by
-    have hnat : (1 : ℕ) ≤ (2 * n + 1).factorial :=
-      Nat.succ_le_iff.mpr (Nat.factorial_pos _)
-    exact_mod_cast hnat
-  have heq :
-      coeff n = (1 / 8 : ℝ) ^ n / (((2 * n + 1).factorial : ℕ) : ℝ) := by
-    calc
-      coeff n = 1 / ((8 : ℝ) ^ n * (((2 * n + 1).factorial : ℕ) : ℝ)) := rfl
-      _ = (1 / (8 : ℝ) ^ n) / (((2 * n + 1).factorial : ℕ) : ℝ) :=
-        (div_div_eq_div_mul _ _ _).symm
-      _ = (1 / 8 : ℝ) ^ n / (((2 * n + 1).factorial : ℕ) : ℝ) := by
-        rw [one_div_pow]
-  rw [heq]
-  exact div_le_self (by positivity) hfac
+  exact Summable.of_nonneg_of_le
+    (fun n => le_of_lt (coeff_pos n)) coeff_majorized hgeo
 
 /-- Corollary 2.2 for every N. Strict on *both* sides; the second
 strictness exploits strict decrease of the successive factorial ratios. -/
@@ -148,6 +159,11 @@ theorem rational_tail_bound (N : ℕ) :
 #print axioms SpecialImaginaryPoint.V14119Cor22.ratio_strict_anti_step
 #print axioms SpecialImaginaryPoint.V14119Cor22.ratio_small
 #print axioms SpecialImaginaryPoint.V14119Cor22.coeff_succ
+#print axioms Nat.succ_le_iff
+#print axioms one_div_pow
+#print axioms div_div_eq_div_mul
+#print axioms SpecialImaginaryPoint.V14119Cor22.factorial_lower_bound
+#print axioms SpecialImaginaryPoint.V14119Cor22.coeff_majorized
 #print axioms SpecialImaginaryPoint.V14119Cor22.coeff_summable
 #print axioms SpecialImaginaryPoint.V14119Cor22.rational_tail_bound
 
