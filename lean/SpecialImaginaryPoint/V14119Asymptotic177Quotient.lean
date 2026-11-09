@@ -93,8 +93,8 @@ private theorem quotient_from_errors
             |t / 100| := by
           rw [abs_neg]
           linarith [abs_add_le (N * (1 / D - k)) (k * (N - (L - t / 20)))]
-  have hte : t ≤ t * L :=
-    (mul_le_mul_of_nonneg_left hL ht.le).trans_eq (by ring)
+  have hte : t ≤ t * L := by
+    simpa only [mul_one] using (mul_le_mul_of_nonneg_left hL ht.le)
   rw [hid]
   calc
     |N * (1 / D - k) + k * (N - (L - t / 20)) - t / 100| ≤
