@@ -1,0 +1,69 @@
+name: Manuscript 14.119 — Corollary 2.2 strict geometric tails (Lean)
+
+on:
+  push:
+    branches:
+      - manuscript14-v14119-priorities-continuation-20261109
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119TailBound.lean'
+      - '.github/workflows/manuscript14-v14119-tail-lean.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119TailBound.lean'
+      - '.github/workflows/manuscript14-v14119-tail-lean.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Kernel proof and axiom audit — strict geometric series tails
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check strict tail theorem and audit axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V14119TailBound.lean 2>&1 | tee /tmp/v14119-tail.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/v14119-tail.log; then
+            exit 1
+          fi
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'declaration uses' /tmp/v14119-tail.log; then
+            exit 1
+          fi
+          tr '\n' ' ' < /tmp/v14119-tail.log | grep -oE 'depends on axioms: \[[^]]*\]' | \
+            sed -E 's/ +/ /g' > /tmp/v14119-tail.axioms || true
+          n_none="$(grep -c 'does not depend on any axioms' /tmp/v14119-tail.log || true)"
+          n_all="$(grep -c 'depends on axioms' /tmp/v14119-tail.axioms || true)"
+          n_std="$(grep -cE 'depends on axioms: \[((propext|Classical\.choice|Quot\.sound)(, )?)+\]' \
+            /tmp/v14119-tail.axioms || true)"
+          echo "Audited statements: $((n_all+n_none)); standard axioms only: $((n_std+n_none))"
+          test "$((n_all+n_none))" -eq 1
+          test "$((n_std+n_none))" -eq 1
+      - name: Upload Lean proof logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-v14119-tail
+          path: /tmp/v14119-tail.log
+          if-no-files-found: ignore
