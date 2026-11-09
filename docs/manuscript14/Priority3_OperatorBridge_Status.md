@@ -24,10 +24,15 @@ established formal theorems from missing functional-analytic identifications.
 
 V14119Priority3SpectralDetBridge proves, for real x != 0:
 
-1. The concrete finite determinant factors at t=x² are the Euler factors.
-2. The finite products converge (as N tends to infinity) to sinh(x)/x.
-3. The infinite spectral product, **defined as a convergent tprod**, equals
+1. The concrete finite Dirichlet determinant factors at t=x² are the Euler factors.
+2. The Dirichlet finite products converge (as N tends to infinity) to sinh(x)/x.
+3. The infinite Dirichlet spectral product, **defined as a convergent tprod**, equals
    sinh(x)/x.
+4. The mixed Dirichlet–Neumann finite spectral products converge to cosh(x).
+5. Their infinite spectral product equals cosh(x).
+
+Items 4–5 refer to the explicit mixed spectral factors, not yet to the
+resolvent or determinant of a constructed mixed-boundary differential operator.
 
 This is a scalar spectral product theorem; its name and docstring deliberately
 do not identify that product with a zeta determinant or with a determinant
@@ -49,9 +54,11 @@ of a trace-class operator. Certification status is the CI of this module.
        = log det_F(I+t A⁻¹)
    under precisely stated boundary conditions and t>=0.
    Do not take this formula as an axiom disguised as a definition.
-4. Extend to the mixed Dirichlet–Neumann boundary spectrum
-   π²(n+1/2)² where required by Proposition 6.2 and
-   Theorem 7.2, and derive the cosh product by the same operator route.
+4. Construct the actual mixed Dirichlet–Neumann differential operator
+   and identify its compact resolvent / trace-class inverse with the
+   spectrum π²(n+1/2)² used in the now-certified scalar cosh product.
+   Prove its Fredholm and relative zeta determinant identities by the
+   same genuine operator route.
 
 The classical analytic reference is K. Kirsten and A. J. McKane,
 "Functional determinants for general Sturm–Liouville problems",
