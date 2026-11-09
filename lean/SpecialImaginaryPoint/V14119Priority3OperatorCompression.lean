@@ -1,4 +1,4 @@
-import SpecialImaginaryPoint.V14119Priority3TraceClassModel
+import SpecialImaginaryPoint.V14119Priority3DirichletDiagonal
 import SpecialImaginaryPoint.DirichletFiniteDeterminant
 import SpecialImaginaryPoint.V14119Priority3SpectralDetBridge
 
