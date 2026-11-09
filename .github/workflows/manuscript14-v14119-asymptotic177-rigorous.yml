@@ -9,6 +9,7 @@ on:
       - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Log.lean'
       - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Epsilon.lean'
       - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Numerator.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Denominator.lean'
       - '.github/workflows/manuscript14-v14119-asymptotic177-rigorous.yml'
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Log.lean'
       - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Epsilon.lean'
       - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Numerator.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Asymptotic177Denominator.lean'
       - '.github/workflows/manuscript14-v14119-asymptotic177-rigorous.yml'
   workflow_dispatch:
 
@@ -51,7 +53,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
-          for f in V14119Asymptotic177Taylor V14119Asymptotic177Log V14119Asymptotic177Epsilon V14119Asymptotic177Numerator; do
+          for f in V14119Asymptotic177Taylor V14119Asymptotic177Log V14119Asymptotic177Epsilon V14119Asymptotic177Numerator V14119Asymptotic177Denominator; do
             lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
               "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/$f.log"
           done
@@ -72,9 +74,10 @@ jobs:
              "SpecialImaginaryPoint.V14119Asymptotic177.epsilon_factorization",
              "SpecialImaginaryPoint.V14119Asymptotic177.normalized_epsilon_taylor",
              "SpecialImaginaryPoint.V14119Asymptotic177.normalized_log_taylor",
+             "SpecialImaginaryPoint.V14119Asymptotic177.denominator_log_taylor",
           ]
           logs = "".join(pathlib.Path("/tmp/" + f + ".log").read_text() for f in
-             ["V14119Asymptotic177Taylor", "V14119Asymptotic177Log", "V14119Asymptotic177Epsilon", "V14119Asymptotic177Numerator"])
+             ["V14119Asymptotic177Taylor", "V14119Asymptotic177Log", "V14119Asymptotic177Epsilon", "V14119Asymptotic177Numerator", "V14119Asymptotic177Denominator"])
           found = {}
           for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms", logs):
               found[m.group(1) or m.group(3)] = {
@@ -87,7 +90,7 @@ jobs:
               assert not extras, f"Forbidden axioms for {name}: {extras}"
               print(name, "axioms:", sorted(found[name]))
           assert "sorryAx" not in logs and "Lean.ofReduceBool" not in logs
-          print("SUCCESS: nine quantitative analytic lemmas, only standard kernel axioms")
+          print("SUCCESS: ten quantitative analytic lemmas, only standard kernel axioms")
           PY
       - name: Upload Lean compilation logs
         if: always()
