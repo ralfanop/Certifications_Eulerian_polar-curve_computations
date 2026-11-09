@@ -43,9 +43,31 @@ theorem eulerian_profile_corollary22 (N : ℕ) :
       (∑' n : ℕ, V14119Cor22.coeff n) =
         (EulerianSpecialPoint.eulerianEvenAnalytic
           V14119SpecialValue.specialPoint).re := by
-    have h :=
-      congrArg Complex.re V14119SpecialValue.eulerian_profile_special_series
-    simpa only [Complex.ofReal_re, V14119Cor22.coeff] using h.symm
+    have ha : (1 / Real.sqrt (8 : ℝ) : ℝ) ≠ 0 := by positivity
+    have hroot : Real.sqrt (8 : ℝ) ≠ 0 := by positivity
+    have hs :
+        Real.sinh (1 / Real.sqrt 8) / (1 / Real.sqrt 8) =
+          Real.sqrt 8 * Real.sinh (1 / Real.sqrt 8) := by
+      field_simp [hroot] <;> ring
+    have heq :=
+      V14119SpecialValue.eulerian_profile_pure_imaginary
+        (1 / Real.sqrt 8) ha
+    change EulerianSpecialPoint.eulerianEvenAnalytic
+      V14119SpecialValue.specialPoint = _ at heq
+    rw [hs] at heq
+    have hre :
+        (EulerianSpecialPoint.eulerianEvenAnalytic
+          V14119SpecialValue.specialPoint).re =
+            Real.sqrt 8 * Real.sinh (1 / Real.sqrt 8) := by
+      rw [heq]
+      exact Complex.ofReal_re _
+    calc
+      (∑' n : ℕ, V14119Cor22.coeff n) =
+          Real.sqrt 8 * Real.sinh (1 / Real.sqrt 8) := by
+        simpa only [V14119Cor22.coeff] using
+          V14119Priorities.real_special_value_eq_series.symm
+      _ = (EulerianSpecialPoint.eulerianEvenAnalytic
+            V14119SpecialValue.specialPoint).re := hre.symm
   have h := V14119Cor22.rational_tail_bound N
   simpa only [hprofile] using h
 

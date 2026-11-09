@@ -3,7 +3,7 @@ name: Manuscript 14.119 — Corollary 2.2 universal exact factorial tail bounds
 on:
   push:
     branches:
-      - manuscript14-v14119-priorities-continuation-20261109
+      - manuscript14-v14119-cor22-final-audit-20261109
     paths:
       - 'lean/SpecialImaginaryPoint/V14119Cor22Certificate.lean'
       - '.github/workflows/manuscript14-v14119-cor22-lean.yml'
@@ -61,8 +61,8 @@ jobs:
           n_std="$(grep -cE 'depends on axioms: \[((propext|Classical\.choice|Quot\.sound)(, )?)+\]' \
             /tmp/v14119-cor22.axioms || true)"
           echo "Audited statements: $((n_all+n_none)); standard axioms only: $((n_std+n_none))"
-          test "$((n_all+n_none))" -eq 8
-          test "$((n_std+n_none))" -eq 8
+          test "$((n_all+n_none))" -eq 9
+          test "$((n_std+n_none))" -eq 9
       - name: Upload proof logs
         if: always()
         uses: actions/upload-artifact@v4
