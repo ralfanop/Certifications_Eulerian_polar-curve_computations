@@ -6,10 +6,12 @@ on:
       - manuscript14-v14119-priorities-continuation-20261109
     paths:
       - 'lean/SpecialImaginaryPoint/V14119Cor22ProfileBridge.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Cor22Certificate.lean'
       - '.github/workflows/manuscript14-v14119-cor22-profile-lean.yml'
   pull_request:
     paths:
       - 'lean/SpecialImaginaryPoint/V14119Cor22ProfileBridge.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Cor22Certificate.lean'
       - '.github/workflows/manuscript14-v14119-cor22-profile-lean.yml'
   workflow_dispatch:
 
