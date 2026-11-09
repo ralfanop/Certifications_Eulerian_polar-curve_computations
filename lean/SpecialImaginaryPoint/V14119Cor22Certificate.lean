@@ -8,7 +8,7 @@ This module applies the strict positive-series geometric majorant to
 the exact factorial coefficients a_n = 1/[8^n(2n+1)!].
 
 All results quantify over every N : Nat, and contain no numerical
-precision parameter.
+precision parameter. The generic strict-tail comparison is now kernel-checked.
 -/
 
 namespace SpecialImaginaryPoint.V14119Cor22
