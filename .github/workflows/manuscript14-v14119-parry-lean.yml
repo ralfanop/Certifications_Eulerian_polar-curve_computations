@@ -1,0 +1,73 @@
+name: Manuscript 14 — Lean 4 certificate of the Parry index, Proposition 10.2 (version 14.119)
+
+# Manuscript 14, version 14.119 (9 November 2026), Proposition 10.2: t -> t^m (t - 1) is strictly increasing on
+# [1, oo), so that beta < beta_(m+1) exactly when beta^m (beta - 1) < 1; this holds exactly when m < quot beta =
+# log(1/(beta - 1))/log beta, with equality only at a root; hence the index (176) is the ceiling of the quotient;
+# for 1 < beta < 2 the greedy remainders of 1 are beta^j (beta - 1) and the greedy word begins with 1 0^(n-1) 1;
+# the rational brackets of the proofs give the indices 31 at x = 1/sqrt2 and 187 at x = 1/sqrt8, with the
+# margins F_187 < -1/200 and F_188 > 1/100. The module imports only the pinned Mathlib. The job fails on any
+# compile error, on any `sorry`, and on any axiom other than propext, Classical.choice and Quot.sound in the
+# ten audited statements.
+
+on:
+  push:
+    branches:
+      - manuscript14-v14119-parry-index-20261109
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119ParryIndexCertificate.lean'
+      - '.github/workflows/manuscript14-v14119-parry-lean.yml'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    name: Lean 4 kernel check of the version-14.119 Parry-index certificate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository-pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check the version-14.119 certificate and audit its axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V14119ParryIndexCertificate.lean 2>&1 | tee /tmp/v14119.log
+          if grep -nE '^[^ ]+:[0-9]+:[0-9]+: error' /tmp/v14119.log; then
+            echo '::error::Compile error in the version-14.119 certificate'
+            exit 1
+          fi
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' -e 'declaration uses' /tmp/v14119.log; then
+            echo '::error::Forbidden axiom or sorry in the version-14.119 certificate'
+            exit 1
+          fi
+          # Lean wraps long axiom lists over two lines: join the log before counting.
+          tr '\n' ' ' < /tmp/v14119.log | grep -oE "depends on axioms: \[[^]]*\]" | sed -E 's/ +/ /g' > /tmp/v14119.axioms || true
+          n_none="$(grep -c "does not depend on any axioms" /tmp/v14119.log || true)"
+          n_all="$(grep -c "depends on axioms" /tmp/v14119.axioms || true)"
+          n_std="$(grep -cE "depends on axioms: \[((propext|Classical\.choice|Quot\.sound)(, )?)+\]" /tmp/v14119.axioms || true)"
+          echo "audited statements: $((n_all + n_none)), of which within the standard three axioms: $((n_std + n_none))"
+          test "$((n_all + n_none))" -eq 10
+          test "$((n_std + n_none))" -eq 10
+          echo 'Version 14.119: no sorry, no sorryAx, no Lean.ofReduceBool; ten audited statements'
+      - name: Upload Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-v14119-parry-lean
+          path: /tmp/v14119.log
+          if-no-files-found: ignore
