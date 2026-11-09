@@ -105,6 +105,7 @@ theorem coeff_summable : Summable coeff := by
   have heq :
       coeff n = (1 / 8 : ℝ) ^ n / (((2 * n + 1).factorial : ℕ) : ℝ) := by
     simp only [coeff, one_div, inv_pow, div_eq_mul_inv, mul_inv_rev]
+    simp only [one_div]
     ring
   rw [heq]
   exact div_le_self (by positivity) hfac
