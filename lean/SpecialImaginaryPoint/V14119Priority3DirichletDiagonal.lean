@@ -13,7 +13,7 @@ noncomputable section
 
 namespace Manuscript14Priority3.TraceClassModel
 open Filter Topology InnerProductSpace
-open scoped ComplexOrder
+open scoped ComplexOrder lp
 
 abbrev H : Type := ℓ²(ℕ, ℂ)
 
@@ -29,7 +29,8 @@ theorem σ_pos (n : ℕ) : 0 < σ n := by
   positivity
 
 theorem σ_summable : Summable σ := by
-  simpa only [σ, one_div] using Manuscript14Section67.summable_base
+  change Summable (fun n : ℕ => (Real.pi ^ 2 * ((n : ℝ) + 1) ^ 2)⁻¹)
+  exact Manuscript14Section67.summable_base
 
 /-- The actual complex Hilbert-space nuclear summands. -/
 def term (n : ℕ) : H →L[ℂ] H :=
