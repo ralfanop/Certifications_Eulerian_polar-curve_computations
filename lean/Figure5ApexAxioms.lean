@@ -1,0 +1,12 @@
+import EulerianCert.Figure5Apex
+
+#print axioms EulerianCert.Figure5Apex.exact_vertices
+#print axioms EulerianCert.Figure5Apex.equal_side_lengths
+#print axioms EulerianCert.Figure5Apex.half_base_height_ratio
+#print axioms EulerianCert.Figure5Apex.normalized_dot_product
+#print axioms EulerianCert.Figure5Apex.apex_angle_mem_open_interval
+#print axioms EulerianCert.Figure5Apex.tan_half_apex
+#print axioms EulerianCert.Figure5Apex.cos_apex
+#print axioms EulerianCert.Figure5Apex.unique_internal_angle_of_cos
+#print axioms EulerianCert.Figure5Apex.unique_internal_angle_of_half_tan
+#print axioms EulerianCert.Figure5Apex.apex_angle_eq_twice_arccot_two
