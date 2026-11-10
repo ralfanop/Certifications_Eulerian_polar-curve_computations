@@ -46,7 +46,7 @@ theorem weightedGram_full_expansion_eq_det {m : ℕ}
     have h :=
       Polynomial.natDegree_det_X_add_C_le G (1 : Matrix (Fin m) (Fin m) ℂ)
     have ht : p.natDegree ≤ m := by
-      simpa only [p, add_comm] using h
+      simpa [p, add_comm] using h
     exact Nat.lt_succ_of_le ht
   have hcoeff (k : ℕ) :
       p.coeff k =
