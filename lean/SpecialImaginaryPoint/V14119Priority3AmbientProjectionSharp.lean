@@ -2,6 +2,7 @@ import SpecialImaginaryPoint.V14119Priority3SquareAmbientMixedGramSharp
 import Mathlib.Analysis.InnerProductSpace.Projection.Basic
 import Mathlib.LinearAlgebra.Dimension.Constructions
 import Mathlib.LinearAlgebra.FiniteDimensional.Defs
+import Mathlib.Topology.Algebra.Module.FiniteDimension
 
 /-!
 # Priority 3 — sharp Gram–Hadamard in arbitrary complex Hilbert ambient dimension
@@ -38,7 +39,7 @@ theorem mixedGram_det_norm_le_sharp_of_linearIndependent
       ∏ i : ι, ‖u i‖ * ‖v i‖ := by
   let U : Submodule ℂ E := Submodule.span ℂ (Set.range u)
   letI : FiniteDimensional ℂ U :=
-    FiniteDimensional.span_of_finite (Set.finite_range u)
+    FiniteDimensional.span_of_finite ℂ (Set.finite_range u)
   have hdim : Module.finrank ℂ U = Fintype.card ι := by
     exact finrank_span_eq_card hu
   letI : CompleteSpace U := FiniteDimensional.completeSpace ℂ U
