@@ -60,7 +60,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
-          for f in V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3FiniteRankFredholm; do
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3FiniteRankFredholm; do
             lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
               "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/priority3-finrank-$f.log"
           done
