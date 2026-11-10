@@ -92,6 +92,67 @@ theorem transported_truncation_tendsto (U : H →L[ℂ] H) (D : Data) :
   simpa only [hpart, F, ProbabilisticTheory.TraceClass.sandwichContinuous_apply,
     transported, ProbabilisticTheory.TraceClass.conjugate] using hlim
 
+/-- Actual complex matrix of the restriction of a transported infinite
+CFC S₁ operator to the first N transported orthonormal vectors. -/
+def compressedTransported (U : H →L[ℂ] H) (D : Data) (N : ℕ) :
+    Matrix (Fin N) (Fin N) ℂ :=
+  fun i j => inner ℂ (U.adjoint (b i.val))
+    ((transported U D).1 (U.adjoint (b j.val)))
+
+/-- True transported Hilbert-space compressions are IDENTICAL to
+the original complex diagonal Hilbert compressions, for every
+coisometry U. This is an actual matrix-coefficient theorem. -/
+theorem compressedTransported_eq (U : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1) (D : Data) (N : ℕ) :
+    compressedTransported U D N = compressed D N := by
+  ext i j
+  have hiso :
+      inner ℂ (U.adjoint (b i.val)) (U.adjoint (b j.val)) =
+      inner ℂ (b i.val) (b j.val) := by
+    rw [ContinuousLinearMap.adjoint_inner_right]
+    have hu : U (U.adjoint (b i.val)) = b i.val := by
+      calc
+        U (U.adjoint (b i.val)) =
+            (U * U.adjoint) (b i.val) := rfl
+        _ = b i.val := by rw [hUUstar]; rfl
+    rw [hu]
+  change inner ℂ (U.adjoint (b i.val))
+      ((transported U D).1 (U.adjoint (b j.val))) =
+    inner ℂ (b i.val) ((S1Diagonal D).1 (b j.val))
+  rw [transported_eigen U hUUstar D j.val, S1Diagonal_eigen D j.val]
+  rw [inner_smul_right, inner_smul_right, hiso]
+
+def finiteTransportedShift
+    (U : H →L[ℂ] H) (D : Data) (N : ℕ) (z : ℂ) :
+    Matrix (Fin N) (Fin N) ℂ :=
+  1 + z • compressedTransported U D N
+
+/-- Exact finite complex matrix determinant of the TRUE
+transported non-fixed-basis Hilbert-space compression. -/
+theorem finiteTransportedShift_det_eq (U : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (D : Data) (N : ℕ) (z : ℂ) :
+    Matrix.det (finiteTransportedShift U D N z) =
+      Matrix.det (finiteShift D N z) := by
+  rw [finiteTransportedShift, compressedTransported_eq U hUUstar]
+  rfl
+
+/-- Actual transported complex Hilbert-space compression determinants
+converge to the complex Fredholm product for arbitrary z. -/
+theorem finiteTransportedShift_det_tendsto (U : H →L[ℂ] H)
+    (hUUstar : U * U.adjoint = 1)
+    (D : Data) (z : ℂ) :
+    Tendsto
+      (fun N : ℕ => Matrix.det (finiteTransportedShift U D N z))
+      atTop (𝓝 (determinant D z)) := by
+  have heq :
+      (fun N : ℕ => Matrix.det (finiteTransportedShift U D N z)) =
+      (fun N : ℕ => Matrix.det (finiteShift D N z)) := by
+    funext N
+    exact finiteTransportedShift_det_eq U hUUstar D N z
+  rw [heq]
+  exact finiteShift_det_tendsto D z
+
 /-- Equality of transported trace-class operators forces equality
 of arbitrary complex coefficient data. This uses the actual
 coisometric inverse on S₁ rather than a formal symbol argument. -/
@@ -155,6 +216,9 @@ theorem determinantOnTransportedSector_ofData
 #print axioms Manuscript14Priority3.ComplexDiagonalFredholm.transported_eigen
 #print axioms Manuscript14Priority3.ComplexDiagonalFredholm.transported_traceNorm_eq
 #print axioms Manuscript14Priority3.ComplexDiagonalFredholm.transported_truncation_tendsto
+#print axioms Manuscript14Priority3.ComplexDiagonalFredholm.compressedTransported_eq
+#print axioms Manuscript14Priority3.ComplexDiagonalFredholm.finiteTransportedShift_det_eq
+#print axioms Manuscript14Priority3.ComplexDiagonalFredholm.finiteTransportedShift_det_tendsto
 #print axioms Manuscript14Priority3.ComplexDiagonalFredholm.transported_coeff_eq
 #print axioms Manuscript14Priority3.ComplexDiagonalFredholm.transported_determinant_eq_of_eq
 #print axioms Manuscript14Priority3.ComplexDiagonalFredholm.determinantOnTransportedSector_eq
