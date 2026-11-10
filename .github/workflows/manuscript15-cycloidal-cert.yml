@@ -37,6 +37,13 @@ jobs:
           lake update
           lake exe cache get
 
+      - name: Build the inherited Eulerian sinc dependency
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build EulerianCert.FourierModes
+
       - name: Kernel-check cycloidal reconstruction
         working-directory: lean
         shell: bash
