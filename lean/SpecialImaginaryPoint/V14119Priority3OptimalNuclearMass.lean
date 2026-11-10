@@ -36,6 +36,7 @@ namespace Manuscript14Priority3.NuclearRankOne
 open Filter Topology InnerProductSpace
 open scoped ComplexOrder lp
 open Manuscript14Priority3.TraceClassModel
+open ProbabilisticTheory
 
 /-- Every absolutely summable rank-one representation of an
 ACTUAL CFC-S₁ map has nuclear cost at least its true CFC
@@ -52,7 +53,8 @@ theorem nuclear_mass_ge_traceNorm
   calc
     ‖T‖ = ‖∑' i : ι, rankOneS1 (u i) (v i)‖ := by rw [hT]
     _ ≤ ∑' i : ι, ‖rankOneS1 (u i) (v i)‖ :=
-      norm_tsum_le_tsum_norm hsum.norm
+      hsum.hasSum.norm_le_of_bounded hsum.norm.hasSum
+        (fun i => le_rfl)
     _ = ∑' i : ι, ‖u i‖ * ‖v i‖ := by
       apply tsum_congr
       intro i
