@@ -39,7 +39,7 @@ theorem generalMixedGram_det_norm_le_factorial_cost
     {ι : Type*} [Fintype ι] [DecidableEq ι]
     (u v : ι → E) :
     ‖(generalMixedGram u v).det‖ ≤
-      ((Fintype.card ι)! : ℝ) *
+      ((Nat.factorial (Fintype.card ι)) : ℝ) *
         (∏ i : ι, ‖u i‖ * ‖v i‖) := by
   rw [Matrix.det_apply]
   calc
@@ -66,10 +66,10 @@ theorem generalMixedGram_det_norm_le_factorial_cost
       apply Finset.sum_congr rfl
       intro σ hσ
       rw [Finset.prod_mul_distrib, Equiv.prod_comp σ]
-    _ = ((Fintype.card ι)! : ℝ) *
+    _ = ((Nat.factorial (Fintype.card ι)) : ℝ) *
           ((∏ i : ι, ‖v i‖) * (∏ i : ι, ‖u i‖)) := by
       simp [Fintype.card_perm, nsmul_eq_mul]
-    _ = ((Fintype.card ι)! : ℝ) *
+    _ = ((Nat.factorial (Fintype.card ι)) : ℝ) *
           (∏ i : ι, ‖u i‖ * ‖v i‖) := by
       rw [Finset.prod_mul_distrib]
       ring
@@ -81,7 +81,7 @@ theorem mixedGram_principal_minor_norm_le_factorial_cost
     {m : ℕ} (u v : Fin m → E) (s : Finset (Fin m)) :
     ‖((Manuscript14Priority3.ComplexGramMinorBridge.mixedGram u v).submatrix
       (Subtype.val : s → Fin m) (Subtype.val : s → Fin m)).det‖ ≤
-        ((s.card)! : ℝ) * (∏ i ∈ s, ‖u i‖ * ‖v i‖) := by
+        ((Nat.factorial s.card) : ℝ) * (∏ i ∈ s, ‖u i‖ * ‖v i‖) := by
   have h := generalMixedGram_det_norm_le_factorial_cost
     (u := fun i : s => u i) (v := fun i : s => v i)
   simpa only [generalMixedGram, Fintype.card_coe, Finset.prod_coe_sort,
