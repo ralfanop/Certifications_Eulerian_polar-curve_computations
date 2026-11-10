@@ -1,4 +1,4 @@
-import Mathlib.LinearAlgebra.Matrix.SchurComplement
+import Mathlib
 
 /-!
 # Manuscript 14.119 Priority 3 — exact finite rank-one resolvent perturbation
