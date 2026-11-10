@@ -90,9 +90,18 @@ theorem updatedColumns_updateCol_det (A : Matrix ι ι ℂ)
         funext i
         simp [updatedColumns, Matrix.updateCol_ne hkj, hk]
       rw [hvector]
-      rw [Matrix.det_updateCol_add_smul_self
-        ((updatedColumns s A u v).updateCol j u) hkj (v k)]
-      exact ih j hjs
+      have hupdate :
+          (((updatedColumns s A u v).updateCol j u).updateCol k
+            (fun i =>
+              ((updatedColumns s A u v).updateCol j u) i k +
+              v k * ((updatedColumns s A u v).updateCol j u) i j)).det =
+            ((updatedColumns s A u v).updateCol j u).det := by
+        convert (Matrix.det_updateCol_add_smul_self
+          ((updatedColumns s A u v).updateCol j u) hkj (v k)) using 1
+        · congr 1
+          funext i
+          simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul]
+      exact hupdate.trans (ih j hjs)
 
 /-- A rank-one perturbation affects the determinant only linearly
 in each modified column; any term involving two copies of u
@@ -118,8 +127,11 @@ theorem updatedColumns_det (A : Matrix ι ι ℂ)
           ((updatedColumns s A u v).updateCol k
               (fun i => v k * u i)).det =
             v k * ((updatedColumns s A u v).updateCol k u).det := by
-        simpa only [Pi.smul_apply, smul_eq_mul] using
-          (Matrix.det_updateCol_smul (updatedColumns s A u v) k (v k) u)
+        convert (Matrix.det_updateCol_smul
+          (updatedColumns s A u v) k (v k) u) using 1
+        congr 1
+        funext i
+        rfl
       rw [show
         (fun i : ι => A i k + v k * u i) =
           (fun i : ι => A i k) + (fun i : ι => v k * u i) from rfl]
