@@ -251,9 +251,13 @@ theorem finiteShift_det (D : Data) (N : ℕ) (t : ℝ) :
       ∏ i : Fin N, (1 + (t : ℂ) * (D.coeff i.val : ℂ)) := by
   rw [finiteShift_eq_diagonal, Matrix.det_diagonal]
 
+/-- The finite real product attached to actual Hilbert-space compressions. -/
+def finiteRealShift (D : Data) (N : ℕ) (t : ℝ) : ℝ :=
+  ∏ n ∈ Finset.range N, (1 + t * D.coeff n)
+
 theorem finiteShift_det_eq_real (D : Data) (N : ℕ) (t : ℝ) :
     Matrix.det (finiteShift D N t) =
-      ((∏ n ∈ Finset.range N, 1 + t * D.coeff n : ℝ) : ℂ) := by
+      ((finiteRealShift D N t : ℝ) : ℂ) := by
   rw [finiteShift_det]
   calc
     (∏ i : Fin N, (1 + (t : ℂ) * (D.coeff i.val : ℂ))) =
@@ -262,10 +266,10 @@ theorem finiteShift_det_eq_real (D : Data) (N : ℕ) (t : ℝ) :
       intro i hi
       push_cast
       ring
-    _ = ((∏ i : Fin N, 1 + t * D.coeff i.val : ℝ) : ℂ) := by
+    _ = ((∏ i : Fin N, (1 + t * D.coeff i.val) : ℝ) : ℂ) := by
       norm_cast
-    _ = ((∏ n ∈ Finset.range N, 1 + t * D.coeff n : ℝ) : ℂ) := by
-      simp only [Finset.prod_range]
+    _ = ((finiteRealShift D N t : ℝ) : ℂ) := by
+      simp only [finiteRealShift, Finset.prod_range]
 
 /-- Infinite Fredholm product on the entire positive summable
 diagonal sector; it is not defined through the Dirichlet spectrum. -/
@@ -292,7 +296,7 @@ theorem finiteShift_det_tendsto (D : Data) (t : ℝ) :
     (Complex.continuous_ofReal.tendsto (determinant D t)).comp hreal
   convert hcomplex using 1
   funext N
-  exact finiteShift_det_eq_real D N t
+  simpa only [finiteRealShift] using finiteShift_det_eq_real D N t
 
 /-- The already-certified Dirichlet spectral inverse is one member
 of this genuine operatorial positive diagonal S₁ construction. -/
