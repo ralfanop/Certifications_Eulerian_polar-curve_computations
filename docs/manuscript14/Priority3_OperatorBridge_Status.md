@@ -86,10 +86,34 @@ bounded operator `A_sp⁻¹` rather than merely its formal spectrum.
 
 [CI #42710157209](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/42710157209)
 completed **SUCCESS** for ten named declarations on PR #82's
-working commit. The independent pull-request CI remains part of the
-final pre-merge check. **A trace-norm compression limit is not by itself
+working commit. The push and PR workflows both passed on the definitive PR #82 commit\n`1cfcb2e95587` (runs #42711608603 and #42711611430). The PR was merged\ninto `main` on 10 November 2026 (merge commit `c80b4ab88a5a2bd`). **A trace-norm compression limit is not by itself
 a basis-independent definition of the Fredholm determinant**; proving
 the Fredholm determinant's well-definedness and continuity remains open.
+
+## Fourth bridge: trace-class continuity reduction (new candidate)
+
+`V14119Priority3FredholmContinuityReduction.lean` makes the precise
+remaining logical dependency explicit. Its four declarations are deliberately
+*conditional* on properties of a future operatorial determinant:
+
+1. The actual finite S₁ compressions converge to the true S₁ inverse
+   Banach sum in the genuine CFC Schatten norm.
+2. Any functional `F : TraceClass H → ℂ` continuous at that inverse and
+   agreeing with the true finite compressed complex matrix determinants
+   at each truncation must satisfy `F(A_sp⁻¹)=sinh(x)/x` for the
+   nonzero real shift parameter `x` (with the shift `x²` incorporated
+   into the finite-rank compatibility condition for `F`).
+3. Any two functionals continuous at this inverse and agreeing on
+   all its finite trace-class truncations must agree at the infinite inverse.
+4. Any locally Lipschitz functional satisfying the stated trace-norm
+   estimate on this approximation path inherits a quantitative error
+   bounded by its Lipschitz constant times the already certified
+   spectral S₁ tail.
+
+**Status: candidate pending its own pinned Lean compilation and axiom
+audit.** This is a uniqueness-and-continuity reduction, **not** the
+existence, basis independence or trace-norm continuity proof of the
+abstract Fredholm determinant. No zeta regularization is postulated.
 
 ## Remaining obligations: determinant bridge
 
