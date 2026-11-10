@@ -49,9 +49,8 @@ theorem mixedGram_det_ne_zero_implies_linearIndependent
     LinearMap.pi (fun i : ι => (innerSL ℂ (v i)).toLinearMap)
   have hcols : (squareMixedGram u v).col = F ∘ u := by
     funext j i
-    simp only [Matrix.col_apply, squareMixedGram, Function.comp_apply,
-      F, LinearMap.pi_apply, ContinuousLinearMap.toLinearMap_apply,
-      innerSL_apply_apply]
+    change inner ℂ (v i) (u j) = (innerSL ℂ (v i)) (u j)
+    rfl
   have hli : LinearIndependent ℂ (F ∘ u) := by
     rw [← hcols]
     exact Matrix.linearIndependent_cols_of_det_ne_zero hdet
