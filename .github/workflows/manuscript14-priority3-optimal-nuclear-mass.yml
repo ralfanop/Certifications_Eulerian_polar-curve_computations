@@ -1,0 +1,105 @@
+name: "Manuscript 14.119 Priority 3 — exact optimal CFC S1 nuclear mass"
+
+on:
+  push:
+    branches:
+      - main
+      - manuscript14-priority3-optimal-nuclear-cost-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3OptimalNuclearMass.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-optimal-nuclear-mass.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3OptimalNuclearMass.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-optimal-nuclear-mass.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Exact CFC S1 nuclear norm equality and 3 axiom audits
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build genuine CFC S1 trace norm and HS polar prerequisites
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge GegenbauerFock.PhyslibTraceClassSandwichContinuous GegenbauerFock.PhyslibTraceClassSeriesTailEstimate GegenbauerFock.PhyslibTraceClassOperatorEmbedding GegenbauerFock.PhyslibTraceClassHSFactorization GegenbauerFock.PhyslibTraceNormSqrtAbsEnergy GegenbauerFock.PhyslibHilbertSchmidtAdditive 2>&1 | tee /tmp/p3-optimal-deps.log
+      - name: Compile genuine S1 universal nuclear representation and optimal cost
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3RankOneS1 V14119Priority3S1Truncation V14119Priority3OperatorCompression V14119Priority3PositiveDiagonalFredholm V14119Priority3FredholmSectorFunctional V14119Priority3ComplexDiagonalS1 V14119Priority3ArbitraryNuclearRankOne V14119Priority3UniversalNuclearDensity V14119Priority3OptimalNuclearMass; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/p3-optimal-$f.log"
+          done
+      - name: Audit four polar witness and optimal nuclear mass equality theorems
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          log = pathlib.Path("/tmp/p3-optimal-V14119Priority3OptimalNuclearMass.log").read_text()
+          prefix = "Manuscript14Priority3.NuclearRankOne."
+          required = [
+            "nuclear_mass_ge_traceNorm",
+            "traceClass_exists_nuclear_cost_le_traceNorm",
+            "traceClass_exists_optimal_nuclear_representation"
+          ]
+          found = {}
+          for m in re.finditer(
+              r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",
+              log, re.MULTILINE):
+            found[m.group(1) or m.group(3)] = {
+              x.strip() for x in (m.group(2) or "").split(",") if x.strip()
+            }
+          allowed = {"propext", "Quot.sound", "Classical.choice"}
+          generic = "ProbabilisticTheory.traceClass_polar_nuclear_energy_witness"
+          assert generic in found, f"Missing exact generic Hilbert polar witness report: {generic}"
+          assert found[generic] <= allowed, f"Nonstandard axioms for {generic}: {found[generic] - allowed}"
+          print(generic, sorted(found[generic]))
+          for suffix in required:
+            name = prefix + suffix
+            assert name in found, f"Missing exact report: {name}"
+            assert found[name] <= allowed, f"Nonstandard axioms for {name}: {found[name] - allowed}"
+            print(name, sorted(found[name]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error", log)
+          print("SUCCESS: four generic polar witness and optimal CFC S1 nuclear mass declarations")
+          PY
+      - name: Upload kernel logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-optimal-nuclear-mass-logs
+          path: /tmp/p3-optimal-*.log
+          if-no-files-found: ignore
