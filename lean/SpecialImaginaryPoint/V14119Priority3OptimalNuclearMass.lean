@@ -34,7 +34,7 @@ noncomputable section
 namespace Manuscript14Priority3.NuclearRankOne
 
 open Filter Topology InnerProductSpace
-open scoped ComplexOrder lp
+open scoped ComplexOrder InnerProductSpace lp
 open Manuscript14Priority3.TraceClassModel
 open ProbabilisticTheory
 
@@ -47,14 +47,12 @@ theorem nuclear_mass_ge_traceNorm
     (T : ProbabilisticTheory.TraceClass H)
     (hT : (∑' i : ι, rankOneS1 (u i) (v i)) = T) :
     ‖T‖ ≤ ∑' i : ι, ‖u i‖ * ‖v i‖ := by
-  have hsum : Summable (fun i : ι => rankOneS1 (u i) (v i)) := by
-    apply Summable.of_norm
-    exact hcost.congr (fun i => (rankOneS1_norm_eq (u i) (v i)).symm)
+  have hnorm : Summable (fun i : ι => ‖rankOneS1 (u i) (v i)‖) :=
+    hcost.congr (fun i => (rankOneS1_norm_eq (u i) (v i)).symm)
   calc
     ‖T‖ = ‖∑' i : ι, rankOneS1 (u i) (v i)‖ := by rw [hT]
     _ ≤ ∑' i : ι, ‖rankOneS1 (u i) (v i)‖ :=
-      hsum.hasSum.norm_le_of_bounded hsum.norm.hasSum
-        (fun i => le_rfl)
+      norm_tsum_le_tsum_norm hnorm
     _ = ∑' i : ι, ‖u i‖ * ‖v i‖ := by
       apply tsum_congr
       intro i
