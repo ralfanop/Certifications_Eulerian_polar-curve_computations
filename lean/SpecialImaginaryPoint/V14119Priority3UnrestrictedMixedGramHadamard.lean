@@ -29,7 +29,8 @@ noncomputable section
 
 namespace Manuscript14Priority3.UnrestrictedMixedGramHadamard
 
-open Matrix
+open Matrix Polynomial
+open scoped Ring
 open Manuscript14Priority3.SquareAmbientMixedGramSharp
 open Manuscript14Priority3.AmbientProjectionSharp
 
