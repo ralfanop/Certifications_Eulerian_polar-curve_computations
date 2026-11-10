@@ -96,11 +96,17 @@ theorem determinantOnFiniteSector_compression_tendsto
       atTop (𝓝 (determinantOnFiniteSector T z)) := by
   let P : Presentation := Classical.choose T.property
   have hP : P.operator = T.val := Classical.choose_spec T.property
-  have hlim := finiteNuclear_det_tendsto P.length P.u P.v z
+  have hlimP :
+      Tendsto
+        (fun N : ℕ =>
+          Manuscript14Priority3.FiniteRankFredholm.finiteDeterminant N
+            P.operator z)
+        atTop (𝓝 (P.gramDet z)) :=
+    finiteNuclear_det_tendsto P.length P.u P.v z
   have hvalue : P.gramDet z = determinantOnFiniteSector T z :=
     (determinantOnFiniteSector_eq T P hP z).symm
-  simpa only [Presentation.operator, Presentation.gramDet, ← hP,
-    hvalue] using hlim
+  rw [hP, hvalue] at hlimP
+  exact hlimP
 
 #print axioms Manuscript14Priority3.FiniteNuclearFredholm.Presentation.gramDet_eq_of_operator_eq
 #print axioms Manuscript14Priority3.FiniteNuclearFredholm.determinantOnFiniteSector_eq
