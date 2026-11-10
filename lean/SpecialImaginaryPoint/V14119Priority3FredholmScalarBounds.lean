@@ -69,8 +69,56 @@ theorem finite_nuclear_product_increment_le
     (r * ∑ i ∈ s, c i)
   linarith
 
+/-- Dimension-independent two-family perturbation envelope.
+It is the sharp first-order-in-perturbation scalar factor needed
+AFTER Gram--Hadamard controls complex determinant coefficients. -/
+theorem finite_nuclear_two_family_perturbation_le
+    {ι κ : Type*}
+    (s : Finset ι) (t : Finset κ)
+    (a : ι → ℝ) (b : κ → ℝ)
+    (r : ℝ) (hr : 0 ≤ r)
+    (ha : ∀ i ∈ s, 0 ≤ a i)
+    (hb : ∀ j ∈ t, 0 ≤ b j) :
+    (∏ i ∈ s, (1 + r * a i)) *
+        ((∏ j ∈ t, (1 + r * b j)) - 1) ≤
+      (r * ∑ j ∈ t, b j) *
+        Real.exp (r * ((∑ i ∈ s, a i) +
+          (∑ j ∈ t, b j))) := by
+  have hA := finite_nuclear_product_le_exp s a r hr ha
+  have hB := finite_nuclear_product_increment_le t b r hr hb
+  have hBge : (1 : ℝ) ≤ ∏ j ∈ t, (1 + r * b j) := by
+    have hproduct :
+        (∏ j ∈ t, (1 : ℝ)) ≤
+          ∏ j ∈ t, (1 + r * b j) := by
+      apply Finset.prod_le_prod₀
+      · intro j hj
+        norm_num
+      · intro j hj
+        have hh := mul_nonneg hr (hb j hj)
+        linarith
+    simpa using hproduct
+  have hdiff : 0 ≤ (∏ j ∈ t, (1 + r * b j)) - 1 := by
+    linarith
+  calc
+    (∏ i ∈ s, (1 + r * a i)) *
+        ((∏ j ∈ t, (1 + r * b j)) - 1) ≤
+      Real.exp (r * ∑ i ∈ s, a i) *
+        ((∏ j ∈ t, (1 + r * b j)) - 1) :=
+        mul_le_mul_of_nonneg_right hA hdiff
+    _ ≤ Real.exp (r * ∑ i ∈ s, a i) *
+          ((r * ∑ j ∈ t, b j) *
+            Real.exp (r * ∑ j ∈ t, b j)) :=
+        mul_le_mul_of_nonneg_left hB
+          (le_of_lt (Real.exp_pos _))
+    _ = (r * ∑ j ∈ t, b j) *
+          Real.exp (r * ((∑ i ∈ s, a i) +
+            (∑ j ∈ t, b j))) := by
+      rw [mul_add, Real.exp_add]
+      ring
+
 #print axioms Manuscript14Priority3.FredholmScalarBounds.finite_nuclear_product_le_exp
 #print axioms Manuscript14Priority3.FredholmScalarBounds.exp_sub_one_le_mul_exp
 #print axioms Manuscript14Priority3.FredholmScalarBounds.finite_nuclear_product_increment_le
+#print axioms Manuscript14Priority3.FredholmScalarBounds.finite_nuclear_two_family_perturbation_le
 
 end Manuscript14Priority3.FredholmScalarBounds
