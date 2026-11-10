@@ -83,7 +83,8 @@ theorem generalMixedGram_eq_conjTranspose_mul
   ext i j
   simp only [squareMixedGram, Matrix.mul_apply, Matrix.conjTranspose_apply,
     Module.Basis.toMatrix_apply, b.repr_apply_apply]
-  simpa only [starRingEnd_apply, inner_conj_symm] using
+  simpa only [b.coe_toBasis_repr_apply, b.repr_apply_apply,
+    starRingEnd_apply, inner_conj_symm] using
     (b.sum_inner_mul_inner (v i) (u j)).symm
 
 /-- SHARP Gram–Hadamard bound with constant ONE for arbitrary
