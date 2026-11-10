@@ -1,0 +1,103 @@
+name: "Manuscript 14.119 Priority 3 — universal CFC S1 nuclear finite-rank density"
+
+on:
+  push:
+    branches:
+      - main
+      - manuscript14-priority3-universal-s1-nuclear-decomposition-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ArbitraryNuclearRankOne.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalNuclearDensity.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-universal-nuclear-density.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ArbitraryNuclearRankOne.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalNuclearDensity.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-universal-nuclear-density.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Universal CFC S1 nuclear rank-one representation and density
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build complete V007 CFC S1 and Hilbert-Schmidt factorization prerequisites
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge GegenbauerFock.PhyslibTraceClassSandwichContinuous GegenbauerFock.PhyslibTraceClassSeriesTailEstimate GegenbauerFock.PhyslibTraceClassHSFactorization GegenbauerFock.PhyslibHilbertSchmidtAdditive GegenbauerFock.PhyslibTraceClassOperatorEmbedding 2>&1 | tee /tmp/p3-density-dependencies.log
+      - name: Compile arbitrary nuclear S1 and its converse density representation
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3RankOneS1 V14119Priority3S1Truncation V14119Priority3OperatorCompression V14119Priority3PositiveDiagonalFredholm V14119Priority3FredholmSectorFunctional V14119Priority3ComplexDiagonalS1 V14119Priority3ArbitraryNuclearRankOne V14119Priority3UniversalNuclearDensity; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/p3-density-$f.log"
+          done
+      - name: Audit five exact universal CFC S1 density kernel statements
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          log = pathlib.Path("/tmp/p3-density-V14119Priority3UniversalNuclearDensity.log").read_text()
+          prefix = "Manuscript14Priority3.NuclearRankOne."
+          required = [
+            "operatorCLM_apply", "nuclear_finset_operator",
+            "nuclear_tsum_operator", "traceClass_nuclear_representation",
+            "traceClass_finiteRank_dense"
+          ]
+          found = {}
+          for m in re.finditer(
+              r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",
+              log, re.MULTILINE):
+            found[m.group(1) or m.group(3)] = {
+              x.strip() for x in (m.group(2) or "").split(",") if x.strip()
+            }
+          allowed = {"propext", "Quot.sound", "Classical.choice"}
+          for suffix in required:
+            name = prefix + suffix
+            assert name in found, f"Missing kernel report: {name}"
+            assert found[name] <= allowed, f"Nonstandard axioms in {name}: {found[name] - allowed}"
+            print(name, sorted(found[name]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error", log)
+          print("SUCCESS: five universal CFC S1 rank-one nuclear density declarations")
+          PY
+      - name: Upload audit logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-universal-nuclear-density-logs
+          path: /tmp/p3-density-*.log
+          if-no-files-found: ignore
