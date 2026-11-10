@@ -6,19 +6,43 @@ on:
       - main
       - manuscript14-priority3-coisometric-complex-fredholm-20261110
     paths:
-      - 'lean/SpecialImaginaryPoint/V14119Priority3*.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3SpectralDetBridge.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3DirichletDiagonal.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3TraceClassModel.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3RankOneS1.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3S1Truncation.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3OperatorCompression.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3PositiveDiagonalFredholm.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FredholmSectorFunctional.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexDiagonalS1.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexDiagonalFredholm.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3CoisometricFredholm.lean'
       - 'lean/lean-toolchain'
       - 'lean/lakefile.toml'
       - 'lean/lake-manifest.json'
       - '.github/workflows/manuscript14-priority3-coisometric-fredholm.yml'
   pull_request:
     paths:
-      - 'lean/SpecialImaginaryPoint/V14119Priority3*.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3SpectralDetBridge.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3DirichletDiagonal.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3TraceClassModel.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3RankOneS1.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3S1Truncation.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3OperatorCompression.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3PositiveDiagonalFredholm.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FredholmSectorFunctional.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexDiagonalS1.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexDiagonalFredholm.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3CoisometricFredholm.lean'
       - 'lean/lean-toolchain'
       - 'lean/lakefile.toml'
       - 'lean/lake-manifest.json'
       - '.github/workflows/manuscript14-priority3-coisometric-fredholm.yml'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
