@@ -48,15 +48,48 @@ action, Loewner positivity and the corresponding real diagonal values.
 [Kernel CI #42701424154](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/42701424154)
 finished **SUCCESS** with five audited theorems and only standard axioms.
 
-The separate `V14119Priority3TraceClassModel.lean` attempts to strengthen
-this to the source-compatible **complex CFC-absolute** trace-class predicate
-from V007 and its basis-independent trace norm. This result is NOT certified
-until that separate kernel CI succeeds.
+The `V14119Priority3TraceClassModel.lean` module establishes that
+this **actual positive spectral inverse** is in the source-compatible
+complex CFC-absolute Schatten-S₁ class, with basis-independent trace norm
+equal to the sum of its positive inverse eigenvalues. PR #79 was merged
+and [CI #42702505123](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/42702505123)
+verified all seven declarations with only standard axioms.
 
-Neither module so far identifies the spectral model via a proved unitary
-map with the differential realisation of `-d²/dx²` on `L²(0,1)` with
-Dirichlet boundary conditions. This is a distinct open obligation, not
-a consequence of matching eigenvalues by definition.
+PRs #80–81 then proved the matrix coefficients and determinants of the
+**actual finite Hilbert-basis compressions**, including exact equality
+with the finite Dirichlet Euler factors and convergence to sinh(x)/x.
+[CI #42707655344](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/42707655344)
+verified six declarations.
+
+Neither this spectral-model construction nor the finite-compression
+theorems identifies the model via a proved unitary map with the
+differential realisation of `-d²/dx²` on `L²(0,1)` with Dirichlet
+boundary conditions. That remains a separate open obligation.
+
+## Third bridge: genuine trace-norm convergence of the spectral truncations
+
+PR #82 adds two modules, `V14119Priority3RankOneS1.lean` and
+`V14119Priority3S1Truncation.lean`. The first establishes that
+**each actual rank-one inverse summand**
+`T_n = (π²(n+1)²)⁻¹ |e_n⟩⟨e_n|` belongs to the true
+CFC-absolute trace class and has genuine trace norm
+`‖T_n‖₁ = (π²(n+1)²)⁻¹`.
+
+The second instantiates the already-certified V007 Schatten-S₁ Banach
+series theorems and proves the following *actual operator* estimates,
+in the trace-norm topology:
+`‖A_sp⁻¹ - ∑_{n<N} T_n‖₁ ≤ ∑_{k≥0}(π²(k+N+1)²)⁻¹`,
+with the error tending to zero as N tends to infinity.
+The same numerical tail also bounds the ambient operator-norm error.
+The infinite S₁ Banach sum is identified explicitly with the original
+bounded operator `A_sp⁻¹` rather than merely its formal spectrum.
+
+[CI #42710157209](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/42710157209)
+completed **SUCCESS** for ten named declarations on PR #82's
+working commit. The independent pull-request CI remains part of the
+final pre-merge check. **A trace-norm compression limit is not by itself
+a basis-independent definition of the Fredholm determinant**; proving
+the Fredholm determinant's well-definedness and continuity remains open.
 
 ## Remaining obligations: determinant bridge
 
@@ -64,9 +97,13 @@ a consequence of matching eigenvalues by definition.
    A on L²(0,1) with eigenvalues π²(n+1)² and the corresponding eigenbasis.
    Identify its bounded inverse A⁻¹ with the actual operator—not merely
    an abstract sequence of eigenvalues.
-2. Prove that A⁻¹ is trace class (the summability of its positive
-   eigenvalues is not by itself a formal trace-class instance) and prove
-   det_F(I+t A⁻¹) equals the actual spectral product.
+2. Transfer the certified CFC Schatten-S₁ property and trace-norm
+   approximations of the **spectral** inverse to the **differential**
+   Dirichlet inverse through a proved unitary equivalence; then construct
+   and certify a basis-independent operator Fredholm determinant,
+   including continuity in S₁ norm and the equality
+   det_F(I+t A⁻¹) with the already-certified Euler product.
+   Do not simply define det_F as that particular product.
 3. Define the spectral zeta functions for A+tI and A, prove the
    relevant analytic continuation and differentiability at s=0, and
    justify the identity
