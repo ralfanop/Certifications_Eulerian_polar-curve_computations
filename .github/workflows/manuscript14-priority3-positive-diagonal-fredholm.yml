@@ -64,17 +64,18 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
-          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3RankOneS1 V14119Priority3S1Truncation V14119Priority3OperatorCompression V14119Priority3PositiveDiagonalFredholm; do
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3RankOneS1 V14119Priority3S1Truncation V14119Priority3OperatorCompression V14119Priority3PositiveDiagonalFredholm V14119Priority3FredholmSectorFunctional; do
             lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
               "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/priority3-positive-diagonal-$f.log"
           done
-      - name: Audit eleven named kernel theorems and axioms
+      - name: Audit nineteen named kernel theorems and axioms
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
           import pathlib, re
           log = pathlib.Path("/tmp/priority3-positive-diagonal-V14119Priority3PositiveDiagonalFredholm.log").read_text()
+          log += "\\n" + pathlib.Path("/tmp/priority3-positive-diagonal-V14119Priority3FredholmSectorFunctional.log").read_text()
           prefix = "Manuscript14Priority3.PositiveDiagonalFredholm."
           required = [
             "term_traceNorm_eq", "S1term_norm_summable",
@@ -83,7 +84,11 @@ jobs:
             "finiteShift_det", "finiteShift_det_eq_real",
             "finiteShift_det_tendsto",
             "dirichlet_S1Diagonal_eq_inverse",
-            "dirichlet_finiteShift_eq_existing"
+            "dirichlet_finiteShift_eq_existing",
+            "coeff_eq_of_S1_eq", "determinant_eq_of_S1_eq",
+            "determinantOnSector_eq", "determinantOnSector_ofData",
+            "determinant_reindex", "determinant_eq_finite_subset_sum",
+            "dirichlet_determinant_eq_spectral", "dirichlet_determinantOnSector_sq"
           ]
           found = {}
           for m in re.finditer(
@@ -100,7 +105,7 @@ jobs:
             print(name, sorted(found[name]))
           assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
           assert not re.search(r"\.lean:\d+:\d+: error", log)
-          print("SUCCESS: general positive diagonal operatorial S1 determinant sector")
+          print("SUCCESS: nineteen positive diagonal S1 and operatorial sector determinant declarations")
           PY
       - name: Upload logs
         if: always()
