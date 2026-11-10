@@ -17,8 +17,8 @@ noncomputable section
 
 namespace Manuscript14Priority3.DiagonalMixedGramHadamard
 
-open Matrix
-open scoped InnerProductSpace
+open Matrix Polynomial
+open scoped InnerProductSpace Ring
 open Manuscript14Priority3.ComplexGramMinorBridge
 
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
