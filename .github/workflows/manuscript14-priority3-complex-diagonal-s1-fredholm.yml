@@ -1,0 +1,116 @@
+name: "Manuscript 14.119 Priority 3 — genuine complex diagonal S1 Fredholm sector"
+
+on:
+  push:
+    branches:
+      - main
+      - manuscript14-priority3-complex-diagonal-s1-fredholm-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexDiagonalS1.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexDiagonalFredholm.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3PositiveDiagonalFredholm.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FredholmSectorFunctional.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-complex-diagonal-s1-fredholm.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexDiagonalS1.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexDiagonalFredholm.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3PositiveDiagonalFredholm.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FredholmSectorFunctional.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-complex-diagonal-s1-fredholm.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Kernel audit — complex diagonal trace-class and Fredholm determinant
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build genuine V007 CFC Schatten-S1 dependencies
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge GegenbauerFock.PhyslibTraceClassSeriesTailEstimate 2>&1 | tee /tmp/priority3-complex-diagonal-dependencies.log
+      - name: Compile genuine complex S1 series and operatorial Fredholm sector
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3RankOneS1 V14119Priority3S1Truncation V14119Priority3OperatorCompression V14119Priority3PositiveDiagonalFredholm V14119Priority3FredholmSectorFunctional V14119Priority3ComplexDiagonalS1 V14119Priority3ComplexDiagonalFredholm; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/priority3-complex-diagonal-$f.log"
+          done
+      - name: Audit fifteen named declarations and only standard kernel axioms
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          prefix = "Manuscript14Priority3.ComplexDiagonalFredholm."
+          required = [
+            "projector_traceNorm_eq_one", "S1term_traceNorm",
+            "S1term_norm_summable", "S1Diagonal_operator_eq",
+            "S1Diagonal_eigen", "S1Diagonal_tendsto",
+            "S1Diagonal_error_le_tail", "compressed_eq_diagonal",
+            "finiteShift_det", "multipliable_factor",
+            "finiteShift_det_tendsto", "coeff_eq_of_S1_eq",
+            "determinant_eq_of_S1_eq", "determinantOnSector_eq",
+            "determinant_reindex"
+          ]
+          logs = (
+            pathlib.Path("/tmp/priority3-complex-diagonal-V14119Priority3ComplexDiagonalS1.log").read_text()
+            + "\n" +
+            pathlib.Path("/tmp/priority3-complex-diagonal-V14119Priority3ComplexDiagonalFredholm.log").read_text()
+          )
+          found = {}
+          for m in re.finditer(
+              r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",
+              logs, re.MULTILINE):
+            found[m.group(1) or m.group(3)] = {
+              s.strip() for s in (m.group(2) or "").split(",") if s.strip()
+            }
+          allowed = {"propext", "Quot.sound", "Classical.choice"}
+          for suffix in required:
+            name = prefix + suffix
+            assert name in found, f"Missing exact kernel report: {name}"
+            assert found[name] <= allowed, f"Nonstandard axiom(s) for {name}: {found[name] - allowed}"
+            print(name, sorted(found[name]))
+          assert "sorryAx" not in logs and "Lean.ofReduceBool" not in logs
+          assert not re.search(r"\.lean:\d+:\d+: error", logs)
+          print("SUCCESS: fifteen genuine complex diagonal CFC S1 and Fredholm declarations")
+          PY
+      - name: Upload Lean kernel logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-complex-diagonal-s1-fredholm-logs
+          path: /tmp/priority3-complex-diagonal-*.log
+          if-no-files-found: ignore
