@@ -1,0 +1,102 @@
+name: "Manuscript 14.119 Priority 3 — coisometric complex S1 Fredholm sectors"
+
+on:
+  push:
+    branches:
+      - main
+      - manuscript14-priority3-coisometric-complex-fredholm-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3*.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-coisometric-fredholm.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3*.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-coisometric-fredholm.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Genuine CFC S1 transported determinant and witness independence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build V007 CFC Schatten-S1 and coisometric dependencies
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge GegenbauerFock.PhyslibTraceClassSeriesTailEstimate GegenbauerFock.PhyslibTraceClassCoisometricConjugation 2>&1 | tee /tmp/priority3-transport-dependencies.log
+      - name: Compile actual complex S1 operators, determinants and transported sectors
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3RankOneS1 V14119Priority3S1Truncation V14119Priority3OperatorCompression V14119Priority3PositiveDiagonalFredholm V14119Priority3FredholmSectorFunctional V14119Priority3ComplexDiagonalS1 V14119Priority3ComplexDiagonalFredholm V14119Priority3CoisometricFredholm; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/priority3-transport-$f.log"
+          done
+      - name: Audit eight named kernel theorems, prohibit sorryAx
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          log = pathlib.Path("/tmp/priority3-transport-V14119Priority3CoisometricFredholm.log").read_text()
+          prefix = "Manuscript14Priority3.ComplexDiagonalFredholm."
+          required = [
+            "transported_operator", "transported_eigen",
+            "transported_traceNorm_eq", "transported_truncation_tendsto",
+            "transported_coeff_eq", "transported_determinant_eq_of_eq",
+            "determinantOnTransportedSector_eq", "determinantOnTransportedSector_ofData"
+          ]
+          found = {}
+          for m in re.finditer(
+              r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",
+              log, re.MULTILINE):
+            found[m.group(1) or m.group(3)] = {
+              s.strip() for s in (m.group(2) or "").split(",") if s.strip()
+            }
+          allowed = {"propext", "Quot.sound", "Classical.choice"}
+          for suffix in required:
+            name = prefix + suffix
+            assert name in found, f"Missing exact kernel report: {name}"
+            assert found[name] <= allowed, f"Nonstandard axiom(s) for {name}: {found[name] - allowed}"
+            print(name, sorted(found[name]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error", log)
+          print("SUCCESS: eight true S1 coisometrically transported determinant theorems")
+          PY
+      - name: Upload Lean kernel logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-coisometric-fredholm-logs
+          path: /tmp/priority3-transport-*.log
+          if-no-files-found: ignore
