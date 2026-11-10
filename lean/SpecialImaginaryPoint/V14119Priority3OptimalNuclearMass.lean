@@ -31,7 +31,7 @@ perturbation inequality itself is NOT asserted here.
 
 noncomputable section
 
-/-- A generic-Hilbert implementation of the V007 CFC polar witness.
+/- A generic-Hilbert implementation of the V007 CFC polar witness.
 The generic type and complete complex Hilbert hypotheses match the
 already certified Physlib polar and square-root energy lemmas; in
 particular this avoids ambiguous concrete ℓ² functional-calculus
