@@ -265,7 +265,7 @@ theorem finiteShift_det_eq_real (D : Data) (N : ℕ) (t : ℝ) :
     _ = ((∏ i : Fin N, (1 + t * D.coeff i.val : ℝ)) : ℂ) := by
       norm_cast
     _ = ((∏ n ∈ Finset.range N, (1 + t * D.coeff n) : ℝ) : ℂ) := by
-      simp only [Finset.prod_range]
+      simp only [← Finset.prod_range]
 
 /-- Infinite Fredholm product on the entire positive summable
 diagonal sector; it is not defined through the Dirichlet spectrum. -/
