@@ -23,8 +23,8 @@ noncomputable section
 
 namespace Manuscript14Priority3.ComplexGramLeibnizBound
 
-open Matrix
-open scoped InnerProductSpace
+open Matrix Polynomial
+open scoped InnerProductSpace Ring
 
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
 
@@ -105,7 +105,42 @@ theorem mixedGram_principal_minor_norm_le_factorial_cost
         (fun r : ℝ => ((Nat.factorial s.card) : ℝ) * r)
         (Finset.prod_coe_sort s (fun i => ‖u i‖ * ‖v i‖))
 
+/-- Every coefficient of det(I+XG), with fully arbitrary nonnormal
+complex mixed Gram entries, has an unconditional k!-weighted
+elementary-symmetric nuclear-cost bound. This is weaker than the
+sharp Hadamard coefficient estimate by the factor k!. -/
+theorem mixedGram_shift_coeff_norm_le_factorial_cost
+    {m : ℕ} (u v : Fin m → E) (k : ℕ) :
+    ‖(Matrix.det
+      (1 + (Polynomial.X : ℂ[X]) •
+        (Manuscript14Priority3.ComplexGramMinorBridge.mixedGram u v).map
+          Polynomial.C)).coeff k‖ ≤
+      ((Nat.factorial k) : ℝ) *
+      (∑ s ∈ Finset.univ.powersetCard k,
+        ∏ i ∈ s, ‖u i‖ * ‖v i‖) := by
+  rw [Manuscript14Priority3.ComplexGramMinorBridge.mixedGram_shift_coeff_eq_sum_minors]
+  calc
+    ‖∑ s ∈ Finset.univ.powersetCard k,
+        ((Manuscript14Priority3.ComplexGramMinorBridge.mixedGram u v).submatrix
+          (Subtype.val : s → Fin m) (Subtype.val : s → Fin m)).det‖ ≤
+      ∑ s ∈ Finset.univ.powersetCard k,
+        ‖((Manuscript14Priority3.ComplexGramMinorBridge.mixedGram u v).submatrix
+          (Subtype.val : s → Fin m) (Subtype.val : s → Fin m)).det‖ :=
+      norm_sum_le _ _
+    _ ≤ ∑ s ∈ Finset.univ.powersetCard k,
+        ((Nat.factorial k) : ℝ) * (∏ i ∈ s, ‖u i‖ * ‖v i‖) := by
+      apply Finset.sum_le_sum
+      intro s hs
+      have hcard : s.card = k := (Finset.mem_powersetCard.mp hs).2
+      simpa only [hcard] using
+        mixedGram_principal_minor_norm_le_factorial_cost u v s
+    _ = ((Nat.factorial k) : ℝ) *
+      (∑ s ∈ Finset.univ.powersetCard k,
+        ∏ i ∈ s, ‖u i‖ * ‖v i‖) := by
+      rw [Finset.mul_sum]
+
 #print axioms Manuscript14Priority3.ComplexGramLeibnizBound.generalMixedGram_det_norm_le_factorial_cost
 #print axioms Manuscript14Priority3.ComplexGramLeibnizBound.mixedGram_principal_minor_norm_le_factorial_cost
+#print axioms Manuscript14Priority3.ComplexGramLeibnizBound.mixedGram_shift_coeff_norm_le_factorial_cost
 
 end Manuscript14Priority3.ComplexGramLeibnizBound
