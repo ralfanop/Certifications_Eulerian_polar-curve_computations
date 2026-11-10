@@ -42,8 +42,16 @@ theorem finiteBasisApprox_apply (A : H →L[ℂ] H) (N : ℕ) (x : H) :
     finiteBasisApprox A N x =
       ∑ n ∈ Finset.range N, (b.repr x n) • A (b n) := by
   classical
-  simp only [finiteBasisApprox, Finset.sum_apply,
-    rankOne_apply, b.repr_apply_apply]
+  calc
+    finiteBasisApprox A N x =
+        ∑ n ∈ Finset.range N, (rankOne ℂ (A (b n)) (b n)) x := by
+          change (ContinuousLinearMap.apply ℂ H x)
+            (∑ n ∈ Finset.range N, rankOne ℂ (A (b n)) (b n)) = _
+          exact map_sum _ _ _
+    _ = ∑ n ∈ Finset.range N, (b.repr x n) • A (b n) := by
+      apply Finset.sum_congr rfl
+      intro n hn
+      simp only [rankOne_apply, b.repr_apply_apply]
 
 /-- For every bounded, even noncompact Hilbert operator, these
 genuine rank-one finite partial sums converge strongly pointwise.
@@ -97,8 +105,8 @@ def finiteBasisProjection (N : ℕ) : H →L[ℂ] H :=
 theorem finiteBasisProjection_tendsto_apply (x : H) :
     Tendsto (fun N : ℕ => finiteBasisProjection N x)
       atTop (𝓝 x) := by
-  simpa only [finiteBasisProjection, one_apply] using
-    finiteBasisApprox_tendsto_apply (1 : H →L[ℂ] H) x
+  simpa [finiteBasisProjection] using
+    (finiteBasisApprox_tendsto_apply (1 : H →L[ℂ] H) x)
 
 /-- Every projection P_N in the strong approximation family is
 actually a finite sum of N rank-one, hence compact, Hilbert maps. -/
@@ -131,7 +139,9 @@ theorem factoredApprox_compact
   have h := finiteBasisProjection_compact N
   have hp := h.comp_clm S
   have hq := hp.clm_comp R
-  simpa only [factoredApprox, mul_assoc] using hq
+  change IsCompactOperator
+    (fun x : H => R (finiteBasisProjection N (S x)))
+  exact hq
 
 /-- For EVERY actual genuine CFC-S₁ operator, its certified
 Hilbert-Schmidt product factors provide a sequence of actual
