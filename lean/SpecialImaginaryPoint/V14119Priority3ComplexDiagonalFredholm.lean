@@ -75,8 +75,7 @@ def determinant (D : Data) (z : ℂ) : ℂ :=
 coefficients establishes a genuinely convergent complex product. -/
 theorem multipliable_factor (D : Data) (z : ℂ) :
     Multipliable (fun n : ℕ => 1 + z * D.coeff n) := by
-  have hs : Summable (fun n : ℕ => z * D.coeff n) := by
-    apply Summable.of_norm
+  have hnorm : Summable (fun n : ℕ => ‖z * D.coeff n‖) := by
     have heq :
         (fun n : ℕ => ‖z * D.coeff n‖) =
           (fun n : ℕ => ‖z‖ * ‖D.coeff n‖) := by
@@ -84,7 +83,7 @@ theorem multipliable_factor (D : Data) (z : ℂ) :
       exact norm_mul z (D.coeff n)
     rw [heq]
     exact D.summableNorm.mul_left ‖z‖
-  exact multipliable_one_add_of_summable hs
+  exact multipliable_one_add_of_summable hnorm
 
 /-- Genuine complex operator compressed determinants converge to
 the complex S₁ diagonal Fredholm product. No positivity condition
