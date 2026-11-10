@@ -1,0 +1,102 @@
+name: "Manuscript 14.119 Priority 3 — operator-argument finite-rank Fredholm determinant"
+
+on:
+  push:
+    branches:
+      - main
+      - manuscript14-priority3-finite-sector-operator-determinant-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteSectorDeterminant.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-finite-sector-determinant.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteSectorDeterminant.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-finite-sector-determinant.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Intrinsic CFC S1 operator-argument finite rank determinant, 4 axioms
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build actual V007 CFC-S1 and rank-one/Gram prerequisites
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge GegenbauerFock.PhyslibTraceClassSandwichContinuous GegenbauerFock.PhyslibTraceClassSeriesTailEstimate GegenbauerFock.PhyslibTraceClassOperatorEmbedding 2>&1 | tee /tmp/p3-finite-nuclear-deps.log
+      - name: Compile actual finite nuclear Hilbert compression determinants
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3RankOneS1 V14119Priority3S1Truncation V14119Priority3OperatorCompression V14119Priority3PositiveDiagonalFredholm V14119Priority3FredholmSectorFunctional V14119Priority3ComplexDiagonalS1 V14119Priority3ArbitraryNuclearRankOne V14119Priority3FiniteRankFredholm V14119Priority3FiniteNuclearFredholm V14119Priority3FiniteSectorDeterminant; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/p3-finite-nuclear-$f.log"
+          done
+      - name: Audit four operator-argument finite Fredholm kernel declarations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          log = pathlib.Path("/tmp/p3-finite-nuclear-V14119Priority3FiniteSectorDeterminant.log").read_text()
+          prefix = "Manuscript14Priority3.FiniteNuclearFredholm."
+          required = [
+            "Presentation.gramDet_eq_of_operator_eq",
+            "determinantOnFiniteSector_eq",
+            "determinantOnFiniteSector_of_presentation",
+            "determinantOnFiniteSector_compression_tendsto"
+          ]
+          found = {}
+          for m in re.finditer(
+              r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",
+              log, re.MULTILINE):
+            found[m.group(1) or m.group(3)] = {
+              x.strip() for x in (m.group(2) or "").split(",") if x.strip()
+            }
+          allowed = {"propext", "Quot.sound", "Classical.choice"}
+          for suffix in required:
+            name = prefix + suffix
+            assert name in found, f"Missing exact kernel report: {name}"
+            assert found[name] <= allowed, f"Nonstandard axioms for {name}: {found[name] - allowed}"
+            print(name, sorted(found[name]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error", log)
+          print("SUCCESS: four intrinsic CFC S1 operator-argument finite Fredholm determinant theorems")
+          PY
+      - name: Upload kernel logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-finite-nuclear-fredholm-logs
+          path: /tmp/p3-finite-nuclear-*.log
+          if-no-files-found: ignore
