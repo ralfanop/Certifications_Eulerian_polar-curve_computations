@@ -53,6 +53,7 @@ def operatorCLM :
     ProbabilisticTheory.TraceClass H →L[ℂ] (H →L[ℂ] H) :=
   operatorLinear.mkContinuous 1 (by
     intro T
+    change ‖T.1‖ ≤ 1 * ‖T‖
     simpa only [one_mul] using
       (ProbabilisticTheory.TraceClass.operator_norm_le_trace_norm T))
 
