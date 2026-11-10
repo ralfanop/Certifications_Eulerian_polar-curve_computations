@@ -17,7 +17,7 @@ The five targets are:
   5. UNIQUENESS of the internal angle in the open interval (0, pi),
      separately by cosine injectivity and by the principal arctangent branch.
 
-A053? NO: the relevant OEIS entry is A073000, for arctan(1/2),
+The relevant OEIS entry is A073000, for arctan(1/2),
 not for the doubled apex angle.
 
 No numerical Arb certificate is necessary: all values preceding the
@@ -30,6 +30,8 @@ import Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Inverse
 
 namespace EulerianCert.Figure5Apex
+
+noncomputable section
 
 open Real
 
