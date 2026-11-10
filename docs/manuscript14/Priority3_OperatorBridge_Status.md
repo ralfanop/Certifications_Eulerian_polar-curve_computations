@@ -90,7 +90,7 @@ working commit. The push and PR workflows both passed on the definitive PR #82 c
 a basis-independent definition of the Fredholm determinant**; proving
 the Fredholm determinant's well-definedness and continuity remains open.
 
-## Fourth bridge: trace-class continuity reduction (new candidate)
+## Fourth bridge: certified trace-class continuity reduction
 
 `V14119Priority3FredholmContinuityReduction.lean` makes the precise
 remaining logical dependency explicit. Its four declarations are deliberately
@@ -110,10 +110,43 @@ remaining logical dependency explicit. Its four declarations are deliberately
    bounded by its Lipschitz constant times the already certified
    spectral S₁ tail.
 
-**Status: candidate pending its own pinned Lean compilation and axiom
-audit.** This is a uniqueness-and-continuity reduction, **not** the
+**Status: certified, merged in PR #83** (merge SHA
+`ea21d81be6cce5d7068a49f619c8847c95776a9b`).
+Pinned exact-head PR CI #42777071909 and push CI #42777000432
+both returned SUCCESS for four declarations, with only `propext`,
+`Classical.choice` and `Quot.sound`. This is a uniqueness-and-continuity
+reduction, **not** the
 existence, basis independence or trace-norm continuity proof of the
 abstract Fredholm determinant. No zeta regularization is postulated.
+
+## Fifth bridge: general positive diagonal S₁ operatorial sector (corrective PR #85)
+
+**Certification alert:** PR #84 was merged at 08:01 UTC on 10 November 2026 before the new module's CI completed. CI #42779117046 subsequently FAILED on the Fin-index/range-product conversion. The copy introduced to `main` by PR #84 is NOT a certified result. Corrective PR #85 includes the fixed rewrite and the extended audit; do not merge it until all checks succeed.
+
+Candidate `V14119Priority3PositiveDiagonalFredholm.lean` is no longer
+restricted to the Dirichlet coefficient sequence. A parameter of
+type `Data` is **any** nonnegative real summable sequence `a n`.
+The module constructs actual Hilbert-space rank-one operators
+`(a n : ℂ) • rankOne ℂ (b n) (b n)`, proves their exact CFC Schatten
+trace norms, forms the genuine CFC S₁ Banach sum and checks its underlying
+operator equals the norm-convergent bounded infinite operator.
+
+It also proves that its true S₁ norm equals `∑' n, a n`, that the finite
+S₁ truncations converge with quantitative tails, and that the
+**complex determinants of actual Hilbert-space compression matrices**
+converge to the infinite product `∏' n, (1+t*a n)` for arbitrary real
+`t`. The original Dirichlet operator and finite compression matrices
+are recovered as exact instances.
+
+New `V14119Priority3FredholmSectorFunctional.lean` proves that a positive diagonal operator in the actual CFC S₁ carrier uniquely determines its coefficient data, then defines a determinant as a FUNCTION ON THIS OPERATOR SUBTYPE (rather than merely on the coefficient sequence), establishes independence of the chosen diagonal-data witness, invariance under arbitrary index permutations, the absolutely convergent finite-subset Fredholm expansion, and the exact Dirichlet Euler-product specialization.
+
+**Status: corrective PR #85, pending pinned Lean 4 compilation and full 19-declaration axiom audit.**
+This is an actual operatorial diagonal-sector construction, but the
+infinite product is a determinant only on that **fixed diagonal
+commutative sector**. No basis-independent determinant functional
+on the entire `S₁(H)` has yet been constructed, and no global S₁
+continuity or unitary invariance has been certified. The proof must not
+be described as the full Fredholm determinant until those results hold.
 
 ## Remaining obligations: determinant bridge
 
