@@ -62,7 +62,7 @@ jobs:
             lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
               "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/p3-optimal-$f.log"
           done
-      - name: Audit three exact nuclear mass equality theorems
+      - name: Audit four polar witness and optimal nuclear mass equality theorems
         shell: bash
         run: |
           set -euo pipefail
@@ -83,6 +83,10 @@ jobs:
               x.strip() for x in (m.group(2) or "").split(",") if x.strip()
             }
           allowed = {"propext", "Quot.sound", "Classical.choice"}
+          generic = "ProbabilisticTheory.traceClass_polar_nuclear_energy_witness"
+          assert generic in found, f"Missing exact generic Hilbert polar witness report: {generic}"
+          assert found[generic] <= allowed, f"Nonstandard axioms for {generic}: {found[generic] - allowed}"
+          print(generic, sorted(found[generic]))
           for suffix in required:
             name = prefix + suffix
             assert name in found, f"Missing exact report: {name}"
@@ -90,7 +94,7 @@ jobs:
             print(name, sorted(found[name]))
           assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
           assert not re.search(r"\.lean:\d+:\d+: error", log)
-          print("SUCCESS: three exact optimal CFC S1 nuclear mass equality declarations")
+          print("SUCCESS: four generic polar witness and optimal CFC S1 nuclear mass declarations")
           PY
       - name: Upload kernel logs
         if: always()
