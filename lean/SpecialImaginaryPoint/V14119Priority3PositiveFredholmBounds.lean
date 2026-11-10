@@ -25,7 +25,7 @@ least one, for arbitrary nonnegative summable diagonal data. -/
 theorem finiteRealShift_ge_one (D : Data) (N : ℕ) (t : ℝ)
     (ht : 0 ≤ t) : 1 ≤ finiteRealShift D N t := by
   unfold finiteRealShift
-  apply Finset.one_le_prod
+  apply Finset.one_le_prod₀
   intro n hn
   have h := mul_nonneg ht (D.nonneg n)
   linarith
