@@ -51,7 +51,7 @@ theorem projector_operator (n : ℕ) :
 
 theorem projector_traceNorm_eq_one (n : ℕ) :
     ProbabilisticTheory.TraceClass.traceNorm H (projector n) = 1 := by
-  simpa only [projector, spike, if_pos (Eq.refl n)] using
+  simpa [projector, spike] using
     (Manuscript14Priority3.PositiveDiagonalFredholm.S1term_traceNorm_eq (spike n) n)
 
 theorem projector_norm_eq_one (n : ℕ) : ‖projector n‖ = 1 := by
