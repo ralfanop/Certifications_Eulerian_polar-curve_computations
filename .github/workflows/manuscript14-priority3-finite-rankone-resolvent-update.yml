@@ -1,0 +1,85 @@
+name: "Priority 3 — finite complex rank-one resolvent determinant update"
+
+on:
+  push:
+    branches:
+      - manuscript14-priority3-finite-rankone-resolvent-update-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteRankOneResolventUpdate.lean'
+      - '.github/workflows/manuscript14-priority3-finite-rankone-resolvent-update.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteRankOneResolventUpdate.lean'
+      - '.github/workflows/manuscript14-priority3-finite-rankone-resolvent-update.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lean:
+    name: Exact complex rank-one matrix perturbation — three kernel audits
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile exact finite complex rank-one resolvent update
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 \
+            SpecialImaginaryPoint/V14119Priority3FiniteRankOneResolventUpdate.lean 2>&1 | tee /tmp/p3-rankone-update.log
+      - name: Audit three named Lean kernel declarations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,re
+          log=pathlib.Path("/tmp/p3-rankone-update.log").read_text()
+          prefix="Manuscript14Priority3.FiniteRankOneResolventUpdate."
+          names=[
+            "det_rankOne_update_of_isUnit",
+            "det_rankOne_update_sub_eq",
+            "det_rankOne_update_sub_norm_eq",
+          ]
+          reports={}
+          for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",log,re.MULTILINE):
+            reports[m.group(1) or m.group(3)]={x.strip() for x in (m.group(2) or "").split(",") if x.strip()}
+          allowed={"propext","Quot.sound","Classical.choice"}
+          for suffix in names:
+            n=prefix+suffix
+            assert n in reports, f"Missing exact kernel axiom report: {n}"
+            assert reports[n] <= allowed, f"Nonstandard axioms: {n}: {reports[n]-allowed}"
+            print(n, sorted(reports[n]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error",log)
+          print("SUCCESS: exact finite complex rank-one perturbation update")
+          PY
+      - name: Upload Lean audit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-finite-rankone-resolvent-update-logs
+          path: /tmp/p3-rankone-update.log
+          if-no-files-found: ignore
