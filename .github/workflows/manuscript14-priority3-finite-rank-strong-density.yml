@@ -1,0 +1,105 @@
+name: "Manuscript 14.119 Priority 3 — finite rank strong approximation in genuine CFC S1"
+
+on:
+  push:
+    branches:
+      - main
+      - manuscript14-priority3-finite-rank-strong-density-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteRankStrongDensity.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteRankFredholm.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-finite-rank-strong-density.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteRankStrongDensity.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteRankFredholm.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-finite-rank-strong-density.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: CFC S1 finite rank strong density kernel audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build true CFC S1 / HS factorization and Hilbert embedding
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.PhyslibTraceClassHSFactorization GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge GegenbauerFock.PhyslibTraceClassOperatorEmbedding 2>&1 | tee /tmp/p3-strong-dependencies.log
+      - name: Compile actual finite rank and strong approximation modules
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3FiniteRankFredholm V14119Priority3FiniteRankStrongDensity; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/p3-strong-$f.log"
+          done
+      - name: Audit nine named declarations and ban nonstandard axioms
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          log = pathlib.Path("/tmp/p3-strong-V14119Priority3FiniteRankStrongDensity.log").read_text()
+          prefix = "Manuscript14Priority3.FiniteRankDensity."
+          required = [
+            "finiteBasisApprox_apply", "finiteBasisApprox_tendsto_apply",
+            "complexRankOne_compact", "finiteBasisApprox_compact",
+            "finiteBasisProjection_tendsto_apply",
+            "finiteBasisProjection_compact", "factoredApprox_tendsto_apply",
+            "factoredApprox_compact", "traceClass_exists_strong_finiteRank_approx"
+          ]
+          found = {}
+          for m in re.finditer(
+              r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",
+              log, re.MULTILINE):
+            found[m.group(1) or m.group(3)] = {
+              x.strip() for x in (m.group(2) or "").split(",") if x.strip()
+            }
+          allowed = {"propext", "Quot.sound", "Classical.choice"}
+          for suffix in required:
+            name = prefix + suffix
+            assert name in found, f"Missing kernel report: {name}"
+            assert found[name] <= allowed, f"Nonstandard axioms in {name}: {found[name] - allowed}"
+            print(name, sorted(found[name]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error", log)
+          print("SUCCESS: nine CFC S1 strong finite-rank approximation theorems")
+          PY
+      - name: Upload kernel logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-strong-finite-rank-logs
+          path: /tmp/p3-strong-*.log
+          if-no-files-found: ignore
