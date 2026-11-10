@@ -64,7 +64,7 @@ jobs:
             lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
               "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/priority3-finrank-$f.log"
           done
-      - name: Audit five finite rank and general CFC S1 declarations
+      - name: Audit eight finite rank and general CFC S1 declarations
         shell: bash
         run: |
           set -euo pipefail
@@ -76,7 +76,9 @@ jobs:
             "determinant_rectangular_comm",
             "determinant_factorization_independent",
             "compressedCFC_add", "compressedCFC_sub",
-            "compressedCFC_entry_sub_norm_le"
+            "compressedCFC_entry_sub_norm_le",
+            "compressedCFC_entry_lipschitz", "compressedCFC_continuous",
+            "finiteDeterminant_continuous"
           ]
           found = {}
           for m in re.finditer(
@@ -93,7 +95,7 @@ jobs:
             print(name, sorted(found[name]))
           assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
           assert not re.search(r"\.lean:\d+:\d+: error", log)
-          print("SUCCESS: five unrestricted finite rank and true CFC S1 compression theorems")
+          print("SUCCESS: eight unrestricted finite rank and true CFC S1 compression theorems")
           PY
       - name: Upload logs
         if: always()
