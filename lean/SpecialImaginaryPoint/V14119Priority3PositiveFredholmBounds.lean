@@ -54,7 +54,7 @@ theorem determinant_ge_one (D : Data) (t : ℝ) (ht : 0 ≤ t) :
     1 ≤ determinant D t := by
   have hlim : Tendsto (fun N : ℕ => finiteRealShift D N t)
       atTop (𝓝 (determinant D t)) := by
-    simpa only [finiteRealShift] using
+    simpa only [finiteRealShift, determinant] using
       ((multipliable_factor D t).hasProd_iff_tendsto_nat).mp
         (multipliable_factor D t).hasProd
   exact ge_of_tendsto hlim
@@ -66,7 +66,7 @@ theorem determinant_le_exp_mass (D : Data) (t : ℝ) (ht : 0 ≤ t) :
     determinant D t ≤ Real.exp (t * ∑' n : ℕ, D.coeff n) := by
   have hprod : Tendsto (fun N : ℕ => finiteRealShift D N t)
       atTop (𝓝 (determinant D t)) := by
-    simpa only [finiteRealShift] using
+    simpa only [finiteRealShift, determinant] using
       ((multipliable_factor D t).hasProd_iff_tendsto_nat).mp
         (multipliable_factor D t).hasProd
   have hsum :
