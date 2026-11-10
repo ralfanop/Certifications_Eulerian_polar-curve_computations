@@ -53,7 +53,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake build GegenbauerFock.PhyslibTraceClassOperatorEmbedding GegenbauerFock.PositiveTraceDiagonalSpectralBridge 2>&1 | tee /tmp/priority3-finrank-dependencies.log
+          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge GegenbauerFock.PhyslibTraceClassOperatorEmbedding 2>&1 | tee /tmp/priority3-finrank-dependencies.log
       - name: Compile true CFC S1 Hilbert compression and finite-rank determinants
         working-directory: lean
         shell: bash
