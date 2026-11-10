@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   lean:
-    name: Complex mixed Gram coefficients and rank-one determinant — five axiom audits
+    name: Complex mixed Gram coefficients and rank-one determinant — seven axiom audits
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
@@ -45,7 +45,7 @@ jobs:
         run: |
           set -euo pipefail
           lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean 2>&1 | tee /tmp/p3-complex-gram-minors.log
-      - name: Audit five exact named Lean declarations
+      - name: Audit seven exact named Lean declarations
         shell: bash
         run: |
           set -euo pipefail
@@ -59,6 +59,8 @@ jobs:
               "single_mixedGram_shift_det",
               "single_mixedGram_shift_sub_one_norm_le",
               "single_mixedGram_shift_det_norm_le",
+              "mixedGram_shift_first_coeff_norm_le_mass",
+              "mixedGram_shift_coeff_norm_le_of_minor_control",
           ]
           found = {}
           for match in re.finditer(
@@ -75,7 +77,7 @@ jobs:
               print(name, sorted(found[name]))
           assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
           assert not re.search(r"\.lean:\d+:\d+: error", log)
-          print("SUCCESS: all five complex Gram minor bridge declarations")
+          print("SUCCESS: all seven complex Gram minor bridge declarations")
           PY
       - name: Upload Lean logs
         if: always()
