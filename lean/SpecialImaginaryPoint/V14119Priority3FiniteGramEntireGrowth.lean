@@ -42,7 +42,10 @@ theorem gramPolynomial_eval_eq_det {m : ℕ} (u v : Fin m → E)
     (gramPolynomial u v).eval z =
       (1 + z • Manuscript14Priority3.ComplexGramMinorBridge.mixedGram u v).det := by
   unfold gramPolynomial
-  simp [Polynomial.eval_det, ← Matrix.smul_eq_mul_diagonal]
+  rw [eval_det, matPolyEquiv_eval_eq_map]
+  congr 1
+  ext i j
+  simp [Matrix.add_apply, Matrix.smul_apply]
 
 /-- The dimension-free exponential growth estimate at z=1,
 proved from the full sharp ℓ¹ polynomial coefficient bound. -/
@@ -85,10 +88,14 @@ theorem mixedGram_det_shift_norm_le_exp {m : ℕ}
   convert hscaled using 1
   congr 1
   simp only [norm_smul]
-  rw [← Finset.mul_sum]
-  apply Finset.sum_congr rfl
-  intro i hi
-  ring
+  calc
+    ‖z‖ * ∑ i : Fin m, ‖u i‖ * ‖v i‖ =
+      ∑ i : Fin m, ‖z‖ * (‖u i‖ * ‖v i‖) := by
+        rw [Finset.mul_sum]
+    _ = ∑ i : Fin m, ‖z‖ * ‖u i‖ * ‖v i‖ := by
+      apply Finset.sum_congr rfl
+      intro i hi
+      ring
 
 #print axioms Manuscript14Priority3.FiniteGramEntireGrowth.gramPolynomial_natDegree_le
 #print axioms Manuscript14Priority3.FiniteGramEntireGrowth.gramPolynomial_eval_eq_det
