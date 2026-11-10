@@ -119,7 +119,9 @@ reduction, **not** the
 existence, basis independence or trace-norm continuity proof of the
 abstract Fredholm determinant. No zeta regularization is postulated.
 
-## Fifth bridge: general positive diagonal S₁ operatorial sector (PR #84)
+## Fifth bridge: general positive diagonal S₁ operatorial sector (corrective PR #85)
+
+**Certification alert:** PR #84 was merged at 08:01 UTC on 10 November 2026 before the new module's CI completed. CI #42779117046 subsequently FAILED on the Fin-index/range-product conversion. The copy introduced to `main` by PR #84 is NOT a certified result. Corrective PR #85 includes the fixed rewrite and the extended audit; do not merge it until all checks succeed.
 
 Candidate `V14119Priority3PositiveDiagonalFredholm.lean` is no longer
 restricted to the Dirichlet coefficient sequence. A parameter of
@@ -136,7 +138,9 @@ converge to the infinite product `∏' n, (1+t*a n)` for arbitrary real
 `t`. The original Dirichlet operator and finite compression matrices
 are recovered as exact instances.
 
-**Status: pending new pinned Lean 4 compilation and axiom audit.**
+New `V14119Priority3FredholmSectorFunctional.lean` proves that a positive diagonal operator in the actual CFC S₁ carrier uniquely determines its coefficient data, then defines a determinant as a FUNCTION ON THIS OPERATOR SUBTYPE (rather than merely on the coefficient sequence), establishes independence of the chosen diagonal-data witness, invariance under arbitrary index permutations, the absolutely convergent finite-subset Fredholm expansion, and the exact Dirichlet Euler-product specialization.
+
+**Status: corrective PR #85, pending pinned Lean 4 compilation and full 19-declaration axiom audit.**
 This is an actual operatorial diagonal-sector construction, but the
 infinite product is a determinant only on that **fixed diagonal
 commutative sector**. No basis-independent determinant functional
