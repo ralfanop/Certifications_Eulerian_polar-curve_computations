@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   lean:
-    name: Complex mixed Gram Leibniz determinant and all minors (2 standard-axiom audits)
+    name: Complex mixed Gram Leibniz determinant and all minors (3 standard-axiom audits)
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
@@ -59,7 +59,7 @@ jobs:
         run: |
           set -euo pipefail
           lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3ComplexGramLeibnizBound.lean 2>&1 | tee /tmp/p3-leibniz-main.log
-      - name: Kernel audit of both exact declarations
+      - name: Kernel audit of all three declarations
         shell: bash
         run: |
           set -euo pipefail
@@ -70,6 +70,7 @@ jobs:
           names=[
             "generalMixedGram_det_norm_le_factorial_cost",
             "mixedGram_principal_minor_norm_le_factorial_cost",
+            "mixedGram_shift_coeff_norm_le_factorial_cost",
           ]
           reports={}
           for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms", log, re.MULTILINE):
@@ -82,7 +83,7 @@ jobs:
             print(n, sorted(reports[n]))
           assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
           assert not re.search(r"\.lean:\d+:\d+: error",log)
-          print("SUCCESS: unrestricted mixed Gram factorial cost bounds for all sizes and minors")
+          print("SUCCESS: unrestricted mixed Gram factorial cost bounds for determinants, minors and every coefficient")
           PY
       - name: Upload log
         if: always()
