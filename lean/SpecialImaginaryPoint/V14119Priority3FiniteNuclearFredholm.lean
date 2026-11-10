@@ -112,6 +112,7 @@ theorem compressed_finiteNuclear_factor (N m : ℕ) (u v : Fin m → H) :
   apply Finset.sum_congr rfl
   intro k hk
   simp only [rankOne_apply, inner_smul_right]
+  exact mul_comm _ _
 
 /-- Exact determinant identity between the actual N-dimensional
 Hilbert compression and the m-dimensional truncated Gram pairing. -/
@@ -137,8 +138,16 @@ theorem truncatedGram_entry_tendsto (m : ℕ) (u v : Fin m → H)
       atTop (𝓝 (gram m u v i j)) := by
   have hseries :=
     (b.hasSum_inner_mul_inner (v i) (u j)).tendsto_sum_nat
-  simpa only [Matrix.mul_apply, rightMatrix, leftMatrix, gram,
-    Finset.sum_fin_eq_sum_range] using hseries
+  have hfin (N : ℕ) :
+      (rightMatrix N m v * leftMatrix N m u) i j =
+        ∑ n ∈ Finset.range N,
+          inner ℂ (v i) (b n) * inner ℂ (b n) (u j) := by
+    simp only [Matrix.mul_apply, rightMatrix, leftMatrix,
+      Finset.sum_fin_eq_sum_range]
+    apply Finset.sum_congr rfl
+    intro n hn
+    rw [dif_pos (Finset.mem_range.mp hn)]
+  simpa only [hfin, gram] using hseries
 
 /-- Matrix-level convergence of actual truncated complex Gram
 pairings to the intrinsic finite nuclear Gram matrix. -/
@@ -146,9 +155,9 @@ theorem truncatedGram_tendsto (m : ℕ) (u v : Fin m → H) :
     Tendsto
       (fun N : ℕ => rightMatrix N m v * leftMatrix N m u)
       atTop (𝓝 (gram m u v)) := by
-  rw [tendsto_pi_nhds]
+  apply tendsto_pi_nhds.mpr
   intro i
-  rw [tendsto_pi_nhds]
+  apply tendsto_pi_nhds.mpr
   intro j
   exact truncatedGram_entry_tendsto m u v i j
 
@@ -173,7 +182,7 @@ theorem finiteNuclear_det_tendsto (m : ℕ) (u v : Fin m → H) (z : ℂ) :
         (fun M : Matrix (Fin m) (Fin m) ℂ => Matrix.det M) :=
     continuous_id.matrix_det
   have hlim := (hdet.tendsto (1 + z • gram m u v)).comp hmat
-  simpa only [finiteNuclear_det_eq_truncatedGram] using hlim
+  simpa only [Function.comp_def, finiteNuclear_det_eq_truncatedGram] using hlim
 
 /-- The finite Gram Fredholm determinant is independent of ANY
 two finite rank-one Hilbert presentations of THE SAME genuine
