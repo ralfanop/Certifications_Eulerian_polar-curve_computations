@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   lean:
-    name: Complex diagonal Gram–Hadamard, all minors — five kernel audits
+    name: Complex diagonal Gram–Hadamard, all minors — eight kernel audits
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
@@ -61,7 +61,7 @@ jobs:
           set -euo pipefail
           lake env lean -M16768 \
             SpecialImaginaryPoint/V14119Priority3DiagonalMixedGramHadamard.lean 2>&1 | tee /tmp/p3-diag-gram-main.log
-      - name: Audit all five kernel declarations with no nonstandard axioms
+      - name: Audit all eight kernel declarations with no nonstandard axioms
         shell: bash
         run: |
           set -euo pipefail
@@ -75,6 +75,9 @@ jobs:
             "mixedGram_minor_norm_le_cost_of_offdiag_zero",
             "mixedGram_shift_coeff_norm_le_diagonal",
             "mixedGram_total_minor_norm_le_exp_diagonal",
+            "mixedGram_det_norm_le_cost_of_upperTriangular",
+            "mixedGram_minor_norm_le_cost_of_upperTriangular",
+            "mixedGram_total_minor_norm_le_exp_upperTriangular",
           ]
           found={}
           for m in re.finditer(
@@ -91,7 +94,7 @@ jobs:
             print(name,sorted(found[name]))
           assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
           assert not re.search(r"\.lean:\d+:\d+: error",log)
-          print("SUCCESS: all five unconditional complex diagonal mixed-Gram theorems")
+          print("SUCCESS: eight unconditional complex triangular/diagonal mixed-Gram theorems")
           PY
       - name: Upload Lean logs
         if: always()
