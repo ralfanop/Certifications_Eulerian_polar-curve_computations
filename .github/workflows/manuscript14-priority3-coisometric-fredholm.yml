@@ -62,7 +62,7 @@ jobs:
             lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
               "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/priority3-transport-$f.log"
           done
-      - name: Audit eight named kernel theorems, prohibit sorryAx
+      - name: Audit eleven named kernel theorems, prohibit sorryAx
         shell: bash
         run: |
           set -euo pipefail
@@ -73,7 +73,8 @@ jobs:
           required = [
             "transported_operator", "transported_eigen",
             "transported_traceNorm_eq", "transported_truncation_tendsto",
-            "transported_coeff_eq", "transported_determinant_eq_of_eq",
+            "compressedTransported_eq", "finiteTransportedShift_det_eq",
+            "finiteTransportedShift_det_tendsto", "transported_coeff_eq", "transported_determinant_eq_of_eq",
             "determinantOnTransportedSector_eq", "determinantOnTransportedSector_ofData"
           ]
           found = {}
@@ -91,7 +92,7 @@ jobs:
             print(name, sorted(found[name]))
           assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
           assert not re.search(r"\.lean:\d+:\d+: error", log)
-          print("SUCCESS: eight true S1 coisometrically transported determinant theorems")
+          print("SUCCESS: eleven true S1 coisometrically transported determinant theorems")
           PY
       - name: Upload Lean kernel logs
         if: always()
