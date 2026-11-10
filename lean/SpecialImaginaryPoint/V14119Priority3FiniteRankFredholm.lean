@@ -1,6 +1,7 @@
 import SpecialImaginaryPoint.V14119Priority3TraceClassModel
 import GegenbauerFock.PhyslibTraceClassOperatorEmbedding
 import Mathlib.LinearAlgebra.Matrix.SchurComplement
+import Mathlib.Topology.Instances.Matrix
 
 /-!
 # Manuscript 14.119 Priority 3 — finite-rank determinant intrinsic algebra
@@ -130,10 +131,53 @@ theorem compressedCFC_entry_sub_norm_le (N : ℕ)
     _ ≤ ‖T - V‖ :=
       ProbabilisticTheory.TraceClass.operator_norm_le_trace_norm (T - V)
 
+/-- Each COMPLEX Hilbert matrix coefficient of an arbitrary
+CFC S₁ operator is 1-Lipschitz in the true CFC trace norm. -/
+theorem compressedCFC_entry_lipschitz (N : ℕ)
+    (i j : Fin N) :
+    LipschitzWith 1
+      (fun T : ProbabilisticTheory.TraceClass H =>
+        compressedCFC N T i j) := by
+  rw [lipschitzWith_iff_dist_le_mul]
+  intro T V
+  simpa only [dist_eq_norm, NNReal.coe_one, one_mul] using
+    compressedCFC_entry_sub_norm_le N T V i j
+
+/-- For each finite N, the actual Hilbert compression map is
+continuous on the ENTIRE genuine CFC Schatten-S₁ Banach space,
+not merely on diagonal or normal trace-class operators. -/
+theorem compressedCFC_continuous (N : ℕ) :
+    Continuous
+      (compressedCFC N : ProbabilisticTheory.TraceClass H →
+        Matrix (Fin N) (Fin N) ℂ) := by
+  apply continuous_matrix
+  intro i j
+  exact (compressedCFC_entry_lipschitz N i j).continuous
+
+/-- Every actual finite-dimensional Hilbert-compression determinant
+is a CONTINUOUS complex functional on arbitrary CFC S₁ operators.
+This statement is dimension-by-dimension; uniformity in N and the
+infinite Fredholm determinant remain separate obligations. -/
+theorem finiteDeterminant_continuous (N : ℕ) (z : ℂ) :
+    Continuous
+      (fun T : ProbabilisticTheory.TraceClass H =>
+        finiteDeterminant N T z) := by
+  have hMat :
+      Continuous
+        (fun T : ProbabilisticTheory.TraceClass H =>
+          (1 : Matrix (Fin N) (Fin N) ℂ) +
+            z • compressedCFC N T) :=
+    continuous_const.add
+      (continuous_const.smul (compressedCFC_continuous N))
+  exact hMat.matrix_det
+
 #print axioms Manuscript14Priority3.FiniteRankFredholm.determinant_rectangular_comm
 #print axioms Manuscript14Priority3.FiniteRankFredholm.determinant_factorization_independent
 #print axioms Manuscript14Priority3.FiniteRankFredholm.compressedCFC_add
 #print axioms Manuscript14Priority3.FiniteRankFredholm.compressedCFC_sub
 #print axioms Manuscript14Priority3.FiniteRankFredholm.compressedCFC_entry_sub_norm_le
+#print axioms Manuscript14Priority3.FiniteRankFredholm.compressedCFC_entry_lipschitz
+#print axioms Manuscript14Priority3.FiniteRankFredholm.compressedCFC_continuous
+#print axioms Manuscript14Priority3.FiniteRankFredholm.finiteDeterminant_continuous
 
 end Manuscript14Priority3.FiniteRankFredholm
