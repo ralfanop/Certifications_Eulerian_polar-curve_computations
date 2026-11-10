@@ -1,0 +1,84 @@
+name: "Manuscript 14.119 Priority 3 — dimension-free scalar Fredholm bounds"
+
+on:
+  push:
+    branches:
+      - manuscript14-priority3-determinant-scalar-envelope-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FredholmScalarBounds.lean'
+      - '.github/workflows/manuscript14-priority3-fredholm-scalar-bounds.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FredholmScalarBounds.lean'
+      - '.github/workflows/manuscript14-priority3-fredholm-scalar-bounds.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Dimension-free exponential envelope and 3 axiom audits
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile scalar product and exponential bounds
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3FredholmScalarBounds.lean 2>&1 | tee /tmp/p3-scalar-bounds.log
+      - name: Audit all three kernel theorems
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          log = pathlib.Path("/tmp/p3-scalar-bounds.log").read_text()
+          prefix = "Manuscript14Priority3.FredholmScalarBounds."
+          required = [
+            "finite_nuclear_product_le_exp",
+            "exp_sub_one_le_mul_exp",
+            "finite_nuclear_product_increment_le"
+          ]
+          found = {}
+          for m in re.finditer(
+              r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",
+              log, re.MULTILINE):
+            found[m.group(1) or m.group(3)] = {
+              x.strip() for x in (m.group(2) or "").split(",") if x.strip()
+            }
+          allowed = {"propext", "Quot.sound", "Classical.choice"}
+          for suffix in required:
+            name = prefix + suffix
+            assert name in found, f"Missing kernel axiom report: {name}"
+            assert found[name] <= allowed, f"Nonstandard axioms for {name}: {found[name] - allowed}"
+            print(name, sorted(found[name]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error", log)
+          print("SUCCESS: three scalar Fredholm envelope theorems")
+          PY
+      - name: Upload kernel log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-fredholm-scalar-bound-log
+          path: /tmp/p3-scalar-bounds.log
+          if-no-files-found: ignore
