@@ -1,0 +1,87 @@
+name: Manuscript 15 cycloidal reconstruction - Lean 4 certification
+
+on:
+  push:
+    branches:
+      - manuscript15-cycloidal-lean4-20261110
+    paths:
+      - 'lean/Manuscript15/**'
+      - '.github/workflows/manuscript15-cycloidal-cert.yml'
+  workflow_dispatch:
+
+jobs:
+  certify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned Lean 4 toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lean" --version
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+
+      - name: Fetch pinned Mathlib artifacts
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+
+      - name: Build the inherited Eulerian sinc dependency
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build EulerianCert.FourierModes
+
+      - name: Kernel-check cycloidal reconstruction
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/CycloidalReconstruction.lean \
+            2>&1 | tee /tmp/manuscript15-cycloidal.log
+
+      - name: Kernel-check coefficient uniqueness
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/CoefficientRigidity.lean \
+            2>&1 | tee /tmp/manuscript15-coefficients.log
+
+      - name: Reject unproven axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat /tmp/manuscript15-cycloidal.log /tmp/manuscript15-coefficients.log \
+            | tee /tmp/manuscript15-axioms.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/manuscript15-axioms.log; then
+            echo '::error::Forbidden Lean axiom detected'
+            exit 1
+          fi
+          grep -F 'Manuscript15.eulerian_X_eq_cycloid' /tmp/manuscript15-axioms.log
+          grep -F 'Manuscript15.eulerian_Y_eq_cycloid' /tmp/manuscript15-axioms.log
+          grep -F 'Manuscript15.eulerian_kinematic' /tmp/manuscript15-axioms.log
+          grep -F 'Manuscript15.coefficientRule_unique' /tmp/manuscript15-axioms.log
+
+      - name: Upload verification logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-cycloidal-lean4-logs
+          path: |
+            /tmp/manuscript15-cycloidal.log
+            /tmp/manuscript15-coefficients.log
+            /tmp/manuscript15-axioms.log
