@@ -1,0 +1,89 @@
+name: "Manuscript 14.119 Priority 3 — complex mixed Gram minor bridge"
+
+on:
+  push:
+    branches:
+      - manuscript14-priority3-complex-gram-minors-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean'
+      - '.github/workflows/manuscript14-priority3-complex-gram-minors.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean'
+      - '.github/workflows/manuscript14-priority3-complex-gram-minors.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Complex mixed Gram coefficients and rank-one determinant — eight axiom audits
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile exact complex Gram coefficient and rank-one lemmas
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean 2>&1 | tee /tmp/p3-complex-gram-minors.log
+      - name: Audit eight exact named Lean declarations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          log = pathlib.Path("/tmp/p3-complex-gram-minors.log").read_text()
+          prefix = "Manuscript14Priority3.ComplexGramMinorBridge."
+          required = [
+              "mixedGram_entry_norm_le",
+              "mixedGram_shift_coeff_eq_sum_minors",
+              "single_mixedGram_shift_det",
+              "single_mixedGram_shift_sub_one_norm_le",
+              "single_mixedGram_shift_det_norm_le",
+              "mixedGram_shift_first_coeff_norm_le_mass",
+              "mixedGram_shift_coeff_norm_le_of_minor_control",
+              "mixedGram_total_minor_norm_le_exp_of_minor_control",
+          ]
+          found = {}
+          for match in re.finditer(
+              r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",
+              log, re.MULTILINE):
+              found[match.group(1) or match.group(3)] = {
+                  s.strip() for s in (match.group(2) or "").split(",") if s.strip()
+              }
+          allowed = {"propext", "Quot.sound", "Classical.choice"}
+          for suffix in required:
+              name = prefix + suffix
+              assert name in found, f"Missing exact kernel axiom report: {name}"
+              assert found[name] <= allowed, f"Nonstandard axioms in {name}: {found[name] - allowed}"
+              print(name, sorted(found[name]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error", log)
+          print("SUCCESS: all eight complex Gram minor bridge declarations")
+          PY
+      - name: Upload Lean logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-complex-gram-minor-log
+          path: /tmp/p3-complex-gram-minors.log
+          if-no-files-found: ignore
