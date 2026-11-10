@@ -39,8 +39,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake build EulerianCert.Bracket 2>&1 | tee /tmp/figure5_dependency_build.log
-          lake env lean EulerianCert/Figure5Apex.lean 2>&1 | tee /tmp/figure5_lean.log
+          lake build EulerianCert.Figure5Apex 2>&1 | tee /tmp/figure5_lean.log
       - name: Kernel axiom report
         working-directory: lean
         shell: bash
@@ -57,7 +56,6 @@ jobs:
         with:
           name: manuscript11-figure5-apex-lean-logs
           path: |
-            /tmp/figure5_dependency_build.log
             /tmp/figure5_lean.log
             /tmp/figure5_axioms.log
           if-no-files-found: ignore
