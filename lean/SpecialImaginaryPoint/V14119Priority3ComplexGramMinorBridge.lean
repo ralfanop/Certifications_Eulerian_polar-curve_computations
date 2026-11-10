@@ -96,10 +96,61 @@ theorem single_mixedGram_shift_det_norm_le (u v : E) (z : ℂ) :
     _ ≤ 1 + ‖z‖ * ‖u‖ * ‖v‖ := by
       simpa only [norm_one, add_comm] using add_le_add_left hmul 1
 
+/-- Unconditional first-order coefficient bound:
+the trace term in det(I+XG) is bounded by the exact nuclear
+mass of the (possibly nonnormal) finite rank-one family. -/
+theorem mixedGram_shift_first_coeff_norm_le_mass {m : ℕ}
+    (u v : Fin m → E) :
+    ‖(Matrix.det
+      (1 + (Polynomial.X : ℂ[X]) • (mixedGram u v).map Polynomial.C)).coeff 1‖ ≤
+      ∑ i : Fin m, ‖u i‖ * ‖v i‖ := by
+  rw [Matrix.coeff_det_one_add_X_smul_one]
+  change ‖∑ i : Fin m, inner ℂ (v i) (u i)‖ ≤
+    ∑ i : Fin m, ‖u i‖ * ‖v i‖
+  calc
+    ‖∑ i : Fin m, inner ℂ (v i) (u i)‖ ≤
+        ∑ i : Fin m, ‖inner ℂ (v i) (u i)‖ :=
+      norm_sum_le _ _
+    _ ≤ ∑ i : Fin m, ‖u i‖ * ‖v i‖ := by
+      apply Finset.sum_le_sum
+      intro i hi
+      simpa only [mul_comm] using norm_inner_le_norm (v i) (u i)
+
+/-- EXACT reduction of all complex determinant coefficient estimates
+to the missing general mixed-Gram Hadamard bound for principal minors.
+The hypothesis hminor is deliberately NOT asserted or assumed as an
+axiom; its unconditional proof is the next outstanding obligation. -/
+theorem mixedGram_shift_coeff_norm_le_of_minor_control {m : ℕ}
+    (u v : Fin m → E) (k : ℕ)
+    (hminor : ∀ (s : Finset (Fin m)),
+      ‖((mixedGram u v).submatrix (Subtype.val : s → Fin m)
+          (Subtype.val : s → Fin m)).det‖ ≤
+        ∏ i ∈ s, ‖u i‖ * ‖v i‖) :
+    ‖(Matrix.det
+      (1 + (Polynomial.X : ℂ[X]) • (mixedGram u v).map Polynomial.C)).coeff k‖ ≤
+      ∑ s ∈ Finset.univ.powersetCard k,
+        ∏ i ∈ s, ‖u i‖ * ‖v i‖ := by
+  rw [mixedGram_shift_coeff_eq_sum_minors]
+  calc
+    ‖∑ s ∈ Finset.univ.powersetCard k,
+        ((mixedGram u v).submatrix (Subtype.val : s → Fin m)
+          (Subtype.val : s → Fin m)).det‖ ≤
+      ∑ s ∈ Finset.univ.powersetCard k,
+        ‖((mixedGram u v).submatrix (Subtype.val : s → Fin m)
+          (Subtype.val : s → Fin m)).det‖ :=
+      norm_sum_le _ _
+    _ ≤ ∑ s ∈ Finset.univ.powersetCard k,
+        ∏ i ∈ s, ‖u i‖ * ‖v i‖ := by
+      apply Finset.sum_le_sum
+      intro s hs
+      exact hminor s
+
 #print axioms Manuscript14Priority3.ComplexGramMinorBridge.mixedGram_entry_norm_le
 #print axioms Manuscript14Priority3.ComplexGramMinorBridge.mixedGram_shift_coeff_eq_sum_minors
 #print axioms Manuscript14Priority3.ComplexGramMinorBridge.single_mixedGram_shift_det
 #print axioms Manuscript14Priority3.ComplexGramMinorBridge.single_mixedGram_shift_sub_one_norm_le
 #print axioms Manuscript14Priority3.ComplexGramMinorBridge.single_mixedGram_shift_det_norm_le
+#print axioms Manuscript14Priority3.ComplexGramMinorBridge.mixedGram_shift_first_coeff_norm_le_mass
+#print axioms Manuscript14Priority3.ComplexGramMinorBridge.mixedGram_shift_coeff_norm_le_of_minor_control
 
 end Manuscript14Priority3.ComplexGramMinorBridge
