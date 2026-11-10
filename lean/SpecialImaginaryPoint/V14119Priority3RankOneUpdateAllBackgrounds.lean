@@ -98,9 +98,6 @@ theorem updatedColumns_updateCol_det (A : Matrix ι ι ℂ)
             ((updatedColumns s A u v).updateCol j u).det := by
         convert (Matrix.det_updateCol_add_smul_self
           ((updatedColumns s A u v).updateCol j u) hkj (v k)) using 1
-        · congr 1
-          funext i
-          simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul]
       exact hupdate.trans (ih j hjs)
 
 /-- A rank-one perturbation affects the determinant only linearly
@@ -129,9 +126,6 @@ theorem updatedColumns_det (A : Matrix ι ι ℂ)
             v k * ((updatedColumns s A u v).updateCol k u).det := by
         convert (Matrix.det_updateCol_smul
           (updatedColumns s A u v) k (v k) u) using 1
-        congr 1
-        funext i
-        rfl
       rw [show
         (fun i : ι => A i k + v k * u i) =
           (fun i : ι => A i k) + (fun i : ι => v k * u i) from rfl]
