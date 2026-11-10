@@ -1,0 +1,111 @@
+name: "Priority 3 — unrestricted sharp mixed complex Gram and uniform exponential"
+
+on:
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UnrestrictedMixedGramHadamard.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3AmbientProjectionSharp.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3SquareAmbientMixedGramSharp.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean'
+      - '.github/workflows/manuscript14-priority3-unrestricted-gram-hadamard-sharp.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lean:
+    name: Unrestricted complex Gram sharp Hadamard + exponential — five kernel audits
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build exact complex Gram coefficient bridge
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 \
+            -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.olean \
+            SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean
+      - name: Build square-ambient sharp complex Gram dependency
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 \
+            -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3SquareAmbientMixedGramSharp.olean \
+            SpecialImaginaryPoint/V14119Priority3SquareAmbientMixedGramSharp.lean
+      - name: Build arbitrary-ambient independent-family projection dependency
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 \
+            -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3AmbientProjectionSharp.olean \
+            SpecialImaginaryPoint/V14119Priority3AmbientProjectionSharp.lean
+      - name: Compile full unrestricted Hadamard, all principal minors and exponential bound
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 \
+            SpecialImaginaryPoint/V14119Priority3UnrestrictedMixedGramHadamard.lean 2>&1 | tee /tmp/p3-full-sharp-main.log
+      - name: Audit exact kernel declarations and forbid nonstandard axioms
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,re
+          log=pathlib.Path("/tmp/p3-full-sharp-main.log").read_text()
+          prefix="Manuscript14Priority3.UnrestrictedMixedGramHadamard."
+          names=[
+            "mixedGram_det_ne_zero_implies_linearIndependent",
+            "mixedGram_det_norm_le_sharp",
+            "mixedGram_principal_minor_norm_le_sharp",
+            "mixedGram_total_minor_norm_le_exp_unrestricted",
+            "mixedGram_shift_coeff_norm_le_sharp",
+          ]
+          found={}
+          for match in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",log,re.MULTILINE):
+            found[match.group(1) or match.group(3)]={
+              x.strip() for x in (match.group(2) or "").split(",") if x.strip()
+            }
+          allowed={"propext","Quot.sound","Classical.choice"}
+          for name in names:
+            full=prefix+name
+            assert full in found, f"Missing kernel axiom report: {full}"
+            assert found[full] <= allowed, f"Nonstandard axioms for {full}: {found[full]-allowed}"
+            print(full,sorted(found[full]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error",log)
+          print("SUCCESS: unrestricted complex mixed Gram sharp Hadamard, all minors, uniform exponential bound")
+          PY
+      - name: Upload Lean audit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-full-complex-gram-sharp-log
+          path: /tmp/p3-full-sharp-main.log
+          if-no-files-found: ignore
