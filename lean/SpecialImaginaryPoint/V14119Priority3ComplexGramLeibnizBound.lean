@@ -101,7 +101,9 @@ theorem mixedGram_principal_minor_norm_le_factorial_cost
       simpa only [Fintype.card_coe] using h
     _ = ((Nat.factorial s.card) : ℝ) *
           (∏ i ∈ s, ‖u i‖ * ‖v i‖) := by
-      rw [Finset.prod_attach]
+      exact congrArg
+        (fun r : ℝ => ((Nat.factorial s.card) : ℝ) * r)
+        (Finset.prod_coe_sort s (fun i => ‖u i‖ * ‖v i‖))
 
 #print axioms Manuscript14Priority3.ComplexGramLeibnizBound.generalMixedGram_det_norm_le_factorial_cost
 #print axioms Manuscript14Priority3.ComplexGramLeibnizBound.mixedGram_principal_minor_norm_le_factorial_cost
