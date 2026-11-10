@@ -191,4 +191,6 @@ noncomputable def principalArccot (z : ℝ) : ℝ := Real.arctan (1 / z)
 theorem apex_angle_eq_twice_arccot_two :
     apexAngle = 2 * principalArccot 2 := rfl
 
+end
+
 end EulerianCert.Figure5Apex
