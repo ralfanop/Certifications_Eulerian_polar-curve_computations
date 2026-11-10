@@ -1,0 +1,95 @@
+name: "Priority 3 — unrestricted complex mixed-Gram Leibniz factorial bound"
+
+on:
+  push:
+    branches:
+      - manuscript14-priority3-general-gram-factorial-bound-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexGramLeibnizBound.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean'
+      - '.github/workflows/manuscript14-priority3-complex-gram-leibniz.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexGramLeibnizBound.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean'
+      - '.github/workflows/manuscript14-priority3-complex-gram-leibniz.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lean:
+    name: Complex mixed Gram Leibniz determinant and all minors (4 standard-axiom audits)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build original complex Gram bridge
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.olean \
+            SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean 2>&1 | tee /tmp/p3-leibniz-deps.log
+      - name: Compile unrestricted complex determinant and all-principal-minors bounds
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3ComplexGramLeibnizBound.lean 2>&1 | tee /tmp/p3-leibniz-main.log
+      - name: Kernel audit of all four declarations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          log=pathlib.Path("/tmp/p3-leibniz-main.log").read_text()
+          prefix="Manuscript14Priority3.ComplexGramLeibnizBound."
+          names=[
+            "generalMixedGram_det_norm_le_factorial_cost",
+            "mixedGram_principal_minor_norm_le_factorial_cost",
+            "mixedGram_shift_coeff_norm_le_factorial_cost",
+            "mixedGram_total_minor_norm_le_factorial_exp",
+          ]
+          reports={}
+          for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms", log, re.MULTILINE):
+            reports[m.group(1) or m.group(3)]={x.strip() for x in (m.group(2) or "").split(",") if x.strip()}
+          allowed={"propext","Quot.sound","Classical.choice"}
+          for suffix in names:
+            n=prefix+suffix
+            assert n in reports, f"Missing audit: {n}"
+            assert reports[n] <= allowed, f"Nonstandard axiom: {n}, {reports[n]-allowed}"
+            print(n, sorted(reports[n]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error",log)
+          print("SUCCESS: unrestricted mixed Gram factorial cost bounds for determinants, minors, coefficients, and total minor mass")
+          PY
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-complex-leibniz-logs
+          path: /tmp/p3-leibniz-*.log
+          if-no-files-found: ignore
