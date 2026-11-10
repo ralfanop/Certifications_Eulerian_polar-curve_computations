@@ -55,8 +55,16 @@ theorem principalExpansion_insert_norm_le_exp
   rw [principalExpansion_insert_sub f s a ha]
   have hbase : (∏ i ∈ s, (1 + c i)) ≤
       Real.exp (∑ i ∈ s, c i) := by
-    exact Real.prod_one_add_le_exp_sum s
-      (fun i hi => hc i (Finset.mem_insert_of_mem hi))
+    calc
+      (∏ i ∈ s, (1 + c i)) ≤ ∏ i ∈ s, Real.exp (c i) := by
+        apply Finset.prod_le_prod₀
+        · intro i hi
+          have hi' := hc i (Finset.mem_insert_of_mem hi)
+          linarith
+        · intro i hi
+          simpa only [add_comm] using Real.add_one_le_exp (c i)
+      _ = Real.exp (∑ i ∈ s, c i) := by
+        rw [← Real.exp_sum]
   calc
     ‖∑ t ∈ s.powerset, f (insert a t)‖ ≤
         ∑ t ∈ s.powerset, ‖f (insert a t)‖ :=
@@ -66,9 +74,13 @@ theorem principalExpansion_insert_norm_le_exp
       intro t ht
       exact hinsert t ht
     _ = c a * ∏ i ∈ s, (1 + c i) := by
-      rw [Finset.mul_sum]
-      congr 1
-      simpa only using (Finset.prod_one_add (s := s) (f := c)).symm
+      calc
+        (∑ t ∈ s.powerset, c a * ∏ i ∈ t, c i) =
+          c a * (∑ t ∈ s.powerset, ∏ i ∈ t, c i) := by
+            rw [Finset.mul_sum]
+        _ = c a * ∏ i ∈ s, (1 + c i) := by
+          congr 1
+          simpa only using (Finset.prod_one_add (s := s) (f := c)).symm
     _ ≤ c a * Real.exp (∑ i ∈ s, c i) :=
       mul_le_mul_of_nonneg_left hbase (hc a (Finset.mem_insert_self a s))
 
