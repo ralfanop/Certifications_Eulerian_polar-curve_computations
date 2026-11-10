@@ -253,7 +253,7 @@ theorem finiteShift_det (D : Data) (N : ℕ) (t : ℝ) :
 
 theorem finiteShift_det_eq_real (D : Data) (N : ℕ) (t : ℝ) :
     Matrix.det (finiteShift D N t) =
-      ((∏ n ∈ Finset.range N, (1 + t * D.coeff n) : ℝ) : ℂ) := by
+      ((∏ n ∈ Finset.range N, 1 + t * D.coeff n : ℝ) : ℂ) := by
   rw [finiteShift_det]
   calc
     (∏ i : Fin N, (1 + (t : ℂ) * (D.coeff i.val : ℂ))) =
