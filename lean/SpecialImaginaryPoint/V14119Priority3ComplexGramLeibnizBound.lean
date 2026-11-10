@@ -65,7 +65,7 @@ theorem generalMixedGram_det_norm_le_factorial_cost
           (∏ i : ι, ‖v i‖) * (∏ i : ι, ‖u i‖) := by
       apply Finset.sum_congr rfl
       intro σ hσ
-      rw [Finset.prod_mul_distrib, Equiv.prod_comp σ]
+      rw [Finset.prod_mul_distrib, ← Equiv.prod_comp σ]
     _ = ((Nat.factorial (Fintype.card ι)) : ℝ) *
           ((∏ i : ι, ‖v i‖) * (∏ i : ι, ‖u i‖)) := by
       simp [Fintype.card_perm, nsmul_eq_mul]
@@ -84,9 +84,14 @@ theorem mixedGram_principal_minor_norm_le_factorial_cost
         ((Nat.factorial s.card) : ℝ) * (∏ i ∈ s, ‖u i‖ * ‖v i‖) := by
   have h := generalMixedGram_det_norm_le_factorial_cost
     (u := fun i : s => u i) (v := fun i : s => v i)
-  simpa only [generalMixedGram, Fintype.card_coe, Finset.prod_coe_sort,
-    Manuscript14Priority3.ComplexGramMinorBridge.mixedGram,
-    Matrix.submatrix_apply] using h
+  have hm :
+      generalMixedGram (fun i : s => u i) (fun i : s => v i) =
+        (Manuscript14Priority3.ComplexGramMinorBridge.mixedGram u v).submatrix
+          (Subtype.val : s → Fin m) (Subtype.val : s → Fin m) := by
+    ext i j
+    rfl
+  rw [hm] at h
+  simpa only [Fintype.card_coe, Finset.prod_coe_sort] using h
 
 #print axioms Manuscript14Priority3.ComplexGramLeibnizBound.generalMixedGram_det_norm_le_factorial_cost
 #print axioms Manuscript14Priority3.ComplexGramLeibnizBound.mixedGram_principal_minor_norm_le_factorial_cost
