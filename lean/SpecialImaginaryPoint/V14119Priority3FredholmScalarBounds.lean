@@ -35,7 +35,7 @@ theorem finite_nuclear_product_le_exp
   calc
     (∏ i ∈ s, (1 + r * c i)) ≤
         ∏ i ∈ s, Real.exp (r * c i) := by
-      apply Finset.prod_le_prod
+      apply Finset.prod_le_prod₀
       · intro i hi
         exact add_nonneg (by norm_num) (mul_nonneg hr (hc i hi))
       · intro i hi
