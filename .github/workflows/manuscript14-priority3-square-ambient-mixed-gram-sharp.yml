@@ -1,0 +1,97 @@
+name: "Priority 3 — sharp arbitrary complex mixed-Gram, square Hilbert dimension"
+
+on:
+  push:
+    branches:
+      - manuscript14-priority3-square-ambient-sharp-hadamard-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3SquareAmbientMixedGramSharp.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean'
+      - '.github/workflows/manuscript14-priority3-square-ambient-mixed-gram-sharp.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3SquareAmbientMixedGramSharp.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean'
+      - '.github/workflows/manuscript14-priority3-square-ambient-mixed-gram-sharp.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lean:
+    name: Sharp complex Gram square-ambient theorem — 4 kernel audits
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile exact finite mixed Gram predecessor
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 \
+            -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.olean \
+            SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean 2>&1 | tee /tmp/p3-sharp-deps.log
+      - name: Compile sharp Gram–Schmidt basis and mixed determinant proof
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 \
+            SpecialImaginaryPoint/V14119Priority3SquareAmbientMixedGramSharp.lean 2>&1 | tee /tmp/p3-sharp-main.log
+      - name: Audit exactly four Lean declarations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,re
+          log=pathlib.Path("/tmp/p3-sharp-main.log").read_text()
+          prefix="Manuscript14Priority3.SquareAmbientMixedGramSharp."
+          names=[
+            "gramSchmidt_basis_det_norm_le_prod",
+            "orthonormalBasis_det_norm_le_prod",
+            "generalMixedGram_eq_conjTranspose_mul",
+            "mixedGram_det_norm_le_sharp_of_finrank_eq",
+          ]
+          found={}
+          for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms", log, re.MULTILINE):
+            found[m.group(1) or m.group(3)]={x.strip() for x in (m.group(2) or "").split(",") if x.strip()}
+          allowed={"propext","Quot.sound","Classical.choice"}
+          for suffix in names:
+            n=prefix+suffix
+            assert n in found, f"Missing exact kernel audit: {n}"
+            assert found[n]<=allowed, f"Nonstandard axioms: {n}: {found[n]-allowed}"
+            print(n,sorted(found[n]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error",log)
+          print("SUCCESS: four true kernel-certified square-ambient sharp complex Gram declarations")
+          PY
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-square-sharp-gram-logs
+          path: /tmp/p3-sharp-*.log
+          if-no-files-found: ignore
