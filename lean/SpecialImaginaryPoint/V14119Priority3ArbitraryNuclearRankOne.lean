@@ -65,6 +65,8 @@ theorem rankOneS1_norm_le (u v : H) :
     Manuscript14Priority3.ComplexDiagonalFredholm.projector 0
   change ‖ProbabilisticTheory.TraceClass.sandwichContinuous A B P‖ ≤
     ‖u‖ * ‖v‖
+  have hP : ‖P‖ = 1 :=
+    Manuscript14Priority3.ComplexDiagonalFredholm.projector_norm_eq_one 0
   calc
     ‖ProbabilisticTheory.TraceClass.sandwichContinuous A B P‖ ≤
         ‖ProbabilisticTheory.TraceClass.sandwichContinuous A B‖ * ‖P‖ :=
@@ -74,9 +76,8 @@ theorem rankOneS1_norm_le (u v : H) :
         (ProbabilisticTheory.TraceClass.sandwichContinuous_norm_le A B)
         (norm_nonneg _)
     _ = ‖u‖ * ‖v‖ := by
-      simp [A, B, P,
-        Manuscript14Priority3.ComplexDiagonalFredholm.projector_norm_eq_one,
-        b.orthonormal.norm_eq_one, norm_rankOne]
+      rw [hP]
+      simp [A, B, b.orthonormal.norm_eq_one, norm_rankOne]
 
 /-- EXACT CFC Schatten-S₁ trace norm for arbitrary nonnormal
 rank-one Hilbert operators, including nonorthogonal vectors. -/
@@ -110,7 +111,7 @@ also absolutely convergent in OPERATOR norm. -/
 theorem rankOne_operator_summable
     (u v : ℕ → H)
     (hcost : Summable (fun n : ℕ => ‖u n‖ * ‖v n‖)) :
-    Summable (fun n : ℕ => rankOne ℂ (u n) (v n) : H →L[ℂ] H) := by
+    Summable (fun n : ℕ => (rankOne ℂ (u n) (v n) : H →L[ℂ] H)) := by
   apply Summable.of_norm
   simpa only [norm_rankOne] using hcost
 
