@@ -1,0 +1,85 @@
+name: Manuscript 15 — rigidity coefficients and Arb 8192-bit certificates
+
+on:
+  push:
+    branches:
+      - manuscript15-rigidity-arb2000-20261110
+    paths:
+      - 'lean/Manuscript15/CoefficientRigidity.lean'
+      - 'numerics/manuscript15_arb2000.py'
+      - '.github/workflows/manuscript15-rigidity-arb2000.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/CoefficientRigidity.lean'
+      - 'numerics/manuscript15_arb2000.py'
+      - '.github/workflows/manuscript15-rigidity-arb2000.yml'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4 toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Fetch pinned Mathlib artifacts
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check forced coefficients and audit axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/CoefficientRigidity.lean 2>&1 | tee /tmp/m15-rigidity.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m15-rigidity.log; then
+            echo '::error::Forbidden axiom'
+            exit 1
+          fi
+          grep -F 'Manuscript15.coefficientRule_unique' /tmp/m15-rigidity.log
+          grep -F 'Manuscript15.coefficientRule_c_one' /tmp/m15-rigidity.log
+          grep -F 'Manuscript15.coefficientRule_c_two' /tmp/m15-rigidity.log
+          grep -F 'Manuscript15.coefficientRule_c_three' /tmp/m15-rigidity.log
+      - name: Upload Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-rigidity-lean4-log
+          path: /tmp/m15-rigidity.log
+
+  arb8192:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install python-flint with Arb
+        run: |
+          python -m pip install 'python-flint==0.9.0'
+      - name: Run rigorous >=8192-bit ball certificates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python numerics/manuscript15_arb2000.py 2>&1 | tee /tmp/m15-arb8192.log
+          grep -F 'SUCCESS' /tmp/m15-arb8192.log
+      - name: Upload Arb interval certificate log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-arb8192-log
+          path: /tmp/m15-arb8192.log

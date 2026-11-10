@@ -57,6 +57,37 @@ theorem coefficientRule_unique (c d : ℕ → ℝ)
           _ = _ := (hd.2 k).symm
       exact (mul_left_cancel₀ hfactor) heq
 
+
+/-! ### First forced coefficients of the two-scale rigidity recurrence -/
+
+/-- The coefficient of t² is uniquely forced by the rule. -/
+theorem coefficientRule_c_one (c : ℕ → ℝ) (hc : CoefficientRule c) :
+    c 1 = -(1 / 24 : ℝ) := by
+  have h := hc.2 0
+  norm_num [Finset.sum_range_succ, hc.1] at h
+  linarith
+
+/-- The coefficient of t⁴ is uniquely forced by the rule. -/
+theorem coefficientRule_c_two (c : ℕ → ℝ) (hc : CoefficientRule c) :
+    c 2 = (1 / 1920 : ℝ) := by
+  have h := hc.2 1
+  have h1 := coefficientRule_c_one c hc
+  norm_num [Finset.sum_range_succ, hc.1, h1] at h
+  linarith
+
+/-- The coefficient of t⁶ is uniquely forced by the rule. -/
+theorem coefficientRule_c_three (c : ℕ → ℝ) (hc : CoefficientRule c) :
+    c 3 = -(1 / 322560 : ℝ) := by
+  have h := hc.2 2
+  have h1 := coefficientRule_c_one c hc
+  have h2 := coefficientRule_c_two c hc
+  norm_num [Finset.sum_range_succ, hc.1, h1, h2] at h
+  linarith
+
+#print axioms Manuscript15.coefficientRule_c_one
+#print axioms Manuscript15.coefficientRule_c_two
+#print axioms Manuscript15.coefficientRule_c_three
+
 #print axioms Manuscript15.coefficientRule_unique
 
 end Manuscript15
