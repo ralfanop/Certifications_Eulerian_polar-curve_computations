@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   lean:
-    name: Dimension-free exponential envelope and 3 axiom audits
+    name: Dimension-free scalar perturbation envelope and 4 axiom audits
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
@@ -45,7 +45,7 @@ jobs:
         run: |
           set -euo pipefail
           lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3FredholmScalarBounds.lean 2>&1 | tee /tmp/p3-scalar-bounds.log
-      - name: Audit all three kernel theorems
+      - name: Audit all four kernel theorems
         shell: bash
         run: |
           set -euo pipefail
@@ -56,7 +56,8 @@ jobs:
           required = [
             "finite_nuclear_product_le_exp",
             "exp_sub_one_le_mul_exp",
-            "finite_nuclear_product_increment_le"
+            "finite_nuclear_product_increment_le",
+            "finite_nuclear_two_family_perturbation_le"
           ]
           found = {}
           for m in re.finditer(
@@ -73,7 +74,7 @@ jobs:
             print(name, sorted(found[name]))
           assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
           assert not re.search(r"\.lean:\d+:\d+: error", log)
-          print("SUCCESS: three scalar Fredholm envelope theorems")
+          print("SUCCESS: four scalar Fredholm envelope theorems")
           PY
       - name: Upload kernel log
         if: always()
