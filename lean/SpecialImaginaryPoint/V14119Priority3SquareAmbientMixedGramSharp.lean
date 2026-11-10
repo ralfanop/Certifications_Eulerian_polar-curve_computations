@@ -35,9 +35,9 @@ orthonormal basis, even for linearly dependent vector families. -/
 theorem gramSchmidt_basis_det_norm_le_prod
     (h : Module.finrank ℂ E = Fintype.card ι)
     (f : ι → E) :
-    ‖(InnerProductSpace.gramSchmidtOrthonormalBasis ℂ h f).toBasis.det f‖ ≤
+    ‖(InnerProductSpace.gramSchmidtOrthonormalBasis (𝕜 := ℂ) h f).toBasis.det f‖ ≤
       ∏ i : ι, ‖f i‖ := by
-  let gs := InnerProductSpace.gramSchmidtOrthonormalBasis ℂ h f
+  let gs := InnerProductSpace.gramSchmidtOrthonormalBasis (𝕜 := ℂ) h f
   change ‖gs.toBasis.det f‖ ≤ _
   rw [InnerProductSpace.gramSchmidtOrthonormalBasis_det]
   rw [norm_prod]
@@ -55,7 +55,7 @@ theorem orthonormalBasis_det_norm_le_prod
     (h : Module.finrank ℂ E = Fintype.card ι)
     (b : OrthonormalBasis ι ℂ E) (f : ι → E) :
     ‖b.toBasis.det f‖ ≤ ∏ i : ι, ‖f i‖ := by
-  let gs := InnerProductSpace.gramSchmidtOrthonormalBasis ℂ h f
+  let gs := InnerProductSpace.gramSchmidtOrthonormalBasis (𝕜 := ℂ) h f
   have hchange :
       b.toBasis.det f = b.toBasis.det gs.toBasis * gs.toBasis.det f := by
     have halt :=
@@ -65,14 +65,20 @@ theorem orthonormalBasis_det_norm_le_prod
   rw [hchange, norm_mul, b.det_to_matrix_orthonormalBasis gs, one_mul]
   exact gramSchmidt_basis_det_norm_le_prod h f
 
+/-- The fully arbitrary-index complex mixed Gram matrix in square
+Hilbert ambient dimension, with the same orientation as the original
+Fin-indexed Priority-3 definition. -/
+def squareMixedGram (u v : ι → E) : Matrix ι ι ℂ :=
+  fun i j => inner ℂ (v i) (u j)
+
 /-- Mixed Gram matrix coordinate factorization VᴴU in one fixed
 orthonormal basis. No normality or positivity assumptions. -/
 theorem generalMixedGram_eq_conjTranspose_mul
     (b : OrthonormalBasis ι ℂ E) (u v : ι → E) :
-    Manuscript14Priority3.ComplexGramMinorBridge.mixedGram u v =
+    squareMixedGram u v =
       (b.toBasis.toMatrix v)ᴴ * (b.toBasis.toMatrix u) := by
   ext i j
-  simp [Manuscript14Priority3.ComplexGramMinorBridge.mixedGram,
+  simp [squareMixedGram,
     Matrix.mul_apply, b.repr_apply_apply, b.sum_inner_mul_inner]
 
 /-- SHARP Gram–Hadamard bound with constant ONE for arbitrary
@@ -82,7 +88,7 @@ The vectors are completely unrestricted. -/
 theorem mixedGram_det_norm_le_sharp_of_finrank_eq
     (h : Module.finrank ℂ E = Fintype.card ι)
     (u v : ι → E) :
-    ‖(Manuscript14Priority3.ComplexGramMinorBridge.mixedGram u v).det‖ ≤
+    ‖(squareMixedGram u v).det‖ ≤
       ∏ i : ι, ‖u i‖ * ‖v i‖ := by
   let b : OrthonormalBasis ι ℂ E :=
     (stdOrthonormalBasis ℂ E).reindex
