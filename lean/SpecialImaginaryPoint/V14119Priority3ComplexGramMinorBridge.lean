@@ -22,8 +22,8 @@ noncomputable section
 
 namespace Manuscript14Priority3.ComplexGramMinorBridge
 
-open Matrix
-open scoped InnerProductSpace
+open Matrix Polynomial
+open scoped InnerProductSpace Ring
 
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
 
@@ -94,7 +94,7 @@ theorem single_mixedGram_shift_det_norm_le (u v : E) (z : ℂ) :
       ‖(1 : ℂ) + z * inner ℂ v u‖ := by rw [single_mixedGram_shift_det]
     _ ≤ ‖(1 : ℂ)‖ + ‖z * inner ℂ v u‖ := norm_add_le _ _
     _ ≤ 1 + ‖z‖ * ‖u‖ * ‖v‖ := by
-      simpa only [norm_one] using add_le_add_left hmul 1
+      simpa only [norm_one, add_comm] using add_le_add_left hmul 1
 
 #print axioms Manuscript14Priority3.ComplexGramMinorBridge.mixedGram_entry_norm_le
 #print axioms Manuscript14Priority3.ComplexGramMinorBridge.mixedGram_shift_coeff_eq_sum_minors
