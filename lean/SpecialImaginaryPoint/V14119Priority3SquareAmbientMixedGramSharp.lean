@@ -59,10 +59,13 @@ theorem orthonormalBasis_det_norm_le_prod
   have hchange :
       b.toBasis.det f = b.toBasis.det gs.toBasis * gs.toBasis.det f := by
     have halt :=
-      AlternatingMap.eq_smul_basis_det (b.toBasis.det) gs.toBasis
+      AlternatingMap.eq_smul_basis_det gs.toBasis (b.toBasis.det)
     have hv := congrArg (fun alt : E [⋀^ι]→ₗ[ℂ] ℂ => alt f) halt
     simpa only [smul_eq_mul, AlternatingMap.smul_apply] using hv
-  rw [hchange, norm_mul, b.det_to_matrix_orthonormalBasis gs, one_mul]
+  rw [hchange, norm_mul]
+  have hunit : ‖b.toBasis.det gs.toBasis‖ = 1 := by
+    exact b.det_to_matrix_orthonormalBasis gs
+  rw [hunit, one_mul]
   exact gramSchmidt_basis_det_norm_le_prod h f
 
 /-- The fully arbitrary-index complex mixed Gram matrix in square
@@ -78,8 +81,10 @@ theorem generalMixedGram_eq_conjTranspose_mul
     squareMixedGram u v =
       (b.toBasis.toMatrix v)ᴴ * (b.toBasis.toMatrix u) := by
   ext i j
-  simp [squareMixedGram,
-    Matrix.mul_apply, b.repr_apply_apply, b.sum_inner_mul_inner]
+  simp only [squareMixedGram, Matrix.mul_apply, Matrix.conjTranspose_apply,
+    Module.Basis.toMatrix_apply, b.repr_apply_apply]
+  simpa only [starRingEnd_apply, inner_conj_symm] using
+    (b.sum_inner_mul_inner (v i) (u j)).symm
 
 /-- SHARP Gram–Hadamard bound with constant ONE for arbitrary
 complex mixed-Gram matrices G_{ij}=⟪vᵢ,uⱼ⟫, provided the ambient
