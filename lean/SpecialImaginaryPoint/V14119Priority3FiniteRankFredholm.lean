@@ -162,13 +162,20 @@ theorem finiteDeterminant_continuous (N : ℕ) (z : ℂ) :
     Continuous
       (fun T : ProbabilisticTheory.TraceClass H =>
         finiteDeterminant N T z) := by
+  have hone :
+      Continuous
+        (fun _ : ProbabilisticTheory.TraceClass H =>
+          (1 : Matrix (Fin N) (Fin N) ℂ)) :=
+    continuous_const
+  have hz :
+      Continuous (fun _ : ProbabilisticTheory.TraceClass H => z) :=
+    continuous_const
   have hMat :
       Continuous
         (fun T : ProbabilisticTheory.TraceClass H =>
           (1 : Matrix (Fin N) (Fin N) ℂ) +
             z • compressedCFC N T) :=
-    continuous_const.add
-      (continuous_const.smul (compressedCFC_continuous N))
+    hone.add (hz.smul (compressedCFC_continuous N))
   exact hMat.matrix_det
 
 #print axioms Manuscript14Priority3.FiniteRankFredholm.determinant_rectangular_comm
