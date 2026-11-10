@@ -263,9 +263,10 @@ theorem finiteShift_det_eq_real (D : Data) (N : ℕ) (t : ℝ) :
       push_cast
       ring
     _ = ((∏ i : Fin N, (1 + t * D.coeff i.val : ℝ)) : ℂ) := by
-      norm_cast
+      simp only [Complex.ofReal_prod]
     _ = ((∏ n ∈ Finset.range N, (1 + t * D.coeff n) : ℝ) : ℂ) := by
-      simp only [← Finset.prod_range]
+      exact congrArg (fun r : ℝ => (r : ℂ))
+        ((Finset.prod_range (n := N) (fun n : ℕ => 1 + t * D.coeff n)).symm)
 
 /-- Infinite Fredholm product on the entire positive summable
 diagonal sector; it is not defined through the Dirichlet spectrum. -/
