@@ -1,0 +1,117 @@
+name: "Priority 3 — genuine Gram determinant arbitrary multi-index perturbation"
+
+on:
+  push:
+    branches:
+      - manuscript14-priority3-multi-index-gram-perturb-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3MultiIndexGramPerturb.lean'
+      - '.github/workflows/manuscript14-priority3-multi-index-gram-perturb.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3MultiIndexGramPerturb.lean'
+      - '.github/workflows/manuscript14-priority3-multi-index-gram-perturb.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lean:
+    name: Genuine arbitrary multi-index Gram determinant perturbation — three kernel audits
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build sharp unrestricted Gram Hadamard dependency chain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in V14119Priority3ComplexGramMinorBridge V14119Priority3SquareAmbientMixedGramSharp V14119Priority3AmbientProjectionSharp V14119Priority3UnrestrictedMixedGramHadamard V14119Priority3MinorExpansionIncrement; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" "SpecialImaginaryPoint/$f.lean"
+          done
+      - name: Build certified genuine weighted Gram minor dependency
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3WeightedGramMinorStep.olean \
+            SpecialImaginaryPoint/V14119Priority3WeightedGramMinorStep.lean
+      - name: Build exact Gram determinant principal-expansion prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3ExactGramPrincipalExpansion.olean \
+            SpecialImaginaryPoint/V14119Priority3ExactGramPrincipalExpansion.lean
+      - name: Build previous one-step determinant bound prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3FiniteGramOneStepDet.olean \
+            SpecialImaginaryPoint/V14119Priority3FiniteGramOneStepDet.lean
+      - name: Build actual zeroed-index determinant prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3ZeroedIndexActualDet.olean \
+            SpecialImaginaryPoint/V14119Priority3ZeroedIndexActualDet.lean
+      - name: Compile multi-index true mixed-Gram determinant perturbation bound
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3MultiIndexGramPerturb.lean 2>&1 | tee /tmp/p3-multi-index-gram-perturb.log
+      - name: Audit three multi-index mixed-Gram determinant lemmas
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,re
+          log=pathlib.Path("/tmp/p3-multi-index-gram-perturb.log").read_text()
+          prefix="Manuscript14Priority3.MultiIndexGramPerturb."
+          names=["zeroOut_insert","zeroOut_norm_le","det_sub_det_zeroOut_norm_le_exp"]
+          reports={}
+          for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",log,re.MULTILINE):
+            reports[m.group(1) or m.group(3)]={a.strip() for a in (m.group(2) or "").split(",") if a.strip()}
+          allowed={"propext","Quot.sound","Classical.choice"}
+          for name in names:
+            k=prefix+name
+            assert k in reports, f"Missing report: {k}"
+            assert reports[k]<=allowed, f"Nonstandard axioms in {k}: {reports[k]-allowed}"
+            print(k,sorted(reports[k]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error",log)
+          print("SUCCESS: multi-index true complex determinant perturbation")
+          PY
+      - name: Upload Lean audit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-multi-index-gram-perturb-logs
+          path: /tmp/p3-multi-index-gram-perturb.log
+          if-no-files-found: ignore
