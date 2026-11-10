@@ -296,7 +296,7 @@ theorem finiteShift_det_tendsto (D : Data) (t : ℝ) :
     (Complex.continuous_ofReal.tendsto (determinant D t)).comp hreal
   convert hcomplex using 1
   funext N
-  simpa only [finiteRealShift] using finiteShift_det_eq_real D N t
+  simpa only [Function.comp_def, finiteRealShift] using finiteShift_det_eq_real D N t
 
 /-- The already-certified Dirichlet spectral inverse is one member
 of this genuine operatorial positive diagonal S₁ construction. -/
