@@ -1,0 +1,112 @@
+name: "Manuscript 14.119 Priority 3 — Fredholm continuity reduction"
+
+on:
+  push:
+    branches:
+      - main
+      - manuscript14-priority3-fredholm-continuity-reduction-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3*.lean'
+      - 'lean/SpecialImaginaryPoint/DirichletFiniteDeterminant.lean'
+      - 'lean/SpecialImaginaryPoint/Section67ScalarCertificate.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassSeriesApproximation.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassSeriesTailEstimate.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassSeriesOperatorConvergence.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-fredholm-continuity-reduction.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3*.lean'
+      - 'lean/SpecialImaginaryPoint/DirichletFiniteDeterminant.lean'
+      - 'lean/SpecialImaginaryPoint/Section67ScalarCertificate.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassSeriesApproximation.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassSeriesTailEstimate.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassSeriesOperatorConvergence.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-fredholm-continuity-reduction.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Kernel audit of genuine S1 Fredholm reduction (conditional)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build existing V007 CFC S1 dependencies
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge GegenbauerFock.PhyslibTraceClassSeriesTailEstimate 2>&1 | tee /tmp/priority3-fredholm-dependencies.log
+      - name: Compile exact operator compression and S1 reduction
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3RankOneS1 V14119Priority3S1Truncation V14119Priority3OperatorCompression V14119Priority3FredholmContinuityReduction; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/priority3-fredholm-$f.log"
+          done
+      - name: Check exact declarations and standard kernel axioms
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          log = pathlib.Path("/tmp/priority3-fredholm-V14119Priority3FredholmContinuityReduction.log").read_text()
+          prefix = "Manuscript14Priority3.TraceClassModel."
+          required = [
+              "S1_compressions_tendsto",
+              "continuous_functional_dirichlet_limit",
+              "continuous_functionals_unique_at_inverse",
+              "conditional_functional_error_le_tail",
+          ]
+          found = {}
+          for match in re.finditer(
+              r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",
+              log, re.MULTILINE):
+              found[match.group(1) or match.group(3)] = {
+                  s.strip() for s in (match.group(2) or "").split(",") if s.strip()
+              }
+          allowed = {"propext", "Quot.sound", "Classical.choice"}
+          for suffix in required:
+              name = prefix + suffix
+              assert name in found, f"Missing kernel axiom report: {name}"
+              assert found[name] <= allowed, f"Nonstandard axioms: {name}: {found[name] - allowed}"
+              print(name, sorted(found[name]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error", log)
+          print("SUCCESS: four conditional S1 Fredholm continuity reduction declarations")
+          PY
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-fredholm-continuity-reduction-logs
+          path: /tmp/priority3-fredholm-*.log
+          if-no-files-found: ignore
