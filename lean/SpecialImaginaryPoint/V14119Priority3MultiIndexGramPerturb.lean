@@ -74,7 +74,10 @@ theorem det_sub_det_zeroOut_norm_le_exp {m : ℕ}
       (zeroOut u s) v).det‖ ≤ (∑ i ∈ s, c i) * Real.exp M
   induction s using Finset.induction_on with
   | empty =>
-      simp [zeroOut]
+      have hz : zeroOut u (∅ : Finset (Fin m)) = u := by
+        funext i
+        simp [zeroOut]
+      simp [hz]
   | @insert a s ha ih =>
       have hmass :
           (∑ i ∈ (Finset.univ.erase a : Finset (Fin m)),
@@ -121,7 +124,6 @@ theorem det_sub_det_zeroOut_norm_le_exp {m : ℕ}
               (∑ i ∈ (Finset.univ.erase a : Finset (Fin m)),
                 ‖z‖ * (‖zeroOut u s i‖ * ‖v i‖)) := by
               rw [hkeep]
-              rfl
           _ ≤ c a * Real.exp M :=
               mul_le_mul_of_nonneg_left hExp (by dsimp [c]; positivity)
       let A : ℂ :=
