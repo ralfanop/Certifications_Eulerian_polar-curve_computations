@@ -1,0 +1,104 @@
+name: "Manuscript 14.119 Priority 3 — finite rank Weinstein-Aronszajn CFC"
+
+on:
+  push:
+    branches:
+      - main
+      - manuscript14-priority3-finite-rank-sylvester-cfc-compression-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteRankFredholm.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3TraceClassModel.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-finite-rank-sylvester.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteRankFredholm.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3TraceClassModel.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-finite-rank-sylvester.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Finite rank Sylvester and arbitrary CFC S1 Hilbert compressions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build actual CFC S1 operator-embedding dependencies
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.PhyslibTraceClassOperatorEmbedding GegenbauerFock.PositiveTraceDiagonalSpectralBridge 2>&1 | tee /tmp/priority3-finrank-dependencies.log
+      - name: Compile true CFC S1 Hilbert compression and finite-rank determinants
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3FiniteRankFredholm; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/priority3-finrank-$f.log"
+          done
+      - name: Audit five finite rank and general CFC S1 declarations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          log = pathlib.Path("/tmp/priority3-finrank-V14119Priority3FiniteRankFredholm.log").read_text()
+          prefix = "Manuscript14Priority3.FiniteRankFredholm."
+          required = [
+            "determinant_rectangular_comm",
+            "determinant_factorization_independent",
+            "compressedCFC_add", "compressedCFC_sub",
+            "compressedCFC_entry_sub_norm_le"
+          ]
+          found = {}
+          for m in re.finditer(
+              r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",
+              log, re.MULTILINE):
+            found[m.group(1) or m.group(3)] = {
+              s.strip() for s in (m.group(2) or "").split(",") if s.strip()
+            }
+          allowed = {"propext", "Quot.sound", "Classical.choice"}
+          for suffix in required:
+            name = prefix + suffix
+            assert name in found, f"Missing exact kernel report: {name}"
+            assert found[name] <= allowed, f"Nonstandard axiom(s) for {name}: {found[name] - allowed}"
+            print(name, sorted(found[name]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error", log)
+          print("SUCCESS: five unrestricted finite rank and true CFC S1 compression theorems")
+          PY
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-finite-rank-sylvester-logs
+          path: /tmp/priority3-finrank-*.log
+          if-no-files-found: ignore
