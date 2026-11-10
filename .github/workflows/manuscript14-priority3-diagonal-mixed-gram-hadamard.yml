@@ -1,0 +1,105 @@
+name: "Priority 3 — genuine complex diagonal all-order Gram–Hadamard"
+
+on:
+  push:
+    branches:
+      - manuscript14-priority3-diagonal-complex-gram-hadamard-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3DiagonalMixedGramHadamard.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean'
+      - '.github/workflows/manuscript14-priority3-diagonal-mixed-gram-hadamard.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3DiagonalMixedGramHadamard.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean'
+      - '.github/workflows/manuscript14-priority3-diagonal-mixed-gram-hadamard.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lean:
+    name: Complex diagonal Gram–Hadamard, all minors — eight kernel audits
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile exact original complex mixed-Gram bridge dependency
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 \
+            -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.olean \
+            SpecialImaginaryPoint/V14119Priority3ComplexGramMinorBridge.lean 2>&1 | tee /tmp/p3-diag-gram-dependency.log
+      - name: Compile complex diagonal all-order Gram–Hadamard and minor bounds
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 \
+            SpecialImaginaryPoint/V14119Priority3DiagonalMixedGramHadamard.lean 2>&1 | tee /tmp/p3-diag-gram-main.log
+      - name: Audit all eight kernel declarations with no nonstandard axioms
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          log=pathlib.Path("/tmp/p3-diag-gram-main.log").read_text()
+          prefix="Manuscript14Priority3.DiagonalMixedGramHadamard."
+          required=[
+            "mixedGram_eq_diagonal_of_offdiag_zero",
+            "mixedGram_det_norm_le_cost_of_offdiag_zero",
+            "mixedGram_minor_norm_le_cost_of_offdiag_zero",
+            "mixedGram_shift_coeff_norm_le_diagonal",
+            "mixedGram_total_minor_norm_le_exp_diagonal",
+            "mixedGram_det_norm_le_cost_of_upperTriangular",
+            "mixedGram_minor_norm_le_cost_of_upperTriangular",
+            "mixedGram_total_minor_norm_le_exp_upperTriangular",
+          ]
+          found={}
+          for m in re.finditer(
+              r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",
+              log, re.MULTILINE):
+            found[m.group(1) or m.group(3)]={
+              a.strip() for a in (m.group(2) or "").split(",") if a.strip()
+            }
+          allowed={"propext","Quot.sound","Classical.choice"}
+          for n in required:
+            name=prefix+n
+            assert name in found, f"Missing kernel audit: {name}"
+            assert found[name]<=allowed, f"Nonstandard axiom for {name}: {found[name]-allowed}"
+            print(name,sorted(found[name]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error",log)
+          print("SUCCESS: eight unconditional complex triangular/diagonal mixed-Gram theorems")
+          PY
+      - name: Upload Lean logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-diagonal-complex-gram-logs
+          path: /tmp/p3-diag-gram-*.log
+          if-no-files-found: ignore
