@@ -42,7 +42,7 @@ theorem mixedGram_det_norm_le_sharp_of_linearIndependent
     FiniteDimensional.span_of_finite ℂ (Set.finite_range u)
   have hdim : Module.finrank ℂ U = Fintype.card ι := by
     exact finrank_span_eq_card hu
-  letI : CompleteSpace U := FiniteDimensional.completeSpace ℂ U
+  letI : CompleteSpace U := FiniteDimensional.complete ℂ U
   letI : U.HasOrthogonalProjection :=
     Submodule.HasOrthogonalProjection.ofCompleteSpace U
   let up : ι → U := fun i => ⟨u i, Submodule.subset_span (Set.mem_range_self i)⟩
