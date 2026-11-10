@@ -52,8 +52,12 @@ theorem gramPolynomial_coeff_l1_le_exp {m : ℕ} (u v : Fin m → E) :
           ∏ i ∈ s, ‖u i‖ * ‖v i‖) =
         ∑ s ∈ (Finset.univ : Finset (Fin m)).powerset,
           ∏ i ∈ s, ‖u i‖ * ‖v i‖ := by
-    rw [Finset.powerset_card_disjiUnion, Finset.sum_disjiUnion]
-    simp
+    classical
+    rw [Finset.powerset_card_biUnion]
+    rw [Finset.sum_biUnion]
+    · simp only [Finset.card_univ, Fintype.card_fin]
+    · intro i hi j hj hij
+      exact Finset.disjoint_powersetCard_of_ne hij _ _
   have hgeom :
       (∑ s ∈ (Finset.univ : Finset (Fin m)).powerset,
           ∏ i ∈ s, ‖u i‖ * ‖v i‖) ≤
