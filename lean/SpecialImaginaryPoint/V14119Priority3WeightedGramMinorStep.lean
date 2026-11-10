@@ -50,25 +50,29 @@ theorem weightedGramMinor_insert_norm_le {m : ℕ}
   have hat : a ∉ t := by
     intro h
     exact ha ((Finset.mem_powerset.mp ht) h)
-  have hcard : (insert a t).card = t.card + 1 :=
-    Finset.card_insert_of_not_mem hat
+  let st : Finset (Fin m) := insert a t
+  have hcard : st.card = t.card + 1 := by
+    exact Finset.card_insert_of_notMem hat
   have hdet :=
     Manuscript14Priority3.UnrestrictedMixedGramHadamard.mixedGram_principal_minor_norm_le_sharp
-      u v (insert a t)
+      u v st
+  change ‖weightedGramMinor u v z st‖ ≤ _
   calc
-    ‖weightedGramMinor u v z (insert a t)‖ =
+    ‖weightedGramMinor u v z st‖ =
         ‖z‖ ^ (t.card + 1) *
           ‖((Manuscript14Priority3.ComplexGramMinorBridge.mixedGram u v).submatrix
-            (Subtype.val : insert a t → Fin m)
-            (Subtype.val : insert a t → Fin m)).det‖ := by
+            (Subtype.val : st → Fin m)
+            (Subtype.val : st → Fin m)).det‖ := by
       simp only [weightedGramMinor, norm_mul, norm_pow, hcard]
     _ ≤ ‖z‖ ^ (t.card + 1) *
-          (∏ i ∈ insert a t, ‖u i‖ * ‖v i‖) :=
+          (∏ i ∈ st, ‖u i‖ * ‖v i‖) :=
       mul_le_mul_of_nonneg_left hdet (pow_nonneg (norm_nonneg z) _)
     _ = (‖z‖ * (‖u a‖ * ‖v a‖)) *
           (∏ i ∈ t, ‖z‖ * (‖u i‖ * ‖v i‖)) := by
-      rw [Finset.prod_insert hat, Finset.prod_mul_distrib]
-      simp only [Finset.prod_const]
+      change ‖z‖ ^ (t.card + 1) *
+          (∏ i ∈ insert a t, ‖u i‖ * ‖v i‖) = _
+      rw [Finset.prod_insert hat]
+      simp only [Finset.prod_mul_distrib, Finset.prod_const]
       rw [pow_succ]
       ring
 
