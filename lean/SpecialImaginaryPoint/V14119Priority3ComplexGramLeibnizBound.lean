@@ -1,4 +1,5 @@
 import SpecialImaginaryPoint.V14119Priority3ComplexGramMinorBridge
+import Mathlib.Analysis.Complex.Exponential
 
 /-!
 # Priority 3 — unconditional mixed complex Gram determinant (Leibniz) bound
@@ -139,8 +140,60 @@ theorem mixedGram_shift_coeff_norm_le_factorial_cost
         ∏ i ∈ s, ‖u i‖ * ‖v i‖) := by
       rw [Finset.mul_sum]
 
+/-- A global, **dimension-dependent** exponential bound for the
+total variation of all principal minors of a completely unrestricted
+mixed complex Gram matrix. The explicit m! factor marks the exact
+gap between this Leibniz bound and the Fredholm-uniform bound. -/
+theorem mixedGram_total_minor_norm_le_factorial_exp
+    {m : ℕ} (u v : Fin m → E) :
+    (∑ s ∈ (Finset.univ : Finset (Fin m)).powerset,
+      ‖((Manuscript14Priority3.ComplexGramMinorBridge.mixedGram u v).submatrix
+        (Subtype.val : s → Fin m) (Subtype.val : s → Fin m)).det‖) ≤
+      ((Nat.factorial m) : ℝ) *
+        Real.exp (∑ i : Fin m, ‖u i‖ * ‖v i‖) := by
+  have hcost (i : Fin m) : 0 ≤ ‖u i‖ * ‖v i‖ :=
+    mul_nonneg (norm_nonneg _) (norm_nonneg _)
+  have hfactor (s : Finset (Fin m))
+      (hs : s ∈ (Finset.univ : Finset (Fin m)).powerset) :
+      ((Nat.factorial s.card) : ℝ) ≤ ((Nat.factorial m) : ℝ) := by
+    exact_mod_cast Nat.factorial_le
+      (by simpa using Finset.card_le_card (Finset.mem_powerset.mp hs))
+  calc
+    (∑ s ∈ (Finset.univ : Finset (Fin m)).powerset,
+        ‖((Manuscript14Priority3.ComplexGramMinorBridge.mixedGram u v).submatrix
+          (Subtype.val : s → Fin m) (Subtype.val : s → Fin m)).det‖) ≤
+        ∑ s ∈ (Finset.univ : Finset (Fin m)).powerset,
+          ((Nat.factorial s.card) : ℝ) *
+            (∏ i ∈ s, ‖u i‖ * ‖v i‖) := by
+      apply Finset.sum_le_sum
+      intro s hs
+      exact mixedGram_principal_minor_norm_le_factorial_cost u v s
+    _ ≤ ∑ s ∈ (Finset.univ : Finset (Fin m)).powerset,
+          ((Nat.factorial m) : ℝ) * (∏ i ∈ s, ‖u i‖ * ‖v i‖) := by
+      apply Finset.sum_le_sum
+      intro s hs
+      exact mul_le_mul_of_nonneg_right (hfactor s hs)
+        (Finset.prod_nonneg fun i hi => hcost i)
+    _ = ((Nat.factorial m) : ℝ) *
+          (∑ s ∈ (Finset.univ : Finset (Fin m)).powerset,
+            ∏ i ∈ s, ‖u i‖ * ‖v i‖) := by
+      rw [Finset.mul_sum]
+    _ = ((Nat.factorial m) : ℝ) *
+          (∏ i : Fin m, (1 + ‖u i‖ * ‖v i‖)) := by
+      congr 1
+      simpa only using
+        (Finset.prod_one_add (s := (Finset.univ : Finset (Fin m)))
+          (f := fun i => ‖u i‖ * ‖v i‖)).symm
+    _ ≤ ((Nat.factorial m) : ℝ) *
+          Real.exp (∑ i : Fin m, ‖u i‖ * ‖v i‖) := by
+      apply mul_le_mul_of_nonneg_left
+      · exact Real.prod_one_add_le_exp_sum
+          (Finset.univ : Finset (Fin m)) hcost
+      · exact_mod_cast Nat.zero_le (Nat.factorial m)
+
 #print axioms Manuscript14Priority3.ComplexGramLeibnizBound.generalMixedGram_det_norm_le_factorial_cost
 #print axioms Manuscript14Priority3.ComplexGramLeibnizBound.mixedGram_principal_minor_norm_le_factorial_cost
 #print axioms Manuscript14Priority3.ComplexGramLeibnizBound.mixedGram_shift_coeff_norm_le_factorial_cost
+#print axioms Manuscript14Priority3.ComplexGramLeibnizBound.mixedGram_total_minor_norm_le_factorial_exp
 
 end Manuscript14Priority3.ComplexGramLeibnizBound
