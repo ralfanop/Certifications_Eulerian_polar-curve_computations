@@ -1,5 +1,6 @@
 import Mathlib.LinearAlgebra.Matrix.Charpoly.Coeff
 import Mathlib.Analysis.InnerProductSpace.Basic
+import Mathlib.Analysis.Complex.Exponential
 
 /-!
 # Manuscript 14.119 Priority 3 — complex mixed-Gram minor expansion
@@ -145,6 +146,40 @@ theorem mixedGram_shift_coeff_norm_le_of_minor_control {m : ℕ}
       intro s hs
       exact hminor s
 
+/-- Dimension-independent exponential envelope for the TOTAL mass of
+all complex principal minors, CONDITIONAL only on the still-missing
+mixed-Gram Hadamard inequality hminor. This precisely reduces the
+uniform Fredholm determinant bound to that geometric inequality. -/
+theorem mixedGram_total_minor_norm_le_exp_of_minor_control {m : ℕ}
+    (u v : Fin m → E)
+    (hminor : ∀ (s : Finset (Fin m)),
+      ‖((mixedGram u v).submatrix (Subtype.val : s → Fin m)
+          (Subtype.val : s → Fin m)).det‖ ≤
+        ∏ i ∈ s, ‖u i‖ * ‖v i‖) :
+    (∑ s ∈ (Finset.univ : Finset (Fin m)).powerset,
+      ‖((mixedGram u v).submatrix (Subtype.val : s → Fin m)
+          (Subtype.val : s → Fin m)).det‖) ≤
+      Real.exp (∑ i : Fin m, ‖u i‖ * ‖v i‖) := by
+  have hnonneg (i : Fin m) : 0 ≤ ‖u i‖ * ‖v i‖ :=
+    mul_nonneg (norm_nonneg _) (norm_nonneg _)
+  calc
+    (∑ s ∈ (Finset.univ : Finset (Fin m)).powerset,
+        ‖((mixedGram u v).submatrix (Subtype.val : s → Fin m)
+          (Subtype.val : s → Fin m)).det‖) ≤
+      ∑ s ∈ (Finset.univ : Finset (Fin m)).powerset,
+        ∏ i ∈ s, ‖u i‖ * ‖v i‖ := by
+      apply Finset.sum_le_sum
+      intro s hs
+      exact hminor s
+    _ = ∏ i : Fin m, (1 + ‖u i‖ * ‖v i‖) := by
+      simpa only using
+        (Finset.prod_one_add (s := (Finset.univ : Finset (Fin m)))
+          (f := fun i => ‖u i‖ * ‖v i‖)).symm
+    _ ≤ Real.exp (∑ i : Fin m, ‖u i‖ * ‖v i‖) := by
+      simpa only using
+        (Real.prod_one_add_le_exp_sum (Finset.univ : Finset (Fin m))
+          (f := fun i => ‖u i‖ * ‖v i‖) hnonneg)
+
 #print axioms Manuscript14Priority3.ComplexGramMinorBridge.mixedGram_entry_norm_le
 #print axioms Manuscript14Priority3.ComplexGramMinorBridge.mixedGram_shift_coeff_eq_sum_minors
 #print axioms Manuscript14Priority3.ComplexGramMinorBridge.single_mixedGram_shift_det
@@ -152,5 +187,6 @@ theorem mixedGram_shift_coeff_norm_le_of_minor_control {m : ℕ}
 #print axioms Manuscript14Priority3.ComplexGramMinorBridge.single_mixedGram_shift_det_norm_le
 #print axioms Manuscript14Priority3.ComplexGramMinorBridge.mixedGram_shift_first_coeff_norm_le_mass
 #print axioms Manuscript14Priority3.ComplexGramMinorBridge.mixedGram_shift_coeff_norm_le_of_minor_control
+#print axioms Manuscript14Priority3.ComplexGramMinorBridge.mixedGram_total_minor_norm_le_exp_of_minor_control
 
 end Manuscript14Priority3.ComplexGramMinorBridge
