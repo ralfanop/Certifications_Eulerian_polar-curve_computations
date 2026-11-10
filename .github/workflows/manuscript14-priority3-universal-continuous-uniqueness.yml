@@ -44,18 +44,22 @@ jobs:
           set -euo pipefail
           lake update
           lake exe cache get
-      - name: Build actual CFC S1 finite nuclear density dependency
+      - name: Build true CFC-S1 and Hilbert-Schmidt prerequisite modules
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge GegenbauerFock.PhyslibTraceClassSandwichContinuous GegenbauerFock.PhyslibTraceClassSeriesTailEstimate GegenbauerFock.PhyslibTraceClassHSFactorization GegenbauerFock.PhyslibHilbertSchmidtAdditive GegenbauerFock.PhyslibTraceClassOperatorEmbedding
+      - name: Compile complete finite rank-one nuclear density chain
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
-          lake env lean -M16768 \
-            -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3ArbitraryNuclearRankOne.olean \
-            SpecialImaginaryPoint/V14119Priority3ArbitraryNuclearRankOne.lean
-          lake env lean -M16768 \
-            -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3UniversalNuclearDensity.olean \
-            SpecialImaginaryPoint/V14119Priority3UniversalNuclearDensity.lean
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3RankOneS1 V14119Priority3S1Truncation V14119Priority3OperatorCompression V14119Priority3PositiveDiagonalFredholm V14119Priority3FredholmSectorFunctional V14119Priority3ComplexDiagonalS1 V14119Priority3ArbitraryNuclearRankOne V14119Priority3UniversalNuclearDensity; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean"
+          done
       - name: Compile universal continuous determinant uniqueness
         working-directory: lean
         shell: bash
