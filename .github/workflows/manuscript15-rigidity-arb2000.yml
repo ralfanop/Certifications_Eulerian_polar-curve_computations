@@ -8,6 +8,11 @@ on:
       - 'lean/Manuscript15/CoefficientRigidity.lean'
       - 'numerics/manuscript15_arb2000.py'
       - '.github/workflows/manuscript15-rigidity-arb2000.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/CoefficientRigidity.lean'
+      - 'numerics/manuscript15_arb2000.py'
+      - '.github/workflows/manuscript15-rigidity-arb2000.yml'
   workflow_dispatch:
 
 jobs:
