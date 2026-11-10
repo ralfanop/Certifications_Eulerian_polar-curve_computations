@@ -31,6 +31,49 @@ perturbation inequality itself is NOT asserted here.
 
 noncomputable section
 
+/-- A generic-Hilbert implementation of the V007 CFC polar witness.
+The generic type and complete complex Hilbert hypotheses match the
+already certified Physlib polar and square-root energy lemmas; in
+particular this avoids ambiguous concrete ℓ² functional-calculus
+instance resolution in the manuscript-facing theorem. -/
+namespace ProbabilisticTheory
+
+variable {E : Type*} [NormedAddCommGroup E]
+  [InnerProductSpace ℂ E] [CompleteSpace E]
+
+theorem traceClass_polar_nuclear_energy_witness
+    (T : E →L[ℂ] E) (hT : IsTraceClass T) :
+    ∃ (w : Set E) (c : HilbertBasis w ℂ E)
+        (U Q : E →L[ℂ] E),
+      (U * Q) * Q = T ∧
+      Q.adjoint = Q ∧
+      Summable (fun i : w => ‖Q (c i)‖ ^ 2) ∧
+      (∑' i : w, ‖Q (c i)‖ ^ 2) = traceNorm T hT ∧
+      (∀ x : E, ‖U x‖ ≤ ‖x‖) := by
+  let Q : E →L[ℂ] E := CFC.sqrt (CFC.abs T)
+  let U : E →L[ℂ] E := Polar.polarFactor T
+  let w : Set E := hT.choose
+  let c : HilbertBasis w ℂ E := hT.choose_spec.choose
+  have hQstar : Q.adjoint = Q :=
+    (ContinuousLinearMap.star_eq_adjoint Q).symm.trans
+      (IsSelfAdjoint.of_nonneg (CFC.sqrt_nonneg (CFC.abs T)))
+  have hQsum : Summable (fun i : w => ‖Q (c i)‖ ^ 2) :=
+    summable_sqrt_abs_basisEnergy T hT c
+  have henergy :
+      (∑' i : w, ‖Q (c i)‖ ^ 2) = traceNorm T hT :=
+    (traceNorm_eq_sqrt_abs_basisEnergy T hT c).symm
+  have hQQ : Q * Q = CFC.abs T :=
+    CFC.sqrt_mul_sqrt_self (CFC.abs T) (CFC.abs_nonneg T)
+  have hRS : (U * Q) * Q = T := by
+    calc
+      (U * Q) * Q = U * (Q * Q) := mul_assoc _ _ _
+      _ = U * CFC.abs T := by rw [hQQ]
+      _ = T := Polar.polarFactor_mul_absOperator T
+  exact ⟨w, c, U, Q, hRS, hQstar, hQsum, henergy,
+    Polar.polarFactor_norm_le T⟩
+
+end ProbabilisticTheory
+
 namespace Manuscript14Priority3.NuclearRankOne
 
 open Filter Topology InnerProductSpace
@@ -69,34 +112,15 @@ theorem traceClass_exists_nuclear_cost_le_traceNorm
       Summable (fun i : w => ‖u i‖ * ‖v i‖) ∧
       (∑' i : w, rankOneS1 (u i) (v i)) = T ∧
       (∑' i : w, ‖u i‖ * ‖v i‖) ≤ ‖T‖ := by
-  let Q : H →L[ℂ] H := CFC.sqrt (CFC.abs T.1)
-  let U : H →L[ℂ] H := Polar.polarFactor T.1
+  obtain ⟨w, c, U, Q, hUQQ, hQstar, hQsum, hEnergy, hUcontract⟩ :=
+    ProbabilisticTheory.traceClass_polar_nuclear_energy_witness T.1 T.2
   let R : H →L[ℂ] H := U * Q
   let S : H →L[ℂ] H := Q
-  let w : Set H := T.2.choose
-  let c : HilbertBasis w ℂ H := T.2.choose_spec.choose
-  have hQselfadjoint : IsSelfAdjoint Q :=
-    IsSelfAdjoint.of_nonneg (CFC.sqrt_nonneg (CFC.abs T.1))
-  have hQstar : Q.adjoint = Q :=
-    (ContinuousLinearMap.star_eq_adjoint Q).symm.trans hQselfadjoint
-  have hQsum : Summable (fun i : w => ‖Q (c i)‖ ^ 2) :=
-    ProbabilisticTheory.summable_sqrt_abs_basisEnergy T.1 T.2 c
+  have hRS : R * S = T.1 := hUQQ
   have henergy :
       (∑' i : w, ‖Q (c i)‖ ^ 2) = ‖T‖ := by
-    calc
-      (∑' i : w, ‖Q (c i)‖ ^ 2) =
-          ProbabilisticTheory.traceNorm T.1 T.2 :=
-        (ProbabilisticTheory.traceNorm_eq_sqrt_abs_basisEnergy
-          T.1 T.2 c).symm
-      _ = ‖T‖ :=
-        (ProbabilisticTheory.TraceClass.norm_eq_genuineTraceNorm T).symm
-  have hQQ : Q * Q = CFC.abs T.1 :=
-    CFC.sqrt_mul_sqrt_self (CFC.abs T.1) (CFC.abs_nonneg T.1)
-  have hRS : R * S = T.1 := by
-    calc
-      R * S = U * (Q * Q) := by simp only [R, S, mul_assoc]
-      _ = U * CFC.abs T.1 := by rw [hQQ]
-      _ = T.1 := Polar.polarFactor_mul_absOperator T.1
+    exact hEnergy.trans
+      (ProbabilisticTheory.TraceClass.norm_eq_genuineTraceNorm T).symm
   let u : w → H := fun i => R (c i)
   let v : w → H := fun i => S.adjoint (c i)
   have hv (i : w) : v i = Q (c i) := by
@@ -110,7 +134,7 @@ theorem traceClass_exists_nuclear_cost_le_traceNorm
           ‖U (Q (c i))‖ * ‖Q (c i)‖ := by rw [hu, hv]
       _ ≤ ‖Q (c i)‖ * ‖Q (c i)‖ :=
         mul_le_mul_of_nonneg_right
-          (Polar.polarFactor_norm_le T.1 (Q (c i)))
+          (hUcontract (Q (c i)))
           (norm_nonneg _)
       _ = ‖Q (c i)‖ ^ 2 := by ring
   have hcost : Summable (fun i : w => ‖u i‖ * ‖v i‖) := by
@@ -180,6 +204,7 @@ theorem traceClass_exists_optimal_nuclear_representation
   have hge := nuclear_mass_ge_traceNorm u v hcost T hTsum
   exact ⟨w, c, u, v, hcost, hTsum, le_antisymm hle hge⟩
 
+#print axioms ProbabilisticTheory.traceClass_polar_nuclear_energy_witness
 #print axioms Manuscript14Priority3.NuclearRankOne.nuclear_mass_ge_traceNorm
 #print axioms Manuscript14Priority3.NuclearRankOne.traceClass_exists_nuclear_cost_le_traceNorm
 #print axioms Manuscript14Priority3.NuclearRankOne.traceClass_exists_optimal_nuclear_representation
