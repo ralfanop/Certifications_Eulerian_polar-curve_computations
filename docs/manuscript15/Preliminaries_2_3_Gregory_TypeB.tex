@@ -1,0 +1,42 @@
+% Manuscript 15, insert in Section 2.3, after the existing Plouffe/OEIS paragraph.
+% No theorem environment or numbered equation; Theorem 3.1 keeps its number.
+\par\medskip\noindent\textit{A classical inverse-central-binomial expansion.}
+Conway and Guy~\cite{conwayguy1996}, p.~242, discuss the Gregory angles
+$t_n=\arctan(1/n)$, including $t_2=\arctan(1/2)$; that page does not
+contain the inverse-binomial series below.
+Set $C_k^{(B)}=\operatorname{Cat}(B_k)=\binom{2k}{k}$,
+the type-$B$ Catalan number, as in Petersen~\cite{petersen2015},
+Sect.~12.3, p.~277; see also OEIS A000984~\cite{oeis000984}.
+Sprugnoli~\cite{sprugnoli2006}, Theorem~2.4 (2006), established
+\[
+ \sum_{k=0}^{\infty}\frac{(4u)^k}{(2k+1)C_k^{(B)}}=
+ \frac1u\sqrt{\frac{u}{1-u}}\arctan\sqrt{\frac{u}{1-u}},
+ \qquad 0<u<1.
+\]
+At $u=1/5$ this yields
+\[
+ \arctan\frac12=\frac25\sum_{k=0}^{\infty}
+ \frac{(4/5)^k}{(2k+1)C_k^{(B)}},
+\]
+also recorded in OEIS A073000~\cite{oeis073000}.
+Indeed the beta integral gives
+\[
+ \frac1{(2k+1)\binom{2k}{k}}=
+ \int_0^1 s^k(1-s)^k\,\mathrm ds,
+\]
+and termwise summation of the nonnegative geometric series yields
+\[
+ \frac25\sum_{k=0}^{\infty}\frac{(4/5)^k}{(2k+1)\binom{2k}{k}}
+ =\frac25\int_0^1\frac{\mathrm ds}{1-\tfrac45s(1-s)}
+ =\int_{-1}^1\frac{\mathrm dv}{4+v^2}=\arctan\frac12.
+\]
+The already established histogram angle and its normalisation satisfy
+\[
+ \alpha_3=\frac45\sum_{k=0}^{\infty}
+ \frac{(4/5)^k}{(2k+1)C_k^{(B)}},\qquad
+ p_\gamma=\frac{2}{5\pi}\sum_{k=0}^{\infty}
+ \frac{(4/5)^k}{(2k+1)C_k^{(B)}}.
+\]
+These are classical representations of known constants, not new
+theorems of Manuscript~15 nor evidence for a structural equivalence
+between Eulerian and type-$B$ Catalan families.
