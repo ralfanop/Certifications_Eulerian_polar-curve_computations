@@ -112,10 +112,76 @@ theorem mixedGram_total_minor_norm_le_exp_diagonal {m : ℕ}
   exact mixedGram_total_minor_norm_le_exp_of_minor_control u v
     (mixedGram_minor_norm_le_cost_of_offdiag_zero u v hzero)
 
+/-- SHARP mixed-Gram Hadamard determinant inequality, for all finite
+sizes and arbitrary complex pairings ABOVE the diagonal. Unlike the
+off-diagonal-zero theorem, this permits nonzero off-diagonal terms.
+Only the entries below the diagonal are required to vanish. -/
+theorem mixedGram_det_norm_le_cost_of_upperTriangular {m : ℕ}
+    (u v : Fin m → E)
+    (htri : ∀ i j : Fin m, j < i → inner ℂ (v i) (u j) = 0) :
+    ‖(mixedGram u v).det‖ ≤ ∏ i : Fin m, ‖u i‖ * ‖v i‖ := by
+  have hupper : (mixedGram u v).IsUpperTriangular := by
+    intro i j hji
+    exact htri i j hji
+  rw [Matrix.det_of_isUpperTriangular hupper, norm_prod]
+  change (∏ i : Fin m, ‖inner ℂ (v i) (u i)‖) ≤
+    ∏ i : Fin m, ‖u i‖ * ‖v i‖
+  apply Finset.prod_le_prod₀
+  · intro i hi
+    positivity
+  · intro i hi
+    simpa only [mul_comm] using norm_inner_le_norm (v i) (u i)
+
+/-- SHARP complex Hadamard inequality for every principal minor
+of a triangular mixed-Gram matrix, allowing arbitrary nonzero
+pairings strictly above the diagonal. -/
+theorem mixedGram_minor_norm_le_cost_of_upperTriangular {m : ℕ}
+    (u v : Fin m → E)
+    (htri : ∀ i j : Fin m, j < i → inner ℂ (v i) (u j) = 0)
+    (s : Finset (Fin m)) :
+    ‖((mixedGram u v).submatrix (Subtype.val : s → Fin m)
+        (Subtype.val : s → Fin m)).det‖ ≤
+      ∏ i ∈ s, ‖u i‖ * ‖v i‖ := by
+  have hupper :
+      ((mixedGram u v).submatrix (Subtype.val : s → Fin m)
+        (Subtype.val : s → Fin m)).IsUpperTriangular := by
+    intro i j hji
+    change inner ℂ (v i) (u j) = 0
+    exact htri i j (show (j : Fin m) < i from hji)
+  rw [Matrix.det_of_isUpperTriangular hupper, norm_prod]
+  change (∏ i : s, ‖inner ℂ (v i) (u i)‖) ≤
+    ∏ i ∈ s, ‖u i‖ * ‖v i‖
+  calc
+    (∏ i : s, ‖inner ℂ (v i) (u i)‖) ≤
+      ∏ i : s, ‖u i‖ * ‖v i‖ := by
+        apply Finset.prod_le_prod₀
+        · intro i hi
+          positivity
+        · intro i hi
+          simpa only [mul_comm] using norm_inner_le_norm (v i) (u i)
+    _ = ∏ i ∈ s, ‖u i‖ * ‖v i‖ :=
+      Finset.prod_attach s (fun i => ‖u i‖ * ‖v i‖)
+
+/-- Dimension-free all-minor mass bound for genuinely complex upper
+triangular mixed Gram matrices with arbitrary off-diagonal entries
+above the diagonal. -/
+theorem mixedGram_total_minor_norm_le_exp_upperTriangular {m : ℕ}
+    (u v : Fin m → E)
+    (htri : ∀ i j : Fin m, j < i → inner ℂ (v i) (u j) = 0) :
+    (∑ s ∈ (Finset.univ : Finset (Fin m)).powerset,
+      ‖((mixedGram u v).submatrix (Subtype.val : s → Fin m)
+        (Subtype.val : s → Fin m)).det‖) ≤
+      Real.exp (∑ i : Fin m, ‖u i‖ * ‖v i‖) := by
+  exact mixedGram_total_minor_norm_le_exp_of_minor_control u v
+    (mixedGram_minor_norm_le_cost_of_upperTriangular u v htri)
+
 #print axioms Manuscript14Priority3.DiagonalMixedGramHadamard.mixedGram_eq_diagonal_of_offdiag_zero
 #print axioms Manuscript14Priority3.DiagonalMixedGramHadamard.mixedGram_det_norm_le_cost_of_offdiag_zero
 #print axioms Manuscript14Priority3.DiagonalMixedGramHadamard.mixedGram_minor_norm_le_cost_of_offdiag_zero
 #print axioms Manuscript14Priority3.DiagonalMixedGramHadamard.mixedGram_shift_coeff_norm_le_diagonal
 #print axioms Manuscript14Priority3.DiagonalMixedGramHadamard.mixedGram_total_minor_norm_le_exp_diagonal
+#print axioms Manuscript14Priority3.DiagonalMixedGramHadamard.mixedGram_det_norm_le_cost_of_upperTriangular
+#print axioms Manuscript14Priority3.DiagonalMixedGramHadamard.mixedGram_minor_norm_le_cost_of_upperTriangular
+#print axioms Manuscript14Priority3.DiagonalMixedGramHadamard.mixedGram_total_minor_norm_le_exp_upperTriangular
 
 end Manuscript14Priority3.DiagonalMixedGramHadamard
