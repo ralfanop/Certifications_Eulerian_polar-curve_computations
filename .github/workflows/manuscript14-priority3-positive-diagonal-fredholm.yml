@@ -1,0 +1,111 @@
+name: "Manuscript 14.119 Priority 3 — positive diagonal S1 determinant sector"
+
+on:
+  push:
+    branches:
+      - main
+      - manuscript14-priority3-positive-diagonal-operator-determinant-20261110
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3*.lean'
+      - 'lean/SpecialImaginaryPoint/DirichletFiniteDeterminant.lean'
+      - 'lean/SpecialImaginaryPoint/Section67ScalarCertificate.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassSeriesTailEstimate.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-positive-diagonal-fredholm.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3*.lean'
+      - 'lean/SpecialImaginaryPoint/DirichletFiniteDeterminant.lean'
+      - 'lean/SpecialImaginaryPoint/Section67ScalarCertificate.lean'
+      - 'lean/GegenbauerFock/PhyslibTraceClassSeriesTailEstimate.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-positive-diagonal-fredholm.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: True CFC S1 positive diagonal operator and Fredholm sector
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build V007 genuine CFC Schatten S1 dependencies
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge GegenbauerFock.PhyslibTraceClassSeriesTailEstimate 2>&1 | tee /tmp/priority3-positive-diagonal-dependencies.log
+      - name: Compile true finite compressions and general positive diagonal determinant
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3RankOneS1 V14119Priority3S1Truncation V14119Priority3OperatorCompression V14119Priority3PositiveDiagonalFredholm; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/priority3-positive-diagonal-$f.log"
+          done
+      - name: Audit eleven named kernel theorems and axioms
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          log = pathlib.Path("/tmp/priority3-positive-diagonal-V14119Priority3PositiveDiagonalFredholm.log").read_text()
+          prefix = "Manuscript14Priority3.PositiveDiagonalFredholm."
+          required = [
+            "term_traceNorm_eq", "S1term_norm_summable",
+            "S1Diagonal_operator_eq", "S1Diagonal_traceNorm_eq",
+            "S1Diagonal_error_le_tail", "compressed_eq_diagonal",
+            "finiteShift_det", "finiteShift_det_eq_real",
+            "finiteShift_det_tendsto",
+            "dirichlet_S1Diagonal_eq_inverse",
+            "dirichlet_finiteShift_eq_existing"
+          ]
+          found = {}
+          for m in re.finditer(
+              r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",
+              log, re.MULTILINE):
+            found[m.group(1) or m.group(3)] = {
+              s.strip() for s in (m.group(2) or "").split(",") if s.strip()
+            }
+          allowed = {"propext", "Quot.sound", "Classical.choice"}
+          for suffix in required:
+            name = prefix + suffix
+            assert name in found, f"Missing kernel report: {name}"
+            assert found[name] <= allowed, f"Nonstandard axioms in {name}: {found[name] - allowed}"
+            print(name, sorted(found[name]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error", log)
+          print("SUCCESS: general positive diagonal operatorial S1 determinant sector")
+          PY
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-positive-diagonal-fredholm-kernel-logs
+          path: /tmp/priority3-positive-diagonal-*.log
+          if-no-files-found: ignore
