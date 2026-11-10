@@ -1,0 +1,61 @@
+name: Manuscript 11 Figure 5 — Lean 4 apex angle and branch uniqueness
+
+on:
+  push:
+    branches: [manuscript11-fig5-apex-uniqueness-20261110]
+    paths:
+      - 'lean/EulerianCert/Figure5Apex.lean'
+      - 'lean/Figure5ApexAxioms.lean'
+      - '.github/workflows/manuscript11-figure5-apex-lean.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  figure5-apex:
+    name: Lean 4 exact proof and axiom audit (no Arb needed)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan with pinned Lean version
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lean" --version
+      - name: Prepare Mathlib at pinned revision
+        working-directory: lean
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Kernel-check the standalone Figure 5 module
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean EulerianCert/Figure5Apex.lean 2>&1 | tee /tmp/figure5_lean.log
+      - name: Kernel axiom report
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Figure5ApexAxioms.lean 2>&1 | tee /tmp/figure5_axioms.log
+          if grep -qF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/figure5_axioms.log; then
+            echo '::error::Nonstandard axiom detected'
+            exit 1
+          fi
+      - name: Preserve proof and axiom logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript11-figure5-apex-lean-logs
+          path: |
+            /tmp/figure5_lean.log
+            /tmp/figure5_axioms.log
+          if-no-files-found: ignore
