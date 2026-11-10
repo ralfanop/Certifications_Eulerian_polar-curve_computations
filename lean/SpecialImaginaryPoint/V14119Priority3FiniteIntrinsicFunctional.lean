@@ -153,7 +153,6 @@ theorem detFinite_independent_of_proof
     detFinite T h₁ z = detFinite T h₂ z := by
   let p : Presentation T := Classical.choice h₂
   rw [detFinite_eq_of_presentation T h₁ p z]
-  exact (detFinite_eq_of_presentation T h₂ p z).symm
 
 #print axioms Manuscript14Priority3.FiniteNuclearFredholm.detFinite_eq_of_presentation
 #print axioms Manuscript14Priority3.FiniteNuclearFredholm.detFinite_finiteNuclear
