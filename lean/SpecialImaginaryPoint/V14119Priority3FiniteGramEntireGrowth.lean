@@ -45,7 +45,7 @@ theorem gramPolynomial_eval_eq_det {m : ℕ} (u v : Fin m → E)
   rw [eval_det, matPolyEquiv_eval_eq_map]
   congr 1
   ext i j
-  simp [Matrix.add_apply, Matrix.smul_apply]
+  simp [Matrix.add_apply, Matrix.smul_apply, Matrix.one_apply, mul_comm]
 
 /-- The dimension-free exponential growth estimate at z=1,
 proved from the full sharp ℓ¹ polynomial coefficient bound. -/
