@@ -43,8 +43,7 @@ theorem full_det_sub_omitted_index_expansion_norm_le {m : ℕ}
       (‖z‖ * (‖u a‖ * ‖v a‖)) *
         Real.exp (∑ i ∈ Finset.univ.erase a,
           ‖z‖ * (‖u i‖ * ‖v i‖)) := by
-  have ha : a ∉ (Finset.univ.erase a : Finset (Fin m)) :=
-    Finset.not_mem_erase a Finset.univ
+  have ha : a ∉ (Finset.univ.erase a : Finset (Fin m)) := by simp
   have hfull :
       insert a (Finset.univ.erase a : Finset (Fin m)) = Finset.univ :=
     Finset.insert_erase (Finset.mem_univ a)
