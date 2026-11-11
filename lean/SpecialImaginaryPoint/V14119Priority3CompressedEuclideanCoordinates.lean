@@ -36,8 +36,12 @@ theorem coefficients_norm_sq_le (e : ℕ → E)
     ‖coefficients e N x‖ ^ 2 ≤ ‖x‖ ^ 2 := by
   rw [EuclideanSpace.norm_sq_eq]
   have h := he.sum_inner_products_le (s := Finset.range N) x
-  simpa only [coefficients, PiLp.toLp_apply,
-    Finset.sum_fin_eq_sum_range] using h
+  simp only [coefficients, PiLp.toLp_apply,
+    Finset.sum_fin_eq_sum_range]
+  convert h using 1
+  apply Finset.sum_congr rfl
+  intro k hk
+  rw [dif_pos (Finset.mem_range.mp hk)]
 
 /-- The coordinate map is contractive, with exact constant one. -/
 theorem coefficients_norm_le (e : ℕ → E)
@@ -60,7 +64,8 @@ theorem coefficients_inner_eq_truncated (e : ℕ → E)
   intro k hk
   have hstar :
       star (inner ℂ (e k.val) v) = inner ℂ v (e k.val) := by
-    simp [star_def, inner_conj_symm]
+    change conj (inner ℂ (e k.val) v) = inner ℂ v (e k.val)
+    exact (inner_conj_symm v (e k.val)).symm
   rw [hstar]
   ring
 
