@@ -38,7 +38,7 @@ Fredholm determinant. Exact normalization f_T(0)=1 removes the
 central constant and the divisor counts genuine operatorial zeros. -/
 theorem universalFredholm_Jensen_circleAverage
     (T : ProbabilisticTheory.TraceClass H) (R : ℝ) (hR : R ≠ 0) :
-    circleAverage (fun z : ℂ => Real.log ‖fredholmDet T z‖) 0 R =
+    Real.circleAverage (fun z : ℂ => Real.log ‖fredholmDet T z‖) 0 R =
       ∑ᶠ u, divisor (fredholmDet T) (Metric.closedBall (0 : ℂ) |R|) u *
         Real.log (R * ‖u‖⁻¹) := by
   have hanalytic :
