@@ -57,9 +57,11 @@ theorem equicontinuity_of_exponential_norm_perturbation
     (Metric.isOpen_iff.mp hopen) x hx
   refine ⟨δ, hδ, ?_⟩
   intro y hy n
-  have hyφ : φ y < ε := hball hy
+  have hyball : y ∈ Metric.ball x δ := by
+    simpa only [Metric.mem_ball] using hy
+  have hyφ : φ y < ε := hball hyball
   calc
-    dist (D n x) (D n y) = ‖D n x - D n y‖ := dist_eq_norm
+    dist (D n x) (D n y) = ‖D n x - D n y‖ := dist_eq_norm (D n x) (D n y)
     _ ≤ (r * ‖x-y‖) * Real.exp (r * (‖x‖ + ‖y‖)) :=
       hbound n x y
     _ < ε := hyφ
