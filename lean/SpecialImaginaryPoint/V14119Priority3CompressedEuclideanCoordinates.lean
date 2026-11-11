@@ -64,7 +64,7 @@ theorem coefficients_inner_eq_truncated (e : ℕ → E)
   intro k hk
   have hstar :
       star (inner ℂ (e k.val) v) = inner ℂ v (e k.val) := by
-    change conj (inner ℂ (e k.val) v) = inner ℂ v (e k.val)
+    change Complex.conj (inner ℂ (e k.val) v) = inner ℂ v (e k.val)
     exact (inner_conj_symm v (e k.val)).symm
   rw [hstar]
   ring
