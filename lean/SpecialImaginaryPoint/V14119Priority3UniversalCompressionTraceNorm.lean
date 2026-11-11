@@ -24,6 +24,8 @@ infinite determinant: that requires convergence of D_N(T,z) as N→∞
 and holomorphy of the resulting limit.
 -/
 
+set_option maxHeartbeats 2000000
+
 noncomputable section
 
 namespace Manuscript14Priority3.UniversalCompressionTraceNorm
@@ -85,7 +87,8 @@ theorem finiteDeterminant_global_traceNorm_perturbation
       _ ≤ (‖z‖ * ‖R‖) * Real.exp (‖z‖ * (MA + MB)) :=
         mul_le_mul_of_nonneg_right hpref (Real.exp_pos _).le
       _ ≤ (‖z‖ * ‖R‖) * Real.exp (‖z‖ * (‖T‖ + ‖R‖)) :=
-        mul_le_mul_of_nonneg_left hexp (by positivity)
+        mul_le_mul_of_nonneg_left hexp
+          (mul_nonneg (norm_nonneg z) (norm_nonneg R))
   exact continuous_complex_two_net_perturbation_bound
     (fun X : ProbabilisticTheory.TraceClass H => finiteDeterminant N X z)
     (finiteDeterminant_continuous N z)
