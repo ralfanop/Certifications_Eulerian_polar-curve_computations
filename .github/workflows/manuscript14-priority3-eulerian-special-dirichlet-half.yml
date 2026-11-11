@@ -175,7 +175,15 @@ jobs:
           lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmExistence.olean \
             SpecialImaginaryPoint/V14119Priority3UniversalFredholmExistence.lean
 
-      - name: Compile universal operatorial Dirichlet sinh Fredholm theorem
+      - name: Build existing actual universal Dirichlet inverse spectral determinant theorem
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3UniversalDirichletSinh.olean \
+            SpecialImaginaryPoint/V14119Priority3UniversalDirichletSinh.lean
+
+      - name: Compile exact Eulerian special Dirichlet Fredholm half theorem
         working-directory: lean
         shell: bash
         run: |
