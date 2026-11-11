@@ -29,19 +29,19 @@ open Manuscript14Priority3.DirichletCompleteSpectralZeroSet
 /-- The actual genuine CFC-S₁ Dirichlet inverse determinant
 has no zeros off the real spectral axis. -/
 theorem dirichlet_fredholm_nonzero_of_nonreal
-    (λ : ℂ) (hIm : λ.im ≠ 0) :
-    fredholmDet inverseTraceClass λ ≠ 0 := by
+    (shift : ℂ) (hIm : shift.im ≠ 0) :
+    fredholmDet inverseTraceClass shift ≠ 0 := by
   intro hzero
   obtain ⟨k, _hk0, hk⟩ :=
-    (universal_dirichlet_fredholm_zero_iff_negative_pi_square λ).mp hzero
+    (universal_dirichlet_fredholm_zero_iff_negative_pi_square shift).mp hzero
   have hreal :
-      λ = ((-(((k : ℝ) * Real.pi) ^ 2) : ℝ) : ℂ) := by
+      shift = ((-(((k : ℝ) * Real.pi) ^ 2) : ℝ) : ℂ) := by
     calc
-      λ = -(((k : ℂ) * (Real.pi : ℂ)) ^ 2) := hk
+      shift = -(((k : ℂ) * (Real.pi : ℂ)) ^ 2) := hk
       _ = ((-(((k : ℝ) * Real.pi) ^ 2) : ℝ) : ℂ) := by
         push_cast
         ring
-  have hImZero : λ.im = 0 := by
+  have hImZero : shift.im = 0 := by
     rw [hreal]
     simp
   exact hIm hImZero
