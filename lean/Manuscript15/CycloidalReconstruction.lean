@@ -169,6 +169,67 @@ theorem reconstruction_X_stability
       rw [← sq_abs t]
       ring
 
+
+/-- For two real values in [-1,1], squaring is 2-Lipschitz. -/
+theorem squared_difference_bound (u v : ℝ)
+    (hu : |u| ≤ 1) (hv : |v| ≤ 1) :
+    |u ^ 2 - v ^ 2| ≤ 2 * |u - v| := by
+  have hsum : |u + v| ≤ (2 : ℝ) := by
+    calc
+      |u + v| ≤ |u| + |v| := abs_add_le u v
+      _ ≤ 1 + 1 := add_le_add hu hv
+      _ = 2 := by norm_num
+  calc
+    |u ^ 2 - v ^ 2| = |(u - v) * (u + v)| := by congr 1; ring
+    _ = |u - v| * |u + v| := abs_mul _ _
+    _ ≤ |u - v| * 2 :=
+        mul_le_mul_of_nonneg_left hsum (abs_nonneg _)
+    _ = 2 * |u - v| := by ring
+
+/-- Factorization of the Y difference for real kernels. -/
+theorem reconstruction_Y_difference (a t : ℝ) (f g : ℝ → ℝ) :
+    |Y a f t - Y a g t| =
+      (|a| * t ^ 2 / 2) * |(f t) ^ 2 - (g t) ^ 2| := by
+  have h :
+      Y a f t - Y a g t =
+      (a * t ^ 2 / 2) * ((f t) ^ 2 - (g t) ^ 2) := by
+    unfold Y
+    ring
+  rw [h, abs_mul]
+  have hfac : |a * t ^ 2 / 2| = |a| * t ^ 2 / 2 := by
+    rw [abs_div, abs_mul, abs_of_nonneg (sq_nonneg t)]
+    norm_num
+  rw [hfac]
+
+/-- The Y coordinate bound underlying the W₁ theorem. The unit-modulus
+    hypotheses follow from characteristic functions, but that is not
+    claimed as an independently formalized probability theorem here. -/
+theorem reconstruction_Y_stability
+    (a t δ : ℝ) (f g : ℝ → ℝ)
+    (hf : ∀ s : ℝ, |f s| ≤ 1)
+    (hg : ∀ s : ℝ, |g s| ≤ 1)
+    (hfg : ∀ s : ℝ, |f s - g s| ≤ |s| * δ) :
+    |Y a f t - Y a g t| ≤ |a| * |t| ^ 3 * δ := by
+  rw [reconstruction_Y_difference]
+  have hnonneg : 0 ≤ |a| * t ^ 2 / 2 :=
+    div_nonneg (mul_nonneg (abs_nonneg _) (sq_nonneg _))
+      (by norm_num)
+  calc
+    (|a| * t ^ 2 / 2) * |(f t) ^ 2 - (g t) ^ 2|
+        ≤ (|a| * t ^ 2 / 2) * (2 * |f t - g t|) :=
+          mul_le_mul_of_nonneg_left
+            (squared_difference_bound (f t) (g t) (hf t) (hg t)) hnonneg
+    _ ≤ (|a| * t ^ 2 / 2) * (2 * (|t| * δ)) := by
+          apply mul_le_mul_of_nonneg_left _ hnonneg
+          exact mul_le_mul_of_nonneg_left (hfg t) (by norm_num)
+    _ = |a| * |t| ^ 3 * δ := by
+          rw [← sq_abs t]
+          ring
+
+#print axioms Manuscript15.squared_difference_bound
+#print axioms Manuscript15.reconstruction_Y_difference
+#print axioms Manuscript15.reconstruction_Y_stability
+
 #print axioms Manuscript15.reconstruction_compatibility_polynomial
 #print axioms Manuscript15.reconstruction_compatibility
 #print axioms Manuscript15.reconstruction_inverse
