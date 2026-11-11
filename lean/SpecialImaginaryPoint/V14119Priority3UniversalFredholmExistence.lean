@@ -103,7 +103,8 @@ theorem finiteDeterminant_two_point_exp_bound
           Real.exp (‖z‖ * (‖S‖ + ‖T - S‖)) := h
     _ ≤ (‖z‖ * ‖T - S‖) *
           Real.exp ((2 * ‖z‖) * (‖T‖ + ‖S‖)) :=
-        mul_le_mul_of_nonneg_left hExp (by positivity)
+        mul_le_mul_of_nonneg_left hExp
+          (mul_nonneg (norm_nonneg z) (norm_nonneg (T - S)))
     _ ≤ ((2 * ‖z‖) * ‖T - S‖) *
           Real.exp ((2 * ‖z‖) * (‖T‖ + ‖S‖)) :=
         mul_le_mul_of_nonneg_right hfactor (Real.exp_pos _).le
