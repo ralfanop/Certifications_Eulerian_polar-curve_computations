@@ -50,7 +50,7 @@ jobs:
             echo '::error::Forbidden axiom'
             exit 1
           fi
-          for decl in reconstruction_compatibility_polynomial reconstruction_compatibility reconstruction_inverse reconstruction_first_coordinate_injective reconstruction_X_difference reconstruction_X_stability; do
+          for decl in reconstruction_compatibility_polynomial reconstruction_compatibility reconstruction_inverse reconstruction_first_coordinate_injective reconstruction_X_difference reconstruction_X_stability squared_difference_bound reconstruction_Y_difference reconstruction_Y_stability; do
             grep -F "Manuscript15.$decl" /tmp/m15-compatibility-stability.log
           done
       - name: Preserve Lean kernel audit
