@@ -136,7 +136,8 @@ theorem fredholmDet_ne_zero_of_small_spectral_mass
   intro hz
   rw [hz] at hdiff
   norm_num at hdiff
-  linarith
+  rw [ProbabilisticTheory.TraceClass.norm_eq_genuineTraceNorm] at hsmall
+  exact (not_lt_of_ge hdiff) hsmall
 
 #print axioms Manuscript14Priority3.UniversalJointContinuity.fredholmDet_spectral_diff_norm_le
 #print axioms Manuscript14Priority3.UniversalJointContinuity.fredholmDet_joint_continuous
