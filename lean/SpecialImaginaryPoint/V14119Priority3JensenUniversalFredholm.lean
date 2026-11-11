@@ -27,7 +27,7 @@ noncomputable section
 
 namespace Manuscript14Priority3.JensenUniversalFredholm
 
-open Filter Topology Set Metric
+open Filter Topology Set Metric MeromorphicOn
 open scoped InnerProductSpace Ring
 open Manuscript14Priority3.TraceClassModel
 open Manuscript14Priority3.UniversalFredholmExistence
@@ -49,7 +49,10 @@ theorem universalFredholm_Jensen_circleAverage
   have hnonzero : fredholmDet T 0 ≠ 0 := by
     rw [fredholmDet_zero]
     exact one_ne_zero
-  have hJensen := hanalytic.circleAverage_log_norm hR hnonzero
+  have hJensen :=
+    AnalyticOnNhd.circleAverage_log_norm
+      (c := (0 : ℂ)) (R := R) (f := fredholmDet T)
+      hR hanalytic hnonzero
   simpa only [fredholmDet_zero, norm_one, Real.log_one, add_zero, zero_sub,
     norm_neg] using hJensen
 
@@ -74,7 +77,9 @@ theorem universalFredholm_Jensen_zero_count_bound
     rw [fredholmDet_zero]
     exact one_ne_zero
   have hJensen :=
-    hanalytic.sum_divisor_le hr hrR hM hnonzero houter
+    AnalyticOnNhd.sum_divisor_le
+      (c := (0 : ℂ)) (r := r) (R := R) (M := M)
+      hr hrR hM hanalytic hnonzero houter
   simpa only [fredholmDet_zero, norm_one, div_one] using hJensen
 
 #print axioms Manuscript14Priority3.JensenUniversalFredholm.universalFredholm_Jensen_circleAverage
