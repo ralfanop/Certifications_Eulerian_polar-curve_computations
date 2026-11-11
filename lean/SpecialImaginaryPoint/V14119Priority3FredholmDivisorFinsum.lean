@@ -72,7 +72,7 @@ theorem universalFredholm_divisor_finsum_eq_totalMultiplicity
           ((hAnalytic z hzU).analyticOrderAt_eq_zero).mpr hz0
         have hdiv :
             MeromorphicOn.divisor (fredholmDet T) U z = 0 := by
-          rw [hAnalytic.divisor_apply hzU, horder]
+          rw [MeromorphicOn.AnalyticOnNhd.divisor_apply hAnalytic hzU, horder]
           simp
         exact (hzNe hdiv).elim
     · have hdiv :
@@ -87,7 +87,7 @@ theorem universalFredholm_divisor_finsum_eq_totalMultiplicity
     have hzU : z ∈ U := by
       simpa [U, Metric.mem_closedBall, dist_zero_right] using hbound
     obtain ⟨n, hn⟩ := universalFredholm_analyticOrderAt_eq_nat T z
-    rw [hAnalytic.divisor_apply hzU, hn]
+    rw [MeromorphicOn.AnalyticOnNhd.divisor_apply hAnalytic hzU, hn]
     simp [analyticOrderNatAt, hn]
   calc
     (∑ᶠ z : ℂ, MeromorphicOn.divisor (fredholmDet T) U z) =
