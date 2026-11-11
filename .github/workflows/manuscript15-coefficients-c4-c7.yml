@@ -1,0 +1,57 @@
+name: Manuscript 15 — kernel-audit coefficients c4-c7
+on:
+  push:
+    branches:
+      - manuscript15-lean-c4-c7-20261111
+    paths:
+      - 'lean/Manuscript15/CoefficientRigidity.lean'
+      - '.github/workflows/manuscript15-coefficients-c4-c7.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/CoefficientRigidity.lean'
+      - '.github/workflows/manuscript15-coefficients-c4-c7.yml'
+  workflow_dispatch:
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Download pinned Mathlib artifacts
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check all c0-c7 coefficient statements
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/CoefficientRigidity.lean 2>&1 | tee /tmp/m15-coeff-c4c7.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m15-coeff-c4c7.log; then
+            echo '::error::Uncertified axiom detected'
+            exit 1
+          fi
+          for decl in one two three four five six seven; do
+            grep -F "Manuscript15.coefficientRule_c_$decl" /tmp/m15-coeff-c4c7.log
+          done
+          grep -F 'Manuscript15.coefficientRule_unique' /tmp/m15-coeff-c4c7.log
+      - name: Upload complete Lean kernel/axiom logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-c4-c7-lean-audit
+          path: /tmp/m15-coeff-c4c7.log
