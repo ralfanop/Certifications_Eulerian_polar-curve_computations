@@ -34,6 +34,7 @@ theorem compressedCFC_smul (N : ℕ)
   simp only [compressedCFC, Matrix.smul_apply,
     ProbabilisticTheory.TraceClass.smul_operator,
     ContinuousLinearMap.smul_apply, inner_smul_right]
+  simp only [smul_eq_mul]
 
 /-- Exact commutation of spectral scalar z with CFC-S₁ operator
 scaling inside an ACTUAL finite Hilbert compression determinant. -/
