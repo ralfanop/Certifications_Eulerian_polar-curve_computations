@@ -23,7 +23,7 @@ the PDF/TikZ figure uses geometric point coordinates formatted to five
 decimal places in pt, and those approximated coordinates cannot be
 described as certified to 8182 bits.
 
-**Status:** candidate until the exact-head GitHub Actions run succeeds.
+**Status: VERIFIED on exact source head.** [GitHub Actions #43091335797](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43091335797) completed SUCCESS on commit `2dcca885ccc5d606e57451dba30d1cc4eaa078d0`. All 7000 individual n cases passed exact integer normalization, positivity and reflection tests. All eight Arb peak enclosures passed with **9998 bits of certified relative accuracy** at 10000 working bits. Log artifact uploaded. The source script itself has not changed.
 Successful CI would certify eight specific probability enclosures and
 the stated finite exact-integer checks, **not a Lean theorem for all n**
 or a proof of the maximal distance of the simplified polylines.
