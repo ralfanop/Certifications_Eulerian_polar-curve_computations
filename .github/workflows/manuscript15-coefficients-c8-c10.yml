@@ -56,7 +56,7 @@ jobs:
             ("one","two","three","four","five","six","seven","eight","nine","ten")]
           decls.append("coefficientRule_unique")
           found={}
-          for m in re.finditer(r"'([^']+)' depends on axioms: \\[([^\\]]*)\\]|'([^']+)' does not depend on any axioms",s,re.MULTILINE):
+          for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",s,re.MULTILINE):
             found[m.group(1) or m.group(3)]={t.strip() for t in (m.group(2) or "").split(",") if t.strip()}
           allowed={"propext","Classical.choice","Quot.sound"}
           for name in decls:
@@ -65,7 +65,7 @@ jobs:
             assert found[key] <= allowed, f"NONSTANDARD AXIOM in {key}: {found[key]-allowed}"
             print(key, sorted(found[key]))
           assert "sorryAx" not in s and "Lean.ofReduceBool" not in s
-          assert not re.search(r"\\.lean:\\d+:\\d+: error",s)
+          assert not re.search(r"\.lean:\d+:\d+: error",s)
           print("SUCCESS: Manuscript15 exact conditional recurrence c0..c10 and uniqueness kernel-certified")
           PY
       - name: Upload complete Lean kernel/axiom logs
