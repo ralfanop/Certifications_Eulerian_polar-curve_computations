@@ -26,7 +26,9 @@ def tailSet (m n : ℕ) : Finset (Fin (m + n)) :=
 /-- Every index of the appended right family is in the tail set. -/
 theorem natAdd_mem_tailSet (m n : ℕ) (j : Fin n) :
     Fin.natAdd m j ∈ tailSet m n := by
-  simp [tailSet, Fin.natAddEmb]
+  change (Fin.natAddEmb m) j ∈
+    (Finset.univ : Finset (Fin n)).map (Fin.natAddEmb m)
+  exact Finset.mem_map.mpr ⟨j, Finset.mem_univ j, rfl⟩
 
 /-- No index belonging to the first family is in the tail. -/
 theorem castAdd_not_mem_tailSet (m n : ℕ) (i : Fin m) :
