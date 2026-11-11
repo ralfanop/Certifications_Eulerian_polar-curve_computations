@@ -5,10 +5,12 @@ on:
       - manuscript15-typeB-series-arb10000-20261111
     paths:
       - 'numerics/manuscript15_typeB_series_arb10000.py'
+      - 'lean/Manuscript15/TypeBSeriesRatio.lean'
       - '.github/workflows/manuscript15-typeB-series-arb10000.yml'
   pull_request:
     paths:
       - 'numerics/manuscript15_typeB_series_arb10000.py'
+      - 'lean/Manuscript15/TypeBSeriesRatio.lean'
       - '.github/workflows/manuscript15-typeB-series-arb10000.yml'
   workflow_dispatch:
 jobs:
@@ -37,3 +39,46 @@ jobs:
         with:
           name: manuscript15-typeB-series-10000bit-certification
           path: /tmp/m15-typeB-arb10000.log
+
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Download pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check exact type-B summand ratios
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/TypeBSeriesRatio.lean 2>&1 | tee /tmp/m15-typeB-ratio-lean.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m15-typeB-ratio-lean.log; then
+            echo '::error::Forbidden axiom'
+            exit 1
+          fi
+          for decl in typeBTermRatio_pos typeBTermRatio_lt_fifth typeBTerm_pos typeBTerm_decay; do
+            grep -F "Manuscript15.$decl" /tmp/m15-typeB-ratio-lean.log
+          done
+      - name: Upload kernel audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-typeB-ratio-lean
+          path: /tmp/m15-typeB-ratio-lean.log
