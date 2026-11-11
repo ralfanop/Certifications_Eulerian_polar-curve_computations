@@ -23,6 +23,8 @@ noncomputable section
 namespace Manuscript14Priority3.MeromorphicFredholmReciprocal
 
 open Topology Set
+open scoped InnerProductSpace Ring
+open Manuscript14Priority3.TraceClassModel
 open Manuscript14Priority3.UniversalFredholmExistence
 open Manuscript14Priority3.UniversalFredholmEntire
 
