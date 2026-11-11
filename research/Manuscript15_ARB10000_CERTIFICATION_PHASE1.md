@@ -33,7 +33,18 @@ The `numerics/manuscript15_arb10000.py` computation evaluates:
 | `r_E(i)=2 sinh(1/2)` | Kernel / determinant specialization |
 | `D(1)=sinh(1)` | Eq. (19) and Fredholm identity specialization |
 
-**Certification status:** Only mark these quantities numerically **CERTIFIED** after the GitHub Actions job `arb10000` finishes successfully on the exact PR head commit.
+**Certification status: CERTIFIED for these fourteen numerical expressions.**
+The exact-source-head [GitHub Actions run 43080355596](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43080355596)
+completed **SUCCESS** for script commit `811112fd4fa2210f4906489c8a025f935c7955b2`.
+Its log independently reports **9996–9998 certified relative bits** across all
+fourteen real expressions with `flint.ctx.prec=10000`, strictly exceeding
+the 8182-bit acceptance threshold. The decimal rounding-cell test for
+Figure 1's `alpha_3≈53.1301023542°` passed. All logs are available
+in the workflow artifact `manuscript15-arb10000-enclosures`.
+
+This certifies the specified numeric expressions, **not** the
+underlying analytic proofs or the printed five-decimal-point
+vector figure coordinates.
 
 ## Relation to Lean 4 and scope boundaries
 
