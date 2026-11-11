@@ -61,8 +61,7 @@ theorem cauchySeq_everywhere_of_dense_equicontinuous
       dist_triangle _ _ _
     _ ≤ dist (D m x) (D m y) +
           (dist (D m y) (D n y) + dist (D n y) (D n x)) := by
-        exact add_le_add_left (dist_triangle (D m y) (D n y) (D n x))
-          (dist (D m x) (D m y))
+        linarith only [dist_triangle (D m y) (D n y) (D n x)]
     _ < ε := by linarith
 
 /-- In the complete complex codomain the preceding Cauchy result
