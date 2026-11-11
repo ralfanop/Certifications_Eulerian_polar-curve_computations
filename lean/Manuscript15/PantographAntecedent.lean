@@ -29,10 +29,16 @@ theorem pantograph_hasDerivAt (f : ℝ → ℝ) (t d : ℝ)
     (hf : HasDerivAt f d (2 * t)) :
     HasDerivAt (pantographTransform f) (f (2 * t) + 2 * t * d) t := by
   have hlinear : HasDerivAt (fun s : ℝ => 2 * s) 2 t := by
-    convert (hasDerivAt_id t).const_mul (2 : ℝ) using 1 <;> ring
+    convert (hasDerivAt_id t).const_mul (2 : ℝ) using 1
+    · funext s
+      simp [mul_comm]
+    · ring
   have hcomp : HasDerivAt (fun s : ℝ => f (2 * s)) (d * 2) t :=
     hf.comp t hlinear
-  convert (hasDerivAt_id t).mul hcomp using 1 <;> simp [pantographTransform] <;> ring
+  have h := (hasDerivAt_id t).mul hcomp
+  convert h using 1
+  · rfl
+  · ring
 
 /-- The characteristic-function equation implies the earlier published
     nonlinear pantograph differential equation. -/
