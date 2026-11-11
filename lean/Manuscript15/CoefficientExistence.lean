@@ -88,7 +88,7 @@ theorem coefficientRule_existsUnique :
     ∃! c : ℕ → ℝ, CoefficientRule c := by
   refine ⟨rigidityCoefficientSequence, rigidityCoefficientSequence_rule, ?_⟩
   intro c hc
-  exact (coefficientRule_eq_canonical c hc).symm
+  exact coefficientRule_eq_canonical c hc
 
 #print axioms Manuscript15.rigidityCoefficientSequence_zero
 #print axioms Manuscript15.rigidityCoefficientSequence_succ
