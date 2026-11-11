@@ -103,7 +103,25 @@ theorem universalFredholm_Jensen_zero_count_linear_traceNorm_bound
   simpa only [abs_of_pos hr, fredholmDet_zero, norm_one,
     div_one, Real.log_exp] using hJ
 
+/-- At the concrete outer-radius choice R=2r, Jensen's inequality
+gives a completely explicit bound linear in the inner radius and the
+trace norm: the universal Fredholm zero count is at most
+(4/log 2) r ‖T‖, with exact analytic multiplicities. -/
+theorem universalFredholm_Jensen_zero_count_double_radius
+    (T : ProbabilisticTheory.TraceClass H)
+    {r : ℝ} (hr : 0 < r) :
+    ∑ᶠ u, divisor (fredholmDet T) (Metric.closedBall (0 : ℂ) r) u
+      ≤ (4 * r * ‖T‖) / Real.log 2 := by
+  have hRadius : r < 2 * r := by linarith
+  have hbound :=
+    universalFredholm_Jensen_zero_count_linear_traceNorm_bound T hr hRadius
+  have hratio : (2 * r) / r = (2 : ℝ) := by
+    field_simp [ne_of_gt hr]
+  rw [hratio] at hbound
+  convert hbound using 1 <;> ring
+
 #print axioms Manuscript14Priority3.FredholmLinearJensenGrowth.universalFredholm_norm_le_exp_two_traceNorm
 #print axioms Manuscript14Priority3.FredholmLinearJensenGrowth.universalFredholm_Jensen_zero_count_linear_traceNorm_bound
+#print axioms Manuscript14Priority3.FredholmLinearJensenGrowth.universalFredholm_Jensen_zero_count_double_radius
 
 end Manuscript14Priority3.FredholmLinearJensenGrowth
