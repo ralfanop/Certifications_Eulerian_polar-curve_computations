@@ -1,0 +1,39 @@
+name: Manuscript 15 — type-B Catalan inverse-binomial Arb 10000
+on:
+  push:
+    branches:
+      - manuscript15-typeB-series-arb10000-20261111
+    paths:
+      - 'numerics/manuscript15_typeB_series_arb10000.py'
+      - '.github/workflows/manuscript15-typeB-series-arb10000.yml'
+  pull_request:
+    paths:
+      - 'numerics/manuscript15_typeB_series_arb10000.py'
+      - '.github/workflows/manuscript15-typeB-series-arb10000.yml'
+  workflow_dispatch:
+jobs:
+  arb10000:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned python-flint
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Check syntax
+        run: python -m py_compile numerics/manuscript15_typeB_series_arb10000.py
+      - name: Certify 4000-term series and rigorous tail
+        shell: bash
+        run: |
+          set -euo pipefail
+          python numerics/manuscript15_typeB_series_arb10000.py 2>&1 | tee /tmp/m15-typeB-arb10000.log
+          grep -F 'TAIL CERTIFIED by exact ratio bound' /tmp/m15-typeB-arb10000.log
+          grep -F 'SUCCESS — five inverse-binomial series enclosures' /tmp/m15-typeB-arb10000.log
+      - name: Upload numerical certificate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-typeB-series-10000bit-certification
+          path: /tmp/m15-typeB-arb10000.log
