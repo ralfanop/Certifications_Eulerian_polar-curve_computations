@@ -33,7 +33,8 @@ zero, directly from the certified exact rank-one trace norm. -/
 theorem rankOneS1_zero_left (v : H) :
     rankOneS1 (0 : H) v = 0 := by
   apply norm_eq_zero.mp
-  simp [rankOneS1_norm_eq]
+  rw [rankOneS1_norm_eq]
+  simp
 
 /-- ACTUAL OPERATOR DIFFERENCE: deleting any finite set of rank-one
 terms from a finite CFC-S₁ nuclear presentation subtracts exactly the
