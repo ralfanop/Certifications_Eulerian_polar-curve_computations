@@ -172,7 +172,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3FiniteCompressionTwoFamilyBound.lean 2>&1 | tee /tmp/p3-universal-fredholm-existence.log
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3UniversalFredholmExistence.lean 2>&1 | tee /tmp/p3-universal-fredholm-existence.log
       - name: Audit nine universal CFC S1 Fredholm theorems
         shell: bash
         run: |
