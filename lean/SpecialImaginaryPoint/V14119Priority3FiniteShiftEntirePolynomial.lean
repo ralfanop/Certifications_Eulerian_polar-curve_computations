@@ -37,7 +37,7 @@ theorem determinantPolynomial_eval (N : ℕ)
     (determinantPolynomial N M).eval z =
       (1 + z • M).det := by
   unfold determinantPolynomial
-  rw [Polynomial.eval_det, Polynomial.matPolyEquiv_eval_eq_map]
+  rw [eval_det, matPolyEquiv_eval_eq_map]
   congr 1
   ext i j
   simp [Matrix.add_apply, Matrix.smul_apply, Matrix.map_apply]
@@ -52,7 +52,7 @@ theorem determinant_shift_entire (N : ℕ)
     funext z
     exact (determinantPolynomial_eval N M z).symm
   rw [h]
-  exact Polynomial.differentiable
+  exact (determinantPolynomial N M).differentiable
 
 #print axioms Manuscript14Priority3.FiniteShiftEntirePolynomial.determinantPolynomial_eval
 #print axioms Manuscript14Priority3.FiniteShiftEntirePolynomial.determinant_shift_entire
