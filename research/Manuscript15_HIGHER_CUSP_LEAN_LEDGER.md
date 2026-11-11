@@ -11,7 +11,7 @@ needed for the higher-order cusp quotient, not their analytic or probabilistic p
 - The fourth moment is recovered algebraically from the quadratic
   coefficient b: m4=(3σ²/2)(3σ²−b) when σ²≠0.
 
-**Pending** until exact-head kernel CI succeeds: four Lean declarations in
+**KERNEL-CERTIFIED:** [run #43085051326](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43085051326) succeeded at source head `8be7ad4e34ee1deff97024669cd708c4c7c200ab`. The four declarations in
 `lean/Manuscript15/HigherCuspArithmetic.lean`.
 
 **Still unformalized:** measure moments of convolution sums, smooth
@@ -20,3 +20,6 @@ terminal derivatives and curvature behavior. Do not treat these Lean
 identities as proofs of those larger propositions.
 
 Changes are isolated from Manuscripts 11–14, V007 and V097. No merge.
+
+
+All four #print axioms reports contained only `propext`, `Classical.choice`, and `Quot.sound`; no `sorryAx` or `Lean.ofReduceBool` was reported. These are exact algebraic subclaims only, not the full analytical cusp theorems.
