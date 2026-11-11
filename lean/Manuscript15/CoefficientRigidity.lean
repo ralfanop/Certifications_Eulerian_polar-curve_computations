@@ -84,6 +84,60 @@ theorem coefficientRule_c_three (c : ℕ → ℝ) (hc : CoefficientRule c) :
   norm_num [Finset.sum_range_succ, hc.1, h1, h2] at h
   linarith
 
+
+/-! ### Higher forced coefficients, matching the seven explicit manuscript values -/
+
+/-- The recurrence forces c_4 without numerical approximation. -/
+theorem coefficientRule_c_four (c : ℕ → ℝ) (hc : CoefficientRule c) :
+    c 4 = (1 / 92897280 : ℝ) := by
+  have h := hc.2 3
+  have h1 := coefficientRule_c_one c hc
+  have h2 := coefficientRule_c_two c hc
+  have h3 := coefficientRule_c_three c hc
+  norm_num [Finset.sum_range_succ, hc.1, h1, h2, h3] at h
+  linarith
+
+/-- The recurrence forces c_5 without numerical approximation. -/
+theorem coefficientRule_c_five (c : ℕ → ℝ) (hc : CoefficientRule c) :
+    c 5 = -(1 / 40874803200 : ℝ) := by
+  have h := hc.2 4
+  have h1 := coefficientRule_c_one c hc
+  have h2 := coefficientRule_c_two c hc
+  have h3 := coefficientRule_c_three c hc
+  have h4 := coefficientRule_c_four c hc
+  norm_num [Finset.sum_range_succ, hc.1, h1, h2, h3, h4] at h
+  linarith
+
+/-- The recurrence forces c_6 without numerical approximation. -/
+theorem coefficientRule_c_six (c : ℕ → ℝ) (hc : CoefficientRule c) :
+    c 6 = (1 / 25505877196800 : ℝ) := by
+  have h := hc.2 5
+  have h1 := coefficientRule_c_one c hc
+  have h2 := coefficientRule_c_two c hc
+  have h3 := coefficientRule_c_three c hc
+  have h4 := coefficientRule_c_four c hc
+  have h5 := coefficientRule_c_five c hc
+  norm_num [Finset.sum_range_succ, hc.1, h1, h2, h3, h4, h5] at h
+  linarith
+
+/-- The recurrence forces c_7 without numerical approximation. -/
+theorem coefficientRule_c_seven (c : ℕ → ℝ) (hc : CoefficientRule c) :
+    c 7 = -(1 / 21424936845312000 : ℝ) := by
+  have h := hc.2 6
+  have h1 := coefficientRule_c_one c hc
+  have h2 := coefficientRule_c_two c hc
+  have h3 := coefficientRule_c_three c hc
+  have h4 := coefficientRule_c_four c hc
+  have h5 := coefficientRule_c_five c hc
+  have h6 := coefficientRule_c_six c hc
+  norm_num [Finset.sum_range_succ, hc.1, h1, h2, h3, h4, h5, h6] at h
+  linarith
+
+#print axioms Manuscript15.coefficientRule_c_four
+#print axioms Manuscript15.coefficientRule_c_five
+#print axioms Manuscript15.coefficientRule_c_six
+#print axioms Manuscript15.coefficientRule_c_seven
+
 #print axioms Manuscript15.coefficientRule_c_one
 #print axioms Manuscript15.coefficientRule_c_two
 #print axioms Manuscript15.coefficientRule_c_three
