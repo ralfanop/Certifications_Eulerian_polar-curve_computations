@@ -167,8 +167,10 @@ theorem weighted_lipschitzWith
     LipschitzWith ⟨3 * r, by positivity⟩ (weighted f r) := by
   apply LipschitzWith.of_dist_le_mul
   intro T S
-  simpa only [dist_eq_norm, NNReal.coe_mk] using
-    weighted_norm_sub_le_three f r hr hgrowth hdiff T S
+  rw [dist_eq_norm, dist_eq_norm]
+  change ‖weighted f r T - weighted f r S‖ ≤
+    (3 * r) * ‖T - S‖
+  exact weighted_norm_sub_le_three f r hr hgrowth hdiff T S
 
 /-- Uniform continuity of the weighted functional derived WITHOUT an
 extra uniform-continuity axiom, once the finite trace-norm estimate
