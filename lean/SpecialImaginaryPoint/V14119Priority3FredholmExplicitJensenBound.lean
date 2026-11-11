@@ -28,7 +28,7 @@ noncomputable section
 
 namespace Manuscript14Priority3.FredholmExplicitJensenBound
 
-open Filter Topology Set Metric
+open Filter Topology Set Metric MeromorphicOn
 open scoped InnerProductSpace Ring
 open Manuscript14Priority3.TraceClassModel
 open Manuscript14Priority3.UniversalFredholmExistence
@@ -50,7 +50,7 @@ theorem universalFredholm_norm_le_one_add_trace_exponential
     _ ≤ ‖fredholmDet T z - 1‖ + ‖(1 : ℂ)‖ :=
       norm_add_le _ _
     _ ≤ (‖z‖ * ‖T‖) * Real.exp (‖z‖ * ‖T‖) + 1 := by
-      simpa only [norm_one] using add_le_add_right h 1
+      simpa only [norm_one] using add_le_add_left h 1
     _ = 1 + (‖z‖ * ‖T‖) * Real.exp (‖z‖ * ‖T‖) := by
       ring
 
@@ -67,10 +67,9 @@ theorem universalFredholm_Jensen_explicit_traceNorm_zero_count
   let M : ℝ := 1 + (R * ‖T‖) * Real.exp (R * ‖T‖)
   have hM : 1 ≤ M := by
     dsimp [M]
-    have hterm : 0 ≤ (R * ‖T‖) * Real.exp (R * ‖T‖) :=
-      mul_nonneg (mul_nonneg hR.le (norm_nonneg T))
-        (Real.exp_pos _).le
-    linarith
+    exact le_add_of_nonneg_right
+      (mul_nonneg (mul_nonneg hR.le (norm_nonneg T))
+        (Real.exp_pos _).le)
   have hanalytic :
       AnalyticOnNhd ℂ (fredholmDet T)
         (Metric.closedBall (0 : ℂ) |R|) := by
@@ -88,9 +87,11 @@ theorem universalFredholm_Jensen_explicit_traceNorm_zero_count
     simpa only [M, hznorm] using
       (universalFredholm_norm_le_one_add_trace_exponential T z)
   have hJensen :=
-    hanalytic.sum_divisor_le (by simpa only [abs_of_pos hr] using hr)
+    AnalyticOnNhd.sum_divisor_le (c := (0 : ℂ))
+      (r := r) (R := R) (M := M)
+      (by simpa only [abs_of_pos hr] using hr)
       (by simpa only [abs_of_pos hr, abs_of_pos hR] using hrR)
-      hM hnonzero houter
+      hM hanalytic hnonzero houter
   simpa only [abs_of_pos hr, fredholmDet_zero, norm_one, div_one, M]
     using hJensen
 
