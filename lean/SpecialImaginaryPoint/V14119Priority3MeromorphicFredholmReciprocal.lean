@@ -42,8 +42,7 @@ theorem universalFredholmReciprocal_meromorphicOn
     (T : ProbabilisticTheory.TraceClass H) :
     MeromorphicOn (fun z : ℂ => (fredholmDet T z)⁻¹)
       (Set.univ : Set ℂ) := by
-  simpa only [Pi.inv_apply] using
-    (universalFredholmDet_analyticOnNhd T).meromorphicOn.inv
+  exact (universalFredholmDet_analyticOnNhd T).meromorphicOn.inv
 
 #print axioms Manuscript14Priority3.MeromorphicFredholmReciprocal.universalFredholmDet_analyticOnNhd
 #print axioms Manuscript14Priority3.MeromorphicFredholmReciprocal.universalFredholmReciprocal_meromorphicOn
