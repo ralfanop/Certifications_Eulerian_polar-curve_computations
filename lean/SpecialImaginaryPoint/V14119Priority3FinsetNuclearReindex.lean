@@ -49,13 +49,20 @@ theorem finiteNuclear_finset_eq {ι : Type*}
       ∑ i ∈ s, rankOneS1 (u i) (v i) := by
   classical
   unfold finiteNuclear finsetVectors
-  rw [← Finset.sum_attach, Finset.attach_eq_univ]
-  exact Fintype.sum_equiv (s.equivFin).symm
-    (fun i : Fin s.card =>
+  calc
+    (∑ i : Fin s.card,
       rankOneS1 (u ((s.equivFin).symm i).val)
-        (v ((s.equivFin).symm i).val))
-    (fun j : s => rankOneS1 (u j.val) (v j.val))
-    (fun i => rfl)
+        (v ((s.equivFin).symm i).val)) =
+        ∑ j : s, rankOneS1 (u j.val) (v j.val) := by
+          exact Fintype.sum_equiv (s.equivFin).symm
+            (fun i : Fin s.card =>
+              rankOneS1 (u ((s.equivFin).symm i).val)
+                (v ((s.equivFin).symm i).val))
+            (fun j : s => rankOneS1 (u j.val) (v j.val))
+            (fun i => rfl)
+    _ = ∑ i ∈ s, rankOneS1 (u i) (v i) := by
+      simpa only [Finset.attach_eq_univ] using
+        (Finset.sum_attach s (fun i => rankOneS1 (u i) (v i)))
 
 /-- Exact equality of the sum of nuclear costs under the
 same finite reindexing, without any dimension factor. -/
@@ -66,13 +73,20 @@ theorem nuclear_mass_finset_eq {ι : Type*}
       ∑ i ∈ s, ‖u i‖ * ‖v i‖ := by
   classical
   unfold finsetVectors
-  rw [← Finset.sum_attach, Finset.attach_eq_univ]
-  exact Fintype.sum_equiv (s.equivFin).symm
-    (fun i : Fin s.card =>
+  calc
+    (∑ i : Fin s.card,
       ‖u ((s.equivFin).symm i).val‖ *
-        ‖v ((s.equivFin).symm i).val‖)
-    (fun j : s => ‖u j.val‖ * ‖v j.val‖)
-    (fun i => rfl)
+        ‖v ((s.equivFin).symm i).val‖) =
+        ∑ j : s, ‖u j.val‖ * ‖v j.val‖ := by
+          exact Fintype.sum_equiv (s.equivFin).symm
+            (fun i : Fin s.card =>
+              ‖u ((s.equivFin).symm i).val‖ *
+                ‖v ((s.equivFin).symm i).val‖)
+            (fun j : s => ‖u j.val‖ * ‖v j.val‖)
+            (fun i => rfl)
+    _ = ∑ i ∈ s, ‖u i‖ * ‖v i‖ := by
+      simpa only [Finset.attach_eq_univ] using
+        (Finset.sum_attach s (fun i => ‖u i‖ * ‖v i‖))
 
 /-- Every ACTUAL CFC-S₁ operator T is the trace-norm limit
 of concrete finiteNuclear(Fin m) operators, and each
