@@ -41,9 +41,10 @@ theorem determinantPolynomial_eval (N : ℕ)
   congr 1
   ext i j
   by_cases h : i = j
-  · simp only [Matrix.one_apply, if_pos h, eval_one]
+  · subst j
+    simp [Matrix.one_apply]
     ring
-  · simp only [Matrix.one_apply, if_neg h, eval_zero]
+  · simp [Matrix.one_apply, h]
     ring
 
 /-- Every finite matrix spectral determinant is ENTIRE.
