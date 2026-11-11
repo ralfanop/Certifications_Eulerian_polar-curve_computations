@@ -20,6 +20,8 @@ noncomputable section
 namespace Manuscript14Priority3.FredholmZeroSetNullity
 
 open MeasureTheory Set
+open scoped InnerProductSpace Ring
+open Manuscript14Priority3.TraceClassModel
 open Manuscript14Priority3.LocallyFiniteFredholmZeroSet
 open Manuscript14Priority3.CountableUniversalSpectralZeros
 
