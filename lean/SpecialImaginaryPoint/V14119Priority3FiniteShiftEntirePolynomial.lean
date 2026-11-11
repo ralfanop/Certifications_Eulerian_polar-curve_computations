@@ -40,8 +40,12 @@ theorem determinantPolynomial_eval (N : ℕ)
   rw [eval_det, matPolyEquiv_eval_eq_map]
   congr 1
   ext i j
-  simp [Matrix.add_apply, Matrix.smul_apply, Matrix.map_apply,
-    Matrix.one_apply, mul_comm]
+  by_cases h : i = j
+  · subst j
+    simp [Matrix.one_apply]
+    ring
+  · simp [Matrix.one_apply, h]
+    ring
 
 /-- Every finite matrix spectral determinant is ENTIRE.
 This is unconditional for singular and nonnormal matrices. -/
