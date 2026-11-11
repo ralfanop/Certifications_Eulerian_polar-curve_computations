@@ -21,7 +21,13 @@ The script `numerics/manuscript15_typeB_series_arb10000.py`:
 5. Uses an independent Arb `atan` overlap check for consistency only; it is **not**
    treated as a proof of equality of the functions/series.
 
-**Status:** candidate until exact-head GitHub Actions succeeds.
+**Status:** candidates until exact-head GitHub Actions succeeds. The branch now also contains four proposed Lean declarations in `lean/Manuscript15/TypeBSeriesRatio.lean`:
+- `typeBTermRatio_pos`;
+- `typeBTermRatio_lt_fifth`, strict rational ratio below 1/5;
+- `typeBTerm_pos`;
+- `typeBTerm_decay`, the exact positive-term geometric domination.
+
+The Lean workflow prints axioms and rejects `sorryAx` and `Lean.ofReduceBool`. Note that connecting this recursive term definition with the closed central-binomial summand, and the full infinite-tail `tsum` argument, require further explicit Lean proofs. Until then, the numerical script uses the mathematically exact integer ratio argument separately.
 The analytical identity is established in the manuscript by the
 beta-integral argument, not by Arb. A future Lean proof should formalize
 the beta integral and justify the infinite-series transformations.
