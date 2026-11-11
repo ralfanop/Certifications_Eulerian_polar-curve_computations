@@ -29,7 +29,7 @@ noncomputable section
 
 namespace Manuscript14Priority3.FredholmLinearJensenGrowth
 
-open Filter Topology Set Metric
+open Filter Topology Set Metric MeromorphicOn
 open scoped InnerProductSpace Ring
 open Manuscript14Priority3.TraceClassModel
 open Manuscript14Priority3.UniversalFredholmExistence
@@ -52,7 +52,7 @@ theorem universalFredholm_norm_le_exp_two_traceNorm
       1 + x * Real.exp x ≤ Real.exp (2 * x) := by
     calc
       1 + x * Real.exp x ≤ Real.exp x + x * Real.exp x :=
-        add_le_add_right hexp _
+        add_le_add_left hexp _
       _ = (1 + x) * Real.exp x := by ring
       _ ≤ Real.exp x * Real.exp x :=
         mul_le_mul_of_nonneg_right
@@ -77,7 +77,9 @@ theorem universalFredholm_Jensen_zero_count_linear_traceNorm_bound
   have hM :
       (1 : ℝ) ≤ Real.exp (2 * (R * ‖T‖)) := by
     have hx : 0 ≤ 2 * (R * ‖T‖) := by positivity
-    linarith [Real.add_one_le_exp (2 * (R * ‖T‖))]
+    calc
+      (1 : ℝ) ≤ 2 * (R * ‖T‖) + 1 := by linarith
+      _ ≤ Real.exp (2 * (R * ‖T‖)) := Real.add_one_le_exp _
   have hanalytic :
       AnalyticOnNhd ℂ (fredholmDet T)
         (Metric.closedBall (0 : ℂ) |R|) := by
@@ -96,10 +98,12 @@ theorem universalFredholm_Jensen_zero_count_linear_traceNorm_bound
     simpa only [hzNorm] using
       (universalFredholm_norm_le_exp_two_traceNorm T z)
   have hJ :=
-    hanalytic.sum_divisor_le
+    AnalyticOnNhd.sum_divisor_le
+      (c := (0 : ℂ)) (r := r) (R := R)
+      (M := Real.exp (2 * (R * ‖T‖)))
       (by simpa only [abs_of_pos hr] using hr)
       (by simpa only [abs_of_pos hr, abs_of_pos hR] using hrR)
-      hM hnonzero houter
+      hM hanalytic hnonzero houter
   simpa only [abs_of_pos hr, fredholmDet_zero, norm_one,
     div_one, Real.log_exp] using hJ
 
