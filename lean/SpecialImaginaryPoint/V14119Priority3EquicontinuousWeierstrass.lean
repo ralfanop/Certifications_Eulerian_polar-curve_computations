@@ -53,7 +53,10 @@ theorem locally_uniform_of_equicontinuous
         (𝓝 (UniformOnFun.ofFun fam f)) := by
     apply (EquicontinuousOn.tendsto_uniformOnFun_iff_pi'
       hcompactFam hequiFam atTop f).2
-    simpa [fam] using hpointK
+    have hfamily : (⋃₀ fam) = K := by
+      simp [fam]
+    rw [hfamily]
+    exact hpointK
   exact
     (UniformOnFun.tendsto_iff_tendstoUniformlyOn.mp hloc)
       K (by simp [fam])
