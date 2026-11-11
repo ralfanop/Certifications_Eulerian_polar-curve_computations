@@ -54,7 +54,6 @@ theorem equicontinuity_of_asymmetric_exponential_norm_bound
   intro w hw n
   have hwball : w ∈ Metric.ball z δ := by
     change dist w z < δ
-    rw [dist_comm]
     exact hw
   have hφw : φ w < ε := hball hwball
   calc
