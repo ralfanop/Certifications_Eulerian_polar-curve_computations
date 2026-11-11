@@ -52,7 +52,7 @@ theorem universalFredholm_joint_diff_norm_le
     ‖fredholmDet T z - fredholmDet S w‖ ≤
         ‖fredholmDet T z - fredholmDet S z‖ +
           ‖fredholmDet S z - fredholmDet S w‖ :=
-      norm_sub_le _ _ _
+      norm_sub_le _ _
     _ ≤
         (‖z‖ * ‖T - S‖) *
             Real.exp (‖z‖ * (‖S‖ + ‖T - S‖)) +
