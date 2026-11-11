@@ -50,7 +50,8 @@ theorem universalFredholm_logDeriv_differentiableAt
     (T : ProbabilisticTheory.TraceClass H) (z : ℂ)
     (hz : fredholmDet T z ≠ 0) :
     DifferentiableAt ℂ (logDeriv (fredholmDet T)) z := by
-  rw [logDeriv_apply]
+  change DifferentiableAt ℂ
+    (fun w : ℂ => deriv (fredholmDet T) w / fredholmDet T w) z
   exact ((universalFredholmDet_deriv_entire T) z).div
     ((universal_fredholmDet_entire T) z) hz
 
