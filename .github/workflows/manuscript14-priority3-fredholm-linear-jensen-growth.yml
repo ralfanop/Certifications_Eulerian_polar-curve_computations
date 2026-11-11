@@ -265,7 +265,7 @@ jobs:
           import pathlib,re
           log=pathlib.Path("/tmp/p3-fredholm-linear-jensen-growth.log").read_text()
           prefix="Manuscript14Priority3.FredholmLinearJensenGrowth."
-          names=["universalFredholm_norm_le_exp_two_traceNorm","universalFredholm_Jensen_zero_count_linear_traceNorm_bound"]
+          names=["universalFredholm_norm_le_exp_two_traceNorm","universalFredholm_Jensen_zero_count_linear_traceNorm_bound","universalFredholm_Jensen_zero_count_double_radius"]
           reports={}
           for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",log,re.MULTILINE):
             reports[m.group(1) or m.group(3)]={a.strip() for a in (m.group(2) or "").split(",") if a.strip()}
