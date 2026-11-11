@@ -43,7 +43,7 @@ theorem dirichlet_fredholm_nonzero_of_nonreal
         ring
   have hImZero : shift.im = 0 := by
     rw [hreal]
-    simp
+    exact Complex.ofReal_im _
   exact hIm hImZero
 
 /-- Every positive real shift of the actual infinite-dimensional
