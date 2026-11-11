@@ -47,7 +47,6 @@ theorem universal_dirichlet_half_eq_eulerian_special_constant :
       Real.sinh (1 / Real.sqrt 2) / (1 / Real.sqrt 2) =
         Real.sqrt 2 * Real.sinh (1 / Real.sqrt 2) := by
     field_simp [hsqrtne]
-    ring
   have hdet :=
     fredholmDet_true_dirichlet_inverse_sinh_quotient
       (1 / Real.sqrt 2) hx
