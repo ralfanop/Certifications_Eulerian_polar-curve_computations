@@ -158,7 +158,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3FiniteCompressionTwoFamilyBound.lean 2>&1 | tee /tmp/p3-universal-compression-tracenorm.log
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3UniversalCompressionTraceNorm.lean 2>&1 | tee /tmp/p3-universal-compression-tracenorm.log
       - name: Audit unconditional genuine finite compression trace-norm perturbation
         shell: bash
         run: |
