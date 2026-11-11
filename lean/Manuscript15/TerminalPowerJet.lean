@@ -29,7 +29,8 @@ theorem hasDerivAt_power_reconstruction_X
   have hpow := hasDerivAt_power_zero g x d M hM hg0 hg
   have hfun := (hasDerivAt_id x).mul
     ((hasDerivAt_const x (1 : ℝ)).sub hpow)
-  have hval : (g x) ^ M = 0 := by simp [hg0, hM]
+  have hp : 0 < M := by omega
+  have hval : (g x) ^ M = 0 := by simp [hg0, hp]
   convert hfun.const_mul a using 1 <;> simp [hval] <;> ring
 
 /-- The squared-power coordinate has zero terminal derivative for
@@ -41,11 +42,16 @@ theorem hasDerivAt_power_reconstruction_Y
   have hpow := hasDerivAt_power_zero g x d (2 * M)
     (by omega) hg0 hg
   have hpoly : HasDerivAt (fun t : ℝ => a * t ^ 2 / 2) (a * x) x := by
-    convert (((hasDerivAt_id x).pow 2).const_mul a).div_const 2 using 1 <;> ring
+    convert (((hasDerivAt_id x).pow 2).const_mul a).div_const 2 using 1
+    · funext u
+      ring
+    · ring
   have hfun := hpoly.mul hpow
   have hp : 0 < 2 * M := by omega
   have hval : (g x) ^ (2 * M) = 0 := by simp [hg0, hp]
-  convert hfun using 1 <;> simp [hval] <;> ring
+  convert hfun using 1
+  · rfl
+  · simp [hval]
 
 #print axioms Manuscript15.hasDerivAt_power_zero
 #print axioms Manuscript15.hasDerivAt_power_reconstruction_X
