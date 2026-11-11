@@ -59,7 +59,7 @@ theorem equicontinuity_of_exponential_norm_perturbation
   intro y hy n
   have hyball : y ∈ Metric.ball x δ := by
     change dist y x < δ
-    exact (dist_comm x y).symm ▸ hy
+    simpa only [dist_comm y x] using hy
   have hyφ : φ y < ε := hball hyball
   calc
     dist (D n x) (D n y) = ‖D n x - D n y‖ := dist_eq_norm (D n x) (D n y)
