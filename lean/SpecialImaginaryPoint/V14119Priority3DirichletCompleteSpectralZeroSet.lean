@@ -35,20 +35,20 @@ open Manuscript14Priority3.DirichletNegativeFredholmZeros
 /-- Complete zero set of the universal genuine CFC-S₁ Dirichlet
 inverse Fredholm determinant, in the FULL complex spectral plane. -/
 theorem universal_dirichlet_fredholm_zero_iff_negative_pi_square
-    (λ : ℂ) :
-    fredholmDet inverseTraceClass λ = 0 ↔
+    (shift : ℂ) :
+    fredholmDet inverseTraceClass shift = 0 ↔
       ∃ k : ℤ, k ≠ 0 ∧
-        λ = -(((k : ℂ) * (Real.pi : ℂ)) ^ 2) := by
+        shift = -(((k : ℂ) * (Real.pi : ℂ)) ^ 2) := by
   constructor
   · intro hdet
     obtain ⟨z, hzsq⟩ :=
-      IsAlgClosed.exists_pow_nat_eq λ (by decide : 0 < (2 : ℕ))
+      IsAlgClosed.exists_pow_nat_eq shift (by decide : 0 < (2 : ℕ))
     have hz0 : z ≠ 0 := by
       intro hz0
-      have hλzero : λ = 0 := by
+      have hshiftzero : shift = 0 := by
         rw [← hzsq, hz0]
         norm_num
-      rw [hλzero, fredholmDet_zero] at hdet
+      rw [hshiftzero, fredholmDet_zero] at hdet
       exact one_ne_zero hdet
     have hdetz : fredholmDet inverseTraceClass (z ^ 2) = 0 := by
       simpa only [hzsq] using hdet
@@ -56,7 +56,7 @@ theorem universal_dirichlet_fredholm_zero_iff_negative_pi_square
       (dirichlet_fredholm_square_zero_iff_integer_pi_I z hz0).mp hdetz
     refine ⟨k, hk0, ?_⟩
     calc
-      λ = z ^ 2 := hzsq.symm
+      shift = z ^ 2 := hzsq.symm
       _ = ((k : ℂ) * (Real.pi : ℂ) * Complex.I) ^ 2 := by
         rw [hk]
       _ = -(((k : ℂ) * (Real.pi : ℂ)) ^ 2) := by
