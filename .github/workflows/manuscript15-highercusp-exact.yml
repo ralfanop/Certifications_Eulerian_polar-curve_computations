@@ -1,0 +1,57 @@
+name: Manuscript 15 — Higher cusp arithmetic Lean CI
+on:
+  push:
+    branches:
+      - manuscript15-highercusp-exact-20261111
+    paths:
+      - 'lean/Manuscript15/HigherCuspArithmetic.lean'
+      - '.github/workflows/manuscript15-highercusp-exact.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/HigherCuspArithmetic.lean'
+      - '.github/workflows/manuscript15-highercusp-exact.yml'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Fetch Mathlib artifacts
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Check cusp and moment formulas, audit axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/HigherCuspArithmetic.lean 2>&1 | tee /tmp/m15-higher-cusp.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m15-higher-cusp.log; then
+            echo '::error::Forbidden axiom'
+            exit 1
+          fi
+          for decl in uniform_sum_fourth_moment_arithmetic uniform_sum_leading_cusp_arithmetic uniform_sum_quadratic_cusp_arithmetic fourth_moment_recovery_arithmetic; do
+            grep -F "Manuscript15.$decl" /tmp/m15-higher-cusp.log
+          done
+      - name: Upload kernel audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-highercusp-lean
+          path: /tmp/m15-higher-cusp.log
