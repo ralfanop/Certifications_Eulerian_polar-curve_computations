@@ -1,0 +1,85 @@
+name: "Manuscript 15 — exact all-order rigidity recurrence existence and uniqueness"
+on:
+  push:
+    branches:
+      - manuscript15-rigidity-recurrence-existence-20261111
+    paths:
+      - 'lean/Manuscript15/CoefficientRigidity.lean'
+      - 'lean/Manuscript15/CoefficientExistence.lean'
+      - '.github/workflows/manuscript15-rigidity-recurrence-existence.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/CoefficientRigidity.lean'
+      - 'lean/Manuscript15/CoefficientExistence.lean'
+      - '.github/workflows/manuscript15-rigidity-recurrence-existence.yml'
+  workflow_dispatch:
+jobs:
+  kernel:
+    name: "Exact all-order rigidity coefficient existence and uniqueness — Lean kernel audit"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Download pinned Mathlib cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile canonical all-order rigid coefficient sequence and full recurrence
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/CoefficientRigidity.olean \
+            Manuscript15/CoefficientRigidity.lean 2>&1 | tee /tmp/m15-coeff-existence-prerequisite.log
+          lake env lean -M16768 Manuscript15/CoefficientExistence.lean 2>&1 | tee /tmp/m15-coeff-existence.log
+      - name: Strict kernel axiom audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          s=pathlib.Path("/tmp/m15-coeff-existence.log").read_text()
+          pre=pathlib.Path("/tmp/m15-coeff-existence-prerequisite.log").read_text()
+          names=[
+            "Manuscript15.rigidityCoefficientSequence_zero",
+            "Manuscript15.rigidityCoefficientSequence_succ",
+            "Manuscript15.rigidityCoefficientSequence_rule",
+            "Manuscript15.coefficientRule_exists",
+            "Manuscript15.coefficientRule_eq_canonical",
+            "Manuscript15.coefficientRule_existsUnique",
+          ]
+          reports={}
+          for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",s,re.MULTILINE):
+            reports[m.group(1) or m.group(3)]={a.strip() for a in (m.group(2) or "").split(",") if a.strip()}
+          allowed={"propext","Classical.choice","Quot.sound"}
+          for name in names:
+            assert name in reports, f"No kernel report for {name}"
+            assert reports[name] <= allowed, f"Unaccepted axioms: {name}, {reports[name]-allowed}"
+            print(name, sorted(reports[name]))
+          for log in [s,pre]:
+            assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+            assert not re.search(r"\.lean:\d+:\d+: error",log)
+          print("SUCCESS: Manuscript 15 exact all-order algebraic recurrence existence and uniqueness")
+          PY
+      - name: Upload kernel audit logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-coefficient-alternation-audit
+          path: |
+            /tmp/m15-coeff-existence-prerequisite.log
+            /tmp/m15-coeff-existence.log
+          if-no-files-found: ignore
