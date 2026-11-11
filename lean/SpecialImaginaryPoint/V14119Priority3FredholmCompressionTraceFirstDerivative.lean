@@ -32,6 +32,7 @@ namespace Manuscript14Priority3.FredholmCompressionTraceFirstDerivative
 open Filter Topology Set Matrix Polynomial
 open scoped InnerProductSpace Ring
 open Manuscript14Priority3.TraceClassModel
+open Manuscript14Priority3.FiniteRankFredholm
 open Manuscript14Priority3.FiniteShiftEntirePolynomial
 open Manuscript14Priority3.UniversalFredholmExistence
 open Manuscript14Priority3.FredholmCompressionDerivativesConverge
