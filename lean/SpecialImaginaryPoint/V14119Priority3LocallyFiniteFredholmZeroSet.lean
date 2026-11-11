@@ -68,7 +68,7 @@ zero divisor: on ANY bounded complex region there are only
 finitely many zeros, even for arbitrary nonnormal operators. -/
 theorem universalFredholmZeroSet_bounded_inter_finite
     (T : ProbabilisticTheory.TraceClass H)
-    (K : Set ℂ) (hK : IsBounded K) :
+    (K : Set ℂ) (hK : Bornology.IsBounded K) :
     (K ∩ universalFredholmZeroSet T).Finite := by
   exact Metric.finite_isBounded_inter_isClosed
     (universalFredholmZeroSet_isDiscrete T)
