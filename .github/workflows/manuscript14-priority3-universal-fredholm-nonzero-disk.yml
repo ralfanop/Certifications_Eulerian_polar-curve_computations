@@ -1,0 +1,276 @@
+name: "Priority 3 — universal CFC-S1 Fredholm zero-free disk at spectral origin"
+
+on:
+  push:
+    branches:
+      - manuscript14-priority3-universal-fredholm-nonzero-disk-20261111
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3CountableUniversalSpectralZeros.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3GenericFredholmSpectralParameters.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FredholmZeroSetNullity.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3HolomorphicFredholmReciprocal.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3MeromorphicFredholmReciprocal.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmLogDerivative.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmZeroMultiplicity.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmLocalFactorization.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FredholmReciprocalPoleOrder.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmNonzeroDisk.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3LocallyFiniteFredholmZeroSet.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalIsolatedSpectralZeros.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmEntire.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3SpectralEquicontinuity.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3SpectralExpEquicontinuity.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3EquicontinuousWeierstrass.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteShiftEntirePolynomial.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3DenseUniformCauchy.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ExpTraceNormEquicont.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FinsetNuclearReindex.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3TwoNetBoundLimit.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3CompressedEuclideanCoordinates.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3TrueFiniteCompressionGram.lean'
+      - '.github/workflows/manuscript14-priority3-universal-fredholm-nonzero-disk.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmNonzeroDisk.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FredholmReciprocalPoleOrder.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmLocalFactorization.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmZeroMultiplicity.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmLogDerivative.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3MeromorphicFredholmReciprocal.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3HolomorphicFredholmReciprocal.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FredholmZeroSetNullity.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3GenericFredholmSpectralParameters.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3CountableUniversalSpectralZeros.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3LocallyFiniteFredholmZeroSet.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmEntire.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3SpectralEquicontinuity.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3SpectralExpEquicontinuity.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3EquicontinuousWeierstrass.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteShiftEntirePolynomial.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3DenseUniformCauchy.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ExpTraceNormEquicont.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FinsetNuclearReindex.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3TwoNetBoundLimit.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3CompressedEuclideanCoordinates.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3TrueFiniteCompressionGram.lean'
+      - '.github/workflows/manuscript14-priority3-universal-fredholm-nonzero-disk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lean:
+    name: Genuine universal Fredholm zero-free disk — kernel audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build sharp unrestricted Gram Hadamard dependency chain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in V14119Priority3ComplexGramMinorBridge V14119Priority3SquareAmbientMixedGramSharp V14119Priority3AmbientProjectionSharp V14119Priority3UnrestrictedMixedGramHadamard V14119Priority3MinorExpansionIncrement; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" "SpecialImaginaryPoint/$f.lean"
+          done
+      - name: Build certified genuine weighted Gram minor dependency
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3WeightedGramMinorStep.olean \
+            SpecialImaginaryPoint/V14119Priority3WeightedGramMinorStep.lean
+      - name: Build exact Gram determinant principal-expansion prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3ExactGramPrincipalExpansion.olean \
+            SpecialImaginaryPoint/V14119Priority3ExactGramPrincipalExpansion.lean
+      - name: Build previous one-step determinant bound prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3FiniteGramOneStepDet.olean \
+            SpecialImaginaryPoint/V14119Priority3FiniteGramOneStepDet.lean
+      - name: Build genuine V007 trace-class and rank-one prerequisites
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge GegenbauerFock.PhyslibTraceClassSandwichContinuous GegenbauerFock.PhyslibTraceClassSeriesTailEstimate GegenbauerFock.PhyslibTraceClassOperatorEmbedding GegenbauerFock.PhyslibTraceClassHSFactorization GegenbauerFock.PhyslibTraceNormSqrtAbsEnergy GegenbauerFock.PhyslibHilbertSchmidtAdditive
+
+      - name: Build actual finite nuclear Fredholm functional prerequisites
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3RankOneS1 V14119Priority3S1Truncation V14119Priority3OperatorCompression V14119Priority3PositiveDiagonalFredholm V14119Priority3FredholmSectorFunctional V14119Priority3ComplexDiagonalS1 V14119Priority3ArbitraryNuclearRankOne V14119Priority3FiniteRankFredholm V14119Priority3FiniteNuclearFredholm V14119Priority3FiniteIntrinsicFunctional; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean"
+          done
+
+      - name: Build zeroed-index actual determinant prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3ZeroedIndexActualDet.olean \
+            SpecialImaginaryPoint/V14119Priority3ZeroedIndexActualDet.lean
+
+      - name: Build certified arbitrary multi-index Gram determinant prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3MultiIndexGramPerturb.olean \
+            SpecialImaginaryPoint/V14119Priority3MultiIndexGramPerturb.lean
+
+      - name: Build finite CFC S1 concatenation and exact tail bookkeeping
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in V14119Priority3FiniteNuclearConcatenation V14119Priority3FinAppendTailIndex V14119Priority3IntrinsicFiniteS1MultitermBound; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean"
+          done
+
+      - name: Compile finite complex Euclidean coefficient prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3CompressedEuclideanCoordinates.olean \
+            SpecialImaginaryPoint/V14119Priority3CompressedEuclideanCoordinates.lean
+
+      - name: Build exact true finite compression Gram and two-family prerequisites
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in V14119Priority3TrueFiniteCompressionGram V14119Priority3FiniteTwoFamilyDet; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean"
+          done
+
+      - name: Build certified optimal finite nuclear truncations, true compression, and double-net limit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in V14119Priority3UniversalNuclearDensity V14119Priority3OptimalNuclearMass V14119Priority3OptimalNuclearTruncations V14119Priority3FinsetNuclearReindex V14119Priority3TwoNetBoundLimit V14119Priority3FiniteCompressionTwoFamilyBound; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean"
+          done
+
+      - name: Build actual trace-class compression bound and dense equicontinuity limit dependencies
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in V14119Priority3UniversalCompressionTraceNorm V14119Priority3DenseUniformCauchy V14119Priority3ExpTraceNormEquicont; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean"
+          done
+
+      - name: Build universal Fredholm limit and complex analytic prerequisite modules
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in V14119Priority3UniversalFredholmExistence V14119Priority3SpectralEquicontinuity V14119Priority3SpectralExpEquicontinuity V14119Priority3EquicontinuousWeierstrass V14119Priority3FiniteShiftEntirePolynomial; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean"
+          done
+
+      - name: Compile entire Fredholm determinant prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmEntire.olean SpecialImaginaryPoint/V14119Priority3UniversalFredholmEntire.lean
+      - name: Compile locally finite Fredholm zero set prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmEntire.olean \
+            SpecialImaginaryPoint/V14119Priority3UniversalFredholmEntire.lean
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3UniversalIsolatedSpectralZeros.olean \
+            SpecialImaginaryPoint/V14119Priority3UniversalIsolatedSpectralZeros.lean
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3LocallyFiniteFredholmZeroSet.olean \
+            SpecialImaginaryPoint/V14119Priority3LocallyFiniteFredholmZeroSet.lean
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3CountableUniversalSpectralZeros.olean \
+            SpecialImaginaryPoint/V14119Priority3CountableUniversalSpectralZeros.lean
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3GenericFredholmSpectralParameters.olean \
+            SpecialImaginaryPoint/V14119Priority3GenericFredholmSpectralParameters.lean
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3FredholmZeroSetNullity.olean \
+            SpecialImaginaryPoint/V14119Priority3FredholmZeroSetNullity.lean
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3HolomorphicFredholmReciprocal.olean \
+            SpecialImaginaryPoint/V14119Priority3HolomorphicFredholmReciprocal.lean
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3MeromorphicFredholmReciprocal.olean \
+            SpecialImaginaryPoint/V14119Priority3MeromorphicFredholmReciprocal.lean
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmLogDerivative.olean \
+            SpecialImaginaryPoint/V14119Priority3UniversalFredholmLogDerivative.lean
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmZeroMultiplicity.olean \
+            SpecialImaginaryPoint/V14119Priority3UniversalFredholmZeroMultiplicity.lean
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmLocalFactorization.olean \
+            SpecialImaginaryPoint/V14119Priority3UniversalFredholmLocalFactorization.lean
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3FredholmReciprocalPoleOrder.olean \
+            SpecialImaginaryPoint/V14119Priority3FredholmReciprocalPoleOrder.lean
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3UniversalFredholmNonzeroDisk.lean 2>&1 | tee /tmp/p3-universal-fredholm-nonzero-disk.log
+
+      - name: Audit genuine universal Fredholm determinant zero-free spectral disk
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,re
+          log=pathlib.Path("/tmp/p3-universal-fredholm-nonzero-disk.log").read_text()
+          prefix="Manuscript14Priority3.UniversalFredholmNonzeroDisk."
+          names=["universalFredholmDet_nonzero_at_zero","universalFredholmDet_exists_nonzero_disk","universalFredholmDet_zeros_bounded_away_from_zero"]
+          reports={}
+          for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",log,re.MULTILINE):
+            reports[m.group(1) or m.group(3)]={a.strip() for a in (m.group(2) or "").split(",") if a.strip()}
+          allowed={"propext","Quot.sound","Classical.choice"}
+          for name in names:
+            k=prefix+name
+            assert k in reports, f"Missing report: {k}"
+            assert reports[k]<=allowed, f"Nonstandard axioms in {k}: {reports[k]-allowed}"
+            print(k,sorted(reports[k]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error",log)
+          print("SUCCESS: genuine universal CFC-S1 Fredholm zero-free disk at spectral origin")
+          PY
+      - name: Upload Lean audit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-universal-fredholm-nonzero-disk-logs
+          path: /tmp/p3-universal-fredholm-nonzero-disk.log
+          if-no-files-found: ignore
