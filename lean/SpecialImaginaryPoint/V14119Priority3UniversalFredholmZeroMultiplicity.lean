@@ -38,7 +38,7 @@ theorem universalFredholm_analyticOrderAt_ne_top
     (AnalyticOnNhd.analyticOrderAt_eq_top_iff_eq_zero z
       (fun w => (universal_fredholmDet_entire T).analyticAt w)).mp htop
   have hcontra : (1 : ℂ) = 0 := by
-    simpa only [fredholmDet_zero] using congrFun hfzero 0
+    simpa [fredholmDet_zero] using congrFun hfzero 0
   exact one_ne_zero hcontra
 
 /-- At each genuine complex Fredholm spectral parameter there exists
@@ -46,8 +46,9 @@ a finite natural-number analytic order, without normality assumptions. -/
 theorem universalFredholm_analyticOrderAt_eq_nat
     (T : ProbabilisticTheory.TraceClass H) (z : ℂ) :
     ∃ n : ℕ, analyticOrderAt (fredholmDet T) z = n := by
-  exact WithTop.ne_top_iff_exists.mp
+  obtain ⟨n, hn⟩ := WithTop.ne_top_iff_exists.mp
     (universalFredholm_analyticOrderAt_ne_top T z)
+  exact ⟨n, hn.symm⟩
 
 /-- At an actual zero of the infinite-dimensional Fredholm determinant,
 the analytic order is never zero. -/
