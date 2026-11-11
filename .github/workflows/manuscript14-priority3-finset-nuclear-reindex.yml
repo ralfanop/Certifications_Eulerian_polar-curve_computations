@@ -1,0 +1,91 @@
+name: "Priority 3 — optimal S1 nuclear truncations as canonical Fin m presentations"
+
+on:
+  push:
+    branches:
+      - manuscript14-priority3-finset-nuclear-reindex-20261111
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FinsetNuclearReindex.lean'
+      - '.github/workflows/manuscript14-priority3-finset-nuclear-reindex.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FinsetNuclearReindex.lean'
+      - '.github/workflows/manuscript14-priority3-finset-nuclear-reindex.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Optimal S1 nuclear Finset to Fin m — three kernel checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build genuine CFC S1 polar and Hilbert Schmidt prerequisites
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge GegenbauerFock.PhyslibTraceClassSandwichContinuous GegenbauerFock.PhyslibTraceClassSeriesTailEstimate GegenbauerFock.PhyslibTraceClassOperatorEmbedding GegenbauerFock.PhyslibTraceClassHSFactorization GegenbauerFock.PhyslibTraceNormSqrtAbsEnergy GegenbauerFock.PhyslibHilbertSchmidtAdditive
+      - name: Compile complete CFC S1 nuclear density, optimal mass and finite Fredholm prerequisites
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3RankOneS1 V14119Priority3S1Truncation V14119Priority3OperatorCompression V14119Priority3PositiveDiagonalFredholm V14119Priority3FredholmSectorFunctional V14119Priority3ComplexDiagonalS1 V14119Priority3ArbitraryNuclearRankOne V14119Priority3UniversalNuclearDensity V14119Priority3OptimalNuclearMass V14119Priority3OptimalNuclearTruncations V14119Priority3FiniteRankFredholm V14119Priority3FiniteNuclearFredholm; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean"
+          done
+      - name: Compile optimal finite nuclear reindexing
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3FinsetNuclearReindex.lean 2>&1 | tee /tmp/p3-finset-nuclear-reindex.log
+      - name: Audit exact kernel declarations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,re
+          log=pathlib.Path("/tmp/p3-finset-nuclear-reindex.log").read_text()
+          prefix="Manuscript14Priority3.FinsetNuclearReindex."
+          names=["finiteNuclear_finset_eq","nuclear_mass_finset_eq","traceClass_exists_optimal_fin_presentations"]
+          reports={}
+          for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",log,re.MULTILINE):
+            reports[m.group(1) or m.group(3)]={a.strip() for a in (m.group(2) or "").split(",") if a.strip()}
+          allowed={"propext","Quot.sound","Classical.choice"}
+          for name in names:
+            key=prefix+name
+            assert key in reports, f"Missing kernel audit: {key}"
+            assert reports[key]<=allowed, f"Nonstandard axioms in {key}: {reports[key]-allowed}"
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error",log)
+          print("SUCCESS: optimal true CFC-S1 Finset truncations represented by Fin m nuclear families")
+          PY
+      - name: Upload Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-finset-nuclear-reindex-logs
+          path: /tmp/p3-finset-nuclear-reindex.log
+          if-no-files-found: ignore
