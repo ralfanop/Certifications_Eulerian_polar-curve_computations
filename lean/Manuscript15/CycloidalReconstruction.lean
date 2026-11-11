@@ -93,6 +93,89 @@ theorem eulerian_Y_pi (a : ℝ) :
   rw [eulerian_Y_eq_cycloid, Real.cos_pi]
   ring
 
+
+/-! ### Manuscript 15, Proposition: coordinate compatibility and injectivity -/
+
+/-- Exact compatibility between the two reconstructed coordinates.
+    In division-free form this holds also at a=0 and t=0. -/
+theorem reconstruction_compatibility_polynomial (a t : ℝ) (f : ℝ → ℝ) :
+    2 * a * Y a f t = (a * t - 2 * X a f (t / 2)) ^ 2 := by
+  unfold X Y
+  have htwo : 2 * (t / 2) = t := by ring
+  rw [htwo]
+  ring
+
+/-- Manuscript 15, compatibility formula, for every nonzero scale a. -/
+theorem reconstruction_compatibility (a t : ℝ) (f : ℝ → ℝ) (ha : a ≠ 0) :
+    Y a f t = (a * t - 2 * X a f (t / 2)) ^ 2 / (2 * a) := by
+  have h := reconstruction_compatibility_polynomial a t f
+  apply (eq_div_iff (mul_ne_zero (by norm_num) ha)).2
+  nlinarith
+
+/-- The first coordinate recovers the function away from t=0. -/
+theorem reconstruction_inverse (a t : ℝ) (f : ℝ → ℝ)
+    (ha : a ≠ 0) (ht : t ≠ 0) :
+    f t = 1 - (2 / (a * t)) * X a f (t / 2) := by
+  unfold X
+  have htwo : 2 * (t / 2) = t := by ring
+  rw [htwo]
+  field_simp [ha, ht]
+  <;> ring
+
+/-- Injectivity of the first-coordinate map among functions with the same
+    value at the origin. Characteristic-function uniqueness of probability
+    measures is a distinct, downstream theorem. -/
+theorem reconstruction_first_coordinate_injective
+    (a : ℝ) (ha : a ≠ 0) (f g : ℝ → ℝ) (h0 : f 0 = g 0)
+    (hX : ∀ t : ℝ, X a f t = X a g t) : f = g := by
+  funext t
+  by_cases ht : t = 0
+  · simpa [ht] using h0
+  · have hf := reconstruction_inverse a t f ha ht
+    have hg := reconstruction_inverse a t g ha ht
+    calc
+      f t = 1 - (2 / (a * t)) * X a f (t / 2) := hf
+      _ = 1 - (2 / (a * t)) * X a g (t / 2) := by rw [hX (t / 2)]
+      _ = g t := hg.symm
+
+/-! ### Abstract pointwise Lipschitz step used in the W₁ estimate -/
+
+/-- Exact X-coordinate difference, before any coupling/transport estimate. -/
+theorem reconstruction_X_difference (a t : ℝ) (f g : ℝ → ℝ) :
+    |X a f t - X a g t| =
+      |a| * |t| * |f (2 * t) - g (2 * t)| := by
+  have h :
+      X a f t - X a g t = a * t * (g (2 * t) - f (2 * t)) := by
+    unfold X
+    ring
+  rw [h, abs_mul, abs_mul, abs_sub_comm]
+  ring
+
+/-- If two real kernels satisfy a pointwise |s|-Lipschitz difference bound,
+    the first reconstructed coordinate satisfies Manuscript 15's sharp
+    2 |a| t² bound. Here δ can later be instantiated with W₁(μ,ν). -/
+theorem reconstruction_X_stability
+    (a t δ : ℝ) (f g : ℝ → ℝ)
+    (hfg : ∀ s : ℝ, |f s - g s| ≤ |s| * δ) :
+    |X a f t - X a g t| ≤ 2 * |a| * t ^ 2 * δ := by
+  rw [reconstruction_X_difference]
+  calc
+    |a| * |t| * |f (2 * t) - g (2 * t)|
+        ≤ |a| * |t| * (|2 * t| * δ) :=
+          mul_le_mul_of_nonneg_left (hfg (2 * t))
+            (mul_nonneg (abs_nonneg _) (abs_nonneg _))
+    _ = 2 * |a| * t ^ 2 * δ := by
+      rw [abs_mul, abs_of_nonneg (show (0 : ℝ) ≤ 2 by norm_num)]
+      rw [← sq_abs t]
+      ring
+
+#print axioms Manuscript15.reconstruction_compatibility_polynomial
+#print axioms Manuscript15.reconstruction_compatibility
+#print axioms Manuscript15.reconstruction_inverse
+#print axioms Manuscript15.reconstruction_first_coordinate_injective
+#print axioms Manuscript15.reconstruction_X_difference
+#print axioms Manuscript15.reconstruction_X_stability
+
 #print axioms Manuscript15.eulerian_X_eq_cycloid
 #print axioms Manuscript15.eulerian_Y_eq_cycloid
 #print axioms Manuscript15.eulerian_kinematic
