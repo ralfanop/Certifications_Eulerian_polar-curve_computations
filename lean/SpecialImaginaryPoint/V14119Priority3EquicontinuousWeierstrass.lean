@@ -45,7 +45,7 @@ theorem locally_uniform_of_equicontinuous
   have hpointK :
       Tendsto (K.domRestrict ∘ F) atTop
         (𝓝 (K.domRestrict f)) := by
-    rw [Filter.tendsto_pi_nhds]
+    rw [tendsto_pi_nhds]
     intro x
     exact hpoint x.val
   have hloc :
@@ -53,7 +53,7 @@ theorem locally_uniform_of_equicontinuous
         (𝓝 (UniformOnFun.ofFun fam f)) := by
     apply (EquicontinuousOn.tendsto_uniformOnFun_iff_pi'
       hcompactFam hequiFam atTop f).2
-    simpa only [fam, Set.sUnion_singleton] using hpointK
+    simpa [fam] using hpointK
   exact
     (UniformOnFun.tendsto_iff_tendstoUniformlyOn.mp hloc)
       K (by simp [fam])
