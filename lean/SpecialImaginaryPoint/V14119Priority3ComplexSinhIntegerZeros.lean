@@ -24,7 +24,7 @@ theorem complex_sinh_eq_zero_iff_integer_pi_I (z : ℂ) :
     Complex.sinh z = 0 ↔
       ∃ k : ℤ, z = (k : ℂ) * (Real.pi : ℂ) * Complex.I := by
   have hsin : Complex.sin (z * Complex.I) =
-      Complex.sinh z * Complex.I := Complex.sin_mul_I
+      Complex.sinh z * Complex.I := Complex.sin_mul_I z
   constructor
   · intro hz
     have hs : Complex.sin (z * Complex.I) = 0 := by
