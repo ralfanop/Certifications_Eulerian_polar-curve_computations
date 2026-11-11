@@ -1,0 +1,61 @@
+name: Manuscript 15 — Eulerian sinc derivatives at nonzero roots
+on:
+  push:
+    branches:
+      - manuscript15-eulerian-root-derivatives-20261111
+    paths:
+      - 'lean/Manuscript15/EulerianRootDerivatives.lean'
+      - '.github/workflows/manuscript15-eulerian-root-derivatives.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/EulerianRootDerivatives.lean'
+      - '.github/workflows/manuscript15-eulerian-root-derivatives.yml'
+  workflow_dispatch:
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4 toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build inherited FourierModes and Corner
+        working-directory: lean
+        run: |
+          lake build EulerianCert.FourierModes
+          lake build EulerianCert.Corner
+      - name: Check exact Eulerian nonzero-root derivative declarations
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/EulerianRootDerivatives.lean 2>&1 | tee /tmp/m15-rootderiv.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m15-rootderiv.log; then
+            echo '::error::Forbidden axiom'
+            exit 1
+          fi
+          for decl in eulerian_kernel_nonzero_eq_corner eulerian_kernel_hasDerivAt_nonzero eulerian_kernel_derivative_two_pi eulerian_kernel_derivative_four_pi eulerian_kernel_hasDerivAt_two_pi eulerian_kernel_hasDerivAt_four_pi; do
+            grep -F "Manuscript15.$decl" /tmp/m15-rootderiv.log
+          done
+      - name: Upload exact Lean kernel logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-eulerian-rootderiv
+          path: /tmp/m15-rootderiv.log
