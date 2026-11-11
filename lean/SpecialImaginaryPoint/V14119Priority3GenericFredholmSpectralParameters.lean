@@ -20,6 +20,8 @@ noncomputable section
 namespace Manuscript14Priority3.GenericFredholmSpectralParameters
 
 open Filter Topology Set
+open scoped InnerProductSpace Ring
+open Manuscript14Priority3.TraceClassModel
 open Manuscript14Priority3.UniversalFredholmExistence
 open Manuscript14Priority3.LocallyFiniteFredholmZeroSet
 open Manuscript14Priority3.CountableUniversalSpectralZeros
