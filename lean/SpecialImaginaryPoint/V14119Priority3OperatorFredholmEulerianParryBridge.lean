@@ -42,16 +42,16 @@ sqrt(2) sinh(1/sqrt(2)) exactly. -/
 theorem genuine_dirichlet_fredholm_half_eq_eulerianParameter :
     fredholmDet dirichletInverseS1 (1 / 2 : ℂ) =
       ((Manuscript14Section11.eulerianParameter : ℝ) : ℂ) := by
-  have h := genuine_dirichlet_fredholm_real_square_eq_sinh b b_ne_zero
+  have h := genuine_dirichlet_fredholm_real_square_eq_sinh Manuscript14Section67.b b_ne_zero
   rw [b_sq] at h
   have hcast : (((1 / 2 : ℝ)) : ℂ) = (1 / 2 : ℂ) := by norm_num
   rw [hcast] at h
   rw [h]
   congr 1
-  change Real.sinh b / b =
+  change Real.sinh Manuscript14Section67.b / Manuscript14Section67.b =
     Real.sqrt 2 * Real.sinh (1 / Real.sqrt 2)
   rw [div_eq_mul_inv]
-  have hb : b⁻¹ = Real.sqrt 2 := by
+  have hb : Manuscript14Section67.b⁻¹ = Real.sqrt 2 := by
     simpa only [one_div] using one_div_b
   rw [hb, mul_comm]
   rfl
