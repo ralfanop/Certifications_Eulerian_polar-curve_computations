@@ -1,3 +1,5 @@
+import Manuscript15.ConvolutionTerminalDerivatives
+
 /-!
 # Manuscript 15 — exact stationary/regular endpoint dichotomy
 
@@ -5,7 +7,6 @@ This theorem is a direct kernel-level consequence of the independently
 certified convolution terminal velocity classification. It does not
 assert the still-open higher-order endpoint contact jet.
 -/
-import Manuscript15.ConvolutionTerminalDerivatives
 
 noncomputable section
 namespace Manuscript15
