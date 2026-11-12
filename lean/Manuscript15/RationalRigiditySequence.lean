@@ -27,8 +27,9 @@ noncomputable def rationalRigidityCoefficientSequence (n : ℕ) : ℚ :=
     | 0 => 1
     | k + 1 =>
         -((1 / 2 : ℚ) *
-          ∑ j ∈ Finset.range (k + 1),
-            ih j (by omega) * ih (k - j) (by omega)) /
+          ∑ j : (Finset.range (k + 1)),
+            ih j.1 (by have hj := Finset.mem_range.mp j.2; omega) *
+              ih (k - j.1) (by omega)) /
           ((((2 * (k + 1) + 1 : ℕ) : ℚ) * (4 : ℚ) ^ (k + 1))))
 
 /-- Exact rational initial value of the complete recurrence. -/
@@ -47,6 +48,7 @@ theorem rationalRigidityCoefficientSequence_succ (n : ℕ) :
         ((((2 * (n + 1) + 1 : ℕ) : ℚ) * (4 : ℚ) ^ (n + 1))) := by
   conv_lhs =>
     rw [rationalRigidityCoefficientSequence, Nat.strongRecOn_eq]
+  rw [← Finset.sum_attach]
   rfl
 
 /-- The real canonical coefficients are exactly rational coefficient
