@@ -23,3 +23,10 @@ composition with g(t)=r_E(2t) and the M=1 case.
 
 **Status:** candidate until successful exact-head kernel CI; no merge.
 Manuscripts 11–14 and other branches remain unchanged.
+
+
+## Exact-source CI success (verified)
+
+[GitHub Actions run #43177587227](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43177587227) completed **SUCCESS** for executable source commit `1936d3c33954082841d27a3038e9395efc92618c`. Six nonzero-root Eulerian kernel derivative and compatibility declarations kernel-checked. The workflow explicitly checks the Lean kernel and audits for `sorryAx` and `Lean.ofReduceBool` (or, for the full Eulerian table, asserts outward interval accuracy).
+
+This is a historical immutable-source verification record. A documentation-only later commit does not change the executable source; any subsequent executable revision must be checked on its own exact commit before certification is transferred.
