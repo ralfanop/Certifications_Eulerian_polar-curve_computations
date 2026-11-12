@@ -44,7 +44,7 @@ theorem centredUniformLaw_interval_integral (f : ℝ → ℝ) :
   unfold unitCentredInterval
   rw [integral_Icc_eq_integral_Ioc]
   rw [intervalIntegral.integral_of_le (by norm_num : (-1 / 2 : ℝ) ≤ 1 / 2)]
-  rfl
+  simpa only [neg_div]
 
 /-- The actual centred-uniform probability law has precisely the
     original Eulerian sinc as its *real cosine* characteristic function. -/
