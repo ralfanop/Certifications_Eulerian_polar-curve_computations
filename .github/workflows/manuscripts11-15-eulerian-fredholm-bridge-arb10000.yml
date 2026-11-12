@@ -1,0 +1,44 @@
+name: "Manuscripts 11-15 — Eulerian/Fredholm/Langevin certified Arb 10000-bit"
+on:
+  push:
+    branches:
+      - draft/m11-15-eulerian-duplication-fredholm-arb10000-20261112
+    paths:
+      - 'numerics/manuscripts11_15_eulerian_fredholm_bridge_arb10000.py'
+      - '.github/workflows/manuscripts11-15-eulerian-fredholm-bridge-arb10000.yml'
+  pull_request:
+    paths:
+      - 'numerics/manuscripts11_15_eulerian_fredholm_bridge_arb10000.py'
+      - '.github/workflows/manuscripts11-15-eulerian-fredholm-bridge-arb10000.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  arb10000:
+    name: Rigorous Arb 10000-bit scalar intervals and spectral tail tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned FLINT/Arb Python bindings
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Check Python source syntax
+        run: python -m py_compile numerics/manuscripts11_15_eulerian_fredholm_bridge_arb10000.py
+      - name: Certify Arb balls and integral-test bounds
+        shell: bash
+        run: |
+          set -euo pipefail
+          python numerics/manuscripts11_15_eulerian_fredholm_bridge_arb10000.py 2>&1 | tee /tmp/manuscripts11-15-eulerian-fredholm-arb10000.log
+          grep -F "SUCCESS: Eulerian duplication, Langevin identities" /tmp/manuscripts11-15-eulerian-fredholm-arb10000.log
+      - name: Archive full Arb certificate output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscripts11-15-eulerian-fredholm-arb10000
+          path: /tmp/manuscripts11-15-eulerian-fredholm-arb10000.log
+          if-no-files-found: error
