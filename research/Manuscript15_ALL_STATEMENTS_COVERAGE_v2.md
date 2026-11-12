@@ -96,3 +96,16 @@ Theorems 6, 7, 12 or 13 to complete certification merely because a supporting
 workflow succeeds. The established 8182-bit threshold remains mandatory for
 every newly claimed nonzero Arb enclosure. No figure or earlier manuscript
 is modified by this ledger update.
+
+## November 12, 2026 — verified completion of pending exact-head audits
+
+This section updates, rather than silently rewrites, the earlier point-in-time rows.
+
+* **PR #273**, exact head `b4dab696191d9e076948e97ace55b63d76e2de5d`: [workflow #43276238484](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43276238484) is now **SUCCESS**. The job specifically completed compilation of the genuine Fredholm logarithmic derivative/Langevin spectral-trace identities and the four-theorem kernel axiom audit. This supersedes the earlier “IN PROGRESS” status for that SHA only. It does not certify unrelated terminal-contact or rigidity statements.
+* **PR #274**, exact head `d906249d7ec8e68cc1372590a6564756f0373b19`: [workflow #43260765343](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43260765343), job `131331096672`, is **SUCCESS**. The execution log explicitly reports `ctx.prec: 10000`, twelve nonzero outward Arb interval values, and *certified relative bits* individually equal to 9997, 9997, 9996, 9996, 9990, 9992, 9991, 9993, 9990, 9992, 9991, 9990. Thus the observed **minimum is 9990 certified relative bits**, exceeding the required 8182. The twelve values are `a`, `b`, `D(a)`, `D(b)`, `Dprime(a)`, `Dprime(b)`, `L(a)`, `L(b)`, `V(a)`, `V(b)`, `D(b)-D(a)`, and `L(b)-L(a)`. Strict-sign and interval-overlap checks passed. Interval overlap is a numerical consistency test, not an independent exact symbolic proof.
+* **PR #276**, exact head `1276c73049d88833e9f874b3c9a2c0144784a0c4`: 35/35 associated pull-request workflow runs report SUCCESS. **PR #277**, exact head `9668cf328a62c12906b99da2808e3cf395cf58b9`: 41/41 report SUCCESS. The preceding failed universal-compression audit had compiled `V14119Priority3FiniteCompressionTwoFamilyBound.lean` but demanded an axiom report from `V14119Priority3UniversalCompressionTraceNorm.lean`; the subsequent CI correction compiled the actual target. These two PRs are supporting Manuscript 14 operator-theory infrastructure, **not** evidence that every Manuscript 15 theorem is closed.
+* The exact-head PR #236 (15/15 runs), #240 (1/1 run), and #242 (15/15 runs) also show only successful associated pull-request workflow runs. These counts are the first-page commit-associated API results and do not replace a per-declaration theorem-scope audit.
+
+**Outstanding mathematical gaps:** a general-law-to-cycloidal-rigidity implication, full higher-order terminal-contact/cusp jet, differential curvature classification, and the measure-level integrated Wasserstein-1 stability theorem beyond the certified phase-transport kernel. None is promoted to certified here.
+
+This is a documentation-only update. No manuscript, figure, V007/V097 source, numerical script, or Lean proof is modified; no merge is requested.
