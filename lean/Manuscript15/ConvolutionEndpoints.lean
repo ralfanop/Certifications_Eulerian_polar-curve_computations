@@ -25,6 +25,7 @@ def YConv (a : ℝ) (M : ℕ) (t : ℝ) : ℝ :=
 /-- r_E(2π)=0, the first positive zero of the exact sinc kernel. -/
 theorem eulerianKernel_two_pi_zero : eulerianKernel (2 * Real.pi) = 0 := by
   have hn : (2 : ℝ) * Real.pi ≠ 0 := by positivity
+  change EulerianCert.FourierModes.rE _ = 0
   rw [EulerianCert.FourierModes.rE_of_ne_zero hn]
   have hh : (2 * Real.pi) / 2 = Real.pi := by ring
   rw [hh, Real.sin_pi]
@@ -33,6 +34,7 @@ theorem eulerianKernel_two_pi_zero : eulerianKernel (2 * Real.pi) = 0 := by
 /-- r_E(4π)=0, as required for X_M(2π). -/
 theorem eulerianKernel_four_pi_zero : eulerianKernel (4 * Real.pi) = 0 := by
   have hn : (4 : ℝ) * Real.pi ≠ 0 := by positivity
+  change EulerianCert.FourierModes.rE _ = 0
   rw [EulerianCert.FourierModes.rE_of_ne_zero hn]
   have hh : (4 * Real.pi) / 2 = 2 * Real.pi := by ring
   rw [hh, Real.sin_two_pi]
@@ -44,7 +46,8 @@ theorem convolution_endpoint_X (a : ℝ) (M : ℕ) (hM : 0 < M) :
   unfold XConv
   have hs : 2 * (2 * Real.pi) = 4 * Real.pi := by ring
   rw [hs, eulerianKernel_four_pi_zero]
-  simp [hM]
+  have hp : M ≠ 0 := Nat.ne_of_gt hM
+  simp [hp]
   ring
 
 /-- The second coordinate of every nonempty convolution vanishes at 2π. -/
@@ -52,7 +55,7 @@ theorem convolution_endpoint_Y (a : ℝ) (M : ℕ) (hM : 0 < M) :
     YConv a M (2 * Real.pi) = 0 := by
   unfold YConv
   rw [eulerianKernel_two_pi_zero]
-  have hp : 0 < 2 * M := by omega
+  have hp : 2 * M ≠ 0 := by omega
   simp [hp]
 
 /-- All convolution curves start at the origin, for any M including M=0. -/
