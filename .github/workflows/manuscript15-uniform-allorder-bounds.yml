@@ -1,0 +1,58 @@
+name: Manuscript 15 — all-order centered uniform moment positivity and bounds
+on:
+  push:
+    branches: [draft/m15-allorder-moment-positivity-20261112]
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/UniformAllOrderMomentBounds.lean'
+      - '.github/workflows/manuscript15-uniform-allorder-bounds.yml'
+  workflow_dispatch:
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build all-order moment bounds
+        working-directory: lean
+        run: lake build Manuscript15.UniformAllOrderMomentBounds
+      - name: Check exact kernel axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/UniformAllOrderMomentBounds.lean 2>&1 | tee /tmp/m15-moment-bounds.log
+          python3 - <<'PY'
+          import pathlib,re
+          s=pathlib.Path('/tmp/m15-moment-bounds.log').read_text()
+          allowed={'propext','Classical.choice','Quot.sound'}
+          names=['centredUniformLaw_even_moment_pos','centredUniformLaw_even_moment_le_quarter_pow','centredUniformLaw_even_moment_lt_one']
+          for name in names:
+              m=re.search(r"'Manuscript15\."+name+r"' depends on axioms: \[([^\]]*)\]",s)
+              assert m, 'Missing kernel audit for '+name
+              assert set(x.strip() for x in m.group(1).split(','))<=allowed
+          assert 'sorryAx' not in s and 'Lean.ofReduceBool' not in s
+          print('SUCCESS: all three moment bound theorems kernel-certified')
+          PY
+      - name: Archive proof log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-allorder-moment-bounds
+          path: /tmp/m15-moment-bounds.log
+          if-no-files-found: ignore
