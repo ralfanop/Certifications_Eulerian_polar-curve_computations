@@ -60,7 +60,9 @@ jobs:
           pre=pathlib.Path("/tmp/m15-eulerian-fourier-prerequisite.log").read_text()
           names=["Manuscript15.eulerianConvolutionPower_isProbability",
                  "Manuscript15.eulerianConvolutionPower_charFun",
-                 "Manuscript15.eulerianConvolutionPower_one_charFun"]
+                 "Manuscript15.eulerianConvolutionPower_one_charFun",
+                 "Manuscript15.eulerianConvolutionPower_one",
+                 "Manuscript15.finiteMeasure_eq_eulerianConvolutionPower_of_charFun"]
           reports={}
           for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",s,re.MULTILINE):
             reports[m.group(1) or m.group(3)]={a.strip() for a in (m.group(2) or "").split(",") if a.strip()}
