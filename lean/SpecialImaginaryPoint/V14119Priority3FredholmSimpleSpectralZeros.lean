@@ -36,9 +36,14 @@ theorem universalFredholm_simpleZero_iff
     (T : ProbabilisticTheory.TraceClass H) (z : ℂ) :
     analyticOrderAt (fredholmDet T) z = 1 ↔
       fredholmDet T z = 0 ∧ deriv (fredholmDet T) z ≠ 0 := by
-  simpa [iteratedDeriv_one, iteratedDeriv_zero] using
-    (((universal_fredholmDet_entire T).analyticAt z)
-      .analyticOrderAt_eq_nat_iff_iteratedDeriv_eq_zero (n := 1))
+  have hh :
+      analyticOrderAt (fredholmDet T) z = (1 : ℕ∞) ↔
+        (∀ k < 1, iteratedDeriv k (fredholmDet T) z = 0) ∧
+        iteratedDeriv 1 (fredholmDet T) z ≠ 0 :=
+    AnalyticAt.analyticOrderAt_eq_nat_iff_iteratedDeriv_eq_zero
+      ((universal_fredholmDet_entire T).analyticAt z)
+  simpa [iteratedDeriv_one, iteratedDeriv_zero,
+    Nat.lt_one_iff] using hh
 
 /-- A genuine zero with nonvanishing spectral derivative is a
 simple analytic zero of the true universal operatorial determinant. -/
