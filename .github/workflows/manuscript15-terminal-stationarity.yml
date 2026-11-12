@@ -1,0 +1,59 @@
+name: Manuscript 15 — terminal stationary iff kernel audit
+
+on:
+  push:
+    branches:
+      - draft/m15-terminal-stationarity-iff-20261112
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/**'
+      - '.github/workflows/manuscript15-terminal-stationarity.yml'
+  workflow_dispatch:
+
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Load pinned Mathlib artifacts
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build endpoint stationarity theorem
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build Manuscript15.ConvolutionTerminalStationarity
+      - name: Audit exact theorem and kernel axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/ConvolutionTerminalStationarity.lean 2>&1 | tee /tmp/m15-terminal-stationarity.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m15-terminal-stationarity.log; then
+            echo '::error::Forbidden axiom'
+            exit 1
+          fi
+          grep -F 'Manuscript15.convolution_terminal_stationary_iff' /tmp/m15-terminal-stationarity.log
+      - name: Preserve full kernel logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-terminal-stationarity
+          path: /tmp/m15-terminal-stationarity.log
