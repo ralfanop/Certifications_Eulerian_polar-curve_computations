@@ -45,3 +45,32 @@ The numbered identities on area, Eulerian histogram, Plouffe/Sprugnoli inverse-b
 - PRs #187, #191, #193, #200, #203, #204, #206, #208, #209: independent draft statements and workflows; CI results must be inspected before marking their declarations certified.
 
 This appendix reports the verified state at its creation; consult the actual PR exact-head CI for later updates. In particular the nominal 10000-bit work precision is not itself an accuracy certificate.
+
+## November 12, 2026 — actual Eulerian convolution law, uniqueness and order separation
+
+The following are **exact-source Lean 4 kernel certifications** for genuinely defined
+Borel probability measures, not merely formal scalar Fourier identities.
+
+| PR | Declaration group and exact scope | Verified workflow | Result |
+|---|---|---|---|
+| [#229](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/229) | Actual n-fold additive convolution of the centered uniform measure is a probability measure for every n≥0, with `charFun(μ_E^{∗n})(t)=(r_E(t):ℂ)^n` | [#43225043204](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43225043204) | SUCCESS |
+| [#258](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/258) | Injectivity of characteristic-function identification among finite Borel measures from an arbitrary dense frequency set, including the countable rational frequencies | [#43228552263](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43228552263) | SUCCESS |
+| [#266](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/266) | Every two distinct convolution orders give distinct actual probability measures; their Fourier values at t=π are (2/π)^n | [#43233510728](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43233510728) | SUCCESS on tested commit |
+| [#267](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/267) | Strict decrease of the real characteristic Fourier sample at t=π, and geometric convergence to zero as n→∞ | [#43234288162](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43234288162) | SUCCESS |
+| [#268](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/268) | For every n≥0, existence and uniqueness of a genuine Borel probability measure with exact sinc-power characteristic data, even if specified only at all rational frequencies | [#43235071879](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43235071879) | SUCCESS |
+
+**Theorem-scope interpretation.** These results close the *measure existence and
+Fourier-uniqueness* obligations for the **specific pre-identified uniform
+convolution family** and establish one-frequency identifiability of its
+natural-number convolution order. They do **not** establish that a general
+cycloidal kinematic/functional equation forces an arbitrary competing
+measure to have this Fourier profile. They also do **not** certify the
+Manuscript 15 terminal endpoint contact-order jet/cusp theorem, its
+higher-order remainder, or the differential-geometric curvature theorem;
+those remain separate proof obligations. The fixed-frequency limit of
+`charFun μ_E^{∗n}` at t=π is **not** a weak convergence theorem for
+`μ_E^{∗n}` without rescaling.
+
+This entry reports exact witnessed workflow conclusions and mathematical
+scope. It does not assert that later PR merges or updates retain the exact
+same tested source SHA without additional verification.
