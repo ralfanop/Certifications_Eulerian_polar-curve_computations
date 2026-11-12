@@ -149,7 +149,6 @@ theorem reconstruction_X_difference (a t : ℝ) (f g : ℝ → ℝ) :
     unfold X
     ring
   rw [h, abs_mul, abs_mul, abs_sub_comm]
-  ring
 
 /-- If two real kernels satisfy a pointwise |s|-Lipschitz difference bound,
     the first reconstructed coordinate satisfies Manuscript 15's sharp
