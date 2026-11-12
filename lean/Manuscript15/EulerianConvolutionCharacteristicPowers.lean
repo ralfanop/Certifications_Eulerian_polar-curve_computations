@@ -69,6 +69,27 @@ theorem eulerianConvolutionPower_charFun
       rw [charFun_conv, eulerianUniformMeasure_charFun, ih]
       rw [pow_succ, mul_comm]
 
+/-- The actual *measure*, not just its Fourier transform, at
+convolution order one is exactly the original centered uniform
+interval measure, by the Dirac convolution identity. -/
+theorem eulerianConvolutionPower_one :
+    eulerianConvolutionPower 1 = eulerianUniformMeasure := by
+  simp [eulerianConvolutionPower]
+
+/-- Exact identification of the n-fold Eulerian uniform
+convolution distribution among ALL finite real Borel measures:
+its entire complex characteristic function uniquely determines it. -/
+theorem finiteMeasure_eq_eulerianConvolutionPower_of_charFun
+    (n : ℕ) (ν : Measure ℝ) [IsFiniteMeasure ν]
+    (h : ∀ t : ℝ,
+      charFun ν t = (EulerianCert.FourierModes.rE t : ℂ) ^ n) :
+    ν = eulerianConvolutionPower n := by
+  letI : IsProbabilityMeasure (eulerianConvolutionPower n) :=
+    eulerianConvolutionPower_isProbability n
+  apply Measure.ext_of_charFun
+  funext t
+  exact (h t).trans (eulerianConvolutionPower_charFun n t).symm
+
 /-- Exact one-fold normalization: the first convolution distribution
 is the already-constructed genuine uniform centered interval measure
 (up to the Dirac convolution unit). -/
@@ -80,5 +101,7 @@ theorem eulerianConvolutionPower_one_charFun (t : ℝ) :
 #print axioms Manuscript15.eulerianConvolutionPower_isProbability
 #print axioms Manuscript15.eulerianConvolutionPower_charFun
 #print axioms Manuscript15.eulerianConvolutionPower_one_charFun
+#print axioms Manuscript15.eulerianConvolutionPower_one
+#print axioms Manuscript15.finiteMeasure_eq_eulerianConvolutionPower_of_charFun
 
 end Manuscript15
