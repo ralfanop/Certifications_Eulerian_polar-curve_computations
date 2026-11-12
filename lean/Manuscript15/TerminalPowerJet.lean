@@ -18,7 +18,12 @@ theorem hasDerivAt_power_zero (g : ℝ → ℝ) (x d : ℝ) (M : ℕ)
     HasDerivAt (fun t => (g t) ^ M) 0 x := by
   have hM0 : M ≠ 0 := by omega
   have hM1 : M - 1 ≠ 0 := by omega
-  simpa [hg0, hM0, hM1] using hg.pow M
+  have h := hg.pow M
+  simp only [Pi.pow_apply] at h
+  have hd : (M : ℝ) * g x ^ (M - 1) * d = 0 := by
+    simp [hg0, hM1]
+  rw [hd] at h
+  exact h
 
 /-- Terminal first-coordinate derivative is exactly a as soon as the
     spectral factor g(t) has a zero and is raised to M≥2. -/
@@ -49,19 +54,21 @@ theorem hasDerivAt_power_reconstruction_Y
   have hpoly : HasDerivAt (fun t : ℝ => a * t ^ 2 / 2) (a * x) x := by
     convert (((hasDerivAt_id x).pow 2).const_mul a).div_const 2 using 1
     · funext u
-      simp [id_eq]
-      ring
+      simp [id_eq] <;> ring
     · simp only [id_eq]
       ring
   have hfun := hpoly.mul hpow
   have hp : 0 < 2 * M := by omega
   have hp0 : 2 * M ≠ 0 := by omega
   have hval : (g x) ^ (2 * M) = 0 := by simp [hg0, hp0]
-  convert hfun using 1
-  · funext u
-    simp only [Pi.mul_apply, id_eq]
-    ring
-  · simp [hval, id_eq]
+  have hfun' :
+      HasDerivAt (fun t => a * t ^ 2 / 2 * (g t) ^ (2 * M))
+        (a * x * g x ^ (2 * M) + a * x ^ 2 / 2 * 0) x := by
+    convert hfun using 1
+    funext u
+    rfl
+  convert hfun' using 1
+  simp [hval, id_eq]
 
 #print axioms Manuscript15.hasDerivAt_power_zero
 #print axioms Manuscript15.hasDerivAt_power_reconstruction_X
