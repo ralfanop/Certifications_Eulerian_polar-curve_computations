@@ -29,31 +29,6 @@ on:
       - 'lean/SpecialImaginaryPoint/V14119Priority3CompressedEuclideanCoordinates.lean'
       - 'lean/SpecialImaginaryPoint/V14119Priority3TrueFiniteCompressionGram.lean'
       - '.github/workflows/manuscript14-priority3-fredholm-divisor-finsum.yml'
-  pull_request:
-    paths:
-      - 'lean/SpecialImaginaryPoint/V14119Priority3FredholmDivisorFinsum.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteFredholmZeroDivisor.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmLocalFactorization.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmZeroMultiplicity.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmLogDerivative.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3MeromorphicFredholmReciprocal.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3HolomorphicFredholmReciprocal.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3FredholmZeroSetNullity.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3GenericFredholmSpectralParameters.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3CountableUniversalSpectralZeros.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3LocallyFiniteFredholmZeroSet.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmEntire.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3SpectralEquicontinuity.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3SpectralExpEquicontinuity.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3EquicontinuousWeierstrass.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteShiftEntirePolynomial.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3DenseUniformCauchy.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3ExpTraceNormEquicont.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3FinsetNuclearReindex.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3TwoNetBoundLimit.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3CompressedEuclideanCoordinates.lean'
-      - 'lean/SpecialImaginaryPoint/V14119Priority3TrueFiniteCompressionGram.lean'
-      - '.github/workflows/manuscript14-priority3-fredholm-divisor-finsum.yml'
   workflow_dispatch:
 
 permissions:
@@ -65,7 +40,7 @@ concurrency:
 
 jobs:
   lean:
-    name: Genuine universal Fredholm local analytic factorization — kernel audit
+    name: Genuine universal Fredholm divisor finite-multiplicity equality — kernel audit
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
@@ -245,7 +220,7 @@ jobs:
             SpecialImaginaryPoint/V14119Priority3FiniteFredholmZeroDivisor.lean
           lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3FredholmDivisorFinsum.lean 2>&1 | tee /tmp/p3-fredholm-divisor-finsum.log
 
-      - name: Audit genuine universal Fredholm local analytic factorization at every zero
+      - name: Audit actual universal Fredholm divisor-to-multiplicity identity
         shell: bash
         run: |
           set -euo pipefail
