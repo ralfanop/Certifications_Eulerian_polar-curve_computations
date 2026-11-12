@@ -10,7 +10,7 @@ import EulerianCert.FourierModes
 import EulerianCert.Corner
 import Mathlib
 
-open Real
+open Real Filter Topology
 noncomputable section
 namespace Manuscript15
 
@@ -55,14 +55,14 @@ theorem eulerian_kernel_hasDerivAt_two_pi :
       (-1 / (2 * Real.pi)) (2 * Real.pi) := by
   have hn : (2 : ℝ) * Real.pi ≠ 0 := by positivity
   convert eulerian_kernel_hasDerivAt_nonzero hn using 1
-  exact eulerian_kernel_derivative_two_pi
+  exact eulerian_kernel_derivative_two_pi.symm
 
 theorem eulerian_kernel_hasDerivAt_four_pi :
     HasDerivAt EulerianCert.FourierModes.rE
       (1 / (4 * Real.pi)) (4 * Real.pi) := by
   have hn : (4 : ℝ) * Real.pi ≠ 0 := by positivity
   convert eulerian_kernel_hasDerivAt_nonzero hn using 1
-  exact eulerian_kernel_derivative_four_pi
+  exact eulerian_kernel_derivative_four_pi.symm
 
 #print axioms Manuscript15.eulerian_kernel_nonzero_eq_corner
 #print axioms Manuscript15.eulerian_kernel_hasDerivAt_nonzero
