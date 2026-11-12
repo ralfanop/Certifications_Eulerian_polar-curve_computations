@@ -38,7 +38,8 @@ theorem pantograph_hasDerivAt (f : ℝ → ℝ) (t d : ℝ)
   have h := (hasDerivAt_id t).mul hcomp
   convert h using 1
   · rfl
-  · ring
+  · simp only [id_eq]
+    ring
 
 /-- The characteristic-function equation implies the earlier published
     nonlinear pantograph differential equation. -/
