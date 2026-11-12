@@ -1,4 +1,5 @@
 import Manuscript15.EulerianConvolutionCharacteristicPowers
+import Mathlib.MeasureTheory.Measure.CharacteristicFunction.TaylorExpansion
 import Mathlib.MeasureTheory.Measure.CharacteristicFunction.Basic
 import Mathlib.Topology.Separation.Hausdorff
 
