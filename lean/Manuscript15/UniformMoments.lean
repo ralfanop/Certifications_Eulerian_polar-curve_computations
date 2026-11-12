@@ -20,8 +20,7 @@ theorem centred_uniform_mass :
   norm_num
 
 theorem centred_uniform_first_moment :
-    (∫ x in (-(1 / 2) : ℝ)..(1 / 2 : ℝ), x) = 0 := by
-  conv_lhs => arg 2; ext x; rw [← pow_one x]
+    (∫ x in (-(1 / 2) : ℝ)..(1 / 2 : ℝ), x ^ 1) = 0 := by
   rw [integral_pow]
   norm_num
 
