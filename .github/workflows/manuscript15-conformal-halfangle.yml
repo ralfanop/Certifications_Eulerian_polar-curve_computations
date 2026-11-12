@@ -1,0 +1,59 @@
+name: Manuscript 15 — conformal real half-angle Lean 4
+on:
+  push:
+    branches:
+      - manuscript15-conformal-halfangle-20261112
+    paths:
+      - 'lean/Manuscript15/ConformalHalfAngle.lean'
+      - '.github/workflows/manuscript15-conformal-halfangle.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/ConformalHalfAngle.lean'
+      - '.github/workflows/manuscript15-conformal-halfangle.yml'
+  workflow_dispatch:
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Retrieve pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build inherited Eulerian corner angle
+        working-directory: lean
+        run: lake build EulerianCert.Corner
+      - name: Kernel check five conformal chart declarations
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/ConformalHalfAngle.lean 2>&1 | tee /tmp/m15-conformal-halfangle.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m15-conformal-halfangle.log; then
+            echo '::error::Forbidden Lean axiom'
+            exit 1
+          fi
+          for decl in conformalOmega_tan_half conformalOmega_zero conformalOmega_neg conformalOmega_plouffe conformalOmega_eulerian; do
+            grep -F "Manuscript15.$decl" /tmp/m15-conformal-halfangle.log
+          done
+      - name: Upload Lean kernel log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-conformal-halfangle-lean
+          path: /tmp/m15-conformal-halfangle.log
