@@ -47,8 +47,7 @@ theorem convolution_endpoint_X (a : ℝ) (M : ℕ) (hM : 0 < M) :
   have hs : 2 * (2 * Real.pi) = 4 * Real.pi := by ring
   rw [hs, eulerianKernel_four_pi_zero]
   have hp : M ≠ 0 := Nat.ne_of_gt hM
-  simp [hp]
-  ring
+  simp [hp] <;> ring
 
 /-- The second coordinate of every nonempty convolution vanishes at 2π. -/
 theorem convolution_endpoint_Y (a : ℝ) (M : ℕ) (hM : 0 < M) :
