@@ -48,10 +48,10 @@ theorem genuine_dirichlet_fredholm_half_eq_eulerianParameter :
   rw [hbcast] at h
   rw [h]
   congr 1
-  change Real.sinh b / b =
+  change Real.sinh Manuscript14Section67.b / Manuscript14Section67.b =
     Real.sqrt 2 * Real.sinh (1 / Real.sqrt 2)
   rw [div_eq_mul_inv]
-  have hb : b⁻¹ = Real.sqrt 2 := by
+  have hb : Manuscript14Section67.b⁻¹ = Real.sqrt 2 := by
     simpa only [one_div] using one_div_b
   rw [hb, mul_comm]
   rfl
