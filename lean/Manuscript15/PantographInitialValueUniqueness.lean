@@ -59,7 +59,8 @@ theorem pantograph_eq_of_initial_value
   obtain ⟨C, hC⟩ :=
     IsCompact.exists_bound_of_continuousOn'
       (isCompact_Icc : IsCompact (Icc (-1 : ℝ) 1))
-      (fun x : ℝ => f x + g x) hcont.continuousOn
+      (show ContinuousOn (fun x : ℝ => f x + g x) (Icc (-1 : ℝ) 1) from
+        hcont.continuousOn)
   let K : ℝ := max C 1
   have hK : 0 < K := lt_of_lt_of_le (by norm_num : (0 : ℝ) < 1)
     (le_max_right C 1)
