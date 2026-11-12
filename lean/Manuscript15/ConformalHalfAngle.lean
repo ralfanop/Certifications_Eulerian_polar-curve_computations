@@ -30,8 +30,7 @@ theorem conformalOmega_zero : conformalOmega 0 = 0 := by
 
 theorem conformalOmega_neg (q : ℝ) :
     conformalOmega (-q) = -conformalOmega q := by
-  simp [conformalOmega, Real.arctan_neg]
-  ring
+  simp [conformalOmega, Real.arctan_neg] <;> ring
 
 /-- The source special point q=1/2 is precisely the normalized
     Plouffe/Gregory angle p_gamma = atan(1/2)/pi. -/
