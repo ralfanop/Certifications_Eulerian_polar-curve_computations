@@ -19,3 +19,10 @@ Together the X/Y bounds recover the exact *algebraic* constants in the manuscrip
 All assertions are **CANDIDATES** until exact-head CI succeeds with permitted kernel axioms. The workflow uses the repository's pinned Lean 4 and Mathlib and rejects `sorryAx` and `Lean.ofReduceBool`. None of the nine statements establish full W₁ coupling, analytic rigidity of probability measures, or a new result in physics.
 
 Previous Manuscripts 11–14 and V007/V097 are unchanged. This draft has no merge authorization.
+
+
+## Exact-source CI success (verified)
+
+[GitHub Actions run #43177577063](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43177577063) completed **SUCCESS** for executable source commit `ca6ed61097a7ad50cd7b6df7df0705ceb6d6acbd`. Nine compatibility, inverse, injectivity, X/Y abstract Lipschitz declarations kernel-checked; the probability coupling theorem is still not included. The workflow explicitly checks the Lean kernel and audits for `sorryAx` and `Lean.ofReduceBool` (or, for the full Eulerian table, asserts outward interval accuracy).
+
+This is a historical immutable-source verification record. A documentation-only later commit does not change the executable source; any subsequent executable revision must be checked on its own exact commit before certification is transferred.
