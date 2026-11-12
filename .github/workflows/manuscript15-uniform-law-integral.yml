@@ -47,7 +47,7 @@ jobs:
         run: |
           set -euo pipefail
           lake build Manuscript15.UniformLawMomentsCharacteristic
-      - name: Audit all nine probability-integral identities
+      - name: Audit all eleven probability-integral identities
         working-directory: lean
         shell: bash
         run: |
@@ -57,7 +57,7 @@ jobs:
             echo '::error::Forbidden Lean axiom'
             exit 1
           fi
-          for decl in centredUniformLaw_eq_restrict centredUniformLaw_integral centredUniformLaw_interval_integral centredUniformLaw_cosine_characteristic centredUniformLaw_sine_characteristic centredUniformLaw_first_moment centredUniformLaw_second_moment centredUniformLaw_fourth_moment centredUniformLaw_sixth_moment; do
+          for decl in centredUniformLaw_eq_restrict centredUniformLaw_integral centredUniformLaw_interval_integral centredUniformLaw_cosine_characteristic centredUniformLaw_sine_characteristic centredUniformLaw_first_moment centredUniformLaw_second_moment centredUniformLaw_third_moment centredUniformLaw_fourth_moment centredUniformLaw_fourth_cumulant centredUniformLaw_sixth_moment; do
             grep -F "Manuscript15.$decl" /tmp/m15-uniform-law-characteristic.log
           done
       - name: Upload complete Lean kernel log
