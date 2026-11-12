@@ -22,3 +22,8 @@ must be handled separately using the exact cycloid identity.
 
 **Status:** candidate pending successful exact-head kernel/axiom CI.
 No analytic assumption is silently discarded; no merge.
+
+
+## Successful exact-source CI
+
+[GitHub Actions #43190410497](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43190410497) completed **SUCCESS** with executable-source commit `6ccdbccfc7da0f1cf85451cf43958efe010c1935`. All three universal zero-power jet derivatives are kernel-checked; their composition with the actual Eulerian kernel is documented in PR #236. Its pinned workflow checked the declarations and rejected forbidden axioms. This entry does not assert completion of the remaining source manuscript theorems; future executable changes must be rechecked.
