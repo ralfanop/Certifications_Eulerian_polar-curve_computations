@@ -24,3 +24,8 @@ Proposition 5.1.
 
 Candidate pending successful exact-head Lean CI with standard axioms.
 No merge and no changes to the prior manuscripts.
+
+
+## Kernel execution
+
+[Exact-source GitHub Actions #43093534846](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43093534846) reported **SUCCESS**. Both real punctured-limit and exact factorization declarations are kernel-checked at source commit `1cf85d55d08f63d7bcee589bbefc20807005a959`. The finite-variance measure hypothesis is still an external input to this conditional result.
