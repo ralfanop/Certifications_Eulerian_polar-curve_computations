@@ -19,3 +19,8 @@ No claim that the denominator reduction is already kernel-checked.
 The work follows the source exactly, with no physical interpretation.
 CI uses pinned Lean/Mathlib, prints all axioms and rejects forbidden
 axioms. **Candidate until exact-head workflow SUCCESS**, no merge.
+
+
+## Extended complete curvature propositions (pending exact-head CI)
+
+The source now defines the actual unsigned curvature using the determinant of the velocity/acceleration and the cube of the speed, and proposes the two additional theorems `cycloid_curvature_exact` and `cycloid_curvature_radius`. They state exactly `κ(t)=1/(4a sin(t/2))` and `R(t)=4a sin(t/2)` on the regular arc `a>0, 0<t<2π`. This extension is **unverified until the new exact-head Lean CI completes**; the prior successful CI covers only the original four statements.
