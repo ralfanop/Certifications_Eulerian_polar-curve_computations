@@ -22,3 +22,8 @@ convolution families. This is not accomplished by exact integrals alone.
 
 Status: candidate until successful CI for the exact source head.
 Prior Manuscripts 11–14 and Arb numerical certificates unchanged; no merge.
+
+
+## Successful exact-source CI
+
+[GitHub Actions #43190704554](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43190704554) completed **SUCCESS** with executable-source commit `9a2132b9733ac77d5ba58a5045240e3572b9e045`. Seven exact uniform Lebesgue interval-integral and fourth-cumulant declarations passed the kernel; actual probability-law integration is addressed by the stacked PR #242. Its pinned workflow checked the declarations and rejected forbidden axioms. This entry does not assert completion of the remaining source manuscript theorems; future executable changes must be rechecked.
