@@ -62,7 +62,7 @@ theorem dirichletInverseS1_finite_trace_tendsto_tsum :
       (compressedCFC N dirichletInverseS1).trace =
         ∑ i ∈ Finset.range N, (σ i : ℂ) := by
     rw [dirichletInverseS1_finite_compression_trace_eq]
-    exact Fin.sum_univ_eq_sum_range (fun n : ℕ => (σ n : ℂ))
+    exact Fin.sum_univ_eq_sum_range (fun n : ℕ => (σ n : ℂ)) N
   simpa only [hseq] using ht
 
 /-- The derivative of the true universal CFC-S₁ Fredholm determinant
@@ -73,7 +73,7 @@ theorem dirichletInverseS1_fredholm_deriv_zero_eq_spectral_tsum :
       ∑' n : ℕ, (σ n : ℂ) := by
   exact (tendsto_nhds_unique
     (finiteFredholm_compression_trace_tendsto_universal_deriv_zero dirichletInverseS1)
-    dirichletInverseS1_finite_trace_tendsto_tsum).symm
+    dirichletInverseS1_finite_trace_tendsto_tsum)
 
 /-- For the specific POSITIVE genuine Dirichlet inverse on ℓ²,
 the derivative of the actual universal Fredholm determinant at 0
