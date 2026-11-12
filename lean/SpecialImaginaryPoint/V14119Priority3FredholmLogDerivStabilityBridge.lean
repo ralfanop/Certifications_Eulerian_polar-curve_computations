@@ -89,7 +89,7 @@ theorem universalFredholm_joint_logDeriv_diff_norm_le
       change ‖deriv (fredholmDet T) z / fredholmDet T z -
         deriv (fredholmDet S) w / fredholmDet S w‖ ≤ _
       exact hq
-    _ ≤ _ := add_le_add_left hdiv _
+    _ ≤ _ := add_le_add_right hdiv _
 
 /-- The determinant nonvanishing conditions become automatic
 inside the explicit strict joint perturbation margin. This yields
