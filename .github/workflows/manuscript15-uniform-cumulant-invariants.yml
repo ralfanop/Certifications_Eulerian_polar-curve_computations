@@ -1,0 +1,111 @@
+name: Manuscript 15 — exact genuine uniform fourth and sixth cumulants
+
+on:
+  push:
+    branches:
+      - draft/m15-uniform-cumulants-sixth-20261112-bb5ac12
+    paths:
+      - 'lean/Manuscript15/UniformCumulantInvariants.lean'
+      - 'numerics/manuscript15_uniform_cumulants_arb10000.py'
+      - '.github/workflows/manuscript15-uniform-cumulant-invariants.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/UniformCumulantInvariants.lean'
+      - 'numerics/manuscript15_uniform_cumulants_arb10000.py'
+      - '.github/workflows/manuscript15-uniform-cumulant-invariants.yml'
+  workflow_dispatch:
+
+jobs:
+  kernel:
+    name: Exact uniform law fourth/sixth cumulants — Lean kernel and axiom audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile actual probability law and all cumulant statements
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build Manuscript15.UniformCumulantInvariants
+      - name: Strict audit of four new kernel theorem declarations
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/UniformCumulantInvariants.lean 2>&1 | tee /tmp/m15-uniform-cumulants.log
+          python3 - <<'PY'
+          import pathlib, re
+          s = pathlib.Path('/tmp/m15-uniform-cumulants.log').read_text()
+          required = [
+            'Manuscript15.centredUniformLaw_variance_pos',
+            'Manuscript15.centredUniformLaw_standardized_fourth_moment',
+            'Manuscript15.centredUniformLaw_excess_kurtosis',
+            'Manuscript15.centredUniformLaw_sixth_cumulant',
+          ]
+          reports = {}
+          pattern = r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms"
+          for m in re.finditer(pattern, s):
+            name = m.group(1) or m.group(3)
+            reports[name] = {v.strip() for v in (m.group(2) or '').split(',') if v.strip()}
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          assert 'sorryAx' not in s and 'Lean.ofReduceBool' not in s, 'Forbidden axiom'
+          assert not re.search(r'\.lean:\d+:\d+: error', s), 'Lean error present'
+          for name in required:
+            assert name in reports, 'Missing axiom report: '+name
+            assert reports[name] <= allowed, 'Nonstandard axioms: '+name+' '+str(reports[name]-allowed)
+            print(name, sorted(reports[name]))
+          print('SUCCESS: four genuine centered-uniform cumulant declarations kernel audited')
+          PY
+      - name: Upload complete kernel log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-uniform-cumulant-kernel-audit
+          path: /tmp/m15-uniform-cumulants.log
+          if-no-files-found: ignore
+
+  arb10000:
+    name: Exact uniform cumulant Arb 10000 bits — 8182-bit threshold
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned python-flint
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Validate Arb script syntax
+        run: python -m py_compile numerics/manuscript15_uniform_cumulants_arb10000.py
+      - name: Certify outward-rounded rational moment and cumulant values
+        shell: bash
+        run: |
+          set -euo pipefail
+          python numerics/manuscript15_uniform_cumulants_arb10000.py 2>&1 | tee /tmp/m15-uniform-cumulants-arb10000.log
+          grep -F 'SUCCESS: seven rigorously enclosed nonzero cumulant/moment values' /tmp/m15-uniform-cumulants-arb10000.log
+      - name: Upload full Arb audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-uniform-cumulants-arb10000
+          path: /tmp/m15-uniform-cumulants-arb10000.log
+          if-no-files-found: ignore
