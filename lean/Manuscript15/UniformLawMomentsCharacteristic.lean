@@ -40,11 +40,10 @@ theorem centredUniformLaw_integral (f : ℝ → ℝ) :
     because singleton endpoints have zero Lebesgue measure. -/
 theorem centredUniformLaw_interval_integral (f : ℝ → ℝ) :
     (∫ x, f x ∂centredUniformLaw) =
-      (∫ x in (-(1 / 2) : ℝ)..(1 / 2 : ℝ), f x) := by
+      (∫ x in (-1 / 2 : ℝ)..(1 / 2 : ℝ), f x) := by
   rw [centredUniformLaw_integral]
   unfold unitCentredInterval
   rw [integral_Icc_eq_integral_Ioc]
-  exact (intervalIntegral.integral_of_le (by norm_num : (-(1 / 2) : ℝ) ≤ 1 / 2)).symm
 
 /-- The actual centred-uniform probability law has precisely the
     original Eulerian sinc as its *real cosine* characteristic function. -/
