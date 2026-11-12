@@ -58,8 +58,6 @@ theorem universalFredholm_joint_modulus_lower_bound
     _ ≤ ‖fredholmDet T z‖ + jointFredholmError T S z w := by
       simpa only [add_comm] using
         (add_le_add_left hbound ‖fredholmDet T z‖)
-    _ = jointFredholmError T S z w + ‖fredholmDet T z‖ :=
-      add_comm _ _
 
 /-- A genuine Fredholm zero at the perturbed pair forces the
 reference determinant modulus to be no larger than the explicit
