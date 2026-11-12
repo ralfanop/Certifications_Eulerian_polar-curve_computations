@@ -73,11 +73,25 @@ theorem centredUniformLaw_second_moment :
   rw [centredUniformLaw_interval_integral]
   simpa only [neg_div] using centred_uniform_second_moment
 
+/-- Exact vanishing third raw moment of the actual probability law. -/
+theorem centredUniformLaw_third_moment :
+    (∫ x, x ^ 3 ∂centredUniformLaw) = 0 := by
+  rw [centredUniformLaw_interval_integral]
+  simpa only [neg_div] using centred_uniform_third_moment
+
 /-- Exact fourth raw moment of the actual probability law. -/
 theorem centredUniformLaw_fourth_moment :
     (∫ x, x ^ 4 ∂centredUniformLaw) = 1 / 80 := by
   rw [centredUniformLaw_interval_integral]
   simpa only [neg_div] using centred_uniform_fourth_moment
+
+/-- The actual uniform probability law has fourth cumulant -1/120.
+    This is an exact identity of its genuine Lebesgue moments. -/
+theorem centredUniformLaw_fourth_cumulant :
+    (∫ x, x ^ 4 ∂centredUniformLaw) -
+      3 * (∫ x, x ^ 2 ∂centredUniformLaw) ^ 2 = -(1 / 120 : ℝ) := by
+  rw [centredUniformLaw_fourth_moment, centredUniformLaw_second_moment]
+  exact centred_uniform_fourth_cumulant
 
 /-- Exact sixth raw moment of the actual probability law. -/
 theorem centredUniformLaw_sixth_moment :
@@ -92,7 +106,9 @@ theorem centredUniformLaw_sixth_moment :
 #print axioms Manuscript15.centredUniformLaw_sine_characteristic
 #print axioms Manuscript15.centredUniformLaw_first_moment
 #print axioms Manuscript15.centredUniformLaw_second_moment
+#print axioms Manuscript15.centredUniformLaw_third_moment
 #print axioms Manuscript15.centredUniformLaw_fourth_moment
+#print axioms Manuscript15.centredUniformLaw_fourth_cumulant
 #print axioms Manuscript15.centredUniformLaw_sixth_moment
 
 end Manuscript15
