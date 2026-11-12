@@ -58,7 +58,7 @@ jobs:
             echo '::error::Forbidden axiom'
             exit 1
           fi
-          for decl in eulerianKernel_double_hasDerivAt_terminal convolution_endpoint_X_hasDerivAt convolution_endpoint_Y_hasDerivAt convolution_endpoint_X_deriv convolution_endpoint_Y_deriv; do
+          for decl in eulerianKernel_double_hasDerivAt_terminal convolution_endpoint_X_hasDerivAt convolution_endpoint_Y_hasDerivAt convolution_endpoint_X_deriv convolution_endpoint_Y_deriv convolution_endpoint_X_one_hasDerivAt convolution_terminal_X_deriv_classification convolution_terminal_velocity_classification convolution_terminal_one_stationary convolution_terminal_higher_regular; do
             grep -F "Manuscript15.$decl" /tmp/m15-terminal-convolution-derivatives.log
           done
       - name: Preserve full kernel logs
