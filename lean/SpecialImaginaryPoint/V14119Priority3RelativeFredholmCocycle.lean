@@ -48,8 +48,7 @@ theorem universalFredholmRelativeScalar_cocycle
       universalFredholmRelativeScalar S U z =
         universalFredholmRelativeScalar T U z := by
   simp only [universalFredholmRelativeScalar]
-  field_simp [hS, hU]
-  ring
+  field_simp [hS, hU] <;> ring
 
 /-- Oppositely oriented genuine Fredholm scalar determinant
 ratios multiply to one wherever both real operatorial determinants
@@ -60,8 +59,7 @@ theorem universalFredholmRelativeScalar_reciprocal
     universalFredholmRelativeScalar T S z *
       universalFredholmRelativeScalar S T z = 1 := by
   simp only [universalFredholmRelativeScalar]
-  field_simp [hT, hS]
-  ring
+  field_simp [hT, hS] <;> ring
 
 #print axioms Manuscript14Priority3.RelativeFredholmCocycle.universalFredholmRelativeScalar_refl
 #print axioms Manuscript14Priority3.RelativeFredholmCocycle.universalFredholmRelativeScalar_cocycle
