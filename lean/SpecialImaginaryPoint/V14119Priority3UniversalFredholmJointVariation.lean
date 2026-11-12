@@ -49,10 +49,14 @@ theorem universalFredholm_joint_diff_norm_le
       (‖z - w‖ * ‖S‖) *
         Real.exp ((‖w‖ + ‖z - w‖) * ‖S‖) := by
   calc
-    ‖fredholmDet T z - fredholmDet S w‖ ≤
-        ‖fredholmDet T z - fredholmDet S z‖ +
+    ‖fredholmDet T z - fredholmDet S w‖ =
+        ‖(fredholmDet T z - fredholmDet S z) +
+          (fredholmDet S z - fredholmDet S w)‖ := by
+      congr 1
+      ring
+    _ ≤ ‖fredholmDet T z - fredholmDet S z‖ +
           ‖fredholmDet S z - fredholmDet S w‖ :=
-      norm_sub_le _ _
+      norm_add_le _ _
     _ ≤
         (‖z‖ * ‖T - S‖) *
             Real.exp (‖z‖ * (‖S‖ + ‖T - S‖)) +
