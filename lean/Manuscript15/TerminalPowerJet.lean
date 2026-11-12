@@ -49,7 +49,7 @@ theorem hasDerivAt_power_reconstruction_Y
   have hpoly : HasDerivAt (fun t : ℝ => a * t ^ 2 / 2) (a * x) x := by
     convert (((hasDerivAt_id x).pow 2).const_mul a).div_const 2 using 1
     · funext u
-      simp only [id_eq]
+      simp [id_eq]
       ring
     · simp only [id_eq]
       ring
