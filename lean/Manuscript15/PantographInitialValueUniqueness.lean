@@ -57,7 +57,7 @@ theorem pantograph_eq_of_initial_value
   have hcont : Continuous (fun x : ℝ => f x + g x) :=
     hfDiff.continuous.add hgDiff.continuous
   obtain ⟨C, hC⟩ :=
-    IsCompact.exists_bound_of_continuousOn'
+    IsCompact.exists_bound_of_continuousOn
       (isCompact_Icc : IsCompact (Icc (-1 : ℝ) 1))
       (show ContinuousOn (fun x : ℝ => f x + g x) (Icc (-1 : ℝ) 1) from
         hcont.continuousOn)
