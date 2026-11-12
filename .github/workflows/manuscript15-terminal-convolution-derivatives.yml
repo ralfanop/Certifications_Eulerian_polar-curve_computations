@@ -1,0 +1,69 @@
+name: Manuscript 15 — composed convolution terminal derivative classification
+
+on:
+  push:
+    branches:
+      - manuscript15-terminal-convolution-derivatives-20261112
+    paths:
+      - 'lean/Manuscript15/ConvolutionTerminalDerivatives.lean'
+      - 'lean/Manuscript15/ConvolutionEndpoints.lean'
+      - 'lean/Manuscript15/EulerianRootDerivatives.lean'
+      - 'lean/Manuscript15/TerminalPowerJet.lean'
+      - 'lean/lakefile.toml'
+      - '.github/workflows/manuscript15-terminal-convolution-derivatives.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/**'
+      - 'lean/lakefile.toml'
+      - '.github/workflows/manuscript15-terminal-convolution-derivatives.yml'
+  workflow_dispatch:
+
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Load pinned Mathlib artifacts
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build combined endpoint-derivative Lean modules
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build Manuscript15.ConvolutionTerminalDerivatives
+      - name: Audit exact endpoint derivative proofs and axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/ConvolutionTerminalDerivatives.lean 2>&1 | tee /tmp/m15-terminal-convolution-derivatives.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m15-terminal-convolution-derivatives.log; then
+            echo '::error::Forbidden axiom'
+            exit 1
+          fi
+          for decl in eulerianKernel_double_hasDerivAt_terminal convolution_endpoint_X_hasDerivAt convolution_endpoint_Y_hasDerivAt convolution_endpoint_X_deriv convolution_endpoint_Y_deriv convolution_endpoint_X_one_hasDerivAt convolution_terminal_X_deriv_classification convolution_terminal_velocity_classification convolution_terminal_one_stationary convolution_terminal_higher_regular; do
+            grep -F "Manuscript15.$decl" /tmp/m15-terminal-convolution-derivatives.log
+          done
+      - name: Preserve full kernel logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-composed-terminal-derivatives
+          path: /tmp/m15-terminal-convolution-derivatives.log
