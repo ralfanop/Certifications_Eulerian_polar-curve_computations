@@ -20,3 +20,10 @@ Manuscript 15 full-coverage ledger.
 
 Pinned Lean: v4.35.0-rc3, Mathlib 0272bbe1...; CI must pass on exact
 source head and #print axioms must show only standard axioms. No merge.
+
+
+## Exact-source CI success (verified)
+
+[GitHub Actions run #43177583436](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43177583436) completed **SUCCESS** for executable source commit `893c0ef5395a9f5e6dd26cf2014c933bfcb63217`. Five derivative/substitution/sine-solution statements kernel-checked. Characteristic-function and pantograph uniqueness are not covered. The workflow explicitly checks the Lean kernel and audits for `sorryAx` and `Lean.ofReduceBool` (or, for the full Eulerian table, asserts outward interval accuracy).
+
+This is a historical immutable-source verification record. A documentation-only later commit does not change the executable source; any subsequent executable revision must be checked on its own exact commit before certification is transferred.
