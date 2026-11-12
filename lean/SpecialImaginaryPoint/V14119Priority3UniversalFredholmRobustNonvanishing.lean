@@ -56,7 +56,7 @@ theorem universalFredholm_joint_modulus_lower_bound
           ‖fredholmDet T z - fredholmDet S w‖ :=
       norm_sub_le _ _
     _ ≤ ‖fredholmDet T z‖ + jointFredholmError T S z w := by
-      exact add_le_add_left hbound ‖fredholmDet T z‖
+      exact add_le_add_right hbound ‖fredholmDet T z‖
 
 /-- A genuine Fredholm zero at the perturbed pair forces the
 reference determinant modulus to be no larger than the explicit
