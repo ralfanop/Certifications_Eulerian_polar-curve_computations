@@ -27,3 +27,8 @@ certifies its exact slopes and half-angle tangent.
 Candidate until exact-head kernel CI succeeds, then the source
 declarations (and no more) may be described as Lean-certified.
 No merge.
+
+
+## Kernel execution
+
+[Exact-source GitHub Actions #43093095665](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43093095665) reported **SUCCESS**. The seven n=3 row, slope, dot-product and half-angle statements are kernel-checked on source commit `07e5b94a1c62d5b65439d291f9fb373ba5e2dfcf`. This statement covers exact mathematical geometry, not visual adjustment of the drawn arc.
