@@ -109,3 +109,18 @@ This section updates, rather than silently rewrites, the earlier point-in-time r
 **Outstanding mathematical gaps:** a general-law-to-cycloidal-rigidity implication, full higher-order terminal-contact/cusp jet, differential curvature classification, and the measure-level integrated Wasserstein-1 stability theorem beyond the certified phase-transport kernel. None is promoted to certified here.
 
 This is a documentation-only update. No manuscript, figure, V007/V097 source, numerical script, or Lean proof is modified; no merge is requested.
+
+
+## November 12, 2026 — exact-head follow-up on joint Fredholm perturbations
+
+The following observations were obtained from the pull-request-associated GitHub Actions runs on the **specified head SHA**. They do not assert that the parent dependencies are merged into `main`.
+
+| PR | Exact head SHA | Workflow outcome | Precise interpretation |
+|---|---|---|---|
+| [#278](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/278) | `e1916a3ffa8b1e4a8458944c91a6098b608ea750` | 1/1 SUCCESS | Lean proof of robust zero-exclusion under joint trace-class/operator and complex-parameter perturbations, conditional on the imported universal Fredholm variation estimates. This is a supporting nonvanishing result, not a full M15 stability theorem. |
+| [#280](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/280) | `efef5e7cca1439b9ae003be8edd4a37919f2460b` | 2/2 SUCCESS | Algebraic logarithmic-derivative stability *reduction* on nonzero denominators. The required unconditional trace-norm bound for the derivative numerator is **not** established by this reduction. |
+| [#284](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/284) | `eb11017760a77349295417cd5c01638cd4bee9b2` | [workflow #43313143479](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43313143479) IN PROGRESS at inspection | Candidate scalar reflection-interface value and first-derivative matching identities. No certification claim until exact-head CI succeeds; no assertion of H² domain gluing or operator conjugacy. |
+
+The independent Arb precision policy remains `ctx.prec=10000` with rigorously checked certified relative accuracy at least **8182 bits** for each claimed nonzero enclosure. No new Arb numerical certificate is claimed by this appendix. PRs #236, #240 and #242 retain their previously recorded exact-head successful workflow outcomes. The full M15 general rigidity, higher-order terminal-contact, differential curvature, and integrated Wasserstein-1 obligations remain open.
+
+No manuscript, figure, V007/V097 file or theorem source is changed in this ledger-only commit; no merge is authorized.
