@@ -56,7 +56,8 @@ theorem universalFredholm_joint_modulus_lower_bound
           ‖fredholmDet T z - fredholmDet S w‖ :=
       norm_sub_le _ _
     _ ≤ ‖fredholmDet T z‖ + jointFredholmError T S z w :=
-      add_le_add_left hbound _
+      simpa only [add_comm] using
+        (add_le_add_left hbound ‖fredholmDet T z‖)
     _ = jointFredholmError T S z w + ‖fredholmDet T z‖ :=
       add_comm _ _
 
