@@ -35,3 +35,10 @@ certified in PR #179. Previous manuscripts and their data are unchanged.
 ## Extension: all 7000 peak probabilities (new executable head)
 
 The script now certifies `E(n,⌊(n−1)/2⌋)/n!` for **every** `n=3,…,7002`, not merely the eight human-readable samples; all 7000 Arb enclosures must have `rel_accuracy_bits()≥8182` at 10000 working bits. It also independently verifies, using exact integer arithmetic, that the central coefficient equals the maximum of each entire Eulerian row. The eight samples remain printed with full interval information, while the overall minimum relative accuracy and exact count 7000 appear in the final success line. **This extended calculation is pending a new exact-source CI run; the prior #43091335797 certifies the previous eight-sample version only.**
+
+
+## Exact-source CI success (verified)
+
+[GitHub Actions run #43178261770](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43178261770) completed **SUCCESS** for executable source commit `877d415df5f153dce936e7093813a803fb4b2469`. All n=3,…,7002 exact-integer row checks passed, and ALL 7000 central Eulerian peak probabilities achieved at least 9998 rigorously certified relative bits at 10000-bit Arb precision; plotted PDF coordinates remain rounded separately. The workflow explicitly checks the Lean kernel and audits for `sorryAx` and `Lean.ofReduceBool` (or, for the full Eulerian table, asserts outward interval accuracy).
+
+This is a historical immutable-source verification record. A documentation-only later commit does not change the executable source; any subsequent executable revision must be checked on its own exact commit before certification is transferred.
