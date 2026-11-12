@@ -49,7 +49,7 @@ theorem universalFredholm_logDeriv_uniform_circle_bound
         (Metric.sphere (0 : ℂ) r) :=
     (universalFredholmDet_deriv_entire T).continuous.continuousOn
   obtain ⟨M, hM⟩ :=
-    (isCompact_sphere (0 : ℂ) r).exists_bound_of_continuousOn'
+    (isCompact_sphere (0 : ℂ) r).exists_bound_of_continuousOn
       (f := deriv (fredholmDet T)) hderivCont
   refine ⟨δ, max M 0, hδpos, le_max_right _ _, ?_⟩
   intro z hz
