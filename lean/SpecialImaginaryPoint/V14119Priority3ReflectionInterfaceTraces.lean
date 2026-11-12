@@ -45,7 +45,7 @@ theorem value_match_iff (c g h : ℂ) (hc : c ≠ 0) :
   unfold leftValue rightValue
   constructor
   · intro he
-    have he' : g + h = h - g := (div_right_inj₀ hc).mp he
+    have he' : g + h = h - g := (div_eq_div_iff hc hc).mp he
     linear_combination (1 / 2 : ℂ) * he'
   · intro hg
     simp [hg]
@@ -57,7 +57,7 @@ theorem derivative_match_iff (c dg dh : ℂ) (hc : c ≠ 0) :
   unfold leftDerivative rightDerivative
   constructor
   · intro he
-    have he' : dg + dh = dg - dh := (div_right_inj₀ hc).mp he
+    have he' : dg + dh = dg - dh := (div_eq_div_iff hc hc).mp he
     linear_combination (1 / 2 : ℂ) * he'
   · intro hh
     simp [hh]
