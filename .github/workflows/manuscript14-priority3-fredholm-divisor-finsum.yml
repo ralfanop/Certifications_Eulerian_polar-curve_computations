@@ -267,8 +267,11 @@ jobs:
           assert not re.search(r"\.lean:\d+:\d+: error",log)
           print("SUCCESS: genuine universal Fredholm analytic divisor equals exact finite zero multiplicity count")
           PY
-      - name: Upload Lean audit log
+      # Artifact archival is diagnostic; a transient storage outage must not
+      # invalidate a successful Lean build and strict kernel axiom audit.
+      - name: Upload Lean audit log (best effort)
         if: always()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: priority3-fredholm-divisor-finsum-logs
