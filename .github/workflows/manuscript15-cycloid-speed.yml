@@ -45,7 +45,7 @@ jobs:
             echo '::error::Forbidden axiom'
             exit 1
           fi
-          for decl in cycloid_one_sub_cos cycloid_speed_squared cycloid_curvature_determinant cycloid_speed; do
+          for decl in cycloid_one_sub_cos cycloid_speed_squared cycloid_curvature_determinant cycloid_speed cycloid_curvature_exact cycloid_curvature_radius; do
             grep -F "Manuscript15.$decl" /tmp/m15-cycloid-speed.log
           done
       - name: Upload Lean kernel log
