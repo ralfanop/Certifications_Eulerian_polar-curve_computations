@@ -56,11 +56,13 @@ theorem pantograph_eq_of_initial_value
     fun t => (hg t).differentiableAt
   have hcont : Continuous (fun x : ℝ => f x + g x) :=
     hfDiff.continuous.add hgDiff.continuous
-  obtain ⟨C, hC⟩ :=
-    IsCompact.exists_bound_of_continuousOn
-      (isCompact_Icc : IsCompact (Icc (-1 : ℝ) 1))
-      (show ContinuousOn (fun x : ℝ => f x + g x) (Icc (-1 : ℝ) 1) from
-        hcont.continuousOn)
+  obtain ⟨xC, hxC, hmaxC⟩ :=
+    (isCompact_Icc : IsCompact (Icc (-1 : ℝ) 1)).exists_isMaxOn
+      ⟨0, by norm_num⟩ hcont.norm.continuousOn
+  let C : ℝ := ‖f xC + g xC‖
+  have hC : ∀ x ∈ Icc (-1 : ℝ) 1, ‖f x + g x‖ ≤ C := by
+    intro x hx
+    exact hmaxC hx
   let K : ℝ := max C 1
   have hK : 0 < K := lt_of_lt_of_le (by norm_num : (0 : ℝ) < 1)
     (le_max_right C 1)
