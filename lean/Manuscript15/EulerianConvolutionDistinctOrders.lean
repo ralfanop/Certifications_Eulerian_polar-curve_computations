@@ -1,5 +1,6 @@
 import Manuscript15.EulerianConvolutionDenseIdentification
 import Mathlib.Algebra.Order.GroupWithZero.Basic
+import Mathlib.Analysis.Real.Pi.Bounds
 
 /-!
 # Manuscript 15 — distinctness of all Eulerian uniform convolution orders
