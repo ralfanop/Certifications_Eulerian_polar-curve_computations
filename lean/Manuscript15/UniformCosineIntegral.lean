@@ -22,7 +22,7 @@ theorem uniform_cosine_scaled (t : ℝ) :
     (f := Real.cos) (a := (-1 / 2 : ℝ)) (b := (1 / 2 : ℝ)) t
   have hl : t * (-1 / 2 : ℝ) = -(t / 2) := by ring
   have hr : t * (1 / 2 : ℝ) = t / 2 := by ring
-  rw [hl, hr, intervalIntegral.integral_cos, Real.sin_neg] at h
+  rw [hl, hr, integral_cos, Real.sin_neg] at h
   linarith
 
 /-- The characteristic cosine transform of Unif[-1/2,1/2] is exactly
@@ -43,7 +43,6 @@ theorem uniform_cosine_eq_eulerian (t : ℝ) :
         _ = 2 * Real.sin (t / 2) := h
         _ = t * (2 * Real.sin (t / 2) / t) := by
           field_simp [ht]
-          ring
     exact mul_left_cancel₀ ht hmul
 
 /-- The sine transform of the symmetric centred interval vanishes. -/
@@ -56,7 +55,7 @@ theorem uniform_sine_integral_zero (t : ℝ) :
         (f := Real.sin) (a := (-1 / 2 : ℝ)) (b := (1 / 2 : ℝ)) t
     have hl : t * (-1 / 2 : ℝ) = -(t / 2) := by ring
     have hr : t * (1 / 2 : ℝ) = t / 2 := by ring
-    rw [hl, hr, intervalIntegral.integral_sin, Real.cos_neg, sub_self] at h
+    rw [hl, hr, integral_sin, Real.cos_neg, sub_self] at h
     exact (mul_eq_zero.mp h).resolve_left ht
 
 #print axioms Manuscript15.uniform_cosine_scaled
