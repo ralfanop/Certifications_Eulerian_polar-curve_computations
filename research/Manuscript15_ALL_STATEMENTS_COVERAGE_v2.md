@@ -74,3 +74,25 @@ those remain separate proof obligations. The fixed-frequency limit of
 This entry reports exact witnessed workflow conclusions and mathematical
 scope. It does not assert that later PR merges or updates retain the exact
 same tested source SHA without additional verification.
+
+
+## November 12, 2026 — exact-head follow-up: terminal jets, Fourier transport and Arb
+
+The following checks use the *actual PR head SHA*, not the target-branch SHA.
+A successful workflow establishes only what its compiled Lean declarations and
+numerical script assert, not automatic equivalence with every manuscript statement.
+
+| PR | Exact PR head | Workflow / conclusion | Audited scope |
+|---|---|---|---|
+| [#236](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/236) | `f743c86ed693206f239d47b3bbac7ce2280a1152` | [#43192558071](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43192558071), SUCCESS | Composed convolution terminal derivative declarations; the complete analytic local-inversion/contact-order corollary remains a separate obligation. |
+| [#240](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/240) | `64c156b6ffef772b2f61ea2c92275d0dc6f3034b` | [#43193085525](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43193085525), SUCCESS | Sharp cosine/sine Fourier phase transport bounds; not by itself a full Wasserstein-1 theorem. |
+| [#242](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/242) | `bb5ac12cfb961890eca2a986240d048c789664ad` | [#43221740185](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43221740185), SUCCESS | Actual uniform-law characteristic and moment integrals; not a derivation of the cycloidal rigidity equation from an arbitrary law. |
+| [#274](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/274) | `d906249d7ec8e68cc1372590a6564756f0373b19` | [#43260765343](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43260765343), SUCCESS | Separate 10000-bit Arb workflow for Fredholm–Langevin special scalars; the exact enclosure/accuracy inventory must be read from its script and logs before claiming a number of certified expressions or a minimum achieved accuracy. |
+| [#273](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/273) | `b4dab696191d9e076948e97ace55b63d76e2de5d` | [#43276238484](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43276238484), IN PROGRESS at inspection | Candidate true-operator Fredholm logarithmic derivative / spectral trace; **not yet certified**. |
+
+These rows supersede stale `CI pending` language **only for the exact
+declaration groups indicated**. In particular, do not promote manuscript
+Theorems 6, 7, 12 or 13 to complete certification merely because a supporting
+workflow succeeds. The established 8182-bit threshold remains mandatory for
+every newly claimed nonzero Arb enclosure. No figure or earlier manuscript
+is modified by this ledger update.
