@@ -1,0 +1,56 @@
+name: Manuscript 15 — actual Borel centred-uniform probability measure
+on:
+  push:
+    branches:
+      - manuscript15-uniform-probability-law-20261112
+    paths:
+      - 'lean/Manuscript15/UniformProbabilityLaw.lean'
+      - '.github/workflows/manuscript15-uniform-probability.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/UniformProbabilityLaw.lean'
+      - '.github/workflows/manuscript15-uniform-probability.yml'
+  workflow_dispatch:
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Download pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check true uniform law and probability instance
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/UniformProbabilityLaw.lean 2>&1 | tee /tmp/m15-true-uniform-law.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m15-true-uniform-law.log; then
+            echo '::error::Forbidden axiom'
+            exit 1
+          fi
+          for decl in unitCentredInterval_volume centredUniformLaw_isProbability centredUniformLaw_isUniform centredUniformLaw_interval_mass; do
+            grep -F "Manuscript15.$decl" /tmp/m15-true-uniform-law.log
+          done
+      - name: Upload proof log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-true-uniform-law
+          path: /tmp/m15-true-uniform-law.log
