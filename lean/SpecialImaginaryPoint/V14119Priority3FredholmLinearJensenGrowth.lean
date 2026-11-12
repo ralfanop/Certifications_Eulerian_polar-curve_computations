@@ -52,7 +52,7 @@ theorem universalFredholm_norm_le_exp_two_traceNorm
       1 + x * Real.exp x ≤ Real.exp (2 * x) := by
     calc
       1 + x * Real.exp x ≤ Real.exp x + x * Real.exp x :=
-        add_le_add_left hexp _
+        add_le_add_right hexp _
       _ = (1 + x) * Real.exp x := by ring
       _ ≤ Real.exp x * Real.exp x :=
         mul_le_mul_of_nonneg_right
