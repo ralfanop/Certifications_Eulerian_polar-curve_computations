@@ -34,7 +34,6 @@ theorem centredUniformLaw_integral (f : ℝ → ℝ) :
     (∫ x, f x ∂centredUniformLaw) =
       (∫ x in unitCentredInterval, f x) := by
   rw [centredUniformLaw_eq_restrict]
-  rfl
 
 /-- Genuine probability expectation equals an oriented intervalIntegral
     because singleton endpoints have zero Lebesgue measure. -/
@@ -45,6 +44,7 @@ theorem centredUniformLaw_interval_integral (f : ℝ → ℝ) :
   unfold unitCentredInterval
   rw [integral_Icc_eq_integral_Ioc]
   rw [intervalIntegral.integral_of_le (by norm_num : (-1 / 2 : ℝ) ≤ 1 / 2)]
+  rfl
 
 /-- The actual centred-uniform probability law has precisely the
     original Eulerian sinc as its *real cosine* characteristic function. -/
