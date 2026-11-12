@@ -64,7 +64,7 @@ theorem pantograph_eqOn_double_of_eqOn
     have ht2 : t / 2 ∈ Icc (-R) R := by
       have htl : -(2 * R) < t := ht.1
       have htr : t < 2 * R := ht.2
-      constructor <;> dsimp at * <;> linarith
+      constructor <;> linarith
     calc
       deriv f t = 1 - 2 * (f (t / 2)) ^ 2 := (hf t).deriv
       _ = 1 - 2 * (g (t / 2)) ^ 2 := by
@@ -75,7 +75,7 @@ theorem pantograph_eqOn_double_of_eqOn
     constructor <;> linarith
   have h0eq : f 0 = g 0 := by
     apply hlocal
-    constructor <;> dsimp <;> linarith
+    constructor <;> linarith
   have hopen : EqOn f g s :=
     hsOpen.eqOn_of_deriv_eq hsConn
       hfDiff.differentiableOn hgDiff.differentiableOn
