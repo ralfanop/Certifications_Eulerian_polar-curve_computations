@@ -52,20 +52,40 @@ theorem formalTwoScaleEquation_implies_coefficientRule
     CoefficientRule c := by
   dsimp [FormalTwoScaleEquation] at h
   constructor
-  · have h0 :=
-      congrArg (PowerSeries.coeff (R := ℝ) 0) h
-    simp [PowerSeries.coeff_rescale, PowerSeries.coeff_mk] at h0
+  · have hCC :
+        PowerSeries.constantCoeff
+          (PowerSeries.rescale (4 : ℝ) (PowerSeries.mk c)) = c 0 := by
+      rw [← PowerSeries.coeff_zero_eq_constantCoeff_apply]
+      simp
+    have h0 := congrArg (PowerSeries.constantCoeff (R := ℝ)) h
+    have h0' : (1 : ℝ) - c 0 = 0 := by
+      simpa [hCC] using h0
     linarith
   · intro n
+    have hL :
+        PowerSeries.coeff (n + 1)
+          ((PowerSeries.X : PowerSeries ℝ) *
+            PowerSeries.derivative
+              (PowerSeries.rescale (4 : ℝ) (PowerSeries.mk c))) =
+          ((4 : ℝ) ^ (n + 1) * c (n + 1)) * (n + 1 : ℝ) := by
+      rw [PowerSeries.coeff_succ_X_mul,
+        PowerSeries.coeff_derivative,
+        PowerSeries.coeff_rescale, PowerSeries.coeff_mk]
+    have hR :
+        PowerSeries.coeff (n + 1)
+          ((PowerSeries.X : PowerSeries ℝ) *
+            (PowerSeries.mk c * PowerSeries.mk c)) =
+          ∑ j ∈ Finset.range (n + 1), c j * c (n - j) := by
+      rw [PowerSeries.coeff_succ_X_mul, PowerSeries.coeff_mul,
+        Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk]
+      simp only [PowerSeries.coeff_mk]
     have hraw :
         -((4 : ℝ) ^ (n + 1) * c (n + 1)) -
           2 * (((4 : ℝ) ^ (n + 1) * c (n + 1)) * (n + 1 : ℝ)) =
             (1 / 2 : ℝ) *
               ∑ j ∈ Finset.range (n + 1), c j * c (n - j) := by
-      simpa [PowerSeries.coeff_rescale, PowerSeries.coeff_mk,
-        PowerSeries.coeff_derivative, PowerSeries.coeff_mul,
-        Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk] using
-          (congrArg (PowerSeries.coeff (R := ℝ) (n + 1)) h)
+      have hh := congrArg (PowerSeries.coeff (R := ℝ) (n + 1)) h
+      simpa [hL, hR, PowerSeries.coeff_rescale, PowerSeries.coeff_mk] using hh
     calc
       (((2 * (n + 1) + 1 : ℕ) : ℝ) * (4 : ℝ) ^ (n + 1)) * c (n + 1) =
           -(-((4 : ℝ) ^ (n + 1) * c (n + 1)) -
