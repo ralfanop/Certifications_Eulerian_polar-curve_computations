@@ -2,6 +2,7 @@ import Manuscript15.EulerianConvolutionCharacteristicPowers
 import Mathlib.MeasureTheory.Measure.CharacteristicFunction.TaylorExpansion
 import Mathlib.MeasureTheory.Measure.CharacteristicFunction.Basic
 import Mathlib.Topology.Separation.Hausdorff
+import Mathlib.Topology.Algebra.Order.Archimedean
 
 /-!
 # Manuscript 15 — dense-frequency uniqueness for every genuine Eulerian convolution law
@@ -48,5 +49,21 @@ theorem finiteMeasure_eq_eulerianConvolutionPower_of_charFun_eqOn_dense
   exact Measure.ext_of_charFun hfun
 
 #print axioms Manuscript15.finiteMeasure_eq_eulerianConvolutionPower_of_charFun_eqOn_dense
+
+/-- For each n, the COUNTABLE sample set of rational frequencies alone
+uniquely determines the genuine n-fold Eulerian convolution law among
+all finite real Borel measures. No moment or analyticity assumption. -/
+theorem finiteMeasure_eq_eulerianConvolutionPower_of_charFun_rat
+    (n : ℕ) (ν : Measure ℝ) [IsFiniteMeasure ν]
+    (h : ∀ q : ℚ,
+      charFun ν (q : ℝ) =
+        (EulerianCert.FourierModes.rE (q : ℝ) : ℂ) ^ n) :
+    ν = eulerianConvolutionPower n := by
+  apply finiteMeasure_eq_eulerianConvolutionPower_of_charFun_eqOn_dense
+    n ν (Set.range (fun q : ℚ => (q : ℝ))) (Rat.denseRange_cast)
+  rintro t ⟨q, rfl⟩
+  exact h q
+
+#print axioms Manuscript15.finiteMeasure_eq_eulerianConvolutionPower_of_charFun_rat
 
 end Manuscript15
