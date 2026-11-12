@@ -1,0 +1,83 @@
+name: "Manuscript 14 — exact parity of length-two Dirichlet spectral factors"
+on:
+  push:
+    branches:
+      - draft/m14-dirichlet-parity-factors-20261112
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3DirichletParityFactors.lean'
+      - '.github/workflows/manuscript14-dirichlet-parity-factors.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3DirichletParityFactors.lean'
+      - '.github/workflows/manuscript14-dirichlet-parity-factors.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Lean parity factors — pinned kernel and standard-axiom audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository-pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile exact existing Section67 prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/Section67ScalarCertificate.olean \
+            SpecialImaginaryPoint/Section67ScalarCertificate.lean
+      - name: Compile parity factor theorems and record axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3DirichletParityFactors.lean 2>&1 | tee /tmp/m14-parity-factors.log
+      - name: Check exact theorem reports and allowed standard axioms
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          log=pathlib.Path("/tmp/m14-parity-factors.log").read_text()
+          prefix="Manuscript14Priority3.DirichletParityFactors."
+          names=["even_dirichlet_factor", "odd_dirichlet_factor"]
+          reports={}
+          for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",log):
+              reports[m.group(1) or m.group(3)]={a.strip() for a in (m.group(2) or "").split(",") if a.strip()}
+          allowed={"propext", "Classical.choice", "Quot.sound"}
+          for name in names:
+              key=prefix+name
+              assert key in reports, "Missing #print axioms: "+key
+              assert reports[key]<=allowed, "Nonstandard axioms: "+repr(reports[key]-allowed)
+              print("AUDITED",key,sorted(reports[key]))
+          assert not re.search(r"\.lean:\d+:\d+: error",log)
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          print("SUCCESS: exact finite spectral parity factors, no sorryAx")
+          PY
+      - name: Archive audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript14-dirichlet-parity-factors
+          path: /tmp/m14-parity-factors.log
+          if-no-files-found: ignore
