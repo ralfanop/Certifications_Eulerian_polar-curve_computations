@@ -58,7 +58,7 @@ theorem eulerian_sinc_eq_symmetric_interval_fourierIntegral
             (a := (-1 / 2 : ℝ)) (b := (1 / 2 : ℝ)) ht)
     rw [hchange, integral_exp_mul_I_eq_sin,
       EulerianCert.FourierModes.rE_of_ne_zero ht]
-    change (t⁻¹ : ℝ) • (((2 * Real.sin (t / 2) : ℝ) : ℂ)) =
+    change (t⁻¹ : ℝ) • ((2 : ℂ) * ↑(Real.sin (t / 2))) =
       ((2 * Real.sin (t / 2) / t : ℝ) : ℂ)
     rw [Complex.real_smul, ← Complex.ofReal_mul]
     congr 1
