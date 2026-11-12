@@ -24,6 +24,7 @@ namespace Manuscript14Priority3.UniversalFredholmComplexScaleCovariance
 open Filter Topology Set
 open scoped InnerProductSpace Ring
 open Manuscript14Priority3.TraceClassModel
+open Manuscript14Priority3.FiniteRankFredholm
 open Manuscript14Priority3.UniversalFredholmExistence
 open Manuscript14Priority3.SpectralEquicontinuity
 
