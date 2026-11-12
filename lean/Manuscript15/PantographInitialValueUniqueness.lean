@@ -96,7 +96,7 @@ theorem pantograph_eq_of_initial_value
   have hhalfUnit (x : ℝ) (hx : x ∈ s) :
       x / 2 ∈ Icc (-1 : ℝ) 1 := by
     have h := hhalf x hx
-    constructor <;> dsimp at * <;> linarith
+    constructor <;> linarith
   have hDeriv (x : ℝ) (hx : x ∈ s) :
       ‖deriv (fun y : ℝ => f y - g y) x‖ ≤
         (2 * K) * M := by
@@ -116,7 +116,7 @@ theorem pantograph_eq_of_initial_value
               rw [hformula, norm_mul, norm_mul]
               norm_num
       _ ≤ 2 * (K * M) := by
-        gcongr
+        gcongr <;> assumption
       _ = (2 * K) * M := by ring
   have hMean :
       ‖(f xmax - g xmax) - (f 0 - g 0)‖ ≤
