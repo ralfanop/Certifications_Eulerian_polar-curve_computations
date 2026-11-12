@@ -34,17 +34,17 @@ theorem centredUniformLaw_integral (f : ℝ → ℝ) :
     (∫ x, f x ∂centredUniformLaw) =
       (∫ x in unitCentredInterval, f x) := by
   rw [centredUniformLaw_eq_restrict]
-  rfl
 
 /-- Genuine probability expectation equals an oriented intervalIntegral
     because singleton endpoints have zero Lebesgue measure. -/
 theorem centredUniformLaw_interval_integral (f : ℝ → ℝ) :
     (∫ x, f x ∂centredUniformLaw) =
-      (∫ x in (-(1 / 2) : ℝ)..(1 / 2 : ℝ), f x) := by
+      (∫ x in (-1 / 2 : ℝ)..(1 / 2 : ℝ), f x) := by
   rw [centredUniformLaw_integral]
   unfold unitCentredInterval
   rw [integral_Icc_eq_integral_Ioc]
-  exact (intervalIntegral.integral_of_le (by norm_num : (-(1 / 2) : ℝ) ≤ 1 / 2)).symm
+  rw [intervalIntegral.integral_of_le (by norm_num : (-1 / 2 : ℝ) ≤ 1 / 2)]
+  simpa only [neg_div]
 
 /-- The actual centred-uniform probability law has precisely the
     original Eulerian sinc as its *real cosine* characteristic function. -/
@@ -65,25 +65,25 @@ theorem centredUniformLaw_sine_characteristic (t : ℝ) :
 theorem centredUniformLaw_first_moment :
     (∫ x, x ^ 1 ∂centredUniformLaw) = 0 := by
   rw [centredUniformLaw_interval_integral]
-  exact centred_uniform_first_moment
+  simpa only [neg_div] using centred_uniform_first_moment
 
 /-- Exact variance raw moment of the actual probability law. -/
 theorem centredUniformLaw_second_moment :
     (∫ x, x ^ 2 ∂centredUniformLaw) = 1 / 12 := by
   rw [centredUniformLaw_interval_integral]
-  exact centred_uniform_second_moment
+  simpa only [neg_div] using centred_uniform_second_moment
 
 /-- Exact fourth raw moment of the actual probability law. -/
 theorem centredUniformLaw_fourth_moment :
     (∫ x, x ^ 4 ∂centredUniformLaw) = 1 / 80 := by
   rw [centredUniformLaw_interval_integral]
-  exact centred_uniform_fourth_moment
+  simpa only [neg_div] using centred_uniform_fourth_moment
 
 /-- Exact sixth raw moment of the actual probability law. -/
 theorem centredUniformLaw_sixth_moment :
     (∫ x, x ^ 6 ∂centredUniformLaw) = 1 / 448 := by
   rw [centredUniformLaw_interval_integral]
-  exact centred_uniform_sixth_moment
+  simpa only [neg_div] using centred_uniform_sixth_moment
 
 #print axioms Manuscript15.centredUniformLaw_eq_restrict
 #print axioms Manuscript15.centredUniformLaw_integral
