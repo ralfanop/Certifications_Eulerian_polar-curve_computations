@@ -1,0 +1,73 @@
+name: "Manuscript 15 — Levy characteristic-function uniqueness"
+on:
+  push:
+    branches:
+      - manuscript15-levy-characteristic-uniqueness-20261111
+    paths:
+      - 'lean/Manuscript15/CharacteristicMeasureUniqueness.lean'
+      - '.github/workflows/manuscript15-levy-characteristic-uniqueness.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/CharacteristicMeasureUniqueness.lean'
+      - '.github/workflows/manuscript15-levy-characteristic-uniqueness.yml'
+  workflow_dispatch:
+jobs:
+  kernel:
+    name: "Finite-dimensional Levy uniqueness — Lean kernel audit"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Download pinned Mathlib cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile Levy probability measure uniqueness theorem
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 Manuscript15/CharacteristicMeasureUniqueness.lean 2>&1 | tee /tmp/m15-levy-uniqueness.log
+      - name: Strict kernel axiom audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,re
+          s=pathlib.Path("/tmp/m15-levy-uniqueness.log").read_text()
+          names=["probabilityMeasure_eq_of_charFun_eq",
+                 "real_probabilityMeasure_eq_of_charFun_eq"]
+          reports={}
+          for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",s,re.MULTILINE):
+            reports[m.group(1) or m.group(3)]={a.strip() for a in (m.group(2) or "").split(",") if a.strip()}
+          allowed={"propext","Classical.choice","Quot.sound"}
+          for name in names:
+            key="Manuscript15."+name
+            assert key in reports, f"Missing kernel report {key}"
+            assert reports[key] <= allowed, f"Unaccepted axioms {key}: {reports[key]-allowed}"
+            print(key,sorted(reports[key]))
+          assert "sorryAx" not in s and "Lean.ofReduceBool" not in s
+          assert not re.search(r"\.lean:\d+:\d+: error",s)
+          print("SUCCESS: Levy-based characteristic-function injectivity for probability measures")
+          PY
+      - name: Upload audit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-levy-characteristic-uniqueness-audit
+          path: /tmp/m15-levy-uniqueness.log
+          if-no-files-found: ignore
