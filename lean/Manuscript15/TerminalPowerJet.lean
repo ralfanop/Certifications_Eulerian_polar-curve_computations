@@ -19,7 +19,6 @@ theorem hasDerivAt_power_zero (g : ℝ → ℝ) (x d : ℝ) (M : ℕ)
   have hM0 : M ≠ 0 := by omega
   have hM1 : M - 1 ≠ 0 := by omega
   have h := hg.pow M
-  simp only [Pi.pow_apply] at h
   have hd : (M : ℝ) * g x ^ (M - 1) * d = 0 := by
     simp [hg0, hM1]
   rw [hd] at h
@@ -65,8 +64,6 @@ theorem hasDerivAt_power_reconstruction_Y
       HasDerivAt (fun t => a * t ^ 2 / 2 * (g t) ^ (2 * M))
         (a * x * g x ^ (2 * M) + a * x ^ 2 / 2 * 0) x := by
     convert hfun using 1
-    funext u
-    rfl
   convert hfun' using 1
   simp [hval, id_eq]
 
