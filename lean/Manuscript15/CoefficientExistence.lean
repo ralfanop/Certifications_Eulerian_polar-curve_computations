@@ -32,8 +32,9 @@ noncomputable def rigidityCoefficientSequence (n : ℕ) : ℝ :=
     | 0 => 1
     | k + 1 =>
         -((1 / 2 : ℝ) *
-          ∑ j ∈ Finset.range (k + 1),
-            ih j (by omega) * ih (k - j) (by omega)) /
+          ∑ j : (Finset.range (k + 1)),
+            ih j.1 (by have hj := Finset.mem_range.mp j.2; omega) *
+              ih (k - j.1) (by omega)) /
           ((((2 * (k + 1) + 1 : ℕ) : ℝ) * (4 : ℝ) ^ (k + 1))))
 
 /-- The exact base coefficient of the canonical sequence. -/
