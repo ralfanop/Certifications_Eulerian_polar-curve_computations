@@ -19,3 +19,6 @@ name = "UniformLanczos"
 
 [[lean_lib]]
 name = "GegenbauerFock"
+
+[[lean_lib]]
+name = "Manuscript15"
