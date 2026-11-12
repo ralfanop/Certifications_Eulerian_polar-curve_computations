@@ -69,6 +69,55 @@ theorem cycloid_speed (a t : ℝ)
   rw [hsq]
   exact Real.sqrt_sq (le_of_lt (mul_pos (mul_pos (by norm_num) ha) hsin))
 
+/-! ### Full unsigned curvature and its radius on the regular arc -/
+
+/-- The ordinary unsigned curvature of the parametrised cycloid. -/
+def cycloidCurvature (a t : ℝ) : ℝ :=
+    |(a * (1 - Real.cos t)) * (a * Real.cos t) -
+       (a * Real.sin t) * (a * Real.sin t)| /
+      (Real.sqrt ((a * (1 - Real.cos t)) ^ 2 +
+        (a * Real.sin t) ^ 2)) ^ 3
+
+/-- The exact curvature 1/(4a sin(t/2)), with the regular-arc
+    hypotheses explicitly excluding zero speed at t=0 and 2π. -/
+theorem cycloid_curvature_exact (a t : ℝ)
+    (ha : 0 < a) (ht : 0 < t) (htop : t < 2 * Real.pi) :
+    cycloidCurvature a t = 1 / (4 * a * Real.sin (t / 2)) := by
+  have hsin : 0 < Real.sin (t / 2) := by
+    apply Real.sin_pos_of_pos_of_lt_pi
+    · linarith
+    · linarith
+  have hnum :
+      a ^ 2 * (Real.cos t - 1) =
+       -(2 * a ^ 2 * Real.sin (t / 2) ^ 2) := by
+    have h := cycloid_one_sub_cos t
+    nlinarith
+  have hnonneg : 0 ≤ 2 * a ^ 2 * Real.sin (t / 2) ^ 2 := by positivity
+  have hden : 2 * a * Real.sin (t / 2) ≠ 0 := by positivity
+  have ha0 : a ≠ 0 := ne_of_gt ha
+  have hs0 : Real.sin (t / 2) ≠ 0 := ne_of_gt hsin
+  unfold cycloidCurvature
+  rw [cycloid_curvature_determinant, cycloid_speed a t ha ht htop, hnum,
+      abs_neg, abs_of_nonneg hnonneg]
+  field_simp [ha0, hs0, hden]
+  <;> ring
+
+/-- The exact osculating radius, reciprocal to the unsigned curvature,
+    is 4a sin(t/2) on the entire regular positive cycloidal arc. -/
+theorem cycloid_curvature_radius (a t : ℝ)
+    (ha : 0 < a) (ht : 0 < t) (htop : t < 2 * Real.pi) :
+    (cycloidCurvature a t)⁻¹ = 4 * a * Real.sin (t / 2) := by
+  rw [cycloid_curvature_exact a t ha ht htop]
+  have hs : Real.sin (t / 2) ≠ 0 := by
+    apply ne_of_gt
+    exact Real.sin_pos_of_pos_of_lt_pi (by linarith) (by linarith)
+  have ha0 : a ≠ 0 := ne_of_gt ha
+  field_simp [ha0, hs]
+  <;> ring
+
+#print axioms Manuscript15.cycloid_curvature_exact
+#print axioms Manuscript15.cycloid_curvature_radius
+
 #print axioms Manuscript15.cycloid_one_sub_cos
 #print axioms Manuscript15.cycloid_speed_squared
 #print axioms Manuscript15.cycloid_curvature_determinant
