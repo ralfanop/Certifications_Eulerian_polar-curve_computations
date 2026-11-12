@@ -23,3 +23,10 @@ characteristic-function uniqueness for the converse rigidity proof.
 **Status:** candidate until exact-head Lean CI succeeds; no merge.
 This branch does not alter Manuscripts 11–14, prior Lean
 certifications or the numerical Arb parameter.
+
+
+## Exact-source CI success (verified)
+
+[GitHub Actions run #43177692033](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43177692033) completed **SUCCESS** for executable source commit `84f11f83c8ebec7f3a8aa121d692621c1ed9c163`. Three real interval-integral Fourier cosine/sine identities kernel-checked; probability-law packaging and measure uniqueness remain. The workflow explicitly checks the Lean kernel and audits for `sorryAx` and `Lean.ofReduceBool` (or, for the full Eulerian table, asserts outward interval accuracy).
+
+This is a historical immutable-source verification record. A documentation-only later commit does not change the executable source; any subsequent executable revision must be checked on its own exact commit before certification is transferred.
