@@ -40,7 +40,7 @@ theorem universalFredholm_simpleZero_iff
       analyticOrderAt (fredholmDet T) z = (1 : ℕ∞) ↔
         (∀ k < 1, iteratedDeriv k (fredholmDet T) z = 0) ∧
         iteratedDeriv 1 (fredholmDet T) z ≠ 0 :=
-    AnalyticAt.analyticOrderAt_eq_nat_iff_iteratedDeriv_eq_zero
+    analyticOrderAt_eq_nat_iff_iteratedDeriv_eq_zero
       ((universal_fredholmDet_entire T).analyticAt z)
   simpa [iteratedDeriv_one, iteratedDeriv_zero,
     Nat.lt_one_iff] using hh
