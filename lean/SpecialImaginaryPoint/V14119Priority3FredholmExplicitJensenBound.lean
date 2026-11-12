@@ -92,7 +92,12 @@ theorem universalFredholm_Jensen_explicit_traceNorm_zero_count
       (by simpa only [abs_of_pos hr] using hr)
       (by simpa only [abs_of_pos hr, abs_of_pos hR] using hrR)
       hM hanalytic hnonzero houter
-  simpa [abs_of_pos hr, fredholmDet_zero, M] using hJensen
+  have hball :
+      Metric.closedBall (0 : ℂ) |r| =
+        Metric.closedBall (0 : ℂ) r := by
+    rw [abs_of_pos hr]
+  rw [hball] at hJensen
+  simpa only [fredholmDet_zero, norm_one, div_one, M] using hJensen
 
 #print axioms Manuscript14Priority3.FredholmExplicitJensenBound.universalFredholm_norm_le_one_add_trace_exponential
 #print axioms Manuscript14Priority3.FredholmExplicitJensenBound.universalFredholm_Jensen_explicit_traceNorm_zero_count
