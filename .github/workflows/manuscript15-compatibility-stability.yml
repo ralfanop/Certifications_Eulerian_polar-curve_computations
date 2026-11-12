@@ -1,0 +1,61 @@
+name: Manuscript 15 — compatibility and X stability Lean kernel
+
+on:
+  push:
+    branches:
+      - manuscript15-compatibility-stability-20261111
+    paths:
+      - 'lean/Manuscript15/CycloidalReconstruction.lean'
+      - '.github/workflows/manuscript15-compatibility-stability.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/CycloidalReconstruction.lean'
+      - '.github/workflows/manuscript15-compatibility-stability.yml'
+  workflow_dispatch:
+
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Retrieve pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build inherited analytic kernel
+        working-directory: lean
+        run: lake build EulerianCert.FourierModes
+      - name: Check compatibility, inversion and stability theorems
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/CycloidalReconstruction.lean 2>&1 | tee /tmp/m15-compatibility-stability.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m15-compatibility-stability.log; then
+            echo '::error::Forbidden axiom'
+            exit 1
+          fi
+          for decl in reconstruction_compatibility_polynomial reconstruction_compatibility reconstruction_inverse reconstruction_first_coordinate_injective reconstruction_X_difference reconstruction_X_stability squared_difference_bound reconstruction_Y_difference reconstruction_Y_stability; do
+            grep -F "Manuscript15.$decl" /tmp/m15-compatibility-stability.log
+          done
+      - name: Preserve Lean kernel audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-compatibility-stability-lean
+          path: /tmp/m15-compatibility-stability.log
