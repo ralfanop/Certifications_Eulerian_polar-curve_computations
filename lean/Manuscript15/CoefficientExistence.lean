@@ -54,6 +54,7 @@ theorem rigidityCoefficientSequence_succ (n : ℕ) :
         ((((2 * (n + 1) + 1 : ℕ) : ℝ) * (4 : ℝ) ^ (n + 1))) := by
   conv_lhs =>
     rw [rigidityCoefficientSequence, Nat.strongRecOn_eq]
+  rw [← Finset.sum_attach]
   rfl
 
 /-- The exact infinite coefficient sequence satisfies the full
