@@ -6,10 +6,12 @@ on:
       - draft/m15-uniform-cumulants-sixth-20261112-bb5ac12
     paths:
       - 'lean/Manuscript15/UniformCumulantInvariants.lean'
+      - 'numerics/manuscript15_uniform_cumulants_arb10000.py'
       - '.github/workflows/manuscript15-uniform-cumulant-invariants.yml'
   pull_request:
     paths:
       - 'lean/Manuscript15/UniformCumulantInvariants.lean'
+      - 'numerics/manuscript15_uniform_cumulants_arb10000.py'
       - '.github/workflows/manuscript15-uniform-cumulant-invariants.yml'
   workflow_dispatch:
 
@@ -79,4 +81,31 @@ jobs:
         with:
           name: manuscript15-uniform-cumulant-kernel-audit
           path: /tmp/m15-uniform-cumulants.log
+          if-no-files-found: ignore
+
+  arb10000:
+    name: Exact uniform cumulant Arb 10000 bits — 8182-bit threshold
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned python-flint
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Validate Arb script syntax
+        run: python -m py_compile numerics/manuscript15_uniform_cumulants_arb10000.py
+      - name: Certify outward-rounded rational moment and cumulant values
+        shell: bash
+        run: |
+          set -euo pipefail
+          python numerics/manuscript15_uniform_cumulants_arb10000.py 2>&1 | tee /tmp/m15-uniform-cumulants-arb10000.log
+          grep -F 'SUCCESS: seven rigorously enclosed nonzero cumulant/moment values' /tmp/m15-uniform-cumulants-arb10000.log
+      - name: Upload full Arb audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-uniform-cumulants-arb10000
+          path: /tmp/m15-uniform-cumulants-arb10000.log
           if-no-files-found: ignore
