@@ -14,6 +14,7 @@ is a separate boundary case. No contact-order theorem is claimed.
 import Manuscript15.ConvolutionEndpoints
 import Manuscript15.EulerianRootDerivatives
 import Manuscript15.TerminalPowerJet
+import Manuscript15.CycloidalReconstruction
 import Mathlib
 
 open Real
@@ -75,6 +76,67 @@ theorem convolution_endpoint_Y_deriv
     (a : ℝ) (M : ℕ) (hM : 1 ≤ M) :
     deriv (YConv a M) (2 * Real.pi) = 0 :=
   (convolution_endpoint_Y_hasDerivAt a M hM).deriv
+
+/-! ### Complete M=1 versus M≥2 velocity classification -/
+
+/-- For exactly one centred uniform summand the first reconstructed
+    coordinate is the original Eulerian cycloid. Its terminal derivative
+    vanishes, unlike the nonzero a derivative for every M>=2. -/
+theorem convolution_endpoint_X_one_hasDerivAt (a : ℝ) :
+    HasDerivAt (XConv a 1) 0 (2 * Real.pi) := by
+  have hX : XConv a 1 = X a eulerianSinc := by
+    funext t
+    simp [XConv, X, eulerianKernel, eulerianSinc]
+  rw [hX]
+  have hy : Y a eulerianSinc (2 * Real.pi) = 0 := by
+    rw [eulerian_Y_eq_cycloid, Real.cos_two_pi]
+    ring
+  simpa only [hy] using eulerian_kinematic a (2 * Real.pi)
+
+/-- All positive convolution orders are classified at the endpoint:
+    M=1 has X derivative 0, M>=2 has X derivative a. -/
+theorem convolution_terminal_X_deriv_classification
+    (a : ℝ) (M : ℕ) (hM : 1 ≤ M) :
+    deriv (XConv a M) (2 * Real.pi) =
+      if M = 1 then 0 else a := by
+  by_cases hOne : M = 1
+  · subst M
+    simpa using (convolution_endpoint_X_one_hasDerivAt a).deriv
+  · have hMore : 2 ≤ M := by omega
+    simpa [hOne] using convolution_endpoint_X_deriv a M hMore
+
+/-- Exact endpoint velocity for every positive convolution order.
+    The point is stationary iff M=1 or the scale a is zero. -/
+theorem convolution_terminal_velocity_classification
+    (a : ℝ) (M : ℕ) (hM : 1 ≤ M) :
+    (deriv (XConv a M) (2 * Real.pi),
+       deriv (YConv a M) (2 * Real.pi)) =
+      (if M = 1 then 0 else a, 0) := by
+  rw [convolution_terminal_X_deriv_classification a M hM,
+    convolution_endpoint_Y_deriv a M hM]
+
+/-- The one-summand cycloid has exactly zero terminal velocity. -/
+theorem convolution_terminal_one_stationary (a : ℝ) :
+    (deriv (XConv a 1) (2 * Real.pi),
+      deriv (YConv a 1) (2 * Real.pi)) = (0, 0) := by
+  simpa using convolution_terminal_velocity_classification a 1 (by omega)
+
+/-- Every M>=2 is regular at the terminal point if a≠0. -/
+theorem convolution_terminal_higher_regular
+    (a : ℝ) (ha : a ≠ 0) (M : ℕ) (hM : 2 ≤ M) :
+    (deriv (XConv a M) (2 * Real.pi),
+      deriv (YConv a M) (2 * Real.pi)) ≠ (0, 0) := by
+  have hv := convolution_terminal_velocity_classification a M (by omega)
+  have hm : M ≠ 1 := by omega
+  rw [if_neg hm] at hv
+  rw [hv]
+  simp [ha]
+
+#print axioms Manuscript15.convolution_endpoint_X_one_hasDerivAt
+#print axioms Manuscript15.convolution_terminal_X_deriv_classification
+#print axioms Manuscript15.convolution_terminal_velocity_classification
+#print axioms Manuscript15.convolution_terminal_one_stationary
+#print axioms Manuscript15.convolution_terminal_higher_regular
 
 #print axioms Manuscript15.eulerianKernel_double_hasDerivAt_terminal
 #print axioms Manuscript15.convolution_endpoint_X_hasDerivAt
