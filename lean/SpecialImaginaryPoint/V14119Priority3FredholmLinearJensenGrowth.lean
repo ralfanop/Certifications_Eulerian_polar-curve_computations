@@ -52,7 +52,7 @@ theorem universalFredholm_norm_le_exp_two_traceNorm
       1 + x * Real.exp x ≤ Real.exp (2 * x) := by
     calc
       1 + x * Real.exp x ≤ Real.exp x + x * Real.exp x :=
-        add_le_add_right hexp _
+        add_le_add_left hexp _
       _ = (1 + x) * Real.exp x := by ring
       _ ≤ Real.exp x * Real.exp x :=
         mul_le_mul_of_nonneg_right
@@ -104,7 +104,7 @@ theorem universalFredholm_Jensen_zero_count_linear_traceNorm_bound
       (by simpa only [abs_of_pos hr] using hr)
       (by simpa only [abs_of_pos hr, abs_of_pos hR] using hrR)
       hM hanalytic hnonzero houter
-  simpa [abs_of_pos hr, fredholmDet_zero] using hJ
+  simpa only [abs_of_pos hr, fredholmDet_zero, norm_one, div_one, Real.log_exp] using hJ
 
 /-- At the concrete outer-radius choice R=2r, Jensen's inequality
 gives a completely explicit bound linear in the inner radius and the
