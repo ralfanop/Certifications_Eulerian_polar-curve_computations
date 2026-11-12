@@ -1,0 +1,59 @@
+name: Manuscript 15 — exact centred-uniform Fourier cosine integral
+on:
+  push:
+    branches:
+      - manuscript15-uniform-cosine-kernel-20261111
+    paths:
+      - 'lean/Manuscript15/UniformCosineIntegral.lean'
+      - '.github/workflows/manuscript15-uniform-cosine.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/UniformCosineIntegral.lean'
+      - '.github/workflows/manuscript15-uniform-cosine.yml'
+  workflow_dispatch:
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Retrieve pinned Mathlib artifacts
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build inherited Eulerian sinc
+        working-directory: lean
+        run: lake build EulerianCert.FourierModes
+      - name: Kernel-check exact centred uniform Fourier integrals
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/UniformCosineIntegral.lean 2>&1 | tee /tmp/m15-uniform-integral.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m15-uniform-integral.log; then
+            echo '::error::Forbidden axiom'
+            exit 1
+          fi
+          for decl in uniform_cosine_scaled uniform_cosine_eq_eulerian uniform_sine_integral_zero; do
+            grep -F "Manuscript15.$decl" /tmp/m15-uniform-integral.log
+          done
+      - name: Archive full Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-uniform-fourier-integral
+          path: /tmp/m15-uniform-integral.log
