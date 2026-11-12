@@ -60,7 +60,7 @@ theorem eulerian_sinc_eq_symmetric_interval_fourierIntegral
       EulerianCert.FourierModes.rE_of_ne_zero ht]
     simp only [Complex.real_smul, Complex.ofReal_inv,
       Complex.ofReal_div, Complex.ofReal_mul, div_eq_mul_inv]
-    ring
+    norm_num <;> ring
 
 #print axioms Manuscript15.eulerian_sinc_eq_symmetric_interval_fourierIntegral
 
