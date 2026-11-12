@@ -30,6 +30,7 @@ open Manuscript14Priority3.TraceClassModel
 open Manuscript14Priority3.FiniteRankFredholm
 open Manuscript14Priority3.UniversalFredholmExistence
 open Manuscript14Priority3.OperatorCompressionDiagonalTraceLimit
+open Manuscript14Priority3.FredholmCompressionTraceFirstDerivative
 
 /-- The *actual* CFC-S₁ element representing the positive bounded
 Dirichlet inverse spectral model on complex ℓ². -/
@@ -57,8 +58,12 @@ theorem dirichletInverseS1_finite_trace_tendsto_tsum :
   have hsum : Summable (fun n : ℕ => (σ n : ℂ)) :=
     (RCLike.summable_ofReal (𝕜 := ℂ)).mpr σ_summable
   have ht := hsum.hasSum.tendsto_sum_nat
-  simpa only [dirichletInverseS1_finite_compression_trace_eq,
-    Fin.sum_univ_eq_sum_range] using ht
+  have hseq (N : ℕ) :
+      (compressedCFC N dirichletInverseS1).trace =
+        ∑ i ∈ Finset.range N, (σ i : ℂ) := by
+    rw [dirichletInverseS1_finite_compression_trace_eq]
+    exact Fin.sum_univ_eq_sum_range (fun n : ℕ => (σ n : ℂ))
+  simpa only [hseq] using ht
 
 /-- The derivative of the true universal CFC-S₁ Fredholm determinant
 of the positive Dirichlet inverse equals the convergent complex
