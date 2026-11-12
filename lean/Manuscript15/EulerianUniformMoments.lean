@@ -100,9 +100,41 @@ theorem eulerianUniformMeasure_oddMoment (n : ℕ) :
         ← intervalIntegral.integral_of_le (by norm_num)]
     _ = 0 := centeredUniform_interval_odd_power_integral n
 
+
+/-- Exact factorial-normalized moment of the ACTUAL centered interval
+measure: at every n, the (2n)-th moment divided by (2n)! equals
+1/((2n+1)! 4^n), matching the positive sinc coefficient magnitude. -/
+theorem eulerianUniformMeasure_evenMoment_factorial (n : ℕ) :
+    (∫ x : ℝ, x ^ (2 * n) ∂eulerianUniformMeasure) /
+      (((2 * n).factorial : ℕ) : ℝ) =
+        1 / ((((2 * n + 1).factorial : ℕ) : ℝ) * (4 : ℝ) ^ n) := by
+  have hfac :
+      ((((2 * n + 1).factorial : ℕ) : ℝ)) =
+        (((2 * n + 1 : ℕ) : ℝ)) *
+          ((((2 * n).factorial : ℕ) : ℝ)) := by
+    rw [Nat.factorial_succ]
+    norm_cast
+  rw [eulerianUniformMeasure_evenMoment, hfac]
+  simp [div_eq_mul_inv, mul_inv_rev, mul_assoc, mul_comm, mul_left_comm]
+
+/-- The exact signed even-order Fourier–Taylor coefficient derived
+from the actual centered uniform probability measure at EVERY n,
+without inferring the coefficient from finitely many numerical terms. -/
+theorem eulerianUniformMeasure_evenTaylorMomentCoefficient (n : ℕ) :
+    (-1 : ℝ) ^ n *
+      ((∫ x : ℝ, x ^ (2 * n) ∂eulerianUniformMeasure) /
+        (((2 * n).factorial : ℕ) : ℝ)) =
+      (-1 : ℝ) ^ n /
+        ((((2 * n + 1).factorial : ℕ) : ℝ) * (4 : ℝ) ^ n) := by
+  have h := eulerianUniformMeasure_evenMoment_factorial n
+  simpa [div_eq_mul_inv, mul_assoc] using
+    congrArg (fun y : ℝ => (-1 : ℝ) ^ n * y) h
+
 #print axioms Manuscript15.centeredUniform_interval_even_power_integral
 #print axioms Manuscript15.centeredUniform_interval_odd_power_integral
 #print axioms Manuscript15.eulerianUniformMeasure_evenMoment
 #print axioms Manuscript15.eulerianUniformMeasure_oddMoment
+#print axioms Manuscript15.eulerianUniformMeasure_evenMoment_factorial
+#print axioms Manuscript15.eulerianUniformMeasure_evenTaylorMomentCoefficient
 
 end Manuscript15
