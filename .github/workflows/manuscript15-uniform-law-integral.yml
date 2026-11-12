@@ -1,0 +1,68 @@
+name: Manuscript 15 — actual probability characteristic and moment integrals
+
+on:
+  push:
+    branches:
+      - manuscript15-uniform-law-characteristic-moments-20261112
+    paths:
+      - 'lean/Manuscript15/UniformLawMomentsCharacteristic.lean'
+      - 'lean/Manuscript15/UniformProbabilityLaw.lean'
+      - 'lean/Manuscript15/UniformCosineIntegral.lean'
+      - 'lean/Manuscript15/UniformMoments.lean'
+      - 'lean/lakefile.toml'
+      - '.github/workflows/manuscript15-uniform-law-integral.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/**'
+      - 'lean/lakefile.toml'
+      - '.github/workflows/manuscript15-uniform-law-integral.yml'
+  workflow_dispatch:
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Retrieve pinned Mathlib artifacts
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile imported true uniform law and characteristic/moment proofs
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build Manuscript15.UniformLawMomentsCharacteristic
+      - name: Audit all eleven probability-integral identities
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/UniformLawMomentsCharacteristic.lean 2>&1 | tee /tmp/m15-uniform-law-characteristic.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m15-uniform-law-characteristic.log; then
+            echo '::error::Forbidden Lean axiom'
+            exit 1
+          fi
+          for decl in centredUniformLaw_eq_restrict centredUniformLaw_integral centredUniformLaw_interval_integral centredUniformLaw_cosine_characteristic centredUniformLaw_sine_characteristic centredUniformLaw_first_moment centredUniformLaw_second_moment centredUniformLaw_third_moment centredUniformLaw_fourth_moment centredUniformLaw_fourth_cumulant centredUniformLaw_sixth_moment; do
+            grep -F "Manuscript15.$decl" /tmp/m15-uniform-law-characteristic.log
+          done
+      - name: Upload complete Lean kernel log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-actual-probability-fourier-moments
+          path: /tmp/m15-uniform-law-characteristic.log
