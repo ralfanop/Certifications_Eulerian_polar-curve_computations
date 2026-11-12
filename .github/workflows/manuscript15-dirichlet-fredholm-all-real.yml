@@ -311,7 +311,7 @@ jobs:
             "trueDirichletFredholmProfile_even", "normalizedRealSinh_pos",
             "trueDirichletFredholmProfile_re_pos"]
           reports={}
-          for m in re.finditer(r"'([^']+)' depends on axioms: \\[([^\\]]*)\\]|'([^']+)' does not depend on any axioms",log,re.MULTILINE):
+          for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",log,re.MULTILINE):
             reports[m.group(1) or m.group(3)]={a.strip() for a in (m.group(2) or "").split(",") if a.strip()}
           allowed={"propext","Classical.choice","Quot.sound"}
           for name in names:
@@ -320,7 +320,7 @@ jobs:
             assert reports[key]<=allowed,f"Unapproved axioms in {key}: {reports[key]-allowed}"
             print(key,sorted(reports[key]))
           assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
-          assert not re.search(r"\\.lean:\\d+:\\d+: error",log)
+          assert not re.search(r"\.lean:\d+:\d+: error",log)
           print("SUCCESS: Manuscript 15 true Fredholm–Eulerian all-real identity and positivity")
           PY
 
