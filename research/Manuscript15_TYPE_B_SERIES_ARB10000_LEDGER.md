@@ -32,3 +32,8 @@ The analytical identity is established in the manuscript by the
 beta-integral argument, not by Arb. A future Lean proof should formalize
 the beta integral and justify the infinite-series transformations.
 All prior work and Manuscripts 11–14 remain unchanged; no merge.
+
+
+## Verified CI evidence
+
+Both jobs in [GitHub Actions run #43087384447](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43087384447) **SUCCEEDED** on executable-source commit `ee24b42d1eb84172875460391795641317b75de7`. The four Lean declarations `typeBTermRatio_pos`, `typeBTermRatio_lt_fifth`, `typeBTerm_pos` and `typeBTerm_decay` all depend only on `propext`, `Classical.choice`, `Quot.sound` (no `sorryAx`). The five infinite-series Arb enclosures each achieved **9293–9294 rigorously certified relative bits** at `ctx.prec=10000`, above the threshold of 8182 bits. The exact geometric tail bound and Figure 1 decimal rounding test passed. Analytic identity to the arctan via the beta integral is a manuscript-level step that this CI does **not** formalize in Lean.
