@@ -99,8 +99,8 @@ theorem pantograph_eq_of_initial_value
     constructor <;> linarith
   have hhalfUnit (x : ℝ) (hx : x ∈ s) :
       x / 2 ∈ Icc (-1 : ℝ) 1 := by
-    have h := hhalf x hx
-    constructor <;> linarith
+    rcases hhalf x hx with ⟨hlo, hhi⟩
+    constructor <;> linarith [hRle]
   have hDeriv (x : ℝ) (hx : x ∈ s) :
       ‖deriv (fun y : ℝ => f y - g y) x‖ ≤
         (2 * K) * M := by
@@ -108,6 +108,7 @@ theorem pantograph_eq_of_initial_value
         deriv (fun y : ℝ => f y - g y) x =
           -2 * ((f (x / 2) + g (x / 2)) *
               (f (x / 2) - g (x / 2))) := by
+      change deriv (f - g) x = _
       rw [deriv_sub (hf x).differentiableAt
         (hg x).differentiableAt, (hf x).deriv, (hg x).deriv]
       ring
