@@ -29,6 +29,7 @@ namespace Manuscript14Priority3.FredholmCompressionDerivativesConverge
 open Filter Topology Set Complex
 open scoped InnerProductSpace Ring
 open Manuscript14Priority3.TraceClassModel
+open Manuscript14Priority3.FiniteRankFredholm
 open Manuscript14Priority3.UniversalFredholmExistence
 open Manuscript14Priority3.UniversalFredholmEntire
 
