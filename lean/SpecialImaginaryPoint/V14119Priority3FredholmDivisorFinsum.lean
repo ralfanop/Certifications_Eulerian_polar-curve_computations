@@ -23,6 +23,10 @@ inequality directly to the operatorial finite-zero divisor.
 
 No artificial finite matrix spectral determinant or eigenvalue
 enumeration is assumed.
+
+The order is compared pointwise on the closed disk before replacing the
+locally finite divisor finsum by the explicit finite zero-set sum. A
+pinned exact-head kernel audit checks that no unproved axioms enter.
 -/
 
 noncomputable section
