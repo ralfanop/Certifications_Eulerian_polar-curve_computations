@@ -50,16 +50,7 @@ theorem genuine_dirichlet_finite_compression_det_eq_scalar
   rw [show compressedCFC N dirichletInverseS1 =
       compressedInverse N from rfl]
   change Matrix.det (finiteOperatorShift N t) = _
-  rw [finiteOperatorShift_det]
-  calc
-    (∏ i : Fin N, 1 + (t : ℂ) * (σ i.val : ℂ)) =
-        ∏ i : Fin N, ((Manuscript14Dirichlet.factor i.val t : ℝ) : ℂ) := by
-      apply Finset.prod_congr rfl
-      intro i _hi
-      exact factor_eq_real i.val t
-    _ = (Manuscript14Dirichlet.finiteFredholm N t : ℂ) := by
-      simp [Manuscript14Dirichlet.finiteFredholm,
-        Fin.prod_univ_eq_prod_range]
+  exact finiteOperatorShift_det_eq_spectral N t
 
 /-- For every nonzero real x, the actual universal CFC-S₁
 Fredholm determinant of the Dirichlet inverse spectral operator,
