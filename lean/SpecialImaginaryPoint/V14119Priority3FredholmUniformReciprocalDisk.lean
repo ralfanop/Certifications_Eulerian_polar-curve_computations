@@ -40,8 +40,9 @@ theorem universalFredholm_exp_error_mono
     mul_le_mul_of_nonneg_right hzR (norm_nonneg T)
   have hExp : Real.exp (‖z‖ * ‖T‖) ≤ Real.exp (R * ‖T‖) :=
     Real.exp_le_exp.mpr hm
+  have hRnonneg : 0 ≤ R := (norm_nonneg z).trans hzR
   exact mul_le_mul hm hExp (Real.exp_pos _).le
-    (mul_nonneg (norm_nonneg z) (norm_nonneg T))
+    (mul_nonneg hRnonneg (norm_nonneg T))
 
 /-- A single explicit trace-norm condition on R excludes ALL
 actual Fredholm determinant zeros inside |z|≤R simultaneously. -/
