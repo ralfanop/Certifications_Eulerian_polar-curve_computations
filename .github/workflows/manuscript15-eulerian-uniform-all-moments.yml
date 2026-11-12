@@ -61,7 +61,9 @@ jobs:
           names=["Manuscript15.centeredUniform_interval_even_power_integral",
                  "Manuscript15.centeredUniform_interval_odd_power_integral",
                  "Manuscript15.eulerianUniformMeasure_evenMoment",
-                 "Manuscript15.eulerianUniformMeasure_oddMoment"]
+                 "Manuscript15.eulerianUniformMeasure_oddMoment",
+                 "Manuscript15.eulerianUniformMeasure_evenMoment_factorial",
+                 "Manuscript15.eulerianUniformMeasure_evenTaylorMomentCoefficient"]
           reports={}
           for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",s,re.MULTILINE):
             reports[m.group(1) or m.group(3)]={a.strip() for a in (m.group(2) or "").split(",") if a.strip()}
