@@ -25,3 +25,8 @@ their interval integrals into expectations under this probability law.
 
 Status: CANDIDATE until CI succeeds on the exact executable source.
 No earlier manuscript is altered; no merge is performed.
+
+
+## Successful exact-source CI
+
+[GitHub Actions #43192297612](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43192297612) completed **SUCCESS** with executable-source commit `43ff23f8495d49e7dad5b93269bc06e6a6a2a69e`. The actual normalized conditional Lebesgue law, volume 1, Mathlib IsUniform and IsProbabilityMeasure declarations passed kernel CI. Its pinned workflow checked the declarations and rejected forbidden axioms. This entry does not assert completion of the remaining source manuscript theorems; future executable changes must be rechecked.
