@@ -72,6 +72,7 @@ theorem rationalRigidityCoefficientSequence_cast_eq (n : ℕ) :
                 rigidityCoefficientSequence (k - j) := by
           apply Finset.sum_congr rfl
           intro j hj
+          have hjlt : j < k + 1 := Finset.mem_range.mp hj
           rw [ih j (by omega), ih (k - j) (by omega)]
         calc
           ((rationalRigidityCoefficientSequence (k + 1) : ℚ) : ℝ) =
