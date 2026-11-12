@@ -1,0 +1,56 @@
+name: Manuscript 15 — exact cycloid speed and curvature numerator
+on:
+  push:
+    branches:
+      - manuscript15-cycloid-speed-curvature-numerator-20261112
+    paths:
+      - 'lean/Manuscript15/CycloidSpeedCurvature.lean'
+      - '.github/workflows/manuscript15-cycloid-speed.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/CycloidSpeedCurvature.lean'
+      - '.github/workflows/manuscript15-cycloid-speed.yml'
+  workflow_dispatch:
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Download pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check cycloid speed and determinant
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/CycloidSpeedCurvature.lean 2>&1 | tee /tmp/m15-cycloid-speed.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m15-cycloid-speed.log; then
+            echo '::error::Forbidden axiom'
+            exit 1
+          fi
+          for decl in cycloid_one_sub_cos cycloid_speed_squared cycloid_curvature_determinant cycloid_speed cycloid_curvature_exact cycloid_curvature_radius; do
+            grep -F "Manuscript15.$decl" /tmp/m15-cycloid-speed.log
+          done
+      - name: Upload Lean kernel log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-cycloid-speed-curvature
+          path: /tmp/m15-cycloid-speed.log
