@@ -301,6 +301,13 @@ jobs:
           mkdir -p .lake/build/lib/lean/Manuscript15
           lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/DirichletFredholmAllReal.olean Manuscript15/DirichletFredholmAllReal.lean 2>&1 | tee /tmp/m15-fredholm-all-real.log
 
+      - name: Build Manuscript 14 Section 6–7 scalar Langevin and resolvent trace certificate
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/Section67ScalarCertificate.olean SpecialImaginaryPoint/Section67ScalarCertificate.lean 2>&1 | tee /tmp/m14-section67-scalar.log
+
       - name: Compile genuine operator Fredholm logarithmic derivative and Langevin trace identity
         working-directory: lean
         shell: bash
