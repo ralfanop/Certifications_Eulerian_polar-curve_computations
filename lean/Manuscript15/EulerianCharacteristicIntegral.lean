@@ -58,12 +58,9 @@ theorem eulerian_sinc_eq_symmetric_interval_fourierIntegral
             (a := (-1 / 2 : ℝ)) (b := (1 / 2 : ℝ)) ht)
     rw [hchange, integral_exp_mul_I_eq_sin,
       EulerianCert.FourierModes.rE_of_ne_zero ht]
-    change (t⁻¹ : ℝ) • ((2 : ℂ) * ↑(Real.sin (t / 2))) =
-      ((2 * Real.sin (t / 2) / t : ℝ) : ℂ)
-    rw [Complex.real_smul, ← Complex.ofReal_mul]
-    congr 1
-    field_simp [ht]
-    ring
+    simp only [Complex.real_smul, Complex.ofReal_inv,
+      Complex.ofReal_div, Complex.ofReal_mul, div_eq_mul_inv]
+    norm_num <;> ring
 
 #print axioms Manuscript15.eulerian_sinc_eq_symmetric_interval_fourierIntegral
 
