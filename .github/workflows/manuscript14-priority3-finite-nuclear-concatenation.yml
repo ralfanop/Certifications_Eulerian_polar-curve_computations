@@ -1,0 +1,111 @@
+name: "Priority 3 — genuine CFC S1 finite nuclear concatenation"
+
+on:
+  push:
+    branches:
+      - manuscript14-priority3-finite-nuclear-concatenation-20261111
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteNuclearConcatenation.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-finite-nuclear-concatenation.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3FiniteNuclearConcatenation.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/lake-manifest.json'
+      - '.github/workflows/manuscript14-priority3-finite-nuclear-concatenation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    name: Genuine CFC-S1 finite nuclear concatenation and six kernel audits
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build actual V007 CFC-S1 and rank-one/Gram prerequisites
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge GegenbauerFock.PhyslibTraceClassSandwichContinuous GegenbauerFock.PhyslibTraceClassSeriesTailEstimate GegenbauerFock.PhyslibTraceClassOperatorEmbedding 2>&1 | tee /tmp/p3-finite-nuclear-deps.log
+      - name: Compile finite nuclear Hilbert prerequisites
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3RankOneS1 V14119Priority3S1Truncation V14119Priority3OperatorCompression V14119Priority3PositiveDiagonalFredholm V14119Priority3FredholmSectorFunctional V14119Priority3ComplexDiagonalS1 V14119Priority3ArbitraryNuclearRankOne V14119Priority3FiniteRankFredholm V14119Priority3FiniteNuclearFredholm V14119Priority3FiniteIntrinsicFunctional; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/p3-finite-nuclear-$f.log"
+          done
+      - name: Compile and audit genuine CFC S1 nuclear concatenation
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3FiniteNuclearConcatenation.lean 2>&1 | tee /tmp/p3-finite-nuclear-concatenation.log
+      - name: Audit six exact finite nuclear concatenation theorems
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          log = pathlib.Path("/tmp/p3-finite-nuclear-concatenation.log").read_text()
+          prefix = "Manuscript14Priority3.FiniteNuclearConcatenation."
+          required = [
+            "finiteNuclear_append_eq_add",
+            "nuclear_mass_append_eq_add",
+            "rankOneS1_zero_left",
+            "finiteNuclear_append_zero_right",
+            "finiteNuclear_append_sub_zero_right",
+            "finiteNuclear_append_sub_norm_le_mass"
+          ]
+          found = {}
+          for m in re.finditer(
+              r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",
+              log, re.MULTILINE):
+            found[m.group(1) or m.group(3)] = {
+              x.strip() for x in (m.group(2) or "").split(",") if x.strip()
+            }
+          allowed = {"propext", "Quot.sound", "Classical.choice"}
+          for suffix in required:
+            name = prefix + suffix
+            assert name in found, f"Missing exact kernel report: {name}"
+            assert found[name] <= allowed, f"Nonstandard axioms for {name}: {found[name] - allowed}"
+            print(name, sorted(found[name]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error", log)
+          print("SUCCESS: six exact finite nuclear CFC-S1 concatenation theorems")
+          PY
+      - name: Upload kernel logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-finite-nuclear-concatenation-logs
+          path: |
+            /tmp/p3-finite-nuclear-*.log
+            /tmp/p3-finite-nuclear-concatenation.log
+          if-no-files-found: ignore

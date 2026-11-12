@@ -1,0 +1,164 @@
+name: "Priority 3 — exact genuine finite compression mixed Gram coordinates"
+
+on:
+  push:
+    branches:
+      - manuscript14-priority3-true-finite-compression-gram-20261111
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3TrueFiniteCompressionGram.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3CompressedEuclideanCoordinates.lean'
+      - '.github/workflows/manuscript14-priority3-true-finite-compression-gram.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3TrueFiniteCompressionGram.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3CompressedEuclideanCoordinates.lean'
+      - '.github/workflows/manuscript14-priority3-true-finite-compression-gram.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lean:
+    name: Exact finite compression complex Gram coordinates — four kernel audits
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build sharp unrestricted Gram Hadamard dependency chain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in V14119Priority3ComplexGramMinorBridge V14119Priority3SquareAmbientMixedGramSharp V14119Priority3AmbientProjectionSharp V14119Priority3UnrestrictedMixedGramHadamard V14119Priority3MinorExpansionIncrement; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" "SpecialImaginaryPoint/$f.lean"
+          done
+      - name: Build certified genuine weighted Gram minor dependency
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3WeightedGramMinorStep.olean \
+            SpecialImaginaryPoint/V14119Priority3WeightedGramMinorStep.lean
+      - name: Build exact Gram determinant principal-expansion prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3ExactGramPrincipalExpansion.olean \
+            SpecialImaginaryPoint/V14119Priority3ExactGramPrincipalExpansion.lean
+      - name: Build previous one-step determinant bound prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3FiniteGramOneStepDet.olean \
+            SpecialImaginaryPoint/V14119Priority3FiniteGramOneStepDet.lean
+      - name: Build genuine V007 trace-class and rank-one prerequisites
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build GegenbauerFock.RealComplexPositiveSpectralAutomaticTraceClassBridge GegenbauerFock.PositiveTraceDiagonalSpectralBridge GegenbauerFock.PhyslibTraceClassSandwichContinuous GegenbauerFock.PhyslibTraceClassSeriesTailEstimate GegenbauerFock.PhyslibTraceClassOperatorEmbedding
+
+      - name: Build actual finite nuclear Fredholm functional prerequisites
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in DirichletFiniteDeterminant Section67ScalarCertificate V14119Priority3SpectralDetBridge V14119Priority3DirichletDiagonal V14119Priority3TraceClassModel V14119Priority3RankOneS1 V14119Priority3S1Truncation V14119Priority3OperatorCompression V14119Priority3PositiveDiagonalFredholm V14119Priority3FredholmSectorFunctional V14119Priority3ComplexDiagonalS1 V14119Priority3ArbitraryNuclearRankOne V14119Priority3FiniteRankFredholm V14119Priority3FiniteNuclearFredholm V14119Priority3FiniteIntrinsicFunctional; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean"
+          done
+
+      - name: Build zeroed-index actual determinant prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3ZeroedIndexActualDet.olean \
+            SpecialImaginaryPoint/V14119Priority3ZeroedIndexActualDet.lean
+
+      - name: Build certified arbitrary multi-index Gram determinant prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3MultiIndexGramPerturb.olean \
+            SpecialImaginaryPoint/V14119Priority3MultiIndexGramPerturb.lean
+
+      - name: Build finite CFC S1 concatenation and exact tail bookkeeping
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in V14119Priority3FiniteNuclearConcatenation V14119Priority3FinAppendTailIndex V14119Priority3IntrinsicFiniteS1MultitermBound; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" \
+              "SpecialImaginaryPoint/$f.lean"
+          done
+
+      - name: Compile finite complex Euclidean coefficient prerequisite
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/V14119Priority3CompressedEuclideanCoordinates.olean \
+            SpecialImaginaryPoint/V14119Priority3CompressedEuclideanCoordinates.lean
+
+      - name: Compile exact finite compression Gram coordinate lemmas
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3TrueFiniteCompressionGram.lean 2>&1 | tee /tmp/p3-true-finite-compression-gram.log
+      - name: Audit four exact CFC S1 finite compression coordinate lemmas
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,re
+          log=pathlib.Path("/tmp/p3-true-finite-compression-gram.log").read_text()
+          prefix="Manuscript14Priority3.TrueFiniteCompressionGram."
+          names=["truncatedGram_eq_coordinate_mixedGram","finiteDeterminant_eq_coordinate_mixedGram","coordinate_nuclear_mass_le","coefficients_zero"]
+          reports={}
+          for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms",log,re.MULTILINE):
+            reports[m.group(1) or m.group(3)]={a.strip() for a in (m.group(2) or "").split(",") if a.strip()}
+          allowed={"propext","Quot.sound","Classical.choice"}
+          for name in names:
+            k=prefix+name
+            assert k in reports, f"Missing report: {k}"
+            assert reports[k]<=allowed, f"Nonstandard axioms in {k}: {reports[k]-allowed}"
+            print(k,sorted(reports[k]))
+          assert "sorryAx" not in log and "Lean.ofReduceBool" not in log
+          assert not re.search(r"\.lean:\d+:\d+: error",log)
+          print("SUCCESS: exact complex Euclidean Gram representation of genuine CFC-S1 compressions")
+          PY
+      - name: Upload Lean audit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-true-finite-compression-gram-logs
+          path: /tmp/p3-true-finite-compression-gram.log
+          if-no-files-found: ignore
