@@ -30,3 +30,8 @@ or a proof of the maximal distance of the simplified polylines.
 
 This is intentionally separate from the 14 closed-form Arb constants
 certified in PR #179. Previous manuscripts and their data are unchanged.
+
+
+## Extension: all 7000 peak probabilities (new executable head)
+
+The script now certifies `E(n,⌊(n−1)/2⌋)/n!` for **every** `n=3,…,7002`, not merely the eight human-readable samples; all 7000 Arb enclosures must have `rel_accuracy_bits()≥8182` at 10000 working bits. It also independently verifies, using exact integer arithmetic, that the central coefficient equals the maximum of each entire Eulerian row. The eight samples remain printed with full interval information, while the overall minimum relative accuracy and exact count 7000 appear in the final success line. **This extended calculation is pending a new exact-source CI run; the prior #43091335797 certifies the previous eight-sample version only.**
