@@ -30,7 +30,8 @@ theorem hasDerivAt_power_reconstruction_X
   have hfun := (hasDerivAt_id x).mul
     ((hasDerivAt_const x (1 : ℝ)).sub hpow)
   have hp : 0 < M := by omega
-  have hval : (g x) ^ M = 0 := by simp [hg0, hp]
+  have hM0 : M ≠ 0 := by omega
+  have hval : (g x) ^ M = 0 := by simp [hg0, hM0]
   convert hfun.const_mul a using 1
   · funext u
     simp only [Pi.mul_apply, Pi.sub_apply, id_eq]
@@ -54,7 +55,8 @@ theorem hasDerivAt_power_reconstruction_Y
       ring
   have hfun := hpoly.mul hpow
   have hp : 0 < 2 * M := by omega
-  have hval : (g x) ^ (2 * M) = 0 := by simp [hg0, hp]
+  have hp0 : 2 * M ≠ 0 := by omega
+  have hval : (g x) ^ (2 * M) = 0 := by simp [hg0, hp0]
   convert hfun using 1
   · funext u
     simp only [Pi.mul_apply, id_eq]
