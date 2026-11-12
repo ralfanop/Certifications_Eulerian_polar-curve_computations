@@ -298,6 +298,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p .lake/build/lib/lean/Manuscript15
           lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/DirichletFredholmAllReal.olean Manuscript15/DirichletFredholmAllReal.lean 2>&1 | tee /tmp/m15-fredholm-all-real.log
 
       - name: Compile genuine operator Fredholm logarithmic derivative and Langevin trace identity
