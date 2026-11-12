@@ -184,6 +184,66 @@ theorem coefficientRule_c_ten (c : ℕ → ℝ) (hc : CoefficientRule c) :
   norm_num [Finset.sum_range_succ, hc.1, h1, h2, h3, h4, h5, h6, h7, h8, h9] at h
   linarith
 
+/-! ### Further exact forced rigidity coefficients c₁₁–c₁₃ -/
+
+/-- Exact c_11 forced by the conditional cycloidal two-scale coefficient rule. -/
+theorem coefficientRule_c_eleven (c : ℕ → ℝ) (hc : CoefficientRule c) :
+    c 11 = -(1 / 108431217215972213061058560000 : ℝ) := by
+  have h := hc.2 10
+  have h1 := coefficientRule_c_one c hc
+  have h2 := coefficientRule_c_two c hc
+  have h3 := coefficientRule_c_three c hc
+  have h4 := coefficientRule_c_four c hc
+  have h5 := coefficientRule_c_five c hc
+  have h6 := coefficientRule_c_six c hc
+  have h7 := coefficientRule_c_seven c hc
+  have h8 := coefficientRule_c_eight c hc
+  have h9 := coefficientRule_c_nine c hc
+  have h10 := coefficientRule_c_ten c hc
+  norm_num [Finset.sum_range_succ, hc.1, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10] at h
+  linarith
+
+/-- Exact c_12 forced by the conditional cycloidal two-scale coefficient rule. -/
+theorem coefficientRule_c_twelve (c : ℕ → ℝ) (hc : CoefficientRule c) :
+    c 12 = (1 / 260234921318333311346540544000000 : ℝ) := by
+  have h := hc.2 11
+  have h1 := coefficientRule_c_one c hc
+  have h2 := coefficientRule_c_two c hc
+  have h3 := coefficientRule_c_three c hc
+  have h4 := coefficientRule_c_four c hc
+  have h5 := coefficientRule_c_five c hc
+  have h6 := coefficientRule_c_six c hc
+  have h7 := coefficientRule_c_seven c hc
+  have h8 := coefficientRule_c_eight c hc
+  have h9 := coefficientRule_c_nine c hc
+  have h10 := coefficientRule_c_ten c hc
+  have h11 := coefficientRule_c_eleven c hc
+  norm_num [Finset.sum_range_succ, hc.1, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11] at h
+  linarith
+
+/-- Exact c_13 forced by the conditional cycloidal two-scale coefficient rule. -/
+theorem coefficientRule_c_thirteen (c : ℕ → ℝ) (hc : CoefficientRule c) :
+    c 13 = -(1 / 730739659061879938261085847552000000 : ℝ) := by
+  have h := hc.2 12
+  have h1 := coefficientRule_c_one c hc
+  have h2 := coefficientRule_c_two c hc
+  have h3 := coefficientRule_c_three c hc
+  have h4 := coefficientRule_c_four c hc
+  have h5 := coefficientRule_c_five c hc
+  have h6 := coefficientRule_c_six c hc
+  have h7 := coefficientRule_c_seven c hc
+  have h8 := coefficientRule_c_eight c hc
+  have h9 := coefficientRule_c_nine c hc
+  have h10 := coefficientRule_c_ten c hc
+  have h11 := coefficientRule_c_eleven c hc
+  have h12 := coefficientRule_c_twelve c hc
+  norm_num [Finset.sum_range_succ, hc.1, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12] at h
+  linarith
+
+#print axioms Manuscript15.coefficientRule_c_eleven
+#print axioms Manuscript15.coefficientRule_c_twelve
+#print axioms Manuscript15.coefficientRule_c_thirteen
+
 #print axioms Manuscript15.coefficientRule_c_eight
 #print axioms Manuscript15.coefficientRule_c_nine
 #print axioms Manuscript15.coefficientRule_c_ten
