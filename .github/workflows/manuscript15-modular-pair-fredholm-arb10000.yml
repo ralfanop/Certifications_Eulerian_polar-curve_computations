@@ -1,0 +1,44 @@
+name: "Manuscript 15 — modular imaginary pair Fredholm Arb 10000-bit"
+on:
+  push:
+    branches:
+      - draft/m15-modular-pair-fredholm-acb10000-20261112
+    paths:
+      - 'numerics/manuscript15_modular_pair_fredholm_arb10000.py'
+      - '.github/workflows/manuscript15-modular-pair-fredholm-arb10000.yml'
+  pull_request:
+    paths:
+      - 'numerics/manuscript15_modular_pair_fredholm_arb10000.py'
+      - '.github/workflows/manuscript15-modular-pair-fredholm-arb10000.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  arb10000:
+    name: Verify >=8182 certified bits at imaginary modularly paired points
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned python-flint Arb bindings
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Python syntax check
+        run: python -m py_compile numerics/manuscript15_modular_pair_fredholm_arb10000.py
+      - name: Certify interval enclosures, strict signs, relative accuracy
+        shell: bash
+        run: |
+          set -euo pipefail
+          python numerics/manuscript15_modular_pair_fredholm_arb10000.py 2>&1 | tee /tmp/manuscript15-modular-pair-fredholm-arb10000.log
+          grep -F "SUCCESS: ten strictly positive 10000-bit Arb enclosures" /tmp/manuscript15-modular-pair-fredholm-arb10000.log
+      - name: Archive certified interval log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript15-modular-pair-fredholm-arb10000
+          path: /tmp/manuscript15-modular-pair-fredholm-arb10000.log
+          if-no-files-found: ignore
