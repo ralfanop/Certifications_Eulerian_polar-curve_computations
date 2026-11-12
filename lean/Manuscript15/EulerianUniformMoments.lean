@@ -40,10 +40,10 @@ theorem centeredUniform_interval_even_power_integral (n : ℕ) :
       1 / (((2 * n + 1 : ℕ) : ℝ) * (4 : ℝ) ^ n) := by
   rw [integral_pow]
   have hneg :
-      (-(1 / 2 : ℝ)) ^ (2 * n + 1) =
+      (-1 / 2 : ℝ) ^ (2 * n + 1) =
         -((1 / 2 : ℝ) ^ (2 * n + 1)) := by
-    rw [neg_pow]
-    simp
+    rw [show (-1 / 2 : ℝ) = -(1 / 2 : ℝ) by ring, neg_pow]
+    norm_num [pow_add, pow_mul]
   rw [hneg]
   have hfrac :
       (1 / 2 : ℝ) ^ (2 * n + 1) =
@@ -65,7 +65,11 @@ theorem centeredUniform_interval_odd_power_integral (n : ℕ) :
   have hEven : Even (2 * n + 1 + 1) := by
     refine ⟨n + 1, ?_⟩
     omega
-  rw [hEven.neg_pow]
+  have hneg :
+      (-1 / 2 : ℝ) ^ (2 * n + 1 + 1) =
+        (1 / 2 : ℝ) ^ (2 * n + 1 + 1) := by
+    rw [show (-1 / 2 : ℝ) = -(1 / 2 : ℝ) by ring, hEven.neg_pow]
+  rw [hneg]
   simp
 
 /-- All even moments of the ACTUAL centered uniform probability
