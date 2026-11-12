@@ -46,11 +46,12 @@ theorem trueDirichletFredholmProfile_re_hasDerivAt
         (fun y : ℝ => Real.sinh y / y) := by
     filter_upwards [eventually_ne_nhds hx] with y hy
     simp [trueDirichletFredholmProfile_eq_normalizedRealSinh,
-      normalizedRealSinh, hy]
+      normalizedRealSinh, hy, Complex.sinh, Complex.exp_ofReal, Real.sinh]
   have hq :
       HasDerivAt (fun y : ℝ => Real.sinh y / y)
         ((Real.cosh x * x - Real.sinh x) / x ^ 2) x := by
     convert (Real.hasDerivAt_sinh x).fun_div (hasDerivAt_id x) hx using 1
+    all_goals simp [div_eq_mul_inv, id_eq]
     all_goals ring
   exact hq.congr_of_eventuallyEq hevent
 
@@ -65,7 +66,7 @@ theorem trueDirichletFredholmProfile_log_hasDerivAt
   have hD : (trueDirichletFredholmProfile x).re =
       Real.sinh x / x := by
     rw [trueDirichletFredholmProfile_eq_normalizedRealSinh]
-    simp [normalizedRealSinh, hx]
+    simp [normalizedRealSinh, hx, Complex.sinh, Complex.exp_ofReal, Real.sinh]
   have hs : Real.sinh x ≠ 0 := Real.sinh_ne_zero.mpr hx
   have hval :
       ((Real.cosh x * x - Real.sinh x) / x ^ 2) /
