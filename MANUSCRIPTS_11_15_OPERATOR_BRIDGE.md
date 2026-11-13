@@ -1,6 +1,6 @@
 # MANUSCRIPTS 11–15 — Operator / Eulerian bridge audit
 
-**Scope:** Manuscripts 11, 12, 13, 14, 15 as supplied on 12 November 2026.
+**Scope:** Manuscripts 11–14 as previously audited, plus the authoritative Manuscript 15 source of 13 November 2026 (30-page `15.tex`, SHA-256 `ccfcef205a7fc38db4386142a9173d0a8a60121ab58ae5ed1713f4219b1e200d`). The table below records the older historical cross-manuscript audit; the final addendum supersedes its stale M15 section attribution.
 **Repository:** `ralfanop/Certifications_Eulerian_polar-curve_computations`.
 **Purpose:** Dependency ledger for the distinct geometric, probabilistic,
 operator-theoretic and numerical mathematical obligations. This is an audit
@@ -129,3 +129,32 @@ differential-operator direct-sum proof.
   identities is separate from proof of its novelty.
 
 **No merger authorization. No manuscript text modification.**
+
+
+## 13 November 2026 — separate CURRENT M15 obligations from cross-manuscript research
+
+**Authoritative manuscript:** `Manuscript_15_Editorial_Review_Maldacena2023_20261113/15.tex` (source SHA-256 `ccfcef205a7fc38db4386142a9173d0a8a60121ab58ae5ed1713f4219b1e200d`). The former §7 formal-certification table is gone; current §7 Discussion, §8 Open Problems, §9 Conclusions. This addendum updates *scope*, not previously successful SHA-bound CI evidence.
+
+### Direct proof obligations for statements now in Manuscript 15
+
+- §2.3 `prop:fourfold-eulerian`: independent integral identities (spherical/pure spin) and identification with specified Fredholm determinant; existing scalar spectral products are **not** an automatic full formalization.
+- §2.4 `prop:two-eulerian-apices` and `lem:eulerian-triangle-fourier`: all-odd-n strict inequality, finite exceptional indices, analytic slope asymptotic *quoted from Manuscript 11*, and genuine Fourier series/derivative (off corners). The 7000 exact coefficient/peak Arb check does not prove these infinite claims.
+- §2.6 `prop:laplace-unitime`: branch/domain assumptions for Laplace transform, matrix Cayley and Segal expression.
+- §2.7 `thm:wasserstein`: the merged #287 finite Kantorovich precursors, tested head `1c8b2f887c720e178b315bf37ab0ccd4ec51a7b9` SUCCESS (#43461385180), are *finite sums only*; prove integrated couplings + W1 infimum independently.
+- §3 `thm:rigidity`; §§4–5 cusp, curvature and terminal contact: full analytic-to-measure and local jet links remain distinct from existing characteristic/convolution Lean statements.
+
+### OPEN cross-manuscript problems not to misidentify as M15 theorems
+
+- Exact unitary equivalence of **unbounded differential** Laplacians with their authentic `L²/H²` domains and boundary conditions; scalar Fredholm product identities do not establish operator conjugacy.
+- Abstract trace-resolvent logarithmic derivative and joint perturbation bounds beyond certified finite/scalar reductions.
+- Authentic modular-j value `j(i/sqrt(2))=8000`; this is a **Manuscript 14** issue, not a current M15 theorem.
+- Classical `B(e^{iθ})` branch continuation and general local limit connections may support the broader Eulerian programme; require explicit theorem citations before attributing them to current M15.
+
+### Editorial and numerical audit
+
+- The 2023 Maldacena *personal communication* bibliography entry is not cited in `15.tex`; do not fabricate what the private communication concerned. No source-manuscript edit has been made.
+- The package contains no full source generator for Figure 1; do not promise exact vector path regeneration.
+- Supplied Python script verifies finite rows n=3..15 and their 12-decimal angles with `mpmath`, not Arb. Its printed infinite-`n` angle limit is a mathematical statement quoted in the manuscript, **not established by script execution**. `numerics/manuscript15_eulerian_7002_arb10000.py` checks existing 7000 central probabilities; it must not be conflated with angle interval certificates. New claims require 10000-bit Arb, >=8182 certified relative bits, and SUCCESS on the exact tested SHA.
+- Previous M15 §2 Fredholm comments in the historical table remain valid as cross-manuscript motivation but should not be interpreted as a statement that M15 has already proved differential-domain equivalence.
+
+**No merge. No change to pinned Lean/Mathlib workflows. No new theorem or Arb certification asserted by this documentation-only addendum.**
