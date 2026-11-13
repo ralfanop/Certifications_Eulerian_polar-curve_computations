@@ -51,8 +51,8 @@ jobs:
           names = ('integral_fourier_two_coordinate_coupling',
                    'integral_lipschitz_constant_coupling')
           for name in names:
-              pattern = (r"'Manuscript15\\.Section27\\." + name +
-                         r"' depends on axioms: \\[([^\\]]*)\\]")
+              pattern = ("'" + re.escape('Manuscript15.Section27.' + name) +
+                         r"' depends on axioms: \[([^\]]*)\]")
               hits = re.findall(pattern, logs, re.S)
               assert hits, ('missing axiom audit', name)
               for hit in hits:
