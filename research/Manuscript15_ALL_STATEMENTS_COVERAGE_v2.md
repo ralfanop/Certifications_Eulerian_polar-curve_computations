@@ -124,3 +124,12 @@ The following observations were obtained from the pull-request-associated GitHub
 The independent Arb precision policy remains `ctx.prec=10000` with rigorously checked certified relative accuracy at least **8182 bits** for each claimed nonzero enclosure. No new Arb numerical certificate is claimed by this appendix. PRs #236, #240 and #242 retain their previously recorded exact-head successful workflow outcomes. The full M15 general rigidity, higher-order terminal-contact, differential curvature, and integrated Wasserstein-1 obligations remain open.
 
 No manuscript, figure, V007/V097 file or theorem source is changed in this ledger-only commit; no merge is authorized.
+
+
+## November 13, 2026 — exact-head reflection-interface proof check
+
+* **PR #284**, exact head `3c18fb6548c7f19f3a87cb2138028732ba784f9b`: [GitHub Actions run #43348629889](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43348629889) completed with **SUCCESS**. This supersedes the earlier in-progress entry for `eb11017760a77349295417cd5c01638cd4bee9b2`. The draft proves scalar reflection-interface trace algebra and matching criteria; it does **not** prove Sobolev H² domain gluing, unitary L² transport, or differential-operator conjugacy. No Manuscript 15 rigidity, contact-order, curvature, or Wasserstein-1 theorem is promoted by this supporting result.
+* Independently rechecked exact heads for PRs #236 (`f743c86ed693206f239d47b3bbac7ce2280a1152`, 15/15 successful workflow runs), #240 (`64c156b6ffef772b2f61ea2c92275d0dc6f3034b`, 1/1), and #242 (`bb5ac12cfb961890eca2a986240d048c789664ad`, 15/15). The API exposes the first page of commit-associated pull-request runs; the result is not an assertion about every possible historical run.
+* PRs #278 (`e1916a3ffa8b1e4a8458944c91a6098b608ea750`, 1/1), #280 (`efef5e7cca1439b9ae003be8edd4a37919f2460b`, 2/2), and #281 (`20cdb49cdd958017e5c1807a38e63978e2d0d1de`, 1/1) also retain successful exact-head workflow outcomes. The numerical working-precision requirement remains 10000 bits with a rigorously checked minimum of 8182 relative bits; workflow success alone does not establish a new numerical enclosure inventory.
+
+Documentation only. No Lean theorem, Arb script, figure, manuscript, V007 or V097 source changed. No merge authorized.
