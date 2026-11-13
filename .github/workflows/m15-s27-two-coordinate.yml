@@ -41,6 +41,25 @@ jobs:
           lake env lean -M16768 Manuscript15/Section27TwoCoordinate.lean 2>&1 | tee /tmp/m15-s27-two-coordinate.log
           if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/m15-s27-base.log /tmp/m15-s27-two-coordinate.log; then exit 1; fi
           grep -F "Manuscript15.Section27.integral_fourier_two_coordinate_coupling" /tmp/m15-s27-two-coordinate.log
+          grep -F "Manuscript15.Section27.integral_lipschitz_constant_coupling" /tmp/m15-s27-two-coordinate.log
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          logs = ''.join(Path(p).read_text() for p in (
+              '/tmp/m15-s27-base.log', '/tmp/m15-s27-two-coordinate.log'))
+          permitted = {'propext', 'Classical.choice', 'Quot.sound'}
+          names = ('integral_fourier_two_coordinate_coupling',
+                   'integral_lipschitz_constant_coupling')
+          for name in names:
+              pattern = (r"'Manuscript15\\.Section27\\." + name +
+                         r"' depends on axioms: \\[([^\\]]*)\\]")
+              hits = re.findall(pattern, logs, re.S)
+              assert hits, ('missing axiom audit', name)
+              for hit in hits:
+                  axioms = set(x.strip() for x in hit.split(',') if x.strip())
+                  assert axioms <= permitted, ('unexpected axioms', name, axioms)
+              print('AXIOM AUDIT SUCCESS:', name, sorted(permitted))
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
