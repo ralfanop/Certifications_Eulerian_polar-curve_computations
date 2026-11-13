@@ -118,6 +118,38 @@ theorem conformal_factor_at_half :
     (1 : ℝ) / (1 + (1 / 2 : ℝ) ^ 2) = 4 / 5 := by
   norm_num
 
+
+/-- First derivative of the actual cycloid's X coordinate. -/
+theorem cycloid_X_hasDerivAt (a t : ℝ) :
+    HasDerivAt (fun x : ℝ => a * (x - Real.sin x))
+      (a * (1 - Real.cos t)) t := by
+  convert ((hasDerivAt_id' t).sub (hasDerivAt_sin t)).const_mul a using 1
+  <;> ring
+
+/-- First derivative of the actual cycloid's Y coordinate. -/
+theorem cycloid_Y_hasDerivAt (a t : ℝ) :
+    HasDerivAt (fun x : ℝ => a * (1 - Real.cos x))
+      (a * Real.sin t) t := by
+  convert ((hasDerivAt_cos t).const_sub 1).const_mul a using 1
+  <;> ring
+
+/-- Derivative of the first component of the velocity. -/
+theorem cycloid_velocity_X_hasDerivAt (a t : ℝ) :
+    HasDerivAt (fun x : ℝ => a * (1 - Real.cos x))
+      (a * Real.sin t) t := cycloid_Y_hasDerivAt a t
+
+/-- Derivative of the second component of the velocity. -/
+theorem cycloid_velocity_Y_hasDerivAt (a t : ℝ) :
+    HasDerivAt (fun x : ℝ => a * Real.sin x)
+      (a * Real.cos t) t := by
+  convert (hasDerivAt_sin t).const_mul a using 1
+  <;> ring
+
+#print axioms Manuscript15.Section21And26.cycloid_X_hasDerivAt
+#print axioms Manuscript15.Section21And26.cycloid_Y_hasDerivAt
+#print axioms Manuscript15.Section21And26.cycloid_velocity_X_hasDerivAt
+#print axioms Manuscript15.Section21And26.cycloid_velocity_Y_hasDerivAt
+
 #print axioms Manuscript15.Section21And26.one_sub_cos_eq_two_sin_half_sq
 #print axioms Manuscript15.Section21And26.cycloid_speed_squared
 #print axioms Manuscript15.Section21And26.cycloid_speed
