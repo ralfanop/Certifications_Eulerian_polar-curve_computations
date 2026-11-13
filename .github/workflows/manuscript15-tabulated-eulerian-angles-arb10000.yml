@@ -1,0 +1,41 @@
+name: "M15 Table 1 finite Eulerian angles Arb 10000-bit"
+on:
+  push:
+    branches:
+      - draft/m15-tabulated-apex-angles-arb10000-20261113
+    paths:
+      - 'numerics/manuscript15_tabulated_eulerian_angles_arb10000.py'
+      - '.github/workflows/manuscript15-tabulated-eulerian-angles-arb10000.yml'
+  pull_request:
+    paths:
+      - 'numerics/manuscript15_tabulated_eulerian_angles_arb10000.py'
+      - '.github/workflows/manuscript15-tabulated-eulerian-angles-arb10000.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  arb-angles:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned Arb bindings
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Check Python syntax and run finite interval audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile numerics/manuscript15_tabulated_eulerian_angles_arb10000.py
+          python numerics/manuscript15_tabulated_eulerian_angles_arb10000.py 2>&1 | tee /tmp/m15-tabulated-eulerian-angles-arb10000.log
+          grep -F 'SUCCESS: all 13 n=3..15 finite Eulerian angles enclosed' /tmp/m15-tabulated-eulerian-angles-arb10000.log
+          grep -F 'LIMIT STATUS: n->infinity and all-odd-n classification NOT established here.' /tmp/m15-tabulated-eulerian-angles-arb10000.log
+      - name: Preserve exact interval and precision log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m15-table1-eulerian-angles-arb10000
+          path: /tmp/m15-tabulated-eulerian-angles-arb10000.log
+          if-no-files-found: error
