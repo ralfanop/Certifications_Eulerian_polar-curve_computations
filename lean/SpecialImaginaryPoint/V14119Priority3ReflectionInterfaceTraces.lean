@@ -144,6 +144,41 @@ theorem reflection_second_derivatives_recover_components
   · field_simp [hc]
     <;> ring
 
+/-- The bilinear polarization identity for the reflection transform.
+Integrating this identity after the measure-preserving change of variable
+t ↦ 2-t is the algebraic core of the real L² inner-product proof.
+This theorem does not claim the analytic change-of-variables step. -/
+theorem reflection_polarization_real (a b x y : ℝ) :
+    (a - b) * (x - y) + (a + b) * (x + y) =
+      2 * (a * x + b * y) := by
+  ring
+
+/-- The normalized transform preserves pointwise quadratic energy
+when the square of the real normalizer equals two. This version
+makes the normalization hypothesis explicit rather than assuming
+an arbitrary nonzero denominator has the correct magnitude. -/
+theorem reflection_normalized_energy_real
+    (c a b : ℝ) (hc : c ^ 2 = 2) :
+    ((a - b) / c) ^ 2 + ((a + b) / c) ^ 2 =
+      a ^ 2 + b ^ 2 := by
+  have hc0 : c ≠ 0 := by
+    intro h
+    simp [h] at hc
+  apply (div_eq_iff (pow_ne_zero 2 hc0)).2
+  rw [← div_pow, ← div_pow]
+  -- Both squared fractions have the same denominator.
+  rw [← add_div]
+  rw [div_eq_iff (pow_ne_zero 2 hc0)]
+  rw [hc]
+  ring
+
+/-- The corresponding derivative-energy identity, with the
+opposite sign on the derivative of the reflected right branch. -/
+theorem reflection_derivative_energy_real (a b : ℝ) :
+    (a + b) ^ 2 + (a - b) ^ 2 =
+      2 * (a ^ 2 + b ^ 2) := by
+  ring
+
 /-- The elementary real pointwise energy identity behind the
 normalization by sqrt(2), *not* an L² isometry proof. -/
 theorem reflection_parallelogram_real (a b : ℝ) :
@@ -158,6 +193,9 @@ theorem reflection_parallelogram_real (a b : ℝ) :
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_derivatives_recover_components
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_second_derivative_intertwining
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_second_derivatives_recover_components
+#print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_polarization_real
+#print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_normalized_energy_real
+#print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_derivative_energy_real
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_parallelogram_real
 
 end Manuscript14Priority3.ReflectionInterfaceTraces
