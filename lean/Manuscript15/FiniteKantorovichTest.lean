@@ -121,4 +121,21 @@ theorem finite_first_moment_transport
 
 #print axioms Manuscript15.finite_first_moment_transport
 
+
+/-- Zero finite transport cost forces equality of the first moments,
+without assuming normalized coupling weights. This is a finite
+statement, not a general measure-level transport result. -/
+theorem finite_first_moment_eq_of_zero_cost
+    {ι : Type*} (S : Finset ι) (w x y : ι → ℝ)
+    (hw : ∀ i ∈ S, 0 ≤ w i)
+    (hcost : (∑ i ∈ S, w i * |x i - y i|) = 0) :
+    (∑ i ∈ S, w i * x i) = (∑ i ∈ S, w i * y i) := by
+  have hb := finite_first_moment_transport S w x y hw
+  rw [hcost] at hb
+  have hz : |(∑ i ∈ S, w i * x i) - (∑ i ∈ S, w i * y i)| = 0 :=
+    le_antisymm hb (abs_nonneg _)
+  exact sub_eq_zero.mp (abs_eq_zero.mp hz)
+
+#print axioms Manuscript15.finite_first_moment_eq_of_zero_cost
+
 end Manuscript15
