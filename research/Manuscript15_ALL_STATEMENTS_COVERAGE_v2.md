@@ -142,3 +142,10 @@ Documentation only. No Lean theorem, Arb script, figure, manuscript, V007 or V09
 * No new Arb interval certificate is asserted here. The operational requirement remains 10000-bit Arb precision and at least 8182 rigorously verified relative bits for each newly claimed nonzero interval. General cycloidal rigidity, terminal higher-order contact, differential curvature and integrated Wasserstein-1 remain open.
 
 Documentation-only; no merge and no modifications to manuscripts 11–14, V007/V097, figures, Lean proofs or Arb scripts.
+
+
+## November 13, 2026 — current reflection-interface head audit
+
+* **PR #284** advanced to exact head `c99057878a3b04c692354dd5b494bf22ec7a7181`. The associated [GitHub Actions run #43370677606](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43370677606) completed **SUCCESS**. This supersedes the earlier `0aa1d7d74578c7a69072133de9bd50e313b843d3` head check. The workflow is titled *Manuscripts 14–15 — reflection interface jet conditions*; passing it establishes successful execution of that workflow, not a proof of Sobolev H² gluing or unbounded-operator equivalence without separate statement-level inspection.
+* Exact-head checks reconfirmed #236 `f743c86ed693206f239d47b3bbac7ce2280a1152` (15/15 first-page runs SUCCESS), #240 `64c156b6ffef772b2f61ea2c92275d0dc6f3034b` (1/1), and #242 `bb5ac12cfb961890eca2a986240d048c789664ad` (15/15). These do not close the outstanding M15 rigidity, higher terminal contact, curvature, or integrated Wasserstein-1 statements.
+* No new Arb interval certification is inferred. Any new nonzero enclosure must use 10000-bit working precision and prove at least 8182 relative bits. No merge or manuscript/figure/source modification is authorized by this audit.
