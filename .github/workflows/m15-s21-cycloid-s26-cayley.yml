@@ -38,6 +38,10 @@ jobs:
           lake env lean -M16768 Manuscript15/Section21CycloidAnd26Cayley.lean 2>&1 | tee /tmp/m15-geometry-cayley.log
           if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/m15-geometry-cayley.log; then exit 1; fi
           for theorem in \
+            cycloid_X_hasDerivAt \
+            cycloid_Y_hasDerivAt \
+            cycloid_velocity_X_hasDerivAt \
+            cycloid_velocity_Y_hasDerivAt \
             one_sub_cos_eq_two_sin_half_sq \
             cycloid_speed_squared \
             cycloid_speed \
