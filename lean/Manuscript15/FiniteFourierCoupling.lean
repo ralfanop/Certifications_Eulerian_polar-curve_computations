@@ -1,5 +1,4 @@
 import Mathlib
-import Manuscript15.CharacteristicLipschitz
 
 /-!
 # Manuscript 15: finite coupling Fourier transport
@@ -24,7 +23,9 @@ theorem finite_cosine_phase_transport {ι : Type*} (S : Finset ι)
     _ ≤ ∑ i ∈ S, |s| * |x i - y i| := by
           apply Finset.sum_le_sum
           intro i hi
-          exact cosine_phase_lipschitz s (x i) (y i)
+          calc
+            _ ≤ |s * x i - s * y i| := Real.abs_cos_sub_cos_le _ _
+            _ = |s| * |x i - y i| := by rw [← mul_sub, abs_mul]
     _ = |s| * ∑ i ∈ S, |x i - y i| := by
           rw [Finset.mul_sum]
 
@@ -40,7 +41,9 @@ theorem finite_sine_phase_transport {ι : Type*} (S : Finset ι)
     _ ≤ ∑ i ∈ S, |s| * |x i - y i| := by
           apply Finset.sum_le_sum
           intro i hi
-          exact sine_phase_lipschitz s (x i) (y i)
+          calc
+            _ ≤ |s * x i - s * y i| := Real.abs_sin_sub_sin_le _ _
+            _ = |s| * |x i - y i| := by rw [← mul_sub, abs_mul]
     _ = |s| * ∑ i ∈ S, |x i - y i| := by
           rw [Finset.mul_sum]
 
