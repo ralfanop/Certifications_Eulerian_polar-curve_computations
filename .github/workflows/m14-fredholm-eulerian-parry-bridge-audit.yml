@@ -1,0 +1,65 @@
+name: "M14 Fredholm Eulerian-Parry operator bridge Lean audit"
+on:
+  push:
+    branches:
+      - draft/ci-fix-fredholm-eulerian-parry-20261112
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3OperatorFredholmEulerianParryBridge.lean'
+      - '.github/workflows/m14-fredholm-eulerian-parry-bridge-audit.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3OperatorFredholmEulerianParryBridge.lean'
+      - '.github/workflows/m14-fredholm-eulerian-parry-bridge-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile actual Fredholm-Parry bridge and check axiom dependencies
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3OperatorFredholmEulerianParryBridge.lean 2>&1 | tee /tmp/m14-fredholm-parry.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/m14-fredholm-parry.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/m14-fredholm-parry.log').read_text()
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          names = (
+              'genuine_dirichlet_fredholm_half_eq_eulerianParameter',
+              'genuine_dirichlet_fredholm_eighth_eq_rE_z0',
+              'genuine_dirichlet_fredholm_half_eq_rE_z1',
+              'genuine_dirichlet_fredholm_eulerian_duplication',
+          )
+          for name in names:
+              target = 'Manuscript14Priority3.OperatorFredholmEulerianParryBridge.' + name
+              hits = re.findall("'" + re.escape(target) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert hits, ('missing #print axioms output', name)
+              for hit in hits:
+                  used = {x.strip() for x in hit.split(',') if x.strip()}
+                  assert used <= allowed, (name, used - allowed)
+              print('AXIOM AUDIT SUCCESS:', name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-fredholm-parry-lean-log
+          path: /tmp/m14-fredholm-parry.log
