@@ -50,4 +50,53 @@ theorem finite_sine_phase_transport {ι : Type*} (S : Finset ι)
 #print axioms Manuscript15.finite_cosine_phase_transport
 #print axioms Manuscript15.finite_sine_phase_transport
 
+
+/-- Weighted finite cosine phase transport for nonnegative coupling masses.
+    This does not assert a general coupling integral or Wasserstein bound. -/
+theorem finite_weighted_cosine_phase_transport {ι : Type*} (S : Finset ι)
+    (s : ℝ) (w x y : ι → ℝ) (hw : ∀ i ∈ S, 0 ≤ w i) :
+    |∑ i ∈ S, w i * (Real.cos (s * x i) - Real.cos (s * y i))| ≤
+      |s| * ∑ i ∈ S, w i * |x i - y i| := by
+  calc
+    |∑ i ∈ S, w i * (Real.cos (s * x i) - Real.cos (s * y i))| ≤
+        ∑ i ∈ S, |w i * (Real.cos (s * x i) - Real.cos (s * y i))| := by
+          exact Finset.abs_sum_le_sum_abs _ _
+    _ ≤ ∑ i ∈ S, |s| * (w i * |x i - y i|) := by
+          apply Finset.sum_le_sum
+          intro i hi
+          rw [abs_mul, abs_of_nonneg (hw i hi)]
+          calc
+            w i * |Real.cos (s * x i) - Real.cos (s * y i)| ≤
+                w i * |s * x i - s * y i| :=
+                  mul_le_mul_of_nonneg_left (Real.abs_cos_sub_cos_le _ _) (hw i hi)
+            _ = |s| * (w i * |x i - y i|) := by
+                  rw [← mul_sub, abs_mul]
+                  ring
+    _ = |s| * ∑ i ∈ S, w i * |x i - y i| := by rw [Finset.mul_sum]
+
+/-- Weighted finite sine phase transport for nonnegative coupling masses. -/
+theorem finite_weighted_sine_phase_transport {ι : Type*} (S : Finset ι)
+    (s : ℝ) (w x y : ι → ℝ) (hw : ∀ i ∈ S, 0 ≤ w i) :
+    |∑ i ∈ S, w i * (Real.sin (s * x i) - Real.sin (s * y i))| ≤
+      |s| * ∑ i ∈ S, w i * |x i - y i| := by
+  calc
+    |∑ i ∈ S, w i * (Real.sin (s * x i) - Real.sin (s * y i))| ≤
+        ∑ i ∈ S, |w i * (Real.sin (s * x i) - Real.sin (s * y i))| := by
+          exact Finset.abs_sum_le_sum_abs _ _
+    _ ≤ ∑ i ∈ S, |s| * (w i * |x i - y i|) := by
+          apply Finset.sum_le_sum
+          intro i hi
+          rw [abs_mul, abs_of_nonneg (hw i hi)]
+          calc
+            w i * |Real.sin (s * x i) - Real.sin (s * y i)| ≤
+                w i * |s * x i - s * y i| :=
+                  mul_le_mul_of_nonneg_left (Real.abs_sin_sub_sin_le _ _) (hw i hi)
+            _ = |s| * (w i * |x i - y i|) := by
+                  rw [← mul_sub, abs_mul]
+                  ring
+    _ = |s| * ∑ i ∈ S, w i * |x i - y i| := by rw [Finset.mul_sum]
+
+#print axioms Manuscript15.finite_weighted_cosine_phase_transport
+#print axioms Manuscript15.finite_weighted_sine_phase_transport
+
 end Manuscript15
