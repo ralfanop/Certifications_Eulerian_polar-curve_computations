@@ -161,15 +161,8 @@ theorem reflection_normalized_energy_real
     (c a b : ℝ) (hc : c ^ 2 = 2) :
     ((a - b) / c) ^ 2 + ((a + b) / c) ^ 2 =
       a ^ 2 + b ^ 2 := by
-  have hc0 : c ≠ 0 := by
-    intro h
-    simp [h] at hc
-  apply (div_eq_iff (pow_ne_zero 2 hc0)).2
-  rw [← div_pow, ← div_pow]
-  -- Both squared fractions have the same denominator.
-  rw [← add_div]
-  rw [div_eq_iff (pow_ne_zero 2 hc0)]
-  rw [hc]
+  rw [div_pow, div_pow, ← add_div, hc]
+  apply (div_eq_iff (by norm_num : (2 : ℝ) ≠ 0)).2
   ring
 
 /-- The corresponding derivative-energy identity, with the
