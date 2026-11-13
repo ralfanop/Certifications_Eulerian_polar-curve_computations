@@ -37,6 +37,8 @@ jobs:
           if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/m15-kantorovich.log; then exit 1; fi
           grep -F 'Manuscript15.finite_lipschitz_test_marginal_transport' /tmp/m15-kantorovich.log
           grep -F 'Manuscript15.finite_unit_lipschitz_test_marginal_transport' /tmp/m15-kantorovich.log
+          grep -F 'Manuscript15.finite_lipschitz_test_marginal_transport_global' /tmp/m15-kantorovich.log
+          grep -F 'Manuscript15.finite_unit_lipschitz_zero_cost_marginals' /tmp/m15-kantorovich.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
