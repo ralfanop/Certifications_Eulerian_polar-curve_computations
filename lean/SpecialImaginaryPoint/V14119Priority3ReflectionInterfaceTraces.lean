@@ -87,9 +87,9 @@ theorem reflection_values_recover_components
     c * (leftValue c g h + rightValue c g h) / 2 = h := by
   unfold leftValue rightValue
   constructor
-  · field_simp
+  · field_simp [hc]
     <;> ring
-  · field_simp
+  · field_simp [hc]
     <;> ring
 
 /-- Pointwise inverse for the derivative jets, including the
@@ -100,9 +100,9 @@ theorem reflection_derivatives_recover_components
     c * (leftDerivative c dg dh - rightDerivative c dg dh) / 2 = dh := by
   unfold leftDerivative rightDerivative
   constructor
-  · field_simp
+  · field_simp [hc]
     <;> ring
-  · field_simp
+  · field_simp [hc]
     <;> ring
 
 /-- The elementary real pointwise energy identity behind the
