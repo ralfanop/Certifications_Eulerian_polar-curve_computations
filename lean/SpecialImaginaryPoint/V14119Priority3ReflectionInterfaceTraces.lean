@@ -122,7 +122,7 @@ theorem reflection_second_derivative_intertwining
       -leftSecondDerivative c ddg ddh ∧
     rightSecondDerivative c (-ddg) (-ddh) =
       -rightSecondDerivative c ddg ddh := by
-  constructor <;> simp [leftSecondDerivative, rightSecondDerivative, neg_div]
+  constructor <;> unfold leftSecondDerivative rightSecondDerivative <;> ring
 
 /-- Recover the two component second derivatives from the reflected
 branches. This is the algebraic inverse of the differential expression,
