@@ -1,0 +1,57 @@
+name: "M15 S2.1 cycloid geometry and S2.6 Cayley algebra"
+on:
+  push:
+    branches:
+      - draft/m15-s21-cycloid-geometry-s26-cayley-20261113
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/Section21CycloidAnd26Cayley.lean'
+      - '.github/workflows/m15-s21-cycloid-s26-cayley.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean toolchain pinned by lean-toolchain
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile exact source and audit all theorem axioms
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 Manuscript15/Section21CycloidAnd26Cayley.lean 2>&1 | tee /tmp/m15-geometry-cayley.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/m15-geometry-cayley.log; then exit 1; fi
+          for theorem in \
+            one_sub_cos_eq_two_sin_half_sq \
+            cycloid_speed_squared \
+            cycloid_speed \
+            cycloid_derivative_determinant \
+            cycloid_abs_derivative_determinant \
+            cycloid_curvature_quotient \
+            cayley_coordinates_unit_circle \
+            cayley_real_at_half \
+            cayley_imag_at_half \
+            conformal_factor_at_half; do
+            grep -F "Manuscript15.Section21And26.$theorem" /tmp/m15-geometry-cayley.log
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-section21-section26-lean-log
+          path: /tmp/m15-geometry-cayley.log
