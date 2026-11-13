@@ -13,6 +13,8 @@ physical interpretation, complex matrix identity, or the complete manifold
 curvature theorem. Those are separate formalization obligations.
 -/
 
+open Real
+
 noncomputable section
 
 namespace Manuscript15.Section21And26
