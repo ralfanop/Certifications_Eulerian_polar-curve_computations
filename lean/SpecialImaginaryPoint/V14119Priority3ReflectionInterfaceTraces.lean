@@ -191,4 +191,39 @@ theorem reflection_parallelogram_real (a b : ℝ) :
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_derivative_energy_real
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_parallelogram_real
 
+
+/-- Full normalized real bilinear polarization for arbitrary pairs.
+Unlike a diagonal energy identity, this is the finite-dimensional
+inner-product identity needed for the polarization step of the
+eventual Hilbert-space unitary. The change-of-variables/integration
+argument is deliberately not asserted here. -/
+theorem reflection_normalized_polarization_real
+    (c a b x y : ℝ) (hc : c ^ 2 = 2) :
+    ((a - b) / c) * ((x - y) / c) +
+      ((a + b) / c) * ((x + y) / c) =
+        a * x + b * y := by
+  have hc0 : c ≠ 0 := by
+    intro hz
+    simp [hz] at hc
+  apply (mul_right_cancel₀ (pow_ne_zero 2 hc0))
+  calc
+    (((a - b) / c) * ((x - y) / c) +
+      ((a + b) / c) * ((x + y) / c)) * c ^ 2 =
+        (a - b) * (x - y) + (a + b) * (x + y) := by
+          field_simp
+    _ = 2 * (a * x + b * y) := by ring
+    _ = (a * x + b * y) * c ^ 2 := by rw [hc]; ring
+
+/-- The symmetric and antisymmetric reflected modes are
+orthogonal under the standard Euclidean bilinear pairing.
+This is a pointwise finite-dimensional statement, not yet
+an orthogonality theorem in L². -/
+theorem reflection_symmetric_antisymmetric_orthogonal_real
+    (a b : ℝ) :
+    (a - b) * (a + b) + (b - a) * (a + b) = 0 := by
+  ring
+
+#print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_normalized_polarization_real
+#print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_symmetric_antisymmetric_orthogonal_real
+
 end Manuscript14Priority3.ReflectionInterfaceTraces
