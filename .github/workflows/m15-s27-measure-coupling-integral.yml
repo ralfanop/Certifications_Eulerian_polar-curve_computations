@@ -1,0 +1,51 @@
+name: "M15 S2.7 actual measure coupling integral inequalities"
+on:
+  push:
+    branches:
+      - draft/m15-s27-measure-coupling-integral-20261113
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/Section27CouplingIntegral.lean'
+      - '.github/workflows/m15-s27-measure-coupling-integral.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile measure-level theorems and audit axioms
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 Manuscript15/Section27CouplingIntegral.lean 2>&1 | tee /tmp/m15-s27-integral.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/m15-s27-integral.log; then exit 1; fi
+          for theorem in \
+            integral_transport_of_pointwise_bound \
+            integral_unit_lipschitz_coupling \
+            integral_cosine_phase_coupling \
+            integral_sine_phase_coupling; do
+            grep -F "Manuscript15.Section27.$theorem" /tmp/m15-s27-integral.log
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-s27-integral-log
+          path: /tmp/m15-s27-integral.log
