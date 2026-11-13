@@ -97,7 +97,9 @@ theorem finite_unit_lipschitz_zero_cost_marginals
       intro i hi
       exact hLip (x i) (y i))
   rw [hcost] at hb
-  exact sub_eq_zero.mp (abs_le_zero_iff.mp hb)
+  have hz : |(∑ i ∈ S, w i * φ (x i)) - (∑ i ∈ S, w i * φ (y i))| = 0 :=
+    le_antisymm hb (abs_nonneg _)
+  exact sub_eq_zero.mp (abs_eq_zero.mp hz)
 
 #print axioms Manuscript15.finite_lipschitz_test_marginal_transport_global
 #print axioms Manuscript15.finite_unit_lipschitz_zero_cost_marginals
