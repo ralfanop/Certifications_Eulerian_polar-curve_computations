@@ -64,4 +64,42 @@ theorem finite_unit_lipschitz_test_marginal_transport
 #print axioms Manuscript15.finite_lipschitz_test_marginal_transport
 #print axioms Manuscript15.finite_unit_lipschitz_test_marginal_transport
 
+
+/-- A global Lipschitz estimate supplies the supportwise hypothesis for
+every finite nonnegative coupling, with no normalization of the weights.
+This form is suitable for later approximation by simple couplings. -/
+theorem finite_lipschitz_test_marginal_transport_global
+    {ι : Type*} (S : Finset ι) (w x y : ι → ℝ)
+    (φ : ℝ → ℝ) (L : ℝ)
+    (hw : ∀ i ∈ S, 0 ≤ w i)
+    (hLip : ∀ a b : ℝ, |φ a - φ b| ≤ L * |a - b|) :
+    |(∑ i ∈ S, w i * φ (x i)) -
+      (∑ i ∈ S, w i * φ (y i))| ≤
+      L * ∑ i ∈ S, w i * |x i - y i| := by
+  exact finite_lipschitz_test_marginal_transport S w x y φ L hw
+    (by
+      intro i hi
+      exact hLip (x i) (y i))
+
+/-- Zero weighted transport cost forces equality of the two finite
+test-function marginals for every globally unit-Lipschitz observable.
+This is a finite-coupling statement only, not a W₁ separation theorem. -/
+theorem finite_unit_lipschitz_zero_cost_marginals
+    {ι : Type*} (S : Finset ι) (w x y : ι → ℝ)
+    (φ : ℝ → ℝ)
+    (hw : ∀ i ∈ S, 0 ≤ w i)
+    (hLip : ∀ a b : ℝ, |φ a - φ b| ≤ |a - b|)
+    (hcost : (∑ i ∈ S, w i * |x i - y i|) = 0) :
+    (∑ i ∈ S, w i * φ (x i)) =
+      (∑ i ∈ S, w i * φ (y i)) := by
+  have hb := finite_unit_lipschitz_test_marginal_transport S w x y φ hw
+    (by
+      intro i hi
+      exact hLip (x i) (y i))
+  rw [hcost] at hb
+  exact sub_eq_zero.mp (abs_le_zero_iff.mp hb)
+
+#print axioms Manuscript15.finite_lipschitz_test_marginal_transport_global
+#print axioms Manuscript15.finite_unit_lipschitz_zero_cost_marginals
+
 end Manuscript15
