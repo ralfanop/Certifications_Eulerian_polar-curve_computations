@@ -36,7 +36,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
-          lake env lean -M16768 Manuscript15/Section27CouplingIntegral.lean 2>&1 | tee /tmp/m15-s27-base.log
+          lake env lean -M16768 -o Manuscript15/Section27CouplingIntegral.olean Manuscript15/Section27CouplingIntegral.lean 2>&1 | tee /tmp/m15-s27-base.log
           lake env lean -M16768 Manuscript15/Section27TwoCoordinate.lean 2>&1 | tee /tmp/m15-s27-two-coordinate.log
           if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/m15-s27-base.log /tmp/m15-s27-two-coordinate.log; then exit 1; fi
           grep -F "Manuscript15.Section27.integral_fourier_two_coordinate_coupling" /tmp/m15-s27-two-coordinate.log
