@@ -158,3 +158,9 @@ differential-operator direct-sum proof.
 - Previous M15 §2 Fredholm comments in the historical table remain valid as cross-manuscript motivation but should not be interpreted as a statement that M15 has already proved differential-domain equivalence.
 
 **No merge. No change to pinned Lean/Mathlib workflows. No new theorem or Arb certification asserted by this documentation-only addendum.**
+
+### 13 November 2026 — new finite Table 1 Arb interval certification (exact head)
+
+- [Draft PR #289](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/289), exact tested head `8c7cf91c4ac574659d5f11dcbc135a365e3f0b7e`, [workflow #43503120937](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43503120937), job `132153751280`: **SUCCESS**. The actual job log confirms `python-flint==0.9.0`, `ctx.prec=10000`, exact integer Eulerian recurrences, symmetry/normalization, rational mean/variance, and Arb intervals for **all 13 n=3,...,15 Table 1 central angles**. Every certified angle has **9996 relative bits** (threshold 8182). Each interval is strictly within the prescribed +/-0.5*10^-12 degree rounding cell, so the 12-decimal entries are certified. The small-index odd-angle equality n=3,5 and the finite n=7,...,15 slope inequalities are also checked exactly.
+- **Limits:** This CI does **not** prove the all-odd-index strict inequality, asymptotic `alpha_n -> 180 degrees`, weak convergence, the 7000 vector Figure 1 drawing paths, or any Lean theorem. Those require separate analytic or geometric proof. This result is distinct from the existing Arb certification of 7000 *central probabilities*.
+- Keep the PR Draft; **no merge**. Any new code edit requires another successful CI on that new head SHA.
