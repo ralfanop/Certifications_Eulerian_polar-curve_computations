@@ -1,0 +1,47 @@
+name: "M15 S2.7 two-coordinate Fourier transport"
+on:
+  push:
+    branches:
+      - draft/m15-s27-two-coordinate-fourier-20261113
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/Section27TwoCoordinate.lean'
+      - 'lean/Manuscript15/Section27CouplingIntegral.lean'
+      - '.github/workflows/m15-s27-two-coordinate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile source and audit axioms
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 Manuscript15/Section27CouplingIntegral.lean 2>&1 | tee /tmp/m15-s27-base.log
+          lake env lean -M16768 Manuscript15/Section27TwoCoordinate.lean 2>&1 | tee /tmp/m15-s27-two-coordinate.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/m15-s27-base.log /tmp/m15-s27-two-coordinate.log; then exit 1; fi
+          grep -F "Manuscript15.Section27.integral_fourier_two_coordinate_coupling" /tmp/m15-s27-two-coordinate.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-s27-two-coordinate-log
+          path: /tmp/m15-s27-*.log
