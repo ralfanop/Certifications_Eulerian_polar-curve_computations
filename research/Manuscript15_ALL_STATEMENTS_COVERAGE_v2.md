@@ -1,6 +1,6 @@
 # Manuscript 15 — complete theorem-level Lean/Arb coverage matrix (revision e)
 
-**Manuscript:** `Manuscript15_Revision_20261111e` (11 November 2026, 23 pages).
+**Manuscript (current authority):** `Manuscript_15_Editorial_Review_Maldacena2023_20261113/15.tex` (13 November 2026, 30-page compiled PDF; SHA-256 `ccfcef205a7fc38db4386142a9173d0a8a60121ab58ae5ed1713f4219b1e200d`). Earlier theorem rows below are a historical snapshot of the 11 November version and are superseded where the 13 November addendum explicitly differs.
 **Repository:** `ralfanop/Certifications_Eulerian_polar-curve_computations`.
 **Status convention:** `kernel CERTIFIED` only after a successful exact-source run with #print axioms and permitted standard axioms; `Arb CERTIFIED` only for a *specific defined numerical expression* with a successful outward-enclosure check. A prose analytic proof is not automatically a formal proof.
 
@@ -165,3 +165,32 @@ This appendix changes only the draft certification ledger. No merge, manuscript,
 * **PR #287**, exact head `6f904daed452f9a977c88b8eb2e4ef1b7ce1d4fd`: [workflow #43437777480](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43437777480) completed **SUCCESS**. The file `lean/Manuscript15/FiniteKantorovichTest.lean` contains four finite-coupling statements: `finite_lipschitz_test_marginal_transport`, `finite_unit_lipschitz_test_marginal_transport`, `finite_lipschitz_test_marginal_transport_global`, and `finite_unit_lipschitz_zero_cost_marginals`. The workflow compiles the file and checks the axiom audit output, rejecting `sorryAx` and errors. These are finite nonnegative weighted test-function inequalities, **not** an integrated coupling theorem or a Wasserstein-1 infimum theorem. PR #287 remains open and draft.
 * Exact historical head checks reconfirmed PR #236 (`f743c86ed693206f239d47b3bbac7ce2280a1152`, 15/15 first-page associated runs SUCCESS), #240 (`64c156b6ffef772b2f61ea2c92275d0dc6f3034b`, 1/1) and #242 (`bb5ac12cfb961890eca2a986240d048c789664ad`, 15/15). These PRs have been merged, but the cited checks refer to their historical head commits, not a fresh default-branch integration build.
 * Outstanding: prove the integral inequality for arbitrary coupling with integrability hypotheses, then take the infimum over transport costs; separately, general cycloidal rigidity, higher terminal contact and curvature classification remain open. No new Arb certificate is claimed: require 10000-bit working precision and at least 8182 rigorously verified relative bits for each new nonzero enclosure. No merge or changes to manuscripts 11–14, V007, V097 or figures.
+
+
+## 13 November 2026 — authoritative 30-page Manuscript 15 revision (superseding older section inventory)
+
+**Source of truth:** the user-supplied archive `Manuscript_15_Editorial_Review_Maldacena2023_20261113(1).zip`, `15.tex` SHA-256 `ccfcef205a7fc38db4386142a9173d0a8a60121ab58ae5ed1713f4219b1e200d`. This audit is anchored to that exact file and does not edit it.
+
+**Editorial changes relative to 11 November `15.tex`:**
+- Old §7 *Formal certification and open problems* was **removed as a standalone certification table**. Current §7 is *Discussion*, §8 *Open Problems*, and §9 *Conclusions*. Do not infer missing mathematical proofs from the deleted status table.
+- Four new scoped statements in §2: `prop:fourfold-eulerian` (Fourier / Fredholm / sphere / pure-spin integral representations), `prop:two-eulerian-apices` (odd apex-angle classification), `lem:eulerian-triangle-fourier` (triangular Fourier profile and derivative), `prop:laplace-unitime` (Laplace/Cayley/Segal half-angle identities). These must have **separate** Lean theorem-level coverage; scalar algebra alone does not establish all integral/operator interpretations.
+- The bibliography has 32 `\\bibitem` entries (up from 24). `maldacena-personal2023` is present in the bibliography but has no `\\cite` in the source. It is not appropriate to invent a mathematical attribution or attach a citation without substantiating the 2023 private correspondence. No unresolved citation keys were found by parsing comma-separated keys.
+- Data/Code Availability now accurately state that the complete original Figure 1 generator is **not included**. Do not claim identical regeneration of its 7000 vector paths from the archive; a separate repository script verifies Eulerian coefficients and peak probabilities, not those paths.
+- The AI declaration is different; that is an authorial editorial matter, not a Lean/Arb mathematical obligation. No unsupported restoration of deleted text was made.
+
+**Revised scope and priority (current sections; do not duplicate existing PRs):**
+
+| Current section | Enunciation / evidence | Remaining formal obligation |
+|---|---|---|
+| §2.3 `prop:fourfold-eulerian` | New four-representation proposition | Verify each integral normalization, equality to the analytic continuation, and honest relationship to the *specified* trace-class Fredholm determinant; compare against #273/#276/#277/#281 before adding proofs |
+| §2.4 `prop:two-eulerian-apices` | Exact small odd equality n=3,5 and all odd n≥7 strict inequality | Existing 7000-row numerical tests are not an all-orders theorem; formalize the analytic inequality/positive-integrand majorants and the separately quoted asymptotic with proper M11 dependency |
+| §2.4 `lem:eulerian-triangle-fourier` | Explicit piecewise-affine periodic function | Lean Fourier coefficient/integrability/convergence proof and differentiation away from corners, not merely checking finite values |
+| §2.6 `prop:laplace-unitime` | New Laplace/Cayley/Segal formula | Formalize domain and branch hypotheses, the actual integral and matrix identity; avoid attributing physical equivalence |
+| §2.7 `thm:wasserstein` | Six finite-coupling precursor statements in merged PR #287, exact tested head `1c8b2f887c720e178b315bf37ab0ccd4ec51a7b9`, run #43461385180 SUCCESS | Coupling integral, finite-first-moment integrability and infimum over couplings remain; finite sums alone are insufficient |
+| §3 `thm:rigidity` | Measure existence, characteristic identification and convolution orders supported by earlier Lean PRs | General compact-support hypothesis => analytic functional equation => unique uniform law (full chain) |
+| §§4–5 | Cusp/curvature/terminal order, with existing partial PRs | Higher-order jets, curvature hypotheses, exact terminal local inversion: declaration-by-declaration audit remains necessary |
+| M14/M15 operator-bridge *research* | Differential-domain reflection, H² gluing, abstract trace-resolvent, modular-j | Keep in the cross-manuscript operator ledger; do not falsely label as currently claimed M15 theorem proofs |
+
+**Reproduction classification:** the supplied `verify_eulerian_angles_n3_15_and_limit.py` has SHA-256 `afb60d7b162a89955a6c4d54c4d79e899cbf8e236b59f0c840d69e5efe550839`; local execution reproduced all **13 finite** tabulated angles n=3..15 to 12 decimals, with exact integer Eulerian recurrence, exact rational moment checks and 80-decimal-digit `mpmath` evaluation. The terminal printed assertion `alpha_n -> 180 degrees` is **not** a programmatically proved asymptotic. Neither 80-digit `mpmath` nor agreement at 12 decimals is an Arb interval certificate. Separate `numerics/manuscript15_eulerian_7002_arb10000.py` already checks all 7000 central peak probabilities using pinned python-flint and must not be duplicated for those same observables. For newly certified nonzero angles, require Arb working precision 10000 bits, >=8182 checked relative bits, a strict <0.5e-12-degree containment against the 12-decimal target, and a SUCCESS job on the **exact branch head SHA**.
+
+**Status hygiene:** prior ledger text saying PR #287 is open/draft is historical; the PR was subsequently merged. No present document-only commit certifies any new Lean theorem or numeric result. No merge authorized.
