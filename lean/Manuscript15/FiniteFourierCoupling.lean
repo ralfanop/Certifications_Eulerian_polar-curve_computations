@@ -99,4 +99,45 @@ theorem finite_weighted_sine_phase_transport {ι : Type*} (S : Finset ι)
 #print axioms Manuscript15.finite_weighted_cosine_phase_transport
 #print axioms Manuscript15.finite_weighted_sine_phase_transport
 
+
+/-- Finite weighted cosine marginal difference bound, in the form used by
+    two discrete probability measures sharing an explicit coupling. -/
+theorem finite_weighted_cosine_marginal_transport {ι : Type*} (S : Finset ι)
+    (s : ℝ) (w x y : ι → ℝ) (hw : ∀ i ∈ S, 0 ≤ w i) :
+    |(∑ i ∈ S, w i * Real.cos (s * x i)) -
+      (∑ i ∈ S, w i * Real.cos (s * y i))| ≤
+      |s| * ∑ i ∈ S, w i * |x i - y i| := by
+  calc
+    |(∑ i ∈ S, w i * Real.cos (s * x i)) -
+      (∑ i ∈ S, w i * Real.cos (s * y i))| =
+        |∑ i ∈ S, w i * (Real.cos (s * x i) - Real.cos (s * y i))| := by
+          congr 1
+          rw [← Finset.sum_sub_distrib]
+          apply Finset.sum_congr rfl
+          intro i hi
+          ring
+    _ ≤ |s| * ∑ i ∈ S, w i * |x i - y i| :=
+      finite_weighted_cosine_phase_transport S s w x y hw
+
+/-- Finite weighted sine marginal difference bound for a discrete coupling. -/
+theorem finite_weighted_sine_marginal_transport {ι : Type*} (S : Finset ι)
+    (s : ℝ) (w x y : ι → ℝ) (hw : ∀ i ∈ S, 0 ≤ w i) :
+    |(∑ i ∈ S, w i * Real.sin (s * x i)) -
+      (∑ i ∈ S, w i * Real.sin (s * y i))| ≤
+      |s| * ∑ i ∈ S, w i * |x i - y i| := by
+  calc
+    |(∑ i ∈ S, w i * Real.sin (s * x i)) -
+      (∑ i ∈ S, w i * Real.sin (s * y i))| =
+        |∑ i ∈ S, w i * (Real.sin (s * x i) - Real.sin (s * y i))| := by
+          congr 1
+          rw [← Finset.sum_sub_distrib]
+          apply Finset.sum_congr rfl
+          intro i hi
+          ring
+    _ ≤ |s| * ∑ i ∈ S, w i * |x i - y i| :=
+      finite_weighted_sine_phase_transport S s w x y hw
+
+#print axioms Manuscript15.finite_weighted_cosine_marginal_transport
+#print axioms Manuscript15.finite_weighted_sine_marginal_transport
+
 end Manuscript15
