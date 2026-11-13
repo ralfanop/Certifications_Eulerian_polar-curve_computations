@@ -1,0 +1,44 @@
+name: "M15 finite Kantorovich test inequality"
+on:
+  push:
+    branches:
+      - draft/m15-finite-kantorovich-test-20261113
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/FiniteKantorovichTest.lean'
+      - '.github/workflows/m15-finite-kantorovich-test.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit the exact declarations
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 Manuscript15/FiniteKantorovichTest.lean 2>&1 | tee /tmp/m15-kantorovich.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/m15-kantorovich.log; then exit 1; fi
+          grep -F 'Manuscript15.finite_lipschitz_test_marginal_transport' /tmp/m15-kantorovich.log
+          grep -F 'Manuscript15.finite_unit_lipschitz_test_marginal_transport' /tmp/m15-kantorovich.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-finite-kantorovich-log
+          path: /tmp/m15-kantorovich.log
