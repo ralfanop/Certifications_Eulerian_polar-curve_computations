@@ -79,6 +79,32 @@ theorem outer_dirichlet_of_component_traces
     leftValue c g0 h0 = 0 ∧ rightValue c g0 h0 = 0 := by
   simp [leftValue, rightValue, hg, hh]
 
+/-- Pointwise inverse to the two reflected values. This supplies
+the algebraic bijection required before defining the L²-level unitary. -/
+theorem reflection_values_recover_components
+    (c g h : ℂ) (hc : c ≠ 0) :
+    c * (leftValue c g h - rightValue c g h) / 2 = g ∧
+    c * (leftValue c g h + rightValue c g h) / 2 = h := by
+  unfold leftValue rightValue
+  constructor
+  · field_simp
+    <;> ring
+  · field_simp
+    <;> ring
+
+/-- Pointwise inverse for the derivative jets, including the
+reflection sign on the right-hand branch. -/
+theorem reflection_derivatives_recover_components
+    (c dg dh : ℂ) (hc : c ≠ 0) :
+    c * (leftDerivative c dg dh + rightDerivative c dg dh) / 2 = dg ∧
+    c * (leftDerivative c dg dh - rightDerivative c dg dh) / 2 = dh := by
+  unfold leftDerivative rightDerivative
+  constructor
+  · field_simp
+    <;> ring
+  · field_simp
+    <;> ring
+
 /-- The elementary real pointwise energy identity behind the
 normalization by sqrt(2), *not* an L² isometry proof. -/
 theorem reflection_parallelogram_real (a b : ℝ) :
@@ -89,6 +115,8 @@ theorem reflection_parallelogram_real (a b : ℝ) :
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.derivative_match_iff
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.interface_jet_match_iff
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.outer_dirichlet_of_component_traces
+#print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_values_recover_components
+#print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_derivatives_recover_components
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_parallelogram_real
 
 end Manuscript14Priority3.ReflectionInterfaceTraces
