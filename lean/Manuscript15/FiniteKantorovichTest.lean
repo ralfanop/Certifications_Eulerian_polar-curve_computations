@@ -104,4 +104,21 @@ theorem finite_unit_lipschitz_zero_cost_marginals
 #print axioms Manuscript15.finite_lipschitz_test_marginal_transport_global
 #print axioms Manuscript15.finite_unit_lipschitz_zero_cost_marginals
 
+/-- The first-moment transport estimate is an exact specialization of the
+finite Kantorovich test inequality to the identity observable. This does
+not assert a bound for general Borel probability measures. -/
+theorem finite_first_moment_transport
+    {ι : Type*} (S : Finset ι) (w x y : ι → ℝ)
+    (hw : ∀ i ∈ S, 0 ≤ w i) :
+    |(∑ i ∈ S, w i * x i) - (∑ i ∈ S, w i * y i)| ≤
+      ∑ i ∈ S, w i * |x i - y i| := by
+  simpa only [id_eq] using
+    (finite_unit_lipschitz_test_marginal_transport S w x y id hw
+      (by
+        intro i hi
+        simp only [id_eq]
+        exact le_refl _))
+
+#print axioms Manuscript15.finite_first_moment_transport
+
 end Manuscript15
