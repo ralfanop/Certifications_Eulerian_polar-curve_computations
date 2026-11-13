@@ -1,0 +1,44 @@
+name: "Manuscripts 14–15 — reflection interface jet conditions"
+
+on:
+  push:
+    branches:
+      - draft/m14-m15-reflection-interface-traces-20261112
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ReflectionInterfaceTraces.lean'
+      - '.github/workflows/m14-m15-reflection-interface-traces.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119Priority3ReflectionInterfaceTraces.lean'
+      - '.github/workflows/m14-m15-reflection-interface-traces.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean via elan (lean-toolchain pinned)
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve Mathlib pinned by lake-manifest.json
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile reflection seam identities and audit axioms
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3ReflectionInterfaceTraces.lean 2>&1 | tee /tmp/reflection-interface-traces.log
+          if grep -Eq 'sorryAx|^.*error:' /tmp/reflection-interface-traces.log; then exit 1; fi
+          grep -q "ReflectionInterfaceTraces.interface_jet_match_iff' depends on axioms:" /tmp/reflection-interface-traces.log
