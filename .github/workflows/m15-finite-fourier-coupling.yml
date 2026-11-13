@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - draft/m15-finite-fourier-coupling-20261113
+      - draft/m15-weighted-fourier-marginal-20261113
     paths:
       - 'lean/Manuscript15/FiniteFourierCoupling.lean'
       - '.github/workflows/m15-finite-fourier-coupling.yml'
@@ -39,6 +40,8 @@ jobs:
           if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/m15-finite-coupling.log; then exit 1; fi
           grep -F 'Manuscript15.finite_cosine_phase_transport' /tmp/m15-finite-coupling.log
           grep -F 'Manuscript15.finite_sine_phase_transport' /tmp/m15-finite-coupling.log
+          grep -F 'Manuscript15.finite_weighted_cosine_marginal_transport' /tmp/m15-finite-coupling.log
+          grep -F 'Manuscript15.finite_weighted_sine_marginal_transport' /tmp/m15-finite-coupling.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
