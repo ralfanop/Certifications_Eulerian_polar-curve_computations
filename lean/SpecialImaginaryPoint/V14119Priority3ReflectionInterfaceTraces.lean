@@ -105,6 +105,41 @@ theorem reflection_derivatives_recover_components
   · field_simp [hc]
     <;> ring
 
+
+/-- The reflected second derivative has no sign reversal, unlike the
+first derivative. This is the pointwise differential expression
+underlying the desired intertwining of negative Laplacians. -/
+def leftSecondDerivative (c ddg ddh : ℂ) : ℂ := (ddg + ddh) / c
+
+def rightSecondDerivative (c ddg ddh : ℂ) : ℂ := (ddh - ddg) / c
+
+/-- Algebraic intertwining of the second derivative with reflection:
+taking minus the second derivative commutes with the two-branch
+reconstruction, provided the second-derivative jets exist. -/
+theorem reflection_second_derivative_intertwining
+    (c ddg ddh : ℂ) :
+    leftSecondDerivative c (-ddg) (-ddh) =
+      -leftSecondDerivative c ddg ddh ∧
+    rightSecondDerivative c (-ddg) (-ddh) =
+      -rightSecondDerivative c ddg ddh := by
+  constructor <;> simp [leftSecondDerivative, rightSecondDerivative, neg_div]
+
+/-- Recover the two component second derivatives from the reflected
+branches. This is the algebraic inverse of the differential expression,
+not yet a statement about unbounded-operator domains. -/
+theorem reflection_second_derivatives_recover_components
+    (c ddg ddh : ℂ) (hc : c ≠ 0) :
+    c * (leftSecondDerivative c ddg ddh -
+      rightSecondDerivative c ddg ddh) / 2 = ddg ∧
+    c * (leftSecondDerivative c ddg ddh +
+      rightSecondDerivative c ddg ddh) / 2 = ddh := by
+  unfold leftSecondDerivative rightSecondDerivative
+  constructor
+  · field_simp [hc]
+    <;> ring
+  · field_simp [hc]
+    <;> ring
+
 /-- The elementary real pointwise energy identity behind the
 normalization by sqrt(2), *not* an L² isometry proof. -/
 theorem reflection_parallelogram_real (a b : ℝ) :
@@ -117,6 +152,8 @@ theorem reflection_parallelogram_real (a b : ℝ) :
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.outer_dirichlet_of_component_traces
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_values_recover_components
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_derivatives_recover_components
+#print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_second_derivative_intertwining
+#print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_second_derivatives_recover_components
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_parallelogram_real
 
 end Manuscript14Priority3.ReflectionInterfaceTraces
