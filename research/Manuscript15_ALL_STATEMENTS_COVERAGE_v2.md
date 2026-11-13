@@ -133,3 +133,12 @@ No manuscript, figure, V007/V097 file or theorem source is changed in this ledge
 * PRs #278 (`e1916a3ffa8b1e4a8458944c91a6098b608ea750`, 1/1), #280 (`efef5e7cca1439b9ae003be8edd4a37919f2460b`, 2/2), and #281 (`20cdb49cdd958017e5c1807a38e63978e2d0d1de`, 1/1) also retain successful exact-head workflow outcomes. The numerical working-precision requirement remains 10000 bits with a rigorously checked minimum of 8182 relative bits; workflow success alone does not establish a new numerical enclosure inventory.
 
 Documentation only. No Lean theorem, Arb script, figure, manuscript, V007 or V097 source changed. No merge authorized.
+
+
+## November 13, 2026 — latest exact-head revalidation
+
+* **PR #284** now points to `0aa1d7d74578c7a69072133de9bd50e313b843d3`; its [workflow #43355543736](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43355543736) completed **SUCCESS** on this exact commit. This supersedes the earlier tested head `3c18fb6548c7f19f3a87cb2138028732ba784f9b`. Certification scope remains scalar reflection seam trace algebra only: no Sobolev H² gluing, unitary transport or unbounded differential-operator conjugacy is inferred.
+* Revalidated the **actual PR heads** of #236 (`f743c86ed693206f239d47b3bbac7ce2280a1152`, 15/15 first-page runs SUCCESS), #240 (`64c156b6ffef772b2f61ea2c92275d0dc6f3034b`, 1/1 SUCCESS), and #242 (`bb5ac12cfb961890eca2a986240d048c789664ad`, 15/15 SUCCESS). These remain scoped supporting results, not full M15 theorem certification.
+* No new Arb interval certificate is asserted here. The operational requirement remains 10000-bit Arb precision and at least 8182 rigorously verified relative bits for each newly claimed nonzero interval. General cycloidal rigidity, terminal higher-order contact, differential curvature and integrated Wasserstein-1 remain open.
+
+Documentation-only; no merge and no modifications to manuscripts 11–14, V007/V097, figures, Lean proofs or Arb scripts.
