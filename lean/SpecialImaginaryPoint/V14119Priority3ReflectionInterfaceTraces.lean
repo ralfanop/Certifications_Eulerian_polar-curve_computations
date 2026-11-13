@@ -226,4 +226,42 @@ theorem reflection_symmetric_antisymmetric_orthogonal_real
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_normalized_polarization_real
 #print axioms Manuscript14Priority3.ReflectionInterfaceTraces.reflection_symmetric_antisymmetric_orthogonal_real
 
+/-- Exact equivalence of the two outer Dirichlet traces with the
+two component Dirichlet traces. The converse is important: it rules
+out spurious endpoint boundary conditions in the proposed inverse
+reflection map. This is still a pointwise trace theorem, not H² gluing. -/
+theorem outer_dirichlet_iff_component_traces
+    (c g0 h0 : ℂ) (hc : c ≠ 0) :
+    (leftValue c g0 h0 = 0 ∧ rightValue c g0 h0 = 0) ↔
+      (g0 = 0 ∧ h0 = 0) := by
+  constructor
+  · rintro ⟨hl, hr⟩
+    obtain ⟨hg, hh⟩ :=
+      reflection_values_recover_components c g0 h0 hc
+    constructor
+    · simpa [hl, hr] using hg.symm
+    · simpa [hl, hr] using hh.symm
+  · rintro ⟨hg, hh⟩
+    exact outer_dirichlet_of_component_traces c g0 h0 hg hh
+
+/-- Algebraic equivalence of all four scalar trace conditions:
+outer Dirichlet values on the reconstructed interval and C¹
+matching at the reflection seam correspond exactly to Dirichlet
+traces for both components at zero, a Dirichlet trace for the odd
+component at one, and a Neumann trace for the even component at one.
+
+No Sobolev trace theorem, L² unitary or operator-domain equality is
+assumed or concluded. Those analytic steps are separate obligations. -/
+theorem full_reflection_boundary_jet_iff
+    (c g0 h0 g1 h1 dg1 dh1 : ℂ) (hc : c ≠ 0) :
+    ((leftValue c g0 h0 = 0 ∧ rightValue c g0 h0 = 0) ∧
+     (leftValue c g1 h1 = rightValue c g1 h1 ∧
+      leftDerivative c dg1 dh1 = rightDerivative c dg1 dh1)) ↔
+      ((g0 = 0 ∧ h0 = 0) ∧ (g1 = 0 ∧ dh1 = 0)) := by
+  rw [outer_dirichlet_iff_component_traces c g0 h0 hc,
+      interface_jet_match_iff c g1 h1 dg1 dh1 hc]
+
+#print axioms Manuscript14Priority3.ReflectionInterfaceTraces.outer_dirichlet_iff_component_traces
+#print axioms Manuscript14Priority3.ReflectionInterfaceTraces.full_reflection_boundary_jet_iff
+
 end Manuscript14Priority3.ReflectionInterfaceTraces
