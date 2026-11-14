@@ -15,20 +15,20 @@ namespace Manuscript15.Section27
 it is bounded by the infimum of the nonempty, bounded-below cost set. -/
 theorem discrepancy_le_coupling_cost_infimum
     (costs : Set ℝ) (discrepancy : ℝ)
-    (hbelow : BddBelow costs)
+    (hnonempty : costs.Nonempty)
     (hbound : ∀ c ∈ costs, discrepancy ≤ c) :
     discrepancy ≤ sInf costs := by
-  exact le_csInf hbelow hbound
+  exact le_csInf hnonempty hbound
 
 /-- The same order-theoretic step for the set of scaled costs. This
 deliberately avoids claiming that scaling commutes with infimum without
 the additional nonnegativity and nonemptiness hypotheses. -/
 theorem discrepancy_le_scaled_coupling_cost_infimum
     (scaledCosts : Set ℝ) (discrepancy : ℝ)
-    (hbelow : BddBelow scaledCosts)
+    (hnonempty : scaledCosts.Nonempty)
     (hbound : ∀ c ∈ scaledCosts, discrepancy ≤ c) :
     discrepancy ≤ sInf scaledCosts := by
-  exact le_csInf hbelow hbound
+  exact le_csInf hnonempty hbound
 
 #print axioms Manuscript15.Section27.discrepancy_le_coupling_cost_infimum
 #print axioms Manuscript15.Section27.discrepancy_le_scaled_coupling_cost_infimum
