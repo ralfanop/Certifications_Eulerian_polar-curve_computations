@@ -36,45 +36,67 @@ open Manuscript14Priority3.DirichletInverseFredholmDerivativeTrace
 open Manuscript14Priority3.DirichletTrueFredholmSinhBridge
 open Manuscript14Section67
 
-/-- At spectral parameter one-half, the TRUE universal Fredholm
-determinant equals the distinguished real Eulerian–Parry scalar
-sqrt(2) sinh(1/sqrt(2)) exactly. -/
+/-!
+Alternative to Draft #261: centralize the transport of real-square
+spectral parameters to complex shifts, and derive both special
+values directly from the already proved operatorial Eulerian bridge.
+No per-theorem rewriting of real-to-complex shifts is used.
+-/
+
+/-- Parameter transport for the actual CFC-S₁ Fredholm determinant.
+This separates analytic operator theory from special-point arithmetic. -/
+private theorem fredholm_at_parameter
+    (x : ℝ) (hx : x ≠ 0) (s z : ℂ)
+    (hs : ((x ^ 2 : ℝ) : ℂ) = s)
+    (hz : 2 * ((x : ℂ) * Complex.I) = z) :
+    fredholmDet dirichletInverseS1 s = rE z := by
+  calc
+    fredholmDet dirichletInverseS1 s =
+        fredholmDet dirichletInverseS1 ((x ^ 2 : ℝ) : ℂ) := by rw [hs]
+    _ = rE (2 * ((x : ℂ) * Complex.I)) :=
+      genuine_dirichlet_fredholm_real_square_eq_eulerian x hx
+    _ = rE z := congrArg rE hz
+
+/-- Exact Eulerian special point z₀, from the common parameter-transport lemma. -/
+theorem genuine_dirichlet_fredholm_eighth_eq_rE_z0 :
+    fredholmDet dirichletInverseS1 (1 / 8 : ℂ) = rE z0 := by
+  refine fredholm_at_parameter a a_ne_zero (1 / 8 : ℂ) z0 ?_ z0_eq.symm
+  norm_num [a_sq]
+
+/-- Exact Eulerian companion z₁, from the same parameter-transport lemma. -/
+theorem genuine_dirichlet_fredholm_half_eq_rE_z1 :
+    fredholmDet dirichletInverseS1 (1 / 2 : ℂ) = rE z1 := by
+  refine fredholm_at_parameter Manuscript14Section67.b b_ne_zero (1 / 2 : ℂ) z1 ?_ z1_eq.symm
+  norm_num [b_sq]
+
+/-- The genuine Fredholm determinant at the half-shift equals the
+distinguished Eulerian–Parry scalar, via the companion Fourier profile. -/
 theorem genuine_dirichlet_fredholm_half_eq_eulerianParameter :
     fredholmDet dirichletInverseS1 (1 / 2 : ℂ) =
       ((Manuscript14Section11.eulerianParameter : ℝ) : ℂ) := by
-  have h := genuine_dirichlet_fredholm_real_square_eq_sinh b b_ne_zero
-  rw [b_sq] at h
-  have hbcast : ((1 / 2 : ℝ) : ℂ) = (1 / 2 : ℂ) := by norm_num
-  rw [hbcast] at h
-  rw [h]
-  congr 1
-  change Real.sinh Manuscript14Section67.b / Manuscript14Section67.b =
-    Real.sqrt 2 * Real.sinh (1 / Real.sqrt 2)
-  rw [div_eq_mul_inv]
-  have hb : Manuscript14Section67.b⁻¹ = Real.sqrt 2 := by
-    simpa only [one_div] using one_div_b
-  rw [hb, mul_comm]
-  rfl
+  have hreal : Real.sinh Manuscript14Section67.b / Manuscript14Section67.b =
+      Manuscript14Section11.eulerianParameter := by
+    change Real.sinh Manuscript14Section67.b / Manuscript14Section67.b =
+      Real.sqrt 2 * Real.sinh (1 / Real.sqrt 2)
+    rw [div_eq_mul_inv]
+    have hb : Manuscript14Section67.b⁻¹ = Real.sqrt 2 := by
+      simpa only [one_div] using one_div_b
+    rw [hb, mul_comm]
+    have hbval : Manuscript14Section67.b = 1 / Real.sqrt 2 := by
+      calc
+        Manuscript14Section67.b = (Manuscript14Section67.b⁻¹)⁻¹ := (inv_inv _).symm
+        _ = (Real.sqrt 2)⁻¹ := congrArg Inv.inv hb
+        _ = 1 / Real.sqrt 2 := by rw [one_div]
+    rw [hbval]
+  calc
+    fredholmDet dirichletInverseS1 (1 / 2 : ℂ) = rE z1 :=
+      genuine_dirichlet_fredholm_half_eq_rE_z1
+    _ = ((Real.sinh Manuscript14Section67.b / Manuscript14Section67.b : ℝ) : ℂ) := rE_z1
+    _ = ((Manuscript14Section11.eulerianParameter : ℝ) : ℂ) :=
+      congrArg (fun v : ℝ => (v : ℂ)) hreal
 
-/-- Exact Eulerian special point z₀ realized by the genuine
-Dirichlet inverse Fredholm determinant at spectral shift one-eighth. -/
-theorem genuine_dirichlet_fredholm_eighth_eq_rE_z0 :
-    fredholmDet dirichletInverseS1 (1 / 8 : ℂ) = rE z0 := by
-  have hacast : ((1 / 8 : ℝ) : ℂ) = (1 / 8 : ℂ) := by norm_num
-  simpa only [a_sq, hacast] using
-    genuine_dirichlet_fredholm_at_a_sq_eq_rE_z0
-
-/-- Exact Eulerian special point z₁ realized by the same genuine
-Dirichlet inverse Fredholm determinant at spectral shift one-half. -/
-theorem genuine_dirichlet_fredholm_half_eq_rE_z1 :
-    fredholmDet dirichletInverseS1 (1 / 2 : ℂ) = rE z1 := by
-  have hbcast : ((1 / 2 : ℝ) : ℂ) = (1 / 2 : ℂ) := by norm_num
-  simpa only [b_sq, hbcast] using
-    genuine_dirichlet_fredholm_at_b_sq_eq_rE_z1
-
-/-- TRUE operatorial Fredholm duplication across the two Eulerian
-spectral parameters 1/8 and 1/2, with the same cosh factor as the
-previously formalized Eulerian modular inversion. -/
+/-- Genuine operatorial Fredholm duplication between the two Eulerian
+spectral parameters, using the established modular identity. -/
 theorem genuine_dirichlet_fredholm_eulerian_duplication :
     fredholmDet dirichletInverseS1 (1 / 2 : ℂ) =
       ((Real.cosh a : ℝ) : ℂ) *

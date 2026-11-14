@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - manuscript14-priority3-operator-fredholm-eulerian-parry-bridge-20261111
+      - draft/alt-fredholm-parry-parametric-20261114
     paths:
       - 'lean/SpecialImaginaryPoint/V14119Priority3CountableUniversalSpectralZeros.lean'
       - 'lean/SpecialImaginaryPoint/V14119Priority3GenericFredholmSpectralParameters.lean'
