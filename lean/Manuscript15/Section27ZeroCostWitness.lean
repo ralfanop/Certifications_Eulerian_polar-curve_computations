@@ -41,6 +41,28 @@ theorem infimum_eq_zero_of_admissible_zero_witness
     exact ⟨μ, hμ, hzero⟩
   exact le_antisymm hupper hnonneg
 
+/-- A nonnegative discrepancy dominated by admissible integral costs
+vanishes whenever a zero-cost admissible witness exists. -/
+theorem discrepancy_eq_zero_of_admissible_zero_witness
+    {Ω : Type*} [MeasurableSpace Ω]
+    (admissible : Set (Measure Ω))
+    (cost : Ω → ℝ)
+    (hcost : ∀ ω, 0 ≤ cost ω)
+    (μ : Measure Ω)
+    (hμ : μ ∈ admissible)
+    (hzero : (∫ ω, cost ω ∂μ) = 0)
+    (discrepancy : ℝ)
+    (hdiscrepancy : 0 ≤ discrepancy)
+    (hbound :
+      discrepancy ≤
+        sInf ((fun ν : Measure Ω => ∫ ω, cost ω ∂ν) '' admissible)) :
+    discrepancy = 0 := by
+  have hInf :
+      sInf ((fun ν : Measure Ω => ∫ ω, cost ω ∂ν) '' admissible) = 0 :=
+    infimum_eq_zero_of_admissible_zero_witness admissible cost hcost μ hμ hzero
+  exact le_antisymm (hInf ▸ hbound) hdiscrepancy
+
 #print axioms Manuscript15.Section27.infimum_eq_zero_of_admissible_zero_witness
+#print axioms Manuscript15.Section27.discrepancy_eq_zero_of_admissible_zero_witness
 
 end Manuscript15.Section27
