@@ -1,0 +1,54 @@
+name: Manuscript 16 v16.1 — Dirac fourth series and winding (Lean 4)
+on:
+  push:
+    branches:
+      - manuscript16-v161-dirac-series-winding-20261114
+    paths:
+      - 'lean/Manuscript16/V161DiracFourthSeries.lean'
+      - '.github/workflows/manuscript16-v161-dirac-fourth-series.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/V161DiracFourthSeries.lean'
+      - '.github/workflows/manuscript16-v161-dirac-fourth-series.yml'
+  workflow_dispatch:
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Fetch Mathlib pinned artifacts
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Check scalar series, winding and axiom dependencies
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript16/V161DiracFourthSeries.lean 2>&1 | tee /tmp/m16-v161-dirac-fourth-series.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m16-v161-dirac-fourth-series.log; then
+            echo '::error::Forbidden axiom'; exit 1
+          fi
+          for decl in diracFourthShell_decomposition shiftedDiracReciprocal_summable diracFourthShell_summable diracFourthShell_nonneg transverse_winding_range_polynomial; do
+            grep -F "Manuscript16.$decl" /tmp/m16-v161-dirac-fourth-series.log
+          done
+      - name: Preserve complete certificate audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript16-v161-dirac-fourth-series
+          path: /tmp/m16-v161-dirac-fourth-series.log
