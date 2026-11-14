@@ -43,7 +43,7 @@ jobs:
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m16-v161-dirac-fourth-series.log; then
             echo '::error::Forbidden axiom'; exit 1
           fi
-          for decl in diracFourthShell_decomposition shiftedDiracReciprocal_summable diracFourthShell_summable diracFourthShell_nonneg transverse_winding_range_polynomial; do
+          for decl in diracFourthShell_decomposition shiftedDiracReciprocal_summable diracFourthShell_summable diracFourthShell_nonneg transverse_winding_range_polynomial diracFourthShell_partial_sum diracFourthShell_partial_sum_strict; do
             grep -F "Manuscript16.$decl" /tmp/m16-v161-dirac-fourth-series.log
           done
       - name: Preserve complete certificate audit
