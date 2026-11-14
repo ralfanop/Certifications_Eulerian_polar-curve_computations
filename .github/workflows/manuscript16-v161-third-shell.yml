@@ -1,0 +1,43 @@
+name: Manuscript 16 v16.1 — third-shell harmonic lower bound
+on:
+  push:
+    branches: [manuscript16-v161-third-shell-lower-bound-20261114]
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/V161DiracThirdShellLowerBound.lean'
+      - '.github/workflows/manuscript16-v161-third-shell.yml'
+  workflow_dispatch:
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          lake update
+          lake exe cache get
+      - name: Check theorem and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript16/V161DiracThirdShellLowerBound.lean 2>&1 | tee /tmp/third-shell.log
+          grep -F "'Manuscript16.diracThirdShell_ge_harmonic' depends on axioms:" /tmp/third-shell.log
+          if grep -E "sorryAx|Lean.ofReduceBool|error:" /tmp/third-shell.log; then exit 1; fi
+      - name: Preserve log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript16-v161-third-shell
+          path: /tmp/third-shell.log
