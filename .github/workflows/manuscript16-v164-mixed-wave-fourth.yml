@@ -1,0 +1,70 @@
+name: Manuscript 16 v16.4 — mixed wave fourth trace Lean and Arb
+on:
+  push:
+    branches: [manuscript16-v164-mixed-wave-fourthtrace-20261114]
+    paths:
+      - 'lean/Manuscript16/V164MixedWaveFourthArithmetic.lean'
+      - 'numerics/manuscript16_v164_mixed_wave_arb10000.py'
+      - '.github/workflows/manuscript16-v164-mixed-wave-fourth.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/V164MixedWaveFourthArithmetic.lean'
+      - 'numerics/manuscript16_v164_mixed_wave_arb10000.py'
+      - '.github/workflows/manuscript16-v164-mixed-wave-fourth.yml'
+  workflow_dispatch:
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Download pinned Mathlib and audit axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+          lake env lean Manuscript16/V164MixedWaveFourthArithmetic.lean 2>&1 | tee /tmp/m16-v164-lean.log
+          for name in mixedWave_evenMode_factor mixedWave_upperNearestMode mixedWave_pairQuadratics mixedWave_zetaClosed_algebra mixedWave_DiracClosed_algebra; do
+            grep -F "'Manuscript16.${name}' depends on axioms:" /tmp/m16-v164-lean.log
+          done
+          if grep -E "sorryAx|Lean.ofReduceBool|error:" /tmp/m16-v164-lean.log; then exit 1; fi
+      - name: Preserve Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript16-v164-mixed-lean
+          path: /tmp/m16-v164-lean.log
+  arb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned FLINT
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Check rigorous Arb closed-expression enclosures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile numerics/manuscript16_v164_mixed_wave_arb10000.py
+          python numerics/manuscript16_v164_mixed_wave_arb10000.py 2>&1 | tee /tmp/m16-v164-arb.log
+          grep -F 'SUCCESS v16.4: 10000-bit Arb closed-expression enclosures' /tmp/m16-v164-arb.log
+      - name: Preserve Arb log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript16-v164-mixed-arb10000
+          path: /tmp/m16-v164-arb.log
