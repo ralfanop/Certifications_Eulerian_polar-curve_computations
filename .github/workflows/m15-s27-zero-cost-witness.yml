@@ -35,6 +35,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27CouplingIntegral.olean Manuscript15/Section27CouplingIntegral.lean 2>&1 | tee /tmp/Section27CouplingIntegral.log
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27TwoCoordinate.olean Manuscript15/Section27TwoCoordinate.lean 2>&1 | tee /tmp/Section27TwoCoordinate.log
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27WeightedCoordinate.olean Manuscript15/Section27WeightedCoordinate.lean 2>&1 | tee /tmp/Section27WeightedCoordinate.log
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27CostInfimum.olean Manuscript15/Section27CostInfimum.lean 2>&1 | tee /tmp/Section27CostInfimum.log
           lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27AdmissibleMeasureCosts.olean Manuscript15/Section27AdmissibleMeasureCosts.lean 2>&1 | tee /tmp/measure-costs.log
           lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27AdmissibleCostPositivity.olean Manuscript15/Section27AdmissibleCostPositivity.lean 2>&1 | tee /tmp/cost-positivity.log
           lake env lean -M16768 Manuscript15/Section27ZeroCostWitness.lean 2>&1 | tee /tmp/zero-witness.log
