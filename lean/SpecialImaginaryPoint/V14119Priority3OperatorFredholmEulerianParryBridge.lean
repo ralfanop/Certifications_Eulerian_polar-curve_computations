@@ -66,7 +66,7 @@ theorem genuine_dirichlet_fredholm_eighth_eq_rE_z0 :
 /-- Exact Eulerian companion z₁, from the same parameter-transport lemma. -/
 theorem genuine_dirichlet_fredholm_half_eq_rE_z1 :
     fredholmDet dirichletInverseS1 (1 / 2 : ℂ) = rE z1 := by
-  refine fredholm_at_parameter b b_ne_zero (1 / 2 : ℂ) z1 ?_ z1_eq.symm
+  refine fredholm_at_parameter Manuscript14Section67.b b_ne_zero (1 / 2 : ℂ) z1 ?_ z1_eq.symm
   norm_num [b_sq]
 
 /-- The genuine Fredholm determinant at the half-shift equals the
@@ -74,19 +74,24 @@ distinguished Eulerian–Parry scalar, via the companion Fourier profile. -/
 theorem genuine_dirichlet_fredholm_half_eq_eulerianParameter :
     fredholmDet dirichletInverseS1 (1 / 2 : ℂ) =
       ((Manuscript14Section11.eulerianParameter : ℝ) : ℂ) := by
-  have hreal : Real.sinh b / b =
+  have hreal : Real.sinh Manuscript14Section67.b / Manuscript14Section67.b =
       Manuscript14Section11.eulerianParameter := by
-    change Real.sinh b / b =
+    change Real.sinh Manuscript14Section67.b / Manuscript14Section67.b =
       Real.sqrt 2 * Real.sinh (1 / Real.sqrt 2)
     rw [div_eq_mul_inv]
-    have hb : b⁻¹ = Real.sqrt 2 := by
+    have hb : Manuscript14Section67.b⁻¹ = Real.sqrt 2 := by
       simpa only [one_div] using one_div_b
     rw [hb, mul_comm]
-    rfl
+    have hbval : Manuscript14Section67.b = 1 / Real.sqrt 2 := by
+      calc
+        Manuscript14Section67.b = (Manuscript14Section67.b⁻¹)⁻¹ := (inv_inv _).symm
+        _ = (Real.sqrt 2)⁻¹ := congrArg Inv.inv hb
+        _ = 1 / Real.sqrt 2 := by rw [one_div]
+    rw [hbval]
   calc
     fredholmDet dirichletInverseS1 (1 / 2 : ℂ) = rE z1 :=
       genuine_dirichlet_fredholm_half_eq_rE_z1
-    _ = ((Real.sinh b / b : ℝ) : ℂ) := rE_z1
+    _ = ((Real.sinh Manuscript14Section67.b / Manuscript14Section67.b : ℝ) : ℂ) := rE_z1
     _ = ((Manuscript14Section11.eulerianParameter : ℝ) : ℂ) :=
       congrArg (fun v : ℝ => (v : ℂ)) hreal
 
