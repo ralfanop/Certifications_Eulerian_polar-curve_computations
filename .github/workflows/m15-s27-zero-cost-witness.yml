@@ -47,12 +47,16 @@ jobs:
           import re
           from pathlib import Path
           log = Path('/tmp/zero-witness.log').read_text()
-          target = 'Manuscript15.Section27.infimum_eq_zero_of_admissible_zero_witness'
-          hits = re.findall(r"'" + re.escape(target) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
-          assert len(hits) == 1, (target, 'missing/duplicate axiom audit')
-          used = {s.strip() for s in hits[0].split(',') if s.strip()}
-          assert used <= {'propext', 'Classical.choice', 'Quot.sound'}, used
-          print('AXIOM AUDIT SUCCESS:', target, sorted(used))
+          targets = [
+          'Manuscript15.Section27.infimum_eq_zero_of_admissible_zero_witness',
+          'Manuscript15.Section27.discrepancy_eq_zero_of_admissible_zero_witness',
+          ]
+          for target in targets:
+              hits = re.findall(r"'" + re.escape(target) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert len(hits) == 1, (target, 'missing/duplicate axiom audit')
+              used = {s.strip() for s in hits[0].split(',') if s.strip()}
+              assert used <= {'propext', 'Classical.choice', 'Quot.sound'}, (target, used)
+              print('AXIOM AUDIT SUCCESS:', target, sorted(used))
           PY
       - uses: actions/upload-artifact@v4
         if: always()
