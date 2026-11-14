@@ -12,7 +12,7 @@ marginal pushforward identities or a reconstruction theorem.
 namespace Manuscript15.Section27
 
 /-- If a real discrepancy is bounded by every admissible coupling cost,
-it is bounded by the infimum of the nonempty, bounded-below cost set. -/
+it is bounded by the infimum of the nonempty cost set. -/
 theorem discrepancy_le_coupling_cost_infimum
     (costs : Set ℝ) (discrepancy : ℝ)
     (hnonempty : costs.Nonempty)
