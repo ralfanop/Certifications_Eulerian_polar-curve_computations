@@ -87,4 +87,26 @@ theorem transverse_winding_range_polynomial (N : ℕ) :
 #print axioms Manuscript16.diracFourthShell_nonneg
 #print axioms Manuscript16.transverse_winding_range_polynomial
 
+
+/-- Exact finite-level identity, useful before identifying the operator trace. -/
+theorem diracFourthShell_partial_sum (N : ℕ) :
+    (∑ n ∈ Finset.range N, diracFourthShell n) =
+      2 * (∑ n ∈ Finset.range N, shiftedDiracReciprocal 2 n) -
+      (1 / 2 : ℝ) * (∑ n ∈ Finset.range N, shiftedDiracReciprocal 4 n) := by
+  simp_rw [diracFourthShell_decomposition]
+  rw [Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
+
+/-- The finite fourth-trace approximants strictly increase with cutoff. -/
+theorem diracFourthShell_partial_sum_strict (N : ℕ) :
+    (∑ n ∈ Finset.range N, diracFourthShell n) <
+      (∑ n ∈ Finset.range (N + 1), diracFourthShell n) := by
+  rw [Finset.sum_range_succ]
+  have hpos : 0 < diracFourthShell N := by
+    unfold diracFourthShell
+    positivity
+  linarith
+
+#print axioms Manuscript16.diracFourthShell_partial_sum
+#print axioms Manuscript16.diracFourthShell_partial_sum_strict
+
 end Manuscript16
