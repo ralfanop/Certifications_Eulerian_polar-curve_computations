@@ -1,0 +1,67 @@
+name: "M15 S2.7 admissible measure integral cost infimum"
+on:
+  push:
+    branches:
+      - draft/m15-s27-admissible-measure-costs-20261114
+    paths:
+      - 'lean/Manuscript15/Section27AdmissibleMeasureCosts.lean'
+      - '.github/workflows/m15-s27-admissible-measure-costs.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/Section27AdmissibleMeasureCosts.lean'
+      - '.github/workflows/m15-s27-admissible-measure-costs.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile actual dependency chain and audit both new theorems
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27CouplingIntegral.olean Manuscript15/Section27CouplingIntegral.lean 2>&1 | tee /tmp/base.log
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27TwoCoordinate.olean Manuscript15/Section27TwoCoordinate.lean 2>&1 | tee /tmp/two.log
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27WeightedCoordinate.olean Manuscript15/Section27WeightedCoordinate.lean 2>&1 | tee /tmp/weighted.log
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27CostInfimum.olean Manuscript15/Section27CostInfimum.lean 2>&1 | tee /tmp/infimum.log
+          lake env lean -M16768 Manuscript15/Section27AdmissibleMeasureCosts.lean 2>&1 | tee /tmp/admissible.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/base.log /tmp/two.log /tmp/weighted.log /tmp/infimum.log /tmp/admissible.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/admissible.log').read_text()
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          names = (
+            'discrepancy_le_infimum_admissible_measure_integrals',
+            'integral_discrepancy_le_infimum_admissible_measure_costs',
+          )
+          for name in names:
+              target = 'Manuscript15.Section27.' + name
+              hits = re.findall(r"'" + re.escape(target) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert len(hits) == 1, (name, 'missing or duplicate axiom output')
+              used = {s.strip() for s in hits[0].split(',') if s.strip()}
+              assert used <= allowed, (name, used - allowed)
+              print('AXIOM AUDIT SUCCESS:', target, sorted(used))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-admissible-measure-cost-infimum-lean-logs
+          path: /tmp/*.log
