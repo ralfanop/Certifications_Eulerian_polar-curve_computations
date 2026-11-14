@@ -48,7 +48,7 @@ jobs:
           from pathlib import Path
           log = Path('/tmp/zero-cost.log').read_text()
           target = 'Manuscript15.Section27.zero_cost_infimum_of_nonempty'
-          hits = re.findall(r"'" + re.escape(target) + r"' depends on axioms: \\[([^\\]]*)\\]", log, re.S)
+          hits = re.findall(r"'" + re.escape(target) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
           assert len(hits) == 1, (target, 'missing/duplicate axiom audit')
           used = {s.strip() for s in hits[0].split(',') if s.strip()}
           assert used <= {'propext', 'Classical.choice', 'Quot.sound'}, used
