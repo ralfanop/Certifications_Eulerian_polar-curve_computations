@@ -1,0 +1,54 @@
+name: Manuscript 16 v16.1 — Spectral and Schur arithmetic (Lean 4)
+on:
+  push:
+    branches:
+      - manuscript16-v161-arithmetic-arb10000-20261114
+    paths:
+      - 'lean/Manuscript16/V161SpectralSchurArithmetic.lean'
+      - '.github/workflows/manuscript16-v161-spectral-schur-lean.yml'
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/V161SpectralSchurArithmetic.lean'
+      - '.github/workflows/manuscript16-v161-spectral-schur-lean.yml'
+  workflow_dispatch:
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean 4
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Fetch pinned Mathlib artifacts
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Check arithmetic bridge and axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript16/V161SpectralSchurArithmetic.lean 2>&1 | tee /tmp/m16-v161-lean.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m16-v161-lean.log; then
+            echo '::error::Forbidden axiom'; exit 1
+          fi
+          for decl in winding_polynomial_arithmetic dirac_fourth_trace_arithmetic coupled_fourth_trace_arithmetic schur_neumann_margin_pos schur_bound_rational_identity unperturbed_coupling_gap; do
+            grep -F "Manuscript16.$decl" /tmp/m16-v161-lean.log
+          done
+      - name: Save complete Lean audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript16-v161-lean-arithmetic
+          path: /tmp/m16-v161-lean.log
