@@ -11,6 +11,8 @@ NOT asserted or proved here.
 -/
 import Mathlib
 
+noncomputable section
+
 namespace Manuscript16
 
 /-- The n-th scalar summand of the absolute fourth-power trace, using
@@ -31,7 +33,7 @@ theorem diracFourthShell_decomposition (n : ℕ) :
   unfold diracFourthShell shiftedDiracReciprocal
   have hpos : 0 < (n : ℝ) + 3 / 2 := by positivity
   rw [abs_of_pos hpos]
-  simp only [Real.rpow_natCast]
+  simp only [Real.rpow_ofNat]
   have hne : (n : ℝ) + 3 / 2 ≠ 0 := ne_of_gt hpos
   field_simp [hne]
   <;> ring
