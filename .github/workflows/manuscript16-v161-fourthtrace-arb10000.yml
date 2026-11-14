@@ -1,0 +1,37 @@
+name: Manuscript 16 v16.1 — Fourth trace Arb 10000-bit verification
+on:
+  push:
+    branches:
+      - manuscript16-v161-arithmetic-arb10000-20261114
+    paths:
+      - 'numerics/manuscript16_v161_fourthtrace_arb10000.py'
+      - '.github/workflows/manuscript16-v161-fourthtrace-arb10000.yml'
+  pull_request:
+    paths:
+      - 'numerics/manuscript16_v161_fourthtrace_arb10000.py'
+      - '.github/workflows/manuscript16-v161-fourthtrace-arb10000.yml'
+  workflow_dispatch:
+jobs:
+  arb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned FLINT/Arb binding
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Verify syntax and run Arb enclosures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile numerics/manuscript16_v161_fourthtrace_arb10000.py
+          python numerics/manuscript16_v161_fourthtrace_arb10000.py 2>&1 | tee /tmp/m16-v161-arb10000.log
+          grep -F 'SUCCESS — v16.1 four trace expressions: Arb 10000-bit enclosures' /tmp/m16-v161-arb10000.log
+      - name: Preserve complete Arb log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript16-v161-arb10000-fourthtrace
+          path: /tmp/m16-v161-arb10000.log
