@@ -34,7 +34,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake build Manuscript15.Section27ZeroCostNormalization
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27ZeroCostNormalization.olean Manuscript15/Section27ZeroCostNormalization.lean 2>&1 | tee /tmp/zero-normalization.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/zero-normalization.log; then exit 1; fi
           lake env lean -M16768 Manuscript15/Section27ZeroDiscrepancyRigidity.lean 2>&1 | tee /tmp/zero-rigidity.log
           if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/zero-rigidity.log; then exit 1; fi
           python - <<'PY'
