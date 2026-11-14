@@ -32,17 +32,13 @@ jobs:
           set -euo pipefail
           lake update
           lake exe cache get
-      - name: Compile exact dependency chain and audit new theorem
+      - name: Compile self-contained zero-cost theorem and audit axioms
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p .lake/build/lib/lean/Manuscript15
-          for mod in Section27CouplingIntegral Section27TwoCoordinate Section27WeightedCoordinate Section27CostInfimum Section27AdmissibleMeasureCosts Section27AdmissibleCostPositivity; do
-            lake env lean -M16768 -o ".lake/build/lib/lean/Manuscript15/${mod}.olean" "Manuscript15/${mod}.lean" 2>&1 | tee "/tmp/${mod}.log"
-          done
           lake env lean -M16768 Manuscript15/Section27ZeroCostNormalization.lean 2>&1 | tee /tmp/zero-cost.log
-          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/Section27*.log /tmp/zero-cost.log; then exit 1; fi
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/zero-cost.log; then exit 1; fi
           python - <<'PY'
           import re
           from pathlib import Path
