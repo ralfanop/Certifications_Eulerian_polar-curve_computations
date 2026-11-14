@@ -1,0 +1,57 @@
+name: "M15 S2.7 zero-cost witness — Lean"
+on:
+  push:
+    branches:
+      - draft/m15-s27-zero-witness-from-297-20261114
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/Section27ZeroCostWitness.lean'
+      - '.github/workflows/m15-s27-zero-cost-witness.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile theorem and audit axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27AdmissibleMeasureCosts.olean Manuscript15/Section27AdmissibleMeasureCosts.lean 2>&1 | tee /tmp/measure-costs.log
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27AdmissibleCostPositivity.olean Manuscript15/Section27AdmissibleCostPositivity.lean 2>&1 | tee /tmp/cost-positivity.log
+          lake env lean -M16768 Manuscript15/Section27ZeroCostWitness.lean 2>&1 | tee /tmp/zero-witness.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/*.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/zero-witness.log').read_text()
+          target = 'Manuscript15.Section27.infimum_eq_zero_of_admissible_zero_witness'
+          hits = re.findall(r"'" + re.escape(target) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+          assert len(hits) == 1, (target, 'missing/duplicate axiom audit')
+          used = {s.strip() for s in hits[0].split(',') if s.strip()}
+          assert used <= {'propext', 'Classical.choice', 'Quot.sound'}, used
+          print('AXIOM AUDIT SUCCESS:', target, sorted(used))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-zero-witness-lean-logs
+          path: /tmp/*.log
