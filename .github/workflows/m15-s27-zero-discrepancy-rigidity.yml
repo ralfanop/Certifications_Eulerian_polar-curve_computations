@@ -34,6 +34,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          lake build Manuscript15.Section27ZeroCostNormalization
           lake env lean -M16768 Manuscript15/Section27ZeroDiscrepancyRigidity.lean 2>&1 | tee /tmp/zero-rigidity.log
           if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/zero-rigidity.log; then exit 1; fi
           python - <<'PY'
