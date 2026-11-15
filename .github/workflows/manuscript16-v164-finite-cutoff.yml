@@ -1,0 +1,46 @@
+name: M16 v16.4 finite cutoff harmonic comparison
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/V164MaxwellFiniteCutoff.lean'
+      - '.github/workflows/manuscript16-v164-finite-cutoff.yml'
+  push:
+    branches: [manuscript16-v164-third-shell-finite-cutoff-20261115]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Compile and audit axioms at exact HEAD
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          lake update
+          lake exe cache get
+          lake env lean Manuscript16/V164MaxwellFiniteCutoff.lean 2>&1 | tee /tmp/m16-finite-cutoff.log
+          for n in v164_maxwell_third_shell_exact_gap v164_maxwell_finite_cutoff_lower v164_maxwell_interval_cutoff_lower; do
+            grep -F "'Manuscript16.${n}' depends on axioms:" /tmp/m16-finite-cutoff.log
+          done
+          if grep -E "sorryAx|Lean.ofReduceBool|error:" /tmp/m16-finite-cutoff.log; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-v164-finite-cutoff-lean
+          path: /tmp/m16-finite-cutoff.log
