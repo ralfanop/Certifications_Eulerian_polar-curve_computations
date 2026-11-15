@@ -33,9 +33,8 @@ theorem coupling_isProbability {μ ν : Measure ℝ} [IsProbabilityMeasure μ]
   change Measure.map Prod.fst γ = μ ∧ Measure.map Prod.snd γ = ν at hγ
   constructor
   have h := congrArg (fun m : Measure ℝ => m Set.univ) hγ.1
-  rw [Measure.map_apply measurable_fst MeasurableSet.univ, Set.preimage_univ,
-    measure_univ] at h
-  exact h
+  rw [Measure.map_apply measurable_fst MeasurableSet.univ, Set.preimage_univ] at h
+  exact h.trans (measure_univ (μ := μ))
 
 /-- The gluing lemma for finite Borel measures on pairs of reals. -/
 theorem glue_pair_measures (γ δ : Measure (ℝ × ℝ))
@@ -61,7 +60,7 @@ theorem glue_pair_measures (γ δ : Measure (ℝ × ℝ))
       _ = ∫⁻ y : ℝ, (δ.condKernel y) (Prod.mk y ⁻¹' s) ∂δ.fst := by
         rw [h] <;> rfl
       _ = δ s := by
-        rw [← Measure.compProd_apply hs, Measure.compProd_fst_condKernel]
+        rw [← Measure.compProd_apply hs, Measure.disintegrate δ δ.condKernel]
 
 /-- Glue two admissible couplings and bound the cost of their endpoint
 coupling by the sum of the two original costs. -/
@@ -123,7 +122,11 @@ theorem coupling_cost_triangle
       intro p
       exact abs_sub_le p.1.1 p.1.2 p.2
     _ = cost γ + cost δ := by
-      rw [integral_add h1 h2, heq hA hcγ rfl, heq hB hcδ rfl] <;> rfl
+      have e1 : (∫ p : Triple, |p.1.1 - p.1.2| ∂η) = cost γ :=
+        heq hA hcγ rfl
+      have e2 : (∫ p : Triple, |p.1.2 - p.2| ∂η) = cost δ :=
+        heq hB hcδ rfl
+      rw [integral_add h1 h2, e1, e2]
 
 private theorem cost_inf_le {μ ν : Measure ℝ} {γ : Measure (ℝ × ℝ)}
     (hγ : γ ∈ couplings μ ν) : wasserstein1 μ ν ≤ cost γ := by
