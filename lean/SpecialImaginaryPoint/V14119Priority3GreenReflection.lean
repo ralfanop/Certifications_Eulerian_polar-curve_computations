@@ -70,8 +70,9 @@ theorem split_reflection (F : ℝ → ℝ) (hF : Continuous F) :
   have hr : (∫ t in (0:ℝ)..1, F (2 - t)) = ∫ t in (1:ℝ)..2, F t := by
     simpa only [show (2:ℝ) - 1 = 1 by norm_num, sub_zero] using
       (intervalIntegral.integral_comp_sub_left (a := (0:ℝ)) (b := 1) F 2)
-  rw [intervalIntegral.integral_add (hF.intervalIntegrable 0 1)
-      ((hF.comp continuous_reflect).intervalIntegrable 0 1), hr]
+  conv_rhs => rw [intervalIntegral.integral_add (hF.intervalIntegrable 0 1)
+      ((hF.comp continuous_reflect).intervalIntegrable 0 1)]
+  rw [hr]
   exact (intervalIntegral.integral_add_adjacent_intervals
     (hF.intervalIntegrable 0 1) (hF.intervalIntegrable 1 2)).symm
 
@@ -89,6 +90,8 @@ theorem odd_green_integral (f : ℝ → ℝ) (hf : Continuous f) (s : ℝ)
   have hH : Continuous H := (continuous_kernel (2 - s)).mul hf
   change (∫ t in (0:ℝ)..2, F t) - (∫ t in (0:ℝ)..2, H t) = _
   rw [split_reflection F hF, split_reflection H hH]
+  change (∫ t in (0:ℝ)..1, (F + F ∘ (fun t => 2 - t)) t) -
+      (∫ t in (0:ℝ)..1, (H + H ∘ (fun t => 2 - t)) t) = _
   rw [← intervalIntegral.integral_sub
     ((hF.add (hF.comp continuous_reflect)).intervalIntegrable 0 1)
     ((hH.add (hH.comp continuous_reflect)).intervalIntegrable 0 1)]
@@ -114,6 +117,8 @@ theorem even_green_integral (f : ℝ → ℝ) (hf : Continuous f) (s : ℝ)
   have hH : Continuous H := (continuous_kernel (2 - s)).mul hf
   change (∫ t in (0:ℝ)..2, F t) + (∫ t in (0:ℝ)..2, H t) = _
   rw [split_reflection F hF, split_reflection H hH]
+  change (∫ t in (0:ℝ)..1, (F + F ∘ (fun t => 2 - t)) t) +
+      (∫ t in (0:ℝ)..1, (H + H ∘ (fun t => 2 - t)) t) = _
   rw [← intervalIntegral.integral_add
     ((hF.add (hF.comp continuous_reflect)).intervalIntegrable 0 1)
     ((hH.add (hH.comp continuous_reflect)).intervalIntegrable 0 1)]
