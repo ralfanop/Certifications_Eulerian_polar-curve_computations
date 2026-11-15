@@ -29,27 +29,27 @@ theorem schur_two_sided_inverse_entries (a b c l : ℂ)
     (-c / (a * l - b * c)) * b +
       (a / (a * l - b * c)) * l = 1 := by
   constructor
-  · field_simp
+  · field_simp [hdet]
     <;> ring
   constructor
-  · field_simp
+  · field_simp [hdet]
     <;> ring
   constructor
-  · field_simp
+  · field_simp [hdet]
     <;> ring
   constructor
-  · field_simp
+  · field_simp [hdet]
     <;> ring
   constructor
-  · field_simp
+  · field_simp [hdet]
     <;> ring
   constructor
-  · field_simp
+  · field_simp [hdet]
     <;> ring
   constructor
-  · field_simp
+  · field_simp [hdet]
     <;> ring
-  · field_simp
+  · field_simp [hdet]
     <;> ring
 
 #print axioms Manuscript16.schur_two_sided_inverse_entries
