@@ -1,0 +1,39 @@
+name: Manuscripts 11-13 Arb 22000-bit upgrade
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/manuscripts11_13_upgrade_arb20000.py'
+      - '.github/workflows/manuscripts11-13-upgrade-arb20000.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        manuscript: ['11', '12', '13']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact commit and pinned Arb
+        run: |
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Verify manuscript numerical enclosures
+        run: |
+          set -euo pipefail
+          python numerics/arb/manuscripts11_13_upgrade_arb20000.py ${{ matrix.manuscript }} | tee manuscript-${{ matrix.manuscript }}-arb20000.log
+          grep -F "SUCCESS: manuscript ${{ matrix.manuscript }}" manuscript-${{ matrix.manuscript }}-arb20000.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: manuscript-${{ matrix.manuscript }}-arb20000
+          path: manuscript-${{ matrix.manuscript }}-arb20000.*
+          if-no-files-found: error
