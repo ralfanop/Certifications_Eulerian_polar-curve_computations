@@ -75,7 +75,7 @@ theorem split_reflection (F : ℝ → ℝ) (hF : Continuous F) :
         (∫ t in (0:ℝ)..1, F t) + (∫ t in (1:ℝ)..2, F t) :=
       (intervalIntegral.integral_add_adjacent_intervals
         (hF.intervalIntegrable 0 1) (hF.intervalIntegrable 1 2)).symm
-    _ = (∫ t in (0:ℝ)..1, F t) + (∫ t in (0:ℝ)..1, F (2 - t)) := by rw [hr]
+    _ = (∫ t in (0:ℝ)..1, F t) + (∫ t in (0:ℝ)..1, F (2 - t)) := by rw [← hr]
     _ = ∫ t in (0:ℝ)..1, (F t + F (2 - t)) := by
       exact (intervalIntegral.integral_add (hF.intervalIntegrable 0 1)
         ((hF.comp continuous_reflect).intervalIntegrable 0 1)).symm
