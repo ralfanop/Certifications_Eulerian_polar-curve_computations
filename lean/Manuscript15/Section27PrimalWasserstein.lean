@@ -126,8 +126,7 @@ theorem complex_phase_lipschitz (a b : ℝ) :
       Complex.exp (Complex.I * (b : ℂ))‖ ≤ |a - b| := by
   have hadd : Complex.I * ((a - b : ℝ) : ℂ) + Complex.I * (b : ℂ) =
       Complex.I * (a : ℂ) := by
-    push_cast
-    ring
+    push_cast <;> ring
   calc
     _ = ‖(Complex.exp (Complex.I * ((a - b : ℝ) : ℂ)) - 1) *
         Complex.exp (Complex.I * (b : ℂ))‖ := by
@@ -136,7 +135,7 @@ theorem complex_phase_lipschitz (a b : ℝ) :
       rw [norm_mul, phase_norm, mul_one]
     _ ≤ |a - b| := by
       simpa only [Real.norm_eq_abs] using
-        (Complex.norm_exp_I_mul_ofReal_sub_one_le (x := a - b))
+        (Real.norm_exp_I_mul_ofReal_sub_one_le (x := a - b))
 
 /-- The actual Mathlib characteristic functions satisfy the sharp stability
 estimate for the primal Wasserstein-1 distance on probability measures. -/
