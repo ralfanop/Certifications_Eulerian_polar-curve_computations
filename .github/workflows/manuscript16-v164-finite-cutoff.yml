@@ -34,6 +34,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
           lake update
           lake exe cache get
+          lake env lean -o Manuscript16/V164MaxwellThirdShellLowerBound.olean Manuscript16/V164MaxwellThirdShellLowerBound.lean 2>&1 | tee /tmp/m16-dependency.log
           lake env lean Manuscript16/V164MaxwellFiniteCutoff.lean 2>&1 | tee /tmp/m16-finite-cutoff.log
           for n in v164_maxwell_third_shell_exact_gap v164_maxwell_finite_cutoff_lower v164_maxwell_interval_cutoff_lower; do
             grep -F "'Manuscript16.${n}' depends on axioms:" /tmp/m16-finite-cutoff.log
