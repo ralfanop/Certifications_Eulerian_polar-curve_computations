@@ -1,0 +1,57 @@
+name: M11-16 pilot 100000 significant decimal digits
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/pilot_decimal100000_*.py'
+      - '.github/workflows/manuscripts11-16-pilot-decimal100000.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: 'm11'
+            command: 'numerics/arb/pilot_decimal100000_m11_13.py 11'
+          - label: 'm12'
+            command: 'numerics/arb/pilot_decimal100000_m11_13.py 12'
+          - label: 'm13'
+            command: 'numerics/arb/pilot_decimal100000_m11_13.py 13'
+          - label: 'source281'
+            command: 'numerics/arb/pilot_decimal100000_bridge.py'
+          - label: 'source289'
+            command: 'numerics/arb/pilot_decimal100000_angles.py'
+          - label: 'source290'
+            command: 'numerics/arb/pilot_decimal100000_apex.py'
+          - label: 'source306'
+            command: 'numerics/arb/pilot_decimal100000_m16.py'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact commit and pinned FLINT
+        run: |
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Pilot with measured wall time and peak RSS
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python ${{ matrix.command }} 2>&1 | tee pilot-${{ matrix.label }}.log
+          grep -F "PILOT SUCCESS ${{ matrix.label }}" pilot-${{ matrix.label }}.log
+          test -s pilot-${{ matrix.label }}.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pilot-${{ matrix.label }}
+          path: |
+            pilot-${{ matrix.label }}.log
+            pilot-${{ matrix.label }}.json
+          if-no-files-found: warn
