@@ -176,3 +176,9 @@ differential-operator direct-sum proof.
 * Unbounded differential L² domain and resolvent-trace identification, general-law cycloidal rigidity, higher-order contact/cusp, geometric probability measures, global odd-order inequality, Fourier triangle and Laplace integral remain separately tracked obligations; see the 13 November Section 2 scope audit. No conclusion about physical conjectures is asserted.
 
 This is documentation only. No new Lean/Arb certificate is claimed by the ledger commit itself; no code or manuscript is modified here. History remains available, and the above current status supersedes older pending/open statements where explicitly indicated. No merge authorized.
+
+
+### Same-day consolidation follow-up
+
+* #312 exact head `61092226fa8996dc76f8981bba4fe9c5fb1c30b2`: [Arb run #43699334286](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43699334286) now **SUCCESS**. Actual log proves checkout of this exact SHA, `ctx.prec=10000`, all 12 outward nonzero intervals have certified relative accuracy >=8182, minimum 9990; signs and overlap checks passed. Lean run #43699334222 remains pending at this checkpoint.
+* #278 and #280 also merged to intermediate branches, not main. Their original exact-head CI was SUCCESS (#43308623238, #43308812998, #43308813297), but the two source modules were absent on main. [Draft #313](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/313) restores both byte-identical sources from the tested #280 head, with dedicated exact-head workflows. New integration head `ebf45c54ba1e3d44ed2b77623dc6f67d126988ba` is CANDIDATE until fresh CI succeeds. Scope remains robust nonvanishing and conditional derivative-quotient stability; not the remaining abstract trace-resolvent or uniform derivative-difference theorem.
