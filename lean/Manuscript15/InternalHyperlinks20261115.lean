@@ -74,6 +74,21 @@ theorem gaussian_weight_succ (r : ℕ) :
   push_cast
   field_simp [pow_ne_zero _ (by norm_num : (2 : ℝ) ≠ 0)] <;> ring
 
+/-- Strict positivity of every Gaussian moment weight. -/
+theorem gaussian_weight_pos (r : ℕ) : 0 < gaussianWeight r := by
+  unfold gaussianWeight
+  positivity
+
+/-- The normalized Gaussian weights increase strictly at every order.
+This finite algebraic statement does not assert convergence of a moment
+expansion or a uniform asymptotic remainder. -/
+theorem gaussian_weight_strict_mono (r : ℕ) :
+    gaussianWeight r < gaussianWeight (r + 1) := by
+  rw [gaussian_weight_succ]
+  have hp := gaussian_weight_pos r
+  have hr : (0 : ℝ) ≤ r := Nat.cast_nonneg r
+  nlinarith
+
 /-- The normalized Gamma values giving the Gaussian weights. The improper
 integral substitution is separately tracked in the scope ledger. -/
 theorem gaussian_gamma_ratio (r : ℕ) :
@@ -125,3 +140,6 @@ end Manuscript15.InternalHyperlinks20261115
 #print axioms Manuscript15.InternalHyperlinks20261115.gaussian_weight_succ
 #print axioms Manuscript15.InternalHyperlinks20261115.gaussian_gamma_ratio
 #print axioms Manuscript15.InternalHyperlinks20261115.gaussian_weight_central_binomial
+
+#print axioms Manuscript15.InternalHyperlinks20261115.gaussian_weight_pos
+#print axioms Manuscript15.InternalHyperlinks20261115.gaussian_weight_strict_mono
