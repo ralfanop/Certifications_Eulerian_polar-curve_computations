@@ -55,13 +55,11 @@ theorem glue_pair_measures (γ δ : Measure (ℝ × ℝ))
       (Measure.map yz (γ.compProd κ)) s =
           ∫⁻ p : ℝ × ℝ, (δ.condKernel p.2) (Prod.mk p.2 ⁻¹' s) ∂γ := by
         rw [Measure.map_apply yz_measurable hs,
-          Measure.compProd_apply (yz_measurable hs)]
-        rfl
+          Measure.compProd_apply (yz_measurable hs)] <;> rfl
       _ = ∫⁻ y : ℝ, (δ.condKernel y) (Prod.mk y ⁻¹' s)
           ∂Measure.map Prod.snd γ := (lintegral_map hm measurable_snd).symm
       _ = ∫⁻ y : ℝ, (δ.condKernel y) (Prod.mk y ⁻¹' s) ∂δ.fst := by
-        rw [h]
-        rfl
+        rw [h] <;> rfl
       _ = δ s := by
         rw [← Measure.compProd_apply hs, Measure.compProd_fst_condKernel]
 
@@ -90,15 +88,13 @@ theorem coupling_cost_triangle
         Measure.map Prod.fst θ = Measure.map Prod.fst (Measure.map Prod.fst η) := by
           dsimp [θ]
           rw [Measure.map_map measurable_fst xz_measurable,
-            Measure.map_map measurable_fst measurable_fst]
-          rfl
+            Measure.map_map measurable_fst measurable_fst] <;> rfl
         _ = μ := by rw [hxy, hγ.1]
     · calc
         Measure.map Prod.snd θ = Measure.map Prod.snd (Measure.map yz η) := by
           dsimp [θ]
           rw [Measure.map_map measurable_snd xz_measurable,
-            Measure.map_map measurable_snd yz_measurable]
-          rfl
+            Measure.map_map measurable_snd yz_measurable] <;> rfl
         _ = ρ := by rw [hyz, hδ.2]
   refine ⟨θ, hθ, ?_⟩
   have hcθ := cost_integrable hθ hμ hρ
@@ -127,8 +123,7 @@ theorem coupling_cost_triangle
       intro p
       exact abs_sub_le p.1.1 p.1.2 p.2
     _ = cost γ + cost δ := by
-      rw [integral_add h1 h2, heq hA hcγ rfl, heq hB hcδ rfl]
-      rfl
+      rw [integral_add h1 h2, heq hA hcγ rfl, heq hB hcδ rfl] <;> rfl
 
 private theorem cost_inf_le {μ ν : Measure ℝ} {γ : Measure (ℝ × ℝ)}
     (hγ : γ ∈ couplings μ ν) : wasserstein1 μ ν ≤ cost γ := by
