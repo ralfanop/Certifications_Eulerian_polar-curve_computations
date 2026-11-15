@@ -65,8 +65,11 @@ theorem fibre_tsum_delta (K : ℕ → ℝ) (hK : K 0 = 0) (m : ℕ) :
     rw [heq]
     change (∑' p : ↥m.divisorsAntidiagonal,
         (↑(moebius p.val.1) : ℝ) * K (p.val.1 * p.val.2)) = _
-    rw [tsum_fintype, Finset.sum_finset_coe]
-    exact weighted_fibre_delta K m (Nat.pos_of_ne_zero hm)
+    rw [tsum_fintype]
+    calc
+      _ = ∑ p ∈ m.divisorsAntidiagonal, (↑(moebius p.1) : ℝ) * K (p.1 * p.2) :=
+        Finset.sum_finset_coe (fun p : ℕ × ℕ => (↑(moebius p.1) : ℝ) * K (p.1 * p.2)) _
+      _ = _ := weighted_fibre_delta K m (Nat.pos_of_ne_zero hm)
 
 /-- Infinite Möbius cancellation. Summability is an explicit analytic obligation,
 not an axiom, and the result uses the unconditional sum over all pairs. -/
@@ -79,8 +82,9 @@ theorem mobius_kernel_tsum (K : ℕ → ℝ) (hK : K 0 = 0)
   rw [← hd]
   simp_rw [fibre_tsum_delta K hK]
   rw [tsum_eq_single 1]
-  intro n hn
-  simp [hn]
+  · simp
+  · intro n hn
+    simp [hn]
 
 /-- Pointwise trig reduction underpinning M15's sine-integral energy formula. -/
 theorem sinc_square_kernel (t : ℝ) (ht : t ≠ 0) :
