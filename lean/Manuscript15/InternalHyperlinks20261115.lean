@@ -22,6 +22,30 @@ theorem terminal_coefficient_ratio (M : ℕ) (hM : 2 ≤ M) :
   rw [h, pow_succ]
   field_simp [hp, pow_ne_zero _ hp] <;> ring
 
+/-- The adjacent terminal ratio telescopes over any finite number of steps.
+This is an exact identity, not an analytic asymptotic statement. -/
+theorem terminal_coefficient_shift (M k : ℕ) (hM : 2 ≤ M) :
+    terminalCoefficient M =
+      (4 * Real.pi ^ 2) ^ k * terminalCoefficient (M + k) := by
+  induction k with
+  | zero => simp
+  | succ k ih =>
+      have hpos : terminalCoefficient (M + k + 1) ≠ 0 := by
+        unfold terminalCoefficient
+        positivity
+      have hr := terminal_coefficient_ratio (M + k) (by omega)
+      have heq : terminalCoefficient (M + k) =
+          (4 * Real.pi ^ 2) * terminalCoefficient (M + k + 1) :=
+        (div_eq_iff hpos).mp hr
+      calc
+        terminalCoefficient M =
+            (4 * Real.pi ^ 2) ^ k * terminalCoefficient (M + k) := ih
+        _ = (4 * Real.pi ^ 2) ^ (k + 1) *
+            terminalCoefficient (M + (k + 1)) := by
+              rw [heq, pow_succ]
+              push_cast
+              ring
+
 /-- The revised local numerator is exactly the previous expression. -/
 theorem terminal_numerator_rewrite (M : ℕ) (hM : 1 ≤ M) (u : ℝ) :
     (2 * Real.sin (u / 2)) ^ (2 * M) /
@@ -96,6 +120,7 @@ theorem gaussian_weight_central_binomial (r : ℕ) :
 end Manuscript15.InternalHyperlinks20261115
 
 #print axioms Manuscript15.InternalHyperlinks20261115.terminal_coefficient_ratio
+#print axioms Manuscript15.InternalHyperlinks20261115.terminal_coefficient_shift
 #print axioms Manuscript15.InternalHyperlinks20261115.terminal_numerator_rewrite
 #print axioms Manuscript15.InternalHyperlinks20261115.gaussian_weight_succ
 #print axioms Manuscript15.InternalHyperlinks20261115.gaussian_gamma_ratio
