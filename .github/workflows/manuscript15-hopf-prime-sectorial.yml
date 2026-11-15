@@ -1,0 +1,77 @@
+name: Manuscript 15 Hopf-prime sectorial Lean and Arb
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/HopfPrimeSectorial.lean'
+      - 'numerics/manuscript15_hopf_prime_arb3600000.py'
+      - '.github/workflows/manuscript15-hopf-prime-sectorial.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Fetch pinned Mathlib cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check declarations
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/HopfPrimeSectorial.lean 2>&1 | tee /tmp/hopf-prime-lean.log
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/hopf-prime-lean.log; then
+            exit 1
+          fi
+          for decl in mobius_weight_summable tsum_mobius_weight sectorial_weighted_limit zeta_log_derivative_zero continued_value_zero prime_regularized_scalar circle_determinant_scalar prime_circle_scalar_agreement terminal_hopf_coefficient; do
+            grep -F "Manuscript15.HopfPrimeSectorial.$decl" /tmp/hopf-prime-lean.log
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: manuscript15-hopf-prime-lean
+          path: /tmp/hopf-prime-lean.log
+  arb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned FLINT and verify checked-out commit
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Verify 1000001 significant decimal digits
+        run: |
+          set -euo pipefail
+          python numerics/manuscript15_hopf_prime_arb3600000.py | tee hopf-prime-arb.log
+          grep -F SUCCESS hopf-prime-arb.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: manuscript15-hopf-prime-arb
+          path: hopf-prime-arb.log
