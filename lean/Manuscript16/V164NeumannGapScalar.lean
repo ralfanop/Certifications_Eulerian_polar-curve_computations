@@ -1,3 +1,5 @@
+import Mathlib
+
 /-!
 Manuscript 16 v16.4, Section 13, Proposition mixed-schatten-164:
 exact scalar Neumann margin for the off-diagonal bounded perturbation.
@@ -5,7 +7,6 @@ exact scalar Neumann margin for the off-diagonal bounded perturbation.
 These lemmas DO NOT prove operator invertibility, graph-domain equality,
 the Neumann series in Banach spaces, compactness or Schatten membership.
 -/
-import Mathlib
 
 namespace Manuscript16
 
