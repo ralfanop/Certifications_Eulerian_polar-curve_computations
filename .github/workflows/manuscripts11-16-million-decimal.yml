@@ -1,0 +1,60 @@
+name: M11-16 million-plus significant decimal certification
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/million_decimal_*.py'
+      - '.github/workflows/manuscripts11-16-million-decimal.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: 'm11'
+            command: 'numerics/arb/million_decimal_m11_13.py 11'
+          - label: 'm12'
+            command: 'numerics/arb/million_decimal_m11_13.py 12'
+          - label: 'm13'
+            command: 'numerics/arb/million_decimal_m11_13.py 13'
+          - label: 'source281'
+            command: 'numerics/arb/million_decimal_bridge.py'
+          - label: 'source289'
+            command: 'numerics/arb/million_decimal_angles.py'
+          - label: 'source290'
+            command: 'numerics/arb/million_decimal_apex.py'
+          - label: 'source306'
+            command: 'numerics/arb/million_decimal_m16.py'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact commit and pinned FLINT
+        run: |
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Verify million-plus rounding and report resources
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python ${{ matrix.command }} 2>&1 | tee million-${{ matrix.label }}.log
+          grep -F "MILLION SUCCESS ${{ matrix.label }}" million-${{ matrix.label }}.log
+          test -s million-${{ matrix.label }}.json
+          gzip -t million-enclosures.jsonl.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: million-${{ matrix.label }}
+          path: |
+            million-${{ matrix.label }}.log
+            million-${{ matrix.label }}.json
+            million-enclosures.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn
