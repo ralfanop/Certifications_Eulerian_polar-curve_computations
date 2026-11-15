@@ -32,6 +32,7 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
+          lake build Manuscript15.Section27MeasureInfimumBridge
           lake env lean -M16768 Manuscript15/Section27MeasureInfimumBridge.lean 2>&1 | tee /tmp/m15-s27-measure-infimum.log
           if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/m15-s27-measure-infimum.log; then exit 1; fi
           python - <<'PY'
