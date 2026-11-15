@@ -1,0 +1,41 @@
+name: M16 v16.4 Maxwell nearest-mode p3 Lean audit
+on:
+  push:
+    branches: [manuscript16-v164-maxwell-border-shell-20261115]
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/V164MaxwellThirdShellLowerBound.lean'
+      - '.github/workflows/manuscript16-v164-maxwell-border-shell.yml'
+  workflow_dispatch:
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Fetch pinned Mathlib and audit axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+          lake env lean Manuscript16/V164MaxwellThirdShellLowerBound.lean 2>&1 | tee /tmp/m16-v164-maxwell-p3.log
+          grep -F "'Manuscript16.v164_maxwell_nearest_mode' depends on axioms:" /tmp/m16-v164-maxwell-p3.log
+          grep -F "'Manuscript16.v164_maxwell_third_shell_ge_harmonic' depends on axioms:" /tmp/m16-v164-maxwell-p3.log
+          if grep -E 'sorryAx|Lean.ofReduceBool|error:' /tmp/m16-v164-maxwell-p3.log; then exit 1; fi
+      - name: Preserve audit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript16-v164-maxwell-third-shell
+          path: /tmp/m16-v164-maxwell-p3.log
