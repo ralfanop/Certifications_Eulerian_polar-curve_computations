@@ -14,7 +14,7 @@ import sys
 import flint
 from flint import arb, ctx
 
-WORK, MIN = 20000, 18182
+WORK, MIN = 22000, 20000
 ctx.prec = WORK
 assert ctx.prec == WORK
 assert flint.__version__ == '0.9.0'
@@ -39,7 +39,7 @@ def certificate(name, x, printed=None, trunc=False):
         lo, hi = (d, d+unit) if trunc else (d-unit/2, d+unit/2)
         assert exact(lo) < x < exact(hi), (name, printed, x)
     counts.append(bits)
-    records.append({'name': name, 'relative_bits': bits, 'ball': x.str(6200, radius=True, more=True)})
+    records.append({'name': name, 'relative_bits': bits, 'ball': x.str(6900, radius=True, more=True)})
     print(name, 'certified relative bits:', bits, 'ball:', x.str(45, radius=True, more=True))
 
 
@@ -49,7 +49,7 @@ def root_bracket(f, derivative, start, name, domain):
     x = arb(start)
     for _ in range(20):
         x = (x - f(x) / derivative(x)).mid()
-    r = arb(2)**(-18800)
+    r = arb(2)**(-20800)
     lo, hi = x-r, x+r
     assert domain[0] < lo < hi < domain[1], name
     assert f(lo) < 0 and f(hi) > 0, name
@@ -93,7 +93,7 @@ def m11():
         d = t*t*t.sin()
         return (t/2)*(t/2).sin()/d - n*(2*t*t.sin()+t*t*t.cos())/d**2
     theta = root_bracket(S, dS, '2.1', 'Eq (59) theta_star', (arb(2), arb('2.2')))
-    # Unique zero from Thm 3.12; the bracket is a new >18182-bit enclosure.
+    # Unique zero from Thm 3.12; the bracket is a new >20000-bit enclosure.
     assert arb('2.102583094665093763925') < theta < arb('2.102583094665093763935')
     delta = 2*(theta/2).sin()/theta-c-m*theta.cos()
     eps = delta/2
@@ -152,7 +152,7 @@ def m12():
 def m13():
     pi = arb.pi()
     # V007 original inputs are untouched. Independent high-precision sums.
-    K = 2200
+    K = 2400
     term = lambda n: Q(1,4**n*factorial(n)*(2*n+1))
     s15 = sum(term(n) for n in range(15))
     err15 = Q(4,3)/(4**15*factorial(15))
@@ -184,7 +184,7 @@ def m13():
         assert a.overlaps(coef*pi**p)
         certificate('Table 1 normalised factor d='+str(d),a)
     certificate('Cor 4.2 8pi',8*pi)
-    K2=1100
+    K2=1200
     t=lambda k: Q(1,16**k*factorial(2*k)*(2*k+1)**2)
     ss=sum((exact(t(k)) for k in range(K2)),arb(0))
     bound=exact(Q(2,16**K2*factorial(2*K2)))
@@ -196,7 +196,7 @@ def m13():
     # The finite Figure 5 tail claims, with genuinely tighter remainders;
     # no image/data writes. For c<=1, the remainder <= exp(c)c^K/K!.
     for c in (arb(1),arb(1)/4,arb(1)/16):
-        K=2400
+        K=2600
         term=[arb(1)]
         for n in range(1,K+1): term.append(term[-1]*c/n)
         tail=arb(0, (c.exp()*term[K]).upper())
