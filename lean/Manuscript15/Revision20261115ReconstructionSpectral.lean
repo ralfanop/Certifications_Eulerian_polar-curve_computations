@@ -54,8 +54,8 @@ theorem X_transport
       a*t*(profile ν (2*t)-profile μ (2*t)) by unfold X; ring,
     abs_mul, abs_mul, abs_of_nonneg ha, abs_sub_comm (profile ν (2*t)) (profile μ (2*t))]
   calc
-    a*|t|*|profile μ (2*t)-profile ν (2*t)| ≤
-        a*|t|*(|2*t|*wasserstein1 μ ν) :=
+    a * |t|*|profile μ (2*t)-profile ν (2*t)| ≤
+        a * |t|*(|2*t|*wasserstein1 μ ν) :=
       mul_le_mul_of_nonneg_left (profile_transport μ ν hμ hν (2*t)) (by positivity)
     _ = _ := by
       rw [abs_mul, show |(2:ℝ)|=2 by norm_num, ← sq_abs t]
@@ -66,7 +66,7 @@ theorem Y_transport
     [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     (hμ : Integrable (fun x : ℝ => x) μ)
     (hν : Integrable (fun x : ℝ => x) ν) (t : ℝ) :
-    |Y a μ t - Y a ν t| ≤ a*|t|^3*wasserstein1 μ ν := by
+    |Y a μ t - Y a ν t| ≤ a * |t|^3*wasserstein1 μ ν := by
   have hs := square_diff_bound (profile μ t) (profile ν t)
     (profile_abs_le_one μ t) (profile_abs_le_one ν t)
   rw [show Y a μ t - Y a ν t =
@@ -90,7 +90,7 @@ theorem reconstruction_transport
     (hμ : Integrable (fun x : ℝ => x) μ)
     (hν : Integrable (fun x : ℝ => x) ν) (t : ℝ) :
     |X a μ t-X a ν t| ≤ 2*a*t^2*wasserstein1 μ ν ∧
-    |Y a μ t-Y a ν t| ≤ a*|t|^3*wasserstein1 μ ν :=
+    |Y a μ t-Y a ν t| ≤ a * |t|^3*wasserstein1 μ ν :=
   ⟨X_transport a ha μ ν hμ hν t, Y_transport a ha μ ν hμ hν t⟩
 
 def hopfScalar : ℝ := (2*Real.pi)^2
