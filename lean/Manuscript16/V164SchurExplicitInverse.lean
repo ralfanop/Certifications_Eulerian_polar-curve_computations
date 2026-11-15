@@ -29,28 +29,36 @@ theorem schur_two_sided_inverse_entries (a b c l : ℂ)
     (-c / (a * l - b * c)) * b +
       (a / (a * l - b * c)) * l = 1 := by
   constructor
-  · field_simp [hdet]
-    <;> ring
+  · simp only [div_eq_mul_inv]
+    calc
+      _ = (a * l - b * c) * (a * l - b * c)⁻¹ := by ring
+      _ = 1 := mul_inv_cancel₀ hdet
   constructor
-  · field_simp [hdet]
-    <;> ring
+  · simp only [div_eq_mul_inv]
+    ring
   constructor
-  · field_simp [hdet]
-    <;> ring
+  · simp only [div_eq_mul_inv]
+    ring
   constructor
-  · field_simp [hdet]
-    <;> ring
+  · simp only [div_eq_mul_inv]
+    calc
+      _ = (a * l - b * c) * (a * l - b * c)⁻¹ := by ring
+      _ = 1 := mul_inv_cancel₀ hdet
   constructor
-  · field_simp [hdet]
-    <;> ring
+  · simp only [div_eq_mul_inv]
+    calc
+      _ = (a * l - b * c) * (a * l - b * c)⁻¹ := by ring
+      _ = 1 := mul_inv_cancel₀ hdet
   constructor
-  · field_simp [hdet]
-    <;> ring
+  · simp only [div_eq_mul_inv]
+    ring
   constructor
-  · field_simp [hdet]
-    <;> ring
-  · field_simp [hdet]
-    <;> ring
+  · simp only [div_eq_mul_inv]
+    ring
+  · simp only [div_eq_mul_inv]
+    calc
+      _ = (a * l - b * c) * (a * l - b * c)⁻¹ := by ring
+      _ = 1 := mul_inv_cancel₀ hdet
 
 #print axioms Manuscript16.schur_two_sided_inverse_entries
 end Manuscript16
