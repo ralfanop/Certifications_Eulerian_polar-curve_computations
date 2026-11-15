@@ -1,0 +1,54 @@
+name: M15 S2.7 measure-cost infimum bridge
+on:
+  push:
+    branches:
+      - draft/m15-s27-measure-cost-infimum-20261115
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/Section27MeasureInfimumBridge.lean'
+      - '.github/workflows/m15-s27-measure-infimum.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile and audit axioms
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 Manuscript15/Section27MeasureInfimumBridge.lean 2>&1 | tee /tmp/m15-s27-measure-infimum.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/m15-s27-measure-infimum.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/m15-s27-measure-infimum.log').read_text()
+          name = 'Manuscript15.Section27.integral_lipschitz_admissible_cost_infimum'
+          matches = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+          assert matches, 'missing axiom audit'
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          for match in matches:
+              axioms = {x.strip() for x in match.split(',') if x.strip()}
+              assert axioms <= allowed, axioms
+          print('AXIOM AUDIT SUCCESS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-s27-measure-infimum-log
+          path: /tmp/m15-s27-measure-infimum.log
