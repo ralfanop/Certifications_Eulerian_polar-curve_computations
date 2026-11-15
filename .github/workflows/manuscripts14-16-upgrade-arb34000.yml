@@ -1,0 +1,50 @@
+name: Manuscripts 14-16 Arb 36000-bit scalar upgrade
+on:
+  pull_request:
+    paths:
+      - 'numerics/manuscripts11_15_eulerian_fredholm_bridge_arb34000.py'
+      - 'numerics/manuscript15_tabulated_eulerian_angles_arb34000.py'
+      - 'numerics/manuscript15_eulerian_apex_bound_arb34000.py'
+      - 'numerics/manuscript16_v164_mixed_wave_arb34000.py'
+      - '.github/workflows/manuscripts14-16-upgrade-arb34000.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - source_pr: '281'
+            script: 'numerics/manuscripts11_15_eulerian_fredholm_bridge_arb34000.py'
+          - source_pr: '289'
+            script: 'numerics/manuscript15_tabulated_eulerian_angles_arb34000.py'
+          - source_pr: '290'
+            script: 'numerics/manuscript15_eulerian_apex_bound_arb34000.py'
+          - source_pr: '306'
+            script: 'numerics/manuscript16_v164_mixed_wave_arb34000.py'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact commit and pinned Arb
+        run: |
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Verify numerical enclosures
+        run: |
+          set -euo pipefail
+          python "${{ matrix.script }}" | tee arb34000-${{ matrix.source_pr }}.log
+          grep -F SUCCESS arb34000-${{ matrix.source_pr }}.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arb34000-${{ matrix.source_pr }}
+          path: arb34000-${{ matrix.source_pr }}.log
+          if-no-files-found: error
