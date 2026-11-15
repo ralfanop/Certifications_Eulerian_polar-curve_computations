@@ -17,10 +17,12 @@ theorem graph_norm_scalar_bound
     a + b ≤ (1 + (1 + e) * r) * y := by
   have hfac : 0 ≤ 1 + e := by linarith
   calc
-    a + b ≤ a + (y + e * a) := add_le_add_left hb a
+    a + b ≤ a + (y + e * a) := by
+      convert (add_le_add_left hb a) using 1 <;> ring
     _ = y + (1 + e) * a := by ring
     _ ≤ y + (1 + e) * (r * y) :=
-      add_le_add_left (mul_le_mul_of_nonneg_left ha hfac) y
+      by
+        convert (add_le_add_left (mul_le_mul_of_nonneg_left ha hfac) y) using 1 <;> ring
     _ = (1 + (1 + e) * r) * y := by ring
 
 #print axioms Manuscript16.graph_norm_scalar_bound
