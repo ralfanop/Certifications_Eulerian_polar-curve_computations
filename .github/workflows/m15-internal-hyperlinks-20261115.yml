@@ -37,7 +37,7 @@ jobs:
           import re
           from pathlib import Path
           log = Path('/tmp/m15-internal-hyperlinks.log').read_text()
-          for n in ['terminal_coefficient_ratio','terminal_numerator_rewrite','gaussian_weight_succ',
+          for n in ['terminal_coefficient_ratio','terminal_coefficient_shift','terminal_numerator_rewrite','gaussian_weight_succ',
                     'gaussian_gamma_ratio','gaussian_weight_central_binomial']:
               name = 'Manuscript15.InternalHyperlinks20261115.'+n
               matches = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
