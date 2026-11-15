@@ -37,7 +37,11 @@ jobs:
         run: |
           set -euo pipefail
           export PATH="$HOME/.elan/bin:$PATH"
-          lake env lean -M16768 Manuscript15/Section27MeasureInfimumBridge.lean 2>&1 | tee /tmp/m15-s27-measure-infimum.log
+          # Build imported local modules into Lake's Lean search path before auditing the bridge.
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27CouplingIntegral.olean Manuscript15/Section27CouplingIntegral.lean 2>&1 | tee /tmp/m15-s27-measure-infimum.log
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27AbstractInfimumBridge.olean Manuscript15/Section27AbstractInfimumBridge.lean 2>&1 | tee -a /tmp/m15-s27-measure-infimum.log
+          lake env lean -M16768 Manuscript15/Section27MeasureInfimumBridge.lean 2>&1 | tee -a /tmp/m15-s27-measure-infimum.log
           if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/m15-s27-measure-infimum.log; then exit 1; fi
           python - <<'PY'
           import re
