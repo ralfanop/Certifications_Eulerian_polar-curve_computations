@@ -13,8 +13,8 @@ namespace Manuscript14.MagneticHeat
 def oddEnergy (n : ℕ) : ℝ := 2 * (n : ℝ) + 1
 def weight (x : ℝ) (n : ℕ) : ℝ := Real.exp (-x * oddEnergy n)
 def heat (x : ℝ) : ℝ := 1 / (2 * Real.sinh x)
-def langevin (x : ℝ) : ℝ := Real.cosh x / Real.sinh x - 1 / x
-def fluctuation (x : ℝ) : ℝ := 1 / x^2 - 1 / Real.sinh x^2
+def langevin (x : ℝ) : ℝ := Real.cosh x / Real.sinh x - x⁻¹
+def fluctuation (x : ℝ) : ℝ := (x^2)⁻¹ - (Real.sinh x^2)⁻¹
 
 theorem weight_geometric (x : ℝ) (n : ℕ) :
     weight x n = Real.exp (-x) * Real.exp (-2 * x) ^ n := by
@@ -48,7 +48,7 @@ theorem odd_heat_tsum (x : ℝ) (hx : 0 < x) :
           Real.exp (-x) * Real.exp x - Real.exp (-x) * Real.exp (-x) := by ring
       _ = _ := by rw [h1, h2]
   field_simp [ne_of_gt (sub_pos.mpr h), ne_of_gt hs]
-  nlinarith [hh]
+  <;> nlinarith [hh]
 
 /-- Half-time tail, equation (124). The half trace must be summable.
     No magnetic heat-kernel estimate is assumed as a Lean axiom. -/
@@ -154,6 +154,33 @@ theorem mean_difference (x : ℝ) (hx : 0 < x) :
   field_simp
   <;> ring
 
+/-- Corollary 7.6: derivative of the limiting mean, hence minus the
+    limiting Gibbs variance. -/
+theorem coth_hasDerivAt (x : ℝ) (hx : 0 < x) :
+    HasDerivAt (fun y => Real.cosh y / Real.sinh y)
+      (-(Real.sinh x ^ 2)⁻¹) x := by
+  have hs : Real.sinh x ≠ 0 := Real.sinh_ne_zero.mpr hx.ne'
+  have h := (Real.hasDerivAt_cosh x).fun_div (Real.hasDerivAt_sinh x) hs
+  refine h.congr_deriv ?_
+  have hcs := Real.cosh_sq_sub_sinh_sq x
+  linear_combination (-(Real.sinh x ^ 2)⁻¹) * hcs
+
+theorem variance_difference (x : ℝ) (hx : 0 < x) :
+    1/x^2 - (-deriv (fun y => Real.cosh y / Real.sinh y) x) =
+      fluctuation x := by
+  rw [(coth_hasDerivAt x hx).deriv]
+  simp [fluctuation, one_div]
+
+theorem langevin_hasDerivAt (x : ℝ) (hx : 0 < x) :
+    HasDerivAt langevin (fluctuation x) x := by
+  have hs : Real.sinh x ≠ 0 := Real.sinh_ne_zero.mpr hx.ne'
+  have h := ((Real.hasDerivAt_cosh x).fun_div (Real.hasDerivAt_sinh x) hs).fun_sub
+    (hasDerivAt_inv hx.ne')
+  refine h.congr_deriv ?_
+  have hcs := Real.cosh_sq_sub_sinh_sq x
+  simp only [fluctuation]
+  linear_combination (-(Real.sinh x ^ 2)⁻¹) * hcs
+
 theorem modular_duplication (a : ℝ) (ha : 0 < a) :
     (2*a)*heat (2*a) / (a*heat a) = 1 / Real.cosh a := by
   have hs : Real.sinh a ≠ 0 := Real.sinh_ne_zero.mpr ha.ne'
@@ -173,6 +200,9 @@ theorem modular_duplication (a : ℝ) (ha : 0 < a) :
 #print axioms reciprocal_profile
 #print axioms heat_hasDerivAt
 #print axioms mean_difference
+#print axioms coth_hasDerivAt
+#print axioms variance_difference
+#print axioms langevin_hasDerivAt
 #print axioms modular_duplication
 
 end Manuscript14.MagneticHeat
