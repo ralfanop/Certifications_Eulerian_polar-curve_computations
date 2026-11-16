@@ -2,8 +2,8 @@ import Mathlib
 
 /-!
 Manuscript 16 v16.4, Section 13: integer nearest-mode shell combinatorics.
-Authoritative source identifier (not a re-certification of source bytes):
-ZIP SHA-256 c6e92c8a6a58504f41fb1756be20e9be66739fb9880b00a34012718b46d2586f.
+Authoritative ZIP SHA-256:
+72afc74dba6ad9d2be925c1c7ee964faffcd767ef43aa88a1557e1a6b1707966.
 This file proves only a finite integer candidate bound. It does not prove
 Schatten summability, spectral multiplicity, or the det4 theorem.
 -/
@@ -16,7 +16,17 @@ for this elementary implication. -/
 theorem nearest_mode_four_candidates (ell k j : ℤ)
     (h : min |k| |(ell + k)| = j) :
     k = -j ∨ k = j ∨ k = -ell - j ∨ k = -ell + j := by
-  omega
+  rcases le_total 0 k with hk | hk
+  · rcases le_total 0 (ell + k) with hs | hs
+    · rw [abs_of_nonneg hk, abs_of_nonneg hs] at h
+      omega
+    · rw [abs_of_nonneg hk, abs_of_nonpos hs] at h
+      omega
+  · rcases le_total 0 (ell + k) with hs | hs
+    · rw [abs_of_nonpos hk, abs_of_nonneg hs] at h
+      omega
+    · rw [abs_of_nonpos hk, abs_of_nonpos hs] at h
+      omega
 
 #print axioms Manuscript16.nearest_mode_four_candidates
 
