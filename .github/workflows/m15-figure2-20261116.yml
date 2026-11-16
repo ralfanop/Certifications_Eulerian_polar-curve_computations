@@ -1,0 +1,98 @@
+name: M15 20261116 Figure 2 and Catalan-Lipschitz audit
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/LipschitzDisk20261116.lean'
+      - 'numerics/arb/m15_figure2_20261116_million.py'
+      - '.github/workflows/m15-figure2-20261116.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean and Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          lake exe cache get
+      - name: Lean compilation and exact axiom audit
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.elan/bin:$PATH"
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 Manuscript15/LipschitzDisk20261116.lean 2>&1 | tee /tmp/m15-figure2-lean.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m15-figure2-lean.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/m15-figure2-lean.log').read_text()
+          names = ['disk_quadratic_bound','disk_complex_bound','boundary_norm',
+                   'reciprocal_sqrt_bound','modular_pair_product','catalan_scalar_resolvent']
+          for n in names:
+              name = 'Manuscript15.LipschitzDisk20261116.'+n
+              matches = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert matches, 'missing audit: '+name
+              for match in matches:
+                  assert {a.strip() for a in match.split(',') if a.strip()} <= {'propext','Classical.choice','Quot.sound'}
+          print('AXIOM AUDIT SUCCESS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-figure2-lean
+          path: /tmp/m15-figure2-lean.log
+  arb:
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [scalar, modular]
+    env:
+      M15_FIGURE_MODE: ${{ matrix.mode }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact commit and pinned FLINT
+        run: |
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Strict individual accuracy and unique million-plus decimal rounding
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python numerics/arb/m15_figure2_20261116_million.py 2>&1 | tee m15-figure2.log
+          grep -F "MILLION SUCCESS m15-figure2-$M15_FIGURE_MODE" m15-figure2.log
+          test -s "million-m15-figure2-$M15_FIGURE_MODE.json"
+          test -s m15-figure2-exact.json
+          gzip -t million-enclosures.jsonl.gz m15-figure2-exact-endpoints.jsonl.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-figure2-${{ matrix.mode }}-million
+          path: |
+            m15-figure2.log
+            million-m15-figure2-*.json
+            m15-figure2-exact.json
+            m15-figure2-exact-endpoints.jsonl.gz
+            million-enclosures.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn
