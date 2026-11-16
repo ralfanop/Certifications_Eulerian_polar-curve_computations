@@ -145,6 +145,25 @@ theorem gaussian_weight_central_binomial (r : ℕ) :
     _ = ((Nat.doubleFactorial (2*r+1) : ℝ) * (2:ℝ)^r) * (2:ℝ)^r := by ring
     _ = _ := by rw [h5]
 
+/-- Factorial lower bound on all-order Gaussian moment weights. This implies
+that the unnormalised moment-generating formal power series cannot have a
+positive radius of convergence; the analytic statement is tracked separately. -/
+theorem gaussian_weight_factorial_lower (r : ℕ) :
+    (r.factorial : ℝ) / 2 ^ r ≤ gaussianWeight r := by
+  induction r with
+  | zero => norm_num [gaussianWeight]
+  | succ r ih =>
+      rw [gaussian_weight_succ, Nat.factorial_succ, Nat.cast_mul, pow_succ]
+      have hpow : (0 : ℝ) < 2 ^ r := by positivity
+      have hr : (0 : ℝ) ≤ (r : ℝ) := Nat.cast_nonneg r
+      have hfac : (0 : ℝ) ≤ (r.factorial : ℝ) := by positivity
+      have hmul : (r + 1 : ℝ) * ((r.factorial : ℝ) / 2 ^ r) ≤
+          (r + 1 : ℝ) * gaussianWeight r :=
+        mul_le_mul_of_nonneg_left ih (by positivity)
+      have hpos := gaussian_weight_pos r
+      apply (div_le_iff₀ (by norm_num : (0 : ℝ) < 2)).2
+      nlinarith
+
 end Manuscript15.InternalHyperlinks20261115
 
 #print axioms Manuscript15.InternalHyperlinks20261115.terminal_coefficient_ratio
@@ -158,3 +177,4 @@ end Manuscript15.InternalHyperlinks20261115
 #print axioms Manuscript15.InternalHyperlinks20261115.gaussian_weight_strict_mono
 
 #print axioms Manuscript15.InternalHyperlinks20261115.gaussian_weight_ge_geometric
+#print axioms Manuscript15.InternalHyperlinks20261115.gaussian_weight_factorial_lower
