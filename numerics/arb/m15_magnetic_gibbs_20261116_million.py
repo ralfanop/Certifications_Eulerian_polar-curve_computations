@@ -59,13 +59,14 @@ with gzip.open(label+"-endpoints.jsonl.gz","wt",encoding="utf-8",compresslevel=1
             assert w2sq.overlaps(1-2*(1+r)/(1-r)/x+2/x**2)
             assert z.overlaps(e/(1-r))
             assert L > 0 and Lprime > 0 and w1 > 0 and w2sq > 0
+            assert (1/x**2).contains(8 if n=="a" else 2)
             assert w1 < w2 and w2 < 1
             for name,v in [
                 ("x",x),("Im z",2*x),("Gibbs ratio exp(-2x)",r),
                 ("first atom weight",1-r),("limit partition trace",z),
                 ("normalised trace",2*x*z),("Eulerian imaginary profile",sh/x),
                 ("exponential mean",1/x),("discrete mean",coth),
-                ("mean difference",L),("exponential variance",1/x**2),
+                ("mean difference",L),
                 ("discrete variance",1/sh**2),("variance difference",Lprime),
                 ("W2 squared",w2sq)]:
                 certify(n+" "+name,v)
@@ -102,7 +103,9 @@ with gzip.open(label+"-endpoints.jsonl.gz","wt",encoding="utf-8",compresslevel=1
 # Exact rational statements, not relative accuracy of an exact result.
 if mode=="magnetic":
     exact_data={"limiting W infinity":Q(1),"cell width":Q(2),
-                "first level":Q(1),"trace normalization factor relative to x":Q(2)}
+                "first level":Q(1),"trace normalization factor relative to x":Q(2),
+                "exponential variance at a=1/sqrt(8)":Q(8),
+                "exponential variance at b=1/sqrt(2)":Q(2)}
 else:
     exact_data={"Schwarzian majorant":Q(17,50),"Ahlfors-Weill k":Q(17,100),
                 "dilatation upper bound":Q(117,83),"Kahler inf":Q(4,13),
