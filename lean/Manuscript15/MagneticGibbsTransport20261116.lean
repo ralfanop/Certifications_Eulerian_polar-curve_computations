@@ -118,7 +118,7 @@ theorem normalized_partition (x : ℝ) (hx : 0 < x) :
   have he : Real.exp (-2*x) = (Real.exp x)⁻¹^2 := by
     rw [show -2*x = -x + -x by ring, Real.exp_add, Real.exp_neg]
     ring
-  rw [he, Real.exp_neg, Real.sinh_eq]
+  rw [he, Real.exp_neg, Real.sinh_eq, Real.exp_neg]
   have hpos : 1 < Real.exp x := by simpa using Real.exp_lt_exp.mpr hx
   have hne : Real.exp x - (Real.exp x)⁻¹ ≠ 0 := by
     have hi : (Real.exp x)⁻¹ < 1 := by
