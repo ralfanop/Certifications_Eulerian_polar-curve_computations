@@ -29,6 +29,8 @@ jobs:
           set -euo pipefail
           lake update
           lake exe cache get
+          mkdir -p .lake/build/lib/lean/Manuscript16
+          lake env lean -o .lake/build/lib/lean/Manuscript16/V164NearestModeFourCandidates.olean Manuscript16/V164NearestModeFourCandidates.lean 2>&1 | tee /tmp/m16-shell-dependency.log
           lake env lean Manuscript16/V164NearestModeShellFilter.lean 2>&1 | tee /tmp/m16-shell-filter.log
           grep -F "'Manuscript16.nearest_mode_shell_filter_subset' depends on axioms:" /tmp/m16-shell-filter.log
           if grep -E 'sorryAx|Lean.ofReduceBool|error:' /tmp/m16-shell-filter.log; then exit 1; fi
@@ -37,4 +39,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: m16-shell-filter
-          path: /tmp/m16-shell-filter.log
+          path: |
+            /tmp/m16-shell-filter.log
+            /tmp/m16-shell-dependency.log
