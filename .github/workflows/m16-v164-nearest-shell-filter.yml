@@ -1,0 +1,40 @@
+name: M16 v16.4 nearest-mode shell finite-cutoff containment
+on:
+  push:
+    branches: [m16-v164-nearest-shell-cardinality-20261116]
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/V164NearestModeShellFilter.lean'
+      - '.github/workflows/m16-v164-nearest-shell-filter.yml'
+  workflow_dispatch:
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Compile and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+          lake env lean Manuscript16/V164NearestModeShellFilter.lean 2>&1 | tee /tmp/m16-shell-filter.log
+          grep -F "'Manuscript16.nearest_mode_shell_filter_subset' depends on axioms:" /tmp/m16-shell-filter.log
+          if grep -E 'sorryAx|Lean.ofReduceBool|error:' /tmp/m16-shell-filter.log; then exit 1; fi
+      - name: Preserve log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m16-shell-filter
+          path: /tmp/m16-shell-filter.log
