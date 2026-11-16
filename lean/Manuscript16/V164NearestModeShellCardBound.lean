@@ -18,9 +18,22 @@ theorem nearest_mode_shell_filter_card_le_four (ell j : ℤ) (s : Finset ℤ) :
   have hsubset := nearest_mode_shell_filter_subset ell j s
   have hcard := Finset.card_le_card hsubset
   have hfour : ({-j, j, -ell - j, -ell + j} : Finset ℤ).card ≤ 4 := by
-    simp [Finset.card_insert_le]
-    omega
-  omega
+    calc
+      ({-j, j, -ell - j, -ell + j} : Finset ℤ).card
+          ≤ ({j, -ell - j, -ell + j} : Finset ℤ).card + 1 := by
+            apply Finset.card_insert_le
+      _ ≤ (({-ell - j, -ell + j} : Finset ℤ).card + 1) + 1 := by
+            have h : ({j, -ell - j, -ell + j} : Finset ℤ).card ≤
+                ({-ell - j, -ell + j} : Finset ℤ).card + 1 := by
+              apply Finset.card_insert_le
+            omega
+      _ ≤ 4 := by
+            have h : ({-ell - j, -ell + j} : Finset ℤ).card ≤
+                ({-ell + j} : Finset ℤ).card + 1 := by
+              apply Finset.card_insert_le
+            simp only [Finset.card_singleton] at h
+            omega
+  exact le_trans hcard hfour
 
 #print axioms Manuscript16.nearest_mode_shell_filter_card_le_four
 
