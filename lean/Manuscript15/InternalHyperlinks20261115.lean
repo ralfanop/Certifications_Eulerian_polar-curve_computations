@@ -89,6 +89,19 @@ theorem gaussian_weight_strict_mono (r : ℕ) :
   have hr : (0 : ℝ) ≤ r := Nat.cast_nonneg r
   nlinarith
 
+/-- Quantitative all-order lower bound: the normalized Gaussian weights grow
+at least geometrically. This is a coefficient statement only. -/
+theorem gaussian_weight_ge_geometric (r : ℕ) :
+    (3 / 2 : ℝ) ^ r ≤ gaussianWeight r := by
+  induction r with
+  | zero =>
+      norm_num [gaussianWeight]
+  | succ r ih =>
+      rw [gaussian_weight_succ, pow_succ]
+      have hp : 0 ≤ gaussianWeight r := le_of_lt (gaussian_weight_pos r)
+      have hr : (0 : ℝ) ≤ (r : ℝ) := Nat.cast_nonneg r
+      nlinarith
+
 /-- The normalized Gamma values giving the Gaussian weights. The improper
 integral substitution is separately tracked in the scope ledger. -/
 theorem gaussian_gamma_ratio (r : ℕ) :
@@ -143,3 +156,5 @@ end Manuscript15.InternalHyperlinks20261115
 
 #print axioms Manuscript15.InternalHyperlinks20261115.gaussian_weight_pos
 #print axioms Manuscript15.InternalHyperlinks20261115.gaussian_weight_strict_mono
+
+#print axioms Manuscript15.InternalHyperlinks20261115.gaussian_weight_ge_geometric
