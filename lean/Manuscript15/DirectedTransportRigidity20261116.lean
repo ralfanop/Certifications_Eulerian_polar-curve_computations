@@ -98,8 +98,8 @@ theorem directedW_eq (l : ℝ) (hl : 0 < l)
     apply le_csInf (hn.image (directedCost l))
     rintro _ ⟨γ, hγ, rfl⟩
     rw [he γ hγ]
-    exact add_le_add_right (mul_le_mul_of_nonneg_left
-      (csInf_le hb (Set.mem_image_of_mem cost hγ)) hA.le) b
+    simpa [add_comm] using (add_le_add_right (mul_le_mul_of_nonneg_left
+      (csInf_le hb (Set.mem_image_of_mem cost hγ)) hA.le) b)
 
 theorem directedW_same_mean (l : ℝ) (hl : 0 < l)
     (μ ν : Measure ℝ) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
