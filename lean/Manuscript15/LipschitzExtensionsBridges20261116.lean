@@ -33,7 +33,7 @@ theorem cusp_cross_bound (x y C c dIn dOut : ℝ)
     _ = C^3/4*(c*(x^3+y^3))^2 := by ring
     _ ≤ _ := mul_le_mul_of_nonneg_left h2 (by positivity)
 
-def grid (R : ℝ) (N j : ℕ) : ℝ := -R+(j:ℝ)*(2*R/N)
+noncomputable def grid (R : ℝ) (N j : ℕ) : ℝ := -R+(j:ℝ)*(2*R/N)
 
 theorem grid_step (R : ℝ) (N j : ℕ) :
     grid R N (j+1)-grid R N j = 2*R/N := by
