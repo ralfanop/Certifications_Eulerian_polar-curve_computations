@@ -36,6 +36,8 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
+          # Build local imported modules first; cache get only supplies Mathlib artifacts.
+          lake build SpecialImaginaryPoint.V14119Priority3DirichletTrueFredholmSinhBridge SpecialImaginaryPoint.ParryThresholds
           lake env lean -M16768 SpecialImaginaryPoint/V14119Priority3OperatorFredholmEulerianParryBridge.lean 2>&1 | tee /tmp/m14-fredholm-parry.log
           if grep -Eq 'sorryAx|Lean.ofReduceBool|error:' /tmp/m14-fredholm-parry.log; then exit 1; fi
           python - <<'PY'
