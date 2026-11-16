@@ -161,8 +161,17 @@ theorem gaussian_weight_factorial_lower (r : ℕ) :
           (r + 1 : ℝ) * gaussianWeight r :=
         mul_le_mul_of_nonneg_left ih (by positivity)
       have hpos := gaussian_weight_pos r
-      apply (div_le_iff₀ (by norm_num : (0 : ℝ) < 2)).2
-      nlinarith
+      calc
+        (↑(r + 1) * ↑r.factorial) / (2 ^ r * 2) =
+            ((r + 1 : ℝ) * ((r.factorial : ℝ) / 2 ^ r)) / 2 := by
+              push_cast
+              ring
+        _ ≤ ((r + 1 : ℝ) * gaussianWeight r) / 2 := by
+              exact div_le_div_of_nonneg_right hmul (by norm_num)
+        _ ≤ ((2 * (r : ℝ) + 3) / 2) * gaussianWeight r := by
+              have hn : 0 ≤ ((r : ℝ) + 2) * gaussianWeight r :=
+                mul_nonneg (by positivity) (le_of_lt hpos)
+              nlinarith
 
 end Manuscript15.InternalHyperlinks20261115
 
