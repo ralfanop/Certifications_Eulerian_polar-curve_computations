@@ -1,0 +1,52 @@
+name: M16 v16.4 nearest-mode shell cardinality bound
+on:
+  push:
+    branches: [m16-v164-shell-card-bound-20261116]
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/V164NearestModeShellCardBound.lean'
+      - '.github/workflows/m16-v164-shell-card-bound.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Exact HEAD compilation and axiom audit
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "HEAD=$(git rev-parse HEAD)"
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          git rev-parse HEAD > /tmp/m16-card-head.log
+          lake update
+          lake exe cache get
+          mkdir -p .lake/build/lib/lean/Manuscript16
+          lake env lean -o .lake/build/lib/lean/Manuscript16/V164NearestModeFourCandidates.olean Manuscript16/V164NearestModeFourCandidates.lean 2>&1 | tee /tmp/m16-card-dependency1.log
+          lake env lean -o .lake/build/lib/lean/Manuscript16/V164NearestModeShellFilter.olean Manuscript16/V164NearestModeShellFilter.lean 2>&1 | tee /tmp/m16-card-dependency2.log
+          lake env lean Manuscript16/V164NearestModeShellCardBound.lean 2>&1 | tee /tmp/m16-card-bound.log
+          grep -F "'Manuscript16.nearest_mode_shell_filter_card_le_four' depends on axioms:" /tmp/m16-card-bound.log
+          if grep -E 'sorryAx|Lean.ofReduceBool|error:' /tmp/m16-card-dependency1.log /tmp/m16-card-dependency2.log /tmp/m16-card-bound.log; then exit 1; fi
+      - name: Preserve logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m16-v164-shell-card-bound
+          path: /tmp/m16-card-*.log
