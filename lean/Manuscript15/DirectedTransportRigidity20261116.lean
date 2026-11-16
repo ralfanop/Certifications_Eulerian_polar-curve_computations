@@ -99,8 +99,9 @@ theorem directedW_eq (l : ℝ) (hl : 0 < l)
     rintro _ ⟨γ, hγ, rfl⟩
     rw [he γ hγ]
     change A * sInf (cost '' couplings μ ν) + b ≤ A * cost γ + b
-    exact add_le_add_right (mul_le_mul_of_nonneg_left
-      (csInf_le hb (Set.mem_image_of_mem cost hγ)) hA.le) b
+    simpa only [add_comm b] using
+      (add_le_add_right (mul_le_mul_of_nonneg_left
+        (csInf_le hb (Set.mem_image_of_mem cost hγ)) hA.le) b)
 
 theorem directedW_same_mean (l : ℝ) (hl : 0 < l)
     (μ ν : Measure ℝ) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
