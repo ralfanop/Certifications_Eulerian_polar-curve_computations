@@ -24,8 +24,10 @@ theorem weight_geometric (x : ℝ) (n : ℕ) :
 
 theorem odd_heat_summable (x : ℝ) (hx : 0 < x) : Summable (weight x) := by
   have h : Real.exp (-2 * x) < 1 := Real.exp_lt_one_iff.mpr (by linarith)
-  simpa only [weight_geometric] using
-    (summable_geometric_of_lt_one (Real.exp_pos _).le h).mul_left (Real.exp (-x))
+  have he : weight x = fun n => Real.exp (-x) * Real.exp (-2*x)^n :=
+    funext (weight_geometric x)
+  rw [he]
+  exact (summable_geometric_of_lt_one (Real.exp_pos _).le h).mul_left (Real.exp (-x))
 
 /-- Equation (118): actual summed limiting ladder with zero-based index. -/
 theorem odd_heat_tsum (x : ℝ) (hx : 0 < x) :
@@ -47,8 +49,8 @@ theorem odd_heat_tsum (x : ℝ) (hx : 0 < x) :
       Real.exp (-x) * (2 * ((Real.exp x - Real.exp (-x)) / 2)) =
           Real.exp (-x) * Real.exp x - Real.exp (-x) * Real.exp (-x) := by ring
       _ = _ := by rw [h1, h2]
-  field_simp [ne_of_gt (sub_pos.mpr h), ne_of_gt hs]
-  <;> nlinarith [hh]
+  rw [← div_eq_mul_inv]
+  exact (div_eq_div_iff (ne_of_gt (sub_pos.mpr h)) (mul_ne_zero two_ne_zero (ne_of_gt hs))).2 (by simpa only [one_mul] using hh)
 
 /-- Half-time tail, equation (124). The half trace must be summable.
     No magnetic heat-kernel estimate is assumed as a Lean axiom. -/
@@ -117,16 +119,16 @@ theorem polynomial_half_time (u : ℝ) (hu : 0 ≤ u) (k : ℕ) :
     (u^k / (k.factorial : ℝ)) * Real.exp (-2*u) ≤ Real.exp (-u) := by
   calc
     _ ≤ Real.exp u * Real.exp (-2*u) :=
-      mul_le_mul_of_nonneg_right (Real.pow_div_factorial_le_exp hu k) (Real.exp_pos _).le
+      mul_le_mul_of_nonneg_right (Real.pow_div_factorial_le_exp u hu k) (Real.exp_pos _).le
     _ = _ := by
       rw [← Real.exp_add]
       congr 1
       ring
 
 /-- Normalization in (116), written at the spectral level. -/
-theorem shift_normalization (λ λ1 h b0 c1 : ℝ) (hh : h ≠ 0) (hc : c1 ≠ 0) :
-    1 + (λ - λ1) / (c1 * h^2) =
-      ((λ - h*b0)/h^2) / c1 + (1 - ((λ1 - h*b0)/h^2)/c1) := by
+theorem shift_normalization (lam lam1 h b0 c1 : ℝ) (hh : h ≠ 0) (hc : c1 ≠ 0) :
+    1 + (lam - lam1) / (c1 * h^2) =
+      ((lam - h*b0)/h^2) / c1 + (1 - ((lam1 - h*b0)/h^2)/c1) := by
   field_simp
   <;> ring
 
