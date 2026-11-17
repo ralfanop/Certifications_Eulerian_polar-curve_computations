@@ -1,0 +1,82 @@
+name: Manuscript 14 Parry x20 and permeability Lean and Arb
+on:
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119ParryX20.lean'
+      - 'lean/SpecialImaginaryPoint/V14119ParryRemainderX20.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Permeability.lean'
+      - 'numerics/manuscript14_parry_x20_arb3600000.py'
+      - '.github/workflows/manuscript14-parry-x20.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors \
+            --retry-delay 5 --connect-timeout 20 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Fetch pinned Mathlib cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check declarations
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          for file in V14119ParryX20 V14119ParryRemainderX20 V14119Permeability; do
+            lake env lean SpecialImaginaryPoint/$file.lean 2>&1 | tee -a /tmp/parry-x20-lean.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/parry-x20-lean.log; then
+            exit 1
+          fi
+          for decl in Manuscript14.ParryX20.terminal_coefficients Manuscript14.ParryX20.log_b_12 Manuscript14.ParryX20.log_c_11 Manuscript14.ParryX20.reciprocal_11 Manuscript14.ParryX20.product_11 Manuscript14.ParryX20.zeta_term_11 Manuscript14.ParryRemainder.propagate Manuscript14.ParryRemainder.quotient_identity Manuscript14.Permeability.scaled_bloch_measure; do
+            grep -F "$decl" /tmp/parry-x20-lean.log
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: manuscript14-parry-x20-lean
+          path: /tmp/parry-x20-lean.log
+  arb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned FLINT and verify checked-out commit
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Verify 1000001 significant decimal digits
+        run: |
+          set -euo pipefail
+          python numerics/manuscript14_parry_x20_arb3600000.py | tee parry-x20-arb.log
+          grep -F SUCCESS parry-x20-arb.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: manuscript14-parry-x20-arb
+          path: parry-x20-arb.log
+
