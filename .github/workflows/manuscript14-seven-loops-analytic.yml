@@ -1,0 +1,81 @@
+name: M14 high-order analytic inputs and seven-loop circuit
+on:
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119ParryAnalyticInputsX20.lean'
+      - 'lean/SpecialImaginaryPoint/Section74ExplicitMagneticWell.lean'
+      - 'lean/SpecialImaginaryPoint/SevenLoopMagnetoinductive.lean'
+      - 'numerics/arb/million_decimal_m14_seven_loops.py'
+      - '.github/workflows/manuscript14-seven-loops-analytic.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Fetch pinned Mathlib cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel check and inspect axiom reports
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          for file in V14119ParryAnalyticInputsX20 Section74ExplicitMagneticWell SevenLoopMagnetoinductive; do
+            lake env lean SpecialImaginaryPoint/$file.lean 2>&1 | tee -a /tmp/m14-seven-lean.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m14-seven-lean.log; then
+            exit 1
+          fi
+          for decl in sinh_taylor25 profile_taylor25 normalized_profile_taylor25 log_one_add_taylor potential_deriv_x curl_eq global_confinement unique_minimum shifted_form_split dispersion modal_inductance_positive natural_frequency sinusoidal_dispersion site_equation sine_recurrence sinusoidal_site; do
+            grep -F ".$decl'" /tmp/m14-seven-lean.log
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-seven-lean-log
+          path: /tmp/m14-seven-lean.log
+  arb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned FLINT and verify exact head
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Certify seven-mode benchmark
+        run: |
+          set -euo pipefail
+          python numerics/arb/million_decimal_m14_seven_loops.py | tee m14-seven-loops.log
+          grep -F 'MILLION SUCCESS m14sevenloops' m14-seven-loops.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-seven-loops-enclosures
+          path: |
+            m14-seven-loops.log
+            million-m14sevenloops.json
+            million-enclosures.jsonl.gz
