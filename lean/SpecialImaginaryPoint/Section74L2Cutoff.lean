@@ -16,7 +16,7 @@ variable {X : Type*} [MeasurableSpace X] {μ : Measure X}
 theorem norm_sq_integral (u : Lp ℂ 2 μ) :
     ‖u‖^2 = ∫ x, ‖u x‖^2 ∂μ := by
   have h : (↑(‖u‖^2) : ℂ) = ∫ x, (↑(‖u x‖^2) : ℂ) ∂μ := by
-    simpa only [inner_self_eq_norm_sq_to_K] using L2.inner_def (𝕜 := ℂ) u u
+    simpa only [inner_self_eq_norm_sq_to_K, Complex.ofReal_pow] using L2.inner_def (𝕜 := ℂ) u u
   rw [integral_complex_ofReal] at h
   exact_mod_cast h
 
@@ -26,11 +26,11 @@ theorem integrable_sq_norm (u : Lp ℂ 2 μ) :
 
 /-- Zero extension of the restriction to a measurable spatial region. -/
 def cutoff (s : Set X) (hs : MeasurableSet s) (u : Lp ℂ 2 μ) : Lp ℂ 2 μ :=
-  (u.memLp.indicator hs.nullMeasurableSet).toLp (s.indicator u)
+  (MemLp.indicator hs.nullMeasurableSet (Lp.memLp u)).toLp (s.indicator u)
 
 theorem cutoff_ae (s : Set X) (hs : MeasurableSet s) (u : Lp ℂ 2 μ) :
     ⇑(cutoff s hs u) =ᵐ[μ] s.indicator u :=
-  MemLp.coeFn_toLp _
+  MemLp.coeFn_toLp (MemLp.indicator hs.nullMeasurableSet (Lp.memLp u))
 
 theorem cutoff_norm_sq (s : Set X) (hs : MeasurableSet s) (u : Lp ℂ 2 μ) :
     ‖cutoff s hs u‖^2 = ∫ x in s, ‖u x‖^2 ∂μ := by
