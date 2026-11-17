@@ -100,7 +100,8 @@ theorem moment_index_majorant (k : ℕ) (E : ℕ → ℝ) (hm : Monotone E)
     _ = _ := by
       have hh : (C/((n:ℝ)+1))^2 = C^2 * (1/((n:ℝ)+1)^2) := by
         rw [div_pow, div_eq_mul_inv, one_div]
-      rw [hh, mul_assoc]
+      rw [hh]
+      ring
 
 /-- Joint limit of the complete spectral moments for all k, also allowing
     x to vary and approach a positive limiting temperature. -/
