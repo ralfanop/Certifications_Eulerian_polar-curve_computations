@@ -1,0 +1,50 @@
+name: M15 graph coupling exact-head Lean audit
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/MagneticGibbsGraphCoupling20261117.lean'
+      - '.github/workflows/m15-graph-coupling.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean and Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          # Build the local prerequisite into the Lake search path before importing it.
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27PrimalWasserstein.olean Manuscript15/Section27PrimalWasserstein.lean 2>&1 | tee /tmp/m15-primal-dependency.log
+          lake env lean -M16768 Manuscript15/MagneticGibbsGraphCoupling20261117.lean 2>&1 | tee /tmp/m15-graph-coupling.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m15-graph-coupling.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log=Path('/tmp/m15-graph-coupling.log').read_text()
+          name='Manuscript15.MagneticGibbs.GraphCoupling.graph_measure_coupling'
+          m=re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]",log,re.S)
+          assert m or ("'"+name+"' does not depend on any axioms") in log, 'missing axiom audit'
+          for group in m:
+              assert {s.strip() for s in group.split(',') if s.strip()} <= {'propext','Classical.choice','Quot.sound'}
+          print('AXIOM AUDIT SUCCESS',name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-graph-coupling-lean-log
+          path: /tmp/m15-graph-coupling.log
