@@ -98,7 +98,9 @@ theorem moment_index_majorant (k : ℕ) (E : ℕ → ℝ) (hm : Monotone E)
     _ ≤ ((2/δ)^k * (k.factorial : ℝ)) * (C/((n:ℝ)+1))^2 :=
       mul_le_mul_of_nonneg_left hq (by positivity)
     _ = _ := by
-      simp only [div_pow, div_eq_mul_inv, one_mul, mul_assoc]
+      have hh : (C/((n:ℝ)+1))^2 = C^2 * (1/((n:ℝ)+1)^2) := by
+        rw [div_pow, div_eq_mul_inv, one_div]
+      rw [hh, mul_assoc]
 
 /-- Joint limit of the complete spectral moments for all k, also allowing
     x to vary and approach a positive limiting temperature. -/
