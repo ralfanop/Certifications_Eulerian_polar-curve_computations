@@ -29,8 +29,8 @@ theorem dispersion (L C M ω eig : ℝ) (hL : 0 < L) (hC : 0 < C)
 /-- The physical modal inductance is positive for every eigenvalue
 with |eig| ≤ μ when |M| μ < L. -/
 theorem modal_inductance_positive (L M eig μ : ℝ) (hμ : 0 ≤ μ)
-    (heig : |eig| ≤ μ) (hc : |M|*μ < L) : 0 < L+M*eig := by
-  have h : |M*eig| ≤ |M|*μ := by
+    (heig : |eig| ≤ μ) (hc : |M| * μ < L) : 0 < L+M*eig := by
+  have h : |M * eig| ≤ |M| * μ := by
     rw [abs_mul]
     exact mul_le_mul_of_nonneg_left heig (abs_nonneg M)
   have hl := (abs_le.mp h).1
