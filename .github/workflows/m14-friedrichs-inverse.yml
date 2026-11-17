@@ -1,0 +1,63 @@
+name: M14 §7.4 — Friedrichs unbounded inverse
+on:
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/Section74FriedrichsInverse.lean'
+      - '.github/workflows/m14-friedrichs-inverse.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lake" --version
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.elan/bin:$PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+      - name: Compile and audit axioms on exact head
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.elan/bin:$PATH"
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha || github.sha }}'
+          lake env lean -M16768 SpecialImaginaryPoint/Section74FriedrichsInverse.lean 2>&1 | tee /tmp/m14-friedrichs-inverse.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m14-friedrichs-inverse.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/m14-friedrichs-inverse.log').read_text()
+          names = ["full_ker","inverse_graph_iff","inverse_domain","inverse_domain_dense","inverse_selfAdjoint","inverse_closed","inverse_solves","inverse_form_quadratic"]
+          prefix = 'Manuscript14.FriedrichsInverse.'
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          for name in names:
+              matches = re.findall(r"'" + re.escape(prefix + name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert matches, 'missing audit: ' + name
+              for match in matches:
+                  axioms = {x.strip() for x in match.split(',') if x.strip()}
+                  assert axioms <= allowed, (name, axioms)
+          print('AXIOM AUDIT SUCCESS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-friedrichs-inverse-log
+          path: /tmp/m14-friedrichs-inverse.log
