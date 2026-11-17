@@ -7,41 +7,41 @@ noncomputable section
 namespace Manuscript14.SevenLoop
 
 /-- The impedance equation after multiplication by ωC and cancellation of i. -/
-def reactanceMode (L C M ω λ : ℝ) : ℝ :=
-  (ω^2*L*C-1)+ω^2*M*C*λ
+def reactanceMode (L C M ω eig : ℝ) : ℝ :=
+  (ω^2*L*C-1)+ω^2*M*C*eig
 
-theorem dispersion (L C M ω λ : ℝ) (hL : 0 < L) (hC : 0 < C)
+theorem dispersion (L C M ω eig : ℝ) (hL : 0 < L) (hC : 0 < C)
     (hω : 0 < ω) :
-    reactanceMode L C M ω λ = 0 ↔
-      1/(L*C*ω^2) = 1 + (M/L)*λ := by
+    reactanceMode L C M ω eig = 0 ↔
+      1/(L*C*ω^2) = 1 + (M/L)*eig := by
   unfold reactanceMode
   constructor <;> intro h
   · apply (div_eq_iff (by positivity : L*C*ω^2 ≠ 0)).2
     calc
-      (1:ℝ) = ω^2*L*C+ω^2*M*C*λ := by linarith
-      _ = (1+M/L*λ)*(L*C*ω^2) := by field_simp [hL.ne'] <;> ring
+      (1:ℝ) = ω^2*L*C+ω^2*M*C*eig := by linarith
+      _ = (1+M/L*eig)*(L*C*ω^2) := by field_simp [hL.ne'] <;> ring
   · have hh := (div_eq_iff (by positivity : L*C*ω^2 ≠ 0)).1 h
-    have he : (1+M/L*λ)*(L*C*ω^2) = ω^2*L*C+ω^2*M*C*λ := by
+    have he : (1+M/L*eig)*(L*C*ω^2) = ω^2*L*C+ω^2*M*C*eig := by
       field_simp [hL.ne'] <;> ring
     rw [he] at hh
     linarith
 
 /-- The physical modal inductance is positive for every eigenvalue
-with |λ| ≤ μ when |M| μ < L. -/
-theorem modal_inductance_positive (L M λ μ : ℝ) (hμ : 0 ≤ μ)
-    (hλ : |λ| ≤ μ) (hc : |M|*μ < L) : 0 < L+M*λ := by
-  have h : |M*λ| ≤ |M|*μ := by
+with |eig| ≤ μ when |M| μ < L. -/
+theorem modal_inductance_positive (L M eig μ : ℝ) (hμ : 0 ≤ μ)
+    (heig : |eig| ≤ μ) (hc : |M|*μ < L) : 0 < L+M*eig := by
+  have h : |M*eig| ≤ |M|*μ := by
     rw [abs_mul]
-    exact mul_le_mul_of_nonneg_left hλ (abs_nonneg M)
+    exact mul_le_mul_of_nonneg_left heig (abs_nonneg M)
   have hl := (abs_le.mp h).1
   linarith
 
-theorem natural_frequency (L C M λ : ℝ) (hC : 0 < C) (h : 0 < L+M*λ) :
-    reactanceMode L C M (1/Real.sqrt (C*(L+M*λ))) λ = 0 := by
-  have hp : 0 < C*(L+M*λ) := mul_pos hC h
-  have hs : Real.sqrt (C*(L+M*λ)) ≠ 0 := (Real.sqrt_pos.2 hp).ne'
+theorem natural_frequency (L C M eig : ℝ) (hC : 0 < C) (h : 0 < L+M*eig) :
+    reactanceMode L C M (1/Real.sqrt (C*(L+M*eig))) eig = 0 := by
+  have hp : 0 < C*(L+M*eig) := mul_pos hC h
+  have hs : Real.sqrt (C*(L+M*eig)) ≠ 0 := (Real.sqrt_pos.2 hp).ne'
   unfold reactanceMode
-  have he : (1/Real.sqrt (C*(L+M*λ)))^2 * (C*(L+M*λ)) = 1 := by
+  have he : (1/Real.sqrt (C*(L+M*eig)))^2 * (C*(L+M*eig)) = 1 := by
     rw [div_pow, one_pow, Real.sq_sqrt hp.le]
     field_simp [hp.ne']
   nlinarith [he]
@@ -58,13 +58,13 @@ theorem sinusoidal_dispersion (L C M ω θ : ℝ) (hL : 0 < L)
 
 /-- Kirchhoff equation at an actual site of the open nearest-neighbour
 line, when the adjacency eigenvector recurrence is satisfied. -/
-theorem site_equation (L C M ω λ : ℝ) (u : ℕ → ℝ) (n : ℕ)
-    (heig : u n + u (n+2) = λ*u (n+1))
-    (hmode : reactanceMode L C M ω λ = 0) :
+theorem site_equation (L C M ω eig : ℝ) (u : ℕ → ℝ) (n : ℕ)
+    (heig : u n + u (n+2) = eig*u (n+1))
+    (hmode : reactanceMode L C M ω eig = 0) :
     (ω^2*L*C-1)*u (n+1) + ω^2*M*C*(u n+u (n+2)) = 0 := by
   rw [heig]
   calc
-    _ = reactanceMode L C M ω λ * u (n+1) := by unfold reactanceMode; ring
+    _ = reactanceMode L C M ω eig * u (n+1) := by unfold reactanceMode; ring
     _ = 0 := by rw [hmode, zero_mul]
 
 /-- Exact sinusoidal recurrence, used at the seven consecutive sites. -/
