@@ -196,9 +196,11 @@ theorem exact_pole_separation (θ : ℝ) (hθ : |θ| < Real.pi) (h0 : 0 < |θ|) 
       (2 * Real.pi / ‖phase θ - 1‖) := by
   constructor
   · refine ⟨1, by norm_num, ?_⟩
+    change ‖pole θ ((1 : ℤ) : ℝ) - pole θ 0‖ = _
     rw [pole_diff_norm]
     norm_num
   · rintro z ⟨j, hj, rfl⟩
+    change _ ≤ ‖pole θ (j : ℝ) - pole θ 0‖
     rw [pole_diff_norm]
     apply div_le_div_of_nonneg_right _ (norm_nonneg _)
     have hj' : (1 : ℝ) ≤ |(j : ℝ)| := by
