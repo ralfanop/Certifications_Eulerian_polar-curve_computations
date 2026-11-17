@@ -5,6 +5,9 @@ The form Hilbert space V and its bounded inclusion J into H are supplied.
 This does not construct the magnetic form or prove its compact embedding.
 Classical representation by a form-space map; cf. Hassi–de Snoo,
 Ann. Funct. Anal. 15 (2024), 78, §2 and (4.1), Theorem 4.1.
+The exact form-space inverse construction is also Kaltenbäck–Winkler–Woracek,
+Symmetric Relations of Finite Negativity, Operator Theory 162, pp. 191–210,
+Theorem 3.5 (p. 195), with S_F = (ιι*)⁻¹ + m I.
 -/
 noncomputable section
 open scoped InnerProductSpace
@@ -51,7 +54,8 @@ theorem adjoint_injective_of_dense (J : V →L[ℂ] H) (hJ : DenseRange J) :
     intro v
     rw [← J.adjoint_inner_left, hz, inner_zero_left]
   have hs : ⟪x-y, x-y⟫_ℂ = 0 :=
-    hJ.induction_on (x-y) (isClosed_eq (continuous_const.inner continuous_id) continuous_const) hh
+    hJ.induction_on (p := fun t : H => ⟪x-y, t⟫_ℂ = 0) (x-y)
+      (isClosed_eq (continuous_const.inner continuous_id) continuous_const) hh
   exact sub_eq_zero.mp (inner_self_eq_zero.mp hs)
 
 theorem resolvent_injective (J : V →L[ℂ] H) (hJ : DenseRange J) :
