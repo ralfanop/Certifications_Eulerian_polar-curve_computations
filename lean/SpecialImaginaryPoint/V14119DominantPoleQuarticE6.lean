@@ -17,7 +17,7 @@ theorem sin_ratio_strict (x y : ℝ) (hx : 0 < x) (hxy : x < y)
   have hr1 : x / y < 1 := (div_lt_one hy0).2 hxy
   have hc : (1 - x / y) * Real.sin 0 + (x / y) * Real.sin y <
       Real.sin ((1 - x / y) * 0 + (x / y) * y) := by
-    have h := Real.strictConcaveOn_sin_Icc.2
+    have h := strictConcaveOn_sin_Icc.2
       (show (0 : ℝ) ∈ Set.Icc 0 Real.pi from ⟨le_rfl, Real.pi_pos.le⟩)
       (show y ∈ Set.Icc 0 Real.pi from ⟨hy0.le, hy.le⟩)
       (ne_of_lt hy0) (sub_pos.mpr hr1) hr
@@ -120,16 +120,123 @@ theorem separation_lower (d : ℝ) (hd : 0 < d) (h : d ≤ Real.sqrt 2) :
 #print axioms arc_isLeast
 #print axioms unique_numerator
 #print axioms separation_lower
+
+noncomputable def phase (θ : ℝ) : ℂ := Complex.exp ((θ : ℂ) * Complex.I)
+
+noncomputable def pole (θ j : ℝ) : ℂ :=
+  (Complex.log (phase θ) + ((2 * Real.pi * j : ℝ) : ℂ) * Complex.I) / (phase θ - 1)
+
+theorem chord_sq (θ : ℝ) : ‖phase θ - 1‖ ^ 2 = 2 - 2 * Real.cos θ := by
+  rw [Complex.sq_norm, Complex.normSq_apply]
+  simp [phase, Complex.exp_re, Complex.exp_im, Complex.mul_re, Complex.mul_im]
+  nlinarith [Real.sin_sq_add_cos_sq θ]
+
+theorem chord (θ : ℝ) (hθ : |θ| < Real.pi) :
+    ‖phase θ - 1‖ = 2 * Real.sin (|θ| / 2) := by
+  have hs : 0 ≤ Real.sin (|θ| / 2) :=
+    Real.sin_nonneg_of_nonneg_of_le_pi (by positivity) (by linarith [Real.pi_pos])
+  apply (sq_eq_sq₀ (norm_nonneg _) (mul_nonneg (by norm_num) hs)).mp
+  rw [chord_sq]
+  have hcos := Real.cos_two_mul_eq_one_sub (|θ| / 2)
+  rw [show 2 * (|θ| / 2) = |θ| by ring, Real.cos_abs] at hcos
+  nlinarith
+
+theorem principal_log (θ : ℝ) (hθ : |θ| < Real.pi) :
+    Complex.log (phase θ) = (θ : ℂ) * Complex.I := by
+  unfold phase
+  apply Complex.log_exp
+  · simpa [Complex.mul_im] using (abs_lt.mp hθ).1
+  · simpa [Complex.mul_im] using (abs_lt.mp hθ).2.le
+
+theorem shifted_pole_norm (θ j : ℝ) (hθ : |θ| < Real.pi) :
+    ‖pole θ j‖ = |θ + 2 * Real.pi * j| / (2 * Real.sin (|θ| / 2)) := by
+  unfold pole
+  rw [principal_log θ hθ, ← add_mul, ← Complex.ofReal_add, norm_div, norm_mul,
+    Complex.norm_real, Real.norm_eq_abs, Complex.norm_I, mul_one, chord θ hθ]
+
+theorem complex_pole_minimum (θ : ℝ) (hlo : Real.pi / 2 ≤ |θ|)
+    (hhi : |θ| < Real.pi) : kappa ≤ ‖pole θ 0‖ := by
+  rw [shifted_pole_norm θ 0 hhi]
+  simp only [mul_zero, add_zero]
+  exact arc_minimum θ hlo hhi
+
+theorem complex_pole_minimum_eq_iff (θ : ℝ) (hlo : Real.pi / 2 ≤ |θ|)
+    (hhi : |θ| < Real.pi) : ‖pole θ 0‖ = kappa ↔ |θ| = Real.pi / 2 := by
+  rw [shifted_pole_norm θ 0 hhi]
+  simp only [mul_zero, add_zero]
+  exact arc_minimum_eq_iff θ hlo hhi
+
+theorem complex_unique_pole (θ : ℝ) (j : ℤ) (hθ : |θ| < Real.pi)
+    (h0 : 0 < |θ|) (hj : j ≠ 0) : ‖pole θ 0‖ < ‖pole θ (j : ℝ)‖ := by
+  rw [shifted_pole_norm θ 0 hθ, shifted_pole_norm θ (j : ℝ) hθ]
+  simp only [mul_zero, add_zero]
+  have hj' : (1 : ℝ) ≤ |(j : ℝ)| := by exact_mod_cast Int.one_le_abs hj
+  have hp : 0 < Real.sin (|θ| / 2) :=
+    Real.sin_pos_of_pos_of_lt_pi (by positivity) (by linarith [Real.pi_pos])
+  exact div_lt_div_of_pos_right (unique_numerator θ (j : ℝ) hθ hj') (by positivity)
+
+theorem pole_diff_norm (θ j : ℝ) :
+    ‖pole θ j - pole θ 0‖ = 2 * Real.pi * |j| / ‖phase θ - 1‖ := by
+  have h : pole θ j - pole θ 0 =
+      ((2 * Real.pi * j : ℝ) : ℂ) * Complex.I / (phase θ - 1) := by
+    unfold pole
+    simp only [mul_zero, Complex.ofReal_zero, zero_mul, add_zero]
+    ring
+  rw [h, norm_div, norm_mul, Complex.norm_real, Real.norm_eq_abs, Complex.norm_I,
+    mul_one, abs_mul, abs_mul, abs_of_pos (by norm_num : (0 : ℝ) < 2), abs_of_pos Real.pi_pos]
+
+theorem right_semicircle_chord_bound (θ : ℝ) (hθ : 0 ≤ Real.cos θ) :
+    ‖phase θ - 1‖ ≤ Real.sqrt 2 := by
+  apply (sq_le_sq₀ (norm_nonneg _) (Real.sqrt_nonneg 2)).mp
+  rw [chord_sq, Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 2)]
+  linarith
+
+theorem exact_pole_separation (θ : ℝ) (hθ : |θ| < Real.pi) (h0 : 0 < |θ|) :
+    IsLeast ((fun j : ℤ => ‖pole θ (j : ℝ) - pole θ 0‖) '' {j : ℤ | j ≠ 0})
+      (2 * Real.pi / ‖phase θ - 1‖) := by
+  constructor
+  · refine ⟨1, by norm_num, ?_⟩
+    rw [pole_diff_norm]
+    norm_num
+  · rintro z ⟨j, hj, rfl⟩
+    rw [pole_diff_norm]
+    apply div_le_div_of_nonneg_right _ (norm_nonneg _)
+    have hj' : (1 : ℝ) ≤ |(j : ℝ)| := by
+      exact_mod_cast Int.one_le_abs (show j ≠ 0 from hj)
+    simpa only [mul_one] using
+      mul_le_mul_of_nonneg_left hj' (show 0 ≤ 2 * Real.pi by positivity)
+
+theorem complex_separation_lower (θ : ℝ) (hθ : |θ| < Real.pi)
+    (h0 : 0 < |θ|) (hc : 0 ≤ Real.cos θ) :
+    4 * kappa ≤ 2 * Real.pi / ‖phase θ - 1‖ := by
+  apply separation_lower
+  · rw [chord θ hθ]
+    have : 0 < Real.sin (|θ| / 2) :=
+      Real.sin_pos_of_pos_of_lt_pi (by positivity) (by linarith [Real.pi_pos])
+    positivity
+  · exact right_semicircle_chord_bound θ hc
+
+#print axioms chord_sq
+#print axioms chord
+#print axioms principal_log
+#print axioms shifted_pole_norm
+#print axioms complex_pole_minimum
+#print axioms complex_pole_minimum_eq_iff
+#print axioms complex_unique_pole
+#print axioms pole_diff_norm
+#print axioms right_semicircle_chord_bound
+#print axioms exact_pole_separation
+#print axioms complex_separation_lower
 end Manuscript14.DominantPole
 
 namespace Manuscript14.QuarticE6
 
-def Q (u v : ℝ) : ℝ := u^4 - u^2*v^2/2 + v^4/32 + v^3
+noncomputable def Q (u v : ℝ) : ℝ := u^4 - u^2*v^2/2 + v^4/32 + v^3
 
-def A (u w : ℝ) : ℝ :=
+noncomputable def A (u w : ℝ) : ℝ :=
   1 + u^4/41472 - u^2*w/1728 - u^2/108 + w^2/192 + w/12
 
-def B (u w : ℝ) : ℝ := 1 + u^2/48 - w/32
+noncomputable def B (u w : ℝ) : ℝ := 1 + u^2/48 - w/32
 
 theorem local_factorization (u w : ℝ) :
     Q u (u^2/6-w) = u^4*A u w - w^3*B u w := by
@@ -144,13 +251,13 @@ theorem unit_continuity : Continuous (fun p : ℝ × ℝ => A p.1 p.2) ∧
   unfold A B
   constructor <;> fun_prop
 
-def D (t : ℝ) : ℝ := 1-t^2/2+t^4/32
+noncomputable def D (t : ℝ) : ℝ := 1-t^2/2+t^4/32
 
 theorem denominator_near_origin (t : ℝ) (h : |t| ≤ 1) : 1/2 ≤ D t := by
   unfold D
   have h1 := abs_le.mp h
-  have h2 : t^2 ≤ 1 := by nlinarith [mul_nonneg (show 0 ≤ 1-t by linarith [h1.2])
-    (show 0 ≤ 1+t by linarith [h1.1])]
+  have hprod : 0 ≤ (1-t)*(1+t) := mul_nonneg (by linarith [h1.2]) (by linarith [h1.1])
+  have h2 : t^2 ≤ 1 := by nlinarith
   nlinarith [sq_nonneg (t^2)]
 
 theorem parameterization (t : ℝ) (h : D t ≠ 0) :

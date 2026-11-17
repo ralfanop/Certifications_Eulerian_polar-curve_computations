@@ -41,7 +41,7 @@ jobs:
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m14-pole-e6-lean.log; then
             exit 1
           fi
-          for decl in sin_ratio_strict sqrt_eight endpoint_ratio arc_modulus_eq_ratio arc_minimum arc_minimum_eq_iff arc_endpoint_positive arc_endpoint_negative arc_isLeast unique_numerator separation_lower local_factorization unit_values unit_continuity denominator_near_origin parameterization parameterization_near_origin; do
+          for decl in sin_ratio_strict sqrt_eight endpoint_ratio arc_modulus_eq_ratio arc_minimum arc_minimum_eq_iff arc_endpoint_positive arc_endpoint_negative arc_isLeast unique_numerator separation_lower local_factorization unit_values unit_continuity denominator_near_origin parameterization parameterization_near_origin chord_sq chord principal_log shifted_pole_norm complex_pole_minimum complex_pole_minimum_eq_iff complex_unique_pole pole_diff_norm right_semicircle_chord_bound exact_pole_separation complex_separation_lower; do
             grep -F ".$decl'" /tmp/m14-pole-e6-lean.log
           done
       - uses: actions/upload-artifact@v4
