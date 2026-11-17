@@ -20,7 +20,6 @@ theorem potential_deriv_x (b k x y : ℝ) :
   · funext t
     simp only [Pi.add_apply, id_eq]
     dsimp [A₂]
-    ring
   · dsimp [B]
     ring
 
