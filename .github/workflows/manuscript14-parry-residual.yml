@@ -40,7 +40,7 @@ jobs:
           if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m14-parry-residual-lean.log; then
             exit 1
           fi
-          for decl in reciprocal_residual_exact product_residual_exact eval_abs_bound reciprocal_tail_bound product_tail_bound p_bound c_bound reciprocal_residual_bound product_residual_bound inverse_transfer parry_inverse_bound product_transfer; do
+          for decl in reciprocal_residual_exact product_residual_exact eval_abs_bound reciprocal_tail_bound product_tail_bound p_bound c_bound reciprocal_residual_bound product_residual_bound inverse_transfer parry_inverse_bound product_transfer parry_product_bound parry_expansion_transfer; do
             grep -F ".$decl'" /tmp/m14-parry-residual-lean.log
           done
       - uses: actions/upload-artifact@v4

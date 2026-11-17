@@ -218,7 +218,7 @@ theorem product_transfer (P C p c r e KP KC M N : ℝ)
     _ ≤ |-(p*c)-r| + |(P-p)*c+(C-c)*P| := by
       simpa only [sub_eq_add_neg, abs_neg] using abs_add_le (-(p*c)-r) (-((P-p)*c+(C-c)*P))
     _ ≤ e + (|(P-p)*c|+|(C-c)*P|) := add_le_add hr (abs_add_le _ _)
-    _ ≤ e + (KP*e*N+KC*e*M) := add_le_add_left (add_le_add h1 h2) _
+    _ ≤ e + (KP*e*N+KC*e*M) := add_le_add le_rfl (add_le_add h1 h2)
     _ = _ := by ring
 
 #print axioms reciprocal_residual_exact
@@ -233,4 +233,75 @@ theorem product_transfer (P C p c r e KP KC M N : ℝ)
 #print axioms inverse_transfer
 #print axioms parry_inverse_bound
 #print axioms product_transfer
+
+theorem parry_product_bound (t d C K L : ℝ) (ht : 0 ≤ t) (ht1 : t ≤ 1)
+    (hK : 0 ≤ K) (hL : 0 ≤ L) (hd : (1:ℝ)/12 ≤ |d|)
+    (hda : |d-A12 t| ≤ K*t^12) (hC : |C-C12 t| ≤ L*t^12) :
+    |-(1/d*C)-R12 t| ≤ (84*K+12*L+13)*t^12 := by
+  have habs : |t| ≤ 1 := by rwa [abs_of_nonneg ht]
+  have hP : |1/d| ≤ 12 := by
+    rw [abs_div, abs_one]
+    calc
+      _ ≤ 1 / (1/12 : ℝ) := div_le_div_of_nonneg_left (by norm_num)
+        (by norm_num) hd
+      _ = _ := by norm_num
+  have h := product_transfer (1/d) C (P12 t) (C12 t) (R12 t)
+    (t^12) (84*K+12) L 12 1 (pow_nonneg ht _) (by positivity) hL
+    (parry_inverse_bound t d K ht ht1 hK hd hda) hC hP
+    (c_bound t habs) (product_residual_bound t ht ht1)
+  convert h using 1 <;> ring
+
+/-- Concrete transfer to the displayed Parry quotient; the only remaining
+analytic hypotheses are the two uniform logarithm approximation bounds and
+the positive lower bound on the normalized denominator. -/
+theorem parry_expansion_transfer (t β K L : ℝ)
+    (ht : 0 < t) (ht1 : t ≤ 1) (hb : 1 < β)
+    (hK : 0 ≤ K) (hL : 0 ≤ L) (hJ : 1 ≤ Real.log (6/t))
+    (hd : (1:ℝ)/12 ≤ |Real.log β/t|)
+    (hda : |Real.log β/t-A12 t| ≤ K*t^12)
+    (hC : |Real.log (6*(β-1)/t)-C12 t| ≤ L*t^12) :
+    |Real.log (1/(β-1))/Real.log β -
+      (P12 t*Real.log (6/t)+R12 t)/t| ≤
+      (168*K+12*L+25)*t^11*Real.log (6/t) := by
+  let d := Real.log β/t
+  let C := Real.log (6*(β-1)/t)
+  let J := Real.log (6/t)
+  have hβ : 0 < β-1 := by linarith
+  have hl : Real.log (1/(β-1)) = J-C := by
+    dsimp [J, C]
+    rw [Real.log_div (by norm_num : (1 : ℝ) ≠ 0) hβ.ne', Real.log_one,
+      Real.log_div (by norm_num : (6 : ℝ) ≠ 0) ht.ne',
+      Real.log_div (by positivity : (6 : ℝ) * (β - 1) ≠ 0) ht.ne',
+      Real.log_mul (by norm_num : (6 : ℝ) ≠ 0) hβ.ne']
+    ring
+  have hq : Real.log (1/(β-1))/Real.log β = ((1/d)*J - (1/d)*C)/t := by
+    rw [hl]
+    dsimp [d]
+    field_simp [ht.ne', (Real.log_pos hb).ne'] <;> ring
+  have hp := parry_inverse_bound t d K ht.le ht1 hK hd hda
+  have hr := parry_product_bound t d C K L ht.le ht1 hK hL hd hda hC
+  have hJ0 : 0 ≤ J := by dsimp [J]; linarith
+  have hJ1 : 1 ≤ J := hJ
+  have hs : ((1/d)*J-(1/d)*C)/t-(P12 t*J+R12 t)/t =
+      (((1/d)-P12 t)*J+(-(1/d*C)-R12 t))/t := by ring
+  have h1 : |((1/d)-P12 t)*J| ≤ (84*K+12)*t^12*J := by
+    rw [abs_mul, abs_of_nonneg hJ0]
+    exact mul_le_mul_of_nonneg_right hp hJ0
+  have h2 : (84*K+12*L+13)*t^12 ≤ (84*K+12*L+13)*t^12*J := by
+    simpa only [mul_one] using mul_le_mul_of_nonneg_left hJ1
+      (show 0 ≤ (84*K+12*L+13)*t^12 by positivity)
+  have hn : |(((1/d)-P12 t)*J+(-(1/d*C)-R12 t))| ≤
+      (168*K+12*L+25)*t^12*J := by
+    calc
+      _ ≤ |((1/d)-P12 t)*J| + |-(1/d*C)-R12 t| := abs_add_le _ _
+      _ ≤ (84*K+12)*t^12*J + (84*K+12*L+13)*t^12*J :=
+        add_le_add h1 (hr.trans h2)
+      _ = _ := by ring
+  rw [hq, hs, abs_div, abs_of_pos ht]
+  calc
+    _ ≤ (168*K+12*L+25)*t^12*J/t := div_le_div_of_nonneg_right hn ht.le
+    _ = _ := by field_simp [ht.ne'] <;> ring
+
+#print axioms parry_product_bound
+#print axioms parry_expansion_transfer
 end Manuscript14.ParryResidual
