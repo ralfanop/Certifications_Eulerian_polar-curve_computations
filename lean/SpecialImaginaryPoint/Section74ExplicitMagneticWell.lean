@@ -16,7 +16,7 @@ theorem potential_deriv_x (b k x y : ℝ) :
   have h2 := ((hasDerivAt_id x).pow 3).div_const 3
   have h3 := (hasDerivAt_id x).mul_const (y^2)
   have hh := h1.add ((h2.add h3).const_mul k)
-  convert hh using 1 <;> try { funext t } <;> dsimp [A₂, B] <;> ring
+  convert hh using 1 <;> try { funext t } <;> dsimp [A₂, B, Pi.add_apply] <;> ring_nf
 
 theorem curl_eq (b k x y : ℝ) :
     deriv (fun t => A₂ b k t y) x - deriv (fun t => A₁ x t) y =
