@@ -7,6 +7,8 @@ from the identity has the exact exterior integral norm. This supplies an
 actual L² identity for the separate compact-cutoff bridge. -/
 open MeasureTheory Filter
 open scoped InnerProductSpace
+set_option maxHeartbeats 4000000
+set_option synthInstance.maxHeartbeats 1000000
 noncomputable section
 namespace Manuscript14.L2Cutoff
 
@@ -15,10 +17,15 @@ variable {X : Type*} [MeasurableSpace X] {μ : Measure X}
 /-- Actual square norm as a Bochner integral. -/
 theorem norm_sq_integral (u : Lp ℂ 2 μ) :
     ‖u‖^2 = ∫ x, ‖u x‖^2 ∂μ := by
-  have h : (↑(‖u‖^2) : ℂ) = ∫ x, (↑(‖u x‖^2) : ℂ) ∂μ := by
-    simpa only [inner_self_eq_norm_sq_to_K, Complex.ofReal_pow] using L2.inner_def (𝕜 := ℂ) u u
-  rw [integral_complex_ofReal] at h
-  exact_mod_cast h
+  calc
+    ‖u‖^2 = RCLike.re (inner ℂ u u) := norm_sq_eq_re_inner u
+    _ = RCLike.re (∫ x, inner ℂ (u x) (u x) ∂μ) :=
+      congrArg (fun z : ℂ => RCLike.re z) (L2.inner_def (𝕜 := ℂ) u u)
+    _ = ∫ x, RCLike.re (inner ℂ (u x) (u x)) ∂μ :=
+      (integral_re (L2.integrable_inner (𝕜 := ℂ) u u)).symm
+    _ = ∫ x, ‖u x‖^2 ∂μ := by
+      apply integral_congr_ae
+      exact Eventually.of_forall fun x => (norm_sq_eq_re_inner (𝕜 := ℂ) (u x)).symm
 
 theorem integrable_sq_norm (u : Lp ℂ 2 μ) :
     Integrable (fun x => ‖u x‖^2) μ :=
@@ -29,8 +36,9 @@ def cutoff (s : Set X) (hs : MeasurableSet s) (u : Lp ℂ 2 μ) : Lp ℂ 2 μ :=
   (MemLp.indicator hs.nullMeasurableSet (Lp.memLp u)).toLp (s.indicator u)
 
 theorem cutoff_ae (s : Set X) (hs : MeasurableSet s) (u : Lp ℂ 2 μ) :
-    ⇑(cutoff s hs u) =ᵐ[μ] s.indicator u :=
-  MemLp.coeFn_toLp (MemLp.indicator hs.nullMeasurableSet (Lp.memLp u))
+    ⇑(cutoff s hs u) =ᵐ[μ] s.indicator u := by
+  unfold cutoff
+  exact MemLp.coeFn_toLp _
 
 theorem cutoff_norm_sq (s : Set X) (hs : MeasurableSet s) (u : Lp ℂ 2 μ) :
     ‖cutoff s hs u‖^2 = ∫ x in s, ‖u x‖^2 ∂μ := by
