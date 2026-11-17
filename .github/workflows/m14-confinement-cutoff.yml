@@ -1,0 +1,98 @@
+name: M14 §7.4 — confinement cutoff and higher heat moments
+on:
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/Section74ConfinementCutoff.lean'
+      - '.github/workflows/m14-confinement-cutoff.yml'
+      - 'numerics/arb/million_decimal_m14_higher_moments.py'
+      - 'numerics/arb/million_decimal_common.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lake" --version
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.elan/bin:$PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+      - name: Compile and audit axioms on exact head
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.elan/bin:$PATH"
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha || github.sha }}'
+          lake env lean -M16768 SpecialImaginaryPoint/Section74ConfinementCutoff.lean 2>&1 | tee /tmp/m14-confinement-cutoff.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m14-confinement-cutoff.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/m14-confinement-cutoff.log').read_text()
+          names = ["weighted_tail","norm_from_square","compact_of_cutoffs","weighted_cutoff_norm_sq","weighted_resolvent_compact"]
+          prefix = 'Manuscript14.ConfinementCutoff.'
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          for name in names:
+              matches = re.findall(r"'" + re.escape(prefix + name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert matches, 'missing audit: ' + name
+              for match in matches:
+                  axioms = {x.strip() for x in match.split(',') if x.strip()}
+                  assert axioms <= allowed, (name, axioms)
+          print('AXIOM AUDIT SUCCESS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-confinement-cutoff-log
+          path: /tmp/m14-confinement-cutoff.log
+  arb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact commit and pinned FLINT
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Enclose heat derivatives and normalized Gibbs moments k=3..8
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python numerics/arb/million_decimal_m14_higher_moments.py 2>&1 | tee million-m14highermoments.log
+          grep -F "MILLION SUCCESS m14highermoments" million-m14highermoments.log
+          test -s million-m14highermoments.json
+          gzip -t million-enclosures.jsonl.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: million-m14highermoments
+          path: |
+            million-m14highermoments.log
+            million-m14highermoments.json
+            million-enclosures.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn
