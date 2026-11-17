@@ -24,8 +24,11 @@ theorem resolvent_difference_abs (b c t : ℝ)
     (hb : 0 < b) (hc : 0 < c) (ht : 0 ≤ t) :
     |1 / (b + t) - 1 / (c + t)| =
       |c - b| / ((b + t) * (c + t)) := by
+  have hbt : 0 < b + t := by linarith
+  have hct : 0 < c + t := by linarith
+  have hprod : 0 < (b + t) * (c + t) := mul_pos hbt hct
   rw [resolvent_difference b c t hb hc ht, abs_div]
-  rw [abs_of_pos (mul_pos (by linarith) (by linarith))]
+  rw [abs_of_pos hprod]
 
 #print axioms Manuscript16.V165TwoParameter.resolvent_difference
 #print axioms Manuscript16.V165TwoParameter.resolvent_difference_abs
