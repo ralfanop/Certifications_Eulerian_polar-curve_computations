@@ -1,0 +1,92 @@
+name: M16 v16.5 evanescent scalar multiplier and strict Arb
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/V165ResolventMultiplier.lean'
+      - 'numerics/arb/m16_v165_evanescent_million.py'
+      - '.github/workflows/m16-v165-resolvent-multiplier.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean and Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m16-v165-multiplier-head.log
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          lake exe cache get
+      - name: Compile and audit
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript16/V165ResolventMultiplier.lean 2>&1 | tee /tmp/m16-v165-multiplier-lean.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m16-v165-multiplier-lean.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/m16-v165-multiplier-lean.log').read_text()
+          for suffix in ['multiplier_bound', 'bessel_bound', 'bessel_least_bound', 'graph_sq_bound']:
+              name = 'Manuscript16.V165Resolvent.'+suffix
+              matches = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert matches or ("'"+name+"' does not depend on any axioms") in log, name
+              for match in matches:
+                  assert {x.strip() for x in match.split(',') if x.strip()} <= {'propext','Classical.choice','Quot.sound'}
+              print('AXIOM AUDIT SUCCESS:',name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-v165-multiplier-lean
+          path: /tmp/m16-v165-multiplier-*.log
+  arb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact commit and pinned FLINT
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD | tee m16-v165-head.log
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Individual accuracy and strict exact rounding
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python numerics/arb/m16_v165_evanescent_million.py 2>&1 | tee m16-v165-arb.log
+          grep -F 'MILLION SUCCESS m16-v165-evanescent' m16-v165-arb.log
+          test -s million-m16-v165-evanescent.json
+          test -s m16-v165-evanescent-exact.json
+          gzip -t million-enclosures.jsonl.gz m16-v165-evanescent-endpoints.jsonl.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-v165-evanescent-million
+          path: |
+            m16-v165-head.log
+            m16-v165-arb.log
+            million-m16-v165-evanescent.json
+            m16-v165-evanescent-exact.json
+            m16-v165-evanescent-endpoints.jsonl.gz
+            million-enclosures.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn
