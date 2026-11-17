@@ -135,4 +135,67 @@ theorem full_moment_limit {ι : Type*} {l : Filter ι}
 #print axioms moment_index_majorant
 #print axioms full_moment_limit
 
+
+/-- Each scalar spectral weight differentiates to the next signed moment. -/
+theorem moment_hasDerivAt (k : ℕ) (x e : ℝ) :
+    HasDerivAt (fun y => moment k y e) (moment (k+1) x e) x := by
+  have h : HasDerivAt (fun y : ℝ => -y*e) (-e) x := by
+    simpa using ((hasDerivAt_id x).neg.mul_const e)
+  have hh := ((Real.hasDerivAt_exp (-x*e)).comp x h).const_mul ((-e)^k)
+  refine hh.congr_deriv ?_
+  unfold moment
+  rw [pow_succ]
+  ring
+
+/-- Differentiation of the full infinite spectral moment series. -/
+theorem series_hasDerivAt (E : ℕ → ℝ) (hm : Monotone E)
+    (he : ∀ n, 0 ≤ E n)
+    (htrace : ∀ t > 0, Summable (fun n => Real.exp (-t * E n)))
+    (k : ℕ) (x : ℝ) (hx : 0 < x) :
+    HasDerivAt (fun y => ∑' n, moment k y (E n))
+      (∑' n, moment (k+1) x (E n)) x := by
+  let δ := x/2
+  have hd : 0 < δ := by dsimp [δ]; positivity
+  have hxd : δ < x := by dsimp [δ]; linarith
+  have hs := htrace (δ/4) (by positivity)
+  let C := ∑' n, Real.exp (-(δ/4)*E n)
+  let u (j : ℕ) (n : ℕ) :=
+    (((2/δ)^j * (j.factorial:ℝ)) * C^2) * (1/((n:ℝ)+1)^2)
+  have hp : Summable (fun n : ℕ => 1/((n:ℝ)+1)^2) := by
+    have hs' : Summable (fun n : ℕ => 1/(n:ℝ)^2) :=
+      Real.summable_one_div_nat_pow.mpr (by omega)
+    simpa [Nat.cast_add, Nat.cast_one] using (summable_nat_add_iff 1).2 hs'
+  have hu (j : ℕ) : Summable (u j) := hp.mul_left _
+  have hb (j n : ℕ) (y : ℝ) (hy : y ∈ Set.Ioi δ) :
+      ‖moment j y (E n)‖ ≤ u j n :=
+    moment_index_majorant j E hm he y δ C hd (le_of_lt hy) hs le_rfl n
+  have hsum : Summable (fun n => moment k x (E n)) :=
+    (hu k).of_norm_bounded (fun n => hb k n x hxd)
+  exact hasDerivAt_tsum_of_isPreconnected (hu (k+1)) isOpen_Ioi
+    (convex_Ioi δ).isPreconnected
+    (fun n y _ => moment_hasDerivAt k y (E n))
+    (fun n y hy => hb (k+1) n y hy) hxd hsum hxd
+
+/-- All iterated real derivatives of the heat-trace spectral sum. -/
+theorem iteratedDeriv_heat_eq_moment (E : ℕ → ℝ) (hm : Monotone E)
+    (he : ∀ n, 0 ≤ E n)
+    (htrace : ∀ t > 0, Summable (fun n => Real.exp (-t*E n)))
+    (k : ℕ) (x : ℝ) (hx : 0 < x) :
+    iteratedDeriv k (fun y => ∑' n, Real.exp (-y*E n)) x =
+      ∑' n, moment k x (E n) := by
+  induction k generalizing x with
+  | zero => simp [moment]
+  | succ k ih =>
+    rw [iteratedDeriv_succ]
+    have heq : iteratedDeriv k (fun y => ∑' n, Real.exp (-y*E n)) =ᶠ[𝓝 x]
+        (fun y => ∑' n, moment k y (E n)) := by
+      filter_upwards [eventually_gt_nhds hx] with y hy
+      exact ih y hy
+    rw [heq.deriv_eq]
+    exact (series_hasDerivAt E hm he htrace k x hx).deriv
+
+#print axioms moment_hasDerivAt
+#print axioms series_hasDerivAt
+#print axioms iteratedDeriv_heat_eq_moment
+
 end Manuscript14.HeatMomentLimit
