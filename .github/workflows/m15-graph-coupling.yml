@@ -2,7 +2,7 @@ name: M15 graph coupling exact-head Lean audit
 on:
   pull_request:
     paths:
-      - 'lean/Manuscript15/GraphCoupling20261117.lean'
+      - 'lean/Manuscript15/MagneticGibbsGraphCoupling20261117.lean'
       - '.github/workflows/m15-graph-coupling.yml'
   workflow_dispatch:
 permissions:
@@ -27,7 +27,7 @@ jobs:
           lake update
           test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
           lake exe cache get
-          lake env lean -M16768 Manuscript15/GraphCoupling20261117.lean 2>&1 | tee /tmp/m15-graph-coupling.log
+          lake env lean -M16768 Manuscript15/MagneticGibbsGraphCoupling20261117.lean 2>&1 | tee /tmp/m15-graph-coupling.log
           if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m15-graph-coupling.log; then exit 1; fi
           python - <<'PY'
           import re
