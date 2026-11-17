@@ -33,6 +33,8 @@ jobs:
         working-directory: lean
         run: |
           set -euo pipefail
+          mkdir -p .lake/build/lib/lean/Manuscript16
+          lake env lean -o .lake/build/lib/lean/Manuscript16/V165ResolventMultiplier.olean Manuscript16/V165ResolventMultiplier.lean 2>&1 | tee /tmp/m16-v165-graph-parent.log
           lake env lean Manuscript16/V165GraphScalarSharp.lean 2>&1 | tee /tmp/m16-v165-graph-lean.log
           if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m16-v165-graph-lean.log; then exit 1; fi
           python - <<'PY'
