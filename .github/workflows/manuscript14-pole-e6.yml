@@ -1,0 +1,79 @@
+name: M14 dominant pole and quartic E6 local algebra
+on:
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119DominantPoleQuarticE6.lean'
+      - 'numerics/arb/million_decimal_m14_pole_e6.py'
+      - '.github/workflows/manuscript14-pole-e6.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Fetch pinned Mathlib cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel check and inspect axiom reports
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          for file in V14119DominantPoleQuarticE6; do
+            lake env lean SpecialImaginaryPoint/$file.lean 2>&1 | tee -a /tmp/m14-pole-e6-lean.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m14-pole-e6-lean.log; then
+            exit 1
+          fi
+          for decl in sin_ratio_strict sqrt_eight endpoint_ratio arc_modulus_eq_ratio arc_minimum arc_minimum_eq_iff arc_endpoint_positive arc_endpoint_negative arc_isLeast unique_numerator separation_lower local_factorization unit_values unit_continuity denominator_near_origin parameterization parameterization_near_origin chord_sq chord principal_log shifted_pole_norm complex_pole_minimum complex_pole_minimum_eq_iff complex_unique_pole pole_diff_norm right_semicircle_chord_bound exact_pole_separation complex_separation_lower; do
+            grep -F ".$decl'" /tmp/m14-pole-e6-lean.log
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-pole-e6-lean-log
+          path: /tmp/m14-pole-e6-lean.log
+  arb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned FLINT and verify exact head
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Certify pole constants and quartic coefficients
+        run: |
+          set -euo pipefail
+          python numerics/arb/million_decimal_m14_pole_e6.py | tee m14-pole-e6-loops.log
+          grep -F 'MILLION SUCCESS m14polee6' m14-pole-e6-loops.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-pole-e6-loops-enclosures
+          path: |
+            m14-pole-e6-loops.log
+            million-m14polee6.json
+            million-enclosures.jsonl.gz
