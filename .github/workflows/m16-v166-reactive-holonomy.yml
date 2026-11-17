@@ -1,0 +1,91 @@
+name: M16 v16.6 reactive impedance and holonomy — Lean and strict Arb
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/ReactiveHolonomyV166.lean'
+      - 'numerics/arb/m16_v166_reactive_holonomy_million.py'
+      - 'numerics/arb/million_decimal_common.py'
+      - '.github/workflows/m16-v166-reactive-holonomy.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean and Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD
+          test "$(cat lean-toolchain)" = "leanprover/lean4:v4.35.0-rc3"
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          lake exe cache get
+      - name: Compile and audit declarations
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean -M16768 Manuscript16/ReactiveHolonomyV166.lean 2>&1 | tee /tmp/m16-v166-lean.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m16-v166-lean.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/m16-v166-lean.log').read_text()
+          names = ["Manuscript16.ReactiveHolonomy.te_robin_coefficient","Manuscript16.ReactiveHolonomy.te_magnetic_excess","Manuscript16.ReactiveHolonomy.te_decay_integral","Manuscript16.ReactiveHolonomy.te_integrated_flux","Manuscript16.ReactiveHolonomy.evanescent_scalar_moment","Manuscript16.ReactiveHolonomy.paired_holonomy_numerator","Manuscript16.ReactiveHolonomy.holonomy_denominators","Manuscript16.ReactiveHolonomy.half_phase_cos","Manuscript16.ReactiveHolonomy.half_moment_ratio","Manuscript16.ReactiveHolonomy.half_product_reciprocal","Manuscript16.ReactiveHolonomy.half_eulerian_profile","Manuscript16.ReactiveHolonomy.half_ratio_strict"]
+          for name in names:
+              matches = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert matches or ("'"+name+"' does not depend on any axioms") in log, ('missing audit', name)
+              for match in matches:
+                  assert {x.strip() for x in match.split(',') if x.strip()} <= {'propext','Classical.choice','Quot.sound'}
+              print('AXIOM AUDIT SUCCESS:',name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-v166-reactive-holonomy-lean
+          path: /tmp/m16-v166-lean.log
+  arb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact commit and pinned FLINT
+        run: |
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Individual accuracy and exact rounding-cell audit
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python numerics/arb/m16_v166_reactive_holonomy_million.py 2>&1 | tee m16-v166-arb.log
+          grep -F 'MILLION SUCCESS m16-v166-reactive-holonomy' m16-v166-arb.log
+          test -s million-m16-v166-reactive-holonomy.json
+          test -s m16-v166-exact.json
+          gzip -t million-enclosures.jsonl.gz m16-v166-endpoints.jsonl.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-v166-reactive-holonomy-million
+          path: |
+            m16-v166-arb.log
+            million-m16-v166-reactive-holonomy.json
+            m16-v166-exact.json
+            m16-v166-endpoints.jsonl.gz
+            million-enclosures.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn
