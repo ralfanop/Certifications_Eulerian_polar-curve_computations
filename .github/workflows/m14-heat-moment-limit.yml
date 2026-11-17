@@ -45,7 +45,7 @@ jobs:
           import re
           from pathlib import Path
           log = Path('/tmp/m14-heat-moment-limit.log').read_text()
-          names = ["ordered_weight_bound","moment_half_time","moment_index_majorant","full_moment_limit"]
+          names = ["ordered_weight_bound","moment_half_time","moment_index_majorant","full_moment_limit","moment_hasDerivAt","series_hasDerivAt","iteratedDeriv_heat_eq_moment"]
           prefix = 'Manuscript14.HeatMomentLimit.'
           allowed = {'propext', 'Classical.choice', 'Quot.sound'}
           for name in names:
