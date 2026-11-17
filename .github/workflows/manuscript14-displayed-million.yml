@@ -1,0 +1,38 @@
+name: Manuscript 14 displayed values million-digit Arb
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/million_decimal_m14_displayed.py'
+      - '.github/workflows/manuscript14-displayed-million.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  arb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned FLINT and verify exact head
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Verify displayed values and record full enclosures
+        run: |
+          set -euo pipefail
+          python numerics/arb/million_decimal_m14_displayed.py | tee m14-displayed.log
+          grep -F 'MILLION SUCCESS m14displayed' m14-displayed.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-displayed-million-digit-enclosures
+          path: |
+            m14-displayed.log
+            million-m14displayed.json
+            million-enclosures.jsonl.gz
