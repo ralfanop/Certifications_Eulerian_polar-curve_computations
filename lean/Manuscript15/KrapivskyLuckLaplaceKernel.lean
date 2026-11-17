@@ -78,7 +78,8 @@ private theorem product_majorant_summable :
   apply (summable_prod_of_nonneg (fun p => by positivity)).2
   constructor
   · intro n
-    exact hs.mul_left _
+    change Summable (fun y : ℕ => (1 / (n : ℝ)^2) * (1 / (y : ℝ)^2))
+    exact hs.mul_left (1 / (n : ℝ)^2)
   · simp_rw [tsum_mul_left]
     exact hs.mul_right _
 
