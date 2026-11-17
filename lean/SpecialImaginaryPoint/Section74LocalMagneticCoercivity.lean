@@ -51,6 +51,7 @@ theorem local_integral_control (s : Set X) (h M : ℝ) (A : X → ℝ)
       h^2 * ‖d x‖^2 ≤ 2 * ‖h • d x - A x • u x‖^2 + 2 * M^2 * ‖u x‖^2 := by
     filter_upwards [hA] with x hx using local_pointwise h (A x) M (d x) (u x) hM hx
   have hi := integral_mono_ae hf hg hae
+  simp only [Pi.add_apply] at hi
   rw [integral_add (hp.const_mul (2 : ℝ)) (hu.const_mul (2 * M^2)),
     integral_const_mul, integral_const_mul, integral_const_mul] at hi
   exact hi
