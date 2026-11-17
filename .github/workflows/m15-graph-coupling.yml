@@ -27,6 +27,9 @@ jobs:
           lake update
           test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
           lake exe cache get
+          # Build the local prerequisite into the Lake search path before importing it.
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/Section27PrimalWasserstein.olean Manuscript15/Section27PrimalWasserstein.lean 2>&1 | tee /tmp/m15-primal-dependency.log
           lake env lean -M16768 Manuscript15/MagneticGibbsGraphCoupling20261117.lean 2>&1 | tee /tmp/m15-graph-coupling.log
           if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m15-graph-coupling.log; then exit 1; fi
           python - <<'PY'
