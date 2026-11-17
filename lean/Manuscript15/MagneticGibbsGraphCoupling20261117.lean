@@ -24,7 +24,8 @@ theorem graph_measure_coupling (μ : Measure ℝ) (T : ℝ → ℝ)
     Measure.map Prod.snd (Measure.map g μ) = Measure.map T μ
   constructor
   · rw [Measure.map_map measurable_fst hg]
-    simpa [g] using (Measure.map_id : Measure.map id μ = μ)
+    change Measure.map id μ = μ
+    exact Measure.map_id
   · rw [Measure.map_map measurable_snd hg]
     rfl
 
