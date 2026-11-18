@@ -1,0 +1,42 @@
+name: M12 final additional scalar million-decimal certification
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_final_scalar_million.py'
+      - '.github/workflows/m12-final-scalar-million.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin and verify exact head
+        run: |
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Certify final M12 scalar values
+        run: |
+          set -euo pipefail
+          python numerics/arb/m12_final_scalar_million.py 2>&1 | tee m12-final-scalar.log
+          grep -F 'MILLION SUCCESS m12-final-scalars' m12-final-scalar.log
+          test -s million-m12-final-scalars.json
+          gzip -t million-enclosures.jsonl.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-final-scalar-million
+          path: |
+            m12-final-scalar.log
+            million-m12-final-scalars.json
+            million-enclosures.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn
