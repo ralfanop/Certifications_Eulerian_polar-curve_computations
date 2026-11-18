@@ -46,6 +46,14 @@ Arb working precision 3,600,000 bits; relative enclosure accuracy at least 3,400
 - [PR #318](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/318), pinned commit `cbdef6bc71522d4a49186fcb07a13c01df31a513`, [job log](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43701995391/job/132774933850), [artifact](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43701995391/artifacts/14156991950).
 - [PR #384](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/384), pinned commit `5df7554b2eb37e7b8b051f996f4b4c4572c53ac5`, [job log](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44312456543/job/134829827657), [artifact](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44312456543/artifacts/14430751913).
 
+## Historical coverage and authoritative-source reconciliation
+
+The manuscript itself cites the [historical certification record](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/3282b7f41fd8b9bdf09e5e5142ee6b721e0bf8dd/docs/manuscript12/Manuscript12_Certification.md) at commit `3282b7f4`. Section 6 reports validated Arb rounding cells for all 25 printed Table 1 entries and the displayed scalar values. This is evidence at the **printed** precision, not evidence at 1,000,001 digits. The same record reports exact Lean verification of seven profile expansion coefficients, thirteen norm and reciprocal corrections, and the fixed-degree coefficient results. The 26 displayed rational corrections (13 each in `eg:eq:expanded-norm` and `eg:eq:expanded-vacuum`) are exact mathematical quantities and should be cross-referenced as such, not mistaken for uncertain numerical approximations.
+
+The authoritative TeX identifies Table 1 as `tab:ul-beta`: five rows, five numerical columns, including F(t), three scaled errors for M=100,200,400 and the unscaled error for M=400. Its printed table contains 25 values; the 15 finite Lanczos inputs are intermediate values, not 15 extra printed cells.
+
+The manuscript's Data Availability statement still cites the historical record. This audit supplements it without changing the submitted text or replacing that record. Before final release, reconcile the exact identity/approximation inventory (including the Rabotnov specializations and phase coefficient) and verify fixed decimal-place rounding separately if that is required by the release specification.
+
 ## Open certification dependencies
 
 | Dependency | Scope | Snapshot status |
@@ -53,13 +61,13 @@ Arb working precision 3,600,000 bits; relative enclosure accuracy at least 3,400
 | [#385](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/385) | Five profile values, t = 1/4, 1/2, 1, 2, 4 | Five pilots passed; five full precision jobs running |
 | [#386](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/386) | Fifteen finite Lanczos coefficient inputs, M = 100, 200, 400 | Exact-versus-Arb pilot passed; three full precision jobs running |
 | [#387](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/387) | 20 table error cells, using the eight source artifacts from #385 and #386 | Combiner prepared; awaiting full inputs |
-| [#390](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/390) | Interval Newton profile acceleration | 1,024-bit benchmarks passed at t=1/4 and 4; higher precision benchmarks pending; not a substitute for full certification |
+| [#390](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/390) | Interval Newton profile acceleration | 1,024-bit benchmarks passed at t=1/4 and 4; 4,096-bit benchmark at t=1/4 passed; t=4 still pending; not a substitute for full certification |
 
 Pinned inputs:
 - #385 `7f2ab3c805e599680579d0c8ec68c48e648b6b7c`, [run 44312751989](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44312751989).
 - #386 `8fc451ce053a769087fb25ed16289018890bc926`, [run 44313014167](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44313014167).
 - #387 `e16a5e26afcafdb5ee05f0ece2f3884da61acea5`.
-- #390 `c790ff3915aee28ad67a054d648b18e6b16f502e`, [run 44315118699](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44315118699). At 1,024 bits the paired benchmark yielded speedups 2.90x and 2.73x; this is not a runtime prediction at 3,600,000 bits.
+- #390 `c790ff3915aee28ad67a054d648b18e6b16f502e`, [run 44315118699](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44315118699). At 1,024 bits the paired benchmark yielded speedups 2.90x and 2.73x; at 4,096 bits, t=1/4 yielded 3.62x (75.06s versus 20.74s); this is not a runtime prediction at 3,600,000 bits.
 
 ## Release gate
 
