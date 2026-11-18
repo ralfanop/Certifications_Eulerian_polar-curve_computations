@@ -1,0 +1,50 @@
+name: M11 Eulerian length bounded-memory scaling
+permissions:
+  contents: read
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m11_euler_block.py'
+      - '.github/workflows/m11-euler-block-pilot.yml'
+  workflow_dispatch:
+jobs:
+  length-block:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: 20000
+            bits: 28000
+            block: 64
+            chunk: 128
+          - target: 60000
+            bits: 85000
+            block: 128
+            chunk: 256
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact head and pin FLINT
+        env:
+          EXPECTED: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED"
+          git rev-parse HEAD
+          python -m pip install python-flint==0.9.0
+      - name: Validated block recurrence
+        shell: bash
+        run: |
+          set -o pipefail
+          python -u numerics/arb/m11_euler_block.py --bits ${{ matrix.bits }} --target ${{ matrix.target }} --block ${{ matrix.block }} --kernel-chunk ${{ matrix.chunk }} --adaptive | tee m11-euler-block.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-euler-block-${{ matrix.target }}
+          path: |
+            m11-euler-block.log
+            m11-euler-block.json
