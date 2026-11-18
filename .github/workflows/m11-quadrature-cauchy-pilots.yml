@@ -1,0 +1,67 @@
+name: M11 validated quadrature scaling pilots
+permissions:
+  contents: read
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m11_euler_cauchy.py'
+      - 'numerics/arb/m11_dk_cauchy.py'
+      - '.github/workflows/m11-quadrature-cauchy-pilots.yml'
+  workflow_dispatch:
+jobs:
+  eulerian-length:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact head and pin FLINT
+        env:
+          EXPECTED: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED"
+          git rev-parse HEAD
+          python -m pip install python-flint==0.9.0
+      - name: Rigorous Eulerian arclength pilot
+        shell: bash
+        run: |
+          set -o pipefail
+          python -u numerics/arb/m11_euler_cauchy.py --bits 54000 --target 50000 | tee m11-euler-cauchy.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-euler-cauchy-pilot
+          path: |
+            m11-euler-cauchy.log
+            m11-euler-cauchy.json
+  curvature-discrepancy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact head and pin FLINT
+        env:
+          EXPECTED: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED"
+          git rev-parse HEAD
+          python -m pip install python-flint==0.9.0
+      - name: Rigorous arclength-matched curvature pilot
+        shell: bash
+        run: |
+          set -o pipefail
+          python -u numerics/arb/m11_dk_cauchy.py --bits 4096 --order 512 --panels 64 --terms 600 --minimum-bits 2000 | tee m11-dk-cauchy.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-cauchy-pilot
+          path: |
+            m11-dk-cauchy.log
+            m11-dk-cauchy.json
