@@ -87,8 +87,8 @@ theorem joint_as_local (z : ℂ) (k n : ℕ) :
     exact_mod_cast (show (n:ℝ)+2 ≠ 0 by positivity)
   have hk : (k:ℂ)+4 ≠ 0 := by
     exact_mod_cast (show (k:ℝ)+4 ≠ 0 by positivity)
-  rw [div_pow, pow_add (a := (n:ℂ)+2)]
-  field_simp <;> ring
+  simp only [div_pow, one_pow, pow_add]
+  field_simp [hden, hk] <;> ring
 
 noncomputable def shellLog (z : ℂ) (n : ℕ) : ℂ :=
   (multiplicity n : ℂ) * localLog (shellArgument z n)
@@ -170,7 +170,8 @@ theorem regularized_product_ne_zero (z : ℂ) (hz : ‖z‖ < 2) :
 theorem fourth_coefficient :
     ((-1 : ℂ)^5 / 4) * (powerMoment 0 : ℂ) =
       -(riemannZeta 2 - riemannZeta 3) / 4 := by
-  rw [power_moment_identification, zero_add, moment_riemannZeta_difference 4 (by norm_num)]
+  rw [power_moment_identification, show ((0:ℕ):ℝ)+4 = 4 by norm_num,
+    moment_riemannZeta_difference 4 (by norm_num)]
   norm_num <;> ring
 
 end SharedCore.Det4Complex
