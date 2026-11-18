@@ -55,8 +55,10 @@ theorem local_log_deriv_factor (f g : ℂ → ℂ) (c : ℂ) (k : ℕ)
     (nhdsWithin_le_nhds : 𝓝[≠] c ≤ 𝓝 c)
   filter_upwards [he, hgn, hga, self_mem_nhdsWithin] with z hz hne ha hzc
   have hzc' : z ≠ c := by simpa using hzc
-  rw [hz, logDeriv_mul z (pow_ne_zero k (sub_ne_zero.mpr hzc')) hne
-    (by fun_prop) ha.differentiableAt, shifted_power_log_deriv]
+  rw [hz]
+  have hh := logDeriv_mul (f := fun w : ℂ => (w-c)^k) (g := g) z
+    (pow_ne_zero k (sub_ne_zero.mpr hzc')) hne (by fun_prop) ha.differentiableAt
+  rw [hh, shifted_power_log_deriv]
 
 noncomputable def analyticRemainder (n : ℕ) : ℂ → ℂ :=
   logDeriv (zeroUnit n)
