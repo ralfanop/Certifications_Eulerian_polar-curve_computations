@@ -23,13 +23,13 @@ def analytic_disk():
             z=-t*t/16
             r=z.hypgeom_0f1(arb(3)/2)
             rp=-t/12*z.hypgeom_0f1(arb(5)/2)
-            assert not (r+I*rp).contains(0) and not (r-I*rp).contains(0), (i,j)
+            assert (r+I*rp).abs_lower()>arb(1)/8 and (r-I*rp).abs_lower()>arb(1)/8, (i,j)
             count+=1
     # Absolute Taylor majorants on the full complex disk.
     a=arb(R)/2
     rmax=a.sinh()/a
     rpmax=(a*a.cosh()-a.sinh())/(2*a*a)
-    assert rmax<3 and rpmax<2 and (rmax*rmax+rpmax*rpmax).sqrt()<4
+    assert rmax<3 and rpmax<2 and rmax*rmax+rpmax*rpmax<13
     print('Analytic disk radius 5, zero-free rectangles',count,'and |sqrt(F)|<4: PASS',flush=True)
 
 def evaluate(bits,target):
@@ -44,20 +44,38 @@ def evaluate(bits,target):
     # Derived coefficient of theta^(2k):
     # (-1)^k * [3(2k+4)(2k+3)/2 + 2(2k+4)-2] / (2k+4)!.
     # The variable u=theta²/25 means that coefficients carry 25^k.
-    a=arb(1)/24; coeff=[]
+    a=arb(1)/24; coeff=[]; eta=arb(2)**(-bits-20)
     for k in range(n):
         m=2*k+4
-        coeff.append(a*((3*m*(m-1))//2+2*m-2))
+        term=a*((3*m*(m-1))//2+2*m-2)
+        # For k>=5 the absolute coefficient ratio is <1/2:
+        # coefficient ratio = 25/(m+1)(m+2) * P(m+2)/P(m),
+        # P(m)=(3m²+m-4)/2=(m-1)(3m+4)/2.
+        # It is < 100/((m+1)(m+2)) for m>=12; for m>=14
+        # this is <1/2. Therefore the uniform omitted tail is <=2|term|.
+        if k>=5 and 2*term.abs_upper()<eta:
+            break
+        coeff.append(term)
         a=-25*a/((m+1)*(m+2))
     assert coeff[0].contains(1) and coeff[1].overlaps(-arb(275)/144)
-    print('Taylor coefficient count',n,flush=True)
+    # P differs from F by <=eta on |theta|<=5 if the loop was truncated
+    # before n. If it reached n, we must bound the entire omitted tail too.
+    if len(coeff)==n:
+        m=2*n+4
+        assert n>=5 and 2*(a*((3*m*(m-1))//2+2*m-2)).abs_upper()<eta
+    # |F|>1/64 on the disk; P is zero-free there by uniform approximation.
+    # P(0)=1 and |P|<14, so its analytic positive square root is bounded by 4.
+    # On the real interval F>=4/pi², both square roots >1/2, giving
+    # |sqrt(F)-sqrt(P)| <= eta. This is separate from truncating sqrt(P).
+    assert eta<arb(1)/128 and 4/pi**2-eta>arb(1)/4
+    print('Taylor coefficient count',n,'nonzero speed-square coefficients',len(coeff),flush=True)
     S=arb_series(coeff,prec=n).sqrt()
     assert S[0]>0 and S.prec==n
     # Evaluate integrated Taylor polynomial in u at q using Horner.
     result=arb(0)
     for k in range(n-1,-1,-1):
         result=result*q+S[k]/(2*k+1)
-    tail=8*pi*q**n/(1-q)
+    tail=8*pi*q**n/(1-q)+2*pi*eta
     length=2*pi*result+arb(0,tail.upper())
     assert arb('5.5510')<length<arb('5.5511')
     assert length.rel_accuracy_bits()>=target,(length.rel_accuracy_bits(),target)

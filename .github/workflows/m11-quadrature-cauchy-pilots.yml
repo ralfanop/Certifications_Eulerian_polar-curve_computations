@@ -30,7 +30,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          python -u numerics/arb/m11_euler_cauchy.py --bits 24000 --target 20000 | tee m11-euler-cauchy.log
+          python -u numerics/arb/m11_euler_cauchy.py --bits 54000 --target 50000 | tee m11-euler-cauchy.log
       - uses: actions/upload-artifact@v4
         with:
           name: m11-euler-cauchy-pilot
@@ -58,7 +58,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          python -u numerics/arb/m11_dk_cauchy.py --bits 2048 --order 256 --panels 64 --terms 300 --minimum-bits 1000 | tee m11-dk-cauchy.log
+          python -u numerics/arb/m11_dk_cauchy.py --bits 4096 --order 512 --panels 64 --terms 600 --minimum-bits 2000 | tee m11-dk-cauchy.log
       - uses: actions/upload-artifact@v4
         with:
           name: m11-dk-cauchy-pilot
