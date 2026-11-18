@@ -1,0 +1,58 @@
+name: Shared core det4 logarithmic derivative and residues
+on:
+  pull_request:
+    paths:
+      - 'lean/SharedCore/Det4LogDeriv.lean'
+      - '.github/workflows/shared-det4-logderiv.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean and Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          lake exe cache get
+      - name: Compile and audit exact declarations
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SharedCore
+          lake env lean -o .lake/build/lib/lean/SharedCore/Det4ZetaMoments.olean SharedCore/Det4ZetaMoments.lean
+          lake env lean -o .lake/build/lib/lean/SharedCore/Det4ComplexProduct.olean SharedCore/Det4ComplexProduct.lean
+          lake env lean -o .lake/build/lib/lean/SharedCore/Det4Entire.olean SharedCore/Det4Entire.lean
+          lake env lean -o .lake/build/lib/lean/SharedCore/Det4Zeros.olean SharedCore/Det4Zeros.lean
+          lake env lean SharedCore/Det4LogDeriv.lean 2>&1 | tee /tmp/det4-logderiv-lean.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/det4-logderiv-lean.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/det4-logderiv-lean.log').read_text()
+          for suffix in ["determinant_log_deriv_eq","determinant_meromorphic","log_deriv_meromorphic_at","log_deriv_meromorphic","log_deriv_meromorphic_on_univ","log_deriv_analytic_off_roots","shifted_power_log_deriv","local_log_deriv_factor","remainder_analytic","log_deriv_principal_part","pole_removed_analytic","pole_removed_eventually_eq","residue_limit","residue_at_root","residue_nonzero","determinant_meromorphic_order_at_root","log_deriv_simple_pole","log_deriv_pole_iff","root_index_of_integer","multiplicity_index_of_integer","residue_at_negative_integer","simple_pole_at_negative_integer"]:
+              name = 'SharedCore.Det4LogDeriv.'+suffix
+              matches = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert matches or ("'"+name+"' does not depend on any axioms") in log, name
+              for match in matches:
+                  assert {x.strip() for x in match.split(',') if x.strip()} <= {'propext','Classical.choice','Quot.sound'}
+              print('AXIOM AUDIT SUCCESS:',name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shared-det4-logderiv-audit
+          path: /tmp/det4-logderiv-lean.log
