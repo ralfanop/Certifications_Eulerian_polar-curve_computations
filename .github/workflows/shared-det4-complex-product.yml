@@ -1,0 +1,55 @@
+name: Shared core complex det4 series and infinite product
+on:
+  pull_request:
+    paths:
+      - 'lean/SharedCore/Det4ComplexProduct.lean'
+      - '.github/workflows/shared-det4-complex-product.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean and Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          lake exe cache get
+      - name: Compile and audit exact declarations
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SharedCore
+          lake env lean -o .lake/build/lib/lean/SharedCore/Det4ZetaMoments.olean SharedCore/Det4ZetaMoments.lean
+          lake env lean SharedCore/Det4ComplexProduct.lean 2>&1 | tee /tmp/det4-complex-product-lean.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/det4-complex-product-lean.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/det4-complex-product-lean.log').read_text()
+          for suffix in ["local_log_hasSum","joint_norm","joint_norm_summable","joint_summable","joint_inner_moment","shell_argument_norm_lt_one","joint_as_local","joint_inner_shell","global_series_exchange","shell_log_hasSum","global_log_summable","exp_regularized_shell","regularized_product_hasProd","regularized_product_eq_exp","regularized_product_ne_zero","fourth_coefficient"]:
+              name = 'SharedCore.Det4Complex.'+suffix
+              matches = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert matches or ("'"+name+"' does not depend on any axioms") in log, name
+              for match in matches:
+                  assert {x.strip() for x in match.split(',') if x.strip()} <= {'propext','Classical.choice','Quot.sound'}
+              print('AXIOM AUDIT SUCCESS:',name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shared-det4-complex-product-audit
+          path: /tmp/det4-complex-product-lean.log
