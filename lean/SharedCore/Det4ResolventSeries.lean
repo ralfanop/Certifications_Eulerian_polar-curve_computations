@@ -199,6 +199,8 @@ theorem shell_log_deriv_all (z : ℂ) (n : ℕ) (hz : z ≠ root n) :
         3*(a z)^2*(1/((n:ℂ)+2))/3) := by
     convert hE.deriv using 1
     norm_num
+    left
+    rfl
   simp only [logDeriv_apply, (hA.const_add 1).deriv, hE']
   unfold p a spectralLogTerm resolventTerm fourthShell Det4Complex.multiplicity shellArgument at *
   push_cast
