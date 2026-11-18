@@ -45,7 +45,8 @@ theorem perturbedEquiv_apply (j : D →L[𝕜] X) (L₀ : D ≃L[𝕜] X)
     (E : X →L[𝕜] X) (hG : ‖ambientInverse j L₀‖ ≤ (2 : ℝ)/3)
     (hE : ‖E‖ < (3 : ℝ)/2) (d : D) :
     perturbedEquiv j L₀ E hG hE d = L₀ d + E (j d) := by
-  change onePlusEquiv (E.comp (ambientInverse j L₀)) _ (L₀ d) = _
+  change onePlusEquiv (E.comp (ambientInverse j L₀))
+    (perturbation_norm_lt_one j L₀ E hG hE) (L₀ d) = _
   rw [onePlusEquiv_apply]
   simp [ambientInverse]
 
@@ -80,7 +81,7 @@ theorem perturbed_inverse_norm (j : D →L[𝕜] X) (L₀ : D ≃L[𝕜] X)
     calc
       ‖L₀ d‖ = ‖x - E (j d)‖ := by rw [← hx, add_sub_cancel_right]
       _ ≤ ‖x‖ + ‖E (j d)‖ := norm_sub_le _ _
-      _ ≤ ‖x‖ + ‖E‖ * ‖j d‖ := add_le_add_left (E.le_opNorm _) _
+      _ ≤ ‖x‖ + ‖E‖ * ‖j d‖ := add_le_add_right (E.le_opNorm (j d)) ‖x‖
   have hb : ‖j d‖ * ((3 : ℝ)/2 - ‖E‖) ≤ ‖x‖ := by nlinarith
   rw [one_div, inv_mul_eq_div]
   exact (le_div_iff₀ hpos).2 hb
