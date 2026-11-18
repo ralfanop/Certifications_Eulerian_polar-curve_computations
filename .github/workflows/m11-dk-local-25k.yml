@@ -1,0 +1,79 @@
+name: M11 curvature distributed 25k-bit certification pilot
+permissions:
+  contents: read
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m11_dk_adaptive_radius.py'
+      - '.github/workflows/m11-dk-local-25k.yml'
+  workflow_dispatch:
+jobs:
+  integrate-halves:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact head and pin FLINT
+        env:
+          EXPECTED: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED"
+          git rev-parse HEAD
+          python -m pip install python-flint==0.9.0
+      - name: Independently certify one half
+        shell: bash
+        run: |
+          set -o pipefail
+          python -u numerics/arb/m11_dk_adaptive_radius.py --bits 40000 --target 25000 --panels 32 --direction ${{ matrix.direction }} --output m11-dk-half.json | tee m11-dk-half.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-local-half-${{ matrix.direction }}
+          path: |
+            m11-dk-half.json
+            m11-dk-half.log
+  combine-exact-enclosures:
+    needs: integrate-halves
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact head and pin FLINT
+        env:
+          EXPECTED: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED"
+          git rev-parse HEAD
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-local-half-1
+          path: left
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-local-half--1
+          path: right
+      - name: Outward sum and check 25000 relative bits
+        shell: bash
+        run: |
+          set -o pipefail
+          python -u numerics/arb/m11_dk_adaptive_radius.py --bits 40000 --target 25000 --panels 32 --combine left/m11-dk-half.json right/m11-dk-half.json --output m11-dk-local-25000.json | tee m11-dk-local-25000.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-local-certified-25000
+          path: |
+            m11-dk-local-25000.json
+            m11-dk-local-25000.log
