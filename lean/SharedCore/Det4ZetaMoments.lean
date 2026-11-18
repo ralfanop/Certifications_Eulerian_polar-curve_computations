@@ -155,6 +155,19 @@ theorem fourth_moment_identification : (∑' n : ℕ, fourthShell n) = moment 4 
   unfold moment
   exact tsum_congr fourth_shell_eq
 
+theorem power_shell_eq_spectral (k n : ℕ) :
+    powerShell k n = spectralTerm ((k : ℝ)+4) n := by
+  unfold powerShell fourthShell spectralTerm
+  have he : (k : ℝ)+4 = ((k+4 : ℕ) : ℝ) := by push_cast; rfl
+  rw [he, Real.rpow_natCast, pow_add, div_pow, one_pow]
+  have h : (n : ℝ)+2 ≠ 0 := by positivity
+  field_simp <;> ring
+
+theorem power_moment_identification (k : ℕ) :
+    powerMoment k = moment ((k : ℝ)+4) := by
+  unfold powerMoment moment
+  exact tsum_congr (power_shell_eq_spectral k)
+
 noncomputable def taylorMajorant (r : ℝ) (k : ℕ) : ℝ :=
   r ^ (k+4) * powerMoment k / ((k : ℝ)+4)
 
@@ -218,3 +231,6 @@ end SharedCore.Det4Zeta
 #print axioms SharedCore.Det4Zeta.taylor_term_le_geometric
 #print axioms SharedCore.Det4Zeta.taylor_majorant_summable
 #print axioms SharedCore.Det4Zeta.taylor_majorant_bound
+
+#print axioms SharedCore.Det4Zeta.power_shell_eq_spectral
+#print axioms SharedCore.Det4Zeta.power_moment_identification
