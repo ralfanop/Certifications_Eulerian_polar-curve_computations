@@ -46,8 +46,9 @@ theorem shell_unit_analytic (n : ℕ) (z : ℂ) : AnalyticAt ℂ (shellUnit n) z
 theorem shell_factor (z : ℂ) (n : ℕ) :
     regularizedShell z n = (z-root n)^Det4Complex.multiplicity n * shellUnit n z := by
   unfold regularizedShell shellUnit
+  dsimp only
   rw [← mul_pow]
-  congr 1
+  apply congrArg (fun x : ℂ => x ^ Det4Complex.multiplicity n)
   have h : 1 + shellArgument z n = (z-root n) / ((n:ℂ)+2) := by
     unfold root shellArgument
     field_simp [denominator_ne_zero n] <;> ring
@@ -127,7 +128,7 @@ theorem determinant_order_at_root (n : ℕ) :
 
 theorem determinant_order_nat_at_root (n : ℕ) :
     analyticOrderNatAt regularizedProduct (root n) = (n+1)*(n+2) := by
-  simp [analyticOrderNatAt, determinant_order_at_root, Det4Complex.multiplicity]
+  rw [analyticOrderNatAt, determinant_order_at_root, ENat.toNat_natCast] <;> rfl
 
 theorem determinant_order_off_roots (z : ℂ) (hz : ∀ n : ℕ, z ≠ root n) :
     analyticOrderAt regularizedProduct z = 0 :=
