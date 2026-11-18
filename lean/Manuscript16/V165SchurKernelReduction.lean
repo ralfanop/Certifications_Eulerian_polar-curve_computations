@@ -20,7 +20,7 @@ theorem block_kernel_iff (A : P →L[𝕜] P) (B : D →L[𝕜] P)
   have h := block_equation_iff A B C L p 0 x 0
   change block A B C L (p, x) = (0, 0) ↔
     schur A B C L p = 0 ∧ x = -L.symm (C p)
-  exact h
+  simpa using h
 
 /-- Every Schur null vector gives a block null vector. -/
 theorem schur_kernel_lift (A : P →L[𝕜] P) (B : D →L[𝕜] P)
