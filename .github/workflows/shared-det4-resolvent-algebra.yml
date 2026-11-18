@@ -40,7 +40,7 @@ jobs:
           log = Path('/tmp/shared-det4-lean.log').read_text()
           for suffix in ['det4_resolvent_cancellation','det4_finite_spectral_cancellation']:
               name = 'SharedCore.SchattenFredholm.'+suffix
-              matches = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \\[([^\\]]*)\\]", log, re.S)
+              matches = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
               assert matches or ("'"+name+"' does not depend on any axioms") in log, name
               for match in matches:
                   assert {x.strip() for x in match.split(',') if x.strip()} <= {'propext','Classical.choice','Quot.sound'}
