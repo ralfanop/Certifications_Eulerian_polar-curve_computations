@@ -112,8 +112,8 @@ theorem determinant_derivatives (k : ℕ) (hk : 0 < k) (hk4 : k ≤ 4) :
       if k = 4 then -6*(riemannZeta 2 - riemannZeta 3) else 0 := by
   obtain ⟨K,hK,hK0,he⟩ := determinant_analytic_factor
   rw [he.iteratedDeriv_eq k, iteratedDeriv_const_add hk]
-  have hpow : ContDiffAt ℂ (k : ℕ∞ω) (fun z : ℂ => z^4) 0 := by fun_prop
-  have hKd : ContDiffAt ℂ (k : ℕ∞ω) K 0 := hK.contDiffAt
+  have hpow : ContDiffAt ℂ k (fun z : ℂ => z^4) 0 := by fun_prop
+  have hKd : ContDiffAt ℂ k K 0 := hK.contDiffAt
   change iteratedDeriv k ((fun z : ℂ => z^4) * K) 0 = _
   rw [iteratedDeriv_mul hpow hKd]
   interval_cases k <;>
