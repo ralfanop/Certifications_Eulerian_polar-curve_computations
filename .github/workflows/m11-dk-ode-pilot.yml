@@ -1,0 +1,38 @@
+name: M11 curvature ODE Newton scaling pilot
+permissions:
+  contents: read
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m11_dk_ode.py'
+      - '.github/workflows/m11-dk-ode-pilot.yml'
+  workflow_dispatch:
+jobs:
+  discrepancy-ode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact head and pin FLINT
+        env:
+          EXPECTED: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED"
+          git rev-parse HEAD
+          python -m pip install python-flint==0.9.0
+      - name: Certified adaptive precision curvature ODE
+        shell: bash
+        run: |
+          set -o pipefail
+          python -u numerics/arb/m11_dk_ode.py --bits 4096 --order 1024 --panels 32 --adaptive --minimum-bits 3000 | tee m11-dk-ode.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-ode-pilot
+          path: |
+            m11-dk-ode.log
+            m11-dk-ode.json
