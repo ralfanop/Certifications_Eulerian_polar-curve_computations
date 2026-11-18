@@ -47,7 +47,8 @@ theorem local_log_deriv_factor (f g : ℂ → ℂ) (c : ℂ) (k : ℕ)
     (hf : ∀ᶠ z in 𝓝 c, f z = (z-c)^k * g z) :
     ∀ᶠ z in 𝓝[≠] c, logDeriv f z = (k:ℂ)/(z-c) + logDeriv g z := by
   have hf' : f =ᶠ[𝓝 c] ((fun z : ℂ => (z-c)^k) * g) := hf
-  have he := (logDeriv_congr_nhds hf').filter_mono nhdsWithin_le_nhds
+  have he := (logDeriv_congr_nhds hf').filter_mono
+    (nhdsWithin_le_nhds : 𝓝[≠] c ≤ 𝓝 c)
   have hgn := (hg.continuousAt.eventually_ne hg0).filter_mono
     (nhdsWithin_le_nhds : 𝓝[≠] c ≤ 𝓝 c)
   have hga := hg.eventually_analyticAt.filter_mono
@@ -116,7 +117,6 @@ theorem determinant_meromorphic_order_at_root (n : ℕ) :
       ((Det4Complex.multiplicity n : ℤ) : WithTop ℤ) := by
   rw [(determinant_entire (root n)).meromorphicOrderAt_eq, determinant_order_at_root,
     ENat.map_natCast]
-  rfl
 
 theorem log_deriv_simple_pole (n : ℕ) :
     meromorphicOrderAt determinantLogDeriv (root n) = -1 := by
@@ -136,7 +136,8 @@ theorem log_deriv_pole_iff (z : ℂ) :
     exact (not_lt_of_ge ha.meromorphicOrderAt_nonneg) h
   · rintro ⟨n,rfl⟩
     rw [log_deriv_simple_pole]
-    norm_num
+    change ((-1 : ℤ) : WithTop ℤ) < ((0 : ℤ) : WithTop ℤ)
+    exact WithTop.coe_lt_coe.mpr (by norm_num)
 
 theorem root_index_of_integer (m : ℕ) (hm : 2 ≤ m) : root (m-2) = -(m:ℂ) := by
   have he : m-2+2 = m := by omega
