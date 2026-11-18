@@ -96,7 +96,7 @@ theorem spectral_log_tail_bound (N n : ℕ) (r : ℝ) (z : ℂ)
   calc
     _ ≤ r^3 * (2 * fourthShell (n+N)) :=
       mul_le_mul (pow_le_pow_left₀ (norm_nonneg z) hz 3)
-        (resolvent_tail_bound N n r z hr hz) (norm_nonneg _) (by positivity)
+        (resolvent_tail_bound N n r z hr hz) (norm_nonneg _) (pow_nonneg (le_trans (norm_nonneg z) hz) 3)
     _ = _ := by ring
 
 theorem spectral_log_tail_uniform (N : ℕ) (r : ℝ) (hr : 2*r ≤ (N:ℝ)+2) :
@@ -125,18 +125,26 @@ theorem local_log_derivative (w : ℂ) (hw : ‖w‖ < 1) :
   have hp3 := (h.pow 3).div_const (3:ℂ)
   unfold localLog
   convert ((hl.sub h).add hp2).sub hp3 using 1
-  field_simp [hn] <;> ring
+  · rfl
+  · simp only [id_eq, Nat.cast_ofNat, Nat.reduceSub, pow_one, mul_one]
+    field_simp [hn] <;> ring
 
 theorem shell_log_derivative (z : ℂ) (n : ℕ) (hz : ‖shellArgument z n‖ < 1) :
     HasDerivAt (fun w => shellLog w n) (spectralLogTerm z n) z := by
   have hd := denominator_ne_zero n
-  have h := (hasDerivAt_id z).div_const ((n:ℂ)+2)
+  have ha : 1 + shellArgument z n ≠ 0 := by
+    intro he
+    have he' : shellArgument z n = -1 := by linear_combination he
+    rw [he'] at hz
+    norm_num at hz
+  have h : HasDerivAt (fun w => shellArgument w n) (1/((n:ℂ)+2)) z := by
+    simpa [shellArgument] using (hasDerivAt_id z).div_const ((n:ℂ)+2)
   have h' := ((local_log_derivative (shellArgument z n) hz).comp z h).const_mul
-    (multiplicity n : ℂ)
-  unfold shellLog spectralLogTerm resolventTerm shellArgument fourthShell multiplicity at *
-  push_cast at *
-  convert h' using 1
-  field_simp [hd] <;> ring
+    (Det4Complex.multiplicity n : ℂ)
+  apply h'.congr_deriv
+  unfold spectralLogTerm resolventTerm shellArgument fourthShell Det4Complex.multiplicity at *
+  push_cast
+  field_simp [hd, ha] <;> ring
 
 theorem shell_log_at_zero (n : ℕ) : shellLog 0 n = 0 := by
   simp [shellLog, localLog, shellArgument]
@@ -183,10 +191,17 @@ theorem shell_log_deriv_all (z : ℂ) (n : ℕ) (hz : z ≠ root n) :
   unfold regularizedShell
   rw [logDeriv_fun_pow (f := fun w => (1+a w)*Complex.exp (p w)) (by
     exact hB.differentiableAt)]
-  have hM := logDeriv_mul (f := fun w => 1+a w) (g := fun w => Complex.exp (p w)) z
+  have hM := logDeriv_fun_mul (f := fun w => 1+a w) (g := fun w => Complex.exp (p w)) z
     ha (Complex.exp_ne_zero _) (hA.const_add 1).differentiableAt hE.differentiableAt
-  rw [hM, logDeriv_apply, logDeriv_apply, (hA.const_add 1).deriv, hE.deriv]
-  unfold p a spectralLogTerm resolventTerm fourthShell multiplicity shellArgument
+  rw [hM]
+  have hE' : deriv (fun w => Complex.exp (p w)) z =
+      Complex.exp (p z) * (-(1/((n:ℂ)+2)) + 2*a z*(1/((n:ℂ)+2))/2 -
+        3*(a z)^2*(1/((n:ℂ)+2))/3) := by
+    convert hE.deriv using 1
+    · rfl
+    · norm_num
+  simp only [logDeriv_apply, (hA.const_add 1).deriv, hE']
+  unfold p a spectralLogTerm resolventTerm fourthShell Det4Complex.multiplicity shellArgument at *
   push_cast
   field_simp [hd, ha, Complex.exp_ne_zero] <;> ring
 
