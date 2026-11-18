@@ -198,12 +198,18 @@ theorem shell_log_deriv_all (z : ℂ) (n : ℕ) (hz : z ≠ root n) :
       Complex.exp (p z) * (-(1/((n:ℂ)+2)) + 2*a z*(1/((n:ℂ)+2))/2 -
         3*(a z)^2*(1/((n:ℂ)+2))/3) := by
     convert hE.deriv using 1
-    · rfl
-    · norm_num
+    norm_num
   simp only [logDeriv_apply, (hA.const_add 1).deriv, hE']
   unfold p a spectralLogTerm resolventTerm fourthShell Det4Complex.multiplicity shellArgument at *
   push_cast
-  field_simp [hd, ha, Complex.exp_ne_zero] <;> ring
+  have hb : (2:ℂ)+(n:ℂ)+z ≠ 0 := by
+    intro he
+    apply hz
+    unfold root
+    linear_combination he
+  have hb' : (n:ℂ)+2+z ≠ 0 := by simpa [add_comm (n:ℂ) 2] using hb
+  field_simp [hd, ha, hb, hb', Complex.exp_ne_zero] <;> ring_nf
+  <;> field_simp [hb] <;> ring
 
 theorem global_spectral_log_derivative (z : ℂ) (hz : ∀ n : ℕ, z ≠ root n) :
     determinantLogDeriv z = ∑' n, spectralLogTerm z n := by
