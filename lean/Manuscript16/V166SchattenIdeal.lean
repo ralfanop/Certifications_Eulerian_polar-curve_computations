@@ -59,7 +59,12 @@ theorem approxSchatten_comp_right {p : ℝ} (T : H →L[ℂ] J)
     ApproxSchatten p (T.comp C) := by
   obtain ⟨hp,a,ha,hs,hA⟩ := h
   refine ⟨hp,fun n => a n * ‖C‖,fun n => mul_nonneg (ha n) (norm_nonneg C),?_,?_⟩
-  · simpa only [Real.mul_rpow (ha _) (norm_nonneg C)] using hs.mul_right (‖C‖ ^ p)
+  · have heq : (fun n => (a n * ‖C‖) ^ p) =
+        (fun n => a n ^ p * ‖C‖ ^ p) := by
+      funext n
+      exact Real.mul_rpow (ha n) (norm_nonneg C)
+    rw [heq]
+    exact hs.mul_right (‖C‖ ^ p)
   · intro n
     exact rankApprox_comp_right T C n (a n) (hA n)
 
@@ -68,7 +73,12 @@ theorem approxSchatten_comp_left {p : ℝ} (T : H →L[ℂ] J)
     ApproxSchatten p (B.comp T) := by
   obtain ⟨hp,a,ha,hs,hA⟩ := h
   refine ⟨hp,fun n => ‖B‖ * a n,fun n => mul_nonneg (norm_nonneg B) (ha n),?_,?_⟩
-  · simpa only [Real.mul_rpow (norm_nonneg B) (ha _)] using hs.mul_left (‖B‖ ^ p)
+  · have heq : (fun n => (‖B‖ * a n) ^ p) =
+        (fun n => ‖B‖ ^ p * a n ^ p) := by
+      funext n
+      exact Real.mul_rpow (norm_nonneg B) (ha n)
+    rw [heq]
+    exact hs.mul_left (‖B‖ ^ p)
   · intro n
     exact rankApprox_comp_left T B n (a n) (hA n)
 
