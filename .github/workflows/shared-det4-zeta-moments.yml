@@ -38,7 +38,7 @@ jobs:
           import re
           from pathlib import Path
           log = Path('/tmp/det4-zeta-moments-lean.log').read_text()
-          for suffix in ["zeta_term_summable","zeta_shifted_sum","spectral_term_difference","spectral_term_nonneg","spectral_term_summable","moment_zeta_difference","real_zeta_series_eq_riemannZeta","moment_riemannZeta_difference","moment_positive","fourth_shell_summable","power_shell_le_geometric","power_shell_summable","power_moment_le_geometric","power_moment_nonneg","fourth_moment_identification","taylor_term_le_geometric","taylor_majorant_summable","taylor_majorant_bound"]:
+          for suffix in ["zeta_term_summable","zeta_shifted_sum","spectral_term_difference","spectral_term_nonneg","spectral_term_summable","moment_zeta_difference","real_zeta_series_eq_riemannZeta","moment_riemannZeta_difference","moment_positive","fourth_shell_summable","power_shell_le_geometric","power_shell_summable","power_moment_le_geometric","power_moment_nonneg","fourth_moment_identification","taylor_term_le_geometric","taylor_majorant_summable","taylor_majorant_bound","power_shell_eq_spectral","power_moment_identification"]:
               name = 'SharedCore.Det4Zeta.'+suffix
               matches = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
               assert matches or ("'"+name+"' does not depend on any axioms") in log, name
