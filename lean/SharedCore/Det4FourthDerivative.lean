@@ -6,7 +6,7 @@ fourth derivative checked through the certified complex series. -/
 namespace SharedCore.Det4Derivative
 open SharedCore.Det4Zeta SharedCore.Det4Complex
 open Filter
-open scoped Topology NNReal
+open scoped Topology NNReal ENNReal
 
 noncomputable def reducedCoeff (k : ℕ) : ℂ :=
   coefficient 1 k * (powerMoment k : ℂ)
@@ -22,6 +22,7 @@ theorem reduced_coeff_norm (k : ℕ) :
     one_pow, one_mul, hcast, Complex.norm_natCast, Complex.norm_real,
     Real.norm_of_nonneg (power_moment_nonneg k)]
   push_cast
+  simp only [one_pow, one_mul]
   ring
 
 theorem reduced_coeff_summable_norm :
@@ -111,8 +112,8 @@ theorem determinant_derivatives (k : ℕ) (hk : 0 < k) (hk4 : k ≤ 4) :
       if k = 4 then -6*(riemannZeta 2 - riemannZeta 3) else 0 := by
   obtain ⟨K,hK,hK0,he⟩ := determinant_analytic_factor
   rw [he.iteratedDeriv_eq k, iteratedDeriv_const_add hk]
-  have hpow : ContDiffAt ℂ (k : ℕ∞) (fun z : ℂ => z^4) 0 := by fun_prop
-  have hKd : ContDiffAt ℂ (k : ℕ∞) K 0 := hK.contDiffAt
+  have hpow : ContDiffAt ℂ (k : ℕ∞ω) (fun z : ℂ => z^4) 0 := by fun_prop
+  have hKd : ContDiffAt ℂ (k : ℕ∞ω) K 0 := hK.contDiffAt
   change iteratedDeriv k ((fun z : ℂ => z^4) * K) 0 = _
   rw [iteratedDeriv_mul hpow hKd]
   interval_cases k <;>
