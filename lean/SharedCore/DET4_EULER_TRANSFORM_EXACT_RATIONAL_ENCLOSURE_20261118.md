@@ -27,7 +27,7 @@ A_N^Euler = 2*E_N(2) - (4/3)*E_N(3).
 ```
 Since zeta(2)=2 eta(2) and zeta(3)=4 eta(3)/3, the following **exact rational enclosure** holds:
 ```
-A_N^Euler - 2*2^(-N) < A < A_N^Euler + (4/3)*2^(-N).
+A_N^Euler - (4/3)*2^(-N) < A < A_N^Euler + 2*2^(-N).
 ```
 Its width is (10/3)*2^(-N), exponentially smaller than the O(1/N) interval in the earlier note. This is a rigorous interval independent of any floating-point library. For c4=-A/4 and D4''''(0)=-6A, multiply the endpoints with reversed order as appropriate.
 
