@@ -35,10 +35,10 @@ theorem joint_norm (z : ℂ) (k n : ℕ) :
     ‖joint z (k,n)‖ = (‖z‖^(k+4) / ((k:ℝ)+4)) * powerShell k n := by
   have hcast : (k:ℂ)+4 = ((k+4:ℕ):ℂ) := by push_cast; rfl
   unfold joint coefficient
+  simp only [Prod.fst, Prod.snd]
   rw [norm_mul, norm_div, norm_mul, norm_pow, norm_pow, norm_neg, norm_one, one_pow,
-    one_mul, hcast, Complex.norm_natCast, Complex.norm_real, abs_of_nonneg (shell_nonneg k n)]
-  push_cast
-  rfl
+    one_mul, hcast, Complex.norm_natCast, Complex.norm_real, Real.norm_of_nonneg (shell_nonneg k n)]
+  push_cast <;> rfl
 
 private theorem joint_norm_inner (z : ℂ) (k : ℕ) :
     (∑' n : ℕ, ‖joint z (k,n)‖) = taylorMajorant ‖z‖ k := by
@@ -77,7 +77,7 @@ theorem shell_argument_norm_lt_one (z : ℂ) (hz : ‖z‖ < 2) (n : ℕ) :
   rw [norm_div, hcast, Complex.norm_natCast]
   apply (div_lt_one (by positivity)).2
   push_cast
-  linarith [Nat.cast_nonneg (R := ℝ) n]
+  linarith [show 0 ≤ (n:ℝ) from Nat.cast_nonneg n]
 
 theorem joint_as_local (z : ℂ) (k n : ℕ) :
     joint z (k,n) = (multiplicity n : ℂ) * coefficient (shellArgument z n) k := by
@@ -108,7 +108,7 @@ theorem global_series_exchange (z : ℂ) (hz : ‖z‖ < 2) :
   unfold globalLog
   simp_rw [← joint_inner_shell z hz]
   simp_rw [← joint_inner_moment z]
-  exact (joint_summable z hz).tsum_comm
+  exact Summable.tsum_comm (f := fun k n => joint z (k,n)) (joint_summable z hz)
 
 theorem shell_log_hasSum (z : ℂ) (hz : ‖z‖ < 2) :
     HasSum (shellLog z) (globalLog z) := by
