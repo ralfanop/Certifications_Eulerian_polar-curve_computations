@@ -23,8 +23,7 @@ theorem finite_factor_has_kernel (n : ℕ)
   · intro hz
     have hz' : V (a-b) = V 0 := by simpa using hz
     exact hne (sub_eq_zero.mp (hV hz'))
-  · change F (V a - V b) = 0
-    rw [map_sub, sub_eq_zero]
+  · rw [map_sub, map_sub, sub_eq_zero]
     exact hab
 
 /-- True operator-norm lower bound for every rank-n factorization.
