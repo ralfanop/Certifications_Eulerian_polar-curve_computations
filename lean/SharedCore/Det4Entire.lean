@@ -66,9 +66,10 @@ theorem tail_majorant_summable (N : ℕ) (r : ℝ) (hr : 0 ≤ r)
     (hrN : r < (N:ℝ)+2) : Summable (tailMajorant N r) := by
   have hg : Summable (fun k : ℕ => (r/((N:ℝ)+2))^k) :=
     summable_geometric_of_lt_one (by positivity) ((div_lt_one (by positivity)).2 hrN)
-  exact Summable.of_nonneg_of_le
-    (fun k => by unfold tailMajorant; exact div_nonneg
-      (mul_nonneg (pow_nonneg hr _) (tail_moment_nonneg N k)) (by positivity))
+  have hnonneg (k : ℕ) : 0 ≤ tailMajorant N r k := by
+    unfold tailMajorant
+    exact div_nonneg (mul_nonneg (pow_nonneg hr _) (tail_moment_nonneg N k)) (by positivity)
+  exact Summable.of_nonneg_of_le hnonneg
     (tail_majorant_bound N r hr) (hg.mul_left _)
 
 noncomputable def tailJoint (N : ℕ) (z : ℂ) (p : ℕ × ℕ) : ℂ :=
@@ -215,13 +216,17 @@ theorem tail_log_factor (N : ℕ) (z : ℂ) : tailLog N z = z^4 * tailReduced N 
 theorem tail_reduced_analytic (N : ℕ) (z : ℂ) (hz : ‖z‖ < (N:ℝ)+2) :
     AnalyticAt ℂ (tailReduced N) z := by
   let r : ℝ≥0 := ⟨(‖z‖+((N:ℝ)+2))/2, by positivity⟩
-  have hr : (r:ℝ) < (N:ℝ)+2 := by dsimp [r]; linarith
-  have hzR : ‖z‖ < (r:ℝ) := by dsimp [r]; linarith
+  have hr : (r:ℝ) < (N:ℝ)+2 := by
+    change (‖z‖+((N:ℝ)+2))/2 < (N:ℝ)+2
+    linarith
+  have hzR : ‖z‖ < (r:ℝ) := by
+    change ‖z‖ < (‖z‖+((N:ℝ)+2))/2
+    linarith
   have hmem : z ∈ Metric.eball (0:ℂ) (FormalMultilinearSeries.ofScalars ℂ (tailCoeff N)).radius := by
     apply lt_of_lt_of_le _ (tail_series_radius N r hr)
     change edist z 0 < (r:ℝ≥0∞)
     rw [edist_dist, dist_zero_right]
-    exact_mod_cast hzR
+    exact (ENNReal.ofReal_lt_coe_iff (norm_nonneg z)).2 hzR
   exact (FormalMultilinearSeries.ofScalars ℂ (tailCoeff N)).analyticOnNhd z hmem
 
 theorem tail_log_analytic (N : ℕ) (z : ℂ) (hz : ‖z‖ < (N:ℝ)+2) :
