@@ -1,0 +1,29 @@
+name: M12 profile interval-Newton rigorous benchmark
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_profile_interval_newton.py'
+      - '.github/workflows/m12-profile-interval-newton.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        row: ['1/4','4']
+        bits: [1024,4096]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+          python numerics/arb/m12_profile_interval_newton.py '${{ matrix.row }}' --bits ${{ matrix.bits }}
