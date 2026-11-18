@@ -1,0 +1,56 @@
+name: Shared core entire det4 product
+on:
+  pull_request:
+    paths:
+      - 'lean/SharedCore/Det4Entire.lean'
+      - '.github/workflows/shared-det4-entire.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean and Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          lake exe cache get
+      - name: Compile and audit exact declarations
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SharedCore
+          lake env lean -o .lake/build/lib/lean/SharedCore/Det4ZetaMoments.olean SharedCore/Det4ZetaMoments.lean
+          lake env lean -o .lake/build/lib/lean/SharedCore/Det4ComplexProduct.olean SharedCore/Det4ComplexProduct.lean
+          lake env lean SharedCore/Det4Entire.lean 2>&1 | tee /tmp/det4-entire-lean.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/det4-entire-lean.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/det4-entire-lean.log').read_text()
+          for suffix in ["tail_fourth_summable","tail_power_summable","tail_moment_nonneg","tail_fourth_nonneg","tail_power_bound","tail_moment_bound","tail_majorant_bound","tail_majorant_summable","tail_joint_norm_summable","tail_joint_summable","tail_joint_inner_moment","tail_argument_norm","tail_joint_inner_shell","tail_series_exchange","tail_log_hasSum","tail_exp_shell","tail_product_hasProd","full_product_hasProd","product_factorization","product_multipliable_everywhere","tail_coeff_norm","tail_series_radius","tail_log_factor","tail_reduced_analytic","tail_log_analytic","shell_analytic","finite_head_analytic","determinant_entire","determinant_analyticOnNhd_univ"]:
+              name = 'SharedCore.Det4Entire.'+suffix
+              matches = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert matches or ("'"+name+"' does not depend on any axioms") in log, name
+              for match in matches:
+                  assert {x.strip() for x in match.split(',') if x.strip()} <= {'propext','Classical.choice','Quot.sound'}
+              print('AXIOM AUDIT SUCCESS:',name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shared-det4-entire-audit
+          path: /tmp/det4-entire-lean.log
