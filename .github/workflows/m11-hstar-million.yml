@@ -1,0 +1,78 @@
+name: M11 Hausdorff minimax million-digit certificate
+permissions:
+  contents: read
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m11_hstar.py'
+      - 'numerics/arb/m11_hstar_derived.py'
+      - '.github/workflows/m11-hstar-million.yml'
+  workflow_dispatch:
+jobs:
+  hstar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact commit and pinned FLINT
+        env:
+          EXPECTED: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED"
+          git rev-parse HEAD
+          python -m pip install python-flint==0.9.0
+      - name: Certify actual Hausdorff balance root
+        shell: bash
+        run: |
+          set -o pipefail
+          python -u numerics/arb/m11_hstar.py | tee m11-hstar.log
+          grep -F 'MILLION SUCCESS m11hstar checks 4' m11-hstar.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-hstar-million
+          path: |
+            m11-hstar.log
+            million-m11hstar.json
+            million-enclosures.jsonl.gz
+  derived:
+    needs: hstar
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact commit and pinned FLINT
+        env:
+          EXPECTED: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED"
+          git rev-parse HEAD
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-hstar-million
+          path: root-certificate
+      - name: Certify derived quantities
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir derived
+          cd derived
+          python -u ../numerics/arb/m11_hstar_derived.py ../root-certificate/million-enclosures.jsonl.gz | tee m11-derived.log
+          grep -F 'MILLION SUCCESS m11hstar-derived checks 6' m11-derived.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-hstar-derived-million
+          path: |
+            derived/m11-derived.log
+            derived/million-m11hstar-derived.json
+            derived/million-enclosures.jsonl.gz
