@@ -1,0 +1,83 @@
+name: M15 squarefree trace-class subcase Lean and strict Arb
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/SquarefreeDeterminant.lean'
+      - '.github/workflows/m15-squarefree-determinant.yml'
+      - 'numerics/arb/million_decimal_m15_squarefree.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean and Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          lake exe cache get
+      - name: Compile and audit exact declarations
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean Manuscript15/SquarefreeDeterminant.lean 2>&1 | tee /tmp/m15-squarefree-lean.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m15-squarefree-lean.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/m15-squarefree-lean.log').read_text()
+          for suffix in ['weight_nonneg','weight_le_pseries','weight_summable','spectral_moment_summable','resolvent_nonneg','resolvent_le_weight','resolvent_summable','inverse_square_le_telescope','weight_two_le_telescope','finite_tail_two','finite_diagonal_det','finite_diagonal_trace']:
+              name = 'Manuscript15.SquarefreeDeterminant.'+suffix
+              matches = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert matches or ("'"+name+"' does not depend on any axioms") in log, name
+              for match in matches:
+                  assert {x.strip() for x in match.split(',') if x.strip()} <= {'propext','Classical.choice','Quot.sound'}
+              print('AXIOM AUDIT SUCCESS:',name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-squarefree-determinant-audit
+          path: /tmp/m15-squarefree-lean.log
+  arb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned FLINT and verify exact head
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Certify squarefree spectral moments
+        run: |
+          set -euo pipefail
+          python numerics/arb/million_decimal_m15_squarefree.py | tee m15-squarefree-arb.log
+          grep -F 'MILLION SUCCESS m15_squarefree_moments checks 3' m15-squarefree-arb.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-squarefree-moment-enclosures
+          path: |
+            m15-squarefree-arb.log
+            million-m15_squarefree_moments.json
+            million-enclosures.jsonl.gz
+            squarefree-exact-endpoints.jsonl.gz
