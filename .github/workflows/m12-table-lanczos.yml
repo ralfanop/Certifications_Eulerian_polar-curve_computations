@@ -1,0 +1,57 @@
+name: M12 Table 1 validated exact-moment Lanczos
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_table_lanczos.py'
+      - '.github/workflows/m12-table-lanczos.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+          python numerics/arb/m12_table_lanczos.py
+  full:
+    needs: pilot
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        M: [100,200,400]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+          set -euo pipefail
+          /usr/bin/time -v python numerics/arb/m12_table_lanczos.py --M ${{ matrix.M }} 2>&1 | tee lanczos.log
+          grep -F 'MILLION SUCCESS m12-lanczos-' lanczos.log
+          gzip -t million-enclosures.jsonl.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-lanczos-${{ matrix.M }}
+          path: |
+            lanczos.log
+            m12-lanczos-*.json
+            million-m12-lanczos-*.json
+            million-enclosures.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn
