@@ -2,7 +2,7 @@ import Mathlib
 import SharedCore.Det4Entire
 
 /-! Exact zero divisor of the entire diagonal regularized determinant.
-Zero order is Mathlib's analyticOrderAt, not a formal multiplicity label. -/
+Zero order is Mathlib's analyticOrderAt, not a formal Det4Complex.multiplicity label. -/
 namespace SharedCore.Det4Zeros
 open SharedCore.Det4Complex SharedCore.Det4Entire
 open Filter
@@ -13,8 +13,8 @@ noncomputable def root (n : ℕ) : ℂ := -((n : ℂ)+2)
 theorem denominator_ne_zero (n : ℕ) : (n:ℂ)+2 ≠ 0 := by
   exact_mod_cast (show (n:ℝ)+2 ≠ 0 by positivity)
 
-theorem multiplicity_positive (n : ℕ) : 0 < multiplicity n := by
-  unfold multiplicity
+theorem multiplicity_positive (n : ℕ) : 0 < Det4Complex.multiplicity n := by
+  unfold Det4Complex.multiplicity
   positivity
 
 theorem root_injective : Function.Injective root := by
@@ -33,7 +33,7 @@ theorem root_norm (n : ℕ) : ‖root n‖ = (n:ℝ)+2 := by
 
 noncomputable def shellUnit (n : ℕ) (z : ℂ) : ℂ :=
   (Complex.exp (-shellArgument z n + shellArgument z n ^ 2/2 -
-      shellArgument z n ^ 3/3) / ((n:ℂ)+2)) ^ multiplicity n
+      shellArgument z n ^ 3/3) / ((n:ℂ)+2)) ^ Det4Complex.multiplicity n
 
 theorem shell_unit_ne_zero (n : ℕ) (z : ℂ) : shellUnit n z ≠ 0 := by
   unfold shellUnit
@@ -44,12 +44,15 @@ theorem shell_unit_analytic (n : ℕ) (z : ℂ) : AnalyticAt ℂ (shellUnit n) z
   fun_prop
 
 theorem shell_factor (z : ℂ) (n : ℕ) :
-    regularizedShell z n = (z-root n)^multiplicity n * shellUnit n z := by
+    regularizedShell z n = (z-root n)^Det4Complex.multiplicity n * shellUnit n z := by
   unfold regularizedShell shellUnit
   rw [← mul_pow]
   congr 1
-  unfold root shellArgument
-  field_simp [denominator_ne_zero n] <;> ring
+  have h : 1 + shellArgument z n = (z-root n) / ((n:ℂ)+2) := by
+    unfold root shellArgument
+    field_simp [denominator_ne_zero n] <;> ring
+  rw [h]
+  ring
 
 theorem shell_eq_zero_iff (z : ℂ) (n : ℕ) :
     regularizedShell z n = 0 ↔ z = root n := by
@@ -108,7 +111,7 @@ theorem zero_unit_ne_zero (n : ℕ) : zeroUnit n (root n) ≠ 0 := by
 
 theorem determinant_local_factor (n : ℕ) :
     ∀ᶠ z in 𝓝 (root n),
-      regularizedProduct z = (z-root n)^multiplicity n * zeroUnit n z := by
+      regularizedProduct z = (z-root n)^Det4Complex.multiplicity n * zeroUnit n z := by
   have hopen : IsOpen {z : ℂ | ‖z‖ < ((n+1:ℕ):ℝ)+2} :=
     isOpen_lt continuous_norm continuous_const
   filter_upwards [hopen.mem_nhds (root_inside_tail_disk n)] with z hz
@@ -117,14 +120,14 @@ theorem determinant_local_factor (n : ℕ) :
   ring
 
 theorem determinant_order_at_root (n : ℕ) :
-    analyticOrderAt regularizedProduct (root n) = (multiplicity n : ℕ∞) := by
+    analyticOrderAt regularizedProduct (root n) = (Det4Complex.multiplicity n : ℕ∞) := by
   apply (determinant_entire (root n)).analyticOrderAt_eq_natCast.mpr
   refine ⟨zeroUnit n, zero_unit_analytic n, zero_unit_ne_zero n, ?_⟩
   simpa only [smul_eq_mul] using determinant_local_factor n
 
 theorem determinant_order_nat_at_root (n : ℕ) :
     analyticOrderNatAt regularizedProduct (root n) = (n+1)*(n+2) := by
-  simp [analyticOrderNatAt, determinant_order_at_root, multiplicity]
+  simp [analyticOrderNatAt, determinant_order_at_root, Det4Complex.multiplicity]
 
 theorem determinant_order_off_roots (z : ℂ) (hz : ∀ n : ℕ, z ≠ root n) :
     analyticOrderAt regularizedProduct z = 0 :=
