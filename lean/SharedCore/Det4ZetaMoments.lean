@@ -190,7 +190,12 @@ theorem taylor_term_le_geometric (r : ℝ) (hr : 0 ≤ r) (k : ℕ) :
     _ ≤ r^(k+4) * ((1/2 : ℝ)^k * moment 4) / 4 := by
       apply (div_le_div_iff₀ (by positivity) (by norm_num)).2
       nlinarith
-    _ = _ := by rw [pow_add, div_pow]; ring
+    _ = _ := by
+      rw [pow_add]
+      have h : (r/2)^k = r^k * (1/2 : ℝ)^k := by
+        rw [show r/2 = r*(1/2) by ring, mul_pow]
+      rw [h]
+      ring
 
 theorem taylor_majorant_summable (r : ℝ) (hr : 0 ≤ r) (hr2 : r < 2) :
     Summable (taylorMajorant r) := by
