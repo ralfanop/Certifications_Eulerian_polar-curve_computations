@@ -104,7 +104,7 @@ theorem finite_diagonal_det {ι : Type*} [Fintype ι] [DecidableEq ι]
     · subst j
       simp [Matrix.one_apply, Matrix.diagonal_apply, smul_eq_mul]
     · simp [Matrix.one_apply, Matrix.diagonal_apply, h, smul_eq_mul]]
-  exact Matrix.det_diagonal _
+  exact Matrix.det_diagonal
 
 theorem finite_diagonal_trace {ι : Type*} [Fintype ι] [DecidableEq ι]
     (a : ι → ℂ) :
