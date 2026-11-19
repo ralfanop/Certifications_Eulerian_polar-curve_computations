@@ -65,7 +65,9 @@ theorem graph_order (a : ℝ) (ha : a ≠ 0) (M : ℕ) (hM : 2 ≤ M)
   have hcomp : analyticOrderAt (G ∘ XConv a M) (2 * Real.pi) =
       analyticOrderAt G (XConv a M (2 * Real.pi)) :=
     analyticOrderAt_comp_of_deriv_ne_zero (X_analytic a M) hd
-  rw [← hcomp, analyticOrderAt_congr hG, Y_order a ha M]
+  rw [← hcomp]
+  change analyticOrderAt (fun t => G (XConv a M t)) (2 * Real.pi) = _
+  rw [analyticOrderAt_congr hG, Y_order a ha M]
 
 /-- Full analytic leading-term decomposition in the independent horizontal
 variable, with a genuine analytic remainder of order at least 2M+1.
@@ -92,8 +94,9 @@ theorem exists_terminal_analytic_remainder (a : ℝ) (ha : a ≠ 0)
       (nhdsWithin_le_nhds : 𝓝[≠] x₀ ≤ 𝓝 x₀)).congr'
     have hn : ∀ᶠ x : ℝ in 𝓝[≠] x₀, x ≠ x₀ := self_mem_nhdsWithin
     filter_upwards [hn, hfac.filter_mono nhdsWithin_le_nhds] with x hx hfx
+    change G x = (x - x₀) ^ (2 * M) • H x at hfx
     rw [hfx, smul_eq_mul]
-    field_simp [pow_ne_zero _ (sub_ne_zero.mpr hx)]
+    field_simp [pow_ne_zero _ (sub_ne_zero.mpr hx)] <;> ring
   have hclim : Tendsto (fun x : ℝ => G x / (x - x₀) ^ (2 * M))
       (𝓝[≠] x₀) (𝓝 c) := by
     simpa only [x₀, c, ← leading_coefficient a M (by omega)] using hlim
