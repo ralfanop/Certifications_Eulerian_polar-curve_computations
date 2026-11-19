@@ -1,0 +1,65 @@
+name: M12 Bridge exact-head declaration and axiom inventory
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/AuditBridgeStrictM12.lean'
+      - '.github/workflows/m12-bridge-exact-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    defaults:
+      run:
+        working-directory: lean/EulerianGrothendieck
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned toolchain and Mathlib
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m12-bridge-head.txt
+          test "$(cat lean-toolchain)" = "leanprover/lean4:v4.24.0"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lean --version | tee /tmp/m12-bridge-toolchain.txt
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = f897ebcf72cd16f89ab4577d0c826cd14afaafc7
+          lake exe cache get
+      - name: Fresh Bridge build and exact declaration-type audit
+        run: |
+          set -euo pipefail
+          lake build Bridge 2>&1 | tee /tmp/m12-bridge-build.log
+          lake env lean AuditBridgeStrictM12.lean 2>&1 | tee /tmp/m12-bridge-types.log
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          p = Path('/tmp/m12-bridge-types.log')
+          s = p.read_text()
+          match = re.search(r'M12_BRIDGE_COUNT (\d+) BAD 0', s)
+          assert match and 'M12_BRIDGE_AUDIT_SUCCESS' in s
+          count = int(match.group(1))
+          names = re.findall(r'M12_BRIDGE_DECL (\S+)', s)
+          assert count > 0 and len(names) == len(set(names)) == count
+          assert s.count('END_DECL') == count
+          assert 'M12_BRIDGE_NONSTANDARD' not in s
+          Path('/tmp/m12-bridge-declarations.txt').write_text('\n'.join(sorted(names))+'\n')
+          print('EXACT BRIDGE AUDIT SUCCESS', count, 'public theorem declarations, zero nonstandard axioms')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-bridge-exact-audit-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            /tmp/m12-bridge-head.txt
+            /tmp/m12-bridge-toolchain.txt
+            /tmp/m12-bridge-build.log
+            /tmp/m12-bridge-types.log
+            /tmp/m12-bridge-declarations.txt
+          if-no-files-found: warn
