@@ -37,3 +37,39 @@ jobs:
         with:
           name: m12-periodic-${{ matrix.S }}-${{ matrix.bits }}
           path: pilot.log
+
+  profile-root:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { row: '1/4', slug: quarter }
+          - { row: '1/2', slug: half }
+          - { row: '1', slug: one }
+          - { row: '2', slug: two }
+          - { row: '4', slug: four }
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin exact HEAD and FLINT
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Refine certified root and profile to 16384 working bits
+        run: |
+          set -euo pipefail
+          python numerics/arb/m12_profile_periodic_strip.py --row '${{ matrix.row }}' --bits 16384 2>&1 | tee profile.log
+          grep -F 'PERIODIC ROOT PILOT SUCCESS' profile.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-periodic-root-${{ matrix.slug }}
+          path: |
+            profile.log
+            m12-periodic-pilot-*.json
