@@ -1,0 +1,37 @@
+name: M12 rigorous Clenshaw-Curtis FFT quadrature benchmark
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_profile_clenshaw_curtis.py'
+      - '.github/workflows/m12-profile-clenshaw-curtis.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        S: [4, 93]
+        bits: [512, 2048, 8192]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+          /usr/bin/time -v python numerics/arb/m12_profile_clenshaw_curtis.py ${{ matrix.S }} --bits ${{ matrix.bits }} 2>&1 | tee cc.log
+          test "$(grep -c '^CC BENCHMARK PASS' cc.log)" = 2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cc-${{ matrix.S }}-${{ matrix.bits }}
+          path: cc.log
+          if-no-files-found: warn
