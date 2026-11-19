@@ -71,8 +71,7 @@ theorem actual_log_profile_taylor (x : ℝ) (hx : 0 < x) (hx1 : x ≤ 1) :
   rw [profile_eq x hx]
   apply (log_one_add_taylor (epsilon x) he.1 hehalf 12).trans
   change 2 * epsilon x ^ 13 ≤ 2 * (x^2/4)^13
-  gcongr
-  exact he.2
+  gcongr <;> first | exact he.1 | exact he.2 | positivity
 
 theorem normalized_profile_eq (x : ℝ) (hx : 0 < x) :
     6*(Real.sinh x/x-1)/x^2 = 1+normalizedEpsilon x := by
@@ -92,8 +91,7 @@ theorem actual_log_normalized_taylor (x : ℝ) (hx : 0 < x) (hx1 : x ≤ 1) :
   rw [normalized_profile_eq x hx]
   apply (log_one_add_taylor (normalizedEpsilon x) he.1 hehalf 11).trans
   change 2 * normalizedEpsilon x ^ 12 ≤ 2 * (x^2/16)^12
-  gcongr
-  exact he.2
+  gcongr <;> first | exact he.1 | exact he.2 | positivity
 
 /-- Logarithmic scale needed by the quotient transfer, uniformly on 0<x≤1. -/
 theorem parry_log_scale (x : ℝ) (hx : 0 < x) (hx1 : x ≤ 1) :
