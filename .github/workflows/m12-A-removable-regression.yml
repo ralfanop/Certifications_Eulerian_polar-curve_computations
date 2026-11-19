@@ -1,0 +1,25 @@
+name: M12 A removable singularity Arb regression
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_A_removable_regression.py'
+      - '.github/workflows/m12-A-removable-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  arb-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install python-flint
+        run: python -m pip install 'python-flint==0.8.0'
+      - name: Run 256-bit interval regression
+        run: python numerics/arb/m12_A_removable_regression.py
