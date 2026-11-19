@@ -103,8 +103,8 @@ theorem maxwellWeight_bound (i : MaxwellIndex) : |maxwellWeight i| ≤ 1/4 := by
       _ ≤ _ := mul_le_mul ha hb (by norm_num) (by positivity)
   unfold maxwellWeight
   rw [abs_inv, abs_mul, abs_mul]
-  norm_num
-  rw [inv_le_iff₀ (by positivity)]
+  have h4 : |(-4 : ℝ)| = 4 := by norm_num
+  rw [h4, ← one_div, div_le_iff₀ (by positivity)]
   nlinarith
 
 theorem diracWeight_bound (i : DiracIndex) : |diracWeight i| ≤ 2/3 := by
@@ -112,7 +112,7 @@ theorem diracWeight_bound (i : DiracIndex) : |diracWeight i| ≤ 2/3 := by
   unfold diracWeight
   split <;> simp only [abs_neg, abs_inv, abs_of_pos h]
   all_goals
-    rw [inv_le_iff₀ h]
+    rw [← one_div, div_le_iff₀ h]
     nlinarith [Nat.cast_nonneg (α := ℝ) i.1]
 
 noncomputable def mixedWeight : MixedIndex → ℂ :=
