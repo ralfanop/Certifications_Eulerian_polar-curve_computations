@@ -24,7 +24,7 @@ theorem spectralIntegrand_formula (n k : ℕ) (hn : n ≠ 0) (hk : k ≠ 0) (t :
   have hk' : 0 < (k : ℝ) := by exact_mod_cast Nat.pos_of_ne_zero hk
   have hd : 0 < t^2 + 4 * Real.pi^2 * (k : ℝ)^2 := by positivity
   have hd' : 0 < ((n : ℝ) * t)^2 + 4 * Real.pi^2 * ((n : ℝ) * (k : ℝ))^2 := by positivity
-  simp only [spectralIntegrand, hn, hk, or_self, if_false, laplaceIntegrand, Nat.cast_mul]
+  simp only [spectralIntegrand, hn, hk, or_self, ite_false, laplaceIntegrand, Nat.cast_mul]
   rw [← neg_mul]
   field_simp [hn'.ne', hd.ne', hd'.ne'] <;> ring
 
@@ -37,14 +37,27 @@ theorem spectralIntegrand_nonneg (n k : ℕ) (t : ℝ) : 0 ≤ spectralIntegrand
 theorem spectralIntegrand_integrable (n k : ℕ) :
     IntegrableOn (spectralIntegrand n k) (Ioi 0) := by
   by_cases hn : n = 0
-  · simp [spectralIntegrand, hn]
+  · have heq : spectralIntegrand n k = fun _ : ℝ => (0 : ℝ) := by
+      funext t
+      simp [spectralIntegrand, hn]
+    rw [heq]
+    simp [IntegrableOn]
   by_cases hk : k = 0
-  · simp [spectralIntegrand, hk]
+  · have heq : spectralIntegrand n k = fun _ : ℝ => (0 : ℝ) := by
+      funext t
+      simp [spectralIntegrand, hk]
+    rw [heq]
+    simp [IntegrableOn]
   have hn' : 0 < (n : ℝ) := by exact_mod_cast Nat.pos_of_ne_zero hn
   have h := (laplaceIntegrand_integrable (n*k) (Nat.mul_ne_zero hn hk))
   have h' : IntegrableOn (fun t : ℝ => laplaceIntegrand (n*k) ((n : ℝ)*t)) (Ioi 0) :=
     (integrableOn_Ioi_comp_mul_left_iff (laplaceIntegrand (n*k)) 0 hn').2 (by simpa using h)
-  simpa [spectralIntegrand, hn, hk] using h'.const_mul (2 * (n : ℝ))
+  have heq : spectralIntegrand n k = fun t : ℝ =>
+      (2 * (n : ℝ)) * laplaceIntegrand (n*k) ((n : ℝ)*t) := by
+    funext t
+    simp [spectralIntegrand, hn, hk]
+  rw [heq]
+  exact h'.const_mul (2 * (n : ℝ))
 
 /-- Substitution u=nt, with exact Jacobian. -/
 theorem spectralIntegrand_integral (n k : ℕ) :
@@ -54,9 +67,9 @@ theorem spectralIntegrand_integral (n k : ℕ) :
   by_cases hk : k = 0
   · simp [spectralIntegrand, laplaceKernel, hk]
   have hn' : 0 < (n : ℝ) := by exact_mod_cast Nat.pos_of_ne_zero hn
-  simp only [spectralIntegrand, hn, hk, or_self, if_false]
+  simp only [spectralIntegrand, hn, hk, or_self, ite_false]
   rw [integral_const_mul, integral_comp_mul_left_Ioi _ _ hn']
-  simp only [mul_zero, smul_eq_mul, laplaceKernel, Nat.mul_ne_zero hn hk, if_false]
+  simp only [mul_zero, smul_eq_mul, laplaceKernel, Nat.mul_ne_zero hn hk, ite_false]
   field_simp [hn'.ne'] <;> ring
 
 /-- The positive spectral row is summable, not merely assumed to be so. -/
