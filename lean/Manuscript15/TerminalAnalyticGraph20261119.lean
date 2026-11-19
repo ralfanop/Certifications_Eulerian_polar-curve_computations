@@ -26,7 +26,9 @@ theorem kernel_analytic_nonzero (t : ℝ) (ht : t ≠ 0) :
     hs.div hh hd
   apply hq.congr
   filter_upwards [eventually_ne_nhds ht] with u hu
-  exact (EulerianCert.FourierModes.rE_of_ne_zero hu).symm
+  change Real.sin (u / 2) / (u / 2) = EulerianCert.FourierModes.rE u
+  rw [EulerianCert.FourierModes.rE_of_ne_zero hu]
+  field_simp
 
 /-- The actual first reconstruction coordinate is analytic at the endpoint. -/
 theorem X_analytic (a : ℝ) (M : ℕ) :
