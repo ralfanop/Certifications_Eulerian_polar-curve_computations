@@ -1,0 +1,94 @@
+name: M12 periodic quadrature shard pilot and full-work node timing
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_periodic_shards.py'
+      - '.github/workflows/m12-periodic-shards.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  shard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        S: [4, 93]
+        index: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - run: |
+          set -euo pipefail
+          python numerics/arb/m12_periodic_shards.py worker ${{ matrix.S }} --index ${{ matrix.index }} | tee shard.log
+          grep -F 'SHARD SUCCESS' shard.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-shard-${{ matrix.S }}-${{ matrix.index }}
+          path: m12-shard-*.json
+          if-no-files-found: error
+  combine:
+    needs: shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      matrix:
+        S: [4, 93]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: m12-shard-${{ matrix.S }}-*
+          merge-multiple: true
+          path: sources
+      - run: |
+          set -euo pipefail
+          python numerics/arb/m12_periodic_shards.py combine ${{ matrix.S }} --root sources | tee combined.log
+          grep -F 'SHARDED QUADRATURE SUCCESS' combined.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-sharded-${{ matrix.S }}
+          path: |
+            combined.log
+            m12-sharded-*.json
+          if-no-files-found: error
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      matrix:
+        S: [4, 93]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - run: |
+          set -euo pipefail
+          python numerics/arb/m12_periodic_shards.py sample ${{ matrix.S }} | tee sample.log
+          grep -F 'NODE TIMING SUCCESS' sample.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-full-node-timing-${{ matrix.S }}
+          path: sample.log
