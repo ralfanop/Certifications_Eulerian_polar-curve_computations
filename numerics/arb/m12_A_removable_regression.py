@@ -22,5 +22,12 @@ for denominator in (4, 8, 16, 32, 64, 128):
     assert (a-b).real.contains(0), (denominator, a, b)
     assert a.imag.contains(0) and b.imag.contains(0)
     assert a.real > 0
-    print("PASS: A(1/%d), overlapping Arb enclosures" % denominator)
-print("PASS: removable singularity regression (256-bit pilot only)")
+    # Negative control: an extra factor w changes the simple zero into
+    # a cubic zero. Reject this distinct function using rigorous balls.
+    w = s*s/16
+    wrong = a*w
+    assert not (wrong-b).real.contains(0), (
+        "spurious cubic branch overlaps", denominator, wrong, b
+    )
+    print("PASS: A(1/%d), correct enclosures overlap; cubic branch excluded" % denominator)
+print("PASS: removable singularity regression + negative controls (256-bit pilot only)")
