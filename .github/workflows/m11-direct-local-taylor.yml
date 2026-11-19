@@ -1,0 +1,50 @@
+name: M11 direct local Taylor arclength scaling
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m11_euler_direct_panel.py'
+      - 'numerics/arb/m11_euler_blocked_panel.py'
+      - '.github/workflows/m11-direct-local-taylor.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        index: [0, 64, 127]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact head and pin FLINT
+        run: |
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Compare independent local and historical polynomial panels
+        run: |
+          set -euo pipefail
+          python -u numerics/arb/m11_euler_blocked_panel.py --bits 24000 --target 20000 --blocks 8 --panels 128 --index ${{ matrix.index }} --compare --output compare.json | tee compare.log
+          grep -F 'Independent direct-panel overlap PASS' compare.log
+      - name: Rigorous 200k local panel pilot
+        run: |
+          set -euo pipefail
+          python -u numerics/arb/m11_euler_blocked_panel.py --bits 220000 --target 200000 --blocks 12 --panels 128 --index ${{ matrix.index }} --output pilot.json | tee pilot.log
+          grep -F 'BLOCKED PANEL PASS' pilot.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-direct-panel-pilot-${{ matrix.index }}
+          path: |
+            compare.json
+            compare.log
+            pilot.json
+            pilot.log
+          if-no-files-found: warn
