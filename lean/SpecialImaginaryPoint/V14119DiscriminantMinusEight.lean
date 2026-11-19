@@ -47,9 +47,13 @@ theorem primitive_derivative (x : ℝ) : HasDerivAt primitive (kernel x) x := by
       _ = ((1+(s*x+1)^2)+(1+(s*x-1)^2)) /
           ((1+(s*x+1)^2)*(1+(s*x-1)^2)) := by
             field_simp [hs.ne', hA.ne', hB.ne'] <;> ring
-      _ = _ := by rw [hsum,hprod]; ring
+      _ = _ := by
+        rw [hsum,hprod]
+        field_simp [show 1+x^4 ≠ 0 by positivity] <;> ring
   rw [← he]
-  simpa [primitive,s] using hd
+  unfold primitive
+  change HasDerivAt (fun y : ℝ => (Real.arctan (s*y+1) + Real.arctan (s*y-1))/s) _ x
+  simpa only [Function.comp_apply, Pi.add_apply, id_eq, mul_one] using hd
 
 theorem primitive_zero : primitive 0 = 0 := by
   unfold primitive
@@ -142,9 +146,12 @@ theorem partial_sum_error (N : ℕ) :
     continuous_const.mul (continuous_id.pow _)
   have he : Real.pi/Real.sqrt 8 - (∑ n ∈ Finset.range N, block n) =
       ∫ x in (0:ℝ)..1, f x := by
+    have hcont : Continuous (fun x : ℝ => kernel x*(1-x^(8*N))) :=
+      kernel_continuous.mul (continuous_const.sub (continuous_id.pow _))
+    have hint : IntervalIntegrable (fun x : ℝ => kernel x*(1-x^(8*N))) volume 0 1 :=
+      hcont.intervalIntegrable _ _
     rw [← integral_kernel,partial_sum_identity,
-      ← intervalIntegral.integral_sub (kernel_continuous.intervalIntegrable 0 1)
-       ((kernel_continuous.mul (continuous_const.sub (continuous_id.pow _))).intervalIntegrable 0 1)]
+      ← intervalIntegral.integral_sub (kernel_continuous.intervalIntegrable 0 1) hint]
     congr 1
     funext x
     dsimp [f]
