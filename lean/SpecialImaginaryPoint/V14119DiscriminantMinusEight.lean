@@ -170,10 +170,10 @@ theorem partial_sum_error (N : ℕ) :
     exact mul_le_mul_of_nonneg_right hk (pow_nonneg hx.1 _)
   rw [he]
   constructor
-  · have h := intervalIntegral.integral_mono_on (by norm_num : (0:ℝ)≤1)
+  · have h := intervalIntegral.integral_mono_on (μ := MeasureTheory.volume) (by norm_num : (0:ℝ)≤1)
       (continuous_const.intervalIntegrable 0 1) (hf.intervalIntegrable 0 1) hz
     simpa using h
-  · have h := intervalIntegral.integral_mono_on (by norm_num : (0:ℝ)≤1)
+  · have h := intervalIntegral.integral_mono_on (μ := MeasureTheory.volume) (by norm_num : (0:ℝ)≤1)
       (hf.intervalIntegrable 0 1) (hg.intervalIntegrable 0 1) hb
     calc
       _ ≤ ∫ x in (0:ℝ)..1, 2*x^(8*N) := h
