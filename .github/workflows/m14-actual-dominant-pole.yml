@@ -1,0 +1,58 @@
+name: M14 sharp minimum of actual meromorphic poles
+on:
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119ActualDominantPole.lean'
+      - '.github/workflows/m14-actual-dominant-pole.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --connect-timeout 20 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Compile and audit exact HEAD
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/m14-actual-dominant-pole.log
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in V14119DominantPoleQuarticE6 V14119EulerianMeromorphicPoles V14119ActualDominantPole; do
+            lake env lean -M16768 -o .lake/build/lib/lean/SpecialImaginaryPoint/$f.olean SpecialImaginaryPoint/$f.lean 2>&1 | tee -a /tmp/m14-actual-dominant-pole.log
+          done
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/m14-actual-dominant-pole.log').read_text()
+          assert not re.search(r'sorryAx|Lean\.ofReduceBool|error:|declaration uses .sorry.', log)
+          prefix = 'Manuscript14.ActualDominantPole.'
+          names = ['phase_ne_one','phase_ne_zero','phase_pole_eq','actual_pole_modulus','actual_pole_lower','actual_pole_equality','actual_arc_poles_isLeast','phase_positive_endpoint','phase_negative_endpoint','endpoint_poles_exact']
+          for n in names:
+              name = prefix+n
+              reports = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert reports or ("'"+name+"' does not depend on any axioms") in log, name
+              for report in reports:
+                  assert {a.strip() for a in report.split(',') if a.strip()} <= {'propext','Classical.choice','Quot.sound'}, name
+          print('AXIOM AUDIT SUCCESS', len(names))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-actual-dominant-pole-exact-head
+          path: /tmp/m14-actual-dominant-pole.log
