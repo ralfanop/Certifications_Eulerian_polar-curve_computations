@@ -4,7 +4,7 @@ on:
     paths:
       - 'lean/Manuscript15/TerminalAnalyticGraph20261119.lean'
       - 'lean/Manuscript15/TerminalContactLimit20261117.lean'
-      - '.github/workflows/m15-terminal-analytic-limit.yml'
+      - '.github/workflows/m15-terminal-analytic.yml'
   workflow_dispatch:
 permissions:
   contents: read
