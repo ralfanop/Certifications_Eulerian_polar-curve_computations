@@ -83,7 +83,7 @@ theorem trilog_uniform :
 theorem integral_term (n : ℕ) :
     (∫ x in (0:ℝ)..1, trilogTerm n x) = reciprocalTerm n := by
   unfold trilogTerm reciprocalTerm
-  rw [intervalIntegral.integral_div, intervalIntegral.integral_pow]
+  rw [intervalIntegral.integral_div, integral_pow]
   simp only [one_pow, zero_pow (Nat.succ_ne_zero _), sub_zero, Nat.cast_add, Nat.cast_one]
   have h : 0 < (n:ℝ)+1 := by positivity
   have h' : 0 < (n:ℝ)+1+1 := by positivity
