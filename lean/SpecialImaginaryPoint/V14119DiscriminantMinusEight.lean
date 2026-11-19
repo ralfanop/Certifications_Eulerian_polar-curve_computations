@@ -61,7 +61,8 @@ theorem primitive_one : primitive 1 = Real.pi/Real.sqrt 8 := by
   have hs2 : s^2 = 2 := Real.sq_sqrt (by norm_num)
   have h1 : 0 < s+1 := by positivity
   have hinv : s-1 = (s+1)⁻¹ := by
-    apply (eq_inv_iff_mul_eq_one₀ h1.ne').2
+    rw [← one_div]
+    apply (eq_div_iff h1.ne').2
     nlinarith [hs2]
   have h8 : Real.sqrt 8 = 2*s := by
     dsimp [s]
@@ -70,7 +71,7 @@ theorem primitive_one : primitive 1 = Real.pi/Real.sqrt 8 := by
   simp only [primitive,mul_one]
   change (Real.arctan (s+1)+Real.arctan (s-1))/s = _
   rw [hinv,Real.arctan_inv_of_pos h1,h8]
-  ring
+  field_simp [hs.ne'] <;> ring
 
 theorem integral_kernel : (∫ x in (0:ℝ)..1, kernel x) = Real.pi/Real.sqrt 8 := by
   rw [intervalIntegral.integral_eq_sub_of_hasDerivAt
@@ -108,9 +109,11 @@ theorem block_integral (n : ℕ) :
 theorem block_nonneg (n : ℕ) : 0 ≤ block n := by
   unfold block
   have h₁ : 1/(8*(n:ℝ)+5) ≤ 1/(8*(n:ℝ)+1) := by
-    apply one_div_le_one_div_of_le <;> positivity
+    apply one_div_le_one_div_of_le (by positivity)
+    linarith
   have h₂ : 1/(8*(n:ℝ)+7) ≤ 1/(8*(n:ℝ)+3) := by
-    apply one_div_le_one_div_of_le <;> positivity
+    apply one_div_le_one_div_of_le (by positivity)
+    linarith
   linarith
 
 theorem finite_geometric (N : ℕ) (x : ℝ) :
