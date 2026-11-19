@@ -1,3 +1,21 @@
+# Phase 6 — 19 November 2026: Borsuk–Ulam in dimension two from Mathlib alone
+
+## Exact-HEAD evidence
+
+PR #465, HEAD `6dbdb5f90a68e8b4cef4cbcba12e97e7e794542e`, workflow 44528789107, job 135576316756: **SUCCESS**, 9 exact declarations audited, standard axioms only, no warning or error from `BorsukUlamTwo.lean`. The existing audit passed on the same HEAD (workflow 44528789111, `lean (base)` and `lean (borsuk-bridge)`). Merge commit `88a7901b5be188a40679cd0146eaa951f14e91db`.
+
+PR #467, HEAD `585b67f2dfd35606c4f5fd3f15bc584d04f67d37`, workflow 44531572827, job 135585968509: **SUCCESS**, 12 exact declarations audited (the 9 above and the 3 of `PetersApplicationsDim2.lean`), standard axioms only, no warning or error from either file; the same job checks that no HamSandwich object file is compiled for this chain. The existing audit passed on the same HEAD (workflow 44531572865, both jobs). Merge commit `52aec61d972acdc8e3f469ff750fd2e892bd375a`.
+
+Both runs use Lean 4.28.0 and Mathlib `8f9d9cff6bd728b17a24e163c9402775d9e6a365`. The workflow is `.github/workflows/peters2024-borsuk-two.yml`.
+
+## Phase 6 mathematical increments
+
+`BorsukUlamTwo.lean` (16 theorems, 2 definitions; imports `Mathlib` and `Peters2024` only) proves `borsukUlam_two : BorsukUlam 2`, i.e. Theorem 1.1 for continuous maps S² → ℝ², without the external general-dimensional proof. The antipodal difference `g x = f x - f (-x)` is read as a complex number; if it never vanished, its composition with spherical coordinates on the plane would have a continuous logarithm `L` (`Complex.isCoveringMapOn_exp`, `IsCoveringMapOn.existsUnique_continuousMap_lifts`). Uniqueness of lifts gives a constant `c` with `exp c = -1` and `L (θ + π, -t) = L (θ, t) + c`, while `L` is constant along the line `t = π / 2`, which the chart sends to a pole; hence `2c = 0`, a contradiction. The same file gives `thm_5_4_dim2`, `thm_5_5_dim2`, `thm_5_6_continuous_kernel_dim2`, `thm_6_2_dim2` and `cor_6_3_dim2`.
+
+`PetersApplicationsDim2.lean` (3 theorems) gives `thm_6_2_woodhouse_dim2`, `cor_6_3_woodhouse_dim2` and `thm_3_5_nullhomotopic_dim2`, the statements of `PetersApplications` in dimension two with `borsukUlam_two` in place of the general bridge.
+
+Scope. This phase changes only the provenance of Borsuk–Ulam for `n = 2`: every dimension-two statement of Sections 5 and 6 formalized here now has a version depending on Mathlib alone. The general-dimensional `thm_1_1` (1.1, 1.4 and 3.5 for arbitrary `n`) still rests on the HamSandwich bridge. The continuity hypotheses on observables, kernels, coordinate maps and integrands are exactly those of the earlier statements, so the status table of Phase 5 below and its open obligations are unchanged.
+
 # Phase 5 — 19 November 2026 (current coverage and open obligations)
 
 ## Exact-HEAD evidence
