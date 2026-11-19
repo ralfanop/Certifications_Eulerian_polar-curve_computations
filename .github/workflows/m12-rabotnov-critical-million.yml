@@ -1,0 +1,43 @@
+name: M12 Rabotnov and critical coefficient million-decimal certification
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_rabotnov_critical_million.py'
+      - '.github/workflows/m12-rabotnov-critical-million.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin and verify exact head
+        run: |
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Certify both rounding standards
+        run: |
+          set -euo pipefail
+          python numerics/arb/m12_rabotnov_critical_million.py 2>&1 | tee m12-rabotnov-critical.log
+          grep -F 'MILLION SUCCESS m12-rabotnov-critical checks 9' m12-rabotnov-critical.log
+          test "$(grep -c '1000001 fixed decimal places: PASS' m12-rabotnov-critical.log)" -eq 9
+          gzip -t million-enclosures.jsonl.gz m12-fixed-decimal-endpoints.jsonl.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-rabotnov-critical-million
+          path: |
+            m12-rabotnov-critical.log
+            million-m12-rabotnov-critical.json
+            million-enclosures.jsonl.gz
+            m12-fixed-decimal-endpoints.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn
