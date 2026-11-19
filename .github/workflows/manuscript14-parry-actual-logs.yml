@@ -1,0 +1,60 @@
+name: M14 Parry actual logarithm estimates
+on:
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119ParryActualLogsX20.lean'
+      - '.github/workflows/manuscript14-parry-actual-logs.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 --connect-timeout 20 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+      - name: Fetch pinned Mathlib cache
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          grep -Fx 'rev = "0272bbe1c093d038d7257ab15306abd58245f9ff"' lakefile.toml
+          lake update
+          lake exe cache get
+      - name: Kernel check and inspect axiom reports
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for file in V14119Asymptotic177Taylor V14119Asymptotic177Log V14119Asymptotic177Epsilon V14119ParryAnalyticInputsX20 V14119ParryActualLogsX20; do
+            lake env lean -o .lake/build/lib/lean/SpecialImaginaryPoint/$file.olean SpecialImaginaryPoint/$file.lean 2>&1 | tee -a /tmp/m14-parry-actual-logs-lean.log
+          done
+          if grep -nF -e 'sorryAx' -e 'Lean.ofReduceBool' /tmp/m14-parry-actual-logs-lean.log; then
+            exit 1
+          fi
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          text = Path('/tmp/m14-parry-actual-logs-lean.log').read_text()
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          for names in re.findall(r'depends on axioms: \[([^\]]*)\]', text, flags=re.S):
+              assert set(n.strip() for n in names.split(',') if n.strip()) <= allowed, names
+          PY
+          for decl in profile_eq epsilon_small actual_denominator_lower actual_beta_gt_one actual_log_beta_taylor actual_log_normalized_taylor actual_log_scale_ge_one epsilon_polynomial_proxy normalized_epsilon_polynomial_proxy; do
+            grep -F ".$decl'" /tmp/m14-parry-actual-logs-lean.log
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-parry-actual-logs-lean-log
+          path: /tmp/m14-parry-actual-logs-lean.log
