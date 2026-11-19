@@ -23,8 +23,7 @@ theorem rounded_second_moment (μ : Measure ℝ) [IsProbabilityMeasure μ]
     (hμ.const_mul 2).add (integrable_const 2)
   apply hi.mono'
     (by
-      have hm := measurable_roundEnergy.mul measurable_roundEnergy
-      simpa only [pow_two] using hm.aestronglyMeasurable)
+      exact (measurable_roundEnergy.pow_const 2).aestronglyMeasurable)
   apply Filter.Eventually.of_forall
   intro x
   rw [Real.norm_eq_abs, abs_of_nonneg (sq_nonneg _)]
@@ -33,7 +32,8 @@ theorem rounded_second_moment (μ : Measure ℝ) [IsProbabilityMeasure μ]
   have hs : (x - roundEnergy x)^2 ≤ 1 := by
     have hh := mul_nonneg (sub_nonneg.mpr h) (add_nonneg (by norm_num : (0:ℝ) ≤ 1) hn)
     nlinarith [sq_abs (x - roundEnergy x)]
-  nlinarith [sq_nonneg (x + (x - roundEnergy x))]
+  change (roundEnergy x)^2 ≤ 2*x^2+2
+  nlinarith [sq_nonneg (2*x - roundEnergy x)]
 
 theorem coupling_squared_cost_integrable {μ ν : Measure ℝ}
     {γ : Measure (ℝ × ℝ)} (hγ : γ ∈ couplings μ ν)
@@ -51,13 +51,14 @@ theorem coupling_squared_cost_integrable {μ ν : Measure ℝ}
   apply Filter.Eventually.of_forall
   intro p
   rw [Real.norm_eq_abs, abs_of_nonneg (sq_nonneg _)]
+  change (p.1-p.2)^2 ≤ 2*p.1^2+2*p.2^2
   nlinarith [sq_nonneg (p.1+p.2)]
 
 theorem round_squared_displacement_integrable (μ : Measure ℝ) [IsProbabilityMeasure μ] :
     Integrable (fun x : ℝ => (x - roundEnergy x)^2) μ := by
   apply (integrable_const (1 : ℝ)).mono'
   · have hm := measurable_id.sub measurable_roundEnergy
-    simpa only [pow_two] using (hm.mul hm).aestronglyMeasurable
+    exact (hm.pow_const 2).aestronglyMeasurable
   · apply Filter.Eventually.of_forall
     intro x
     rw [Real.norm_eq_abs, abs_of_nonneg (sq_nonneg _)]
