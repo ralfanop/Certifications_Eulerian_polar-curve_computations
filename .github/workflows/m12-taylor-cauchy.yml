@@ -1,0 +1,36 @@
+name: M12 Taylor-Cauchy quadrature benchmark
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_profile_taylor_cauchy.py'
+      - '.github/workflows/m12-taylor-cauchy.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        S: [4,93]
+        bits: [512,1024,4096,8192]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+          set -euo pipefail
+          /usr/bin/time -v python numerics/arb/m12_profile_taylor_cauchy.py ${{ matrix.S }} --bits ${{ matrix.bits }} 2>&1 | tee benchmark.log
+          test "$(grep -c 'TAYLOR BENCHMARK PASS' benchmark.log)" = 2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-taylor-${{ matrix.S }}-${{ matrix.bits }}
+          path: benchmark.log
