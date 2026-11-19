@@ -1,0 +1,57 @@
+name: M14 Parry normalized logarithm exact-head audit
+on:
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119ParryNormalizedLog.lean'
+      - '.github/workflows/m14-parry-normalized-log.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean and Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+      - name: Compile dependencies and audit declarations
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          git rev-parse HEAD | tee /tmp/m14-normalized-log.log
+          for f in V14119Asymptotic177Taylor V14119Asymptotic177Log V14119Asymptotic177Epsilon V14119ParryAnalyticInputsX20 V14119ParryResidualTransferX20; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" "SpecialImaginaryPoint/$f.lean" 2>&1 | tee -a /tmp/m14-normalized-log.log
+          done
+          lake env lean -M16768 SpecialImaginaryPoint/V14119ParryNormalizedLog.lean 2>&1 | tee -a /tmp/m14-normalized-log.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m14-normalized-log.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/m14-normalized-log.log').read_text()
+          for n in ['profile_eq','profile_gt_one','normalized_denominator_lower','epsilon_upper_quarter','actual_log_profile_taylor','normalized_profile_eq','actual_log_normalized_taylor','parry_log_scale','actual_parry_transfer']:
+              name = 'Manuscript14.ParryNormalizedLog.' + n
+              m = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]|'" + re.escape(name) + r"' does not depend on any axioms", log)
+              assert m, 'missing audit: ' + name
+              assert {a.strip() for a in (m.group(1) or '').split(',') if a.strip()} <= {'propext','Classical.choice','Quot.sound'}
+          print('AXIOM AUDIT SUCCESS: nine named declarations')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-parry-normalized-log-kernel
+          path: /tmp/m14-normalized-log.log
