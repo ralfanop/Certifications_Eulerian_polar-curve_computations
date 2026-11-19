@@ -167,7 +167,7 @@ theorem parry_from_finite_residuals (x : ℝ) (hx : 0 < x) (hx1 : x ≤ 1/2)
       _ ≤ 66*(x^2)^12+(x^2)^12 := add_le_add (numerator_proxy_substitution x hx hx1) hC
       _ = _ := by ring
   have h := actual_parry_reduction x 13 67 hx (by linarith) (by norm_num) (by norm_num) hD hN
-  norm_num at h
+  norm_num at h ⊢
   exact h
 
 #print axioms pow_difference_bound
