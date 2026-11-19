@@ -5,7 +5,7 @@ open scoped ENNReal
 namespace Manuscript16.V166SpectralCutoffs
 open Manuscript16.V166L2SpectralInverse
 
-variable {ι : Type*}
+variable {ι : Type*} [DecidableEq ι]
 
 /-- Coordinate analysis into an actual n-dimensional normed space. -/
 def analysisMap {n : ℕ} (e : Fin n ↪ ι) : L2 ι →L[ℂ] (Fin n → ℂ) :=
@@ -29,13 +29,13 @@ theorem cutoff_factor {n : ℕ} (d : ι → ℂ) (e : Fin n ↪ ι) :
 
 theorem cutoff_apply_sum {n : ℕ} (d : ι → ℂ) (e : Fin n ↪ ι)
     (x : L2 ι) (i : ι) :
-    cutoff d e x i = ∑ j : Fin n, d (e j) * lp.single 2 (e j) (x (e j)) i := by
+    cutoff d e x i = ∑ j : Fin n, d (e j) * (lp.single (E := fun _ : ι => ℂ) 2 (e j) (x (e j)) : L2 ι) i := by
   classical
   unfold cutoff synthesisMap
   simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.sum_apply,
     ContinuousLinearMap.smul_apply, lp.coeFn_sum, Finset.sum_apply,
     lp.singleContinuousLinearMap_apply]
-  rfl
+  <;> rfl
 
 theorem cutoff_apply_mem {n : ℕ} (d : ι → ℂ) (e : Fin n ↪ ι)
     (x : L2 ι) (j : Fin n) :
