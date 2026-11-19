@@ -51,7 +51,7 @@ theorem lower_bound_on_kernel_orthogonal
     exact ⟨(x n : E), by simpa using hxupper n, rfl⟩
   obtain ⟨y, hyK, ψ, hψ, hψy⟩ := hK.tendsto_subseq (x := y_) hy_mem
   have hTs : Tendsto (fun n ↦ T (x (ψ n) : E)) atTop (𝓝 0) := by
-    simpa [g] using hg_lim.comp hψ.tendsto_atTop
+    simpa [g, Function.comp_def] using hg_lim.comp hψ.tendsto_atTop
   have hSs : Tendsto (fun n ↦ S (T (x (ψ n) : E))) atTop (𝓝 0) := by
     simpa [Function.comp_def] using S.continuous.continuousAt.tendsto.comp hTs
   have he : (fun n ↦ y_ (ψ n) + S (T (x (ψ n) : E))) =
@@ -60,6 +60,7 @@ theorem lower_bound_on_kernel_orthogonal
     exact hdef _
   have hx_lim : Tendsto (fun n ↦ (x (ψ n) : E)) atTop (𝓝 y) := by
     have hh := hψy.add hSs
+    change Tendsto (fun n ↦ y_ (ψ n) + S (T (x (ψ n) : E))) atTop (𝓝 (y + 0)) at hh
     rw [he, add_zero] at hh
     exact hh
   have hy_perp : y ∈ T.kerᗮ :=
@@ -74,7 +75,7 @@ theorem lower_bound_on_kernel_orthogonal
     exact ⟨hy_ker, hy_perp⟩
   have hy_eq : y = 0 := by simpa using hy_bot
   have hy_lower : c ≤ ‖y‖ := by
-    apply le_of_tendsto (continuous_norm.continuousAt.tendsto.comp hx_lim)
+    apply ge_of_tendsto (continuous_norm.continuousAt.tendsto.comp hx_lim)
     exact Filter.Eventually.of_forall (fun n ↦ by simpa using hxlower (ψ n))
   rw [hy_eq, norm_zero] at hy_lower
   exact (not_le_of_gt hc) hy_lower
