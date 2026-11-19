@@ -45,14 +45,40 @@ def callback(S, high, derivative):
 
 
 def ellipse_bound(S,c,h,high,derivative,rho):
+    """Cover the ellipse by dyadic subboxes, not a single dependency-heavy box.
+
+    Normalized coordinates (x,y) satisfy x*x+y*y<=1. Discard a tile
+    only when its exact minimum squared distance from 0 exceeds 1.
+    Every retained leaf must certify analyticity by the original
+    flagged callback; the maximum of the leaf magnitude bounds then
+    bounds the whole closed ellipse. A failed cover is a rejection,
+    never an underestimated bound.
+    """
     p=ctx.prec
     ctx.prec=128
     try:
-        a=(arb(rho)+1/arb(rho))/2
-        b=(arb(rho)-1/arb(rho))/2
-        z=acb(arb(c,(h*a).upper()),arb(0,(h*b).upper()))
-        val=callback(S,high,derivative)(z,True)
-        return abs(val).upper() if val.is_finite() else None
+        a=h*(arb(rho)+1/arb(rho))/2
+        b=h*(arb(rho)-1/arb(rho))/2
+        f=callback(S,high,derivative)
+        todo=[(arb(0),arb(0),arb(1),0)]
+        M=arb(0)
+        while todo:
+            x,y,d,depth=todo.pop()
+            dx=max(arb(0),abs(x)-d)
+            dy=max(arb(0),abs(y)-d)
+            if dx*dx+dy*dy>1:
+                continue
+            z=acb(arb(c+a*x,(a*d).upper()),arb(b*y,(b*d).upper()))
+            val=f(z,True)
+            if val.is_finite():
+                M=max(M,abs(val).upper())
+            elif depth<4:
+                dd=d/2
+                todo.extend((x+i*dd,y+j*dd,dd,depth+1)
+                            for i in (-1,1) for j in (-1,1))
+            else:
+                return None
+        return M if M.is_finite() else None
     finally:
         ctx.prec=p
 
