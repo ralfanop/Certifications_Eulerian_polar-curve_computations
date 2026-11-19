@@ -1,0 +1,145 @@
+name: M12 remaining library strict theorem inventory
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/AuditM12OtherLibraries.lean'
+      - 'lean/FixedDegreeLanczos/lean/AuditM12FixedStrict.lean'
+      - '.github/workflows/m12-other-library-exact-audits.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  eulerian-and-uniform:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    defaults:
+      run:
+        working-directory: lean/EulerianGrothendieck
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned toolchain and Mathlib
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m12-library-head.txt
+          test "$(cat lean-toolchain)" = "leanprover/lean4:v4.24.0"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lean --version | tee /tmp/m12-library-toolchain.txt
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = f897ebcf72cd16f89ab4577d0c826cd14afaafc7
+          lake exe cache get
+      - name: Build core, all tracked supplement modules and joined UniformLanczos
+        run: |
+          set -euo pipefail
+          git ls-files -- 'EulerianGrothendieck/*.lean' 'UniformLanczos/*.lean' | sed 's/\.lean$//;s|/|.|g' | sort > /tmp/m12-library-modules.txt
+          test -s /tmp/m12-library-modules.txt
+          mapfile -t modules < /tmp/m12-library-modules.txt
+          lake build EulerianGrothendieck Bridge V033 V001 UniformLanczos "${modules[@]}" 2>&1 | tee /tmp/m12-library-build.log
+          { sed 's/^/import /' /tmp/m12-library-modules.txt; cat AuditM12OtherLibraries.lean; } > /tmp/M12OtherFull.lean
+          lake env lean /tmp/M12OtherFull.lean 2>&1 | tee /tmp/m12-library-types.log
+      - name: Independently validate inventory
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s = Path('/tmp/m12-library-types.log').read_text()
+          counts = re.findall(r'M12_LIBRARY_COUNT (\S+) (\d+) BAD 0', s)
+          assert {p for p, _ in counts} == {'EulerianGrothendieck', 'UniformLanczos'}
+          assert len(counts) == 2
+          names = re.findall(r'M12_LIBRARY_DECL (\S+)', s)
+          assert 'M12_LIBRARY_AUDIT_SUCCESS' in s and 'M12_LIBRARY_NONSTANDARD' not in s
+          assert len(names) == len(set(names)) == sum(int(n) for _, n in counts)
+          assert s.count('END_DECL') == len(names)
+          for p, n in counts:
+              assert int(n) > 0
+              assert sum(x.startswith(p + '.') for x in names) == int(n)
+          Path('/tmp/m12-library-declarations.txt').write_text('\n'.join(sorted(names)) + '\n')
+          print('EXACT M12 LIBRARY AUDIT SUCCESS', counts)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-eulerian-uniform-strict-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            /tmp/m12-library-head.txt
+            /tmp/m12-library-toolchain.txt
+            /tmp/m12-library-build.log
+            /tmp/m12-library-types.log
+            /tmp/m12-library-declarations.txt
+            /tmp/m12-library-modules.txt
+          if-no-files-found: warn
+  fixed-degree:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    defaults:
+      run:
+        working-directory: lean/FixedDegreeLanczos
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned toolchain and Mathlib
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m12-library-head.txt
+          test "$(cat lean-toolchain)" = "leanprover/lean4:v4.24.0"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lean --version | tee /tmp/m12-library-toolchain.txt
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = f897ebcf72cd16f89ab4577d0c826cd14afaafc7
+          lake exe cache get
+      - name: Build and audit fixed-degree Lanczos from source
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y ripgrep
+          bash code/verify_lean_portable.sh 2>&1 | tee /tmp/m12-library-build.log
+          LEAN_BIN="$(lake env which lean)"
+          export LEAN_PATH="$PWD/lean:$(lake env printenv LEAN_PATH)"
+          for module in V035ExactCoefficients V035JacobiCorollary; do
+            "$LEAN_BIN" -M 4096 -o "lean/$module.olean" "lean/$module.lean" 2>&1 | tee -a /tmp/m12-library-build.log
+          done
+          git ls-files -- 'lean/V033*.lean' 'lean/V035*.lean' | sort > /tmp/m12-library-modules.txt
+          "$LEAN_BIN" -M 4096 lean/AuditM12FixedStrict.lean 2>&1 | tee /tmp/m12-library-types.log
+      - name: Independently validate inventory
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s = Path('/tmp/m12-library-types.log').read_text()
+          counts = re.findall(r'M12_LIBRARY_COUNT (\S+) (\d+) BAD 0', s)
+          assert {p for p, _ in counts} == {'V033'}
+          assert len(counts) == 1
+          names = re.findall(r'M12_LIBRARY_DECL (\S+)', s)
+          assert 'M12_LIBRARY_AUDIT_SUCCESS' in s and 'M12_LIBRARY_NONSTANDARD' not in s
+          assert len(names) == len(set(names)) == sum(int(n) for _, n in counts)
+          assert s.count('END_DECL') == len(names)
+          for p, n in counts:
+              assert int(n) > 0
+              assert sum(x.startswith(p + '.') for x in names) == int(n)
+          Path('/tmp/m12-library-declarations.txt').write_text('\n'.join(sorted(names)) + '\n')
+          print('EXACT M12 LIBRARY AUDIT SUCCESS', counts)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-fixed-degree-strict-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            /tmp/m12-library-head.txt
+            /tmp/m12-library-toolchain.txt
+            /tmp/m12-library-build.log
+            /tmp/m12-library-types.log
+            /tmp/m12-library-declarations.txt
+            /tmp/m12-library-modules.txt
+          if-no-files-found: warn
