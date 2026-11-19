@@ -1,0 +1,63 @@
+name: M14 E6 real slope normalization
+on:
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119QuarticE6RealChart.lean'
+      - '.github/workflows/manuscript14-e6-real-chart.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile dependencies and real slope chart
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for f in V14119DominantPoleQuarticE6 V14119QuarticE6RealChart; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/SpecialImaginaryPoint/$f.olean" "SpecialImaginaryPoint/$f.lean" 2>&1 | tee "/tmp/$f.log"
+          done
+      - name: Audit axioms
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          p = 'Manuscript14.QuarticE6.'
+          names = ['slope_identity','slope_relation','slope_D_ne','reconstruct_of_curve','zero_axis','slope_of_param','param_injective','large_slope_denominator','slope_small','local_real_chart','param_continuity_at_origin']
+          logs = '\n'.join(f.read_text() for f in Path('/tmp').glob('V14119*.log'))
+          assert 'sorryAx' not in logs and 'Lean.ofReduceBool' not in logs
+          reports = {}
+          for m in re.finditer(r"'([^']+)' depends on axioms: \[([^\]]*)\]|'([^']+)' does not depend on any axioms", logs):
+              reports[m.group(1) or m.group(3)] = {v.strip() for v in (m.group(2) or '').split(',') if v.strip()}
+          for name in names:
+              assert p+name in reports, name
+              assert reports[p+name] <= {'propext','Classical.choice','Quot.sound'}, name
+          print('SUCCESS: 11 exact real-chart declarations, foundational axiom audit')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-e6-real-chart-audit
+          path: /tmp/V14119*.log
