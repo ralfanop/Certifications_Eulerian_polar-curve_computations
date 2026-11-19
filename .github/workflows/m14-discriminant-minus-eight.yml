@@ -1,0 +1,55 @@
+name: M14 discriminant minus eight Dirichlet series exact integral
+on:
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/V14119DiscriminantMinusEight.lean'
+      - '.github/workflows/m14-discriminant-minus-eight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --connect-timeout 20 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Compile and audit exact HEAD
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/m14-disc8.log
+          lake env lean -M16768 SpecialImaginaryPoint/V14119DiscriminantMinusEight.lean 2>&1 | tee -a /tmp/m14-disc8.log
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path('/tmp/m14-disc8.log').read_text()
+          assert not re.search(r'sorryAx|Lean\.ofReduceBool|error:|declaration uses .sorry.', log)
+          prefix = 'Manuscript14.DiscriminantMinusEight.'
+          names = ['kernel_continuous','primitive_derivative','primitive_zero','primitive_one','integral_kernel','term_continuous','term_factor','block_integral','block_nonneg','finite_geometric','partial_sum_identity','partial_sum_error','grouped_dirichlet_hasSum','grouped_dirichlet_value']
+          for n in names:
+              name = prefix+n
+              reports = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert reports or ("'"+name+"' does not depend on any axioms") in log, name
+              for report in reports:
+                  assert {a.strip() for a in report.split(',') if a.strip()} <= {'propext','Classical.choice','Quot.sound'}, name
+          print('AXIOM AUDIT SUCCESS', len(names))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-discriminant-minus-eight-exact-head
+          path: /tmp/m14-disc8.log
