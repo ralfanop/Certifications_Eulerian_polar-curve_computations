@@ -1,0 +1,34 @@
+name: M14 exact rational Parry composition residual
+on:
+  pull_request:
+    paths:
+      - 'numerics/exact/m14_parry_composition_residual.py'
+      - 'lean/SpecialImaginaryPoint/M14_PARRY_COMPOSITION_REMAINDER_20261119.md'
+      - '.github/workflows/m14-parry-composition-residual.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact rational residual verification
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee parry-composition.log
+          python numerics/exact/m14_parry_composition_residual.py | tee -a parry-composition.log
+          grep -F 'PASS: exact first 12 coefficients in both composed polynomials' parry-composition.log
+          grep -F 'PASS: full denominator residual' parry-composition.log
+          grep -F 'PASS: full numerator residual' parry-composition.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-parry-exact-rational-composition
+          path: parry-composition.log
