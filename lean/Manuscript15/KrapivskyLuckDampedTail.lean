@@ -25,7 +25,8 @@ theorem tailPrimitive_deriv (s t : ℝ) :
   have hp := (hc.sub hs).sub_const (1 : ℝ)
   unfold tailPrimitive
   convert (he.mul hp).div_const (s^2 + 1) using 1 <;>
-    try rfl <;> field_simp [show s^2 + 1 ≠ 0 by positivity] <;> ring
+    try rfl <;> simp only [Pi.sub_apply] <;>
+    field_simp [show s^2 + 1 ≠ 0 by positivity] <;> ring
 
 theorem tailPrimitive_bound (s t : ℝ) (hs : 0 < s) :
     |tailPrimitive s t| ≤
@@ -52,7 +53,7 @@ theorem tailPrimitive_bound (s t : ℝ) (hs : 0 < s) :
 theorem tailPrimitive_tendsto (s : ℝ) (hs : 0 < s) :
     Tendsto (tailPrimitive s) atTop (𝓝 0) := by
   have hlin : Tendsto (fun t : ℝ => -s*t) atTop atBot := by
-    simpa only [neg_mul] using
+    simpa only [Function.comp_def, id_eq, neg_mul] using
       (tendsto_neg_atTop_atBot.comp
         ((tendsto_id : Tendsto (fun t : ℝ => t) atTop atTop).const_mul_atTop hs))
   have he : Tendsto (fun t : ℝ => Real.exp (-s*t)) atTop (𝓝 0) :=
