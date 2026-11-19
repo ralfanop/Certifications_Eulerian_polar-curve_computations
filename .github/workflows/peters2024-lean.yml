@@ -36,15 +36,17 @@ jobs:
           set -euo pipefail
           lean --version
           if [[ "${{ matrix.target }}" == base ]]; then
-            lake exe cache get Mathlib/Analysis/InnerProductSpace/PiL2.lean Mathlib/Analysis/Normed/Module/Connected.lean Mathlib/Analysis/Normed/Module/Ball/Action.lean Mathlib/Analysis/Normed/Group/BallSphere.lean Mathlib/Topology/MetricSpace/HausdorffDistance.lean Mathlib/Topology/Order/IntermediateValue.lean Mathlib/SetTheory/Cardinal/Order.lean Mathlib/Tactic/Linarith.lean Mathlib/Tactic/NormNum.lean Mathlib/Topology/Homotopy/Path.lean
-            lake build Peters2024 BorsukCore BisectionRepairs HomotopyRealization
-            for f in Peters2024 BorsukCore BisectionRepairs HomotopyRealization; do
+            lake exe cache get Mathlib.Analysis.InnerProductSpace.PiL2 Mathlib.Analysis.Normed.Module.Connected Mathlib.Analysis.Normed.Module.Ball.Action Mathlib.Analysis.Normed.Group.BallSphere Mathlib.Topology.MetricSpace.HausdorffDistance Mathlib.Topology.Order.IntermediateValue Mathlib.SetTheory.Cardinal.Order Mathlib.Tactic.Linarith Mathlib.Tactic.NormNum Mathlib.Topology.Homotopy.Path Mathlib.MeasureTheory.Integral.CircleIntegral Mathlib.MeasureTheory.Integral.Bochner.Set Mathlib.AlgebraicTopology.FundamentalGroupoid.SimplyConnected Mathlib.Topology.UniformSpace.UniformApproximation
+            lake build Peters2024 BorsukCore BisectionRepairs HomotopyRealization WoodhouseContinuity SurfaceHomotopy FeynmanKernelContinuity
+            for f in Peters2024 BorsukCore BisectionRepairs HomotopyRealization WoodhouseContinuity SurfaceHomotopy FeynmanKernelContinuity; do
               lake env lean "$f.lean"
             done | tee audit.log
           else
             lake exe cache get
-            lake build BorsukBridge
-            lake env lean BorsukBridge.lean | tee audit.log
+            lake build BorsukBridge PetersApplications
+            for f in BorsukBridge PetersApplications; do
+              lake env lean "$f.lean"
+            done | tee audit.log
           fi
           test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '8f9d9cff6bd728b17a24e163c9402775d9e6a365'
           test "$(git -C .lake/packages/HamSandwich rev-parse HEAD)" = '76202dbbb6610ffcebbccfbf7a56f833a4c2a376'

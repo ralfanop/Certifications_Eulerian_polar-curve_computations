@@ -1,6 +1,29 @@
+# Phase 5 — 19 November 2026 (current coverage and open obligations)
+
+## Exact-HEAD evidence
+
+PR #452, HEAD `6a966f2b382ca3e75ec00e535aa41128f237856d`, workflow 44515150543, job 135529147281: **SUCCESS**, 8205 build jobs and 9 exact declarations audited (upstream SphereOddDegree.borsuk_ulam plus 8 article-specific bridge declarations), standard axioms only. Artifact 14525013457. The general Borsuk–Ulam proof is credited to HamSandwich. Base job 135529146987 failed before compilation owing to a nonexistent relative cache path, not a Lean theorem error; Phase 5 replaces these paths with module names.
+
+## Phase 5 mathematical increments
+
+Locally compiled in pinned Lean 4.28.0: 11 new declarations, all with standard axiom audit (`lean_phase5_local.log`). WoodhouseContinuity proves the actual unit-circle contour formula (including the printed normalization 1/(2π)), joint angular continuity, continuity of the resulting integral, continuous injective complex coordinates, and the antipodal result conditional only on the previously checked Borsuk–Ulam statement and the explicit continuity of the coordinate maps/integrand. SurfaceHomotopy proves relative homotopy on simply connected spaces and the reversal loop in 3.2 in every topological space. FeynmanKernelContinuity proves continuity of compactly truncated integrals and of any uniform limit of them; it does not claim that the Feynman path integral exists or its approximants converge uniformly. Three further applications in PetersApplications compose the general Borsuk–Ulam bridge with these results; they are candidates pending exact-HEAD CI.
+
+| Article obligation | Current status | Next check |
+|---|---|---|
+| 1.1, 1.4 | PROVED on prior exact HEAD | Re-audit next commit |
+| 2.9, 3.1–3.4, 3.8 | PROVED in explicit sampled-path model (3.3 ambient, not tangent vector field) | Clarify original model, verify base CI |
+| 3.5 | PROVED in sampled-path model, prior bridge CI; relative null-homotopy refinement pending | PetersApplications CI |
+| 4.5, 4.8, 5.2 | Continuous-path/projection interpretation PROVED; general continuity cannot follow from density | Record assumption; no false implication |
+| 5.4, 5.5 | PROVED under continuity of the actual observable; unrestricted arbitrary-map version false | Establish real physical kernel assumptions, or mark NEEDS_CORRECTION |
+| 5.6 | CONDITIONAL: actual physical propagator existence and uniform-convergence estimates OPEN; equal spatial length is insufficient for equality | Choose specified dynamics, discretization and convergence theorem |
+| Def.6.1, 6.2, 6.3 | Explicit Woodhouse circle family continuity PROVED locally under continuous coordinates and integrand; application CI pending | Verify composition on exact HEAD; particular twistor coordinate maps must meet these premises |
+| 6.5 | NEEDS_CORRECTION in general complex contours; checked counterexamples and valid real/collinear/reflection bisection variants | Specify sufficient geometric/analytic assumptions, no claim for arbitrary complex subarcs |
+
+Historical Phase 1–4 entries below retain their original dates and are superseded where Phase 5 supplies new evidence. Numerical certificates (14) remain untouched; no additional finite numerical obligation arises here.
+
 # GitHub CI scope
 
-This directory contains the Lean source and historical local audit logs only. The full numerical archive, its exact balls and reproduction scripts are preserved separately. GitHub CI success for BorsukBridge is not yet established.
+This directory contains the Lean source and historical local audit logs only. The full numerical archive, its exact balls and reproduction scripts are preserved separately. GitHub CI success for BorsukBridge is documented in Phase 5 above.
 
 # Peters–Alfano–Smith–Tozzi–Vergili (2024): formal audit
 
