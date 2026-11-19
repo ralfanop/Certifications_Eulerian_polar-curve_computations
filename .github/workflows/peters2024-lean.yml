@@ -1,0 +1,61 @@
+name: Peters 2024 algebraic topology Lean audit
+on:
+  pull_request:
+    paths:
+      - 'formalizations/peters2024/**'
+      - '.github/workflows/peters2024-lean.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [base, borsuk-bridge]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    defaults:
+      run:
+        working-directory: formalizations/peters2024
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.28.0'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --connect-timeout 20 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Verify pinned dependencies and build
+        shell: bash
+        run: |
+          set -euo pipefail
+          lean --version
+          if [[ "${{ matrix.target }}" == base ]]; then
+            lake exe cache get Mathlib/Analysis/InnerProductSpace/PiL2.lean Mathlib/Analysis/Normed/Module/Connected.lean Mathlib/Analysis/Normed/Module/Ball/Action.lean Mathlib/Analysis/Normed/Group/BallSphere.lean Mathlib/Topology/MetricSpace/HausdorffDistance.lean Mathlib/Topology/Order/IntermediateValue.lean Mathlib/SetTheory/Cardinal/Order.lean Mathlib/Tactic/Linarith.lean Mathlib/Tactic/NormNum.lean Mathlib/Topology/Homotopy/Path.lean
+            lake build Peters2024 BorsukCore BisectionRepairs HomotopyRealization
+            for f in Peters2024 BorsukCore BisectionRepairs HomotopyRealization; do
+              lake env lean "$f.lean"
+            done | tee audit.log
+          else
+            lake exe cache get
+            lake build BorsukBridge
+            lake env lean BorsukBridge.lean | tee audit.log
+          fi
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '8f9d9cff6bd728b17a24e163c9402775d9e6a365'
+          test "$(git -C .lake/packages/HamSandwich rev-parse HEAD)" = '76202dbbb6610ffcebbccfbf7a56f833a4c2a376'
+      - name: Audit exact declarations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 audit_ci.py "${{ matrix.target }}" audit.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: peters2024-${{ matrix.target }}-audit
+          path: formalizations/peters2024/audit.log
+          if-no-files-found: warn
