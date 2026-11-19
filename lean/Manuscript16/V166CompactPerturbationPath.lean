@@ -1,91 +1,70 @@
 import Mathlib
 
-/-! M16.6 §13: compact parametrix defects survive compact perturbations.
-This is the algebraic and topological homotopy gate for Fredholm index
-stability, not a proof that the index is locally constant. Independent
-of the forward Fredholm criterion in PR #455. -/
+/-! M16.6 §13, Fredholm index stability.  The finite-dimensional Schur
+block has index equal to the difference of the dimensions of its fixed
+domain and codomain, even when its rank changes. The actual affine
+operator path is norm-continuous with an exact difference norm.
+Unlike shared #458, this does not reprove compact-parametrix preservation.
+The continuous block reduction for a general Fredholm map remains open. -/
 namespace Manuscript16.V166CompactPerturbationPath
 
+open Module
+
+section FiniteBlock
+variable {U V : Type*} [AddCommGroup U] [Module ℂ U]
+  [AddCommGroup V] [Module ℂ V]
+  [FiniteDimensional ℂ U] [FiniteDimensional ℂ V]
+
+def finiteIndex (A : U →ₗ[ℂ] V) : ℤ :=
+  (Module.finrank ℂ A.ker : ℤ) -
+    (Module.finrank ℂ (V ⧸ A.range) : ℤ)
+
+/-- Rank-nullity and the quotient dimension formula eliminate rank entirely. -/
+theorem finite_block_index (A : U →ₗ[ℂ] V) :
+    finiteIndex A = (Module.finrank ℂ U : ℤ) - (Module.finrank ℂ V : ℤ) := by
+  have hr := LinearMap.finrank_range_add_finrank_ker A
+  have hq := Submodule.finrank_quotient_add_finrank A.range
+  unfold finiteIndex
+  omega
+
+/-- No continuity, nonsingularity, or constant rank of the finite Schur block
+is needed for its index to remain fixed. -/
+theorem finite_block_index_independent (A B : U →ₗ[ℂ] V) :
+    finiteIndex A = finiteIndex B := by
+  rw [finite_block_index, finite_block_index]
+
+theorem finite_endomorphism_index_zero (A : U →ₗ[ℂ] U) :
+    finiteIndex A = 0 := by
+  rw [finite_block_index, sub_self]
+
+theorem finite_block_family_index_constant {ι : Type*} (A : ι → U →ₗ[ℂ] V)
+    (s t : ι) : finiteIndex (A s) = finiteIndex (A t) :=
+  finite_block_index_independent _ _
+
+end FiniteBlock
+
+section NormPath
 variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   [NormedAddCommGroup F] [NormedSpace ℂ F]
 
-def HasCompactParametrix (T : E →L[ℂ] F) : Prop :=
-  ∃ S : F →L[ℂ] E,
-    IsCompactOperator ((1 : E →L[ℂ] E) - S.comp T) ∧
-    IsCompactOperator ((1 : F →L[ℂ] F) - T.comp S)
-
-theorem left_defect_add (T K : E →L[ℂ] F) (S : F →L[ℂ] E) :
-    (1 : E →L[ℂ] E) - S.comp (T + K) =
-      (1 - S.comp T) - S.comp K := by
-  ext x
-  change x - S (T x + K x) = x - S (T x) - S (K x)
-  rw [map_add]
-  abel
-
-theorem right_defect_add (T K : E →L[ℂ] F) (S : F →L[ℂ] E) :
-    (1 : F →L[ℂ] F) - (T + K).comp S =
-      (1 - T.comp S) - K.comp S := by
-  ext y
-  change y - (T (S y) + K (S y)) = y - T (S y) - K (S y)
-  abel
-
-/-- The very same parametrix works for the perturbed operator. -/
-theorem same_parametrix_add_compact (T K : E →L[ℂ] F) (S : F →L[ℂ] E)
-    (hK : IsCompactOperator K)
-    (hL : IsCompactOperator ((1 : E →L[ℂ] E) - S.comp T))
-    (hR : IsCompactOperator ((1 : F →L[ℂ] F) - T.comp S)) :
-    IsCompactOperator ((1 : E →L[ℂ] E) - S.comp (T + K)) ∧
-      IsCompactOperator ((1 : F →L[ℂ] F) - (T + K).comp S) := by
-  constructor
-  · rw [left_defect_add]
-    exact hL.sub (hK.clm_comp S)
-  · rw [right_defect_add]
-    exact hR.sub (hK.comp_clm S)
-
-theorem parametrix_add_compact (T K : E →L[ℂ] F)
-    (hK : IsCompactOperator K) (hT : HasCompactParametrix T) :
-    HasCompactParametrix (T + K) := by
-  obtain ⟨S, hL, hR⟩ := hT
-  exact ⟨S, same_parametrix_add_compact T K S hK hL hR⟩
-
-theorem parametrix_add_compact_iff (T K : E →L[ℂ] F)
-    (hK : IsCompactOperator K) :
-    HasCompactParametrix (T + K) ↔ HasCompactParametrix T := by
-  constructor
-  · intro h
-    have hn : IsCompactOperator (-K : E →L[ℂ] F) := by
-      exact hK.neg
-    have hp := parametrix_add_compact (T + K) (-K) hn h
-    simpa using hp
-  · exact parametrix_add_compact T K hK
-
-/-- A scalar multiple of a compact operator is compact, by composition. -/
-theorem compact_scaled (K : E →L[ℂ] F) (hK : IsCompactOperator K) (t : ℂ) :
-    IsCompactOperator (t • K : E →L[ℂ] F) := by
-  have h := hK.clm_comp (t • (1 : F →L[ℂ] F))
-  have he : (t • (1 : F →L[ℂ] F)).comp K = t • K := by
-    ext x
-    rfl
-  rw [he] at h
-  exact h
-
-/-- Every point of the affine compact homotopy admits the original parametrix. -/
-theorem compact_homotopy_parametrix (T K : E →L[ℂ] F)
-    (hK : IsCompactOperator K) (hT : HasCompactParametrix T) (t : ℂ) :
-    HasCompactParametrix (T + t • K) :=
-  parametrix_add_compact T (t • K) (compact_scaled K hK t) hT
+/-- Exact operator norm of the difference along the affine path. -/
+theorem affine_path_difference_norm (T K : E →L[ℂ] F) (s t : ℂ) :
+    ‖(T + s • K) - (T + t • K)‖ = ‖s - t‖ * ‖K‖ := by
+  have he : (T + s • K) - (T + t • K) = (s - t) • K := by
+    rw [sub_smul]
+    abel
+  rw [he, norm_smul]
 
 theorem compact_homotopy_continuous (T K : E →L[ℂ] F) :
     Continuous (fun t : ℂ => T + t • K) :=
   continuous_const.add (continuous_id.smul continuous_const)
 
+end NormPath
 end Manuscript16.V166CompactPerturbationPath
 
-#print axioms Manuscript16.V166CompactPerturbationPath.left_defect_add
-#print axioms Manuscript16.V166CompactPerturbationPath.right_defect_add
-#print axioms Manuscript16.V166CompactPerturbationPath.same_parametrix_add_compact
-#print axioms Manuscript16.V166CompactPerturbationPath.parametrix_add_compact
-#print axioms Manuscript16.V166CompactPerturbationPath.parametrix_add_compact_iff
-#print axioms Manuscript16.V166CompactPerturbationPath.compact_scaled
-#print axioms Manuscript16.V166CompactPerturbationPath.compact_homotopy_parametrix
+#print axioms Manuscript16.V166CompactPerturbationPath.finite_block_index
+#print axioms Manuscript16.V166CompactPerturbationPath.finite_block_index_independent
+#print axioms Manuscript16.V166CompactPerturbationPath.finite_endomorphism_index_zero
+#print axioms Manuscript16.V166CompactPerturbationPath.finite_block_family_index_constant
+#print axioms Manuscript16.V166CompactPerturbationPath.affine_path_difference_norm
 #print axioms Manuscript16.V166CompactPerturbationPath.compact_homotopy_continuous
