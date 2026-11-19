@@ -32,10 +32,9 @@ theorem shifted_finite_kernel
     FiniteDimensional ℂ (μ • (1 : E →L[ℂ] E) - K).ker := by
   have heq : (μ • (1 : E →L[ℂ] E) - K).ker = eigenspace K.toLinearMap μ := by
     ext x
-    rw [ContinuousLinearMap.mem_ker, mem_eigenspace_iff]
+    rw [mem_eigenspace_iff]
     change μ • x - K x = 0 ↔ K x = μ • x
-    rw [sub_eq_zero]
-    exact eq_comm
+    exact sub_eq_zero.trans eq_comm
   rw [heq]
   exact ContinuousLinearMap.finite_dimensional_eigenspace hK μ hμ
 
