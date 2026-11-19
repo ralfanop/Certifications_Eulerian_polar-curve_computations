@@ -1,0 +1,62 @@
+name: M13 frozen normalized Gram million-decimal certification
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m13_gram_million.py'
+      - '.github/workflows/m13-gram-million.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact rational regression
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python numerics/arb/m13_gram_million.py regression
+  certify:
+    needs: regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        row: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin and verify exact HEAD
+        run: |
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - name: Certify row
+        run: |
+          set -euo pipefail
+          python numerics/arb/m13_gram_million.py ${{ matrix.row }} 2>&1 | tee gram.log
+          grep -F 'MILLION SUCCESS m13-gram-row-${{ matrix.row }}' gram.log
+          test -s million-m13-gram-row-${{ matrix.row }}.json
+          gzip -t million-enclosures.jsonl.gz
+          gzip -t m13-gram-row-${{ matrix.row }}-endpoints.jsonl.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m13-gram-row-${{ matrix.row }}
+          path: |
+            gram.log
+            million-m13-gram-row-${{ matrix.row }}.json
+            million-enclosures.jsonl.gz
+            m13-gram-row-${{ matrix.row }}-endpoints.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn
