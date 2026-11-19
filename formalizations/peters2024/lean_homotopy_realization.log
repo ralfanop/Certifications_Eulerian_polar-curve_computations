@@ -1,0 +1,4 @@
+'Peters2024.real_normed_paths_homotopic' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Peters2024.sampled_image_loop_nullhomotopic' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Peters2024.thm_3_8_nullhomotopic' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Peters2024.thm_3_5_nullhomotopic' depends on axioms: [propext, Classical.choice, Quot.sound]
