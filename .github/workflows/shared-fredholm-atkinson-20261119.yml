@@ -1,0 +1,49 @@
+name: Shared Fredholm Atkinson criterion and index stability
+
+on:
+  pull_request:
+    paths:
+      - 'lean/SharedCore/FredholmAtkinson.lean'
+      - 'lean/SharedCore/FredholmCompactParametrix.lean'
+      - 'scripts/verify_fredholm_atkinson_20261119.py'
+      - '.github/workflows/shared-fredholm-atkinson-20261119.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fredholm-atkinson-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  atkinson:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pin source and toolchain
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha || github.sha }}'
+          git rev-parse HEAD | tee /tmp/fredholm-atkinson-head.log
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch pinned mathematics library
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Rebuild both modules and audit their axioms
+        run: python3 scripts/verify_fredholm_atkinson_20261119.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fredholm-atkinson-20261119
+          path: |
+            lean/.lake/fredholm_atkinson_20261119
+            /tmp/fredholm-atkinson-head.log
