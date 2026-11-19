@@ -45,13 +45,18 @@ def strip_bound(S,a):
     try:
         # By f(-theta)=f(theta), f(pi-theta)=f(theta), it suffices
         # to cover [0,pi/2] x [-a,a]. Boxes enclose the closed strip.
-        todo=[(arb(1)/2,arb(1)/2,0)]
+        # Split both coordinates: retaining the entire vertical radius
+        # in every box severely overestimates the analytic range.
+        todo=[(arb(1)/2,arb(1)/2,arb(0),arb(1),0)]
         M=arb(0)
-        boxes=0
+        boxes=visited=0
         quarter=arb.pi()/2
         while todo:
-            c,h,d=todo.pop()
-            z=acb(arb(c*quarter,h*quarter),arb(0,a))
+            c,h,y,k,d=todo.pop()
+            visited+=1
+            if visited>80000:
+                return None,boxes
+            z=acb(arb(c*quarter,h*quarter),arb(y*a,k*a))
             w=f(acb(S),z)
             if w.is_finite():
                 b=abs(w).upper()
@@ -59,10 +64,14 @@ def strip_bound(S,a):
                     M=b if b>M else M
                     boxes+=1
                     continue
-            if d>=16:
+            if d>=30:
                 return None,boxes
-            h=h/2
-            todo.extend(((c-h,h,d+1),(c+h,h,d+1)))
+            if h*quarter>k*a:
+                h=h/2
+                todo.extend(((c-h,h,y,k,d+1),(c+h,h,y,k,d+1)))
+            else:
+                k=k/2
+                todo.extend(((c,h,y-k,k,d+1),(c,h,y+k,k,d+1)))
         assert M>0
         return M,boxes
     finally:
@@ -73,6 +82,8 @@ def periodic(S,goal):
     # Test analyticity; shrink the strip if interval overestimation or
     # a singularity prevents a successful finite analytic enclosure.
     a=arb(1)/2
+    while S*a>3:
+        a=a/2
     M=None
     for i in range(15):
         M,boxes=strip_bound(S,a)
@@ -95,14 +106,23 @@ def periodic(S,goal):
     # By exact quadrant symmetries the full N-node sum is
     # 2*f(0) + 4*sum_{j=1}^{m-1}f(j*pi/(2m)) + 2*f(pi/2).
     # f(pi/2)=0 exactly. Online summation uses constant storage.
-    s0=f(acb(S),acb(0))
-    assert s0.is_finite() and s0.imag.contains(0)
-    total=2*s0.real
+    # At the strictly interior real nodes cos(theta)>0, so the
+    # original factorization simplifies to f=cos(theta)*sqrt(aS^2-A(s)^2)/S.
+    # Evaluate A(S) once, use a single real expm1 per node; the
+    # strip certificate above still concerns the identical analytic f.
+    aS=arb(1)/2+1/S.expm1()-1/S
+    assert aS>0
+    total=2*aS/S
     step=arb.pi()/(2*m)
     for j in range(1,m):
-        v=f(acb(S),acb(j*step))
-        assert v.is_finite() and v.imag.contains(0), ('node',j)
-        total+=4*v.real
+        theta=j*step
+        s=S*theta.sin()
+        c=theta.cos()
+        assert s>0 and c>0
+        v=arb(1)/2+1/s.expm1()-1/s
+        rad=aS*aS-v*v
+        assert rad>0, ('node square root',j)
+        total+=4*c*rad.sqrt()/S
     out=S*S*total/(2*N)+arb(0,tail.upper())
     assert out.is_finite() and out>0
     assert out.rel_accuracy_bits()>=p-100, ('accuracy',out.rel_accuracy_bits())
