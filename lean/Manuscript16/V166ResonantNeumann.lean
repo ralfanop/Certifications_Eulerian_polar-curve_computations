@@ -58,15 +58,13 @@ theorem scalarSchur_bijective (μ : 𝕜) (K : P →L[𝕜] P) (h : ‖K‖ < �
   have hf (x : P) : scalarSchur μ K x = μ • U x := by
     change μ • x - K x = μ • U x
     rw [hU, smul_sub]
-    dsimp [Q]
-    rw [smul_smul, mul_inv_cancel₀ hμ, one_smul]
+    simp only [Q, ContinuousLinearMap.smul_apply, smul_smul, mul_inv_cancel₀ hμ, one_smul]
   constructor
   · intro x y hxy
     apply U.injective
     have hh := congrArg (fun z : P => μ⁻¹ • z) hxy
     change μ⁻¹ • (scalarSchur μ K x) = μ⁻¹ • (scalarSchur μ K y) at hh
-    rw [hf x, hf y, smul_smul, smul_smul, inv_mul_cancel₀ hμ, one_smul, one_smul] at hh
-    exact hh
+    simpa only [hf x, hf y, smul_smul, inv_mul_cancel₀ hμ, one_smul] using hh
   · intro y
     refine ⟨U.symm (μ⁻¹ • y), ?_⟩
     rw [hf, U.apply_symm_apply, smul_smul, mul_inv_cancel₀ hμ, one_smul]
