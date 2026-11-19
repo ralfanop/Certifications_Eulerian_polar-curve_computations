@@ -1,0 +1,92 @@
+name: M12 fixed decimal certification replay
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_fixed_decimal_replay.py'
+      - '.github/workflows/m12-fixed-decimal-replay.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: scalar-318
+            count: 8
+            run: 43701995391
+            head: cbdef6bc71522d4a49186fcb07a13c01df31a513
+            artifact: 14156991950
+            name: million-m12
+            digest: d237e4e99f8b587fac0a5a5c9890e88172458b806bfab5803ca685f0f0ce85b8
+          - label: scalar-384
+            count: 20
+            run: 44312456543
+            head: 5df7554b2eb37e7b8b051f996f4b4c4572c53ac5
+            artifact: 14430751913
+            name: m12-final-scalar-million
+            digest: 5a07a988d016956237e0dd1d6ea204641d8c8dd0521ae5c80fa65ba4a6620751
+          - label: lanczos-100
+            count: 5
+            run: 44313014167
+            head: 8fc451ce053a769087fb25ed16289018890bc926
+            artifact: 14431877216
+            name: m12-lanczos-100
+            digest: 8f2e19d47c0d0ff4011f23a915b6f3ba7c700616805f4ce5849c929dad66e784
+          - label: lanczos-200
+            count: 5
+            run: 44313014167
+            head: 8fc451ce053a769087fb25ed16289018890bc926
+            artifact: 14435228234
+            name: m12-lanczos-200
+            digest: eb184d12ad6db434bbc533b0cfde30d83fa08f54b6917e54284ea4aeca8f2a26
+          - label: lanczos-400
+            count: 5
+            run: 44313014167
+            head: 8fc451ce053a769087fb25ed16289018890bc926
+            artifact: 14449268572
+            name: m12-lanczos-400
+            digest: 2155c46f7bef8ec70bb4bc6e5966b2ee2a485ab306299817640961fbc75ba2e6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify successful source workflow, pinned artifact identity and archive digest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ matrix.run }}
+          SOURCE_HEAD: ${{ matrix.head }}
+          ARTIFACT_ID: ${{ matrix.artifact }}
+          ARTIFACT_NAME: ${{ matrix.name }}
+          ARCHIVE_SHA256: ${{ matrix.digest }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN" | jq -e --arg head "$SOURCE_HEAD" '.head_sha == $head and .conclusion == "success"'
+          ep="repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID"
+          gh api "$ep" | jq -e --arg sha "$SOURCE_HEAD" --argjson run "$SOURCE_RUN" --arg digest "sha256:$ARCHIVE_SHA256" --arg name "$ARTIFACT_NAME" '.workflow_run.head_sha == $sha and .workflow_run.id == $run and .digest == $digest and .name == $name and .expired == false'
+          gh api "$ep/zip" > source.zip
+          printf '%s  %s\n' "$ARCHIVE_SHA256" source.zip | sha256sum -c -
+      - name: Recheck significant rounding and independent fixed-decimal rounding
+        run: |
+          set -euo pipefail
+          python -m pip install python-flint==0.9.0
+          python numerics/arb/m12_fixed_decimal_replay.py source.zip ${{ matrix.label }} ${{ matrix.count }} ${{ matrix.artifact }} 2>&1 | tee replay.log
+          grep -F 'FIXED REPLAY SUCCESS ${{ matrix.label }} checks ${{ matrix.count }}' replay.log
+          gzip -t m12-fixed-${{ matrix.label }}.jsonl.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-fixed-${{ matrix.label }}
+          path: |
+            replay.log
+            m12-fixed-${{ matrix.label }}.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn
