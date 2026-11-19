@@ -24,7 +24,11 @@ theorem denominator_derivative (u z : ℂ) :
     HasDerivAt (denominator u) ((u-1)*Complex.exp ((u-1)*z)) z := by
   have h := (Complex.hasDerivAt_exp ((u-1)*z)).comp z
     ((hasDerivAt_id z).const_mul (u-1))
-  simpa [denominator, mul_comm] using h.sub_const u
+  have hf : (fun x : ℂ => Complex.exp (x * (u - 1)) - u) = denominator u := by
+    funext x
+    simp [denominator, mul_comm]
+  rw [← hf]
+  simpa [mul_comm] using h.sub_const u
 
 theorem denominator_zero_iff (u z : ℂ) (hu : u ≠ 0) (hu1 : u ≠ 1) :
     denominator u z = 0 ↔ ∃ j : ℤ, z = pole u j := by
