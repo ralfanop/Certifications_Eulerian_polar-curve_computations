@@ -1,0 +1,64 @@
+name: Fredholm Cauchy stability and exceptional closed range
+
+on:
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/FredholmCauchyEstimates.lean'
+      - 'lean/SpecialImaginaryPoint/V14119Priority3UniversalFredholmDerivativeVariation.lean'
+      - 'lean/Manuscript16/V166CompactShiftClosedRange.lean'
+      - 'scripts/verify_fredholm_20261119.py'
+      - '.github/workflows/fredholm-cauchy-closed-range-20261119.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fredholm-20261119-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cauchy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore verified dependency builds
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            lean/.lake/build/lib/lean
+            lean/.lake/fredholm_audit_20261119
+          key: fredholm-20261119-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain', 'lean/lakefile.toml') }}-${{ github.run_id }}
+          restore-keys: |
+            fredholm-20261119-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain', 'lean/lakefile.toml') }}-
+      - name: Fetch pinned mathematics library
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile genuine Fredholm derivative stability and audit axioms
+        run: python3 scripts/verify_fredholm_20261119.py
+      - name: Save checked dependency builds
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            lean/.lake/build/lib/lean
+            lean/.lake/fredholm_audit_20261119
+          key: fredholm-20261119-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain', 'lean/lakefile.toml') }}-${{ github.run_id }}
+      - name: Upload exact compilation and axiom evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fredholm-cauchy-audit
+          path: lean/.lake/fredholm_audit_20261119
