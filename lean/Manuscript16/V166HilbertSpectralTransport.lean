@@ -1,5 +1,8 @@
 import Mathlib
 
+noncomputable section
+open scoped ENNReal
+
 /-! M16 §13: isometric transport of actual coefficient-space operators through
 Mathlib's HilbertBasis. The basis is an explicit input; its construction from
 the Maxwell and Dirac eigenfields is a separate geometric obligation. -/
