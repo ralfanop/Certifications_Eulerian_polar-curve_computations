@@ -1,4 +1,4 @@
-/-!
+/-
 Fresh strict kernel-environment inventory for the retained Manuscript 12
 Bridge library. The historical 821/849 counts are not used as assumptions.
 Every public theorem in EulerianBridge is independently enumerated,
@@ -10,6 +10,7 @@ import Bridge
 
 open Lean Elab Command
 set_option maxHeartbeats 0
+set_option maxRecDepth 8192
 set_option pp.fullNames true
 set_option pp.universes true
 
