@@ -27,7 +27,7 @@ theorem delta_hasSum (a : ℝ) (ha : 0 < a) :
   have ht : Tendsto (fun n : ℕ => a+(n:ℝ)) atTop atTop :=
     tendsto_atTop_mono (f := fun n : ℕ => (n:ℝ)) (fun n => by linarith) tendsto_natCast_atTop_atTop
   have hz : Tendsto (fun n : ℕ => 1/(a+(n:ℝ))) atTop (𝓝 0) := by
-    simpa only [one_div] using tendsto_inv_atTop_zero.comp ht
+    simpa only [one_div, Function.comp_def] using tendsto_inv_atTop_zero.comp ht
   have hl : Tendsto (fun n : ℕ => 1/a-1/(a+(n:ℝ))) atTop (𝓝 (1/a)) := by
     simpa only [sub_zero] using
       ((tendsto_const_nhds : Tendsto (fun _ : ℕ => 1/a) atTop (𝓝 (1/a))).sub hz)
@@ -80,7 +80,10 @@ theorem H_high_le (N q : ℕ) (hN : 0 < N) :
   let x : ℝ := (n:ℝ)+(N:ℝ)+1
   change 1/x^(q+2) ≤ (1/(N:ℝ)^q)*(1/x^2)
   have hx : 0 < x := by dsimp [x]; positivity
-  have hnx : (N:ℝ) ≤ x := by dsimp [x]; have hn : 0 ≤ (n:ℝ) := by positivity; linarith
+  have hnx : (N:ℝ) ≤ x := by
+    change (N:ℝ) ≤ (n:ℝ)+(N:ℝ)+1
+    have hn : 0 ≤ (n:ℝ) := by positivity
+    linarith only [hn]
   have hd : (N:ℝ)^q*x^2 ≤ x^(q+2) := by
     rw [pow_add]
     exact mul_le_mul_of_nonneg_right (pow_le_pow_left₀ hN'.le hnx q) (by positivity)
@@ -94,7 +97,7 @@ theorem scaled_H_two :
   have ht : Tendsto (fun N : ℕ => (N:ℝ)+1) atTop atTop :=
     tendsto_atTop_mono (fun n => by linarith) tendsto_natCast_atTop_atTop
   have hz : Tendsto (fun N : ℕ => 1/((N:ℝ)+1)) atTop (𝓝 0) := by
-    simpa only [one_div] using tendsto_inv_atTop_zero.comp ht
+    simpa only [one_div, Function.comp_def] using tendsto_inv_atTop_zero.comp ht
   have hl : Tendsto (fun N : ℕ => 1-1/((N:ℝ)+1)) atTop (𝓝 1) := by
     simpa only [sub_zero] using
       ((tendsto_const_nhds : Tendsto (fun _ : ℕ => (1:ℝ)) atTop (𝓝 1)).sub hz)
