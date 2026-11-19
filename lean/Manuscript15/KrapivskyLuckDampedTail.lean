@@ -77,8 +77,7 @@ theorem damped_cosine_tail (s : ℝ) (hs : 0 < s) :
       (sub_nonneg.mpr (Real.cos_le_one t)))
     (tailPrimitive_tendsto s hs)
   rw [h]
-  simp [tailPrimitive, Real.cos_two_pi, Real.sin_two_pi]
-  ring
+  simp [tailPrimitive, Real.cos_two_pi, Real.sin_two_pi] <;> ring
 
 /-- Exact substitution u=(2π)s in the actual m=1 kernel from #369. -/
 theorem scaled_laplaceKernel_one :
