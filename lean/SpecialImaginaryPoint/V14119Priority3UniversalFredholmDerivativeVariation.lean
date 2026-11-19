@@ -71,7 +71,7 @@ theorem universalFredholm_joint_deriv_diff_norm_le
     · exact mul_nonneg (add_nonneg (norm_nonneg _) hρ.le) (norm_nonneg _)
   · apply mul_le_mul_of_nonneg_left _ (mul_nonneg (norm_nonneg _) (norm_nonneg _))
     exact Real.exp_le_exp.mpr
-      (mul_le_mul_of_nonneg_right (add_le_add hw le_rfl) (norm_nonneg _))
+      (mul_le_mul_of_nonneg_right (add_le_add hw (le_refl _)) (norm_nonneg _))
 
 /-- In particular, the dossier's requested fixed-parameter estimate holds. -/
 theorem universalFredholm_two_operators_deriv_diff_norm_le
@@ -100,7 +100,6 @@ theorem universalFredholm_deriv_norm_le
       fredholmDerivativeBound S w ρ := by
     unfold fredholmDerivativeBound
     field_simp [ne_of_gt hρ]
-    <;> ring
   rwa [heq] at h
 
 /-- Fully explicit logarithmic-derivative stability. The strict determinant
