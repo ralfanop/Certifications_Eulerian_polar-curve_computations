@@ -1,0 +1,3 @@
+# M16.6 scalar mixed fourth convolution — paired poles
+
+Independent of #430 (outer asymptotic), #424 (Schur), #436 (finite rank). Addresses the analytic gap identified in `certificates/M16_v166_Schatten_p4_scalar_closed_form_20261119.md`: the first- and third-power paired terms are treated as convergent differences, not as separated harmonic series. For L=m+1 and f(n)=(n+1)^(-p), the exterior pair plus reflected finite interior is -2/L^p; p=1,3 are the odd partial-fraction cases. This does not yet identify the raw punctured integer-index sum with its three intervals, or establish the even-power terms, product of zeta sums or the geometric operator. No new numeric constant (exact algebra); require pinned exact-head Lean CI. Frozen manuscript untouched.
