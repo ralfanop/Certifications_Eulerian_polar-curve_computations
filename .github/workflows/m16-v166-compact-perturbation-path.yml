@@ -40,7 +40,7 @@ jobs:
           import re
           from pathlib import Path
           log = Path('/tmp/m16-v166-compact-perturbation-path-lean.log').read_text()
-          for suffix in ['left_defect_add', 'right_defect_add', 'same_parametrix_add_compact', 'parametrix_add_compact', 'parametrix_add_compact_iff', 'compact_scaled', 'compact_homotopy_parametrix', 'compact_homotopy_continuous']:
+          for suffix in ['finite_block_index', 'finite_block_index_independent', 'finite_endomorphism_index_zero', 'finite_block_family_index_constant', 'affine_path_difference_norm', 'compact_homotopy_continuous']:
               name = 'Manuscript16.V166CompactPerturbationPath.'+suffix
               matches = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
               assert matches or ("'"+name+"' does not depend on any axioms") in log, name
