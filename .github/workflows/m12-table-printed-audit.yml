@@ -1,0 +1,108 @@
+name: M12 Table 1 rigorous printed-cell audit
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/m12-table-printed-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  printed-cell-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch exact-HEAD successful Lanczos source artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          run=44313014167
+          head=8fc451ce053a769087fb25ed16289018890bc926
+          endpoint="repos/$GITHUB_REPOSITORY/actions/runs/$run"
+          gh api "$endpoint" | jq -e --arg sha "$head" '.head_sha == $sha and .conclusion == "success"'
+          mkdir -p sources
+          for spec in \
+            '100 14431877216 8f2e19d47c0d0ff4011f23a915b6f3ba7c700616805f4ce5849c929dad66e784' \
+            '200 14435228234 eb184d12ad6db434bbc533b0cfde30d83fa08f54b6917e54284ea4aeca8f2a26' \
+            '400 14449268572 2155c46f7bef8ec70bb4bc6e5966b2ee2a485ab306299817640961fbc75ba2e6'; do
+            read -r m id digest <<< "$spec"
+            ep="repos/$GITHUB_REPOSITORY/actions/artifacts/$id"
+            gh api "$ep" | jq -e --arg sha "$head" --arg digest "sha256:$digest" --arg name "m12-lanczos-$m" '.workflow_run.head_sha == $sha and .workflow_run.id == 44313014167 and .digest == $digest and .name == $name and .expired == false'
+            gh api "$ep/zip" > "sources/$m.zip"
+            printf '%s  %s\n' "$digest" "sources/$m.zip" | sha256sum -c -
+            unzip -j "sources/$m.zip" "m12-lanczos-$m.json" -d sources
+          done
+      - name: Validate all 25 printed profile and error cells (256-bit audit)
+        run: |
+          set -euo pipefail
+          python -m pip install python-flint==0.9.0
+          PYTHONPATH=numerics/arb python - <<'PY'
+          import json
+          from pathlib import Path
+          from fractions import Fraction as Q
+          from flint import arb, acb, fmpq, ctx
+          from m12_profile_interval_newton import initial, A, ROWS as PROFILE_ROWS
+          from m12_table_final_errors import ROWS
+          from million_decimal_common import exact, WORK
+          
+          coeffs = {}
+          ctx.prec = 256
+          for M in (100, 200, 400):
+              d = json.loads(Path(f'sources/m12-lanczos-{M}.json').read_text())
+              assert d['M'] == M and d['working_bits'] == WORK
+              coeffs[M] = {}
+              for j, item in d['values'].items():
+                  lo, hi = fmpq(item['lower']), fmpq(item['upper'])
+                  assert 0 < lo <= hi
+                  for q in (lo, hi):
+                      assert q.q > 0 and (int(q.q) & (int(q.q)-1)) == 0
+                  ball = arb(lo).union(arb(hi))
+                  assert ball.lower().fmpq() <= lo and hi <= ball.upper().fmpq()
+                  assert ball.rel_accuracy_bits() >= 240
+                  coeffs[M][j] = ball
+
+          checks = []
+          def check(name, x, displayed, unit):
+              d = Q(displayed)
+              assert x.is_finite() and x > 0 and x.rel_accuracy_bits() >= 140, (name, x)
+              assert exact(d-unit/2) < x < exact(d+unit/2), (name, displayed, x.str(30))
+              checks.append(dict(name=name, printed=displayed, relative_bits=x.rel_accuracy_bits(),
+                                 lower=str(x.lower().fmpq()), upper=str(x.upper().fmpq())))
+              print('PRINTED CELL PASS', name, displayed, 'relative bits', x.rel_accuracy_bits(), flush=True)
+          
+          for t, *ds in ROWS:
+              X = initial(t, 256)
+              assert ctx.prec == 256
+              F = A(acb(X)).real**2/4
+              check(f'F({t})', F, PROFILE_ROWS[t], Q(1,10**7))
+              for M, displayed in zip((100,200,400), ds[:3]):
+                  j = Q(t)*M
+                  assert j.denominator == 1
+                  E = coeffs[M][str(j.numerator)] - F
+                  check(f'M*E t={t} M={M}', M*E, displayed, Q(1,10**6))
+                  if M == 400:
+                      check(f'E t={t} M=400', E, ds[3], Q(1,10**7))
+          assert len(checks) == 25
+          Path('m12-printed-cells.json').write_text(json.dumps({
+              'scope': 'printed precision only; not a million-digit profile/error certificate',
+              'source_zip_sha256': '7ae7cd218e77c42ecbae087cd4c3c6b79890abf38a0faf312111bae5c5608860',
+              'lanczos_source_run': 44313014167,
+              'lanczos_source_head': '8fc451ce053a769087fb25ed16289018890bc926',
+              'working_bits': 256,
+              'checks': checks
+          }, indent=2)+'\n')
+          print('PRINTED AUDIT SUCCESS', len(checks), 'min relative bits', min(x['relative_bits'] for x in checks))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-table-printed-audit
+          path: m12-printed-cells.json
+          if-no-files-found: error
