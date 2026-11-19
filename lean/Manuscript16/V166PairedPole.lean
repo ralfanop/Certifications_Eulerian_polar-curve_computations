@@ -40,10 +40,11 @@ theorem shift_hasSum (f : ℕ → ℝ) (hf : Antitone f)
     have h := ih.add hs
     rw [Finset.sum_range_succ]
     convert h using 1
-    funext n
-    change f n - f (n+(L+1)) = (f n-f (n+L)) + (f (n+L)-f (n+1+L))
-    rw [show n+1+L = n+(L+1) by omega]
-    ring
+    · funext n
+      change f n - f (n+(L+1)) = (f n-f (n+L)) + (f (n+L)-f (n+1+L))
+      rw [show n+1+L = n+(L+1) by omega]
+      ring
+    · simp only [zero_add]
 
 theorem external_hasSum (f : ℕ → ℝ) (hf : Antitone f)
     (hz : Tendsto f atTop (𝓝 0)) (L : ℕ) :
@@ -75,7 +76,8 @@ theorem reciprocal_tendsto (p : ℕ) (hp : p ≠ 0) :
     Tendsto (reciprocal p) atTop (𝓝 0) := by
   have ht : Tendsto (fun n : ℕ => n+1) atTop atTop :=
     tendsto_atTop_mono (f := fun n : ℕ => n) (fun n => by omega) tendsto_id
-  simpa only [reciprocal, Function.comp_def, Nat.cast_add, Nat.cast_one] using
+  change Tendsto (fun n : ℕ => 1 / ((n : ℝ)+1)^p) atTop (𝓝 0)
+  simpa only [Function.comp_def, Nat.cast_add, Nat.cast_one] using
     (tendsto_const_div_pow 1 p hp).comp ht
 
 /-- Applies in particular to p=1 and p=3 (odd partial fractions). -/
