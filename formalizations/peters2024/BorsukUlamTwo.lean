@@ -30,9 +30,9 @@ Suppose `g` never vanishes.
   `L (θ, π / 2) = L (0, π / 2)`.
 * Therefore `2c = 0`, so `exp c = 1`, contradicting `exp c = -1`.
 
-Status: written without a local Lean toolchain. The statements below count as proved
-only after the workflow `peters2024-borsuk-two.yml` has compiled this file and printed
-the standard axioms for every audited declaration.
+The workflow `peters2024-borsuk-two.yml` compiles this file with the pinned toolchain,
+checks that it imports nothing but `Mathlib` and `Peters2024`, and audits the axioms of
+the declarations listed at the end.
 -/
 
 namespace Peters2024
@@ -78,12 +78,9 @@ theorem exists_zero_of_antiperiodic (G : ℝ × ℝ → ℂ) (hG : Continuous G)
     rw [hc_def, Complex.exp_sub, h1, neg_div, div_self (Complex.exp_ne_zero _)]
   -- `L (θ + π, -t) = L (θ, t) + c`, by uniqueness of lifts on the plane.
   have h2 : ∀ θ t : ℝ, L (θ + π, -t) = L (θ, t) + c := by
-    have hcont : Continuous fun a : ℝ × ℝ => L (a.1 + π, -a.2) - c := by
-      first
-        | exact (L.continuous.comp
-            ((continuous_fst.add continuous_const).prodMk continuous_snd.neg)).sub
-            continuous_const
-        | fun_prop
+    have hcont : Continuous fun a : ℝ × ℝ => L (a.1 + π, -a.2) - c :=
+      (L.continuous.comp
+        ((continuous_fst.add continuous_const).prodMk continuous_snd.neg)).sub continuous_const
     have key : (⟨fun a : ℝ × ℝ => L (a.1 + π, -a.2) - c, hcont⟩ : C(ℝ × ℝ, ℂ)) = L := by
       refine eq_of_exp_comp_eq _ _ ((0, 0) : ℝ × ℝ) ?_ ?_
       · show L ((0 : ℝ) + π, -(0 : ℝ)) - c = L (0, 0)
@@ -97,10 +94,8 @@ theorem exists_zero_of_antiperiodic (G : ℝ × ℝ → ℂ) (hG : Continuous G)
     linear_combination h'
   -- `L` is constant along the line `t = π / 2`, by uniqueness of lifts on the real line.
   have h3 : ∀ θ : ℝ, L (θ, π / 2) = L (0, π / 2) := by
-    have hcont : Continuous fun θ : ℝ => L (θ, π / 2) := by
-      first
-        | exact L.continuous.comp (Continuous.prodMk_left (π / 2))
-        | fun_prop
+    have hcont : Continuous fun θ : ℝ => L (θ, π / 2) :=
+      L.continuous.comp (Continuous.prodMk_left (π / 2))
     have key : (⟨fun θ : ℝ => L (θ, π / 2), hcont⟩ : C(ℝ, ℂ)) =
         (⟨fun _ : ℝ => L (0, π / 2), continuous_const⟩ : C(ℝ, ℂ)) :=
       eq_of_exp_comp_eq _ _ (0 : ℝ) rfl
@@ -158,9 +153,7 @@ theorem chartVec_add_pi_neg (e₀ e₁ e₂ : E) (θ t : ℝ) :
     chartVec e₀ e₁ e₂ (θ + π) (-t) = -chartVec e₀ e₁ e₂ θ t := by
   unfold chartVec
   rw [Real.cos_neg, Real.sin_neg, Real.cos_add_pi, Real.sin_add_pi]
-  first
-    | module
-    | (simp only [neg_smul, smul_neg, smul_add, neg_add] <;> abel)
+  module
 
 /-- The whole line `t = π / 2` is sent to the pole `e₂`. -/
 theorem chartVec_pi_div_two (e₀ e₁ e₂ : E) (θ : ℝ) :
