@@ -1,6 +1,6 @@
 # Manuscript 12 — numerical certification audit (provisional)
  
-Snapshot: 2026-11-18. This is a work-in-progress audit, **not a declaration of complete certification**. No manuscript source is modified.
+Snapshot: 2026-11-19. This is a work-in-progress audit, **not a declaration of complete certification**. No manuscript source is modified.
 
 Authoritative manuscript ZIP SHA-256: `7ae7cd218e77c42ecbae087cd4c3c6b79890abf38a0faf312111bae5c5608860`. The two supplied duplicate uploads had identical SHA-256.
 
@@ -10,7 +10,7 @@ Arb working precision 3,600,000 bits; relative enclosure accuracy at least 3,400
 
 ## Verified individual checks
 
-28 successful checks (not asserted to be 28 distinct constants); the logs below report the indicated relative accuracy in bits. The accepted runs include strict unique decimal rounding checks.
+28 successful scalar checks (not asserted to be 28 distinct constants); the logs below report the indicated relative accuracy in bits. The accepted runs include strict unique decimal rounding checks.
 
 | Evidence | Quantity | Relative bits |
 |---|---|---:|
@@ -46,6 +46,18 @@ Arb working precision 3,600,000 bits; relative enclosure accuracy at least 3,400
 - [PR #318](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/318), pinned commit `cbdef6bc71522d4a49186fcb07a13c01df31a513`, [job log](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43701995391/job/132774933850), [artifact](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/43701995391/artifacts/14156991950).
 - [PR #384](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/384), pinned commit `5df7554b2eb37e7b8b051f996f4b4c4572c53ac5`, [job log](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44312456543/job/134829827657), [artifact](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44312456543/artifacts/14430751913).
 
+## Fifteen additional finite Lanczos inputs — verified complete
+
+Exact-HEAD [run 44313014167](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44313014167), PR #386, commit `8fc451ce053a769087fb25ed16289018890bc926`. Each job log reports MILLION SUCCESS, 5 checks, and the following individual relative enclosure accuracies at 3,600,000 working bits, with strict unique rounding to 1,000,001 significant digits. All three jobs succeeded. The fifteen inputs are not printed Table 1 cells.
+
+| M | j=M/4 | j=M/2 | j=M | j=2M | j=4M | Artifact |
+|---:|---:|---:|---:|---:|---:|---|
+|100|3599920|3599797|3599497|3598780|3597107|[14431877216](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44313014167/artifacts/14431877216)|
+|200|3599800|3599505|3598807|3597174|3593431|[14435228234](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44313014167/artifacts/14435228234)|
+|400|3599510|3598823|3597228|3593563|3585280|[14449268572](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44313014167/artifacts/14449268572)|
+
+Verified job log IDs: 134831845524, 134831845297, 134831845496 respectively. Total 43 successful M12 checks (28 scalar and 15 intermediate). Download and validate these artifact payloads before running the final table combiner; the log and upload metadata alone are not a substitute for that step.
+
 ## Historical coverage and authoritative-source reconciliation
 
 The manuscript itself cites the [historical certification record](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/3282b7f41fd8b9bdf09e5e5142ee6b721e0bf8dd/docs/manuscript12/Manuscript12_Certification.md) at commit `3282b7f4`. Section 6 reports validated Arb rounding cells for all 25 printed Table 1 entries and the displayed scalar values. This is evidence at the **printed** precision, not evidence at 1,000,001 digits. The same record reports exact Lean verification of seven profile expansion coefficients, thirteen norm and reciprocal corrections, and the fixed-degree coefficient results. The 26 displayed rational corrections (13 each in `eg:eq:expanded-norm` and `eg:eq:expanded-vacuum`) are exact mathematical quantities and should be cross-referenced as such, not mistaken for uncertain numerical approximations.
@@ -58,23 +70,25 @@ The manuscript's Data Availability statement still cites the historical record. 
 
 | Dependency | Scope | Snapshot status |
 |---|---|---|
-| [#385](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/385) | Five profile values, t = 1/4, 1/2, 1, 2, 4 | Five pilots passed; five full precision jobs running |
-| [#386](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/386) | Fifteen finite Lanczos coefficient inputs, M = 100, 200, 400 | Exact-versus-Arb pilot passed; three full precision jobs running |
+| [#385](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/385) | Five profile values, t = 1/4, 1/2, 1, 2, 4 | Five pilots passed; all five original full jobs cancelled after six hours; no full profile certificates |
+| [#386](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/386) | Fifteen finite Lanczos coefficient inputs, M = 100, 200, 400 | Exact-versus-Arb pilot and all three full precision jobs SUCCESS; 15/15 |
 | [#387](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/387) | 20 table error cells, using the eight source artifacts from #385 and #386 | Combiner prepared; awaiting full inputs |
-| [#390](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/390) | Interval Newton profile acceleration | 1,024-bit benchmarks passed at t=1/4 and 4; 4,096-bit benchmark at t=1/4 passed; t=4 still pending; not a substitute for full certification |
+| [#390](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/390) | Interval Newton profile acceleration | Four benchmarks passed at 1,024 and 4,096 bits; not a substitute for full certification |
 
 Pinned inputs:
 - #385 `7f2ab3c805e599680579d0c8ec68c48e648b6b7c`, [run 44312751989](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44312751989).
 - #386 `8fc451ce053a769087fb25ed16289018890bc926`, [run 44313014167](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44313014167).
 - #387 `e16a5e26afcafdb5ee05f0ece2f3884da61acea5`.
-- #390 `c790ff3915aee28ad67a054d648b18e6b16f502e`, [run 44315118699](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44315118699). At 1,024 bits the paired benchmark yielded speedups 2.90x and 2.73x; at 4,096 bits, t=1/4 yielded 3.62x (75.06s versus 20.74s); this is not a runtime prediction at 3,600,000 bits.
+- #390 `c790ff3915aee28ad67a054d648b18e6b16f502e`, [run 44315118699](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44315118699). At 1,024 bits the paired benchmark yielded speedups 2.90x and 2.73x; at 4,096 bits, t=1/4 yielded 3.62x (75.06s versus 20.74s); at 4,096 bits, t=4 yielded 3.64x (272.58s versus 74.81s); this is not a runtime prediction at 3,600,000 bits.
+- #413 `53bc5f8a520e6c0b00b54c74f9734bc8e8738627`, [run 44482527238](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44482527238): independent Taylor-Cauchy quadrature benchmark. Low-precision overlap checks passed but were slower than the reference. Higher-precision tests pending; no full profile claim.
 
 ## Release gate
 
 - [x] Record authoritative archive identity.
 - [x] Record successful historical and supplementary constant runs.
 - [ ] Retrieve all five full precision profile artifacts and verify their rounding and provenance.
-- [ ] Retrieve all three full precision finite Lanczos artifacts and verify all fifteen inputs.
+- [x] Verify exact-HEAD successful logs for all fifteen finite Lanczos inputs.
+- [ ] Retrieve all three full precision finite Lanczos artifacts and validate their contents for the combiner.
 - [ ] Execute the table combiner, verify each of the twenty derived error cells and their agreement with the published table.
 - [ ] Reconcile the complete numerical-claim inventory against the authoritative manuscript, including distinction between exact identities, printed approximations, significant-digit rounding and fixed decimal-place rounding where relevant.
 - [ ] Record exact run/job IDs, artifacts, achieved accuracy, decimal output hashes, and any exceptions. Only then issue a final certification statement.
