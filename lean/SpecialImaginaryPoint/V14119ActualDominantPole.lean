@@ -96,11 +96,16 @@ theorem endpoint_poles_exact :
   have hpn : Real.pi/2 ≤ |-Real.pi/2| := by rw [hn]
   have hqp : |Real.pi/2| < Real.pi := by rw [hp]; linarith [Real.pi_pos]
   have hqn : |-Real.pi/2| < Real.pi := by rw [hn]; linarith [Real.pi_pos]
-  rw [← phase_negative_endpoint, ← phase_positive_endpoint]
-  exact ⟨(Manuscript14.EulerianMeromorphicPoles.generating_simple_pole_iff _ _ (phase_ne_zero _) (phase_ne_one _ hpp hqp)).mpr ⟨0,rfl⟩,
+  have hendpoint :
+      meromorphicOrderAt (Manuscript14.EulerianMeromorphicPoles.generating (phase (Real.pi/2))) (Manuscript14.EulerianMeromorphicPoles.pole (phase (Real.pi/2)) 0) = (-1 : WithTop ℤ) ∧
+        ‖Manuscript14.EulerianMeromorphicPoles.pole (phase (Real.pi/2)) 0‖ = kappa ∧
+      meromorphicOrderAt (Manuscript14.EulerianMeromorphicPoles.generating (phase (-Real.pi/2))) (Manuscript14.EulerianMeromorphicPoles.pole (phase (-Real.pi/2)) 0) = (-1 : WithTop ℤ) ∧
+        ‖Manuscript14.EulerianMeromorphicPoles.pole (phase (-Real.pi/2)) 0‖ = kappa := by
+    exact ⟨(Manuscript14.EulerianMeromorphicPoles.generating_simple_pole_iff _ _ (phase_ne_zero _) (phase_ne_one _ hpp hqp)).mpr ⟨0,rfl⟩,
     (actual_pole_modulus _ 0 hpp hqp).2.mpr ⟨rfl,hp⟩,
     (Manuscript14.EulerianMeromorphicPoles.generating_simple_pole_iff _ _ (phase_ne_zero _) (phase_ne_one _ hpn hqn)).mpr ⟨0,rfl⟩,
     (actual_pole_modulus _ 0 hpn hqn).2.mpr ⟨rfl,hn⟩⟩
+  simpa only [phase_positive_endpoint, phase_negative_endpoint] using hendpoint
 
 #print axioms phase_ne_one
 #print axioms phase_ne_zero
