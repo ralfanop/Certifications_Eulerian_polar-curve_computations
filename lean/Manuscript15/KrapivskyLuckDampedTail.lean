@@ -24,9 +24,11 @@ theorem tailPrimitive_deriv (s t : ℝ) :
   have hs := (Real.hasDerivAt_sin t).const_mul s
   have hp := (hc.sub hs).sub_const (1 : ℝ)
   unfold tailPrimitive
-  convert (he.mul hp).div_const (s^2 + 1) using 1 <;>
-    try rfl <;> simp only [Pi.sub_apply] <;>
-    field_simp [show s^2 + 1 ≠ 0 by positivity] <;> ring
+  convert (he.mul hp).div_const (s^2 + 1) using 1 <;> try rfl
+  change s * Real.exp (-s*t) * (1-Real.cos t) =
+    (Real.exp (-s*t) * (-s) * (s^2*(Real.cos t-1)-s*Real.sin t-1) +
+      Real.exp (-s*t) * (s^2*(-Real.sin t)-s*Real.cos t)) / (s^2+1)
+  field_simp [show s^2 + 1 ≠ 0 by positivity] <;> ring
 
 theorem tailPrimitive_bound (s t : ℝ) (hs : 0 < s) :
     |tailPrimitive s t| ≤
@@ -53,9 +55,10 @@ theorem tailPrimitive_bound (s t : ℝ) (hs : 0 < s) :
 theorem tailPrimitive_tendsto (s : ℝ) (hs : 0 < s) :
     Tendsto (tailPrimitive s) atTop (𝓝 0) := by
   have hlin : Tendsto (fun t : ℝ => -s*t) atTop atBot := by
-    simpa only [neg_mul, Function.comp_apply, id_eq] using
-      (tendsto_neg_atTop_atBot.comp
-        ((tendsto_id : Tendsto (fun t : ℝ => t) atTop atTop).const_mul_atTop hs))
+    have h := tendsto_neg_atTop_atBot.comp
+      ((tendsto_id : Tendsto (fun t : ℝ => t) atTop atTop).const_mul_atTop hs)
+    change Tendsto (fun t : ℝ => -(s*t)) atTop atBot at h
+    simpa only [neg_mul] using h
   have he : Tendsto (fun t : ℝ => Real.exp (-s*t)) atTop (𝓝 0) :=
     Real.tendsto_exp_atBot.comp hlin
   have hb : Tendsto (fun t : ℝ => Real.exp (-s*t)*((2*s^2+s+1)/(s^2+1)))
