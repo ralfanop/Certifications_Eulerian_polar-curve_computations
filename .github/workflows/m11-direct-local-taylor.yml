@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'numerics/arb/m11_euler_direct_panel.py'
+      - 'numerics/arb/m11_euler_blocked_panel.py'
       - '.github/workflows/m11-direct-local-taylor.yml'
   workflow_dispatch:
 permissions:
@@ -30,13 +31,13 @@ jobs:
       - name: Compare independent local and historical polynomial panels
         run: |
           set -euo pipefail
-          python -u numerics/arb/m11_euler_direct_panel.py --bits 24000 --target 20000 --panels 128 --index ${{ matrix.index }} --compare --output compare.json | tee compare.log
-          grep -F 'Independent original polynomial-panel overlap PASS' compare.log
+          python -u numerics/arb/m11_euler_blocked_panel.py --bits 24000 --target 20000 --blocks 8 --panels 128 --index ${{ matrix.index }} --compare --output compare.json | tee compare.log
+          grep -F 'Independent direct-panel overlap PASS' compare.log
       - name: Rigorous 200k local panel pilot
         run: |
           set -euo pipefail
-          python -u numerics/arb/m11_euler_direct_panel.py --bits 220000 --target 200000 --panels 128 --index ${{ matrix.index }} --output pilot.json | tee pilot.log
-          grep -F 'DIRECT PANEL PASS' pilot.log
+          python -u numerics/arb/m11_euler_blocked_panel.py --bits 220000 --target 200000 --blocks 12 --panels 128 --index ${{ matrix.index }} --output pilot.json | tee pilot.log
+          grep -F 'BLOCKED PANEL PASS' pilot.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
