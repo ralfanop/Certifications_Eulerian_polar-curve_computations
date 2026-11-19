@@ -36,9 +36,9 @@ jobs:
           set -euo pipefail
           lean --version
           if [[ "${{ matrix.target }}" == base ]]; then
-            lake exe cache get Mathlib.Analysis.InnerProductSpace.PiL2 Mathlib.Analysis.Normed.Module.Connected Mathlib.Analysis.Normed.Module.Ball.Action Mathlib.Analysis.Normed.Group.BallSphere Mathlib.Topology.MetricSpace.HausdorffDistance Mathlib.Topology.Order.IntermediateValue Mathlib.SetTheory.Cardinal.Order Mathlib.Tactic.Linarith Mathlib.Tactic.NormNum Mathlib.Topology.Homotopy.Path Mathlib.MeasureTheory.Integral.CircleIntegral Mathlib.MeasureTheory.Integral.Bochner.Set Mathlib.AlgebraicTopology.FundamentalGroupoid.SimplyConnected Mathlib.Topology.UniformSpace.UniformApproximation
-            lake build Peters2024 BorsukCore BisectionRepairs HomotopyRealization WoodhouseContinuity SurfaceHomotopy FeynmanKernelContinuity
-            for f in Peters2024 BorsukCore BisectionRepairs HomotopyRealization WoodhouseContinuity SurfaceHomotopy FeynmanKernelContinuity; do
+            lake exe cache get Mathlib.Analysis.InnerProductSpace.PiL2 Mathlib.Analysis.Normed.Module.Connected Mathlib.Analysis.Normed.Module.Ball.Action Mathlib.Analysis.Normed.Group.BallSphere Mathlib.Topology.MetricSpace.HausdorffDistance Mathlib.Topology.Order.IntermediateValue Mathlib.SetTheory.Cardinal.Order Mathlib.Tactic.Linarith Mathlib.Tactic.NormNum Mathlib.Topology.Homotopy.Path Mathlib.MeasureTheory.Integral.CircleIntegral Mathlib.MeasureTheory.Integral.Bochner.Set Mathlib.AlgebraicTopology.FundamentalGroupoid.SimplyConnected Mathlib.Topology.UniformSpace.UniformApproximation Mathlib.Analysis.Complex.Basic Mathlib.Tactic.Ring Mathlib.Tactic.FieldSimp
+            lake build Peters2024 BorsukCore BisectionRepairs HomotopyRealization WoodhouseContinuity SurfaceHomotopy FeynmanKernelContinuity WoodhouseIncidence
+            for f in Peters2024 BorsukCore BisectionRepairs HomotopyRealization WoodhouseContinuity SurfaceHomotopy FeynmanKernelContinuity WoodhouseIncidence; do
               lake env lean "$f.lean"
             done | tee audit.log
           else
