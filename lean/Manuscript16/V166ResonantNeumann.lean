@@ -80,7 +80,7 @@ theorem scalarSchur_coercive (μ : 𝕜) (K : P →L[𝕜] P) (h : ‖K‖ < ‖
       _ = ‖μ • x‖ := (norm_smul μ x).symm
       _ = ‖scalarSchur μ K x + K x‖ := congrArg norm he
       _ ≤ ‖scalarSchur μ K x‖ + ‖K x‖ := norm_add_le _ _
-      _ ≤ _ := add_le_add_left (K.le_opNorm x) _
+      _ ≤ _ := add_le_add (le_refl _) (K.le_opNorm x)
   apply (le_div_iff₀ hp).2
   nlinarith
 
