@@ -5,7 +5,7 @@ import sys
 
 mode, log_path = sys.argv[1:]
 log = pathlib.Path(log_path).read_text()
-names = ["Peters2024", "BorsukCore", "BisectionRepairs", "HomotopyRealization", "WoodhouseContinuity", "SurfaceHomotopy", "FeynmanKernelContinuity"] if mode == "base" else ["BorsukBridge", "PetersApplications"]
+names = ["Peters2024", "BorsukCore", "BisectionRepairs", "HomotopyRealization", "WoodhouseContinuity", "SurfaceHomotopy", "FeynmanKernelContinuity", "WoodhouseIncidence"] if mode == "base" else ["BorsukBridge", "PetersApplications"]
 expected = set()
 for name in names:
     expected.update(re.findall(r"^#print axioms ([\w.]+)\s*$", pathlib.Path(name + ".lean").read_text(), re.M))
