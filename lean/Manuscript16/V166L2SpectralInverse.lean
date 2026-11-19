@@ -1,5 +1,8 @@
 import Mathlib
 
+noncomputable section
+open scoped ENNReal
+
 /-! M16 §13: actual bounded diagonal spectral inverse on the Hilbert space
 of square-summable coefficients. No geometric equivalence to the differential
 operator on S³ is assumed; this is the coefficient-space realization of its
