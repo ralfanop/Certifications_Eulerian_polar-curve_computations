@@ -1,6 +1,6 @@
 name = "Peters2024Audit"
 version = "0.2.0"
-defaultTargets = ["Peters2024", "BorsukCore", "BorsukBridge", "BisectionRepairs", "HomotopyRealization", "WoodhouseContinuity", "SurfaceHomotopy", "FeynmanKernelContinuity", "PetersApplications", "WoodhouseIncidence"]
+defaultTargets = ["Peters2024", "BorsukCore", "BorsukBridge", "BisectionRepairs", "HomotopyRealization", "WoodhouseContinuity", "SurfaceHomotopy", "FeynmanKernelContinuity", "PetersApplications", "WoodhouseIncidence", "WoodhouseJadczyk"]
 
 [[require]]
 name = "mathlib"
@@ -41,3 +41,6 @@ name = "FeynmanKernelContinuity"
 
 [[lean_lib]]
 name = "WoodhouseIncidence"
+
+[[lean_lib]]
+name = "WoodhouseJadczyk"
