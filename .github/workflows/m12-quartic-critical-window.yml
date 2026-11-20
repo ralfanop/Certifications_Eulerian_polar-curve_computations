@@ -1,0 +1,53 @@
+name: M12 quartic critical window - algebraic checkpoint
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/CriticalWindowQuartic.lean'
+      - '.github/workflows/m12-quartic-critical-window.yml'
+  workflow_dispatch:
+
+jobs:
+  quartic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean and Mathlib
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Check candidate at exact HEAD
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          lean --version
+          lake exe cache get
+          lake env lean CriticalWindowQuartic.lean 2>&1 | tee /tmp/m12-quartic.log
+          git rev-parse HEAD
+      - name: Strict axiom audit
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          text = Path('/tmp/m12-quartic.log').read_text()
+          assert ': error' not in text and 'sorryAx' not in text and 'Lean.ofReduceBool' not in text
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          names = ['standardized_fourth_cumulant', 'logarithmic_fourth_coefficient', 'factorial_step', 'factorial_comparison', 'strict_quartic_series_gap', 'critical_exponent_normal_form', 'outer_region_bound', 'quartic_gaussian_domination']
+          for name in names:
+              full = 'M12CriticalWindow.' + name
+              match = re.search(r"'" + re.escape(full) + r"' depends on axioms: \[([^\]]*)\]", text)
+              if not match:
+                  assert "'" + full + "' does not depend on any axioms" in text, full
+              else:
+                  assert {x.strip() for x in match.group(1).split(',') if x.strip()} <= allowed, full
+              print('AXIOM AUDIT SUCCESS', full)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-quartic-audit
+          path: /tmp/m12-quartic.log
