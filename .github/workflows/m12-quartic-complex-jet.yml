@@ -1,0 +1,51 @@
+name: M12 quartic complex jet - isolated Lean audit
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/CriticalWindowComplexJet.lean'
+      - '.github/workflows/m12-quartic-complex-jet.yml'
+  workflow_dispatch:
+jobs:
+  complex-jet:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Compile exact HEAD
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          lean --version
+          lake exe cache get
+          lake env lean CriticalWindowComplexJet.lean 2>&1 | tee /tmp/m12-complex-jet.log
+          git rev-parse HEAD
+      - name: Audit axioms
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/m12-complex-jet.log').read_text()
+          assert ': error' not in s and 'sorryAx' not in s and 'Lean.ofReduceBool' not in s
+          allowed={'propext','Classical.choice','Quot.sound'}
+          for name in ['exponential_jet_identity','cumulant_four','critical_quadratic_cancellation']:
+              full='M12QuarticComplex.'+name
+              m=re.search(r"'"+re.escape(full)+r"' depends on axioms: \[([^\]]*)\]",s)
+              if m:
+                  assert {x.strip() for x in m.group(1).split(',') if x.strip()} <= allowed
+              else:
+                  assert "'"+full+"' does not depend on any axioms" in s, full
+              print('AXIOM AUDIT SUCCESS',full)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-complex-jet-audit
+          path: /tmp/m12-complex-jet.log
