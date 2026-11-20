@@ -72,37 +72,58 @@ def disk_bound(S,c,h,high,derivative,R):
 
 import resource
 
-def band_panel(S,c,h,N,high,derivative,R,bands):
+def band_panel(S,c,h,N,high,derivative,R,bands,goal):
     P=ctx.prec
     acc=arb(0)
     lg=1 if R==2 else 2
     stats=[]
+    retries=0
+    # In the normalized panel [-1,1], allocate a strict absolute
+    # radius budget to each band. Multiplication by h happens afterwards.
+    # Cauchy bounds coefficient magnitudes, not the rounding errors of
+    # the internal series arithmetic; the attenuation heuristic is only
+    # a starting precision, never an accuracy guarantee.
+    tol=arb(2)**(-goal-8)/bands
+    cap=4*P+256
     for i in range(bands):
         lo=N*i//bands
         hi=N*(i+1)//bands
         if hi<=lo: continue
-        # Recompute only the required prefix, at a precision selected
-        # from the smallest attenuation exponent in the current band.
         q=max(128,P-lg*lo+64)
-        try:
-            ctx.prec=q
-            b=series_callback(S,c,R*h,hi,high,derivative)
-            assert len(b)<=hi and all(x.is_finite() for x in b)
-        finally:
-            ctx.prec=P
-        value=arb(0)
-        for k in range(lo+(lo%2),hi,2):
-            if k<len(b):
-                value+=2*b[k]*arb(2)**(-lg*k)/(k+1)
-        acc+=value*h
-        stats.append((hi,q))
-        del b
-    return acc,stats
+        while True:
+            b=None
+            try:
+                ctx.prec=q
+                b=series_callback(S,c,R*h,hi,high,derivative)
+                if len(b)>hi or not all(x.is_finite() for x in b):
+                    b=None
+            except (AssertionError, ValueError, ZeroDivisionError):
+                # A low-precision enclosure may cross a pole or cut.
+                # Retry at a greater precision; never accept it.
+                b=None
+            finally:
+                ctx.prec=P
+            if b is not None:
+                value=arb(0)
+                for k in range(lo+(lo%2),hi,2):
+                    if k<len(b):
+                        value+=2*b[k]*arb(2)**(-lg*k)/(k+1)
+                if value.is_finite() and value.rad() < tol:
+                    acc+=value*h
+                    stats.append((hi,q))
+                    break
+            del b
+            if q>=cap:
+                raise ArithmeticError(('band radius budget not met at cap',
+                    lo,hi,q,goal,high,derivative))
+            q=min(cap,q+max(64,q//2))
+            retries+=1
+    return acc,stats,retries
 
 def panel_integral(S,high,derivative,goal,bands):
     todo=[(arb(1)/2,arb(1)/2,0)]
     out=arb(0)
-    panels=largest=peak=0
+    panels=largest=peak=max_q=retries=0
     while todo:
         c,h,depth=todo.pop()
         M=None
@@ -121,13 +142,16 @@ def panel_integral(S,high,derivative,goal,bands):
             N+=32
             tail=2*h*M*q**N/(1-q)
         assert N<=32768, ('bounded pilot degree cap',N)
-        v,stats=band_panel(S,c,h,N,high,derivative,R,bands)
+        v,stats,nretry=band_panel(S,c,h,N,high,derivative,R,bands,goal)
+        retries+=nretry
+        max_q=max(max_q,max(p for n,p in stats))
         out+=v+arb(0,tail.upper())
         panels+=1
         largest=max(largest,N)
         peak=max(peak,max(n*p for n,p in stats))
     print('BANDED PANELS',high,derivative,'panels',panels,'max degree',
-          largest-1,'max coefficient-bit product',peak,flush=True)
+          largest-1,'max coefficient-bit product',peak,'max working bits',max_q,
+          'precision retries',retries,flush=True)
     return out
 
 def integral_banded(S,derivative,bands):

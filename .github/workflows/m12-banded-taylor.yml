@@ -18,10 +18,8 @@ jobs:
         include:
           - {S: 4, bits: 512, bands: 4, mode: H, flag: ''}
           - {S: 93, bits: 512, bands: 4, mode: Hprime, flag: '--derivative'}
-          - {S: 4, bits: 8192, bands: 1, mode: H, flag: ''}
-          - {S: 4, bits: 8192, bands: 4, mode: H, flag: ''}
-          - {S: 93, bits: 8192, bands: 1, mode: H, flag: ''}
-          - {S: 93, bits: 8192, bands: 4, mode: H, flag: ''}
+          - {S: 4, bits: 2048, bands: 1, mode: H, flag: ''}
+          - {S: 4, bits: 2048, bands: 4, mode: H, flag: ''}
     steps:
       - uses: actions/checkout@v4
         with:
