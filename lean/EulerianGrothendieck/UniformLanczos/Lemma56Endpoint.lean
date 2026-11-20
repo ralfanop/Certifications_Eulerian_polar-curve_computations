@@ -108,7 +108,7 @@ theorem lemma_5_6_blowup {M : ℕ} (hM : 3 ≤ M) :
   rw [deriv_φM_tail hM hx0 hx1, div_le_iff₀ hd]
   have hk : x * (((M:ℝ) - 1) / ((M:ℝ) * (1 / 2 - x))) * (1 / 2 - x) =
       x * (((M:ℝ) - 1) / M) := by
-    field_simp
+    rw [mul_assoc, div_mul_eq_mul_div, mul_div_mul_right _ _ hdne]
   rw [hk]
   exact mul_le_mul_of_nonneg_right hx.1 (div_nonneg (by linarith) hMpos.le)
 
