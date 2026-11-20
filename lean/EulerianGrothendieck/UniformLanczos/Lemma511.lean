@@ -1,4 +1,5 @@
 import UniformLanczos.Theorem59
+import Mathlib.Algebra.Polynomial.Derivative
 
 /-! M12 5.8: algebraic part of Freud's identity. The B-spline integration by
 parts and the lower-degree expansion of the derivative remain separate obligations. -/

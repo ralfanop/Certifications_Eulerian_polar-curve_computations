@@ -33,7 +33,7 @@ jobs:
           set -euo pipefail
           lean --version
           lake exe cache get
-          lake build UniformLanczos.Theorem59
+          lake build UniformLanczos.Theorem59 2>&1 | tee /tmp/m12-lemma513-build.log
           lake env lean UniformLanczos/Lemma513.lean 2>&1 | tee /tmp/m12-lemma513.log
           lake build UniformLanczos.Lemma513
           git rev-parse HEAD
@@ -64,4 +64,6 @@ jobs:
         if: always()
         with:
           name: m12-lemma513-audit
-          path: /tmp/m12-lemma513.log
+          path: |
+            /tmp/m12-lemma513-build.log
+            /tmp/m12-lemma513.log
