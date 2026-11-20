@@ -23,19 +23,22 @@ private theorem g_pos {x : ℝ} (hx : 0 < x) : 0 < g x := by
       (((hasDerivAt_sinh s).pow 2).const_mul 2 |>.const_add 3))
     have h₂ := ((hasDerivAt_sinh s).mul (hasDerivAt_cosh s)).const_mul 3
     convert h₁.sub h₂ using 1
-    · rfl
-    · simp only [id, one_mul]
-      rw [cosh_sq]
+    · funext y
+      simp [g, Pi.mul_apply, Pi.sub_apply, Pi.pow_apply, id] <;> ring
+    · simp only [id, one_mul, Pi.pow_apply]
+      norm_num
+      rw [← pow_two (cosh s), cosh_sq]
       ring
   have hm : StrictMonoOn g (Ici 0) := by
     apply strictMonoOn_of_deriv_pos (convex_Ici 0)
     · exact (fun s _ => (hd s).continuousAt.continuousWithinAt)
     · intro s hs
       rw [interior_Ici] at hs
+      change 0 < s at hs
       rw [(hd s).deriv]
       exact mul_pos (mul_pos (by norm_num) (sinh_pos_iff.mpr hs))
         (sub_pos.mpr (sinh_lt_mul_cosh hs))
-  have h := hm (show (0:ℝ) ∈ Ici 0 from le_rfl) hx.le hx
+  have h := hm (show (0:ℝ) ∈ Ici 0 by simp) hx.le hx
   simpa [g] using h
 
 private noncomputable def q (x : ℝ) : ℝ :=
@@ -71,6 +74,7 @@ theorem sinh_cube_gt {x : ℝ} (hx : 0 < x) :
         (fun y => (cosh_pos y).ne')).continuousOn
     · intro s hs
       rw [interior_Ici] at hs
+      change 0 < s at hs
       have hden : s ^ 3 * cosh s ≠ 0 := by positivity
       have h₁ := (hasDerivAt_sinh s).pow 3
       have h₂ := (hasDerivAt_pow 3 s).mul (hasDerivAt_cosh s)
@@ -94,7 +98,7 @@ theorem sinh_cube_gt {x : ℝ} (hx : 0 < x) :
       | simpa only [hcalc] using hp
       | convert hp using 1 <;> norm_num <;>
           field_simp [hs.ne', (cosh_pos s).ne'] <;> simp [g, cosh_sq] <;> ring
-  have h := hm (show (0:ℝ) ∈ Ici 0 from le_rfl) hx.le hx
+  have h := hm (show (0:ℝ) ∈ Ici 0 by simp) hx.le hx
   have hr0 : r 0 = 1 := by simp [r, q]
   rw [hr0, r_eq hx.ne'] at h
   have hd : 0 < x ^ 3 * cosh x := by positivity
@@ -111,17 +115,16 @@ theorem Lpp_strictAntiOn : StrictAntiOn Lpp (Ioi 0) := by
     refine HasDerivAt.congr_of_eventuallyEq ?_ he.symm
     have h₁ := (hasDerivAt_const s (1:ℝ)).div (hasDerivAt_pow 2 s) (by positivity)
     have h₂ := (hasDerivAt_sinh (s / 2)).comp s ((hasDerivAt_id s).div_const 2)
-    have h₃ := (hasDerivAt_const s (1:ℝ)).div ((h₂.pow 2).const_mul 4) (by positivity)
-    convert h₁.sub h₃ using 1
-    · rfl
-    · simp only [id, one_mul, zero_mul, zero_sub, Function.comp_apply]
-      norm_num
-      field_simp [hs.ne', hsh.ne']
-      ring
+    have hden : 4 * sinh (s / 2) ^ 2 ≠ 0 := by positivity
+    have h₃ := (hasDerivAt_const s (1:ℝ)).div ((h₂.pow 2).const_mul 4) hden
+    convert h₁.sub h₃ using 1 <;>
+      simp [Function.comp_def, Pi.pow_apply, id] <;>
+      field_simp [hs.ne', hsh.ne'] <;> ring
   apply strictAntiOn_of_deriv_neg (convex_Ioi 0)
   · exact fun s hs => (hd s hs).continuousAt.continuousWithinAt
   · intro s hs
     rw [interior_Ioi] at hs
+    change 0 < s at hs
     rw [(hd s hs).deriv]
     have hh := sinh_cube_gt (show 0 < s / 2 by positivity)
     have hsh : 0 < sinh (s / 2) := sinh_pos_iff.mpr (by positivity)
@@ -177,7 +180,7 @@ private theorem Ip_ratio_lt {x y : ℝ} (hx : 0 < x) (hxy : x < y) (hy : y < 1/2
   have h := (lt_div_iff₀ hy0).mp (show Ip x < x * Ip y / y by
     calc Ip x < x / y * Ip y := hc
          _ = x * Ip y / y := by ring)
-  exact h
+  simpa only [mul_comm] using h
 
 noncomputable def K (z : ℝ) : ℝ := sqrt z * Ip (sqrt z)
 noncomputable def J (z : ℝ) : ℝ := H (sqrt z)
@@ -193,10 +196,9 @@ private theorem K_hasDeriv {z : ℝ} (hz : z ∈ Ioo 0 (1/4)) :
   have hs := sqrt_mem hz
   have hd := Real.hasDerivAt_sqrt hz.1.ne'
   have hi := (hasDerivAt_Ip_pos hs.1 hs.2).comp z hd
-  convert hd.mul hi using 1
-  · rfl
-  · field_simp [hs.1.ne']
-    ring
+  convert hd.mul hi using 1 <;>
+    simp [K, Function.comp_def, Pi.mul_apply] <;>
+    field_simp [hs.1.ne'] <;> ring
 
 theorem K_strictConvex : StrictConvexOn ℝ (Ioo 0 (1/4)) K := by
   apply StrictMonoOn.strictConvexOn_of_deriv (convex_Ioo 0 (1/4))
