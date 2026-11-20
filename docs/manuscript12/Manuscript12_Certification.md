@@ -1,6 +1,6 @@
 # Manuscript 12: Lean 4 and Arb certification record
 
-*Bargmann–Fock Representations of the Eulerian Polar Curve: Polyanalytic Extensions and Lanczos Asymptotics*. Roberto Alfano, 7 November 2026; updated 20 November 2026. A PDF version of this record is [Manuscript12_Certification.pdf](Manuscript12_Certification.pdf).
+*Bargmann–Fock Representations of the Eulerian Polar Curve: Polyanalytic Extensions and Lanczos Asymptotics*. Roberto Alfano, 20 November 2026. A PDF version of this record is [Manuscript12_Certification.pdf](Manuscript12_Certification.pdf).
 
 ## 1. Scope.
 
