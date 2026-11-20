@@ -1,0 +1,55 @@
+name: M15 terminal all-order coefficient recursion exact-head audit
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/TerminalLagrangeAllOrder20261120.lean'
+      - '.github/workflows/m15-terminal-lagrange.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean and Mathlib
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/m15-terminal-lagrange.log
+          lake build EulerianCert.FourierModes EulerianCert.Corner 2>&1 | tee -a /tmp/m15-terminal-lagrange.log
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          # Restore/build just the certified dependency chain, without changing the pinned lakefile.
+          for mod in ConvolutionEndpoints EulerianRootDerivatives TerminalPowerJet CycloidalReconstruction ConvolutionTerminalDerivatives TerminalContactLimit20261117 TerminalAnalyticGraph20261119 InternalHyperlinks20261115; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/Manuscript15/$mod.olean" "Manuscript15/$mod.lean" 2>&1 | tee -a /tmp/m15-terminal-lagrange.log
+          done
+          lake env lean -M16768 Manuscript15/TerminalLagrangeAllOrder20261120.lean 2>&1 | tee -a /tmp/m15-terminal-lagrange.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m15-terminal-lagrange.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log=Path('/tmp/m15-terminal-lagrange.log').read_text()
+          names=['Manuscript15.TerminalLagrange.'+s for s in ['scalar_eval','coeff_comp','single_term','lower_degree','inverse_coeff_recurrence','inverse_coeff_succ','exists_terminal_all_order_series']]
+          for name in names:
+              m=re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]",log,re.S)
+              assert m or ("'"+name+"' does not depend on any axioms") in log, name
+              for group in m:
+                  assert {s.strip() for s in group.split(',') if s.strip()} <= {'propext','Classical.choice','Quot.sound'}, name
+          print('AXIOM AUDIT SUCCESS',len(names))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-terminal-lagrange-lean-log
+          path: /tmp/m15-terminal-lagrange.log
