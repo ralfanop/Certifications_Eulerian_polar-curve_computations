@@ -1,0 +1,65 @@
+name: M12 frozen Appendix A reconciliation
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/M12FrozenAppendixA.lean'
+      - '.github/workflows/m12-frozen-appendix-a.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: lean/EulerianGrothendieck
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore exact toolchain
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m12-appendix-head.txt
+          test "$(cat lean-toolchain)" = "leanprover/lean4:v4.24.0"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lean --version
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = f897ebcf72cd16f89ab4577d0c826cd14afaafc7
+          lake exe cache get
+      - name: Compile Appendix A and audit explicit-form declarations
+        run: |
+          set -euo pipefail
+          lake build Bridge.AppendixA Bridge.AppendixAGd Bridge.AppendixAMoments 2>&1 | tee /tmp/m12-appendix-build.log
+          lake env lean M12FrozenAppendixA.lean 2>&1 | tee /tmp/m12-appendix-audit.log
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          s = Path('/tmp/m12-appendix-audit.log').read_text()
+          names = ('eq281', 'eq282_integral_sum', 'eq288', 'eq289')
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          assert 'sorryAx' not in s and 'Lean.ofReduceBool' not in s
+          for name in names:
+              prefix = "M12FrozenAppendixA." + name
+              match = re.search(r"'" + re.escape(prefix) + r"' depends on axioms:\s*\[([^\]]*)\]", s)
+              if match:
+                  axioms = set(x.strip() for x in match.group(1).split(',') if x.strip())
+                  assert axioms <= allowed, (prefix, axioms)
+              else:
+                  assert "'" + prefix + "' does not depend on any axioms" in s, prefix
+          print('M12 APPENDIX A EXACT FORM AUDIT SUCCESS', len(names))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-frozen-appendix-a-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            /tmp/m12-appendix-head.txt
+            /tmp/m12-appendix-build.log
+            /tmp/m12-appendix-audit.log
+          if-no-files-found: warn
