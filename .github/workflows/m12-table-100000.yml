@@ -1,0 +1,234 @@
+name: M12 Table 1 at 100000 working bits
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_table_100000.py'
+      - '.github/workflows/m12-table-100000.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Authenticate the full-precision Lanczos inputs of run 44313014167
+        working-directory: numerics/arb
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          mkdir -p sources
+          run=44313014167
+          head=8fc451ce053a769087fb25ed16289018890bc926
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run" | jq -e --arg sha "$head" '.head_sha == $sha and .conclusion == "success"'
+          for spec in \
+            '100 14431877216 8f2e19d47c0d0ff4011f23a915b6f3ba7c700616805f4ce5849c929dad66e784' \
+            '200 14435228234 eb184d12ad6db434bbc533b0cfde30d83fa08f54b6917e54284ea4aeca8f2a26' \
+            '400 14449268572 2155c46f7bef8ec70bb4bc6e5966b2ee2a485ab306299817640961fbc75ba2e6'; do
+            read -r m id digest <<< "$spec"
+            ep="repos/$GITHUB_REPOSITORY/actions/artifacts/$id"
+            gh api "$ep" | jq -e --arg sha "$head" --arg digest "sha256:$digest" --arg name "m12-lanczos-$m" '.workflow_run.head_sha == $sha and .workflow_run.id == 44313014167 and .digest == $digest and .name == $name and .expired == false'
+            gh api "$ep/zip" > "sources/$m.zip"
+            printf '%s  %s\n' "$digest" "sources/$m.zip" | sha256sum -c -
+            unzip -j "sources/$m.zip" "m12-lanczos-$m.json" -d sources
+          done
+      - name: Whole pipeline at 4096 bits with two shards
+        working-directory: numerics/arb
+        env:
+          M12_TABLE_BITS: '4096'
+          M12_TABLE_SHARDS: '2'
+        run: |
+          set -euo pipefail
+          python -m pip install python-flint==0.9.0
+          mkdir -p smoke
+          cd smoke
+          ln -s ../sources sources
+          for row in 1/4 1/2 1 2 4; do
+            python ../m12_table_100000.py pre "$row"
+            python ../m12_table_100000.py deriv "$row"
+            python ../m12_table_100000.py shard "$row" --index 0
+            python ../m12_table_100000.py shard "$row" --index 1
+          done
+          python ../m12_table_100000.py certify | tee ../smoke.log
+          grep -F 'TABLE 4096 SUCCESS 25 checks' ../smoke.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-table-4096-smoke
+          path: numerics/arb/smoke.log
+          if-no-files-found: error
+  pre:
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {slug: quarter, row: '1/4'}
+          - {slug: half, row: '1/2'}
+          - {slug: one, row: '1'}
+          - {slug: two, row: '2'}
+          - {slug: four, row: '4'}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Interval Newton to more than half of the working bits
+        working-directory: numerics/arb
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+          python m12_table_100000.py pre "${{ matrix.row }}" | tee pre.log
+          grep -F "PRE PASS ${{ matrix.row }} " pre.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-100000-pre-${{ matrix.slug }}
+          path: |
+            numerics/arb/m12-pre-${{ matrix.slug }}.json
+            numerics/arb/pre.log
+          if-no-files-found: error
+  deriv:
+    needs: pre
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {slug: quarter, row: '1/4'}
+          - {slug: half, row: '1/2'}
+          - {slug: one, row: '1'}
+          - {slug: two, row: '2'}
+          - {slug: four, row: '4'}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: m12-100000-pre-${{ matrix.slug }}
+          path: pre
+      - name: Derivative enclosure on the pre-root ball
+        working-directory: numerics/arb
+        run: |
+          set -euo pipefail
+          python -m pip install python-flint==0.9.0
+          python m12_table_100000.py deriv "${{ matrix.row }}" --folder ../../pre | tee deriv.log
+          grep -F "DERIVATIVE PASS ${{ matrix.row }} " deriv.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-100000-deriv-${{ matrix.slug }}
+          path: |
+            numerics/arb/m12-deriv-${{ matrix.slug }}.json
+            numerics/arb/deriv.log
+          if-no-files-found: error
+  shard:
+    needs: pre
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      matrix:
+        slug: [quarter, half, one, two, four]
+        index: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: m12-100000-pre-${{ matrix.slug }}
+          path: pre
+      - name: Periodic residual, node shard
+        working-directory: numerics/arb
+        run: |
+          set -euo pipefail
+          python -m pip install python-flint==0.9.0
+          case "${{ matrix.slug }}" in quarter) row='1/4';; half) row='1/2';; one) row='1';; two) row='2';; four) row='4';; esac
+          python m12_table_100000.py shard "$row" --index ${{ matrix.index }} --folder ../../pre | tee shard.log
+          grep -F "SHARD PASS $row ${{ matrix.index }} " shard.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-100000-shard-${{ matrix.slug }}-${{ matrix.index }}
+          path: |
+            numerics/arb/m12-shard-${{ matrix.slug }}-${{ matrix.index }}.json
+            numerics/arb/shard.log
+          if-no-files-found: error
+  certify:
+    needs: [deriv, shard]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: m12-100000-*
+          path: stages
+          merge-multiple: false
+      - name: Authenticate the full-precision Lanczos inputs of run 44313014167
+        working-directory: numerics/arb
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          mkdir -p sources
+          run=44313014167
+          head=8fc451ce053a769087fb25ed16289018890bc926
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run" | jq -e --arg sha "$head" '.head_sha == $sha and .conclusion == "success"'
+          for spec in \
+            '100 14431877216 8f2e19d47c0d0ff4011f23a915b6f3ba7c700616805f4ce5849c929dad66e784' \
+            '200 14435228234 eb184d12ad6db434bbc533b0cfde30d83fa08f54b6917e54284ea4aeca8f2a26' \
+            '400 14449268572 2155c46f7bef8ec70bb4bc6e5966b2ee2a485ab306299817640961fbc75ba2e6'; do
+            read -r m id digest <<< "$spec"
+            ep="repos/$GITHUB_REPOSITORY/actions/artifacts/$id"
+            gh api "$ep" | jq -e --arg sha "$head" --arg digest "sha256:$digest" --arg name "m12-lanczos-$m" '.workflow_run.head_sha == $sha and .workflow_run.id == 44313014167 and .digest == $digest and .name == $name and .expired == false'
+            gh api "$ep/zip" > "sources/$m.zip"
+            printf '%s  %s\n' "$digest" "sources/$m.zip" | sha256sum -c -
+            unzip -j "sources/$m.zip" "m12-lanczos-$m.json" -d sources
+          done
+      - name: Collect the same-run stage files
+        run: |
+          set -euo pipefail
+          mkdir -p numerics/arb/stagefiles
+          find stages -name 'm12-pre-*.json' -o -name 'm12-deriv-*.json' -o -name 'm12-shard-*.json' | while read -r f; do cp "$f" numerics/arb/stagefiles/; done
+          ls numerics/arb/stagefiles | wc -l
+          test "$(ls numerics/arb/stagefiles | wc -l)" = 50
+      - name: Final interval Newton step and strict rounding of all 25 cells
+        working-directory: numerics/arb
+        run: |
+          set -euo pipefail
+          python -m pip install python-flint==0.9.0
+          python m12_table_100000.py certify --folder stagefiles | tee audit.log
+          grep -F 'TABLE 100000 SUCCESS 25 checks' audit.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-table-100000
+          path: |
+            numerics/arb/audit.log
+            numerics/arb/m12-table-100000.json
+          if-no-files-found: error
