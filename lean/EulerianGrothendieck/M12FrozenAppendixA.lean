@@ -23,7 +23,10 @@ theorem eq282_integral_sum :
   rw [integral_inv_one_sub_sq]
   have h := moments_sum.1
   rw [moments_sum.2.2] at h
-  simpa only [m_eq] using h
+  have hm : m = (fun k : ℕ => 1 / ((4 : ℝ) ^ k * (2 * (k : ℝ) + 1))) :=
+    funext m_eq
+  rw [hm]
+  exact h
 
 /-- (288), the real-valued division form of the central binomial identity. -/
 theorem eq288 (k : ℕ) :
