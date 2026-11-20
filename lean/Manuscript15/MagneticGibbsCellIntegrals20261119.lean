@@ -112,7 +112,6 @@ theorem normalized_quadratic_cell_integral (r : ℝ) (hr : 0 < r) :
   rw [quadratic_cell_integral r hr.ne']
   have hq : 1-Real.exp (-2*r) ≠ 0 :=
     ne_of_gt (sub_pos.mpr (Real.exp_lt_one_iff.mpr (by linarith)))
-  set q := Real.exp (-2*r) at hq ⊢
   field_simp [hr.ne',hq] <;> ring
 
 end Manuscript15.MagneticGibbs.CellIntegrals
