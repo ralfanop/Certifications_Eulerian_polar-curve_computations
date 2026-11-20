@@ -54,11 +54,10 @@ theorem w_right_tail (n : ℕ) (δ : ℝ) (hδ0 : 0 ≤ δ) (hδ1 : δ < 1) :
     simp only [div_eq_mul_inv]
     rw [intervalIntegral.integral_mul_const, integral_pow]
     simp only [zero_pow (Nat.succ_ne_zero n), sub_zero, Nat.factorial_succ, Nat.cast_mul,
-      Nat.cast_succ, Nat.cast_ofNat]
+      Nat.cast_succ]
     have hf : (n.factorial : ℝ) ≠ 0 := by exact_mod_cast (Nat.factorial_pos n).ne'
     have hn : (n : ℝ) + 1 ≠ 0 := by positivity
     field_simp
-    ring
 
 theorem w_right_tail_pos (n : ℕ) (δ : ℝ) (hδ0 : 0 < δ) (hδ1 : δ < 1) :
     0 < w (n + 1) (((n + 1 : ℕ) : ℝ) / 2 - δ) := by
