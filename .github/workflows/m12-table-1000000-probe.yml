@@ -1,0 +1,46 @@
+name: M12 Table 1 at 1000000 bits, timing probe
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_table_1000000_probe.py'
+      - '.github/workflows/m12-table-1000000-probe.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  nodes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        row: ['1/4', '1/2', '1', '2', '4']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Node cost and node count at 200000-1000000 bits
+        working-directory: numerics/arb
+        run: |
+          set -euo pipefail
+          python -m pip install python-flint==0.9.0
+          python m12_table_1000000_probe.py nodes '${{ matrix.row }}'
+  derivative:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Derivative pieces on [i/64, (i+1)/64] at 100000 bits
+        working-directory: numerics/arb
+        run: |
+          set -euo pipefail
+          python -m pip install python-flint==0.9.0
+          python m12_table_1000000_probe.py pieces
