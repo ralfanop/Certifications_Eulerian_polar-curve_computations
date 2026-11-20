@@ -7,6 +7,7 @@ independently checked in Lean; no native_decide or external oracle. -/
 noncomputable section
 namespace Manuscript14.ParryUnconditional
 open Manuscript14.ParryProxy Manuscript14.ParryResidual Manuscript14.ParryActualLog
+open Manuscript14.ParryAnalyticInputs
 open SpecialImaginaryPoint.V14119Asymptotic177
 set_option maxHeartbeats 0
 set_option maxRecDepth 32768
@@ -301,7 +302,7 @@ theorem parry_remainder_unconditional (x : ℝ) (hx : 0 < x) (hx1 : x ≤ 1/2) :
       (P12 (x^2)*Real.log (6/x^2)+R12 (x^2))/x^2| ≤
       3373*(x^2)^11*Real.log (6/x^2) := by
   have ht : 0 < x^2 := sq_pos_of_pos hx
-  have ht1 : x^2 ≤ 1 := by nlinarith
+  have ht1 : x^2 ≤ 1 := square_le_one x hx (by linarith)
   exact parry_from_finite_residuals x hx hx1
     (denominator_residual (x^2) ht ht1)
     (numerator_residual (x^2) ht.le ht1)
