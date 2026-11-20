@@ -1,9 +1,11 @@
-name: Fredholm genuine complex trace and derivative at zero
+name: Fredholm genuine trace and multiplicativity
 on:
   pull_request:
     paths:
       - 'lean/SharedCore/NuclearDiagonalTrace.lean'
       - 'lean/SpecialImaginaryPoint/FredholmActualTrace.lean'
+      - 'lean/SharedCore/FiniteFredholmProduct.lean'
+      - 'lean/SpecialImaginaryPoint/FredholmMultiplicativity.lean'
       - '.github/workflows/fredholm-actual-trace-20261120.yml'
   workflow_dispatch:
 permissions:
@@ -43,8 +45,8 @@ jobs:
           set -euo pipefail
           lake update
           lake exe cache get
-      - name: Compile genuine trace and audit axioms
-        run: python3 scripts/verify_fredholm_20261119.py SharedCore.NuclearDiagonalTrace SpecialImaginaryPoint.FredholmActualTrace
+      - name: Compile genuine trace and multiplicativity; audit axioms
+        run: python3 scripts/verify_fredholm_20261119.py SharedCore.NuclearDiagonalTrace SpecialImaginaryPoint.FredholmActualTrace SharedCore.FiniteFredholmProduct SpecialImaginaryPoint.FredholmMultiplicativity
       - uses: actions/cache/save@v4
         if: always()
         with:
