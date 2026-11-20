@@ -1,0 +1,71 @@
+name: M12 Table 1 validated profile quadrature
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_profile_saddle.py'
+      - '.github/workflows/m12-profile-saddle.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        row: ['1/4','1/2','1','2','4']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+          python numerics/arb/m12_profile_saddle.py '${{ matrix.row }}'
+  full:
+    needs: pilot
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - row: '1/4'
+            label: 'quarter'
+          - row: '1/2'
+            label: 'half'
+          - row: '1'
+            label: 'one'
+          - row: '2'
+            label: 'two'
+          - row: '4'
+            label: 'four'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+          set -euo pipefail
+          python numerics/arb/m12_profile_saddle.py '${{ matrix.row }}' --full 2>&1 | tee profile.log
+          grep -F 'MILLION SUCCESS m12-profile-' profile.log
+          gzip -t million-enclosures.jsonl.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-profile-${{ matrix.label }}
+          path: |
+            profile.log
+            m12-profile-*.json
+            million-m12-profile-*.json
+            million-enclosures.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn
