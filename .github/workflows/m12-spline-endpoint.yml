@@ -1,0 +1,51 @@
+name: M12 Lemma 5.6 exact spline endpoint
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/Bridge/Saddle/RightTail.lean'
+      - '.github/workflows/m12-spline-endpoint.yml'
+  workflow_dispatch:
+
+jobs:
+  endpoint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean and Mathlib
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Build prerequisites and check actual endpoint theorem
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          lean --version
+          lake exe cache get
+          lake build Bridge.Saddle.Corollary
+          lake env lean Bridge/Saddle/RightTail.lean 2>&1 | tee /tmp/m12-spline-endpoint.log
+          git rev-parse HEAD
+      - name: Strict individual axiom audit
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          text = Path('/tmp/m12-spline-endpoint.log').read_text()
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          for name in ('w_right_tail', 'w_right_tail_pos', 'gM_right_tail'):
+              match = re.search(r"'EulerianBridge\.Saddle\." + name + r"' depends on axioms: \[([^\]]*)\]", text)
+              assert match, name
+              axioms = {x.strip() for x in match.group(1).split(',') if x.strip()}
+              assert axioms <= allowed, (name, axioms)
+              print('AXIOM AUDIT SUCCESS', name, sorted(axioms))
+          assert 'sorryAx' not in text and 'Lean.ofReduceBool' not in text
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-spline-endpoint-audit
+          path: /tmp/m12-spline-endpoint.log
