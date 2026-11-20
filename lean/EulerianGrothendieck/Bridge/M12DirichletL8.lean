@@ -35,7 +35,10 @@ theorem chi8Int_nonunit (a : ZMod 8) (ha : ¬ IsUnit a) : chi8Int a = 0 := by
 
 def chi8 : DirichletCharacter ℂ 8 where
   toFun a := (chi8Int a : ℂ)
-  map_one' := by norm_num [chi8Int]
+  map_one' := by
+    change (chi8Int (1 : ZMod 8) : ℂ) = 1
+    have h : chi8Int (1 : ZMod 8) = 1 := by decide
+    norm_num [h]
   map_mul' a b := by rw [chi8Int_mul, Int.cast_mul]
   map_nonunit' a ha := by rw [chi8Int_nonunit a ha, Int.cast_zero]
 
@@ -46,7 +49,15 @@ theorem chi8_values :
     (chi8Int 2 : ℂ) = 0 ∧ (chi8Int 3 : ℂ) = -1 ∧
     (chi8Int 4 : ℂ) = 0 ∧ (chi8Int 5 : ℂ) = -1 ∧
     (chi8Int 6 : ℂ) = 0 ∧ (chi8Int 7 : ℂ) = 1
-  norm_num [chi8Int, ZMod.val_natCast]
+  have h0 : chi8Int (0 : ZMod 8) = 0 := by decide
+  have h1 : chi8Int (1 : ZMod 8) = 1 := by decide
+  have h2 : chi8Int (2 : ZMod 8) = 0 := by decide
+  have h3 : chi8Int (3 : ZMod 8) = -1 := by decide
+  have h4 : chi8Int (4 : ZMod 8) = 0 := by decide
+  have h5 : chi8Int (5 : ZMod 8) = -1 := by decide
+  have h6 : chi8Int (6 : ZMod 8) = 0 := by decide
+  have h7 : chi8Int (7 : ZMod 8) = 1 := by decide
+  norm_num [h0, h1, h2, h3, h4, h5, h6, h7]
 
 def A (x : ℝ) : ℝ := x^2 + Real.sqrt 2 * x + 1
 def B (x : ℝ) : ℝ := x^2 - Real.sqrt 2 * x + 1
