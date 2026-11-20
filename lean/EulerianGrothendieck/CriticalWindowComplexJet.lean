@@ -12,11 +12,11 @@ remains a separate obligation.
 namespace M12QuarticComplex
 
 /-- The degree-four Taylor polynomial of sinh(√3 z)/(√3 z). -/
-def mgfTaylor4 (z : ℂ) : ℂ :=
+noncomputable def mgfTaylor4 (z : ℂ) : ℂ :=
   1 + z^2 / 2 + (3 / 40 : ℂ) * z^4
 
 /-- The degree-four Taylor polynomial of its analytic logarithm. -/
-def logTaylor4 (z : ℂ) : ℂ :=
+noncomputable def logTaylor4 (z : ℂ) : ℂ :=
   z^2 / 2 - z^4 / 20
 
 /-- Formal exponentiation of the logarithmic jet reproduces the MGF jet
