@@ -1,7 +1,7 @@
 {
  "label": "test-16384-step1",
  "bits": 16384,
- "note": "Mechanics test at 16384 bits from the pre-stage roots of run 44782807031: step 1 only. Certifies nothing.",
+ "note": "Mechanics test at 16384 bits from the pre-stage roots of run 44782807031: step 1 only. Certifies nothing. The pre-stage artifacts come from a run still in progress, so their run is not required to have succeeded; every real stage requires it.",
  "work": [
   [
    "d0",
@@ -72,35 +72,40 @@
    "id": 14660048094,
    "name": "m12-100000-pre-four",
    "run": 44782807031,
-   "scope": "all"
+   "scope": "all",
+   "require_success": false
   },
   {
    "digest": "adc59aaa1ff18f7b6832a361ed1c9bcbe29ae007487209d754611f7b02a49273",
    "id": 14655645984,
    "name": "m12-100000-pre-half",
    "run": 44782807031,
-   "scope": "all"
+   "scope": "all",
+   "require_success": false
   },
   {
    "digest": "68e4aa41a00073644a9b42553933814a174e8fb024794d245c1af33539ca4624",
    "id": 14655023080,
    "name": "m12-100000-pre-one",
    "run": 44782807031,
-   "scope": "all"
+   "scope": "all",
+   "require_success": false
   },
   {
    "digest": "99082b03bf739f00b35f34a52e8de5a48957b9d2dfe368e9c8fb340ea8e17575",
    "id": 14655556144,
    "name": "m12-100000-pre-quarter",
    "run": 44782807031,
-   "scope": "all"
+   "scope": "all",
+   "require_success": false
   },
   {
    "digest": "d3de644041e73c8e086e69fe80c6bec9c857e6fd3d6281365470ce51cdd079b8",
    "id": 14658200810,
    "name": "m12-100000-pre-two",
    "run": 44782807031,
-   "scope": "all"
+   "scope": "all",
+   "require_success": false
   }
  ]
 }

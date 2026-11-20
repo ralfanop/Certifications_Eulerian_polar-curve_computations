@@ -26,7 +26,8 @@ done
 jq -c --arg scope "$scope" '.inputs[] | select($scope == "combine" or .scope == "all")' "$stage" | while read -r item; do
   run=$(jq -r .run <<< "$item"); id=$(jq -r .id <<< "$item")
   name=$(jq -r .name <<< "$item"); digest=$(jq -r .digest <<< "$item")
-  gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run" | jq -e '.conclusion == "success"' > /dev/null
+  req=$(jq -r 'if has("require_success") then .require_success else true end' <<< "$item")
+  gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run" | jq -e --argjson req "$req" 'if $req then .conclusion == "success" else true end' > /dev/null
   ep="repos/$GITHUB_REPOSITORY/actions/artifacts/$id"
   gh api "$ep" | jq -e --argjson run "$run" --arg digest "sha256:$digest" --arg name "$name" \
     '.workflow_run.id == $run and .digest == $digest and .name == $name and .expired == false' > /dev/null
