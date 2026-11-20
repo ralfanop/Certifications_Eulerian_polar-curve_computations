@@ -173,7 +173,7 @@ theorem gram_pairing_expansion (L : ℝ[X] →ₗ[ℝ] R) {n : ℕ} (p q : ℝ[X
 
 theorem gram_change_basis (L : ℝ[X] →ₗ[ℝ] R) {n : ℕ} (p : Fin n → ℝ[X])
     (hp : ∀ i, (p i).natDegree < n) :
-    gramFamily L p = (gramCoefficients p)ᵀ * gramHankel L n * gramCoefficients p := by
+    gramFamily L p = (gramCoefficients p).transpose * gramHankel L n * gramCoefficients p := by
   ext i j
   rw [gramFamily, gram_pairing_expansion L _ _ (hp i) (hp j)]
   simp only [Matrix.mul_apply, Matrix.transpose_apply, gramCoefficients, gramHankel,
@@ -379,9 +379,15 @@ theorem moment_QjM {M j : ℕ} (hM : 2 ≤ M) (hj : 1 ≤ j) {a : ℝ} (ha : 0 <
       (((M:ℝ) * a)⁻¹ ^ k * ((M:ℝ) * a)) * ((((M:ℝ) * a) * x) ^ k * w M (((M:ℝ) * a) * x)) := by
     intro x
     have harg : (M:ℝ) * (a * x) = (M:ℝ) * a * x := (mul_assoc _ _ _).symm
+    have hck : ((M:ℝ) * a)⁻¹ ^ k * ((M:ℝ) * a) ^ k = 1 := by
+      rw [← mul_pow, inv_mul_cancel₀ hc.ne', one_pow]
     show x ^ k * (a * ((M:ℝ) * w M ((M:ℝ) * (a * x)))) = _
-    rw [harg]
-    first | (field_simp; ring) | field_simp
+    rw [harg, mul_pow ((M:ℝ) * a) x k]
+    calc x ^ k * (a * ((M:ℝ) * w M ((M:ℝ) * a * x)))
+        = (((M:ℝ) * a)⁻¹ ^ k * ((M:ℝ) * a) ^ k) *
+            (((M:ℝ) * a) * (x ^ k * w M ((M:ℝ) * a * x))) := by
+          rw [hck]; ring
+      _ = _ := by ring
   have hsub := MeasureTheory.Measure.integral_comp_mul_left (fun s : ℝ => s ^ k * w M s)
     ((M:ℝ) * a)
   simp only at hsub
