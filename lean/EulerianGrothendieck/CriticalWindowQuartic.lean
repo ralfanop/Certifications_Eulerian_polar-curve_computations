@@ -34,12 +34,12 @@ theorem strict_quartic_series_gap :
 
 /-- ε = M^(-1/4). This is the exact Taylor-polynomial cancellation
 before multiplying by M = ε^(-4). -/
-theorem critical_exponent_normal_form (ε λ u w : ℝ) :
+theorem critical_exponent_normal_form (ε lam u w : ℝ) :
     2 * ((u^2 * ε^2 - w^2 * ε^4) / 4 -
         (u^4 * ε^4 - 6*u^2*w^2*ε^6 + w^4*ε^8) / 80) -
-       6 * (1/12 + λ*ε^2) * (u^2*ε^2 + w^2*ε^4)
-    = ε^4 * (-w^2 - u^4/40 - 6*λ*u^2) +
-      ε^6 * (3/20*u^2*w^2 - 6*λ*w^2) - ε^8*w^4/40 := by
+       6 * (1/12 + lam*ε^2) * (u^2*ε^2 + w^2*ε^4)
+    = ε^4 * (-w^2 - u^4/40 - 6*lam*u^2) +
+      ε^6 * (3/20*u^2*w^2 - 6*lam*w^2) - ε^8*w^4/40 := by
   ring
 
 theorem outer_region_bound (b s L u : ℝ) (h : 6*L+1 ≤ b*s) :
