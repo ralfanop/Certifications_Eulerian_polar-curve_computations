@@ -60,7 +60,14 @@ def dyadic_ball(l, u, bits=None):
 
 
 def endpoints(x):
-    return str(x.lower().fmpq()), str(x.upper().fmpq())
+    # arb.lower/upper round to the working precision: read exact endpoints at a
+    # precision above that of every ball handled here.
+    p = ctx.prec
+    ctx.prec = P + 4096
+    try:
+        return str(x.lower().fmpq()), str(x.upper().fmpq())
+    finally:
+        ctx.prec = p
 
 
 def residual(S, bits):
@@ -107,9 +114,9 @@ def stage_pre(row):
         print('PRE STEP', row, 'p', p, 'root bits', X.rel_accuracy_bits(),
               'derivative seconds', dt, 'residual seconds', ht, flush=True)
     assert X.rel_accuracy_bits() >= PRE
+    lo, hi = endpoints(X)
     ctx.prec = 256
     assert initial(row, 256).overlaps(X)
-    lo, hi = endpoints(X)
     data = dict(row=row, working_bits=P, pre_bits=PRE, relative_bits=X.rel_accuracy_bits(),
                 root_lower=lo, root_upper=hi, elapsed_seconds=time.monotonic() - start,
                 peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
@@ -135,8 +142,9 @@ def stage_deriv(row, folder):
     assert D.is_finite() and D > 0
     assert D.rel_accuracy_bits() >= goal - 64, ('derivative accuracy', D.rel_accuracy_bits(), goal)
     lo, hi = endpoints(D)
+    rl, ru = endpoints(X)
     data = dict(row=row, working_bits=P, goal_bits=goal, relative_bits=D.rel_accuracy_bits(),
-                root_lower=str(X.lower().fmpq()), root_upper=str(X.upper().fmpq()),
+                root_lower=rl, root_upper=ru,
                 lower=lo, upper=hi, elapsed_seconds=time.monotonic() - start,
                 peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
     Path(f'm12-deriv-{SLUG[row]}.json').write_text(json.dumps(data) + '\n')
@@ -159,7 +167,7 @@ def stage_shard(row, i, folder):
     assert total.rel_accuracy_bits() >= P - 100
     l, u = endpoints(total)
     data = dict(row=row, working_bits=P, N=N, index=i, shards=K, lo=lo, hi=hi,
-                midpoint=str(S.lower().fmpq()), lower=l, upper=u,
+                midpoint=endpoints(S)[0], lower=l, upper=u,
                 elapsed_seconds=time.monotonic() - start)
     Path(f'm12-shard-{SLUG[row]}-{i}.json').write_text(json.dumps(data) + '\n')
     print('SHARD PASS', row, i, 'nodes', hi - lo, 'of', m - 1, 'relative bits',
@@ -171,7 +179,7 @@ def final_root(row, folder):
     b = X.rel_accuracy_bits()
     d = json.loads((folder / f'm12-deriv-{SLUG[row]}.json').read_text())
     assert d['row'] == row and d['working_bits'] == P
-    assert (d['root_lower'], d['root_upper']) == (str(X.lower().fmpq()), str(X.upper().fmpq()))
+    assert (d['root_lower'], d['root_upper']) == endpoints(X)
     D = dyadic_ball(d['lower'], d['upper'])
     assert D > 0
     S = X.mid()
@@ -186,7 +194,7 @@ def final_root(row, folder):
         lo, hi = bounds(m, i, K)
         assert (s['row'], s['working_bits'], s['N'], s['index'], s['shards'], s['lo'], s['hi']) == \
                (row, P, N, i, K, lo, hi)
-        assert fmpq(s['midpoint']) == S.lower().fmpq()
+        assert s['midpoint'] == endpoints(S)[0]
         assert lo == end and hi > lo
         end = hi
         x = dyadic_ball(s['lower'], s['upper'], P - 100)
@@ -242,7 +250,8 @@ def stage_certify(folder):
     roots = {}
     for t, *ds in ROWS:
         Z, F = profiles[t]
-        roots[t] = dict(root_lower=str(Z.lower().fmpq()), root_upper=str(Z.upper().fmpq()))
+        rl, ru = endpoints(Z)
+        roots[t] = dict(root_lower=rl, root_upper=ru)
         check('F(' + t + ')', F, PROFILES[t], Q(1, 10 ** 7))
         for M, displayed in zip((100, 200, 400), ds[:3]):
             j = Q(t) * M
