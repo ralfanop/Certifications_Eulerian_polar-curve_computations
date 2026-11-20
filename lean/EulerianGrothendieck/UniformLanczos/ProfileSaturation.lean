@@ -148,9 +148,12 @@ theorem pole_model_formula {a : ℝ} (ha : 0 ≤ a) (ha' : a < 1/2) :
     have hh : 0 < 1-2*a*sin θ := by nlinarith [mul_nonneg ha (sub_nonneg.mpr hs)]
     have hh' : 0 < 1/2-a*sin θ := by linarith
     change a * sin θ / (1/2-a*sin θ) = 1/(1-2*a*sin θ)-1
-    rw [show 1-2*a*sin θ = 2*(1/2-a*sin θ) by ring]
-    field_simp [hh'.ne']
-    <;> ring
+    have hratio : (1/2-a*sin θ)/(1-2*a*sin θ) = (1:ℝ)/2 := by
+      apply (div_eq_iff hh.ne').2
+      ring
+    apply (div_eq_iff hh'.ne').2
+    simp only [sub_mul, one_mul, div_mul_eq_mul_div, hratio]
+    ring
   rw [hEq, integral_sub hI intervalIntegral.intervalIntegrable_const, pole_integral ha ha', integral_const]
   simp only [sub_zero, smul_eq_mul, mul_one]
   field_simp [pi_ne_zero]
