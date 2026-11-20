@@ -1,0 +1,57 @@
+name: M12 Lemma 5.8 conditions (ii) and (v) for the actual weights
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma58.lean'
+      - '.github/workflows/m12-lemma58-classq.yml'
+  workflow_dispatch:
+
+jobs:
+  classq:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean and Mathlib
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Build prerequisites and check the Lemma 5.8 file
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          lean --version
+          lake exe cache get
+          lake build UniformLanczos.Lemma56Endpoint UniformLanczos.ClassQ UniformLanczos.MRS
+          lake env lean UniformLanczos/Lemma58.lean 2>&1 | tee /tmp/m12-lemma58-classq.log
+          lake build UniformLanczos.Lemma58
+          git rev-parse HEAD
+      - name: Strict individual axiom audit
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          text = Path('/tmp/m12-lemma58-classq.log').read_text()
+          assert ': error' not in text
+          assert 'sorryAx' not in text and 'Lean.ofReduceBool' not in text
+          names = ['UniformLanczos.Lemma58.' + n for n in (
+              'hasDerivAt_QjM', "QjM'_strictMonoOn", "QjM'_continuousOn",
+              'mrs_first_actual', 'mrs_actual')]
+          for name in names:
+              match = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", text)
+              assert match, name
+              axioms = {x.strip() for x in match.group(1).split(',') if x.strip()}
+              assert axioms <= allowed, (name, axioms)
+              print('AXIOM AUDIT SUCCESS', name, sorted(axioms))
+          print('AUDITED', len(names))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-lemma58-classq-audit
+          path: /tmp/m12-lemma58-classq.log
