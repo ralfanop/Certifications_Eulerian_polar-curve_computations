@@ -1,0 +1,53 @@
+name: M12 Appendix A Dirichlet L8 prerequisites
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/Bridge/M12DirichletL8.lean'
+      - '.github/workflows/m12-appendix-a-dirichlet-l8.yml'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean and Mathlib
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Check exact candidate and axiom reports
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD
+          lean --version
+          lake exe cache get
+          lake env lean Bridge/M12DirichletL8.lean 2>&1 | tee /tmp/m12-l8.log
+      - name: Strict axiom audit
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          text = Path('/tmp/m12-l8.log').read_text()
+          assert 'sorryAx' not in text and 'Lean.ofReduceBool' not in text
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          for n in ('chi8', 'chi8_values', 'primitive_hasDerivAt', 'integral_value'):
+              name = 'M12.DirichletL8.' + n
+              matches = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", text)
+              if matches:
+                  axioms = {x.strip() for x in matches.group(1).split(',') if x.strip()}
+                  assert axioms <= allowed, (name, axioms)
+              else:
+                  assert "'" + name + "' does not depend on any axioms" in text, name
+              print('AXIOM AUDIT SUCCESS', name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-l8-exact-head-log
+          path: /tmp/m12-l8.log
