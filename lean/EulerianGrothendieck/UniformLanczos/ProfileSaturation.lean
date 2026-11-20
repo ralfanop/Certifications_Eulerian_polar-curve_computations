@@ -147,6 +147,7 @@ theorem pole_model_formula {a : ℝ} (ha : 0 ≤ a) (ha' : a < 1/2) :
     have hs := sin_le_one θ
     have hh : 0 < 1-2*a*sin θ := by nlinarith [mul_nonneg ha (sub_nonneg.mpr hs)]
     have hh' : 0 < 1/2-a*sin θ := by linarith
+    change a * sin θ / (1/2-a*sin θ) = 1/(1-2*a*sin θ)-1
     rw [show 1-2*a*sin θ = 2*(1/2-a*sin θ) by ring]
     field_simp [hh'.ne']
     <;> ring
