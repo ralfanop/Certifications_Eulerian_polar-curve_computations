@@ -32,7 +32,7 @@ open ProbabilisticTheory.TraceClass
 theorem left_rankOneS1 (A : H →L[ℂ] H) (u v : H) :
     sandwichContinuous A 1 (rankOneS1 u v) = rankOneS1 (A u) v := by
   apply Subtype.ext
-  change A * rankOne ℂ u v * 1 = rankOne ℂ (A u) v
+  rw [sandwichContinuous_apply, sandwich_operator, rankOneS1_operator, rankOneS1_operator]
   ext x
   simp [rankOne_apply]
 
@@ -65,22 +65,29 @@ theorem fredholmDet_mul_finite (m n : ℕ) (u v : Fin m → H) (x y : Fin n → 
       fredholmDet (finiteNuclear m u v) 1 * fredholmDet (finiteNuclear n x y) 1 := by
   rw [← joined_finiteNuclear_product, fredholmDet_finiteNuclear,
     fredholmDet_finiteNuclear, fredholmDet_finiteNuclear]
-  simpa only [one_smul, gram, SharedCore.FiniteFredholmProduct.pairingMatrix] using
-    SharedCore.FiniteFredholmProduct.joined_gram_det u v x y
+  have hgram (k : ℕ) (a b : Fin k → H) :
+      Manuscript14Priority3.FiniteNuclearFredholm.gram k a b =
+        SharedCore.FiniteFredholmProduct.pairingMatrix b a := rfl
+  simp only [one_smul, hgram]
+  exact SharedCore.FiniteFredholmProduct.joined_gram_det u v x y
 
 theorem fredholmDet_continuous_operator :
     Continuous (fun T : ProbabilisticTheory.TraceClass H => fredholmDet T 1) := by
   apply continuous_iff_continuousAt.mpr
   intro S
   rw [ContinuousAt, tendsto_iff_norm_sub_tendsto_zero]
-  apply squeeze_zero (fun T => norm_nonneg _) (fun T => ?_) ?_
-  · simpa only [norm_one, one_mul] using universalFredholm_two_operators_diff_norm_le T S 1
-  · have hn : Tendsto (fun T : ProbabilisticTheory.TraceClass H => ‖T - S‖)
-        (𝓝 S) (𝓝 (0 : ℝ)) := by
-      simpa using (tendsto_id.sub tendsto_const_nhds).norm
-    have he : Tendsto (fun T : ProbabilisticTheory.TraceClass H => Real.exp (‖S‖ + ‖T - S‖))
-        (𝓝 S) (𝓝 (Real.exp (‖S‖ + 0))) := (tendsto_const_nhds.add hn).exp
-    simpa using hn.mul he
+  have hb (T : ProbabilisticTheory.TraceClass H) :
+      ‖fredholmDet T 1 - fredholmDet S 1‖ ≤ ‖T - S‖ * Real.exp (‖S‖ + ‖T - S‖) := by
+    simpa only [norm_one, one_mul] using universalFredholm_two_operators_diff_norm_le T S 1
+  have hn : Continuous (fun T : ProbabilisticTheory.TraceClass H => ‖T - S‖) :=
+    (continuous_id.sub continuous_const).norm
+  have hc : Continuous (fun T : ProbabilisticTheory.TraceClass H =>
+      ‖T - S‖ * Real.exp (‖S‖ + ‖T - S‖)) :=
+    hn.mul (Real.continuous_exp.comp (continuous_const.add hn))
+  have hlim : Tendsto (fun T : ProbabilisticTheory.TraceClass H =>
+      ‖T - S‖ * Real.exp (‖S‖ + ‖T - S‖)) (𝓝 S) (𝓝 0) := by
+    simpa using hc.tendsto S
+  exact squeeze_zero (fun T => norm_nonneg _) hb hlim
 
 /-- Genuine multiplicativity for every two CFC trace-class operators.
 The identity operator is used only in B(H), never asserted to be S₁. -/
@@ -90,22 +97,27 @@ theorem fredholmDet_multiplicative (T S : ProbabilisticTheory.TraceClass H) :
       ∀ S : ProbabilisticTheory.TraceClass H,
         fredholmDet (T + S + T * S) 1 = fredholmDet T 1 * fredholmDet S 1 := by
     obtain ⟨m, u, v, rfl⟩ := hT
-    apply finiteSector_dense.induction
+    intro S
+    refine finiteSector_dense.induction
+      (P := fun S => fredholmDet (finiteNuclear m u v + S + finiteNuclear m u v * S) 1 =
+        fredholmDet (finiteNuclear m u v) 1 * fredholmDet S 1) ?_ ?_ S
     · rintro S ⟨n, x, y, rfl⟩
       exact fredholmDet_mul_finite m n u v x y
     · exact isClosed_eq
         (fredholmDet_continuous_operator.comp
           ((continuous_const.add continuous_id).add (continuous_const.mul continuous_id)))
         (continuous_const.mul fredholmDet_continuous_operator)
-  apply finiteSector_dense.induction (fun T hT => hfinite T hT S) ?_ T
+  refine finiteSector_dense.induction
+    (P := fun T => fredholmDet (T + S + T * S) 1 = fredholmDet T 1 * fredholmDet S 1)
+    (fun T hT => hfinite T hT S) ?_ T
   exact isClosed_eq
     (fredholmDet_continuous_operator.comp
       ((continuous_id.add continuous_const).add (continuous_id.mul continuous_const)))
     (fredholmDet_continuous_operator.mul continuous_const)
 
 theorem fredholmDet_zero_operator : fredholmDet (0 : ProbabilisticTheory.TraceClass H) 1 = 1 := by
-  simpa using (universalFredholm_operator_smul (0 : ProbabilisticTheory.TraceClass H) 0 1).trans
-    (fredholmDet_zero 0)
+  simpa only [zero_smul, mul_zero, fredholmDet_zero] using
+    universalFredholm_operator_smul (0 : ProbabilisticTheory.TraceClass H) 0 1
 
 #print axioms left_rankOneS1
 #print axioms left_finiteNuclear
