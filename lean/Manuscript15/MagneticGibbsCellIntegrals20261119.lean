@@ -112,7 +112,11 @@ theorem normalized_quadratic_cell_integral (r : ℝ) (hr : 0 < r) :
   rw [quadratic_cell_integral r hr.ne']
   have hq : 1-Real.exp (-2*r) ≠ 0 :=
     ne_of_gt (sub_pos.mpr (Real.exp_lt_one_iff.mpr (by linarith)))
-  field_simp [hr.ne',hq] <;> ring
+  have aux (q : ℝ) (hq' : 1-q ≠ 0) :
+      r/(1-q) * ((1-q)/r - 2*(1+q)/r^2 + 2*(1-q)/r^3) =
+        1 + 2/r^2 - (2/r)*((1+q)/(1-q)) := by
+    field_simp [hr.ne', hq'] <;> ring
+  exact aux (Real.exp (-2*r)) hq
 
 end Manuscript15.MagneticGibbs.CellIntegrals
 
