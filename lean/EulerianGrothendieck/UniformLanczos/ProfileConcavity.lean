@@ -59,7 +59,8 @@ private noncomputable def r (x : ℝ) : ℝ := q x ^ 3 / cosh x
 
 private theorem r_eq {x : ℝ} (hx : x ≠ 0) :
     r x = sinh x ^ 3 / (x ^ 3 * cosh x) := by
-  simp [r, q, hx, div_pow, div_div_eq_mul_div, div_div]
+  simp only [r, q, if_neg hx, div_pow]
+  rw [div_div]
 
 /-- Hyperbolic inequality used in the sign of the derivative of the variance. -/
 theorem sinh_cube_gt {x : ℝ} (hx : 0 < x) :
@@ -169,7 +170,7 @@ private theorem Ip_ratio_lt {x y : ℝ} (hx : 0 < x) (hxy : x < y) (hy : y < 1/2
   have ha : 0 < 1 - x/y := by rw [sub_pos, div_lt_one hy0]; exact hxy
   have hb : 0 < x/y := div_pos hx hy0
   have hc := Ip_strictConvex.2 (show (0:ℝ) ∈ Ico 0 (1/2) from ⟨le_rfl, by norm_num⟩)
-    (show y ∈ Ico 0 (1/2) from ⟨hy0.le, hy⟩) hy0.ne' ha hb (by ring)
+    (show y ∈ Ico 0 (1/2) from ⟨hy0.le, hy⟩) hy0.ne ha hb (by ring)
   simp only [smul_eq_mul, mul_zero, zero_add, Ip_zero] at hc
   rw [div_mul_cancel₀ _ hy0.ne'] at hc
   rw [div_lt_div_iff₀ hx hy0]
@@ -290,6 +291,7 @@ private theorem J_strictMono : StrictMonoOn J (Ioo 0 (1/4)) := by
 
 private theorem sq_ξ_mem {t : ℝ} (ht : 0 < t) : ξ t ^ 2 ∈ Ioo 0 (1/4) := by
   have h := (ξ_spec ht).1
+  have hp := h.1
   exact ⟨by positivity, by nlinarith [h.1, h.2]⟩
 
 private theorem J_sq_ξ {t : ℝ} (ht : 0 < t) : J (ξ t ^ 2) = t := by
