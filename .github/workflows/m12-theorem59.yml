@@ -49,7 +49,8 @@ jobs:
           assert 'sorryAx' not in text and 'Lean.ofReduceBool' not in text
           names = ['UniformLanczos.Theorem59.' + n for n in (
               'recSq_eq_norm_ratio', 'recSq_scale', 'LLA_tendsto', 'moment_QjM', 'scaling_142',
-              'classQ_seq', 'seq_limit', 'theorem_5_9_interval', 'theorem_5_9', 'theorem_5_9_sup')]
+              'classQ_seq', 'seq_limit', 'theorem_5_9_interval', 'theorem_5_9', 'theorem_5_9_sup',
+              'theorem_5_9_bddAbove')]
           for name in names:
               match = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", text)
               assert match, name

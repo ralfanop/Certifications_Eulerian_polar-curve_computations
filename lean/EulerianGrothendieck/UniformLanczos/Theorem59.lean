@@ -35,7 +35,9 @@ uses, eq. (105): if `{Q_n} ∈ 𝒬` and `ε ∈ (0, 1/3)`, then `A_{n,m} = 1/2 
 * `seq_limit`: `ℰ_{n,ν(n)} → 0` along every admissible `ν`, with Lemma 5.7(b)
   (`Joined.endpoint_actual`).
 * `theorem_5_9`, `theorem_5_9_sup`: Theorem 5.9, in the `ε`–`L` form and in the form (141) with
-  the supremum, for every compact `𝒦 ⊂ (0, ∞)`, assuming `LL_13_4` only.
+  the supremum, for every compact `𝒦 ⊂ (0, ∞)`, assuming `LL_13_4` only.  In Lean `⨆` of a family
+  that is not bounded above is `0`; `theorem_5_9_bddAbove` proves that the families in (141) are
+  bounded above for all large `L`, so the supremum there is the true one.
 -/
 
 open Set Filter Topology MeasureTheory Real
@@ -825,6 +827,16 @@ theorem theorem_5_9_sup (hLL : LL_13_4) {K : Set ℝ} (hK : IsCompact K) (hK0 : 
   refine lt_of_le_of_lt (Real.iSup_le (fun p => (hL p.1.1 p.1.2 (le_trans hL' p.2.1) p.2.2).le)
     (by positivity)) (half_lt_self hε)
 
+/-- The families whose suprema appear in (141) are bounded above for all large `L`. -/
+theorem theorem_5_9_bddAbove (hLL : LL_13_4) {K : Set ℝ} (hK : IsCompact K) (hK0 : K ⊆ Ioi 0) :
+    ∀ᶠ L : ℕ in atTop, BddAbove (Set.range fun p : {p : ℕ × ℕ // L ≤ p.1 ∧ (p.1:ℝ) / (p.2:ℝ) ∈ K} =>
+      |betaM p.1.2 p.1.1 / (p.1.2:ℝ) ^ 2 - Profile.F ((p.1.1:ℝ) / (p.1.2:ℝ))|) := by
+  obtain ⟨L₁, h⟩ := theorem_5_9 hLL hK hK0 1 one_pos
+  filter_upwards [eventually_ge_atTop L₁] with L hL
+  refine ⟨1, ?_⟩
+  rintro _ ⟨p, rfl⟩
+  exact (h p.1.1 p.1.2 (le_trans hL p.2.1) p.2.2).le
+
 end UniformLanczos.Theorem59
 
 #print axioms UniformLanczos.Theorem59.recSq_eq_norm_ratio
@@ -837,3 +849,4 @@ end UniformLanczos.Theorem59
 #print axioms UniformLanczos.Theorem59.theorem_5_9_interval
 #print axioms UniformLanczos.Theorem59.theorem_5_9
 #print axioms UniformLanczos.Theorem59.theorem_5_9_sup
+#print axioms UniformLanczos.Theorem59.theorem_5_9_bddAbove
