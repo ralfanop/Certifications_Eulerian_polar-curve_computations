@@ -1,0 +1,109 @@
+name: M12 Table 1 at 10000 working bits
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_profile_root_10000.py'
+      - 'numerics/arb/m12_table_10000.py'
+      - '.github/workflows/m12-table-10000.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  root:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - {slug: quarter, row: '1/4'}
+          - {slug: half, row: '1/2'}
+          - {slug: one, row: '1'}
+          - {slug: two, row: '2'}
+          - {slug: four, row: '4'}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validated profile on exact head
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+          python numerics/arb/m12_profile_root_10000.py "${{ matrix.row }}" --bits 10000 | tee profile.log
+          grep -F "PROFILE ROOT PILOT PASS ${{ matrix.row }} 10000" profile.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-profile-10000-${{ matrix.slug }}
+          path: |
+            profile-root-pilot.json
+            profile.log
+          if-no-files-found: error
+  certify:
+    needs: root
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Authenticate Lanczos inputs and same-run profile artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          mkdir -p sources
+          run=44313014167
+          head=8fc451ce053a769087fb25ed16289018890bc926
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run" | jq -e --arg sha "$head" '.head_sha == $sha and .conclusion == "success"'
+          for spec in \
+            '100 14431877216 8f2e19d47c0d0ff4011f23a915b6f3ba7c700616805f4ce5849c929dad66e784' \
+            '200 14435228234 eb184d12ad6db434bbc533b0cfde30d83fa08f54b6917e54284ea4aeca8f2a26' \
+            '400 14449268572 2155c46f7bef8ec70bb4bc6e5966b2ee2a485ab306299817640961fbc75ba2e6'; do
+            read -r m id digest <<< "$spec"
+            ep="repos/$GITHUB_REPOSITORY/actions/artifacts/$id"
+            gh api "$ep" | jq -e --arg sha "$head" --arg digest "sha256:$digest" --arg name "m12-lanczos-$m" '.workflow_run.head_sha == $sha and .workflow_run.id == 44313014167 and .digest == $digest and .name == $name and .expired == false'
+            gh api "$ep/zip" > "sources/$m.zip"
+            printf '%s  %s\n' "$digest" "sources/$m.zip" | sha256sum -c -
+            unzip -j "sources/$m.zip" "m12-lanczos-$m.json" -d sources
+          done
+          run="$GITHUB_RUN_ID"
+          head="$(git rev-parse HEAD)"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run" | jq -e --arg sha "$head" '.head_sha == $sha'
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run/jobs" > jobs.json
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run/artifacts" > artifacts.json
+          for slug in quarter half one two four; do
+            jq -e --arg sha "$head" --arg slug "$slug" '[.jobs[] | select(.head_sha == $sha and .conclusion == "success" and (.name | startswith("root ("+$slug+",")))] | length == 1' jobs.json
+            name="m12-profile-10000-$slug"
+            id="$(jq -er --arg name "$name" '[.artifacts[]|select(.name==$name and .expired==false)] | if length==1 then .[0].id else error("artifact count") end' artifacts.json)"
+            ep="repos/$GITHUB_REPOSITORY/actions/artifacts/$id"
+            digest="$(gh api "$ep" | jq -er --arg sha "$head" --arg name "$name" --argjson run "$run" 'select(.workflow_run.head_sha==$sha and .workflow_run.id==$run and .name==$name and .expired==false) | .digest | sub("^sha256:";"")')"
+            test "${#digest}" = 64
+            gh api "$ep/zip" > "sources/$slug.zip"
+            printf '%s  %s\n' "$digest" "sources/$slug.zip" | sha256sum -c -
+            unzip -p "sources/$slug.zip" profile-root-pilot.json > "sources/profile-$slug.json"
+          done
+      - name: Strict rounding of all 25 cells
+        run: |
+          set -euo pipefail
+          python -m pip install python-flint==0.9.0
+          python numerics/arb/m12_table_10000.py | tee audit.log
+          grep -F 'TABLE INTERMEDIATE SUCCESS 25 checks' audit.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-table-10000
+          path: |
+            audit.log
+            m12-table-10000.json
+            jobs.json
+            artifacts.json
+          if-no-files-found: error
