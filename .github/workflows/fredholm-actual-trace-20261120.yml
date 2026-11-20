@@ -1,0 +1,59 @@
+name: Fredholm genuine complex trace and derivative at zero
+on:
+  pull_request:
+    paths:
+      - 'lean/SharedCore/NuclearDiagonalTrace.lean'
+      - 'lean/SpecialImaginaryPoint/FredholmActualTrace.lean'
+      - '.github/workflows/fredholm-actual-trace-20261120.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fredholm-actual-trace-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  trace:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Source and pinned toolchain
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha || github.sha }}'
+          git rev-parse HEAD
+          test "$(cat lean/lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lean/lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            lean/.lake/build/lib/lean
+            lean/.lake/fredholm_audit_20261119
+          key: fredholm-20261119-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain', 'lean/lakefile.toml') }}-${{ github.run_id }}
+          restore-keys: |
+            fredholm-20261119-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain', 'lean/lakefile.toml') }}-
+      - name: Pinned mathematics library
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile genuine trace and audit axioms
+        run: python3 scripts/verify_fredholm_20261119.py SharedCore.NuclearDiagonalTrace SpecialImaginaryPoint.FredholmActualTrace
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: |
+            lean/.lake/build/lib/lean
+            lean/.lake/fredholm_audit_20261119
+          key: fredholm-20261119-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain', 'lean/lakefile.toml') }}-${{ github.run_id }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fredholm-actual-trace
+          path: lean/.lake/fredholm_audit_20261119
