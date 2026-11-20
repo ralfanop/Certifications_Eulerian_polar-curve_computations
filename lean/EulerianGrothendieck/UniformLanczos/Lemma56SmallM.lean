@@ -41,7 +41,7 @@ theorem deriv_φM_two_pos {x : ℝ} (h0 : 0 < x) (h1 : x < 1/2) :
   have hd : HasDerivAt (fun y : ℝ => -(1/2 : ℝ) * Real.log (2 * (1 - 2 * y)))
       (-(1/2 : ℝ) * ((2 * -(2 * 1)) / (2 * (1 - 2 * x)))) x :=
     (((((hasDerivAt_id' x).const_mul (2:ℝ)).const_sub (1:ℝ)).const_mul (2:ℝ)).log hne).const_mul _
-  rw [hev.deriv_eq, hd.deriv]
+  rw [hev.deriv_eq, hd.deriv, mul_div_mul_left _ _ (two_ne_zero : (2:ℝ) ≠ 0)]
   ring
 
 /-- `φ_2'(x) = -1/(1+2x)` for `-1/2 < x < 0`. -/
@@ -57,7 +57,7 @@ theorem deriv_φM_two_neg {x : ℝ} (h0 : x < 0) (h1 : -(1/2) < x) :
   have hd : HasDerivAt (fun y : ℝ => -(1/2 : ℝ) * Real.log (2 * (1 + 2 * y)))
       (-(1/2 : ℝ) * ((2 * (2 * 1)) / (2 * (1 + 2 * x)))) x :=
     (((((hasDerivAt_id' x).const_mul (2:ℝ)).const_add (1:ℝ)).const_mul (2:ℝ)).log hne).const_mul _
-  rw [hev.deriv_eq, hd.deriv]
+  rw [hev.deriv_eq, hd.deriv, mul_div_mul_left _ _ (two_ne_zero : (2:ℝ) ≠ 0)]
   ring
 
 /-- **Lemma 5.6**, `M = 2`: `x φ_2'(x) = |x| / (1 - 2|x|)` on `(-1/2, 1/2)`. -/
