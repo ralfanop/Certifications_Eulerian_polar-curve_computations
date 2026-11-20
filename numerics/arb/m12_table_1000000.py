@@ -27,7 +27,7 @@ Stages:
   r1..r5 ROW --index I     residual shard I
   x1..x5 ROW               Newton step (combines the pieces and the shards)
   certify                  F(t) for the five rows and the 25 printed cells
-  matrix SPEC              GitHub matrix for a list of [stage, row] pairs
+  matrix SPEC              GitHub matrix for a list of [stage, row] or [stage, row, start, stop]
   smoke                    whole pipeline at 16384 bits with two shards
 """
 import argparse
@@ -54,20 +54,23 @@ LADDER = {2: 4 * P // 10, 3: 6 * P // 10, 4: 8 * P // 10, 5: P}
 SLUG = {'1/4': 'quarter', '1/2': 'half', '1': 'one', '2': 'two', '4': 'four'}
 ROWNAMES = list(SLUG)
 
-# Shards of interior nodes per residual (about 4.5 hours each at the node
-# costs measured by the probe run 44813261716), and derivative pieces per
-# derivative (powers of 2).
+# Shards of interior nodes per residual: at most 4.5 hours each at the slowest
+# node cost measured by the probe run 44813261716 (0.18, 0.50, 0.54, 1.27 and
+# 1.0 seconds at 200000, 400000, 600000, 800000 and 1000000 bits, with a 10%
+# margin).  Derivative pieces (powers of 2): d0 from the 42000-bit derivative
+# times of run 44782807031 scaled to 100000 bits with a factor 2 margin; d1 and
+# d2 are fixed from the d0 piece times before stage 2.
 SHARDS = {
-    'r1': {'1/4': 1, '1/2': 2, '1': 3, '2': 5, '4': 9},
-    'r2': {'1/4': 3, '1/2': 6, '1': 11, '2': 22, '4': 44},
-    'r3': {'1/4': 7, '1/2': 13, '1': 26, '2': 52, '4': 103},
-    'r4': {'1/4': 15, '1/2': 30, '1': 59, '2': 117, '4': 233},
-    'r5': {'1/4': 21, '1/2': 41, '1': 82, '2': 163, '4': 325},
+    'r1': {'1/4': 1, '1/2': 2, '1': 4, '2': 7, '4': 13},
+    'r2': {'1/4': 5, '1/2': 9, '1': 18, '2': 35, '4': 69},
+    'r3': {'1/4': 7, '1/2': 14, '1': 28, '2': 56, '4': 111},
+    'r4': {'1/4': 22, '1/2': 44, '1': 87, '2': 174, '4': 348},
+    'r5': {'1/4': 22, '1/2': 43, '1': 86, '2': 172, '4': 343},
 }
 PIECES = {
-    'd0': {'1/4': 2, '1/2': 2, '1': 4, '2': 8, '4': 16},
-    'd1': {'1/4': 8, '1/2': 16, '1': 32, '2': 64, '4': 128},
-    'd2': {'1/4': 8, '1/2': 16, '1': 32, '2': 64, '4': 128},
+    'd0': {'1/4': 16, '1/2': 8, '1': 8, '2': 16, '4': 32},
+    'd1': {'1/4': 32, '1/2': 16, '1': 16, '2': 32, '4': 64},
+    'd2': {'1/4': 32, '1/2': 16, '1': 16, '2': 32, '4': 64},
 }
 if SMOKE:
     SHARDS = {k: {r: 2 for r in ROWNAMES} for k in SHARDS}
@@ -373,11 +376,16 @@ def stage_certify(folder):
 
 
 def matrix(spec):
-    """GitHub matrix for a list of [stage, row] pairs (every index of each)."""
+    """GitHub matrix for a list of [stage, row] (every index) or
+    [stage, row, start, stop] (indices start <= i < stop)."""
     out = []
-    for stage, row in json.loads(spec):
+    for item in json.loads(spec):
+        stage, row = item[:2]
         K = (PIECES if stage[0] == 'd' else SHARDS)[stage][row]
-        out += [dict(stage=stage, row=row, slug=SLUG[row], index=i) for i in range(K)]
+        start, stop = item[2:] if len(item) == 4 else (0, K)
+        assert 0 <= start < stop <= K
+        out += [dict(stage=stage, row=row, slug=SLUG[row], index=i) for i in range(start, stop)]
+    assert len({(d['stage'], d['row'], d['index']) for d in out}) == len(out)
     assert 0 < len(out) <= 256, len(out)
     return out
 
