@@ -1,0 +1,82 @@
+name: Peters 2024 Borsuk-Ulam dimension two (Mathlib only)
+on:
+  pull_request:
+    paths:
+      - 'formalizations/peters2024/BorsukUlamTwo.lean'
+      - 'formalizations/peters2024/PetersApplicationsDim2.lean'
+      - 'formalizations/peters2024/Peters2024.lean'
+      - 'formalizations/peters2024/WoodhouseContinuity.lean'
+      - 'formalizations/peters2024/HomotopyRealization.lean'
+      - 'formalizations/peters2024/lakefile.toml'
+      - 'formalizations/peters2024/lake-manifest.json'
+      - 'formalizations/peters2024/lean-toolchain'
+      - '.github/workflows/peters2024-borsuk-two.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: formalizations/peters2024
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.28.0'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --connect-timeout 20 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Check the dimension-two chain against Mathlib only
+        shell: bash
+        run: |
+          set -euo pipefail
+          lean --version
+          # The dimension-two chain may import Mathlib and local modules only.
+          test "$(grep -E '^import ' BorsukUlamTwo.lean | sort | tr '\n' ' ')" = 'import Mathlib import Peters2024 '
+          test "$(grep -E '^import ' PetersApplicationsDim2.lean | sort | tr '\n' ' ')" = 'import BorsukUlamTwo import HomotopyRealization import WoodhouseContinuity '
+          lake exe cache get
+          lake build BorsukUlamTwo PetersApplicationsDim2
+          for f in BorsukUlamTwo PetersApplicationsDim2; do
+            lake env lean "$f.lean"
+          done | tee audit.log
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '8f9d9cff6bd728b17a24e163c9402775d9e6a365'
+          # Nothing from the external general-dimensional proof was compiled for this chain.
+          test -z "$(find .lake/packages/HamSandwich -name '*.olean' -print -quit 2>/dev/null)"
+      - name: Audit exact declarations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib
+          import re
+
+          log = pathlib.Path("audit.log").read_text()
+          expected = set()
+          for name in ["BorsukUlamTwo", "PetersApplicationsDim2"]:
+              src = pathlib.Path(name + ".lean").read_text()
+              expected.update(re.findall(r"^#print axioms ([\w.]+)\s*$", src, re.M))
+          observed = {}
+          pattern = r"'([^']+)' (?:depends on axioms: \[([^\]]*)\]|does not depend on any axioms)"
+          for match in re.finditer(pattern, log):
+              observed[match.group(1)] = {a.strip() for a in (match.group(2) or "").split(",") if a.strip()}
+          assert len(expected) == 12, f"unexpected audit list: {sorted(expected)}"
+          assert expected <= observed.keys(), f"missing audit declarations: {expected - observed.keys()}"
+          allowed = {"propext", "Classical.choice", "Quot.sound"}
+          for name in expected:
+              assert observed[name] <= allowed, (name, observed[name] - allowed)
+          assert "sorryAx" not in log
+          print(f"PASS: {len(expected)} exact declarations; standard axioms only")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: peters2024-borsuk-two-audit
+          path: formalizations/peters2024/audit.log
+          if-no-files-found: warn
