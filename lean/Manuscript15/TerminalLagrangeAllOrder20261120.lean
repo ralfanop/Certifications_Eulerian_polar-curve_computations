@@ -50,7 +50,7 @@ theorem coeff_comp (p q : RealSeries) (n : ℕ) :
 theorem single_term (p q : RealSeries) {n : ℕ} (hn : 0 < n) :
     compositionTerm p q (Composition.single n hn) =
       scalarCoeff p 1 * scalarCoeff q n := by
-  simp [compositionTerm, Composition.single_length, Fin.prod_univ_succ, Composition.single_blocksFun]
+  simp [compositionTerm, Composition.single_length, Fin.prod_univ_one, Composition.single_blocksFun]
 
 /-- Every nonsingle composition involves only strictly lower degrees. -/
 theorem lower_degree {n : ℕ} (hn : 0 < n) (c : Composition n)
@@ -89,8 +89,7 @@ theorem inverse_coeff_succ (p q : RealSeries) (x : ℝ)
         (Composition.single n (by omega : 0 < n)),
           compositionTerm p q c) / scalarCoeff p 1 := by
   have h := inverse_coeff_recurrence p q x hp hi n (by omega)
-  simpa only [scalarCoeff, FormalMultilinearSeries.id_apply_of_one_lt (x := x) (n := n) hn,
-    _root_.zero_apply, zero_sub] using h
+  simpa [scalarCoeff, FormalMultilinearSeries.id_apply_of_one_lt] using h
 
 /-- Real analytic series of an actual inverse and reconstructed terminal
 graph. No formal inverse is postulated: the local inverse is the one
