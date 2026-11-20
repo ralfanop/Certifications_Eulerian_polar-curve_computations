@@ -33,7 +33,7 @@ jobs:
           set -euo pipefail
           lean --version
           lake exe cache get
-          lake build UniformLanczos.Lemma58Uniform
+          lake build UniformLanczos.Lemma58Uniform UniformLanczos.Arcsine UniformLanczos.Diagonal
           lake env lean UniformLanczos/Theorem59.lean 2>&1 | tee /tmp/m12-theorem59.log
           lake build UniformLanczos.Theorem59
           git rev-parse HEAD
