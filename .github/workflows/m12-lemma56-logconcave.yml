@@ -1,0 +1,73 @@
+name: M12 Lemma 5.6 interior strict log-concavity
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/Bridge/Saddle/LogConcave.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma56.lean'
+      - '.github/workflows/m12-lemma56-logconcave.yml'
+  workflow_dispatch:
+
+jobs:
+  logconcave:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean and Mathlib
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Check the B-spline file (Mathlib and Bridge.Saddle.Laplace only)
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          lean --version
+          lake exe cache get
+          lake build Bridge.Saddle.Laplace
+          lake env lean Bridge/Saddle/LogConcave.lean 2>&1 | tee /tmp/m12-lemma56-a.log
+      - name: Build both modules and check the phi_M file
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          lake build Bridge.Saddle.LogConcave UniformLanczos.Joined
+          lake env lean UniformLanczos/Lemma56.lean 2>&1 | tee /tmp/m12-lemma56-b.log
+          lake build UniformLanczos.Lemma56
+          git rev-parse HEAD
+      - name: Strict individual axiom audit
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          checks = {
+              '/tmp/m12-lemma56-a.log': ['EulerianBridge.Saddle.' + n for n in (
+                  'pf2_win', 'spf2_win', 'lc_w', 'w_pos', 'hasDerivAt_w_succ',
+                  'continuous_deriv_w_three', 'w_logDeriv_strictAnti')],
+              '/tmp/m12-lemma56-b.log': ['UniformLanczos.Lemma56.' + n for n in (
+                  'lemma_5_6_strictMono', 'lemma_5_6_continuousOn', 'deriv_φM_odd',
+                  'deriv_φM_zero', 'lemma_5_6_hc', 'lemma_5_6_hm')],
+          }
+          total = 0
+          for path, names in checks.items():
+              text = Path(path).read_text()
+              assert ': error' not in text, path
+              assert 'sorryAx' not in text and 'Lean.ofReduceBool' not in text, path
+              for name in names:
+                  match = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", text)
+                  assert match, name
+                  axioms = {x.strip() for x in match.group(1).split(',') if x.strip()}
+                  assert axioms <= allowed, (name, axioms)
+                  print('AXIOM AUDIT SUCCESS', name, sorted(axioms))
+                  total += 1
+          print('AUDITED', total)
+          assert total == 13
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-lemma56-logconcave-audit
+          path: /tmp/m12-lemma56-*.log
