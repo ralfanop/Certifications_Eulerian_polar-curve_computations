@@ -88,16 +88,21 @@ def traceCLM : ProbabilisticTheory.TraceClass H →L[ℂ] ℂ :=
 theorem traceCLM_norm_le : ‖traceCLM‖ ≤ 1 := by
   apply ContinuousLinearMap.opNorm_le_bound _ zero_le_one
   intro T
+  change ‖actualTrace T‖ ≤ 1 * ‖T‖
   simpa only [one_mul] using actualTrace_norm_le T
 
 /-- The genuine finite Hilbert-compression matrix traces converge to
 the independently defined, basis-independent trace. -/
 theorem compression_trace_tendsto (T : ProbabilisticTheory.TraceClass H) :
     Tendsto (fun N : ℕ => (compressedCFC N T).trace) atTop (𝓝 (actualTrace T)) := by
+  unfold actualTrace
   have h := ((diagonal_abs_summable T b).of_norm).hasSum.tendsto_sum_nat
   convert h using 1
   funext N
   simp only [Matrix.trace, Matrix.diag, compressedCFC, Finset.sum_fin_eq_sum_range]
+  apply Finset.sum_congr rfl
+  intro i hi
+  simp [Finset.mem_range.mp hi]
 
 /-- Actual determinant derivative = actual operator trace at zero. -/
 theorem fredholm_deriv_zero_eq_actualTrace (T : ProbabilisticTheory.TraceClass H) :
