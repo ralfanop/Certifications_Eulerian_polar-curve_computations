@@ -1,0 +1,41 @@
+name: M12 precision-banded Taylor quadrature pilot
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_profile_banded_taylor.py'
+      - '.github/workflows/m12-banded-taylor.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - {S: 4, bits: 512, bands: 4, mode: H, flag: ''}
+          - {S: 93, bits: 512, bands: 4, mode: Hprime, flag: '--derivative'}
+          - {S: 4, bits: 2048, bands: 1, mode: H, flag: ''}
+          - {S: 4, bits: 2048, bands: 4, mode: H, flag: ''}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+      - run: |
+          set -euo pipefail
+          python numerics/arb/m12_profile_banded_taylor.py ${{ matrix.S }} --bits ${{ matrix.bits }} --bands ${{ matrix.bands }} ${{ matrix.flag }} | tee banded.log
+          grep -F 'BANDED TAYLOR PILOT SUCCESS' banded.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: banded-${{ matrix.S }}-${{ matrix.bits }}-${{ matrix.bands }}-${{ matrix.mode }}
+          path: banded.log
