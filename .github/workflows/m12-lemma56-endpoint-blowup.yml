@@ -1,0 +1,57 @@
+name: M12 Lemma 5.6 endpoint blow-up and Lemma 5.7(a) actual
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma56Endpoint.lean'
+      - '.github/workflows/m12-lemma56-endpoint-blowup.yml'
+  workflow_dispatch:
+
+jobs:
+  endpoint-blowup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean and Mathlib
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Build prerequisites and check the endpoint file
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          lean --version
+          lake exe cache get
+          lake build UniformLanczos.Lemma56 UniformLanczos.Profile Bridge.Saddle.RightTail
+          lake env lean UniformLanczos/Lemma56Endpoint.lean 2>&1 | tee /tmp/m12-lemma56-endpoint.log
+          lake build UniformLanczos.Lemma56Endpoint
+          git rev-parse HEAD
+      - name: Strict individual axiom audit
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          text = Path('/tmp/m12-lemma56-endpoint.log').read_text()
+          assert ': error' not in text
+          assert 'sorryAx' not in text and 'Lean.ofReduceBool' not in text
+          names = ['UniformLanczos.Lemma56.' + n for n in (
+              'w_logDeriv_tail', 'deriv_φM_tail', 'lemma_5_6_G_strictMono',
+              'lemma_5_6_blowup', 'lemma_5_7a_actual')]
+          for name in names:
+              match = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", text)
+              assert match, name
+              axioms = {x.strip() for x in match.group(1).split(',') if x.strip()}
+              assert axioms <= allowed, (name, axioms)
+              print('AXIOM AUDIT SUCCESS', name, sorted(axioms))
+          print('AUDITED', len(names))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-lemma56-endpoint-blowup-audit
+          path: /tmp/m12-lemma56-endpoint.log
