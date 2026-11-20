@@ -72,7 +72,9 @@ theorem pole_primitive {a θ : ℝ} (ha : 0 ≤ a) (ha' : a < 1 / 2)
     calc
       sin θ = cos (θ - π/2) := by rw [cos_sub, cos_pi_div_two, sin_pi_div_two]; ring
       _ = cos (2 * angle θ) := by congr 1; unfold angle; ring
-      _ = _ := cos_two_mul _
+      _ = _ := by
+        rw [cos_two_mul]
+        nlinarith [sin_sq_add_cos_sq (angle θ)]
   have hpos : 0 < 1-2*a*sin θ := by
     have hs := sin_le_one θ
     nlinarith [mul_nonneg ha (sub_nonneg.mpr hs)]
@@ -121,7 +123,8 @@ theorem pole_integral {a : ℝ} (ha : 0 ≤ a) (ha' : a < 1/2) :
   rw [hx]
   unfold primitive angle
   have h0 : ((0:ℝ)-π/2)/2 = -(π/4) := by ring
-  simp [h0, tan_neg, tan_pi_div_four, arctan_neg]
+  rw [h0]
+  simp [tan_neg, tan_pi_div_four, arctan_neg]
 
 theorem pole_model_formula {a : ℝ} (ha : 0 ≤ a) (ha' : a < 1/2) :
     Hint pole a + 1/2 =
@@ -144,9 +147,10 @@ theorem pole_model_formula {a : ℝ} (ha : 0 ≤ a) (ha' : a < 1/2) :
     have hs := sin_le_one θ
     have hh : 0 < 1-2*a*sin θ := by nlinarith [mul_nonneg ha (sub_nonneg.mpr hs)]
     have hh' : 0 < 1/2-a*sin θ := by linarith
-    field_simp [hh.ne', hh'.ne']
-    ring
-  rw [hEq, integral_sub hI intervalIntegrable_const, pole_integral ha ha', integral_const]
+    rw [show 1-2*a*sin θ = 2*(1/2-a*sin θ) by ring]
+    field_simp [hh'.ne']
+    <;> ring
+  rw [hEq, integral_sub hI intervalIntegral.intervalIntegrable_const, pole_integral ha ha', integral_const]
   simp only [sub_zero, smul_eq_mul, mul_one]
   field_simp [pi_ne_zero]
   <;> ring
@@ -168,6 +172,7 @@ theorem normalized_model {a : ℝ} (ha : 0 ≤ a) (ha' : a < 1/2) :
     _ = (2/√2)/(π*√(1+2*a))*arctan (q a) := by
       field_simp [pi_ne_zero, (sqrt_pos.2 hd).ne', (sqrt_pos.2 he).ne',
         (sqrt_pos.2 (by norm_num : (0:ℝ)<2)).ne'] <;> ring
+      rw [mul_right_comm, mul_inv_cancel₀ (sqrt_pos.2 hd).ne', one_mul]
     _ = _ := by rw [htwo]
 
 theorem q_profile_atTop : Tendsto (fun t : ℝ => q (ξ t)) atTop atTop := by
@@ -206,7 +211,7 @@ theorem normalized_model_tendsto :
   have hd : π * √(2:ℝ) ≠ 0 := by positivity
   have hf : Tendsto (fun t : ℝ => √2/(π*√(1+2*ξ t))) atTop (𝓝 (√2/(π*√2))) :=
     tendsto_const_nhds.div hπ hd
-  have hA := tendsto_arctan_atTop.comp q_profile_atTop
+  have hA := (tendsto_arctan_atTop.comp q_profile_atTop).mono_right nhdsWithin_le_nhds
   convert hf.mul hA using 1
   <;> first | rfl | field_simp [pi_ne_zero, (sqrt_pos.2 (by norm_num : (0:ℝ)<2)).ne']
 
