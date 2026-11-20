@@ -1,0 +1,59 @@
+name: M12 sharp saturation of Lanczos limiting profile
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/ProfileSaturation.lean'
+      - '.github/workflows/m12-profile-saturation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  saturation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean and Mathlib
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Check proof source and compile
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          f=UniformLanczos/ProfileSaturation.lean
+          ! grep -n -E '^\s*(axiom|opaque)\b' "$f"
+          ! grep -n -w -E 'sorry|admit|native_decide' "$f"
+          lean --version
+          lake exe cache get
+          lake build UniformLanczos.Profile
+          lake env lean "$f" 2>&1 | tee /tmp/m12-saturation.log
+      - name: Individual axiom audits
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          txt = Path('/tmp/m12-saturation.log').read_text()
+          assert ': error' not in txt and 'sorryAx' not in txt and 'Lean.ofReduceBool' not in txt
+          names = ['pole_pointwise','pole_error','pole_primitive','pole_integral',
+                   'pole_model_formula','normalized_model','q_profile_atTop',
+                   'normalized_model_tendsto','root_rate','profile_saturation']
+          for n in names:
+              name = 'UniformLanczos.Saturation.' + n
+              m = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", txt)
+              assert m, name
+              axioms = {x.strip() for x in m.group(1).split(',') if x.strip()}
+              assert axioms <= {'propext','Classical.choice','Quot.sound'}, (name, axioms)
+              print('AXIOM AUDIT SUCCESS', name, sorted(axioms))
+          print('SATURATION SUCCESS',len(names))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-saturation-audit
+          path: /tmp/m12-saturation.log
