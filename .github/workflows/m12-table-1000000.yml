@@ -1,6 +1,6 @@
 name: M12 Table 1 at 1000000 working bits
-# One stage per run.  The stage (precision, matrix of derivative pieces and
-# residual shards, Newton steps, inputs from earlier runs with their SHA-256
+# One stage per run.  The stage (precision, matrix of residual shards,
+# Newton steps, inputs from earlier runs with their SHA-256
 # digests) is read from numerics/arb/m12_table_1000000_stage.json.
 on:
   pull_request:
@@ -43,7 +43,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir smoke
-          cp inputs/m12-table-100000.json smoke/ 2>/dev/null || cp inputs/m12-pre-*.json smoke/
+          cp inputs/m12-table-100000.json smoke/
           cd smoke
           ln -s ../sources sources
           python ../m12_table_1000000.py smoke --folder . | tee ../smoke.log
@@ -57,7 +57,7 @@ jobs:
           test "$bits" = 1000000 -o "$bits" = 16384
           echo "bits=$bits" >> "$GITHUB_OUTPUT"
           echo "label=$(jq -r .label m12_table_1000000_stage.json)" >> "$GITHUB_OUTPUT"
-          echo "matrix=$(M12_MILLION_BITS=$bits python m12_table_1000000.py matrix "$(jq -c .work m12_table_1000000_stage.json)")" >> "$GITHUB_OUTPUT"
+          echo "matrix=$(M12_MILLION_BITS=$bits python m12_table_1000000.py matrix "$(jq -c .work m12_table_1000000_stage.json)" --folder inputs | tail -n 1)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
           name: m12m-smoke-log

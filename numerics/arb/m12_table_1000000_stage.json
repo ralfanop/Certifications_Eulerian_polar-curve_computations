@@ -1,68 +1,48 @@
 {
- "label": "step1",
+ "label": "step0",
  "bits": 1000000,
- "note": "Step 1 at 1000000 working bits: derivative D0 on the certified 100000-bit roots and residual at 2b+96 bits, then X1.",
+ "note": "Step 0 at 1000000 working bits: H at the midpoints of the certified 100000-bit roots, Newton step with the certified derivative of run 44782807031, chord point m1.",
  "work": [
   [
-   "d0",
+   "r0",
    "1/4"
   ],
   [
-   "d0",
+   "r0",
    "1/2"
   ],
   [
-   "d0",
+   "r0",
    "1"
   ],
   [
-   "d0",
+   "r0",
    "2"
   ],
   [
-   "d0",
-   "4"
-  ],
-  [
-   "r1",
-   "1/4"
-  ],
-  [
-   "r1",
-   "1/2"
-  ],
-  [
-   "r1",
-   "1"
-  ],
-  [
-   "r1",
-   "2"
-  ],
-  [
-   "r1",
+   "r0",
    "4"
   ]
  ],
  "combine": [
   [
-   "x1",
+   "x0",
    "1/4"
   ],
   [
-   "x1",
+   "x0",
    "1/2"
   ],
   [
-   "x1",
+   "x0",
    "1"
   ],
   [
-   "x1",
+   "x0",
    "2"
   ],
   [
-   "x1",
+   "x0",
    "4"
   ]
  ],
@@ -72,6 +52,76 @@
    "id": 14672499850,
    "name": "m12-table-100000",
    "digest": "de7e1aae2d3af03990131db193189827b2ed8995920d66bc8e6937e33e256083",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14655556144,
+   "name": "m12-100000-pre-quarter",
+   "digest": "99082b03bf739f00b35f34a52e8de5a48957b9d2dfe368e9c8fb340ea8e17575",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14671334861,
+   "name": "m12-100000-deriv-quarter",
+   "digest": "cce8f6afb31e310e9dfa72ec7b429ac6800a3a3106a2aeae467780c77e34c525",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14655645984,
+   "name": "m12-100000-pre-half",
+   "digest": "adc59aaa1ff18f7b6832a361ed1c9bcbe29ae007487209d754611f7b02a49273",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14663119014,
+   "name": "m12-100000-deriv-half",
+   "digest": "eddab66d856210fd48d8379105af42f23f045d0a0a6bda9bd1c9e20a5973f6d4",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14655023080,
+   "name": "m12-100000-pre-one",
+   "digest": "68e4aa41a00073644a9b42553933814a174e8fb024794d245c1af33539ca4624",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14664314377,
+   "name": "m12-100000-deriv-one",
+   "digest": "d28d66c837eec5bc095156d0b8192cc6af51fa6c88d5f7f61f5d4ed6ea7f9e85",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14658200810,
+   "name": "m12-100000-pre-two",
+   "digest": "d3de644041e73c8e086e69fe80c6bec9c857e6fd3d6281365470ce51cdd079b8",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14667943788,
+   "name": "m12-100000-deriv-two",
+   "digest": "1af552b4ce46c3eec4c7265becd19c983b58225a0af1accbfc8c34d0e4999cc6",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14660048094,
+   "name": "m12-100000-pre-four",
+   "digest": "db4538fa133e328b0cf0b54a857f38e4910216d4b6efb629344ae48b12a9d2ab",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14672838298,
+   "name": "m12-100000-deriv-four",
+   "digest": "3460ed125ac43ce48f304b797862030bce30e7514240735a5aae055b165cc82b",
    "scope": "all"
   }
  ]
