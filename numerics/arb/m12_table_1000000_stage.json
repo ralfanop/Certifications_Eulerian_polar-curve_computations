@@ -1,48 +1,48 @@
 {
- "label": "step0",
+ "label": "step1",
  "bits": 1000000,
- "note": "Step 0 at 1000000 working bits: H at the midpoints of the certified 100000-bit roots, Newton step with the certified derivative of run 44782807031, chord point m1.",
+ "note": "Step 1: H at the chord points m1 (about 242000 bits), Newton step, secant point m2.",
  "work": [
   [
-   "r0",
+   "r1",
    "1/4"
   ],
   [
-   "r0",
+   "r1",
    "1/2"
   ],
   [
-   "r0",
+   "r1",
    "1"
   ],
   [
-   "r0",
+   "r1",
    "2"
   ],
   [
-   "r0",
+   "r1",
    "4"
   ]
  ],
  "combine": [
   [
-   "x0",
+   "x1",
    "1/4"
   ],
   [
-   "x0",
+   "x1",
    "1/2"
   ],
   [
-   "x0",
+   "x1",
    "1"
   ],
   [
-   "x0",
+   "x1",
    "2"
   ],
   [
-   "x0",
+   "x1",
    "4"
   ]
  ],
@@ -122,6 +122,13 @@
    "id": 14672838298,
    "name": "m12-100000-deriv-four",
    "digest": "3460ed125ac43ce48f304b797862030bce30e7514240735a5aae055b165cc82b",
+   "scope": "all"
+  },
+  {
+   "run": 44844906618,
+   "id": 14689489812,
+   "name": "m12m-bundle-step0",
+   "digest": "b4ca45f82f3e10043ad5961ae1c3ce66008104dc7f744c47f4894f826e9ea70d",
    "scope": "all"
   }
  ]
