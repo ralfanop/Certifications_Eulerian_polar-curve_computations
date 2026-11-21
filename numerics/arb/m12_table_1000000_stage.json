@@ -1,48 +1,48 @@
 {
- "label": "step1",
+ "label": "step2",
  "bits": 1000000,
- "note": "Step 1: H at the chord points m1 (about 242000 bits), Newton step, secant point m2.",
+ "note": "Step 2: H at the secant points m2 (about 385000 bits), Newton step, secant point m3.",
  "work": [
   [
-   "r1",
+   "r2",
    "1/4"
   ],
   [
-   "r1",
+   "r2",
    "1/2"
   ],
   [
-   "r1",
+   "r2",
    "1"
   ],
   [
-   "r1",
+   "r2",
    "2"
   ],
   [
-   "r1",
+   "r2",
    "4"
   ]
  ],
  "combine": [
   [
-   "x1",
+   "x2",
    "1/4"
   ],
   [
-   "x1",
+   "x2",
    "1/2"
   ],
   [
-   "x1",
+   "x2",
    "1"
   ],
   [
-   "x1",
+   "x2",
    "2"
   ],
   [
-   "x1",
+   "x2",
    "4"
   ]
  ],
@@ -129,6 +129,13 @@
    "id": 14689489812,
    "name": "m12m-bundle-step0",
    "digest": "b4ca45f82f3e10043ad5961ae1c3ce66008104dc7f744c47f4894f826e9ea70d",
+   "scope": "all"
+  },
+  {
+   "run": 44867669410,
+   "id": 14703911609,
+   "name": "m12m-bundle-step1",
+   "digest": "8ebb1aa4e9909e740415516287beb129f8c7e92300f0e486c0814a2900240e83",
    "scope": "all"
   }
  ]
