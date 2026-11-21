@@ -1,0 +1,156 @@
+name: M12 Table 1 at 1000000 working bits
+# One stage per run.  The stage (precision, matrix of residual shards,
+# Newton steps, inputs from earlier runs with their SHA-256
+# digests) is read from numerics/arb/m12_table_1000000_stage.json.
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_table_1000000.py'
+      - 'numerics/arb/m12_table_1000000_fetch.sh'
+      - 'numerics/arb/m12_table_1000000_stage.json'
+      - '.github/workflows/m12-table-1000000.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      label: ${{ steps.plan.outputs.label }}
+      bits: ${{ steps.plan.outputs.bits }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch and authenticate the inputs
+        working-directory: numerics/arb
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+          ./m12_table_1000000_fetch.sh work
+      - name: Whole pipeline at 16384 bits with two shards and two pieces
+        working-directory: numerics/arb
+        env:
+          M12_MILLION_BITS: '16384'
+        run: |
+          set -euo pipefail
+          mkdir smoke
+          cp inputs/m12-table-100000.json smoke/
+          cd smoke
+          ln -s ../sources sources
+          python ../m12_table_1000000.py smoke --folder . | tee ../smoke.log
+          grep -F 'TABLE 16384 SUCCESS 25 checks' ../smoke.log
+      - name: Matrix of this stage
+        id: plan
+        working-directory: numerics/arb
+        run: |
+          set -euo pipefail
+          bits=$(jq -r .bits m12_table_1000000_stage.json)
+          test "$bits" = 1000000 -o "$bits" = 16384
+          echo "bits=$bits" >> "$GITHUB_OUTPUT"
+          echo "label=$(jq -r .label m12_table_1000000_stage.json)" >> "$GITHUB_OUTPUT"
+          echo "matrix=$(M12_MILLION_BITS=$bits python m12_table_1000000.py matrix "$(jq -c .work m12_table_1000000_stage.json)" --folder inputs | tail -n 1)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12m-smoke-log
+          path: numerics/arb/smoke.log
+          if-no-files-found: error
+  work:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch and authenticate the inputs
+        working-directory: numerics/arb
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python -m pip install python-flint==0.9.0
+          ./m12_table_1000000_fetch.sh work
+      - name: ${{ matrix.stage }} ${{ matrix.row }} ${{ matrix.index }}
+        working-directory: numerics/arb
+        env:
+          M12_MILLION_BITS: ${{ needs.prepare.outputs.bits }}
+        run: |
+          set -euo pipefail
+          python m12_table_1000000.py '${{ matrix.stage }}' '${{ matrix.row }}' --index '${{ matrix.index }}' --folder inputs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12m-${{ matrix.stage }}-${{ matrix.slug }}-${{ matrix.index }}
+          path: numerics/arb/m12m-${{ matrix.stage }}-${{ matrix.slug }}-${{ matrix.index }}.json
+          if-no-files-found: error
+  combine:
+    needs: [prepare, work]
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch and authenticate the inputs
+        working-directory: numerics/arb
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python -m pip install python-flint==0.9.0
+          ./m12_table_1000000_fetch.sh combine
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: m12m-[dr]*
+          path: numerics/arb/run
+          merge-multiple: true
+      - name: Newton steps and certification of this stage
+        working-directory: numerics/arb
+        env:
+          M12_MILLION_BITS: ${{ needs.prepare.outputs.bits }}
+        run: |
+          set -euo pipefail
+          expected=$(python -c "import json,sys; print(len(json.loads(sys.argv[1])))" '${{ needs.prepare.outputs.matrix }}')
+          test "$(ls run/m12m-*.json | wc -l)" = "$expected"
+          cp run/m12m-*.json inputs/
+          mkdir bundle
+          cp run/m12m-*.json bundle/
+          jq -c '.combine[]' m12_table_1000000_stage.json | while read -r item; do
+            step=$(jq -r '.[0]' <<< "$item"); row=$(jq -r '.[1]' <<< "$item")
+            if [ "$step" = certify ]; then
+              python m12_table_1000000.py certify --folder inputs | tee -a bundle/combine.log
+              grep -F "TABLE ${{ needs.prepare.outputs.bits }} SUCCESS 25 checks" bundle/combine.log
+              cp "m12-table-${{ needs.prepare.outputs.bits }}.json" bundle/
+            else
+              python m12_table_1000000.py "$step" "$row" --folder inputs | tee -a bundle/combine.log
+              slug=$(python -c "import sys; print({'1/4':'quarter','1/2':'half','1':'one','2':'two','4':'four'}[sys.argv[1]])" "$row")
+              cp "m12m-$step-$slug.json" inputs/
+              cp "m12m-$step-$slug.json" bundle/
+            fi
+          done
+          touch bundle/combine.log
+          (cd bundle && sha256sum * > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12m-bundle-${{ needs.prepare.outputs.label }}
+          path: numerics/arb/bundle
+          if-no-files-found: error

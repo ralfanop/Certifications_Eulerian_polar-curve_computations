@@ -1,0 +1,142 @@
+{
+ "label": "step2",
+ "bits": 1000000,
+ "note": "Step 2: H at the secant points m2 (about 385000 bits), Newton step, secant point m3.",
+ "work": [
+  [
+   "r2",
+   "1/4"
+  ],
+  [
+   "r2",
+   "1/2"
+  ],
+  [
+   "r2",
+   "1"
+  ],
+  [
+   "r2",
+   "2"
+  ],
+  [
+   "r2",
+   "4"
+  ]
+ ],
+ "combine": [
+  [
+   "x2",
+   "1/4"
+  ],
+  [
+   "x2",
+   "1/2"
+  ],
+  [
+   "x2",
+   "1"
+  ],
+  [
+   "x2",
+   "2"
+  ],
+  [
+   "x2",
+   "4"
+  ]
+ ],
+ "inputs": [
+  {
+   "run": 44782807031,
+   "id": 14672499850,
+   "name": "m12-table-100000",
+   "digest": "de7e1aae2d3af03990131db193189827b2ed8995920d66bc8e6937e33e256083",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14655556144,
+   "name": "m12-100000-pre-quarter",
+   "digest": "99082b03bf739f00b35f34a52e8de5a48957b9d2dfe368e9c8fb340ea8e17575",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14671334861,
+   "name": "m12-100000-deriv-quarter",
+   "digest": "cce8f6afb31e310e9dfa72ec7b429ac6800a3a3106a2aeae467780c77e34c525",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14655645984,
+   "name": "m12-100000-pre-half",
+   "digest": "adc59aaa1ff18f7b6832a361ed1c9bcbe29ae007487209d754611f7b02a49273",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14663119014,
+   "name": "m12-100000-deriv-half",
+   "digest": "eddab66d856210fd48d8379105af42f23f045d0a0a6bda9bd1c9e20a5973f6d4",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14655023080,
+   "name": "m12-100000-pre-one",
+   "digest": "68e4aa41a00073644a9b42553933814a174e8fb024794d245c1af33539ca4624",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14664314377,
+   "name": "m12-100000-deriv-one",
+   "digest": "d28d66c837eec5bc095156d0b8192cc6af51fa6c88d5f7f61f5d4ed6ea7f9e85",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14658200810,
+   "name": "m12-100000-pre-two",
+   "digest": "d3de644041e73c8e086e69fe80c6bec9c857e6fd3d6281365470ce51cdd079b8",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14667943788,
+   "name": "m12-100000-deriv-two",
+   "digest": "1af552b4ce46c3eec4c7265becd19c983b58225a0af1accbfc8c34d0e4999cc6",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14660048094,
+   "name": "m12-100000-pre-four",
+   "digest": "db4538fa133e328b0cf0b54a857f38e4910216d4b6efb629344ae48b12a9d2ab",
+   "scope": "all"
+  },
+  {
+   "run": 44782807031,
+   "id": 14672838298,
+   "name": "m12-100000-deriv-four",
+   "digest": "3460ed125ac43ce48f304b797862030bce30e7514240735a5aae055b165cc82b",
+   "scope": "all"
+  },
+  {
+   "run": 44844906618,
+   "id": 14689489812,
+   "name": "m12m-bundle-step0",
+   "digest": "b4ca45f82f3e10043ad5961ae1c3ce66008104dc7f744c47f4894f826e9ea70d",
+   "scope": "all"
+  },
+  {
+   "run": 44867669410,
+   "id": 14703911609,
+   "name": "m12m-bundle-step1",
+   "digest": "8ebb1aa4e9909e740415516287beb129f8c7e92300f0e486c0814a2900240e83",
+   "scope": "all"
+  }
+ ]
+}
