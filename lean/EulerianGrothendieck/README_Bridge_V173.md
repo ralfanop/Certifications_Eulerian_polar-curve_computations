@@ -1,4 +1,4 @@
-# Lean 4 certification of manuscript V173/V174: Sections 3, 4, 6, 7, 8, 9.1–9.2, Lemma 5.5, Appendix A and the decimal values
+# Lean 4 certification of manuscript V173/V174: Sections 3, 4, 6, 7, 8, 9.1–9.2, Lemma 5.5 and the decimal values
 
 Toolchain: Lean 4.24.0 with Mathlib `f897ebcf72cd16f89ab4577d0c826cd14afaafc7`. This is the EulerianGrothendieck project with the new `Bridge` library declared in `lakefile.toml` (51 modules, 30 in `Bridge/` and 21 in `Bridge/Saddle/`, imported by the root `Bridge.lean`).
 
@@ -135,7 +135,7 @@ Audit result: 849 theorems in the namespace `EulerianBridge` (`lake env lean Aud
 - Thm. 6.3:
   - transforms (152)–(153): `mellin_sech`, `mellin_sech_sq`;
   - (154)–(156): `moment_one`, `moment_two`, `moment_three_sq`;
-  - values: `dirichletBeta_three`, `dirichletEta_three`, `odd_cube_sum`.
+  - the values β(3) = π³/32 and η(3) = 3ζ(3)/4 are classical and cited in the article; the lemmas `dirichletBeta_three`, `dirichletEta_three` and `odd_cube_sum` that prove them are not coverage of the article.
 - Cor. 6.4: `beta_three_polygamma`, `det_mellin`, `radius_mellin`.
 - Cor. 6.5: `two_constants`.
 - Prop. 6.7, (163): `qE_characteristic`, `integral_ρ`, `qE_posDef`.
@@ -157,19 +157,7 @@ Audit result: 849 theorems in the namespace `EulerianBridge` (`lake env lean Aud
 - Prop. 9.1, (174)–(176): `V_isometry`, `overlap_gram`, `trace_P_mul_P`.
 - (177)–(179): `sigma_eq`, `two_sigma_one`, `varthetaE_eq`.
 
-**Appendix A** (`AppendixA`, `AppendixAGd`, `AppendixAMoments`)
-- The sequence a(k):
-  - closed form and identities: `m_eq`, `m_inv`, `a_eq_hypercube_edges`;
-  - recurrence (289): `a_rec`;
-  - generating functions (287)–(288): `a_ogf`, `a_egf`.
-- (290): `moments_sum`, `integral_inv_one_sub_sq`.
-- Gudermannian (291):
-  - `gd_eq`, `gd_strictMono`, `abs_gd_lt`, `range_gd`;
-  - inverse relations: `gdInv_gd`, `gd_gdInv`.
-- Lambertian (292): `gdInv_eq_arctanh_sin`, `gdInv_eq_log_tan`.
-- Special values (293)–(294): `gdInv_pi_div_four`, `gdInv_arctan_four_thirds`.
-- Semifactorial forms (295)–(297): `m_semifactorial`, `central_binom_semifactorial`, `catalan_semifactorial`.
-- Moments of the four laws (298)–(301): `uniform_moments`, `arcsine_moment`, `semicircle_moment`, `gaussian_moment`.
+**Appendix A** is classical, cited in the article, and is not coverage of it. The modules `AppendixA`, `AppendixAGd` and `AppendixAMoments`, imported by `Fock3` and `Saddle/Gauss`, prove some of its classical results; they are not listed as certified statements of the article.
 
 **Decimal values** (`Decimals`, `EtaQuarter`)
 - The six displayed scalars, (4)–(6), (12), (13) and (31): `endpoint_value`, `joining_point_value`, `determinant_value`, `beta_three_value`, `angle_degrees_value`, `bargmann_constant_value`.
