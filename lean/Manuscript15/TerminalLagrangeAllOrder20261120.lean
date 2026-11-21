@@ -50,8 +50,9 @@ theorem coeff_comp (p q : RealSeries) (n : ℕ) :
 theorem single_term (p q : RealSeries) {n : ℕ} (hn : 0 < n) :
     compositionTerm p q (Composition.single n hn) =
       scalarCoeff p 1 * scalarCoeff q n := by
-  simp [compositionTerm, Composition.single_length, Fin.prod_univ_one,
+  simp only [compositionTerm, Composition.single_length, Fin.prod_univ_one,
     Composition.single_blocksFun]
+  ring
 
 /-- Every nonsingle composition involves only strictly lower degrees. -/
 theorem lower_degree {n : ℕ} (hn : 0 < n) (c : Composition n)
