@@ -50,8 +50,20 @@ theorem coeff_comp (p q : RealSeries) (n : ℕ) :
 theorem single_term (p q : RealSeries) {n : ℕ} (hn : 0 < n) :
     compositionTerm p q (Composition.single n hn) =
       scalarCoeff p 1 * scalarCoeff q n := by
-  simp [compositionTerm, Composition.single_length, Fin.prod_univ_one,
-    Composition.single_blocksFun]
+  -- Keep the dependent index type fixed: replace the factors pointwise,
+  -- evaluate the resulting constant product, and only then rewrite length.
+  have hp : (∏ j : Fin (Composition.single n hn).length,
+      scalarCoeff q ((Composition.single n hn).blocksFun j)) = scalarCoeff q n := by
+    calc
+      _ = ∏ _j : Fin (Composition.single n hn).length, scalarCoeff q n := by
+        apply Finset.prod_congr rfl
+        intro j _
+        exact congrArg (scalarCoeff q) (Composition.single_blocksFun hn j)
+      _ = (scalarCoeff q n) ^ (Composition.single n hn).length := by
+        simp only [Finset.prod_const, Finset.card_univ, Fintype.card_fin]
+      _ = scalarCoeff q n := by rw [Composition.single_length, pow_one]
+  unfold compositionTerm
+  rw [hp, Composition.single_length]
 
 /-- Every nonsingle composition involves only strictly lower degrees. -/
 theorem lower_degree {n : ℕ} (hn : 0 < n) (c : Composition n)
