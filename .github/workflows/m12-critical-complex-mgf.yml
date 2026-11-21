@@ -1,0 +1,54 @@
+name: M12 actual complex MGF modulus and envelope
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/CriticalWindowComplexMGF.lean'
+      - '.github/workflows/m12-critical-complex-mgf.yml'
+  workflow_dispatch:
+jobs:
+  complexmgf:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean and Mathlib
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Check actual complex modulus
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          lake exe cache get
+          mkdir -p .lake/build/lib/lean
+          lake env lean -o .lake/build/lib/lean/CriticalWindowQuartic.olean CriticalWindowQuartic.lean
+          lake env lean -o .lake/build/lib/lean/CriticalWindowGlobalMGF.olean CriticalWindowGlobalMGF.lean
+          lake env lean CriticalWindowComplexMGF.lean 2>&1 | tee /tmp/m12-critical-complex-mgf.log
+          git rev-parse HEAD
+      - name: Strict axiom audit
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          text = Path('/tmp/m12-critical-complex-mgf.log').read_text()
+          assert ': error' not in text and 'sorryAx' not in text and 'Lean.ofReduceBool' not in text
+          names = ['normSq_coordinate', 'normSq_sinh_coordinate', 'sinh_sq_ge', 'real_sinhc_pos', 'real_sinhc_sq_ge_one', 'real_sinhc_sq_mul', 'normSq_csinhc_le', 'norm_csinhc_le', 'modulus_bound', 'critical_exponential_envelope']
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          for name in names:
+              full = 'M12ComplexMGF.' + name
+              m = re.search(r"'" + re.escape(full) + r"' depends on axioms: \[([^\]]*)\]", text)
+              if m:
+                  assert {x.strip() for x in m.group(1).split(',') if x.strip()} <= allowed, full
+              else:
+                  assert "'" + full + "' does not depend on any axioms" in text, full
+              print('AXIOM AUDIT SUCCESS', full)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-critical-complex-mgf-audit
+          path: /tmp/m12-critical-complex-mgf.log
