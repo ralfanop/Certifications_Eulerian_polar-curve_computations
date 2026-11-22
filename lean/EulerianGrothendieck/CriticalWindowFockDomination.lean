@@ -35,7 +35,7 @@ noncomputable def scaledIntegrand (M : ℕ) (e lam u w : ℝ) : ℝ :=
       ((-w*e^2/Real.sqrt 2 : ℝ) : ℂ)*Complex.I)‖^(2*M)
 
 noncomputable def majorant (lam : ℝ) (p : ℝ × ℝ) : ℝ :=
-  Real.exp ((6*|lam|+1)^2 / (2*M12GlobalMGF.deficitConstant)) *
+  Real.exp ((6* |lam|+1)^2 / (2*M12GlobalMGF.deficitConstant)) *
     Real.exp (-p.1^2) * Real.exp (- (1/4) * p.2^2)
 
 theorem quartic_le_gaussian (b A u : ℝ) (hb : 0 < b) :
@@ -51,7 +51,7 @@ Gaussian. The hypotheses hold eventually for each fixed lambda. -/
 theorem scaledIntegrand_le_majorant (M : ℕ) (e lam u w : ℝ)
     (he : 0 < e) (hM : (M:ℝ)*e^4 = 1)
     (hc : (1/24:ℝ) ≤ 1/12+lam*e^2)
-    (hbscale : (6*|lam|+1)*e^2 ≤ M12GlobalMGF.deficitConstant) :
+    (hbscale : (6* |lam|+1)*e^2 ≤ M12GlobalMGF.deficitConstant) :
     scaledIntegrand M e lam u w ≤ majorant lam (u,w) := by
   let b := M12GlobalMGF.deficitConstant
   let h := u*e/Real.sqrt 2
@@ -68,7 +68,7 @@ theorem scaledIntegrand_le_majorant (M : ℕ) (e lam u w : ℝ)
     ring
   have hm0 : 0 ≤ (M:ℝ) := by positivity
   have habs : -lam ≤ |lam| := neg_le_abs lam
-  have hu : -6*lam*u^2 ≤ 6*|lam|*u^2 := by
+  have hu : -6*lam*u^2 ≤ 6* |lam|*u^2 := by
     nlinarith only [mul_le_mul_of_nonneg_right habs (sq_nonneg u)]
   have hw : -6*(1/12+lam*e^2)*w^2 ≤ -w^2/4 := by
     nlinarith only [mul_le_mul_of_nonneg_right hc (sq_nonneg w)]
@@ -86,8 +86,8 @@ theorem scaledIntegrand_le_majorant (M : ℕ) (e lam u w : ℝ)
       _ = ((M:ℝ)*e^4)*(-6*lam*u^2-6*(1/12+lam*e^2)*w^2) -
           2*(M:ℝ)*b*min (h^4) (h^2) := by ring
       _ = _ := by rw [hM, one_mul]
-  have hdef : 6*|lam|*u^2-2*(M:ℝ)*b*min (h^4) (h^2) ≤
-      (6*|lam|+1)^2/(2*b)-u^2 := by
+  have hdef : 6* |lam|*u^2-2*(M:ℝ)*b*min (h^4) (h^2) ≤
+      (6* |lam|+1)^2/(2*b)-u^2 := by
     by_cases hsmall : h^4 ≤ h^2
     · rw [min_eq_left hsmall, hh4]
       have heq : 2*(M:ℝ)*b*(u^4*e^4/4) = b*u^4/2 := by
@@ -95,17 +95,17 @@ theorem scaledIntegrand_le_majorant (M : ℕ) (e lam u w : ℝ)
           _ = ((M:ℝ)*e^4)*(b*u^4/2) := by ring
           _ = _ := by rw [hM, one_mul]
       rw [heq]
-      exact quartic_le_gaussian b (6*|lam|) u hb
+      exact quartic_le_gaussian b (6* |lam|) u hb
     · rw [min_eq_right (le_of_not_ge hsmall), hh]
       have hmul := mul_le_mul_of_nonneg_left hbscale
         (show 0 ≤ (M:ℝ)*e^2*u^2 by positivity)
-      have hscale : (M:ℝ)*e^2*u^2*((6*|lam|+1)*e^2) =
-          (6*|lam|+1)*u^2 := by
+      have hscale : (M:ℝ)*e^2*u^2*((6* |lam|+1)*e^2) =
+          (6* |lam|+1)*u^2 := by
         calc
-          _ = ((M:ℝ)*e^4)*((6*|lam|+1)*u^2) := by ring
+          _ = ((M:ℝ)*e^4)*((6* |lam|+1)*u^2) := by ring
           _ = _ := by rw [hM, one_mul]
       rw [hscale] at hmul
-      have hC : 0 ≤ (6*|lam|+1)^2/(2*b) := by positivity
+      have hC : 0 ≤ (6* |lam|+1)^2/(2*b) := by positivity
       nlinarith only [hmul, hC]
   unfold scaledIntegrand majorant
   change Real.exp _ * ‖M12ComplexMGF.mgf ((h:ℂ)+(k:ℂ)*Complex.I)‖^(2*M) ≤ _
@@ -115,7 +115,7 @@ theorem scaledIntegrand_le_majorant (M : ℕ) (e lam u w : ℝ)
       mul_le_mul_of_nonneg_left hnorm (Real.exp_nonneg _)
     _ = Real.exp (-6*lam*u^2-6*(1/12+lam*e^2)*w^2-2*(M:ℝ)*b*min (h^4) (h^2)) := by
       rw [← Real.exp_nat_mul, ← Real.exp_add, hexp]
-    _ ≤ Real.exp ((6*|lam|+1)^2/(2*b)-u^2-w^2/4) :=
+    _ ≤ Real.exp ((6* |lam|+1)^2/(2*b)-u^2-w^2/4) :=
       Real.exp_le_exp.mpr (by linarith only [hu, hw, hdef])
     _ = _ := by
       rw [← Real.exp_add, ← Real.exp_add]
