@@ -1,0 +1,4 @@
+⚠ [2290/2290] Built EulerianCert.Bracket (102s)
+warning: EulerianCert/Bracket.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/Bracket.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+Build completed successfully (2290 jobs).

@@ -1,0 +1,9 @@
+⚠ [3256/3256] Built PrivateApex.TailConstants (2.0s)
+warning: PrivateApex/TailConstants.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/TailConstants.lean: imports `Mathlib.Analysis.Real.Sqrt` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/TailConstants.lean: imports `Mathlib.Tactic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/TailConstants.lean:18:51: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+info: PrivateApex/TailConstants.lean:44:0: 'PrivateApex.analyticMajorant_lt_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+Build completed successfully (3256 jobs).

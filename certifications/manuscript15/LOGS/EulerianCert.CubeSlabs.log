@@ -1,0 +1,60 @@
+⚠ [2289/2310] Replayed EulerianCert.Bracket
+warning: EulerianCert/Bracket.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/Bracket.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [2819/2819] Built EulerianCert.CubeSlabs (16s)
+warning: EulerianCert/CubeSlabs.lean: imports `Mathlib.MeasureTheory.Constructions.Pi` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/CubeSlabs.lean: imports `Mathlib.MeasureTheory.Integral.DivergenceTheorem` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/CubeSlabs.lean: imports `Mathlib.MeasureTheory.Integral.Prod` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/CubeSlabs.lean: imports `Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/CubeSlabs.lean: imports `Mathlib.MeasureTheory.Measure.Lebesgue.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/CubeSlabs.lean:36:17: `if_neg` has been deprecated: Use `ite_eq_right` instead
+
+Hint: Replace the deprecated name:
+  i̵f̵_̵n̵e̵g̵i̲t̲e̲_̲e̲q̲_̲r̲i̲g̲h̲t̲
+warning: EulerianCert/CubeSlabs.lean:39:17: `if_pos` has been deprecated: Use `ite_eq_left` instead
+
+Hint: Replace the deprecated name:
+  i̵f̵_̵p̵o̵s̵i̲t̲e̲_̲e̲q̲_̲l̲e̲f̲t̲
+warning: EulerianCert/CubeSlabs.lean:147:6: Variable name `x` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _x
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: EulerianCert/CubeSlabs.lean:156:43: `intervalIntegral.integral_finset_sum` has been deprecated: Use `intervalIntegral.integral_finsetSum` instead
+
+Hint: Replace the deprecated name:
+  intervalIntegral.integral_finset_̵s̵S̲um
+warning: EulerianCert/CubeSlabs.lean:220:32: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+
+Hint: Replace the deprecated name:
+  S̵e̵t̵.̵m̵e̵m̵_̵s̵e̵t̵O̵f̵_̵e̵q̵m̲e̲m̲_̲o̲f̲P̲r̲e̲d̲_̲e̲q̲
+warning: EulerianCert/CubeSlabs.lean:225:23: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+
+Hint: Replace the deprecated name:
+  S̵e̵t̵.̵m̵e̵m̵_̵s̵e̵t̵O̵f̵_̵e̵q̵m̲e̲m̲_̲o̲f̲P̲r̲e̲d̲_̲e̲q̲
+warning: EulerianCert/CubeSlabs.lean:237:40: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+
+Hint: Replace the deprecated name:
+  S̵e̵t̵.̵m̵e̵m̵_̵s̵e̵t̵O̵f̵_̵e̵q̵m̲e̲m̲_̲o̲f̲P̲r̲e̲d̲_̲e̲q̲
+warning: EulerianCert/CubeSlabs.lean:242:42: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+
+Hint: Replace the deprecated name:
+  S̵e̵t̵.̵m̵e̵m̵_̵s̵e̵t̵O̵f̵_̵e̵q̵m̲e̲m̲_̲o̲f̲P̲r̲e̲d̲_̲e̲q̲
+warning: EulerianCert/CubeSlabs.lean:407:24: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+
+Hint: Replace the deprecated name:
+  S̵e̵t̵.̵m̵e̵m̵_̵s̵e̵t̵O̵f̵_̵e̵q̵m̲e̲m̲_̲o̲f̲P̲r̲e̲d̲_̲e̲q̲
+warning: EulerianCert/CubeSlabs.lean:432:27: `Set.mem_diff` has been deprecated: Use `Set.mem_sdiff` instead
+
+Hint: Replace the deprecated name:
+  Set.mem_s̲diff
+warning: EulerianCert/CubeSlabs.lean:432:41: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+
+Hint: Replace the deprecated name:
+  S̵e̵t̵.̵m̵e̵m̵_̵s̵e̵t̵O̵f̵_̵e̵q̵m̲e̲m̲_̲o̲f̲P̲r̲e̲d̲_̲e̲q̲
+warning: EulerianCert/CubeSlabs.lean:446:13: `MeasureTheory.measure_diff` has been deprecated: Use `MeasureTheory.measure_sdiff` instead
+
+Hint: Replace the deprecated name:
+  measure_s̲diff
+Build completed successfully (2819 jobs).

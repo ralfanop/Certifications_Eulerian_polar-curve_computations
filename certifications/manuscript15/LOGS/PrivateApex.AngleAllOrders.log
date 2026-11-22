@@ -1,0 +1,234 @@
+⚠ [3136/3285] Replayed PrivateApex.ExpansionCalculus
+warning: PrivateApex/ExpansionCalculus.lean: imports `Mathlib.Tactic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/ExpansionCalculus.lean: imports `Mathlib.Algebra.BigOperators.Intervals` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/ExpansionCalculus.lean: imports `Mathlib.Algebra.Order.BigOperators.Group.Finset` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/ExpansionCalculus.lean: imports `Mathlib.Analysis.Real.Sqrt` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [3256/3285] Replayed EulerianCert.Bracket
+warning: EulerianCert/Bracket.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/Bracket.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [3511/3641] Replayed EulerianCert.CubeSlabs
+warning: EulerianCert/CubeSlabs.lean: imports `Mathlib.MeasureTheory.Constructions.Pi` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/CubeSlabs.lean: imports `Mathlib.MeasureTheory.Integral.DivergenceTheorem` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/CubeSlabs.lean: imports `Mathlib.MeasureTheory.Integral.Prod` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/CubeSlabs.lean: imports `Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/CubeSlabs.lean: imports `Mathlib.MeasureTheory.Measure.Lebesgue.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/CubeSlabs.lean:36:17: `if_neg` has been deprecated: Use `ite_eq_right` instead
+
+Hint: Replace the deprecated name:
+  i̵f̵_̵n̵e̵g̵i̲t̲e̲_̲e̲q̲_̲r̲i̲g̲h̲t̲
+warning: EulerianCert/CubeSlabs.lean:39:17: `if_pos` has been deprecated: Use `ite_eq_left` instead
+
+Hint: Replace the deprecated name:
+  i̵f̵_̵p̵o̵s̵i̲t̲e̲_̲e̲q̲_̲l̲e̲f̲t̲
+warning: EulerianCert/CubeSlabs.lean:147:6: Variable name `x` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _x
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: EulerianCert/CubeSlabs.lean:156:43: `intervalIntegral.integral_finset_sum` has been deprecated: Use `intervalIntegral.integral_finsetSum` instead
+
+Hint: Replace the deprecated name:
+  intervalIntegral.integral_finset_̵s̵S̲um
+warning: EulerianCert/CubeSlabs.lean:220:32: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+
+Hint: Replace the deprecated name:
+  S̵e̵t̵.̵m̵e̵m̵_̵s̵e̵t̵O̵f̵_̵e̵q̵m̲e̲m̲_̲o̲f̲P̲r̲e̲d̲_̲e̲q̲
+warning: EulerianCert/CubeSlabs.lean:225:23: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+
+Hint: Replace the deprecated name:
+  S̵e̵t̵.̵m̵e̵m̵_̵s̵e̵t̵O̵f̵_̵e̵q̵m̲e̲m̲_̲o̲f̲P̲r̲e̲d̲_̲e̲q̲
+warning: EulerianCert/CubeSlabs.lean:237:40: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+
+Hint: Replace the deprecated name:
+  S̵e̵t̵.̵m̵e̵m̵_̵s̵e̵t̵O̵f̵_̵e̵q̵m̲e̲m̲_̲o̲f̲P̲r̲e̲d̲_̲e̲q̲
+warning: EulerianCert/CubeSlabs.lean:242:42: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+
+Hint: Replace the deprecated name:
+  S̵e̵t̵.̵m̵e̵m̵_̵s̵e̵t̵O̵f̵_̵e̵q̵m̲e̲m̲_̲o̲f̲P̲r̲e̲d̲_̲e̲q̲
+warning: EulerianCert/CubeSlabs.lean:407:24: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+
+Hint: Replace the deprecated name:
+  S̵e̵t̵.̵m̵e̵m̵_̵s̵e̵t̵O̵f̵_̵e̵q̵m̲e̲m̲_̲o̲f̲P̲r̲e̲d̲_̲e̲q̲
+warning: EulerianCert/CubeSlabs.lean:432:27: `Set.mem_diff` has been deprecated: Use `Set.mem_sdiff` instead
+
+Hint: Replace the deprecated name:
+  Set.mem_s̲diff
+warning: EulerianCert/CubeSlabs.lean:432:41: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+
+Hint: Replace the deprecated name:
+  S̵e̵t̵.̵m̵e̵m̵_̵s̵e̵t̵O̵f̵_̵e̵q̵m̲e̲m̲_̲o̲f̲P̲r̲e̲d̲_̲e̲q̲
+warning: EulerianCert/CubeSlabs.lean:446:13: `MeasureTheory.measure_diff` has been deprecated: Use `MeasureTheory.measure_sdiff` instead
+
+Hint: Replace the deprecated name:
+  measure_s̲diff
+⚠ [3544/3641] Replayed EulerianCert.FourierModes
+warning: EulerianCert/FourierModes.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Sinc` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/FourierModes.lean: imports `Mathlib.Analysis.SpecialFunctions.Integrals.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/FourierModes.lean: imports `Mathlib.Analysis.PSeries` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/FourierModes.lean:148:30: Variable name `hn` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hn
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+⚠ [3602/3641] Replayed EulerianCert.EulerianFourier
+warning: EulerianCert/EulerianFourier.lean: imports `Mathlib.Analysis.Fourier.Inversion` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/EulerianFourier.lean: imports `Mathlib.Analysis.SpecialFunctions.ImproperIntegrals` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/EulerianFourier.lean: imports `Mathlib.MeasureTheory.Integral.Prod` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/EulerianFourier.lean:257:8: Try this: 
+  haveI̵
+
+The goal is a proposition, so `have` is preferred over `haveI`.
+The difference between `have` and `haveI` is that `haveI` inlines the value.
+But this is not relevant for proofs because of proof irrelevance.
+
+Note: This linter can be disabled with `set_option linter.style.haveILetI false`
+warning: EulerianCert/EulerianFourier.lean:379:28: Unused tactic linter: `push_cast` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+⚠ [3603/3641] Replayed EulerianCert.Combinatorics
+warning: EulerianCert/Combinatorics.lean: imports `Mathlib.LinearAlgebra.Matrix.SchurComplement` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.SpecialFunctions.Exp` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.SpecialFunctions.Sqrt` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.SpecificLimits.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Topology.Algebra.InfiniteSum.Real` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [3604/3641] Replayed EulerianCert.LocalLimit
+warning: EulerianCert/LocalLimit.lean: imports `Mathlib.Analysis.SpecialFunctions.Gaussian.FourierTransform` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/LocalLimit.lean: imports `Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegral` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/LocalLimit.lean: imports `Mathlib.Analysis.SpecificLimits.Normed` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [3606/3641] Replayed EulerianCert.CentralSlope
+warning: EulerianCert/CentralSlope.lean: imports `Mathlib.MeasureTheory.Integral.Gamma` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/CentralSlope.lean: imports `Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegral` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/CentralSlope.lean:221:4: Unused tactic linter: `beta_reduce` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: EulerianCert/CentralSlope.lean:271:26: Variable name `hm0` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hm0
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: EulerianCert/CentralSlope.lean:773:2: Unused tactic linter: `push_cast` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+⚠ [3607/3641] Replayed PrivateApex.SincGaussian
+warning: PrivateApex/SincGaussian.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Sinc` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/SincGaussian.lean: imports `Mathlib.Analysis.SpecialFunctions.ExpDeriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/SincGaussian.lean: imports `Mathlib.Analysis.Calculus.MeanValue` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/SincGaussian.lean: imports `Mathlib.Tactic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/SincGaussian.lean:16:87: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: PrivateApex/SincGaussian.lean:33:82: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: PrivateApex/SincGaussian.lean:34:77: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: PrivateApex/SincGaussian.lean:57:2: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+info: PrivateApex/SincGaussian.lean:91:0: 'PrivateApex.sin_sub_mul_cos_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/SincGaussian.lean:92:0: 'PrivateApex.sinc_gaussian_wronskian' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/SincGaussian.lean:93:0: 'PrivateApex.gaussian_sinc_hasDerivAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/SincGaussian.lean:94:0: 'PrivateApex.sinc_le_gaussian' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/SincGaussian.lean:95:0: 'PrivateApex.abs_sinc_le_gaussian' depends on axioms: [propext, Classical.choice, Quot.sound]
+⚠ [3608/3641] Replayed PrivateApex.TailConstants
+warning: PrivateApex/TailConstants.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/TailConstants.lean: imports `Mathlib.Analysis.Real.Sqrt` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/TailConstants.lean: imports `Mathlib.Tactic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/TailConstants.lean:18:51: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+info: PrivateApex/TailConstants.lean:44:0: 'PrivateApex.analyticMajorant_lt_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+⚠ [3609/3641] Replayed PrivateApex.IntegralBound
+warning: PrivateApex/IntegralBound.lean: imports `Mathlib.MeasureTheory.Integral.Gamma` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/IntegralBound.lean: imports `Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegral` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/IntegralBound.lean: imports `Mathlib.Analysis.SpecialFunctions.ImproperIntegrals` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/IntegralBound.lean: imports `Mathlib.MeasureTheory.Measure.Lebesgue.Integral` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/IntegralBound.lean:125:23: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: PrivateApex/IntegralBound.lean:146:6: Unused tactic linter: `ring` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: PrivateApex/IntegralBound.lean:146:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+info: PrivateApex/IntegralBound.lean:148:0: 'PrivateApex.weight_le_gauss' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/IntegralBound.lean:149:0: 'PrivateApex.weight_le_tail' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/IntegralBound.lean:150:0: 'PrivateApex.gauss_integrable' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/IntegralBound.lean:151:0: 'PrivateApex.tail_integrable' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/IntegralBound.lean:152:0: 'PrivateApex.weight_integrable_half' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/IntegralBound.lean:153:0: 'PrivateApex.weight_integral_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/IntegralBound.lean:154:0: 'PrivateApex.gaussian_half_integral' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/IntegralBound.lean:155:0: 'PrivateApex.tail_half_integral' depends on axioms: [propext, Classical.choice, Quot.sound]
+⚠ [3610/3641] Replayed PrivateApex.FiniteComparisons
+warning: PrivateApex/FiniteComparisons.lean: imports `Mathlib.Tactic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+info: PrivateApex/FiniteComparisons.lean:51:0: 'PrivateApex.finite_even_comparisons' depends on axioms: [propext]
+info: PrivateApex/FiniteComparisons.lean:52:0: 'PrivateApex.finite_even_rationals' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/FiniteComparisons.lean:53:0: 'PrivateApex.finite_odd_rationals' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/FiniteComparisons.lean:54:0: 'PrivateApex.peak_exact' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/FiniteComparisons.lean:55:0: 'PrivateApex.peak_above_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/FiniteComparisons.lean:56:0: 'PrivateApex.gaussian_tail_rational_gap' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/FiniteComparisons.lean:57:0: 'PrivateApex.algebraic_tail_rational_gap' depends on axioms: [propext, Classical.choice, Quot.sound]
+⚠ [3611/3641] Replayed PrivateApex.ConsecutiveSlopes
+warning: PrivateApex/ConsecutiveSlopes.lean: imports `Mathlib.Tactic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+info: PrivateApex/ConsecutiveSlopes.lean:107:0: 'PrivateApex.central_difference_add' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/ConsecutiveSlopes.lean:108:0: 'PrivateApex.central_difference_int' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/ConsecutiveSlopes.lean:109:0: 'PrivateApex.slopeQ_even_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/ConsecutiveSlopes.lean:110:0: 'PrivateApex.slopeQ_even_lt_two_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/ConsecutiveSlopes.lean:111:0: 'PrivateApex.slopeQ_even_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [3612/3641] Replayed PrivateApex.OddSlopeTail
+info: PrivateApex/OddSlopeTail.lean:222:0: 'PrivateApex.slopeQ_odd_eq_integral' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/OddSlopeTail.lean:223:0: 'PrivateApex.slopeQ_even_eq_integral' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/OddSlopeTail.lean:224:0: 'PrivateApex.slopeQ_odd_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/OddSlopeTail.lean:225:0: 'PrivateApex.slopeQ_odd_le_majorant' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/OddSlopeTail.lean:226:0: 'PrivateApex.slopeQ_odd_lt_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/OddSlopeTail.lean:227:0: 'PrivateApex.slopeQ_even_tail' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/OddSlopeTail.lean:228:0: 'PrivateApex.slopeQ_even_pos'' depends on axioms: [propext, Classical.choice, Quot.sound]
+⚠ [3613/3641] Replayed PrivateApex.GlobalApex
+warning: PrivateApex/GlobalApex.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+info: PrivateApex/GlobalApex.lean:215:0: 'PrivateApex.slopeQ_classification' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/GlobalApex.lean:216:0: 'PrivateApex.slopeQ_lt_twelve' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/GlobalApex.lean:217:0: 'PrivateApex.slopeQ_lt_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/GlobalApex.lean:218:0: 'PrivateApex.virtualApex_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/GlobalApex.lean:219:0: 'PrivateApex.virtualApex_unique_min' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/GlobalApex.lean:220:0: 'PrivateApex.virtualApex_twelve' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/GlobalApex.lean:221:0: 'PrivateApex.virtualApex_min' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/GlobalApex.lean:222:0: 'PrivateApex.virtualApex_threshold' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [3614/3641] Replayed PrivateApex.EvenAsymptotics
+info: PrivateApex/EvenAsymptotics.lean:479:0: 'PrivateApex.rho_bounds' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/EvenAsymptotics.lean:480:0: 'PrivateApex.transfer_core' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/EvenAsymptotics.lean:481:0: 'PrivateApex.ratio_bound_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/EvenAsymptotics.lean:482:0: 'PrivateApex.ratio_bound_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/EvenAsymptotics.lean:483:0: 'PrivateApex.even_slope_asymp' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/EvenAsymptotics.lean:484:0: 'PrivateApex.even_slope_second_order_of_odd' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/EvenAsymptotics.lean:485:0: 'PrivateApex.coefficient_arithmetic' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/EvenAsymptotics.lean:486:0: 'PrivateApex.even_slope_second_order_coefficients' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [3615/3641] Replayed PrivateApex.SincExpBounds
+info: PrivateApex/SincExpBounds.lean:253:0: 'PrivateApex.sinc_upper8' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/SincExpBounds.lean:254:0: 'PrivateApex.sinc_lower8' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/SincExpBounds.lean:255:0: 'PrivateApex.weight_le_Pup' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/SincExpBounds.lean:256:0: 'PrivateApex.Plow_le_weight' depends on axioms: [propext, Classical.choice, Quot.sound]
+⚠ [3616/3641] Replayed PrivateApex.LogSincSeries
+warning: PrivateApex/LogSincSeries.lean: imports `Mathlib.Analysis.SpecialFunctions.Log.Deriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/LogSincSeries.lean: imports `Mathlib.Analysis.Complex.Trigonometric` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/LogSincSeries.lean: imports `Mathlib.Analysis.Complex.Exponential` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+ℹ [3617/3641] Replayed PrivateApex.OddSecondOrder
+info: PrivateApex/OddSecondOrder.lean:576:0: 'PrivateApex.hm_values' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/OddSecondOrder.lean:577:0: 'PrivateApex.W_upper' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/OddSecondOrder.lean:578:0: 'PrivateApex.W_lower' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/OddSecondOrder.lean:579:0: 'PrivateApex.ratio_bound_MD' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/OddSecondOrder.lean:580:0: 'PrivateApex.odd_slope_second_order' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/OddSecondOrder.lean:581:0: 'PrivateApex.odd_slope_second_order'' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/OddSecondOrder.lean:582:0: 'PrivateApex.even_slope_second_order' depends on axioms: [propext, Classical.choice, Quot.sound]
+⚠ [3619/3641] Replayed PrivateApex.LaplaceAllOrders
+warning: PrivateApex/LaplaceAllOrders.lean: imports `Mathlib.Analysis.Complex.ExponentialBounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [3638/3641] Replayed PrivateApex.SlopeAllOrders
+warning: PrivateApex/SlopeAllOrders.lean: imports `Mathlib.Analysis.Analytic.Binomial` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [3641/3641] Built PrivateApex.AngleAllOrders (11s)
+warning: PrivateApex/AngleAllOrders.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.ArctanDeriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+Build completed successfully (3641 jobs).

@@ -1,0 +1,7 @@
+⚠ [3137/3138] Replayed PrivateApex.ExpansionCalculus
+warning: PrivateApex/ExpansionCalculus.lean: imports `Mathlib.Tactic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/ExpansionCalculus.lean: imports `Mathlib.Algebra.BigOperators.Intervals` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/ExpansionCalculus.lean: imports `Mathlib.Algebra.Order.BigOperators.Group.Finset` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/ExpansionCalculus.lean: imports `Mathlib.Analysis.Real.Sqrt` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+✔ [3138/3138] Built PrivateApex.QuantCalculus (3.4s)
+Build completed successfully (3138 jobs).

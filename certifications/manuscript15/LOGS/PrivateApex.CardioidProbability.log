@@ -1,0 +1,12 @@
+⚠ [3256/3304] Replayed PrivateApex.CardioidIdentities
+warning: PrivateApex/CardioidIdentities.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Sinc` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/CardioidIdentities.lean: imports `Mathlib.Analysis.SpecialFunctions.Complex.Log` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/CardioidIdentities.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/CardioidIdentities.lean: imports `Mathlib.Analysis.SpecialFunctions.Sqrt` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/CardioidIdentities.lean: imports `Mathlib.Tactic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [3590/3590] Built PrivateApex.CardioidProbability (3.5s)
+warning: PrivateApex/CardioidProbability.lean: imports `Mathlib.Analysis.SpecialFunctions.Integrals.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/CardioidProbability.lean: imports `Mathlib.MeasureTheory.Measure.CharacteristicFunction.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/CardioidProbability.lean: imports `Mathlib.MeasureTheory.Group.Convolution` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/CardioidProbability.lean: imports `Mathlib.Probability.Independence.CharacteristicFunction` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+Build completed successfully (3590 jobs).
