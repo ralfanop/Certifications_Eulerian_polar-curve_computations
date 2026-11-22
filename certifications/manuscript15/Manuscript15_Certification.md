@@ -57,15 +57,34 @@ Each statement of the article listed below is the conclusion of the named Lean t
 | Eqs. (290), (291) | `H4_eq`, `H4_cusp`, `H4_cardioid`, `hasDerivAt_H4`, `H4_dist`, `H4_dist_sq`, `H4_pullback` | [CardioidModular](LEAN/PrivateApex/CardioidModular.lean) |
 | Eqs. (290), (291) (continued) | `H4_spherical_dilation_cusp`, `H4inf_eq`, `hasDerivAt_H4inf`, `H4_spherical_dilation_infinity`, `H4_not_modular` | [CardioidModular](LEAN/PrivateApex/CardioidModular.lean) |
 
-## 4. Arb certificates at 3600000 bits.
+## 4. Lean 4: the library `M15Cert`.
 
-Both certificates use FLINT/Arb [1] through python-flint 0.9.0. The same run 45045814495 recomputed both of them and found the archived results again byte for byte: the enclosures, the exact binary endpoints and the decimal files.
+The library `M15Cert`, in the directory [`LEAN/M15Cert`](LEAN/M15Cert), is a separate Lake project: Lean 4 toolchain `v4.35.0-rc3` and Mathlib [2] tag `v4.35.0-rc3` (commit `c55e6e786f49471c72fbddbec5415808896aec1e`), a revision different from that of Section 2. It depends only on Mathlib and neither imports nor modifies `PrivateApex` or `EulerianCert`. Its seven modules contain 98 theorems and lemmas, with no `sorry`, `admit`, `native_decide`, `unsafe` or `axiom` declaration. The command `#print axioms`, run on the 58 theorems listed below, reports `propext`, `Classical.choice` and `Quot.sound` for each of them, and `leanchecker` accepts all seven modules. The archived outputs are [`LEAN/M15Cert/axioms_output.txt`](LEAN/M15Cert/axioms_output.txt) and [`LEAN/M15Cert/leanchecker_output.txt`](LEAN/M15Cert/leanchecker_output.txt).
+
+The workflow [`m15-m15cert.yml`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/main/.github/workflows/m15-m15cert.yml), in [run 45051534998](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45051534998) (commit `59c1124`), checks the checksums and rebuilds the seven modules from source. It requires the axiom output to equal `axioms_output.txt` line by line, with only the three standard axioms, and runs `leanchecker` on the seven modules. The source files and the archived outputs keep the equation numbers of the revision before the renumbering: (262), (267) and (287)–(300) there are (265), (270) and (292)–(305) here.
+
+Besides the statements of the article, the library proves the following. Inequality (270) holds for all Borel probability measures, with no moment assumption, W₁ being allowed to be infinite. The maximum of Theorem 7.26 is unique on the whole real line, and 1 < u\* < 2. The constant λ_CL is the only positive solution of Laplace's equation, which identifies it with the root enclosed in Arb in Section 5.
+
+| Statement | Lean theorems | Module(s) |
+| --- | --- | --- |
+| Proposition 7.25, Eqs. (292)–(296) | `rEc_differentiable`, `rEc_I_mul`, `catenoid_radius`, `catenoid_radius_eulerian`, `catenoid_circle_radius`, `deriv_catenoid_u`, `deriv_catenoid_v`, `catenoid_first_form`, `catenoid_metric`, `catNormal_unit_orthogonal`, `catenoid_second_form`, `catenoid_gaussian_curvature`, `catenoid_mean_curvature`, `catenoid_principal_curvatures` | [Kernel](LEAN/M15Cert/M15Cert/Kernel.lean), [Catenoid](LEAN/M15Cert/M15Cert/Catenoid.lean) |
+| Theorem 7.26, Eqs. (297)–(300) | `catenoid_aspect`, `catenoid_aspect_eulerian`, `catenoid_aspect_eulerian_rEc`, `exists_unique_uStar`, `uStar_bounds`, `aspect_unique_max`, `lambdaCL_eq`, `lambdaCL_laplace_equation`, `laplace_equation_unique`, `bicone_inside`, `bicone_subset_catenoid`, `bicone_tangent`, `alphaCL_props`, `bicone_half_angle` | [CarliniLaplace](LEAN/M15Cert/M15Cert/CarliniLaplace.lean) |
+| Proposition 7.27, Eqs. (302)–(305) | `ellL_eulerian`, `hasDerivAt_ellL`, `meridian_speed`, `ellL_eq_integral`, `sq_add_ellL_sq`, `ellis_eulerian`, `ellis_eulerian_rEc`, `ellis_equatorial_eq_catenoid`, `critical_length`, `critical_length_integral`, `critical_length_over_a` | [EllisMetric](LEAN/M15Cert/M15Cert/EllisMetric.lean) |
+| Theorem 7.19, identification of the triangular density | `volume_overlap`, `law_sum_unif01`, `charFun_unif01`, `charFun_triLaw`, `cardioid_triLaw`, `map_unifC`, `law_one_add_sum_unifC`, `cardioid_probabilistic`, `eulerianB_eq_charFun_unif01` | [TriangularDensity](LEAN/M15Cert/M15Cert/TriangularDensity.lean) |
+| Eq. (265), principal-root formulation | `sqrt_one_sub_four_cMand`, `cardioid_catalan_root`, `norm_one_sub_sqrt_cMand`, `fixed_point_eq_catalan`, `fixed_point_cMand` | [PrincipalRoot](LEAN/M15Cert/M15Cert/PrincipalRoot.lean) |
+| Eq. (270), stability inequality | `charFun_sub_le_coupling`, `stability_coupling`, `cardioid_stability`, `cardioid_stability_real`, `prod_mem_couplings` | [Stability](LEAN/M15Cert/M15Cert/Stability.lean) |
+
+## 5. Arb certificates at 3600000 bits.
+
+The three certificates use FLINT/Arb [1] through python-flint 0.9.0. Run 45045814495 recomputed the first two and found the archived results again byte for byte: the enclosures, the exact binary endpoints and the decimal files. Run 45051534998 of [`m15-m15cert.yml`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/main/.github/workflows/m15-m15cert.yml) recomputed the third and found its fourteen decimal files again byte for byte.
 
 - **Carlini–Laplace angle, equations (300)–(301).** (The certificate files call them (295) and (296), their numbers before the renumbering.) The unique positive root u\* of u tanh u = 1 is enclosed between exact dyadic endpoints with interval signs of opposite strict sign. Its uniqueness follows from tanh u + u sech²u > 0 for u > 0. The enclosure is propagated to λ = (u\*² − 1)^(1/2), α = 2 arctan(1/λ) and to degrees, and checked against equivalent formulas in sinh u\* by overlap. The working precision is 3600000 bits and the relative accuracy is at least 3599870 bits. The printed 50-place value 112.93167025490469621261195929014436025897847010921393° is certified under both truncation and rounding. This is a numerical enclosure, not a Lean proof of the catenoid theorem. Files: [certificate (ZIP)](ARB/M15_Eq295_FLINT_Arb_3600000bits.zip), [script](ARB/Carlini-Laplace/certify_M15_eq295.py), [run log](ARB/Carlini-Laplace/M15_eq295_run.txt), [README](ARB/Carlini-Laplace/M15_eq295_README.txt).
 
 - **Minimum apex angle, Theorem 7.4.** The angle 2 arctan(3628800/9473633) is computed at 3600000 bits and checked by overlap against the arccosine formula. Its relative accuracy is 3599998 bits in radians and 3599996 bits in degrees. Exact rational comparisons of the endpoints certify 1000001 decimal places, in radians and in degrees, under both truncation and rounding. The archive contains the exact binary endpoints, the four decimal files, the scripts and the logs. Files: [certificate (ZIP)](ARB/M15_virtual_apex_3600000bits.zip). The original certificate refers to Theorem 7.3, which is Theorem 7.4 after the insertion of Definition 7.3.
 
-## 5. Exact rational and symbolic checks.
+- **Catenoid, transport and Gibbs-law constants, equations (298)–(301), (305), (370)–(374) and (416)–(419).** (The certificate files call them (293)–(296), (300), (365)–(369) and (411)–(414), their numbers before the renumbering.) The fourteen constants are u\*, λ_CL, α_CL in radians and in degrees, L\*/a, the five transport constants of (370)–(374), and the four distances of (416)–(419). Each is enclosed at 3600000 bits by two independent routes, with different formulas and, where possible, different algorithms; u\* and λ_CL are isolated by Moore's interval Newton operator. Every ball radius is at most 2^(−3599989). Exact integer arithmetic on the endpoints of each ball certifies 1000001 correctly rounded decimal places, and the two routes give identical strings. These also agree with an independent mpmath evaluation in their first 19998 decimals. The fifty places displayed in (301), (370)–(374) and (416)–(419) coincide with the certified values. Files: [`ARB/M15_constants_FLINT_Arb_3600000bits_1000001digits.zip`](ARB/M15_constants_FLINT_Arb_3600000bits_1000001digits.zip) (the fourteen decimal files), [`m15_arb_certify.py`](ARB/Catenoid-Transport-Gibbs/m15_arb_certify.py), [`run_stdout.txt`](ARB/Catenoid-Transport-Gibbs/run_stdout.txt), [`certification_log.json`](ARB/Catenoid-Transport-Gibbs/certification_log.json), [`m15_mpmath_crosscheck.py`](ARB/Catenoid-Transport-Gibbs/m15_mpmath_crosscheck.py).
+
+## 6. Exact rational and symbolic checks.
 
 Four further scripts run in the same workflow:
 
@@ -74,21 +93,17 @@ Four further scripts run in the same workflow:
 - [`verify_cusp_sixth_moment.py`](verify_cusp_sixth_moment.py) checks the sixth-order cusp coefficients.
 - [`verify_eulerian_angles_n3_17_and_limit.py`](verify_eulerian_angles_n3_17_and_limit.py) checks the Eulerian angles for n = 3, …, 17 and their limit.
 
-## 6. Limits of this record.
+## 7. Limits of this record.
 
 This record does not cover:
 
-- the identification of the triangular density;
-- the principal-root formulation;
-- the stability inequality;
-- the numerical decimal evaluation of the minimum angle, which is certified in Arb only (Section 4);
+- the numerical decimal evaluation of the minimum angle, which is certified in Arb only (Section 5);
 - the additional period-two disc derivation;
-- the catenoidal reconstruction section;
 - the conjecture on optimal remainder constants.
 
 A conjecture is not a verified theorem.
 
-## 7. Other repository evidence.
+## 8. Other repository evidence.
 
 The following earlier workflow runs concern parts of manuscript 15. Each has its own scope, and the list does not claim that every extension of the article is certified.
 
@@ -102,6 +117,7 @@ The following earlier workflow runs concern parts of manuscript 15. Each has its
 - [PR #470](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/470) · [successful run 44743294532](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44743294532): exact local W1/W2 costs, not global sums.
 - [PR #491](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/491) · [successful run 44918198103](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44918198103): inverse recurrence, not closed Lagrange–Bürmann.
 - [PR #497](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/497) · [run 45034350299](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45034350299): failed; not counted as certified.
+- [PR #504](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/504) · [successful run 45051534998](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45051534998): the library `M15Cert` and the third Arb certificate (Sections 4 and 5).
 
 ## References.
 
