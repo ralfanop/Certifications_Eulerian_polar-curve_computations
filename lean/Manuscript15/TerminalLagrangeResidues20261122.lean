@@ -65,8 +65,8 @@ theorem derivative_coe (f : P) :
     ring
   · by_cases h : j = -1
     · subst j
-      rw [derivative_coeff, PowerSeries.coeff_coe]
-      norm_num
+      rw [derivative_coeff]
+      simp [PowerSeries.coeff_coe]
     · have hj' : j < 0 := by omega
       have hnext : j + 1 < 0 := by omega
       rw [derivative_coeff, PowerSeries.coeff_coe, PowerSeries.coeff_coe]
