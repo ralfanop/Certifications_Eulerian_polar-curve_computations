@@ -1,0 +1,21 @@
+{
+ "mpmath": "1.4.1",
+ "decimals_compared": 19998,
+ "results": {
+  "u_star": true,
+  "lambda_CL": true,
+  "alpha_CL_rad": true,
+  "alpha_CL_deg": true,
+  "Lstar_over_a": true,
+  "W1_mu1_nu1": true,
+  "W2_mu1_nu1": true,
+  "Winf_mu1_nu1": true,
+  "W2sq_mu1_nu1": true,
+  "D5": true,
+  "W1_rho_a": true,
+  "W2_rho_a": true,
+  "W1_rho_b": true,
+  "W2_rho_b": true
+ },
+ "ALL_AGREE": true
+}

@@ -1,0 +1,8 @@
+leanchecker M15Cert.Kernel : exit 0
+leanchecker M15Cert.PrincipalRoot : exit 0
+leanchecker M15Cert.Stability : exit 0
+leanchecker M15Cert.TriangularDensity : exit 0
+leanchecker M15Cert.Catenoid : exit 0
+leanchecker M15Cert.CarliniLaplace : exit 0
+leanchecker M15Cert.EllisMetric : exit 0
+Lean (version 4.35.0-rc3, x86_64-unknown-linux-gnu, commit 470d5ce1400764999581fd26d5d72b00d990b0f4, Release)

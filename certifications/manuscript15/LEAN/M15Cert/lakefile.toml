@@ -1,0 +1,10 @@
+name = "M15Cert"
+defaultTargets = ["M15Cert"]
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "v4.35.0-rc3"
+
+[[lean_lib]]
+name = "M15Cert"
