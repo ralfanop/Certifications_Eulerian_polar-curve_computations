@@ -17,8 +17,7 @@ theorem gamma_quarter_unscaled :
     rw [← Real.rpow_mul hx'.le]
     norm_num [Real.rpow_neg hx'.le, Real.rpow_natCast]
   rw [smul_eq_mul, hp]
-  norm_num [Real.rpow_natCast]
-  field_simp [ne_of_gt hx'] <;> ring
+  norm_num [Real.rpow_natCast] <;> field_simp [ne_of_gt hx'] <;> ring
 
 noncomputable def quarticProfile (x : ℝ) : ℝ := Real.exp (-x^4/40)
 
@@ -53,9 +52,7 @@ theorem quarticProfile_integrable : Integrable quarticProfile := by
     have h := integrableOn_rpow_mul_exp_neg_mul_rpow
       (p := 4) (s := 0) (b := 1/40) (by norm_num) (by norm_num) (by norm_num)
     refine h.congr_fun (fun x _ => ?_) measurableSet_Ioi
-    simp [quarticProfile, Real.rpow_natCast]
-    congr 1
-    ring
+    simp [quarticProfile, Real.rpow_natCast] <;> congr 1 <;> ring
   rw [← integrableOn_univ, ← @Iio_union_Ici _ _ (0:ℝ), integrableOn_union,
     integrableOn_Ici_iff_integrableOn_Ioi]
   refine ⟨?_, hp⟩
