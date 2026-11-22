@@ -75,11 +75,11 @@ jobs:
           allowed = {'propext', 'Classical.choice', 'Quot.sound'}
           assert len(new) == 508, len(new)
           for line in new:
-              m = re.fullmatch(r"'([^']+)' depends on axioms: \[([^\]]*)\]", line)
+              m = re.fullmatch(r"'(.+)' depends on axioms: \[([^\]]*)\]", line)
               if m:
                   ax = {a.strip() for a in m.group(2).split(',') if a.strip()}
               else:
-                  assert re.fullmatch(r"'([^']+)' does not depend on any axioms", line), line
+                  assert re.fullmatch(r"'(.+)' does not depend on any axioms", line), line
                   ax = set()
               assert ax <= allowed, line
           assert new == old, 'differs from LOGS/AXIOMS.txt'
