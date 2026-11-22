@@ -2,7 +2,7 @@
 
 Certification record: [Manuscript15_Certification.pdf](Manuscript15_Certification.pdf) ([Markdown](Manuscript15_Certification.md), [LaTeX](Manuscript15_Certification.tex)).
 
-Snapshot: 22 November 2026. This record supersedes the manuscript's former Appendix B; the numbering below follows the manuscript revision of that date. It identifies precisely the statements covered, rather than claiming certification of the entire article.
+Snapshot: 22 November 2026. This record supersedes the manuscript's former Appendix B. The numbering below follows the revision of that date in which every displayed equation carries a single number, with no sub-numbers. Equations (1)–(190) keep their numbers; the former (190a) is (191); (191)–(237) became (192)–(238); the former (238a)–(238c) are (239)–(241); (239)–(272) became (242)–(275); the former (272a) and (272b) are (276) and (277); and (273) onwards became (278) onwards. The archived certificate files keep the earlier numbers: their equations (295) and (296) are the present (300) and (301). It identifies precisely the statements covered, rather than claiming certification of the entire article.
 
 ## Lean 4
 
@@ -22,24 +22,24 @@ The coefficients are defined by finite operations and evaluated exactly. The cla
 | Proposition 7.6 | `central_difference_add`, `slopeQ_even_eq`, `slopeQ_even_eq_integral` | [ConsecutiveSlopes](LEAN/PrivateApex/ConsecutiveSlopes.lean), [OddSlopeTail](LEAN/PrivateApex/OddSlopeTail.lean) |
 | Corollary 7.7 | `even_of_odd_hasExp`, `even_slope_all_orders`, `eC_unique`, `eDirect_eq_eC` | [SlopeAllOrders](LEAN/PrivateApex/SlopeAllOrders.lean), [EvenDirect](LEAN/PrivateApex/EvenDirect.lean) |
 | Table 2 | `cC_values`, `dC_values`, `eC_values` | [SlopeAllOrders](LEAN/PrivateApex/SlopeAllOrders.lean) |
-| Eqs. (220), (222) | `slope_ratio_even_exact`, `slope_ratio_even_hasSum` | [ConsecutiveRatios](LEAN/PrivateApex/ConsecutiveRatios.lean) |
+| Eqs. (221), (223) | `slope_ratio_even_exact`, `slope_ratio_even_hasSum` | [ConsecutiveRatios](LEAN/PrivateApex/ConsecutiveRatios.lean) |
 | Corollary 7.8 | `arctan_taylor`, `odd_angle_all_orders`, `even_angle_all_orders`, `odd_angle_eighth_order`, `even_angle_eighth_order` | [AngleAllOrders](LEAN/PrivateApex/AngleAllOrders.lean) |
 | Table 3 | `angQ_dC_table`, `angQ_eC_table`, `dC_eq_dTab`, `eC_eq_eTab` | [AngleAllOrders](LEAN/PrivateApex/AngleAllOrders.lean) |
 | Proposition 7.9 | `slope_ratio_odd_hasExp`, `slopeRatioOddQ_values`, `deficit_ratio_even_hasExp`, `deficit_ratio_odd_hasExp`, `deficitRatioEvenC_one`, `deficitRatioEvenC_two`, `deficitRatioOddC_one`, `deficitRatioOddC_two` | [ConsecutiveRatios](LEAN/PrivateApex/ConsecutiveRatios.lean), [DeficitRatioCoefficients](LEAN/PrivateApex/DeficitRatioCoefficients.lean) |
-| Eqs. (239), (240) | `deficitRatioEvenC_three`, `deficitRatioEvenC_four`, `deficitRatioOddC_three`, `deficitRatioOddC_four` | [DeficitRatioCoefficients](LEAN/PrivateApex/DeficitRatioCoefficients.lean) |
+| Eqs. (242), (243) | `deficitRatioEvenC_three`, `deficitRatioEvenC_four`, `deficitRatioOddC_three`, `deficitRatioOddC_four` | [DeficitRatioCoefficients](LEAN/PrivateApex/DeficitRatioCoefficients.lean) |
 | Theorem 7.10 | `odd_slope_remainder`, `even_slope_remainder`, `explicit_constants` | [QuantSlopes](LEAN/PrivateApex/QuantSlopes.lean) |
 | Theorem 7.10 (continued) | `odd_slope_remainder_large`, `even_slope_remainder_large`, `odd_slope_remainder_power`, `even_slope_remainder_power` | [QuantSlopes](LEAN/PrivateApex/QuantSlopes.lean) |
-| Eqs. (243)–(245) | `sin_taylor_sharp`, `log_hasExpQ`, `exp_neg_taylor`, `kap_pow_bound`, `laplace_explicit` | [QuantSinc](LEAN/PrivateApex/QuantSinc.lean), [LaplaceAllOrders](LEAN/PrivateApex/LaplaceAllOrders.lean), [QuantLaplace](LEAN/PrivateApex/QuantLaplace.lean) |
+| Eqs. (246)–(248) | `sin_taylor_sharp`, `log_hasExpQ`, `exp_neg_taylor`, `kap_pow_bound`, `laplace_explicit` | [QuantSinc](LEAN/PrivateApex/QuantSinc.lean), [LaplaceAllOrders](LEAN/PrivateApex/LaplaceAllOrders.lean), [QuantLaplace](LEAN/PrivateApex/QuantLaplace.lean) |
 | Theorem 7.16 | `cardioid_sub_quarter`, `cardioid_eulerian`, `norm_cardioid_sub`, `eulerianB_exp`, `norm_eulerianB_exp`, `cardioid_eulerianB`, `rhoE_sq_mul`, `rhoE_sq_mul_neg_pi`, `rhoPole_sq_mul`, `one_sub_exp_eq_eulerianB`, `fixed_point`, `multiplier` | [CardioidIdentities](LEAN/PrivateApex/CardioidIdentities.lean) |
 | Proposition 7.17 | `z0_sq`, `cardioid_special_point`, `special_point_unique` | [CardioidIdentities](LEAN/PrivateApex/CardioidIdentities.lean) |
 | Theorem 7.19 | `charFun_unifLaw`, `charFun_unif01`, `charFun_unif01_eulerianB`, `triLaw_eq`, `cardioid_probabilistic`, `cardioid_expectation` | [CardioidProbability](LEAN/PrivateApex/CardioidProbability.lean) |
 | Theorem 7.20 | `uniform_reconstructs`, `rigidity_local`, `rigidity_global`, `rigidity_iff` | [CardioidRigidity](LEAN/PrivateApex/CardioidRigidity.lean) |
 | Proposition 7.22 | `hasDerivAt_cardioid`, `cardioid_zero`, `cardioid_pi`, `cardioid_re`, `cardioid_im`, `cusp_quotient_tendsto`, `period_two_factor`, `period_doubling`, `cusp_distance_rE`, `rE_pi` | [CardioidIdentities](LEAN/PrivateApex/CardioidIdentities.lean) |
-| Eqs. (274)–(278) | `z1_eq_two_mul_z0`, `z1_eq_neg_inv_z0`, `z0_mul_z1`, `z1_sq`, `z0_add_z1`, `special_quadratic`, `quadratic_family_product`, `quadratic_family_involution`, `quadratic_family_factor`, `golden_quadratic`, `golden_other_root`, `S_smul_z0H`, `S_smul_z1H`, `modular_invariant_eq` | [CardioidModular](LEAN/PrivateApex/CardioidModular.lean) |
+| Eqs. (279)–(283) | `z1_eq_two_mul_z0`, `z1_eq_neg_inv_z0`, `z0_mul_z1`, `z1_sq`, `z0_add_z1`, `special_quadratic`, `quadratic_family_product`, `quadratic_family_involution`, `quadratic_family_factor`, `golden_quadratic`, `golden_other_root`, `S_smul_z0H`, `S_smul_z1H`, `modular_invariant_eq` | [CardioidModular](LEAN/PrivateApex/CardioidModular.lean) |
 | Proposition 7.24 | `cardioidFam_z0`, `cardioidFam_z1`, `cardioidFam_eulerian`, `cardioid_homothety` | [CardioidModular](LEAN/PrivateApex/CardioidModular.lean) |
-| Eqs. (283), (284) | `norm_cardioidFam_z0`, `norm_cardioidFam_z1`, `cardioidFam_pi`, `cardioidFam_pi_z0`, `cardioidFam_pi_z1`, `cardioidFam_half_pi_z0`, `cardioidFam_half_pi_z1`, `half_pi_ray` | [CardioidModular](LEAN/PrivateApex/CardioidModular.lean) |
-| Eqs. (285), (286) | `H4_eq`, `H4_cusp`, `H4_cardioid`, `hasDerivAt_H4`, `H4_dist`, `H4_dist_sq`, `H4_pullback` | [CardioidModular](LEAN/PrivateApex/CardioidModular.lean) |
-| Eqs. (285), (286) (continued) | `H4_spherical_dilation_cusp`, `H4inf_eq`, `hasDerivAt_H4inf`, `H4_spherical_dilation_infinity`, `H4_not_modular` | [CardioidModular](LEAN/PrivateApex/CardioidModular.lean) |
+| Eqs. (288), (289) | `norm_cardioidFam_z0`, `norm_cardioidFam_z1`, `cardioidFam_pi`, `cardioidFam_pi_z0`, `cardioidFam_pi_z1`, `cardioidFam_half_pi_z0`, `cardioidFam_half_pi_z1`, `half_pi_ray` | [CardioidModular](LEAN/PrivateApex/CardioidModular.lean) |
+| Eqs. (290), (291) | `H4_eq`, `H4_cusp`, `H4_cardioid`, `hasDerivAt_H4`, `H4_dist`, `H4_dist_sq`, `H4_pullback` | [CardioidModular](LEAN/PrivateApex/CardioidModular.lean) |
+| Eqs. (290), (291) (continued) | `H4_spherical_dilation_cusp`, `H4inf_eq`, `hasDerivAt_H4inf`, `H4_spherical_dilation_infinity`, `H4_not_modular` | [CardioidModular](LEAN/PrivateApex/CardioidModular.lean) |
 
 ## Numerical verification
 
