@@ -1,0 +1,73 @@
+name: M12 Table 1 at 68000 exact digits
+# Strict rounding of the 25 cells of Table 1 to 68000 significant digits and
+# 68000 fixed decimal places, from the step-2 roots of the staged
+# 1000000-bit pipeline.  No root is recomputed; every input is an artifact
+# authenticated by run, artifact id, name and SHA-256 digest.
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_table_68000.py'
+      - '.github/workflows/m12-table-68000.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch and authenticate the inputs
+        working-directory: numerics/arb
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install python-flint==0.9.0
+          mkdir -p inputs/sources zips
+          fetch() {   # run head-sha artifact-id name digest destination
+            local run="$1" sha="$2" id="$3" name="$4" digest="$5" dest="$6"
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run" \
+              | jq -e --arg sha "$sha" '.head_sha == $sha and .conclusion == "success"' > /dev/null
+            gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$id" \
+              | jq -e --argjson run "$run" --arg sha "$sha" --arg digest "sha256:$digest" --arg name "$name" \
+                  '.workflow_run.id == $run and .workflow_run.head_sha == $sha and .digest == $digest and .name == $name and .expired == false' > /dev/null
+            gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip" > "zips/$id.zip"
+            printf '%s  %s\n' "$digest" "zips/$id.zip" | sha256sum -c -
+            mkdir -p "$dest"
+            unzip -o -q "zips/$id.zip" -d "$dest"
+            echo "INPUT $name run $run artifact $id sha256:$digest"
+          }
+          lanczos=8fc451ce053a769087fb25ed16289018890bc926
+          fetch 44313014167 $lanczos 14431877216 m12-lanczos-100 8f2e19d47c0d0ff4011f23a915b6f3ba7c700616805f4ce5849c929dad66e784 zips/l100
+          fetch 44313014167 $lanczos 14435228234 m12-lanczos-200 eb184d12ad6db434bbc533b0cfde30d83fa08f54b6917e54284ea4aeca8f2a26 zips/l200
+          fetch 44313014167 $lanczos 14449268572 m12-lanczos-400 2155c46f7bef8ec70bb4bc6e5966b2ee2a485ab306299817640961fbc75ba2e6 zips/l400
+          for m in 100 200 400; do cp "zips/l$m/m12-lanczos-$m.json" inputs/sources/; done
+          fetch 44782807031 2ce55dc3f6ab4af4e407d322ac3b3b5afa842e64 14672499850 m12-table-100000 de7e1aae2d3af03990131db193189827b2ed8995920d66bc8e6937e33e256083 zips/t100000
+          cp zips/t100000/m12-table-100000.json inputs/
+          fetch 44898333059 8962f7317e489050e0eb322dbe1c1884f5f3a7df 14740166996 m12m-bundle-step2 efa79b19bc5b70d91045ef8af6f3f02dbde3bc18a126e73acf63c07103e773da zips/step2
+          (cd zips/step2 && sha256sum -c SHA256SUMS)
+          grep -F 'STEP PASS x2' zips/step2/combine.log
+          cp zips/step2/m12m-x2-*.json inputs/
+          test "$(ls inputs/m12m-x2-*.json | wc -l)" = 5
+      - name: Strict rounding to 68000 digits
+        working-directory: numerics/arb
+        run: |
+          set -euo pipefail
+          python m12_table_68000.py --folder inputs | tee certify.log
+          grep -F 'TABLE 68000 SUCCESS 25 checks' certify.log
+          sha256sum m12-table-68000.json certify.log > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-table-68000
+          path: |
+            numerics/arb/m12-table-68000.json
+            numerics/arb/certify.log
+            numerics/arb/SHA256SUMS
+          if-no-files-found: error
