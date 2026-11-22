@@ -2,6 +2,8 @@ import Mathlib
 
 /-! M12 §9: exact quartic Gamma quadrature and vacuum inversion.
 Independent of the analytic convergence of the Fock integrals. -/
+set_option maxRecDepth 4096
+
 namespace M12CriticalGamma
 open MeasureTheory Set Filter
 open scoped Topology
@@ -88,7 +90,7 @@ are supplied by the Fock dominated-convergence theorem in a separate module. -/
 theorem vacuum_inversion (N scale : ℕ → ℝ) (L : ℝ)
     (h : Tendsto (fun n => N n / scale n) atTop (𝓝 L)) (hL : L ≠ 0) :
     Tendsto (fun n => scale n * (N n)⁻¹) atTop (𝓝 L⁻¹) := by
-  simpa only [inv_div, div_eq_mul_inv] using h.inv₀ hL
+  simpa only [div_eq_mul_inv, mul_inv_rev, inv_inv] using h.inv₀ hL
 
 end M12CriticalGamma
 
