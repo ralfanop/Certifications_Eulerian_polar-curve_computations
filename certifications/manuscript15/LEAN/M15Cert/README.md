@@ -10,6 +10,7 @@ Formalises the statements of Manuscript 15 that were still pending:
 | Theorem 7.19 (identification of the triangular density) | `TriangularDensity` |
 | Eq. (262) (principal-root formulation) | `PrincipalRoot` |
 | Eq. (267) (stability inequality) | `Stability` |
+| Proposition 7.22, Eqs. (275)-(277) of version 39 (period-two disc, tangency with the cardioid; added 22 November 2026) | `PeriodTwo` |
 
 * Toolchain: `leanprover/lean4:v4.35.0-rc3`; Mathlib tag `v4.35.0-rc3`
   (commit c55e6e786f49471c72fbddbec5415808896aec1e), pinned in `lake-manifest.json`.
@@ -17,9 +18,9 @@ Formalises the statements of Manuscript 15 that were still pending:
   (PrivateApex) is neither imported nor modified; to merge, the modules can be copied under
   its root and `M15.rEc`, `M15.rE`, `M15.eulerianB`, `M15.cMand` identified with the
   corresponding definitions there.
-* `axioms_output.txt`: `#print axioms` for 58 theorems (`M15Cert/Axioms.lean`); all depend only
+* `axioms_output.txt`: `#print axioms` for 68 theorems (`M15Cert/Axioms.lean`); all depend only
   on `propext`, `Classical.choice`, `Quot.sound`.
-* `leanchecker_output.txt`: `leanchecker` exit 0 on each of the seven modules.
+* `leanchecker_output.txt`: `leanchecker` exit 0 on each of the eight modules.
 
 Reproduce:
 
@@ -27,6 +28,6 @@ Reproduce:
 lake exe cache get
 lake build
 lake env lean M15Cert/Axioms.lean
-for m in Kernel PrincipalRoot Stability TriangularDensity Catenoid CarliniLaplace EllisMetric; do
+for m in Kernel PrincipalRoot Stability TriangularDensity Catenoid CarliniLaplace EllisMetric PeriodTwo; do
   lake env leanchecker M15Cert.$m; done
 ```

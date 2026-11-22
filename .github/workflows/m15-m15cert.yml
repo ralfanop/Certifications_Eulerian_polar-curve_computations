@@ -1,8 +1,8 @@
 name: M15 M15Cert library and 14-constant Arb certificate
 # Independent re-verification of two archives of certifications/manuscript15:
-# the Lean 4 library LEAN/M15Cert (seven modules, Mathlib tag v4.35.0-rc3) is
-# rebuilt from source, its 58 axiom lines must equal the archived output, and
-# leanchecker is run on the seven modules; the FLINT/Arb certificate at
+# the Lean 4 library LEAN/M15Cert (eight modules, Mathlib tag v4.35.0-rc3) is
+# rebuilt from source, its 68 axiom lines must equal the archived output, and
+# leanchecker is run on the eight modules; the FLINT/Arb certificate at
 # 3600000 bits is recomputed and its fourteen 1000001-decimal files must be
 # identical to the archived ones, then cross-checked with mpmath.
 on:
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     env:
-      MODS: Kernel PrincipalRoot Stability TriangularDensity Catenoid CarliniLaplace EllisMetric
+      MODS: Kernel PrincipalRoot Stability TriangularDensity Catenoid CarliniLaplace EllisMetric PeriodTwo
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,7 +42,7 @@ jobs:
           lean --version
           grep -F 'c55e6e786f49471c72fbddbec5415808896aec1e' lake-manifest.json
           lake exe cache get
-      - name: Build the seven modules from source
+      - name: Build the eight modules from source
         working-directory: certifications/manuscript15/LEAN/M15Cert
         run: |
           set -euo pipefail
@@ -50,8 +50,8 @@ jobs:
           lake build 2>&1 | tee /tmp/m15cert/build.log
           ! grep -n -E "declaration uses 'sorry'|^error|^warning" /tmp/m15cert/build.log
           ! grep -n -E "\b(sorry|admit|native_decide|unsafe)\b|^axiom " M15Cert.lean M15Cert/*.lean
-          echo "BUILD SUCCESS: 7 modules, no sorry, admit, native_decide, unsafe or axiom declaration"
-      - name: Axioms of the 58 audited theorems, compared with the archived output
+          echo "BUILD SUCCESS: 8 modules, no sorry, admit, native_decide, unsafe or axiom declaration"
+      - name: Axioms of the 68 audited theorems, compared with the archived output
         working-directory: certifications/manuscript15/LEAN/M15Cert
         run: |
           set -euo pipefail
@@ -64,14 +64,14 @@ jobs:
           old = [l for l in Path('axioms_output.txt').read_text().splitlines() if l.strip()]
           assert new == old, 'differs from axioms_output.txt'
           lines = [l for l in new if 'depends on axioms' in l]
-          assert len(lines) == 58, len(lines)
+          assert len(lines) == 68, len(lines)
           for l in lines:
               m = re.fullmatch(r"'(.+)' depends on axioms: \[([^\]]*)\]", l)
               assert m, l
               assert {a.strip() for a in m.group(2).split(',')} <= {'propext', 'Classical.choice', 'Quot.sound'}, l
-          print('AXIOM AUDIT SUCCESS: 58 theorems, standard axioms only, identical to axioms_output.txt')
+          print('AXIOM AUDIT SUCCESS: 68 theorems, standard axioms only, identical to axioms_output.txt')
           PY
-      - name: leanchecker on the seven modules
+      - name: leanchecker on the eight modules
         working-directory: certifications/manuscript15/LEAN/M15Cert
         run: |
           set -euo pipefail
@@ -82,7 +82,7 @@ jobs:
           done
           lean --version >> /tmp/m15cert/leanchecker.txt
           diff /tmp/m15cert/leanchecker.txt leanchecker_output.txt
-          echo "LEANCHECKER SUCCESS: 7 modules, identical to leanchecker_output.txt"
+          echo "LEANCHECKER SUCCESS: 8 modules, identical to leanchecker_output.txt"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

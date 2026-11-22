@@ -67,3 +67,15 @@ import M15Cert
 #print axioms M15.cardioid_stability
 #print axioms M15.cardioid_stability_real
 #print axioms M15.prod_mem_couplings
+
+-- Proposition 7.22, Eqs. (275)-(277) of version 39 (period-two disc), added 22 November 2026
+#print axioms M15.exists_period_two_root
+#print axioms M15.period_two_swap
+#print axioms M15.period_two_distinct
+#print axioms M15.period_two_cycle
+#print axioms M15.period_two_multiplier
+#print axioms M15.period_two_attracting_iff
+#print axioms M15.period_two_merge
+#print axioms M15.hasDerivAt_exp_mul_I
+#print axioms M15.hasDerivAt_cMand
+#print axioms M15.cardioid_circle_tangent
