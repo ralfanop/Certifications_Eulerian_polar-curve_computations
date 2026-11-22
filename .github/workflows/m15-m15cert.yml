@@ -55,7 +55,8 @@ jobs:
         working-directory: certifications/manuscript15/LEAN/M15Cert
         run: |
           set -euo pipefail
-          { lean --version; lake env lean M15Cert/Axioms.lean; } > /tmp/m15cert/axioms.txt 2>&1
+          lean --version
+          lake env lean M15Cert/Axioms.lean > /tmp/m15cert/axioms.txt 2>&1
           python3 - <<'PY'
           import re
           from pathlib import Path
