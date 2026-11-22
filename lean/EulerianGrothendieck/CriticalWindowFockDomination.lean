@@ -18,13 +18,13 @@ theorem fockProfile_eq_csinhc (z : ℂ) :
   have hi : -(z/2 * Complex.I) ≠ 0 := neg_ne_zero.mpr (mul_ne_zero hd Complex.I_ne_zero)
   rw [fockProfile, if_neg hz, M12ComplexMGF.csinhc, if_neg hi,
     Complex.sinh_neg, Complex.sinh_mul_I]
-  field_simp [hd, Complex.I_ne_zero]
+  field_simp [hd, Complex.I_ne_zero] <;> ring
 
 /-- Identification with the standardized uniform MGF, including at zero. -/
 theorem fockProfile_eq_mgf (z : ℂ) :
     fockProfile z = M12ComplexMGF.mgf (-(z/2 * Complex.I) / (Real.sqrt 3 : ℂ)) := by
   have hs : (Real.sqrt 3 : ℂ) ≠ 0 := by
-    exact_mod_cast (Real.sqrt_ne_zero'.mpr (by norm_num : (0:ℝ) < 3))
+    exact_mod_cast (show Real.sqrt 3 ≠ 0 by positivity)
   rw [fockProfile_eq_csinhc, M12ComplexMGF.mgf]
   congr 1
   field_simp [hs]
@@ -80,7 +80,7 @@ theorem scaledIntegrand_le_majorant (M : ℕ) (e lam u w : ℝ)
       -6*(1/12+lam*e^2)*(M:ℝ)*(u^2*e^2+w^2*e^4) +
         ((2*M:ℕ):ℝ)*(h^2/2-b*min (h^4) (h^2)) =
       -6*lam*u^2-6*(1/12+lam*e^2)*w^2-2*(M:ℝ)*b*min (h^4) (h^2) := by
-    rw [hh]
+    nth_rw 1 [hh]
     push_cast
     calc
       _ = ((M:ℝ)*e^4)*(-6*lam*u^2-6*(1/12+lam*e^2)*w^2) -
