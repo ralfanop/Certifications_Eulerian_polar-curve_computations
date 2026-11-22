@@ -1,49 +1,41 @@
 {
- "label": "step2",
+ "label": "step3a",
  "bits": 1000000,
- "note": "Step 2: H at the secant points m2 (about 385000 bits), Newton step, secant point m3.",
+ "note": "Step 3, part a: H at the secant points m3 (about 627000 bits) for the rows 1/4, 1/2, 1 and 2 (13 + 25 + 49 + 98 = 185 shards), Newton step, secant point m4. The row 4 (196 shards) follows in part b, because the 381 shards of step 3 exceed the 256 jobs of one run.",
  "work": [
   [
-   "r2",
+   "r3",
    "1/4"
   ],
   [
-   "r2",
+   "r3",
    "1/2"
   ],
   [
-   "r2",
+   "r3",
    "1"
   ],
   [
-   "r2",
+   "r3",
    "2"
-  ],
-  [
-   "r2",
-   "4"
   ]
  ],
  "combine": [
   [
-   "x2",
+   "x3",
    "1/4"
   ],
   [
-   "x2",
+   "x3",
    "1/2"
   ],
   [
-   "x2",
+   "x3",
    "1"
   ],
   [
-   "x2",
+   "x3",
    "2"
-  ],
-  [
-   "x2",
-   "4"
   ]
  ],
  "inputs": [
@@ -136,6 +128,13 @@
    "id": 14703911609,
    "name": "m12m-bundle-step1",
    "digest": "8ebb1aa4e9909e740415516287beb129f8c7e92300f0e486c0814a2900240e83",
+   "scope": "all"
+  },
+  {
+   "run": 44898333059,
+   "id": 14740166996,
+   "name": "m12m-bundle-step2",
+   "digest": "efa79b19bc5b70d91045ef8af6f3f02dbde3bc18a126e73acf63c07103e773da",
    "scope": "all"
   }
  ]
