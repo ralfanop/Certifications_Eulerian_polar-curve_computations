@@ -14,8 +14,9 @@ theorem hasSum_csinhc (z : ℂ) (hz : z ≠ 0) :
   rw [M12ComplexMGF.csinhc, if_neg hz]
   convert (Complex.hasSum_sinh z).div_const z using 1 with n
   unfold coeffTerm
-  rw [pow_succ]
-  field_simp
+  funext n
+  rw [show 2*n+1 = 2*n+1 by omega, pow_succ]
+  field_simp [hz]
 
 theorem tail_term_bound (z : ℂ) (hz : ‖z‖ ≤ 1/2) (n : ℕ) :
     ‖coeffTerm z (n+3)‖ ≤ ‖z‖^6 * (1/4 : ℝ)^n := by
@@ -122,7 +123,7 @@ theorem csinhc_log_sixth_remainder (z : ℂ) (hz : ‖z‖ ≤ 1/2) :
       _ ≤ ‖w‖^3*(1-‖w‖)⁻¹/(2+1) := by simpa using hlog
       _ ≤ t^6*2/(2+1) := by
         apply div_le_div_of_nonneg_right _ (by norm_num)
-        exact mul_le_mul hpow hinv (by positivity) (pow_nonneg ht 6)
+        exact mul_le_mul hpow hinv (inv_nonneg.mpr (sub_nonneg.mpr hwlt.le)) (pow_nonneg ht 6)
       _ ≤ t^6 := by nlinarith [pow_nonneg ht 6]
   have hjet : a+b-a^2/2 = z^2/6-z^4/180 := by dsimp [a,b]; ring
   rw [← hjet]
