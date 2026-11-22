@@ -44,9 +44,9 @@ The coefficients are defined by finite operations and evaluated exactly. The cla
 ### Library M15Cert
 
 - Separate Lake project in [`LEAN/M15Cert`](LEAN/M15Cert): Lean 4.35.0-rc3; Mathlib tag `v4.35.0-rc3` (commit `c55e6e786f49471c72fbddbec5415808896aec1e`). It depends only on Mathlib and does not import or modify `PrivateApex` or `EulerianCert`.
-- 7 modules, 98 theorems and lemmas, no `sorry`; 58 axiom checks, only standard Lean axioms; all 7 modules pass leanchecker. [Axiom checks](LEAN/M15Cert/axioms_output.txt) · [Independent checker](LEAN/M15Cert/leanchecker_output.txt) · [README and reproduction](LEAN/M15Cert/README.md).
-- Verified again by GitHub Actions: [run 45051534998](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45051534998) of the workflow `m15-m15cert.yml` rebuilt the 7 modules from source, reproduced the 58 axiom lines identically and ran leanchecker on the 7 modules.
-- The sources and logs keep the earlier equation numbers: (262), (267) and (287)–(300) there are (265), (270) and (292)–(305) here.
+- 8 modules, 108 theorems and lemmas, no `sorry`; 68 axiom checks, only standard Lean axioms; all 8 modules pass leanchecker. The module `PeriodTwo` was added in [PR #506](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/506). [Axiom checks](LEAN/M15Cert/axioms_output.txt) · [Independent checker](LEAN/M15Cert/leanchecker_output.txt) · [README and reproduction](LEAN/M15Cert/README.md).
+- Verified again by GitHub Actions: [run 45055913039](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45055913039) of the workflow `m15-m15cert.yml` rebuilt the 8 modules from source, reproduced the 68 axiom lines identically and ran leanchecker on the 8 modules. The earlier [run 45051534998](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45051534998) did the same for the first 7 modules and 58 axiom lines.
+- The sources and logs of the first 7 modules keep the earlier equation numbers: (262), (267) and (287)–(300) there are (265), (270) and (292)–(305) here. The module `PeriodTwo` uses the present numbers.
 
 | Statement | Lean theorems | Module(s) |
 | --- | --- | --- |
@@ -56,6 +56,7 @@ The coefficients are defined by finite operations and evaluated exactly. The cla
 | Theorem 7.19, identification of the triangular density | `volume_overlap`, `law_sum_unif01`, `charFun_unif01`, `charFun_triLaw`, `cardioid_triLaw`, `map_unifC`, `law_one_add_sum_unifC`, `cardioid_probabilistic`, `eulerianB_eq_charFun_unif01` | [TriangularDensity](LEAN/M15Cert/M15Cert/TriangularDensity.lean) |
 | Eq. (265), principal-root formulation | `sqrt_one_sub_four_cMand`, `cardioid_catalan_root`, `norm_one_sub_sqrt_cMand`, `fixed_point_eq_catalan`, `fixed_point_cMand` | [PrincipalRoot](LEAN/M15Cert/M15Cert/PrincipalRoot.lean) |
 | Eq. (270), stability inequality | `charFun_sub_le_coupling`, `stability_coupling`, `cardioid_stability`, `cardioid_stability_real`, `prod_mem_couplings` | [Stability](LEAN/M15Cert/M15Cert/Stability.lean) |
+| Proposition 7.22, Eqs. (276), (277), period-two disc | `exists_period_two_root`, `period_two_swap`, `period_two_distinct`, `period_two_cycle`, `period_two_multiplier`, `period_two_attracting_iff`, `period_two_merge`, `hasDerivAt_exp_mul_I`, `hasDerivAt_cMand`, `cardioid_circle_tangent` | [PeriodTwo](LEAN/M15Cert/M15Cert/PeriodTwo.lean) |
 
 ## Numerical verification
 
@@ -66,7 +67,7 @@ The coefficients are defined by finite operations and evaluated exactly. The cla
 
 ## Limits of this record
 
-Not included in this Lean correspondence: the numerical decimal evaluation of the minimum angle, the additional period-two disc derivation, and the conjecture on optimal remainder constants. A conjecture is not a verified theorem. Independent future work should be added only upon verification of its actual artifacts.
+Not included in this Lean correspondence: the numerical decimal evaluation of the minimum angle and the conjecture on optimal remainder constants. A conjecture is not a verified theorem. Independent future work should be added only upon verification of its actual artifacts.
 
 ## Other repository evidence
 
@@ -83,3 +84,4 @@ The following workflow runs succeeded; each has its own scope. This list is not 
 - [PR #491](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/491) · [successful run 44918198103](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44918198103): inverse recurrence, not closed Lagrange–Bürmann.
 - [PR #497](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/497) · [run 45034350299](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45034350299): failed; not counted as certified.
 - [PR #504](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/504) · [successful run 45051534998](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45051534998): library M15Cert and the 14-constant Arb certificate.
+- [PR #506](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/506) · [successful run 45055913039](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45055913039): module PeriodTwo of M15Cert (period-two disc).
