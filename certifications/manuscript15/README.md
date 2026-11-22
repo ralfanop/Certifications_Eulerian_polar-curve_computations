@@ -1,5 +1,7 @@
 # Manuscript 15 — formal and numerical verification
 
+Certification record: [Manuscript15_Certification.pdf](Manuscript15_Certification.pdf) ([Markdown](Manuscript15_Certification.md), [LaTeX](Manuscript15_Certification.tex)).
+
 Snapshot: 22 November 2026. This record supersedes the manuscript's former Appendix B; the numbering below follows the manuscript revision of that date. It identifies precisely the statements covered, rather than claiming certification of the entire article.
 
 ## Lean 4
@@ -8,7 +10,7 @@ Snapshot: 22 November 2026. This record supersedes the manuscript's former Appen
 - 34 modules: build summary reports exit 0, zero errors, zero sorry; 508 axiom checks, only standard Lean axioms; 27 PrivateApex modules pass leanchecker.
 - [Build summary](LOGS/SUMMARY.txt) · [Axiom checks](LOGS/AXIOMS.txt) · [Independent checker](LOGS/leanchecker.log) · [Source audit](LOGS/SOURCE_AUDIT.txt).
 - [Source and reproducibility script](LEAN/) · [Complete logs](LOGS/) · [SHA-256 checksums](SHA256SUMS.txt).
-- To reproduce, install the pinned toolchain via elan, enter `LEAN`, run `lake exe cache get` and `bash verify_all.sh`. Inspect the build, axiom and checker results. These are the archived results of the original verification, not a new GitHub CI run.
+- To reproduce, install the pinned toolchain via elan, enter `LEAN`, run `lake exe cache get` and `bash verify_all.sh`. Inspect the build, axiom and checker results. These archived results are verified again, independently, by GitHub Actions: [run 45045814495](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45045814495) of the workflow `m15-certification.yml` rebuilt the 34 modules from source. It reproduced the 508 axiom lines identically, repeated the source audit and ran leanchecker on the 27 PrivateApex modules. It also reran both Arb certificates below with identical results.
 
 The coefficients are defined by finite operations and evaluated exactly. The classical even-zeta evaluation is not required by these proofs. The following table reproduces the 132 named theorem correspondences from the former Appendix B.
 
