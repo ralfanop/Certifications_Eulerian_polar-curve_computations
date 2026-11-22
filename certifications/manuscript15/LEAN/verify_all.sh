@@ -11,7 +11,7 @@ for m in $(for x in $EC; do echo EulerianCert.$x; done) $(for x in $PA; do echo 
 done
 A=../LOGS_LOCAL/axioms.lean
 { echo "import PrivateApex.QuantSlopes"; echo "import PrivateApex.DeficitRatioCoefficients"
-  echo "import PrivateApex.CardioidRigidity CardioidModular"; echo "import PrivateApex.ApexDefinitions"
+  echo "import PrivateApex.CardioidRigidity"; echo "import PrivateApex.CardioidModular"; echo "import PrivateApex.ApexDefinitions"
   echo "open PrivateApex PrivateApex.Cardioid"
   for x in $PA; do grep -h "^theorem " PrivateApex/$x.lean | sed -E 's/^theorem ([^ :({]+).*/#print axioms \1/'; done; } > $A
 lake env lean $A > ../LOGS_LOCAL/AXIOMS.txt 2>&1
