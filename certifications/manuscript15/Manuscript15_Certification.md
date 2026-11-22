@@ -59,9 +59,9 @@ Each statement of the article listed below is the conclusion of the named Lean t
 
 ## 4. Lean 4: the library `M15Cert`.
 
-The library `M15Cert`, in the directory [`LEAN/M15Cert`](LEAN/M15Cert), is a separate Lake project: Lean 4 toolchain `v4.35.0-rc3` and Mathlib [2] tag `v4.35.0-rc3` (commit `c55e6e786f49471c72fbddbec5415808896aec1e`), a revision different from that of Section 2. It depends only on Mathlib and neither imports nor modifies `PrivateApex` or `EulerianCert`. Its seven modules contain 98 theorems and lemmas, with no `sorry`, `admit`, `native_decide`, `unsafe` or `axiom` declaration. The command `#print axioms`, run on the 58 theorems listed below, reports `propext`, `Classical.choice` and `Quot.sound` for each of them, and `leanchecker` accepts all seven modules. The archived outputs are [`LEAN/M15Cert/axioms_output.txt`](LEAN/M15Cert/axioms_output.txt) and [`LEAN/M15Cert/leanchecker_output.txt`](LEAN/M15Cert/leanchecker_output.txt).
+The library `M15Cert`, in the directory [`LEAN/M15Cert`](LEAN/M15Cert), is a separate Lake project: Lean 4 toolchain `v4.35.0-rc3` and Mathlib [2] tag `v4.35.0-rc3` (commit `c55e6e786f49471c72fbddbec5415808896aec1e`), a revision different from that of Section 2. It depends only on Mathlib and neither imports nor modifies `PrivateApex` or `EulerianCert`. Its eight modules contain 108 theorems and lemmas, with no `sorry`, `admit`, `native_decide`, `unsafe` or `axiom` declaration. The command `#print axioms`, run on the 68 theorems listed below, reports `propext`, `Classical.choice` and `Quot.sound` for each of them, and `leanchecker` accepts all eight modules. The archived outputs are [`LEAN/M15Cert/axioms_output.txt`](LEAN/M15Cert/axioms_output.txt) and [`LEAN/M15Cert/leanchecker_output.txt`](LEAN/M15Cert/leanchecker_output.txt).
 
-The workflow [`m15-m15cert.yml`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/main/.github/workflows/m15-m15cert.yml), in [run 45051534998](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45051534998) (commit `59c1124`), checks the checksums and rebuilds the seven modules from source. It requires the axiom output to equal `axioms_output.txt` line by line, with only the three standard axioms, and runs `leanchecker` on the seven modules. The source files and the archived outputs keep the equation numbers of the revision before the renumbering: (262), (267) and (287)–(300) there are (265), (270) and (292)–(305) here.
+The workflow [`m15-m15cert.yml`](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/blob/main/.github/workflows/m15-m15cert.yml), in [run 45055913039](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45055913039) (commit `e6196b8`), checks the checksums and rebuilds the eight modules from source. It requires the axiom output to equal `axioms_output.txt` line by line, with only the three standard axioms, and runs `leanchecker` on the eight modules. The module `PeriodTwo` was added in PR #506; the earlier run 45051534998 checked the first seven modules. Their source files and the archived outputs keep the equation numbers of the revision before the renumbering: (262), (267) and (287)–(300) there are (265), (270) and (292)–(305) here. The module `PeriodTwo` uses the present numbers.
 
 Besides the statements of the article, the library proves the following. Inequality (270) holds for all Borel probability measures, with no moment assumption, W₁ being allowed to be infinite. The maximum of Theorem 7.26 is unique on the whole real line, and 1 < u\* < 2. The constant λ_CL is the only positive solution of Laplace's equation, which identifies it with the root enclosed in Arb in Section 5.
 
@@ -73,6 +73,7 @@ Besides the statements of the article, the library proves the following. Inequal
 | Theorem 7.19, identification of the triangular density | `volume_overlap`, `law_sum_unif01`, `charFun_unif01`, `charFun_triLaw`, `cardioid_triLaw`, `map_unifC`, `law_one_add_sum_unifC`, `cardioid_probabilistic`, `eulerianB_eq_charFun_unif01` | [TriangularDensity](LEAN/M15Cert/M15Cert/TriangularDensity.lean) |
 | Eq. (265), principal-root formulation | `sqrt_one_sub_four_cMand`, `cardioid_catalan_root`, `norm_one_sub_sqrt_cMand`, `fixed_point_eq_catalan`, `fixed_point_cMand` | [PrincipalRoot](LEAN/M15Cert/M15Cert/PrincipalRoot.lean) |
 | Eq. (270), stability inequality | `charFun_sub_le_coupling`, `stability_coupling`, `cardioid_stability`, `cardioid_stability_real`, `prod_mem_couplings` | [Stability](LEAN/M15Cert/M15Cert/Stability.lean) |
+| Proposition 7.22, Eqs. (276), (277), period-two disc | `exists_period_two_root`, `period_two_swap`, `period_two_distinct`, `period_two_cycle`, `period_two_multiplier`, `period_two_attracting_iff`, `period_two_merge`, `hasDerivAt_exp_mul_I`, `hasDerivAt_cMand`, `cardioid_circle_tangent` | [PeriodTwo](LEAN/M15Cert/M15Cert/PeriodTwo.lean) |
 
 ## 5. Arb certificates at 3600000 bits.
 
@@ -98,7 +99,6 @@ Four further scripts run in the same workflow:
 This record does not cover:
 
 - the numerical decimal evaluation of the minimum angle, which is certified in Arb only (Section 5);
-- the additional period-two disc derivation;
 - the conjecture on optimal remainder constants.
 
 A conjecture is not a verified theorem.
@@ -118,6 +118,7 @@ The following earlier workflow runs concern parts of manuscript 15. Each has its
 - [PR #491](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/491) · [successful run 44918198103](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44918198103): inverse recurrence, not closed Lagrange–Bürmann.
 - [PR #497](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/497) · [run 45034350299](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45034350299): failed; not counted as certified.
 - [PR #504](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/504) · [successful run 45051534998](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45051534998): the library `M15Cert` and the third Arb certificate (Sections 4 and 5).
+- [PR #506](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/506) · [successful run 45055913039](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/45055913039): the module `PeriodTwo` of `M15Cert` (Section 4).
 
 ## References.
 
