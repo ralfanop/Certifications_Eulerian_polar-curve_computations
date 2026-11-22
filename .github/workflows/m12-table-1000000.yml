@@ -2,13 +2,12 @@ name: M12 Table 1 at 1000000 working bits
 # One stage per run.  The stage (precision, matrix of residual shards,
 # Newton steps, inputs from earlier runs with their SHA-256
 # digests) is read from numerics/arb/m12_table_1000000_stage.json.
+# Stopped on 22 November 2026 after step 2: the author set the target of
+# Table 1 at 68000 digits, which the step-2 roots already give
+# (m12-table-68000.yml, run 45043079648).  Stage step3a (run 44992080246)
+# was cancelled.  The workflow now runs only when started by hand.
 on:
-  pull_request:
-    paths:
-      - 'numerics/arb/m12_table_1000000.py'
-      - 'numerics/arb/m12_table_1000000_fetch.sh'
-      - 'numerics/arb/m12_table_1000000_stage.json'
-      - '.github/workflows/m12-table-1000000.yml'
+  workflow_dispatch:
 permissions:
   contents: read
   actions: read
