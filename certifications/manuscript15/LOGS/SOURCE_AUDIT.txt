@@ -1,0 +1,3 @@
+sorry/admit/axiom/native_decide/unsafe occurrences in the sources (comment lines excluded):
+EulerianCert/Bracket.lean:16:* `c669_lt`, `c671_gt`: by evaluation in the Lean kernel (`decide +kernel`; no `native_decide`,
+(end of list)

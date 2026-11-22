@@ -1,0 +1,23 @@
+⚠ [3257/3257] Built PrivateApex.SincGaussian (3.2s)
+warning: PrivateApex/SincGaussian.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Sinc` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/SincGaussian.lean: imports `Mathlib.Analysis.SpecialFunctions.ExpDeriv` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/SincGaussian.lean: imports `Mathlib.Analysis.Calculus.MeanValue` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/SincGaussian.lean: imports `Mathlib.Tactic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: PrivateApex/SincGaussian.lean:16:87: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: PrivateApex/SincGaussian.lean:33:82: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: PrivateApex/SincGaussian.lean:34:77: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: PrivateApex/SincGaussian.lean:57:2: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+info: PrivateApex/SincGaussian.lean:91:0: 'PrivateApex.sin_sub_mul_cos_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/SincGaussian.lean:92:0: 'PrivateApex.sinc_gaussian_wronskian' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/SincGaussian.lean:93:0: 'PrivateApex.gaussian_sinc_hasDerivAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/SincGaussian.lean:94:0: 'PrivateApex.sinc_le_gaussian' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/SincGaussian.lean:95:0: 'PrivateApex.abs_sinc_le_gaussian' depends on axioms: [propext, Classical.choice, Quot.sound]
+Build completed successfully (3257 jobs).

@@ -1,0 +1,37 @@
+python-flint=0.9.0; FLINT=3.6.0
+Newton candidate precision: 96
+Newton candidate precision: 144
+Newton candidate precision: 216
+Newton candidate precision: 324
+Newton candidate precision: 486
+Newton candidate precision: 729
+Newton candidate precision: 1093
+Newton candidate precision: 1639
+Newton candidate precision: 2458
+Newton candidate precision: 3687
+Newton candidate precision: 5530
+Newton candidate precision: 8295
+Newton candidate precision: 12442
+Newton candidate precision: 18663
+Newton candidate precision: 27994
+Newton candidate precision: 41991
+Newton candidate precision: 62986
+Newton candidate precision: 94479
+Newton candidate precision: 141718
+Newton candidate precision: 212577
+Newton candidate precision: 318865
+Newton candidate precision: 478297
+Newton candidate precision: 717445
+Newton candidate precision: 1076167
+Newton candidate precision: 1614250
+Newton candidate precision: 2421375
+Newton candidate precision: 3600000
+u_star: [1.1996786402577338339163698486411419442614587884186072089154777839181247252238475 +/- 2.01e-80]; rel_accuracy_bits=3599871
+lambda_CL: [0.66274341934918158097474209710925290705623354911502241752039253499097185308651128 +/- 2.76e-81]; rel_accuracy_bits=3599870
+alpha_CL_rad: [1.9710294757246309242298570745146092775449444119348592962556902280656590541041611 +/- 2.86e-80]; rel_accuracy_bits=3599870
+alpha_CL_deg: [112.93167025490469621261195929014436025897847010921393157631573222458150383462540 +/- 2.59e-78]; rel_accuracy_bits=3599870
+Published decimal: 112.93167025490469621261195929014436025897847010921393
+50-place truncation matches: True; rounding matches: True
+f(a)<0 and f(b)>0: PASS; work precision=3600000
+Independent formula overlap: PASS; elapsed=20.348s
+PASS

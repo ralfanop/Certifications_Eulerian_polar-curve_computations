@@ -1,0 +1,169 @@
+name: M15 certification archive (Lean 4 and Arb)
+# Independent re-verification of certifications/manuscript15: the 34 Lean
+# modules are rebuilt from source with the pinned toolchain and Mathlib, the
+# axioms of all 508 theorems are printed again and must equal the archived
+# log, the 27 PrivateApex modules are re-checked by leanchecker, and both
+# 3600000-bit Arb certificates and the exact rational checks are rerun and
+# compared byte for byte with the archived results.
+on:
+  pull_request:
+    paths:
+      - 'certifications/manuscript15/LEAN/**'
+      - 'certifications/manuscript15/ARB/**'
+      - 'certifications/manuscript15/LOGS/**'
+      - 'certifications/manuscript15/*.py'
+      - 'certifications/manuscript15/SHA256SUMS.txt'
+      - '.github/workflows/m15-certification.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    env:
+      EC: Bracket CubeSlabs FourierModes EulerianFourier CentralSlope LocalLimit Combinatorics
+      PA: SincGaussian TailConstants IntegralBound FiniteComparisons ConsecutiveSlopes OddSlopeTail GlobalApex EvenAsymptotics SincExpBounds OddSecondOrder ApexDefinitions ExpansionCalculus LogSincSeries LaplaceAllOrders SlopeAllOrders EvenDirect AngleAllOrders ConsecutiveRatios DeficitRatioCoefficients QuantCalculus QuantSinc QuantLaplace QuantSlopes CardioidIdentities CardioidProbability CardioidRigidity CardioidModular
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Checksums of the archived sources, scripts, certificates and logs
+        working-directory: certifications/manuscript15
+        run: |
+          set -euo pipefail
+          sha256sum -c SHA256SUMS.txt
+          test "$(ls LEAN/EulerianCert/*.lean LEAN/PrivateApex/*.lean | wc -l)" = 34
+      - name: Install elan
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Pinned toolchain and Mathlib cache
+        working-directory: certifications/manuscript15/LEAN
+        run: |
+          set -euo pipefail
+          cat lean-toolchain
+          lean --version
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml lake-manifest.json
+          lake exe cache get
+      - name: Build the 34 modules from source
+        working-directory: certifications/manuscript15/LEAN
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/m15
+          mods="$(for x in $EC; do printf 'EulerianCert.%s ' $x; done)$(for x in $PA; do printf 'PrivateApex.%s ' $x; done)"
+          lake build $mods 2>&1 | tee /tmp/m15/build.log
+          ! grep -n -E "declaration uses 'sorry'|^error" /tmp/m15/build.log
+          echo "BUILD SUCCESS 34 modules"
+      - name: Axioms of every theorem, compared with the archived log
+        working-directory: certifications/manuscript15/LEAN
+        run: |
+          set -euo pipefail
+          A=/tmp/m15/axioms.lean
+          { echo "import PrivateApex.QuantSlopes"; echo "import PrivateApex.DeficitRatioCoefficients"
+            echo "import PrivateApex.CardioidRigidity"; echo "import PrivateApex.CardioidModular"; echo "import PrivateApex.ApexDefinitions"
+            echo "open PrivateApex PrivateApex.Cardioid"
+            for x in $PA; do grep -h "^theorem " PrivateApex/$x.lean | sed -E 's/^theorem ([^ :({]+).*/#print axioms \1/'; done; } > $A
+          lake env lean $A > /tmp/m15/AXIOMS.txt 2>&1
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          new = Path('/tmp/m15/AXIOMS.txt').read_text().splitlines()
+          old = Path('../LOGS/AXIOMS.txt').read_text().splitlines()
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          assert len(new) == 508, len(new)
+          for line in new:
+              m = re.fullmatch(r"'(.+)' depends on axioms: \[([^\]]*)\]", line)
+              if m:
+                  ax = {a.strip() for a in m.group(2).split(',') if a.strip()}
+              else:
+                  assert re.fullmatch(r"'(.+)' does not depend on any axioms", line), line
+                  ax = set()
+              assert ax <= allowed, line
+          assert new == old, 'differs from LOGS/AXIOMS.txt'
+          print('AXIOM AUDIT SUCCESS 508 theorems, standard axioms only, identical to the archived log')
+          PY
+      - name: Source audit, compared with the archived audit
+        working-directory: certifications/manuscript15/LEAN
+        run: |
+          set -euo pipefail
+          { echo "sorry/admit/axiom/native_decide/unsafe occurrences in the sources (comment lines excluded):"; grep -nE "\b(sorry|admit|native_decide|unsafe)\b|^axiom " PrivateApex/*.lean EulerianCert/*.lean | grep -v "^\S*:[0-9]*:\s*--" ; echo "(end of list)"; } > /tmp/m15/SOURCE_AUDIT.txt
+          diff /tmp/m15/SOURCE_AUDIT.txt ../LOGS/SOURCE_AUDIT.txt
+          echo "SOURCE AUDIT SUCCESS (the only listed line is a doc comment stating that no native_decide is used)"
+      - name: leanchecker on the 27 PrivateApex modules
+        working-directory: certifications/manuscript15/LEAN
+        run: |
+          set -euo pipefail
+          : > /tmp/m15/leanchecker.log
+          for m in $PA; do
+            lake env leanchecker PrivateApex.$m >> /tmp/m15/leanchecker.log 2>&1
+            echo "PrivateApex.$m exit=0" | tee -a /tmp/m15/leanchecker.log
+          done
+          echo "LEANCHECKER SUCCESS 27 modules"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-lean-logs
+          path: /tmp/m15
+  arb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Checksums
+        working-directory: certifications/manuscript15
+        run: sha256sum -c SHA256SUMS.txt
+      - name: Exact rational and symbolic checks
+        working-directory: certifications/manuscript15
+        run: |
+          set -euo pipefail
+          python -m pip install python-flint==0.9.0 mpmath==1.3.0 sympy==1.14.0
+          mkdir -p /tmp/m15arb
+          for s in verify_virtual_apex.py verify_all_order_jets.py verify_cusp_sixth_moment.py verify_eulerian_angles_n3_17_and_limit.py; do
+            python "$s" 2>&1 | tee "/tmp/m15arb/$s.log"
+          done
+      - name: Carlini-Laplace certificate at 3600000 bits, rerun and compared
+        working-directory: certifications/manuscript15/ARB
+        run: |
+          set -euo pipefail
+          d=/tmp/m15arb/eq295; mkdir -p $d/archived $d/run
+          unzip -q M15_Eq295_FLINT_Arb_3600000bits.zip -d $d/archived
+          cmp $d/archived/certify_M15_eq295.py Carlini-Laplace/certify_M15_eq295.py
+          cp Carlini-Laplace/certify_M15_eq295.py $d/run/
+          (cd $d/run && python certify_M15_eq295.py --certificate M15_eq295_balls.json | tee run.txt)
+          grep -Fx PASS $d/run/run.txt
+          cmp $d/run/M15_eq295_balls.json $d/archived/M15_eq295_balls.json
+          echo "EQ295 SUCCESS: enclosures identical to the archived certificate"
+          rm -rf $d/archived $d/run/M15_eq295_balls.json
+      - name: Minimum-apex certificate at 3600000 bits, rerun and compared
+        working-directory: certifications/manuscript15/ARB
+        run: |
+          set -euo pipefail
+          d=/tmp/m15arb/apex; mkdir -p $d/archived $d/run
+          unzip -q M15_virtual_apex_3600000bits.zip -d $d/archived
+          cp $d/archived/NUMERICS/certify_virtual_apex.py $d/archived/NUMERICS/verify_saved_decimals.py $d/run/
+          (cd $d/run && python certify_virtual_apex.py | tee run.log && python verify_saved_decimals.py | tee verify.log)
+          for f in radians_1000001_decimals_truncated.txt radians_1000001_decimals_rounded.txt degrees_1000001_decimals_truncated.txt degrees_1000001_decimals_rounded.txt radians_exact_binary_endpoints.json degrees_exact_binary_endpoints.json exact_comparisons.json; do
+            cmp "$d/run/$f" "$d/archived/NUMERICS/$f"
+          done
+          python - "$d" <<'PY'
+          import json, sys
+          d = sys.argv[1]
+          new = json.load(open(f'{d}/run/CERTIFICATE.json'))
+          old = json.load(open(f'{d}/archived/NUMERICS/CERTIFICATE.json'))
+          assert new['values'] == old['values'] and new['source_sha256'] == old['source_sha256']
+          print('APEX SUCCESS: 1000001-place decimals and exact endpoints identical to the archived certificate')
+          PY
+          rm -rf $d/archived $d/run/*_decimals_*.txt $d/run/*_endpoints.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-arb-logs
+          path: /tmp/m15arb

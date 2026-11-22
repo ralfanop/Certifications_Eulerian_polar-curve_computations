@@ -1,0 +1,8 @@
+⚠ [2441/2441] Replayed EulerianCert.Combinatorics
+warning: EulerianCert/Combinatorics.lean: imports `Mathlib.LinearAlgebra.Matrix.SchurComplement` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.SpecialFunctions.Exp` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.SpecialFunctions.Sqrt` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.SpecificLimits.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Topology.Algebra.InfiniteSum.Real` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/Combinatorics.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+Build completed successfully (2441 jobs).

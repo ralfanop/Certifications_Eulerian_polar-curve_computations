@@ -1,0 +1,13 @@
+⚠ [2289/2497] Replayed EulerianCert.Bracket
+warning: EulerianCert/Bracket.lean: imports `Mathlib.Analysis.Real.Pi.Bounds` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/Bracket.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [3257/3257] Built PrivateApex.FiniteComparisons (2.4s)
+warning: PrivateApex/FiniteComparisons.lean: imports `Mathlib.Tactic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+info: PrivateApex/FiniteComparisons.lean:51:0: 'PrivateApex.finite_even_comparisons' depends on axioms: [propext]
+info: PrivateApex/FiniteComparisons.lean:52:0: 'PrivateApex.finite_even_rationals' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/FiniteComparisons.lean:53:0: 'PrivateApex.finite_odd_rationals' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/FiniteComparisons.lean:54:0: 'PrivateApex.peak_exact' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/FiniteComparisons.lean:55:0: 'PrivateApex.peak_above_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/FiniteComparisons.lean:56:0: 'PrivateApex.gaussian_tail_rational_gap' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: PrivateApex/FiniteComparisons.lean:57:0: 'PrivateApex.algebraic_tail_rational_gap' depends on axioms: [propext, Classical.choice, Quot.sound]
+Build completed successfully (3257 jobs).

@@ -1,0 +1,37 @@
+EulerianCert.Bracket                     exit=0  errors=0  sorry=0  lines=221  seconds=104
+EulerianCert.CubeSlabs                   exit=0  errors=0  sorry=0  lines=450  seconds=21
+EulerianCert.FourierModes                exit=0  errors=0  sorry=0  lines=415  seconds=10
+EulerianCert.EulerianFourier             exit=0  errors=0  sorry=0  lines=475  seconds=13
+EulerianCert.CentralSlope                exit=0  errors=0  sorry=0  lines=922  seconds=39
+EulerianCert.LocalLimit                  exit=0  errors=0  sorry=0  lines=533  seconds=1
+EulerianCert.Combinatorics               exit=0  errors=0  sorry=0  lines=124  seconds=2
+PrivateApex.SincGaussian                 exit=0  errors=0  sorry=0  lines=96  seconds=5
+PrivateApex.TailConstants                exit=0  errors=0  sorry=0  lines=46  seconds=5
+PrivateApex.IntegralBound                exit=0  errors=0  sorry=0  lines=156  seconds=4
+PrivateApex.FiniteComparisons            exit=0  errors=0  sorry=0  lines=58  seconds=5
+PrivateApex.ConsecutiveSlopes            exit=0  errors=0  sorry=0  lines=112  seconds=4
+PrivateApex.OddSlopeTail                 exit=0  errors=0  sorry=0  lines=229  seconds=7
+PrivateApex.GlobalApex                   exit=0  errors=0  sorry=0  lines=223  seconds=5
+PrivateApex.EvenAsymptotics              exit=0  errors=0  sorry=0  lines=487  seconds=24
+PrivateApex.SincExpBounds                exit=0  errors=0  sorry=0  lines=257  seconds=14
+PrivateApex.OddSecondOrder               exit=0  errors=0  sorry=0  lines=583  seconds=12
+PrivateApex.ApexDefinitions              exit=0  errors=0  sorry=0  lines=165  seconds=5
+PrivateApex.ExpansionCalculus            exit=0  errors=0  sorry=0  lines=362  seconds=5
+PrivateApex.LogSincSeries                exit=0  errors=0  sorry=0  lines=280  seconds=6
+PrivateApex.LaplaceAllOrders             exit=0  errors=0  sorry=0  lines=812  seconds=8
+PrivateApex.SlopeAllOrders               exit=0  errors=0  sorry=0  lines=525  seconds=12
+PrivateApex.EvenDirect                   exit=0  errors=0  sorry=0  lines=127  seconds=5
+PrivateApex.AngleAllOrders               exit=0  errors=0  sorry=0  lines=482  seconds=14
+PrivateApex.ConsecutiveRatios            exit=0  errors=0  sorry=0  lines=548  seconds=10
+PrivateApex.DeficitRatioCoefficients     exit=0  errors=0  sorry=0  lines=332  seconds=9
+PrivateApex.QuantCalculus                exit=0  errors=0  sorry=0  lines=372  seconds=5
+PrivateApex.QuantSinc                    exit=0  errors=0  sorry=0  lines=271  seconds=6
+PrivateApex.QuantLaplace                 exit=0  errors=0  sorry=0  lines=369  seconds=7
+PrivateApex.QuantSlopes                  exit=0  errors=0  sorry=0  lines=714  seconds=15
+PrivateApex.CardioidIdentities           exit=0  errors=0  sorry=0  lines=381  seconds=6
+PrivateApex.CardioidProbability          exit=0  errors=0  sorry=0  lines=130  seconds=5
+PrivateApex.CardioidRigidity             exit=0  errors=0  sorry=0  lines=217  seconds=8
+PrivateApex.CardioidModular              exit=0  errors=0  sorry=0  lines=422  seconds=6
+BUILD_FINISHED
+axioms_exit=0 theorems=508
+ALL_FINISHED

@@ -1,0 +1,11 @@
+⚠ [2834/2834] Built EulerianCert.FourierModes (8.5s)
+warning: EulerianCert/FourierModes.lean: imports `Mathlib.Analysis.SpecialFunctions.Trigonometric.Sinc` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/FourierModes.lean: imports `Mathlib.Analysis.SpecialFunctions.Integrals.Basic` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/FourierModes.lean: imports `Mathlib.Analysis.PSeries` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: EulerianCert/FourierModes.lean:148:30: Variable name `hn` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hn
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+Build completed successfully (2834 jobs).
