@@ -115,6 +115,39 @@ theorem fixedpoint_power_finite_sum (H ψ : P)
 #print axioms Manuscript15.TerminalLagrangeWeighted.fixedpoint_subst_finite
 #print axioms Manuscript15.TerminalLagrangeWeighted.fixedpoint_power_finite_sum
 
+
+/-- The same weighted convolution indexed directly by a finite range
+j = 0,...,m. This is the form consumed by strong induction on the
+coefficients of H = X * ψ(H). -/
+theorem weighted_range_convolution (ψ : P) (m k : ℕ) (hm : 0 < m) :
+    ((m + k : ℕ) : ℝ) *
+        (∑ j ∈ Finset.range (m + 1),
+          PowerSeries.coeff j (ψ ^ k) *
+            ((j : ℝ) * PowerSeries.coeff (m - j) (ψ ^ m))) =
+      ((k : ℝ) * (m : ℝ)) *
+        PowerSeries.coeff m (ψ ^ (m + k)) := by
+  have hr :
+      (∑ j ∈ Finset.range (m + 1),
+        PowerSeries.coeff j (ψ ^ k) *
+          ((j : ℝ) * PowerSeries.coeff (m - j) (ψ ^ m))) =
+      (∑ p ∈ Nat.antidiagonal (m - 1),
+        (PowerSeries.coeff (p.1 + 1) (ψ ^ k) * ((p.1 + 1 : ℕ) : ℝ)) *
+          PowerSeries.coeff p.2 (ψ ^ m)) := by
+    rw [Finset.sum_range_succ']
+    simp only [Nat.cast_zero, zero_mul, mul_zero, zero_add]
+    rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ]
+    have hm' : (m - 1).succ = m := by omega
+    rw [hm']
+    apply Finset.sum_congr rfl
+    intro j _
+    have hsub : m - (j + 1) = m - 1 - j := by omega
+    rw [hsub]
+    ring
+  rw [hr]
+  exact weighted_finite_convolution ψ m k hm
+
+#print axioms Manuscript15.TerminalLagrangeWeighted.weighted_range_convolution
+
 #print axioms Manuscript15.TerminalLagrangeWeighted.weighted_derivative
 #print axioms Manuscript15.TerminalLagrangeWeighted.weighted_coefficient
 #print axioms Manuscript15.TerminalLagrangeWeighted.weighted_finite_convolution
