@@ -1,0 +1,145 @@
+name: "M11 Dkappa certified-checkpoint reproducibility smoke"
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m11_dk_adaptive_radius.py'
+      - '.github/workflows/m11-dk-checkpoint-restart-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  compare-halves:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 80
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [-1, 1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify source + historical run success
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$HEAD_SHA"
+          test "$(gh api "repos/$REPO/actions/runs/44359739062" --jq .conclusion)" = success
+          test "$(gh api "repos/$REPO/actions/runs/44359739062" --jq .head_sha)" = 6ddb354a85832bf5b35538996d7d619c63ac9a16
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 44359739062
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          name: m11-euler-panel-certified-100k
+          path: historical-length
+      - name: Pin python-flint and historical manifest SHA256
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install 'python-flint==0.9.0'
+          echo 'a606d305f7d4c773695cee61cf56268022ec9cc5525f689f301e8822f22fe7b5  historical-length/m11-euler-panel-100k.json' | sha256sum --check
+      - name: Generate exact-rational checkpoint after eight panels
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -u numerics/arb/m11_dk_adaptive_radius.py \
+            --bits 4096 --target 600 --panels 32 \
+            --direction ${{ matrix.direction }} --stop-after 8 \
+            --certified-length-manifest historical-length/m11-euler-panel-100k.json \
+            --output checkpoint.json 2>&1 | tee checkpoint.log
+          test -s checkpoint.json
+          grep -F 'safely checkpointed 8 of 16 panels' checkpoint.log
+      - name: Restart, validate parameters and continue to 16 panels
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -u numerics/arb/m11_dk_adaptive_radius.py \
+            --bits 4096 --target 600 --panels 32 \
+            --direction ${{ matrix.direction }} --resume checkpoint.json \
+            --certified-length-manifest historical-length/m11-euler-panel-100k.json \
+            --output resumed-half.json 2>&1 | tee resumed.log
+          grep -F 'Resuming certified curvature' resumed.log
+      - name: Independent original one-shot half, for interval comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -u numerics/arb/m11_dk_adaptive_radius.py \
+            --bits 4096 --target 600 --panels 32 \
+            --direction ${{ matrix.direction }} \
+            --certified-length-manifest historical-length/m11-euler-panel-100k.json \
+            --output direct-half.json 2>&1 | tee direct.log
+          python - <<'PY'
+          import json
+          from fractions import Fraction
+          def f(d):
+              return Fraction(int(d['numerator']),int(d['denominator']))
+          a=json.load(open('resumed-half.json'))['half']
+          b=json.load(open('direct-half.json'))['half']
+          assert a['direction']==b['direction']
+          assert a['orders']==b['orders'] and len(a['orders'])==16
+          assert a['historical_euler_source']==b['historical_euler_source']
+          for key in ('integral','Eulerian_half_length','limacon_half_length'):
+              al,ah=(f(a[key][p]) for p in ('lower','upper'))
+              bl,bh=(f(b[key][p]) for p in ('lower','upper'))
+              assert max(al,bl)<=min(ah,bh),key
+          print('RIGOROUS CHECKPOINT RESTART vs ONE-SHOT intervals: overlap PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-checkpoint-smoke-${{ matrix.direction }}
+          path: |
+            checkpoint.json
+            resumed-half.json
+            direct-half.json
+            checkpoint.log
+            resumed.log
+            direct.log
+          if-no-files-found: warn
+  combine:
+    needs: compare-halves
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'python-flint==0.9.0'
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-checkpoint-smoke--1
+          path: left
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-checkpoint-smoke-1
+          path: right
+      - name: Recombine complete two-sided result
+        shell: bash
+        run: |
+          set -euo pipefail
+          python numerics/arb/m11_dk_adaptive_radius.py \
+            --bits 4096 --target 600 --panels 32 \
+            --combine left/resumed-half.json right/resumed-half.json \
+            --output combined.json 2>&1 | tee combined.log
+          grep -F 'D_kappa local radii' combined.log
+          echo 'CHECKPOINT SMOKE ONLY. Does not certify 20,000 decimals.'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-checkpoint-smoke-combined
+          path: |
+            combined.json
+            combined.log
+          if-no-files-found: warn
