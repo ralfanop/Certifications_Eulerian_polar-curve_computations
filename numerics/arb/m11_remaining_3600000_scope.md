@@ -1,86 +1,85 @@
-# Manuscript 11: remaining 200,000-relative-bit Arb obligations (revised 23 November 2026)
+# Manuscript 11 — remaining exact 20,000 fractional-decimal obligations (23 November 2026)
 
-**Source:** author-owned `Manuscript_11_20261123_Eq33_24decimali.zip`;
-source label `eq:Dkappa`, present Eq. (50).
-This record alters **no manuscript text, figures, LaTeX or existing certificate**.
+**Source:** author-owned Manuscript 11, Eq. (50) for the curvature discrepancy.
+**Scope:** only the two remaining quantities; no changes to LaTeX, figures, Lean 4 modules, or certificates for other manuscripts.
 
-## Quantities and exact definitions
+## Definitions
 
-1. Full Eulerian polar-curve length:
-   `L_E = integral[-pi,pi] sqrt(r_E(t)^2 + r_E'(t)^2) dt`,
-   `r_E(t)=sin(t/2)/(t/2)` with the analytic value at zero.
-   The printed `5.5510...` is a **prefix**, not a
-   correctly rounded four-decimal value (`5.5511`).
-2. Curvature discrepancy `D_kappa`, the square root of the
-   normalized-arclength integral on the two independently
-   parametrized smooth arcs (Eq. (50) in this frozen source).
-   The printed `0.203783759536049443826081` has 24 fractional digits.
-   It excludes the corner atom and is **not** the curvature
-   distance of periodically closed curves.
+1. Full Eulerian arclength L_E = integral[-pi,pi] sqrt(r_E(t)^2 + r_E'(t)^2) dt,
+   r_E(t) = sin(t/2)/(t/2), with the analytic value at zero. The printed
+   5.5510... is only a prefix (rounding to four places would give 5.5511).
+2. D_kappa = sqrt(I_left + I_right), the two independently validated integrals
+   for the normalized-arclength curvature discrepancy in Eq. (50).
+   Printed 24 fractional digits: 0.203783759536049443826081.
+   This excludes the corner atom, not the periodically closed-curve distance.
 
-## Verified prior CIs — NOT the final bit target
+## Verified historical full numerical CIs
 
-| Job | Exact source | Result |
-| --- | --- | --- |
-| [44359739062](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44359739062) | 32 individually rigorous Eulerian panels, recombined from exact dyadic endpoints | **100031** actual relative bits, SUCCESS |
-| [44341455510](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44341455510) | Two-sided, local-radius normalized-arclength curvature, exact dyadic endpoint recombination | **25503** actual relative bits, SUCCESS |
-| [44518274867](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44518274867) | 200000-bit single blocked Eulerian panel, scaling benchmark | 12 GB / >30 min on a **single** panel, SUCCESS; not a full length certificate |
+- [Length, run 44359739062](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44359739062):
+  32 rigorous Cauchy Taylor panels and exact dyadic recombination,
+  **100,031 actual relative bits**; successful for the original source SHA.
+- [Curvature, run 44341455510](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/actions/runs/44341455510):
+  two independently bounded half-integrals, **25,503 actual relative bits**.
+- Run 44518274867 was a **single** 200k-bit blocked panel using approximately
+  12 GB and over 30 minutes; not a complete-length certificate.
 
-The existing `m11_euler_cauchy.analytic_disk` rigorously excludes
-zeros of the complex speed square in the radius-five disk and supplies
-the analytic Cauchy remainder; `m11_euler_panel.py` uses outward
-Arb coefficients, per-panel Cauchy tails, and exact dyadic recombination.
-The curvature code `m11_dk_adaptive_radius.py` uses independently
-certified inverse radii, positive interval inequalities, and two-sided
-phase continuation. Rely on their *actual* execution, not a floating
-point approximation or overlap alone.
+## Current acceptance standard — exactly 20,000 fractional places
 
-## Revised final acceptance standard — author instruction 23 November 2026
+For EACH complete numerical quantity, return an Arb interval with rigorously
+outward rational endpoints, sufficient working precision (typically >=80,000
+bits), and enough actual relative accuracy to support 20,000 digits after
+the decimal point (the auditor has an additional >=66,439-relative-bit gate).
 
-**Superseding requirement for these two quantities only:** independently certify
-**at least 200000 actual relative bits** for each COMPLETE enclosure of
-the full Eulerian length and the full two-sided curvature discrepancy.
-Use pinned python-flint and an explicitly recorded Arb working precision
-sufficient to achieve that target; check each combined enclosure with
-`rel_accuracy_bits() >= 200000`, failing closed otherwise. This replaces
-the former 3600000 working / 3400000 relative / 1000001 significant-digit
-standard **for these two quantities only**, not for other manuscripts.
+**Decisive requirement:** every exact endpoint must lie STRICTLY inside
+the SAME exact nearest-even rounding cell of width 10^(-20000). A statement
+about relative bits alone is not enough. Verify the printed curvature
+24-decimal cell independently. Save the resulting 20,000-place strings and
+their SHA-256 digests as auditable CI artifacts.
 
-Each manifest must retain complete-panel or both-half provenance, exact
-outward rational endpoints, pinned source and HEAD SHA, independent
-rigorous tail bounds, hashes and reproducible CI logs. Check the exact
-rational endpoint containment against the printed D_kappa 24-decimal
-rounding cell and the published L_E prefix. A partial panel, a single
-curvature half, or a historical 100031/25503-bit certificate must fail.
+The auditor `m11_remaining_3600000_final_audit.py` now:
+- recomposes all 32+ independently generated length panel rational intervals,
+  requiring every panel exactly once, with consistent numerical parameters;
+- recomposes both curvature half-integrals EXACTLY, checking that the reported
+  D_kappa interval encloses the square root of their interval sum;
+- verifies exact decimal rounding cells and an independent Arb accuracy gate,
+  rejects incomplete or mismatched data, and emits the full decimals plus hashes;
+- requires a source HEAD SHA tag on both complete manifests. Tags alone are
+  **not** proof of origin: CI must pin the checkout and independently verify
+  the source of the numerical manifests.
 
-**Migration gate:** the existing
-`m11_remaining_3600000_final_audit.py` currently hard-codes the
-**superseded** 3600000/3400000/1000001 standard via
-`million_decimal_common`. It is not a valid auditor for the revised
-200000-relative-bit acceptance criterion until separately updated and
-tested fail-closed against complete new manifests. Do not label its
-syntax-only CI as final certification. The old filenames are retained
-temporarily for traceability; they do not define the new acceptance
-threshold.
+The earlier length 100,031-bit result is *potentially* sufficient for the
+20,000-place cell test, but it is **not yet accepted** as a new-HEAD certificate:
+its historical source SHA and original panel artifacts require trustworthy
+retrieval and provenance checks. A manifest must not be relabeled as the
+current HEAD without recomputation or verified provenance.
 
-## Scaling work started in this PR
+## Computational strategy, informed by seven supplied papers
 
-The independent `m11-remaining-3600000-scaling.yml` first raises
-the full Eulerian length to **150000 relative bits** (32 panels),
-and full two-sided curvature to **30000 relative bits**.
-It is a strictly lower-precision **scaling gate**, with separate CI
-artifact names and no false `MILLION SUCCESS` text.
-If resource limits prevent completion, inspect real logs and revise
-the algorithm/chunking rather than weakening any mathematical assertion.
+- **Length:** avoid repeating 150k full-panel pilots merely to prove an easier
+  20k-place claim. Test the existing historical complete rational intervals
+  and their 32 source panels; if not accessible/verifiable, produce fresh
+  Cauchy/Petras certificates at a sufficient but bounded precision.
+- **Curvature:** use independently certified local inverse-ODE radii and
+  Taylor continuation. Investigate adaptive Taylor order and step selection
+  (Arioli 2026; Jorba–Zou 2005), rigorous remainder majorants (Mezzarobba 2019),
+  and memory-bounded evaluation (Mezzarobba, Space Complexity).
+  Petras/Gauss–Legendre is viable for the final integration ONLY after a
+  rigorous complex-analytic extension of the inverse ODE is established
+  (Johansson 2018; Johansson–Mezzarobba 2018).
+- Formal verification of Taylor-model specifications may use Park–Thies
+  (2024) as an architectural reference, not an existing Lean 4 proof.
 
-The revised 200k-relative-bit production jobs must be enabled only after
-resource-scalable batching/checkpointing is demonstrated.
-**Pending as of revision**: neither final 200000-relative-bit complete enclosure exists.
+The old file names containing `3600000` remain solely for historical
+traceability; they do not define the current target.
 
-No new Lean 4 theorem is required merely to print a longer numerical
-approximation, assuming the exact identities and curvature analytic
-bounds themselves are unchanged. This note does not equate numerical
-Arb certification with complete Lean formalization of the integration
-and nonvanishing arguments.
+## Open proof/computation obligations
 
-**No merge.**
+1. Revalidate the historical complete-length certificate against exactly
+   20,000 decimal cells, with honest HEAD/source provenance and full panel data.
+2. Raise the full two-sided curvature enclosure from 25,503 to a level
+   sufficient for 20,000 exact decimal cells (with guard bits).
+3. Run the complete auditor on pinned source inputs, publish the two entire
+   certified strings and all rational interval/provenance artifacts.
+
+**Status:** no final 20,000-place completion claim yet. CI syntax or synthetic
+unit-test success is not numerical certification. **No merge.**
