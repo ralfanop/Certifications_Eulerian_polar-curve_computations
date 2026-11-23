@@ -25,6 +25,7 @@ set_option maxRecDepth 65536 in
 set_option maxHeartbeats 0 in
 /-- All 498 exact comparisons; the Lean kernel checks the decidable proof. -/
 theorem all_odd_steps : ∀ j : Fin 498, oddStep j.val := by
+  unfold oddStep centralGap
   decide +kernel
 
 /-- Algebraic equivalence of the exact integer inequality and the strict
