@@ -1,0 +1,48 @@
+name: "M11 Eq. (33) — 24-place corner angle Arb 3600000"
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m11_eq33_24dp_arb3600000.py'
+      - 'numerics/arb/million_decimal_common.py'
+      - '.github/workflows/m11-eq33-angle-24dp-arb3600000.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certify:
+    name: Strict M11 Eq33 24dp and million-digit rounding cell
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact commit and pinned FLINT/Arb
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install 'python-flint==0.9.0'
+          python -m py_compile numerics/arb/m11_eq33_24dp_arb3600000.py numerics/arb/million_decimal_common.py
+      - name: Rigorously certify all 24 decimals at 3600000 bits
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python numerics/arb/m11_eq33_24dp_arb3600000.py 2>&1 | tee m11-eq33-24dp-arb3600000.log
+          grep -F "SUCCESS M11 EQ33 24DP ARB3600000" m11-eq33-24dp-arb3600000.log
+          grep -F "1000001-decimal rounding cell: PASS" m11-eq33-24dp-arb3600000.log
+          test -s million-m11eq33.json
+          gzip -t million-enclosures.jsonl.gz
+      - name: Archive exact interval and 1000001 significant digits
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m11-eq33-24dp-arb3600000-certificate
+          path: |
+            m11-eq33-24dp-arb3600000.log
+            million-m11eq33.json
+            million-enclosures.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn
