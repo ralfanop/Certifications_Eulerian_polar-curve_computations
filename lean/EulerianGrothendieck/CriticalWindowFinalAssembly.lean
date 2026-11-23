@@ -101,6 +101,94 @@ theorem normalized_originalFockNorm (M : ℕ) (e lam : ℝ)
         originalKernel M ((1/12+lam*e^2)*(M:ℝ)) (a*w) (b*u)) := by ring
     _ = _ := by rw [hcoef]
 
+
+/-- Numerical identity that converts the sine-profile scaling into the
+standardized uniform MGF scaling, without approximate constants. -/
+theorem root_ratio :
+    Real.sqrt 6 / (2 * Real.sqrt 3) = 1 / Real.sqrt 2 := by
+  have h2 : (Real.sqrt (2:ℝ))^2 = 2 := Real.sq_sqrt (by norm_num)
+  have h3 : (Real.sqrt (3:ℝ))^2 = 3 := Real.sq_sqrt (by norm_num)
+  have h6 : (Real.sqrt (6:ℝ))^2 = 6 := Real.sq_sqrt (by norm_num)
+  have hsquares : (Real.sqrt 6 * Real.sqrt 2)^2 =
+      (2*Real.sqrt 3)^2 := by
+    calc
+      _ = (Real.sqrt 6)^2*(Real.sqrt 2)^2 := by ring
+      _ = (6:ℝ)*2 := by rw [h6, h2]
+      _ = (2*Real.sqrt 3)^2 := by rw [mul_pow, h3]; norm_num
+  have hroots : Real.sqrt 6 * Real.sqrt 2 = 2*Real.sqrt 3 :=
+    (sq_eq_sq₀ (by positivity) (by positivity)).mp hsquares
+  have hn2 : Real.sqrt (2:ℝ) ≠ 0 := by positivity
+  have hn3 : Real.sqrt (3:ℝ) ≠ 0 := by positivity
+  field_simp [hn2, hn3]
+  exact hroots
+
+/-- Actual complex profile at the anisotropically rescaled Fock point is
+exactly the genuine complex MGF m(q), with q=(e*u-i*e²*w)/sqrt(2). -/
+theorem actual_profile_scaled (e u w : ℝ) :
+    M12FockDomination.fockProfile
+        (((Real.sqrt 6 * e^2 * w : ℝ) : ℂ) +
+         ((Real.sqrt 6 * e * u : ℝ) : ℂ)*Complex.I) =
+    M12ComplexMGF.mgf
+        (((u*e/Real.sqrt 2 : ℝ) : ℂ) +
+         ((-w*e^2/Real.sqrt 2 : ℝ) : ℂ)*Complex.I) := by
+  have hs3 : ((Real.sqrt (3:ℝ) : ℂ)) ≠ 0 := by
+    exact_mod_cast (show Real.sqrt (3:ℝ) ≠ 0 by positivity)
+  have hsratio : (Real.sqrt (6:ℝ) : ℂ) /
+      (2*(Real.sqrt (3:ℝ) : ℂ)) = 1/(Real.sqrt (2:ℝ) : ℂ) := by
+    exact_mod_cast root_ratio
+  rw [M12FockDomination.fockProfile_eq_mgf]
+  congr 1
+  calc
+    -(((((Real.sqrt 6 * e^2 * w : ℝ) : ℂ) +
+       ((Real.sqrt 6 * e * u : ℝ) : ℂ)*Complex.I)/2)*Complex.I)/
+       (Real.sqrt 3 : ℂ) =
+       ((Real.sqrt 6 : ℂ)/(2*(Real.sqrt 3 : ℂ))) * ((e*u : ℝ) : ℂ) -
+       ((Real.sqrt 6 : ℂ)/(2*(Real.sqrt 3 : ℂ))) *
+         ((e^2*w : ℝ) : ℂ)*Complex.I := by
+      push_cast
+      field_simp [hs3]
+      simp only [Complex.I_mul_I, Complex.I_sq]
+      ring
+    _ = ((u*e/Real.sqrt 2 : ℝ) : ℂ) +
+          ((-w*e^2/Real.sqrt 2 : ℝ) : ℂ)*Complex.I := by
+      rw [hsratio]
+      push_cast
+      ring
+
+/-- The transformed *original* sine Fock kernel agrees pointwise with the
+already certified actual-MGF scaled integrand; no surrogate profile. -/
+theorem actual_originalKernel_scaled (M : ℕ) (e lam u w : ℝ) :
+    originalKernel M ((1/12+lam*e^2)*(M:ℝ))
+      ((Real.sqrt 6*e^2)*w) ((Real.sqrt 6*e)*u) =
+      M12FockDomination.scaledIntegrand M e lam u w := by
+  have hs : (Real.sqrt (6:ℝ))^2 = 6 := Real.sq_sqrt (by norm_num)
+  have hgauss :
+      -((1/12+lam*e^2)*(M:ℝ)) *
+        ((((Real.sqrt 6*e^2)*w)^2)+(((Real.sqrt 6*e)*u)^2)) =
+      -6*(1/12+lam*e^2)*(M:ℝ)*(u^2*e^2+w^2*e^4) := by
+    calc
+      _ = -((1/12+lam*e^2)*(M:ℝ)) *
+          ((Real.sqrt 6)^2*(e^4*w^2+e^2*u^2)) := by ring
+      _ = _ := by rw [hs]; ring
+  unfold originalKernel M12FockDomination.scaledIntegrand
+  rw [actual_profile_scaled, hgauss]
+
+/-- The exact, *genuine* Fock-normalization equation in the same scaled
+integrand to which #507's global envelope applies. -/
+theorem normalized_Fock_eq_actual_scaled_integrand
+    (M : ℕ) (e lam : ℝ)
+    (he : 0 < e) (hM : (M:ℝ)*e^4=1) :
+    e * originalFockNorm M ((1/12+lam*e^2)*(M:ℝ)) =
+      (6*(1/12+lam*e^2)/Real.pi) *
+        (∫ w : ℝ, ∫ u : ℝ, M12FockDomination.scaledIntegrand M e lam u w) := by
+  rw [normalized_originalFockNorm M e lam he hM]
+  congr 1
+  apply integral_congr_ae
+  filter_upwards [] with w
+  apply integral_congr_ae
+  filter_upwards [] with u
+  exact actual_originalKernel_scaled M e lam u w
+
 end M12CriticalAssembly
 
 #print axioms M12CriticalAssembly.line_dilation
@@ -108,3 +196,8 @@ end M12CriticalAssembly
 #print axioms M12CriticalAssembly.originalFockNorm_plane_dilation
 #print axioms M12CriticalAssembly.critical_jacobian
 #print axioms M12CriticalAssembly.normalized_originalFockNorm
+
+#print axioms M12CriticalAssembly.root_ratio
+#print axioms M12CriticalAssembly.actual_profile_scaled
+#print axioms M12CriticalAssembly.actual_originalKernel_scaled
+#print axioms M12CriticalAssembly.normalized_Fock_eq_actual_scaled_integrand
