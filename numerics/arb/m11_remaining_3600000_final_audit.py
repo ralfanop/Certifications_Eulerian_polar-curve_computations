@@ -32,11 +32,29 @@ def exact_ball(interval, name):
     assert ball.rel_accuracy_bits() >= MIN, (name, ball.rel_accuracy_bits())
     return ball
 
-def assert_rounded(printed, value):
+def rational_endpoints(interval):
+    """Read the *original* exact endpoints, without Arb conversion."""
+    def fraction(obj):
+        den = int(obj["denominator"])
+        assert den > 0, "nonpositive endpoint denominator"
+        return Fraction(int(obj["numerator"]), den)
+    lo, hi = fraction(interval["lower"]), fraction(interval["upper"])
+    assert lo <= hi, "reversed exact endpoints"
+    return lo, hi
+
+
+def assert_rounded_exact(printed, interval):
+    """Prove containment using exact rational comparisons, not rounded Arb."""
     digits = len(printed.split(".")[1])
     p = Fraction(printed)
     half = Fraction(1, 2*10**digits)
-    assert exact(p - half) < value < exact(p + half), printed
+    lo, hi = rational_endpoints(interval)
+    assert p - half < lo <= hi < p + half, printed
+
+
+def assert_prefix_exact(interval):
+    lo, hi = rational_endpoints(interval)
+    assert Fraction("5.5510") < lo <= hi < Fraction("5.5511")
 
 def main():
     ap = argparse.ArgumentParser()
@@ -72,8 +90,8 @@ def main():
 
     # The length is printed as a PREFIX "5.5510...", not a four-place
     # rounded value. It is deliberately NOT checked as 5.5510 +/- 0.00005.
-    assert arb("5.5510") < arclength < arb("5.5511")
-    assert_rounded("0.203783759536049443826081", discrepancy)
+    assert_prefix_exact(length["enclosure"])
+    assert_rounded_exact("0.203783759536049443826081", curvature["discrepancy"])
 
     print("INPUT exact-head provenance: require CI artifacts from same pinned SHA.", flush=True)
     print("length manifest sha256", sha256(length_bytes).hexdigest(), flush=True)
