@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'lean/EulerianGrothendieck/UniformLanczos/Rate514ConcreteResidual.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Rate514ConcreteBridge.lean'
       - '.github/workflows/m12-rate514-residual-concrete.yml'
   workflow_dispatch:
 permissions:
