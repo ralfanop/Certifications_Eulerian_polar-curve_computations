@@ -49,31 +49,26 @@ theorem quartic_scale_halfline :
   field_simp [ne_of_gt hd] at hG ⊢
   nlinarith only [hG]
 
+/-- Gaussian domination: (x² - 1)² ≥ 0 gives x⁴ ≥ 2x² - 1, hence
+exp(-x⁴/40) ≤ exp(1/40)·exp(-x²/20) on the whole line. -/
 theorem quarticProfile_integrable : Integrable quarticProfile := by
-  have hp : IntegrableOn quarticProfile (Ioi 0) := by
-    have h := integrableOn_rpow_mul_exp_neg_mul_rpow
-      (p := 4) (s := 0) (b := 1/40) (by norm_num) (by norm_num) (by norm_num)
-    refine h.congr_fun (fun x _ => ?_) measurableSet_Ioi
-    change (x ^ 0 * Real.exp (-(1 / 40) * x ^ 4)) = quarticProfile x
-    simp only [pow_zero, one_mul, quarticProfile]
-    congr 1
-    ring
-  rw [← integrableOn_univ, ← @Iio_union_Ici _ _ (0:ℝ), integrableOn_union,
-    integrableOn_Ici_iff_integrableOn_Ioi]
-  refine ⟨?_, hp⟩
-  rw [← (Measure.measurePreserving_neg (volume : Measure ℝ)).integrableOn_comp_preimage
-    (Homeomorph.neg ℝ).measurableEmbedding]
-  simpa only [Function.comp_def, quarticProfile, neg_pow, neg_preimage, neg_Iio] using hp
+  have hg : Integrable (fun x : ℝ => Real.exp (1/40) * Real.exp (-(1/20) * x^2)) :=
+    (integrable_exp_neg_mul_sq (by norm_num : (0:ℝ) < 1/20)).const_mul _
+  refine hg.mono' (by unfold quarticProfile; fun_prop) (Filter.Eventually.of_forall fun x => ?_)
+  unfold quarticProfile
+  rw [Real.norm_eq_abs, abs_of_pos (Real.exp_pos _), ← Real.exp_add]
+  apply Real.exp_le_exp.mpr
+  nlinarith [sq_nonneg (x^2 - 1)]
 
+/-- The profile is even, so the full-line integral is twice the half-line one
+(`integral_comp_abs`, which needs no integrability hypothesis). -/
 theorem quartic_integral :
     (∫ x : ℝ, quarticProfile x) = (40:ℝ)^(1/4:ℝ) * Real.Gamma (1/4) / 2 := by
-  have hneg := (Measure.measurePreserving_neg (volume : Measure ℝ)).setIntegral_preimage_emb
-    (Homeomorph.neg ℝ).measurableEmbedding quarticProfile (Ioi (0:ℝ))
-  have hsym : (∫ x in Iio (0:ℝ), quarticProfile x) =
-      ∫ x in Ioi (0:ℝ), quarticProfile x := by
-    simpa [quarticProfile, neg_preimage, neg_Ioi, neg_pow] using hneg
-  rw [← integral_add_compl measurableSet_Ioi quarticProfile_integrable,
-    compl_Ioi, integral_Iic_eq_integral_Iio, hsym, quartic_scale_halfline]
+  have heven : (fun x : ℝ => quarticProfile x) = fun x => quarticProfile |x| := by
+    funext x
+    unfold quarticProfile
+    rw [show |x|^4 = x^4 by rw [show (4:ℕ) = 2*2 by norm_num, pow_mul, pow_mul, sq_abs]]
+  rw [heven, integral_comp_abs, quartic_scale_halfline]
   ring
 
 theorem critical_constant :
