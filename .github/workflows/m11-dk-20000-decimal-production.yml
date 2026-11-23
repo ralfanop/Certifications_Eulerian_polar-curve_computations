@@ -1,5 +1,10 @@
 name: "M11 Dkappa 20,000 decimals — rigorous production (cached historical length)"
 on:
+  push:
+    branches:
+      - 'draft/m11-dk-20000-decimal-production-20261123'
+    paths:
+      - '.github/workflows/m11-dk-20000-decimal-production.yml'
   pull_request:
     paths:
       - '.github/workflows/m11-dk-20000-decimal-production.yml'
