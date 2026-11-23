@@ -1,9 +1,10 @@
-name: "M11 remaining targets — full 150k length + 30k curvature scaling"
+name: "M11: opt-in expensive 150k/30k pilots + exact 20k audit tests"
 on:
   pull_request:
     paths:
       - 'numerics/arb/m11_remaining_3600000_final_audit.py'
       - 'numerics/arb/m11_remaining_3600000_scope.md'
+      - 'numerics/arb/test_m11_20000_audit.py'
       - '.github/workflows/m11-remaining-3600000-scaling.yml'
   workflow_dispatch:
 permissions:
@@ -11,6 +12,7 @@ permissions:
 jobs:
   length-panels:
     name: "Complete Eulerian length 150k: panel ${{ matrix.index }}"
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'm11-heavy-pilot')
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     strategy:
@@ -85,6 +87,7 @@ jobs:
             length.log
   curvature-halves:
     name: "Full curvature 30k: half ${{ matrix.direction }}"
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'm11-heavy-pilot')
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     strategy:
@@ -168,7 +171,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m py_compile numerics/arb/m11_remaining_3600000_final_audit.py
+      - name: Validate auditor syntax
+        run: python -m py_compile numerics/arb/m11_remaining_3600000_final_audit.py
+      - name: Six synthetic non-certifying exact-rational unit tests
+        run: python -m unittest discover -s numerics/arb -p 'test_m11_20000_audit.py' -v
       - run: |
           test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
           echo "SYNTAX ONLY: 20k-decimal auditor is NOT executed without both complete input manifests"
