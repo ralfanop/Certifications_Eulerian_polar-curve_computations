@@ -1,0 +1,63 @@
+name: M12 Lemma 5.13 actual Jacobi bond gap
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513BondGap.lean'
+      - '.github/workflows/m12-lemma513-bond-gap.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  actual-bond-gap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore exact Lean toolchain
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Build M12 theorem 5.9 and compile new original bridge
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.24.0'
+          test ! -z "$(git rev-parse HEAD)"
+          ! grep -n -E '^\s*(axiom|opaque)\b|\b(sorry|admit|native_decide)\b' UniformLanczos/Lemma513BondGap.lean
+          lake exe cache get
+          lake build UniformLanczos.Lemma513 | tee /tmp/m12-bond-build.log
+          lake env lean UniformLanczos/Lemma513BondGap.lean 2>&1 | tee /tmp/m12-bond-gap.log
+      - name: Strict transitive-axiom audit
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('/tmp/m12-bond-gap.log').read_text()
+          assert not re.search(r'(^|\n).*: error:',s)
+          assert 'sorryAx' not in s and 'Lean.ofReduceBool' not in s
+          allowed={'propext','Classical.choice','Quot.sound'}
+          for name in ['squared_gap_to_bond','actual_uniform_bond_gap']:
+              f='UniformLanczos.Lemma513BondGap.'+name
+              m=re.search(r"'"+re.escape(f)+r"' depends on axioms: \[([^\]]*)\]",s)
+              if m: axioms={x.strip() for x in m.group(1).split(',') if x.strip()}
+              else:
+                  assert "'"+f+"' does not depend on any axioms" in s, f
+                  axioms=set()
+              assert axioms<=allowed,(f,axioms)
+              print('AUDIT PASS',f,sorted(axioms))
+          print('M12 LEMMA513 ACTUAL BOND GAP SUCCESS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-lemma513-actual-bond-gap
+          path: |
+            /tmp/m12-bond-build.log
+            /tmp/m12-bond-gap.log
