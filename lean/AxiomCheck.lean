@@ -232,3 +232,7 @@ open EulerianCert
 #print axioms EulerianCert.M11FinalCoverage.S_min_eq_only_endpoints
 #print axioms EulerianCert.M11FinalCoverage.S_zero_constant
 #print axioms EulerianCert.M11FinalCoverage.c3_eq_c5
+
+-- M11 Remark 3.16: every successive odd index 5,7,...,1001
+#print axioms EulerianCert.M11OddFinite.all_odd_steps
+#print axioms EulerianCert.M11OddFinite.odd_inverse_slopes_strictly_increasing
