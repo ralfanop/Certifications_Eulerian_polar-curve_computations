@@ -59,7 +59,7 @@ theorem actualDifference_center {M j L : ℕ} (hj : 0 < j) :
     simp only [Finset.mem_Icc]
     omega
   have hjpos : (0 : ℤ) < (j : ℤ) := by exact_mod_cast hj
-  simp [actualDifference, hybridBond, actualBond, profileBond, hjmem, hjpos]
+  simp [actualDifference, hybridBond, actualBond, profileBond, hjmem, hjpos, hj]
 
 /-- Exact uniform constant obtained from the already kernel-verified
 weighted strong monotonicity/energy inequality. -/
@@ -161,7 +161,7 @@ theorem compact_uniform_rate_from_operator_certificates {t₁ t₂ : ℝ}
       Real.sqrt (betaM M j) / (M : ℝ) ≤ 1 / 2)
     (hcert : ∀ M j : ℕ, M₀ ≤ M →
       (j : ℝ) / (M : ℝ) ∈ Set.Icc t₁ t₂ →
-      ∃ L : ℕ, LocalOperatorCertificate M j L ε Ch c μ₀ CB) :
+      Σ L : ℕ, LocalOperatorCertificate M j L ε Ch c μ₀ CB) :
     ∃ C : ℝ, 0 < C ∧
       ∀ M : ℕ, M₀ ≤ M → ∀ j : ℕ,
         (j : ℝ) / (M : ℝ) ∈ Set.Icc t₁ t₂ →
