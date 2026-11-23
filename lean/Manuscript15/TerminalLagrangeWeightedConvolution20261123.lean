@@ -294,7 +294,8 @@ theorem closed_general_coeff (H ψ G : P)
   intro k hk
   by_cases hkzero : k = 0
   · subst k
-    simp
+    have hnzero : n ≠ 0 := by omega
+    simp [hnzero]
   · have hkpos : 0 < k := Nat.pos_of_ne_zero hkzero
     have hkle : k ≤ n := by
       have hlt := Finset.mem_range.mp hk
