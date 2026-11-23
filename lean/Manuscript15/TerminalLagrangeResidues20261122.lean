@@ -11,7 +11,7 @@ open HahnSeries
 abbrev L := LaurentSeries ℝ
 abbrev P := PowerSeries ℝ
 
-noncomputable def D : L →ₗ[ℝ] L := LaurentSeries.derivative ℝ
+noncomputable def D (f : L) : L := LaurentSeries.derivative ℝ f
 def residue (f : L) : ℝ := f.coeff (-1)
 
 /-- Laurent derivative, including the negative powers. -/
@@ -117,20 +117,22 @@ theorem residue_integration_by_parts (f g : L) :
   rw [← residue_add, ← derivative_mul, residue_derivative]
 
 /-- The Laurent derivative is a derivation over the real scalars. -/
-noncomputable def formalDerivation : Derivation ℝ L L := by
-  letI : Module ℝ L := Algebra.toModule
-  let d' : L →ₗ[ℝ] L :=
-    { toFun := fun f => D f
+noncomputable def formalDerivation : Derivation ℝ L L :=
+  Derivation.mk'
+    { toFun := D
       map_add' := by
         intro f g
-        exact D.map_add f g
+        ext j
+        simp only [derivative_coeff, HahnSeries.coeff_add', Pi.add_apply]
+        ring
       map_smul' := by
         intro r f
-        simpa only [smul_eq_mul] using D.map_smul r f }
-  exact Derivation.mk' d' (by
-    intro f g
-    change D (f * g) = f • D g + g • D f
-    simpa only [smul_eq_mul, mul_comm, add_comm] using derivative_mul f g)
+        have h := (LaurentSeries.derivative ℝ : L →ₗ[ℝ] L).map_smul r f
+        simpa only [D, smul_eq_mul] using h }
+    (by
+      intro f g
+      change D (f * g) = f • D g + g • D f
+      simpa only [smul_eq_mul, mul_comm, add_comm] using derivative_mul f g)
 
 /-- Integer-power rule, valid also for negative exponents. -/
 theorem derivative_zpow (f : L) (k : ℤ) :
@@ -155,8 +157,9 @@ theorem residue_lagrange_by_parts (g f : L) (n : ℕ) :
   rw [hmul] at h
   have hneg : residue (-(n • (g * (f ^ (-(n : ℤ) - 1) * D f)))) =
       -(n : ℝ) * residue (g * (f ^ (-(n : ℤ) - 1) * D f)) := by
-    simp [residue, HahnSeries.coeff_neg, HahnSeries.coeff_nsmul, Pi.smul_apply,
-      nsmul_eq_mul]
+    simp only [residue, HahnSeries.coeff_neg, HahnSeries.coeff_nsmul,
+      Pi.smul_apply]
+    simp only [nsmul_eq_mul]
   rw [hneg] at h
   linarith
 
