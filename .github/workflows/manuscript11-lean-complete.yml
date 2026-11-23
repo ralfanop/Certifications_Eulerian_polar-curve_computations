@@ -1,0 +1,80 @@
+name: Manuscript 11 — complete Lean 4 theorem suite and axiom audit
+
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianCert/**'
+      - 'lean/EulerianCert.lean'
+      - 'lean/AxiomCheck.lean'
+      - 'lean/Figure5ApexAxioms.lean'
+      - '.github/workflows/manuscript11-lean-complete.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'lean/EulerianCert/**'
+      - 'lean/EulerianCert.lean'
+      - 'lean/AxiomCheck.lean'
+      - 'lean/Figure5ApexAxioms.lean'
+      - '.github/workflows/manuscript11-lean-complete.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: manuscript11-lean-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  theorem-suite:
+    name: Full M11 Lean library, Figure 5, extended energy and standard-axiom audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lean" --version
+      - name: Resolve locked Mathlib revision and obtain build cache
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check every imported M11 theorem module
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build EulerianCert 2>&1 | tee /tmp/m11-build.log
+      - name: Check all principal theorem axioms, including Figure 5
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean AxiomCheck.lean 2>&1 | tee /tmp/m11-axioms-core.log
+          lake env lean Figure5ApexAxioms.lean 2>&1 | tee /tmp/m11-axioms-figure5.log
+          if grep -nE 'sorryAx|Lean\.ofReduceBool' /tmp/m11-build.log /tmp/m11-axioms-core.log /tmp/m11-axioms-figure5.log; then
+            echo '::error::M11 contains an inadmissible proof axiom'
+            exit 1
+          fi
+          grep -q 'axioms' /tmp/m11-axioms-core.log
+          grep -q 'axioms' /tmp/m11-axioms-figure5.log
+      - name: Preserve reproducible proof and axiom logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript11-lean-complete-logs
+          path: |
+            /tmp/m11-build.log
+            /tmp/m11-axioms-core.log
+            /tmp/m11-axioms-figure5.log
+          if-no-files-found: ignore
