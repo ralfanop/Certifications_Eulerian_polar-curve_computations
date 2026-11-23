@@ -97,7 +97,8 @@ theorem actual_hybrid_residual_bound
           residual F M (hybridBond M j L) k =
         (A - B) + G := by
     have hb := hybrid_on_window M j L k hk
-    simp only [A, B, G, residual, hb]
+    simp only [A, B, G, Rate514ConcreteResidual.residual]
+    rw [hb]
     ring
   have htri : |A - B| ≤ |A| + |B| := by
     simpa only [sub_eq_add_neg, abs_neg] using abs_add_le A (-B)
@@ -113,7 +114,11 @@ theorem actual_hybrid_residual_bound
       |residual F M (actualBond M) k -
         residual F M (hybridBond M j L) k| ≤
         (Ca + Cb) / (M : ℝ) + Cf * Z2 * T := by
-    linarith
+    calc
+      _ ≤ |A| + |B| + |G| := hAbs
+      _ ≤ Ca / (M : ℝ) + Cb / (M : ℝ) + Cf * Z2 * T := by
+        linarith [hAB, hBB, hHybrid]
+      _ = (Ca + Cb) / (M : ℝ) + Cf * Z2 * T := by rw [add_div]
   have hCross1 : 0 ≤ (Ca + Cb) * T :=
     mul_nonneg (add_nonneg hCa hCb) hT
   have hCross2 : 0 ≤ Cf * Z2 / (M : ℝ) :=
@@ -123,7 +128,12 @@ theorem actual_hybrid_residual_bound
         residual F M (hybridBond M j L) k|
       ≤ (Ca + Cb) / (M : ℝ) + Cf * Z2 * T := hSimple
     _ ≤ (Ca + Cb + Cf * Z2) * (1 / (M : ℝ) + T) := by
-      nlinarith [hCross1, hCross2]
+      calc
+        (Ca + Cb) / (M : ℝ) + Cf * Z2 * T
+          ≤ (Ca + Cb) / (M : ℝ) + Cf * Z2 * T +
+              ((Ca + Cb) * T + Cf * Z2 / (M : ℝ)) := by
+            linarith [hCross1, hCross2]
+        _ = (Ca + Cb + Cf * Z2) * (1 / (M : ℝ) + T) := by ring
     _ = (Ca + Cb + Cf * Z2) *
         (1 / (M : ℝ) +
           ((1 + Rate514.Dist L j k) ^ 3)⁻¹) := rfl
