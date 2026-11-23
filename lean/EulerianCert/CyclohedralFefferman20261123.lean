@@ -8,6 +8,7 @@ Exact rational metric factors and dimension-two conformal density cancellation.
 No geometric immersion, Laplace--Beltrami operator or pullback metric is
 constructed in this file.
 -/
+noncomputable section
 namespace EulerianCert.CyclohedralFefferman20261123
 
 def tNu (nu : ℝ) : ℝ := nu / (2 - nu ^ 2)
@@ -45,7 +46,8 @@ theorem fefferman_hemisphere_coefficient (nu : ℝ)
   have hq : quartic nu ≠ 0 := (quartic_positive nu).ne'
   have hpos : 1 + (nu / (2 - nu ^ 2)) ^ 2 ≠ 0 := by positivity
   unfold feffermanAffineFactor tNu affineRoundFactor
-  field_simp [hchart, hq, hpos, quartic]
+  field_simp [hchart, hq, hpos]
+  unfold quartic
   ring
 
 /-- In dimension two, inverse-metric and area factors cancel pointwise. -/
@@ -60,7 +62,6 @@ theorem conformal_laplacian_multiplier (t delta : ℝ) :
   unfold feffermanAffineFactor
   have ht : 1 + t ^ 2 ≠ 0 := by positivity
   field_simp [ht]
-  ring
 
 #print axioms EulerianCert.CyclohedralFefferman20261123.quartic_square_identity
 #print axioms EulerianCert.CyclohedralFefferman20261123.quartic_positive
