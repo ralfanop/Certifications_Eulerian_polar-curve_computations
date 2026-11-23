@@ -1,0 +1,180 @@
+name: "M11: opt-in expensive 150k/30k pilots + exact 20k audit tests"
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m11_remaining_3600000_final_audit.py'
+      - 'numerics/arb/m11_remaining_3600000_scope.md'
+      - 'numerics/arb/test_m11_20000_audit.py'
+      - '.github/workflows/m11-remaining-3600000-scaling.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  length-panels:
+    name: "Complete Eulerian length 150k: panel ${{ matrix.index }}"
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'm11-heavy-pilot')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        index: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact-head pinned FLINT
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install 'python-flint==0.9.0'
+      - name: Rigorous individual Cauchy Taylor panel, 150k relative bits
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python -u numerics/arb/m11_euler_panel.py \
+            --bits 170000 --target 150000 --panels 32 --index ${{ matrix.index }} \
+            --output panel.json 2>&1 | tee panel.log
+          test -s panel.json
+          grep -F "relative bits" panel.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-length-150k-panel-${{ matrix.index }}
+          path: |
+            panel.json
+            panel.log
+          if-no-files-found: warn
+  length-combine:
+    name: "Full Eulerian length 150k: exact endpoint recombination"
+    needs: length-panels
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact-head pinned FLINT
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install 'python-flint==0.9.0'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: m11-length-150k-panel-*
+          path: panels
+      - name: Exact recombination of all 32 Cauchy enclosures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -u numerics/arb/m11_euler_panel.py \
+            --bits 170000 --target 150000 --panels 32 \
+            --combine panels/*/panel.json --output m11-length-150k.json 2>&1 | tee length.log
+          test -s m11-length-150k.json
+          echo "SUCCESS: 150k FULL LENGTH SCALING PILOT; NOT a 3.6M-bit certificate"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-length-150k-complete
+          path: |
+            m11-length-150k.json
+            length.log
+  curvature-halves:
+    name: "Full curvature 30k: half ${{ matrix.direction }}"
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'm11-heavy-pilot')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1,-1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact-head pinned FLINT
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install 'python-flint==0.9.0'
+      - name: Rigorous curvature normalised-arc half integral
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py \
+            --bits 48000 --target 30000 --panels 32 --direction ${{ matrix.direction }} \
+            --output half.json 2>&1 | tee half.log
+          test -s half.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-curvature-30k-half-${{ matrix.direction }}
+          path: |
+            half.json
+            half.log
+          if-no-files-found: warn
+  curvature-combine:
+    name: "Full Dkappa 30k: exact endpoint recombination"
+    needs: curvature-halves
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact-head pinned FLINT
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install 'python-flint==0.9.0'
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-curvature-30k-half-1
+          path: left
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-curvature-30k-half--1
+          path: right
+      - name: Exact recombination and 30k target
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -u numerics/arb/m11_dk_adaptive_radius.py \
+            --bits 48000 --target 30000 --panels 32 \
+            --combine left/half.json right/half.json \
+            --output m11-curvature-30k.json 2>&1 | tee curvature.log
+          test -s m11-curvature-30k.json
+          echo "SUCCESS: 30k FULL CURVATURE SCALING PILOT; NOT a 3.6M-bit certificate"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-curvature-30k-complete
+          path: |
+            m11-curvature-30k.json
+            curvature.log
+  final-auditor-static:
+    name: "Fail-closed exact 20k-decimal auditor syntax"
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate auditor syntax
+        run: python -m py_compile numerics/arb/m11_remaining_3600000_final_audit.py
+      - name: Six synthetic non-certifying exact-rational unit tests
+        run: python -m unittest discover -s numerics/arb -p 'test_m11_20000_audit.py' -v
+      - run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "SYNTAX ONLY: 20k-decimal auditor is NOT executed without both complete input manifests"
