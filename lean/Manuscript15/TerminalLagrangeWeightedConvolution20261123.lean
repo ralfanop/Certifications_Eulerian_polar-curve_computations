@@ -148,6 +148,89 @@ theorem weighted_range_convolution (ψ : P) (m k : ℕ) (hm : 0 < m) :
 
 #print axioms Manuscript15.TerminalLagrangeWeighted.weighted_range_convolution
 
+
+/-- The *all-order closed monomial Lagrange--Bürmann identity*, proved
+by strong induction on n from finite coefficient substitution, the
+fixed-point recurrence and the weighted Cauchy identity. No residue
+substitution or analytic convergence is assumed. -/
+theorem closed_monomial_coeff (H ψ : P)
+    (hH : H = PowerSeries.X * PowerSeries.subst H ψ)
+    (n k : ℕ) (hk : 0 < k) (hkn : k ≤ n) :
+    (n : ℝ) * PowerSeries.coeff n (H ^ k) =
+      (k : ℝ) * PowerSeries.coeff (n - k) (ψ ^ n) := by
+  have hstrong : ∀ n : ℕ, ∀ k : ℕ, 0 < k → k ≤ n →
+      (n : ℝ) * PowerSeries.coeff n (H ^ k) =
+        (k : ℝ) * PowerSeries.coeff (n - k) (ψ ^ n) := by
+    intro n
+    induction n using Nat.strong_induction_on with
+    | h n ih =>
+      intro k hk hkn
+      by_cases heq : k = n
+      · subst n
+        rw [Manuscript15.TerminalLagrangeFinite.fixedpoint_diagonal H ψ hH k]
+        simp
+      · have hklt : k < n := by omega
+        let m : ℕ := n - k
+        have hm : 0 < m := by dsimp [m]; omega
+        have hm_lt : m < n := by dsimp [m]; omega
+        have hnmk : m + k = n := by dsimp [m]; omega
+        have hsub : n - k = m := by rfl
+        have hcoeff :=
+          Manuscript15.TerminalLagrangeWeighted.fixedpoint_power_finite_sum
+            H ψ hH m k
+        have hrec :
+            (m : ℝ) * PowerSeries.coeff (m + k) (H ^ k) =
+              ∑ j ∈ Finset.range (m + 1),
+                PowerSeries.coeff j (ψ ^ k) *
+                  ((j : ℝ) * PowerSeries.coeff (m - j) (ψ ^ m)) := by
+          rw [hcoeff, Finset.mul_sum]
+          apply Finset.sum_congr rfl
+          intro j hj
+          by_cases hjzero : j = 0
+          · subst j
+            have hmne : m ≠ 0 := by omega
+            simp [hmne]
+          · have hjle : j ≤ m := by
+              have hlt := Finset.mem_range.mp hj
+              omega
+            have hjpos : 0 < j := Nat.pos_of_ne_zero hjzero
+            have hih := ih m hm_lt j hjpos hjle
+            calc
+              (m : ℝ) *
+                  (PowerSeries.coeff j (ψ ^ k) * PowerSeries.coeff m (H ^ j)) =
+                    PowerSeries.coeff j (ψ ^ k) *
+                      ((m : ℝ) * PowerSeries.coeff m (H ^ j)) := by ring
+              _ = PowerSeries.coeff j (ψ ^ k) *
+                    ((j : ℝ) * PowerSeries.coeff (m - j) (ψ ^ m)) := by rw [hih]
+        have hmain :
+            ((m + k : ℕ) : ℝ) *
+                ((m : ℝ) * PowerSeries.coeff (m + k) (H ^ k)) =
+              ((k : ℝ) * (m : ℝ)) *
+                PowerSeries.coeff m (ψ ^ (m + k)) := by
+          rw [hrec]
+          exact weighted_range_convolution ψ m k hm
+        have hmne : (m : ℝ) ≠ 0 := by exact_mod_cast (Nat.ne_of_gt hm)
+        have hcancel :
+            ((m + k : ℕ) : ℝ) * PowerSeries.coeff (m + k) (H ^ k) =
+              (k : ℝ) * PowerSeries.coeff m (ψ ^ (m + k)) := by
+          have h2 :
+              (m : ℝ) *
+                  (((m + k : ℕ) : ℝ) * PowerSeries.coeff (m + k) (H ^ k)) =
+                (m : ℝ) *
+                  ((k : ℝ) * PowerSeries.coeff m (ψ ^ (m + k))) := by
+            calc
+              _ = ((m + k : ℕ) : ℝ) *
+                    ((m : ℝ) * PowerSeries.coeff (m + k) (H ^ k)) := by ring
+              _ = ((k : ℝ) * (m : ℝ)) *
+                    PowerSeries.coeff m (ψ ^ (m + k)) := hmain
+              _ = (m : ℝ) *
+                    ((k : ℝ) * PowerSeries.coeff m (ψ ^ (m + k))) := by ring
+          exact mul_left_cancel₀ hmne h2
+        simpa only [hnmk, hsub] using hcancel
+  exact hstrong n k hk hkn
+
+#print axioms Manuscript15.TerminalLagrangeWeighted.closed_monomial_coeff
+
 #print axioms Manuscript15.TerminalLagrangeWeighted.weighted_derivative
 #print axioms Manuscript15.TerminalLagrangeWeighted.weighted_coefficient
 #print axioms Manuscript15.TerminalLagrangeWeighted.weighted_finite_convolution
