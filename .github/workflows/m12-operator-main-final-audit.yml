@@ -1,0 +1,83 @@
+name: M12 operator chain final audit on exact main commit
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Rate514*.lean'
+      - 'lean/EulerianGrothendieck/AuditM12OperatorMain.lean'
+      - '.github/workflows/m12-operator-main-final-audit.yml'
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/AuditM12OperatorMain.lean'
+      - '.github/workflows/m12-operator-main-final-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  exact-main:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Exact immutable commit checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pin audited HEAD and verify manifest
+        run: |
+          set -euo pipefail
+          EXPECTED="${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(git rev-parse HEAD)" = "$EXPECTED"
+          echo "AUDITED_HEAD=$EXPECTED" | tee /tmp/m12-operator-main-sha.txt
+          test -f lean/EulerianGrothendieck/AuditM12OperatorMain.lean
+          git status --porcelain
+      - name: Install pinned Lean toolchain
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Rebuild all operator chain dependencies and audit on HEAD
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.24.0'
+          lake exe cache get
+          lake build UniformLanczos.Rate514Assembly UniformLanczos.Rate514ActualOperatorCertificate UniformLanczos.Rate514Residual UniformLanczos.Lemma512Propagation UniformLanczos.Lemma512Kernel UniformLanczos.Rate514Constant 2>&1 | tee /tmp/m12-operator-main-build.log
+          lake env lean AuditM12OperatorMain.lean 2>&1 | tee /tmp/m12-operator-main-audit.log
+      - name: Complete checked-declaration axiom audit and source statement record
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          src=Path('lean/EulerianGrothendieck/AuditM12OperatorMain.lean').read_text()
+          log=Path('/tmp/m12-operator-main-audit.log').read_text()
+          names=re.findall(r'^#print axioms\s+(\S+)\s*$',src,flags=re.MULTILINE)
+          assert len(names)>=20 and len(names)==len(set(names)),names
+          assert not re.search(r'(^|\n).*: error:',log), 'Lean elaboration errors'
+          assert 'sorryAx' not in log and 'Lean.ofReduceBool' not in log, 'Unexpected proof axioms'
+          allowed={'propext','Classical.choice','Quot.sound'}
+          for n in names:
+              pat=r"'"+re.escape(n)+r"' depends on axioms: \[([^\]]*)\]"
+              m=re.search(pat,log,re.DOTALL)
+              if m:
+                  axioms={a.strip() for a in m.group(1).split(',') if a.strip()}
+              else:
+                  assert "'"+n+"' does not depend on any axioms" in log,n
+                  axioms=set()
+              assert axioms<=allowed,(n,sorted(axioms))
+              print('EXACT_MAIN_AXIOM_PASS',n,sorted(axioms))
+          print('M12 EXACT MAIN AUDIT PASS',len(names),'Lean declarations')
+          PY
+          sha256sum lean/EulerianGrothendieck/AuditM12OperatorMain.lean >> /tmp/m12-operator-main-sha.txt
+          cat /tmp/m12-operator-main-sha.txt
+      - name: Preserve reproducible audit evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-operator-main-exact-sha-audit
+          path: |
+            /tmp/m12-operator-main-sha.txt
+            /tmp/m12-operator-main-build.log
+            /tmp/m12-operator-main-audit.log
