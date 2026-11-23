@@ -65,7 +65,10 @@ theorem actual_entry_difference_of_frechet_derivative
   have hInt :
       IntervalIntegrable (fun τ : ℝ => ∑ m ∈ W, K τ k m * d m)
         volume (0 : ℝ) 1 := by
-    exact IntervalIntegrable.sum W (fun m _ => hTerm m)
+    apply Continuous.intervalIntegrable
+    apply continuous_finset_sum W
+    intro m hm
+    exact (hCont k m).mul continuous_const
   have hFTC :
       (∫ τ in (0 : ℝ)..1, ∑ m ∈ W, K τ k m * d m) =
         F (actualBond M) k - F (hybridBond M j L) k := by
