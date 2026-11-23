@@ -16,6 +16,7 @@ coefficients. The geometric differential of the rotating-coordinate
 diffeomorphism, Levi–Civita naturality, Hodge star and unbounded operator
 domains are separate proof obligations. Earlier M16 modules are unchanged.
 -/
+noncomputable section
 namespace Manuscript16.CostaNatarioHopf20261123
 
 /-- `Q_b = 1-b²` from the rotating observer metric. -/
