@@ -1,0 +1,60 @@
+name: M12 Lemma 5.13 actual first tail
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513ActualTail.lean'
+      - '.github/workflows/m12-lemma513-actual-first-tail.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-first-tail:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Compile actual tail and its complete original dependencies
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.24.0'
+          for f in UniformLanczos/Lemma513BondGap.lean UniformLanczos/Lemma513BondWindow.lean UniformLanczos/Lemma513ActualTail.lean; do
+            ! grep -n -E '^\s*(axiom|opaque)\b|\b(sorry|admit|native_decide)\b' "$f"
+          done
+          lake exe cache get
+          lake build UniformLanczos.Lemma513BondWindow UniformLanczos.Lemma513Tails 2>&1 | tee /tmp/m12-actual-first-tail-build.log
+          lake env lean UniformLanczos/Lemma513ActualTail.lean 2>&1 | tee /tmp/m12-actual-first-tail.log
+      - name: Audit public theorem axioms and types
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/m12-actual-first-tail.log').read_text()
+          assert not re.search(r'(^|\n).*: error:',s)
+          assert 'sorryAx' not in s and 'Lean.ofReduceBool' not in s
+          name='UniformLanczos.Lemma513ActualTail.first_tail_actual_jacobi'
+          m=re.search(r"'"+re.escape(name)+r"' depends on axioms: \[([^\]]*)\]",s)
+          if m: axioms={x.strip() for x in m.group(1).split(',') if x.strip()}
+          else:
+              assert "'"+name+"' does not depend on any axioms" in s
+              axioms=set()
+          assert axioms <= {'propext','Classical.choice','Quot.sound'},axioms
+          print('M12 LEMMA513 ACTUAL FIRST TAIL SUCCESS',name,sorted(axioms))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-lemma513-actual-first-tail
+          path: |
+            /tmp/m12-actual-first-tail-build.log
+            /tmp/m12-actual-first-tail.log
