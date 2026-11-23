@@ -61,7 +61,10 @@ theorem averageKernel_quadratic_integral (K : ℝ → ℤ → ℤ → ℝ)
   have hinner (k : ℤ) :
       IntervalIntegrable (fun τ : ℝ => ∑ m ∈ W, K τ k m * x k * x m)
         volume (0 : ℝ) 1 := by
-    exact IntervalIntegrable.sum W (fun m _ => hterm k m)
+    apply Continuous.intervalIntegrable
+    apply continuous_finset_sum W
+    intro m hm
+    exact ((hCont k m).mul continuous_const).mul continuous_const
   rw [intervalIntegral.integral_finset_sum (fun k _ => hinner k)]
   apply Finset.sum_congr rfl
   intro k hk
