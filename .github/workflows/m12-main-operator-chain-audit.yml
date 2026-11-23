@@ -1,0 +1,120 @@
+name: M12 main operator-chain exact-SHA proof and coverage audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Rate514*.lean'
+      - '.github/workflows/m12-main-operator-chain-audit.yml'
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Rate514MainChainAudit.lean'
+      - '.github/workflows/m12-main-operator-chain-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-operator-chain:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Assert audit uses the exact source HEAD
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "AUDITED_SHA=$(git rev-parse HEAD)" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "AUDITED_REF=$(git symbolic-ref --short HEAD 2>/dev/null || echo detached)" >> "$GITHUB_STEP_SUMMARY"
+      - name: Install repository pinned Lean toolchain
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Recompile every M12 5.14 operator-chain module
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.24.0'
+          for f in Rate514AveragedKernel Rate514FrechetPath Rate514HybridResidual Rate514ActualOperatorCertificate Rate514HighamSpectral Rate514MainChainAudit; do
+            test -s "UniformLanczos/$f.lean"
+            ! grep -n -E '^\s*(axiom|opaque)\b|\b(sorry|admit|native_decide)\b' "UniformLanczos/$f.lean"
+          done
+          lake exe cache get
+          lake build \
+            UniformLanczos.Rate514AveragedKernel \
+            UniformLanczos.Rate514FrechetPath \
+            UniformLanczos.Rate514HybridResidual \
+            UniformLanczos.Rate514ActualOperatorCertificate \
+            UniformLanczos.Rate514HighamSpectral \
+            2>&1 | tee /tmp/m12-main-chain-build.log
+          lake env lean UniformLanczos/Rate514MainChainAudit.lean \
+            2>&1 | tee /tmp/m12-main-chain-axioms.log
+      - name: Semantic coverage boundaries and strict axiom whitelist
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          path=Path('lean/EulerianGrothendieck/UniformLanczos')
+          s=(path/'Rate514ActualOperatorCertificate.lean').read_text()
+          higham=(path/'Rate514HighamSpectral.lean').read_text()
+          av=(path/'Rate514AveragedKernel.lean').read_text()
+          audit=Path('/tmp/m12-main-chain-axioms.log').read_text()
+          build=Path('/tmp/m12-main-chain-build.log').read_text()
+          assert re.search(r'Build completed successfully',build), 'Lean dependency build incomplete'
+          assert not re.search(r'(^|\n).*: error:',audit)
+          assert 'sorryAx' not in audit and 'Lean.ofReduceBool' not in audit
+          required={
+            'UniformLanczos.Rate514AveragedKernel': [
+              'averageKernel_symmetric','averageKernel_quadratic_integral',
+              'averageKernel_psd','averageKernel_decay','averageKernel_matrix_certificate'],
+            'UniformLanczos.Rate514FrechetPath':[
+              'jacobiPath_zero','jacobiPath_one','actual_entry_difference_of_frechet_derivative'],
+            'UniformLanczos.Rate514HybridResidual':[
+              'hybrid_on_window','actual_hybrid_residual_bound'],
+            'UniformLanczos.Rate514HighamSpectral':[
+              'dividedDifference_nonneg','spectralBondKernel_symmetric','spectralBondKernel_psd'],
+            'UniformLanczos.Rate514ActualOperatorCertificate':[
+              'constructActualCertificate','actual_rate_of_published_calculus',
+              'compact_uniform_rate_of_published_calculus']
+          }
+          for namespace,names in required.items():
+            for name in names:
+              full=namespace+'.'+name
+              m=re.search(r"'"+re.escape(full)+r"' depends on axioms: \[([^\]]*)\]",audit)
+              if m: used={x.strip() for x in m.group(1).split(',') if x.strip()}
+              else:
+                assert "'"+full+"' does not depend on any axioms" in audit,full
+                used=set()
+              assert used <= {'propext','Classical.choice','Quot.sound'},(full,used)
+              print('LEAN VERIFIED:',full,sorted(used))
+          # A green Lean build is NOT an automatic proof of existence of the
+          # original published-operator input. Report the concrete premises.
+          start=s.index('structure PublishedJacobiInput')
+          end=s.index('/-- The **actual** averaged matrix',start)
+          block=s[start:end]
+          pending=['K_continuous','K_symmetric','K_positive','K_decay','derivative',
+            'actual_bonds','profile_bonds','actual_strict','profile_strict','index_lower',
+            'width_two','width_linear','residual_actual','residual_profile',
+            'locality','locality_summable']
+          for field in pending:
+            assert re.search(r'^\s*'+field+r'\s*:',block,re.M),field
+          assert 'theorem spectralBondKernel_psd' in higham
+          assert 'theorem averageKernel_psd' in av
+          print('CERTIFICATE DEPENDENCIES STILL EXPLICIT:', ', '.join(pending))
+          print('FINAL STATUS: MODULES COMPILE AND AXIOMS AUDITED; ORIGINAL INSTANTANEOUS OPERATOR INSTANTIATION NOT YET CLOSED')
+          PY
+          echo "**Operator-chain Lean proof check:** PASS (all 16 named declarations)." >> "$GITHUB_STEP_SUMMARY"
+          echo "**Full M12 theorem coverage:** NOT YET ATTESTED — PublishedJacobiInput is still a premise rather than a constructed real Jacobi instance." >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-main-chain-exact-sha-audit
+          path: |
+            /tmp/m12-main-chain-build.log
+            /tmp/m12-main-chain-axioms.log
