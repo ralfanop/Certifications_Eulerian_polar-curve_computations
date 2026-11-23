@@ -55,7 +55,7 @@ theorem weighted_coefficient (ψ : P) (m k : ℕ) (hm : 0 < m) :
   have hm' : m - 1 + 1 = m := by omega
   rw [hm'] at h
   push_cast at h
-  simpa only [Nat.cast_add, mul_comm, mul_left_comm, mul_assoc] using h
+  convert h using 1 <;> ring
 
 /-- The weighted finite Cauchy convolution, indexed by the antidiagonal.
 This is the key identity required to prove that Lagrange--Bürmann's
@@ -67,7 +67,8 @@ theorem weighted_finite_convolution (ψ : P) (m k : ℕ) (hm : 0 < m) :
             PowerSeries.coeff p.2 (ψ ^ m)) =
       ((k : ℝ) * (m : ℝ)) *
         PowerSeries.coeff m (ψ ^ (m + k)) := by
-  simpa only [PowerSeries.coeff_mul, PowerSeries.coeff_derivative]
+  simpa only [PowerSeries.coeff_mul, PowerSeries.coeff_derivative,
+    Nat.cast_add, Nat.cast_one, mul_assoc]
     using weighted_coefficient ψ m k hm
 
 
