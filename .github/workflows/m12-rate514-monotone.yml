@@ -1,15 +1,17 @@
-name: M12 Theorem 5.14 chain (monotonicity, Lemma 5.13 tails)
+name: M12 Theorem 5.14 chain (monotonicity, Lemma 5.13)
 on:
   pull_request:
     paths:
       - 'lean/EulerianGrothendieck/UniformLanczos/Rate514Monotone.lean'
       - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513Tails.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513Legendre.lean'
       - '.github/workflows/m12-rate514-monotone.yml'
   push:
     branches: [main]
     paths:
       - 'lean/EulerianGrothendieck/UniformLanczos/Rate514Monotone.lean'
       - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513Tails.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513Legendre.lean'
   workflow_dispatch:
 
 jobs:
@@ -30,7 +32,7 @@ jobs:
         working-directory: lean/EulerianGrothendieck
         run: |
           set -euo pipefail
-          for f in UniformLanczos/Rate514Monotone.lean UniformLanczos/Lemma513Tails.lean; do
+          for f in UniformLanczos/Rate514Monotone.lean UniformLanczos/Lemma513Tails.lean UniformLanczos/Lemma513Legendre.lean; do
             ! grep -n -E '^\s*(axiom|opaque)\b' "$f"
             ! grep -n -w -E 'sorry|admit|native_decide' "$f"
           done
@@ -42,6 +44,7 @@ jobs:
           lake exe cache get
           lake env lean UniformLanczos/Rate514Monotone.lean 2>&1 | tee /tmp/m12-rate514-monotone.log
           lake env lean UniformLanczos/Lemma513Tails.lean 2>&1 | tee -a /tmp/m12-rate514-monotone.log
+          lake env lean UniformLanczos/Lemma513Legendre.lean 2>&1 | tee -a /tmp/m12-rate514-monotone.log
           git rev-parse HEAD
       - name: Strict individual axiom audit
         run: |
@@ -60,7 +63,8 @@ jobs:
               'residual_weighted_sum_rate')] + ['UniformLanczos.Lemma513Tails.' + n for n in (
               'jpow_eq_zero_above', 'jpow_eq_zero_below', 'expand_step', 'expand_pow',
               'integral_sq_expansion', 'integrable_sq_expansion', 'jpow_norm_sq', 'tail_bound',
-              'geometric_le_exp')]
+              'geometric_le_exp')] + ['UniformLanczos.Lemma513Legendre.' + n for n in (
+              'legendre_tail', 'second_tail_half', 'second_tail_exp')]
           for name in names:
               match = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", text)
               if match:
