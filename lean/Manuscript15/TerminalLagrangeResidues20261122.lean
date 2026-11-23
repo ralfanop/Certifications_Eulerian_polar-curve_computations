@@ -100,10 +100,15 @@ theorem derivative_mul (f g : L) : D (f * g) = D f * g + f * D g := by
         HahnSeries.single (m+n) 1 * ((p*q : P) : L) := by
     rw [PowerSeries.coe_mul, ← hm]
     ring
+  have hDpq : D ((p : L) * (q : L)) =
+      (p : L) * (((PowerSeries.derivative (R := ℝ) q : P) : L)) +
+        (q : L) * (((PowerSeries.derivative (R := ℝ) p : P) : L)) := by
+    rw [← PowerSeries.coe_mul, derivative_coe,
+      (PowerSeries.derivative (R := ℝ)).leibniz]
+    simp only [PowerSeries.coe_add, PowerSeries.coe_mul, smul_eq_mul]
   simp only [hp, derivative_single_mul, derivative_coe,
-    (PowerSeries.derivative (R := ℝ)).leibniz, smul_eq_mul,
     PowerSeries.coe_add, PowerSeries.coe_mul]
-  rw [monomial_derivative_split, ← hm]
+  rw [hDpq, monomial_derivative_split, ← hm]
   ring
 
 /-- Residue integration by parts, for arbitrary Laurent series. -/
@@ -112,15 +117,19 @@ theorem residue_integration_by_parts (f g : L) :
   rw [← residue_add, ← derivative_mul, residue_derivative]
 
 /-- The Laurent derivative is a derivation over the real scalars. -/
-noncomputable def formalDerivation : Derivation ℝ L L where
-  toLinearMap := D
-  map_one_eq_zero' := by
-    have h := derivative_mul (1 : L) 1
-    simp only [one_mul, mul_one] at h
-    exact (add_left_cancel (show D 1 + 0 = D 1 + D 1 by simpa only [add_zero] using h)).symm
-  leibniz' f g := by
-    rw [derivative_mul]
-    simp [smul_eq_mul, mul_comm, add_comm]
+noncomputable def formalDerivation : Derivation ℝ L L :=
+  Derivation.mk'
+    { toFun := fun f => D f
+      map_add' := by
+        intro f g
+        exact D.map_add f g
+      map_smul' := by
+        intro r f
+        simpa only [smul_eq_mul] using D.map_smul r f }
+    (by
+      intro f g
+      change D (f * g) = f • D g + g • D f
+      simpa only [smul_eq_mul, mul_comm, add_comm] using derivative_mul f g)
 
 /-- Integer-power rule, valid also for negative exponents. -/
 theorem derivative_zpow (f : L) (k : ℤ) :
@@ -141,6 +150,7 @@ theorem residue_lagrange_by_parts (g f : L) (n : ℕ) :
     push_cast
     rw [nsmul_eq_mul]
     ring
+  simp only [Int.cast_neg, Int.cast_natCast] at h
   rw [hmul] at h
   have hneg : residue (-(n • (g * (f ^ (-(n : ℤ) - 1) * D f)))) =
       -(n : ℝ) * residue (g * (f ^ (-(n : ℤ) - 1) * D f)) := by
