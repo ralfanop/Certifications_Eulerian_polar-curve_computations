@@ -1,0 +1,112 @@
+name: "M11 Dkappa — 12k-bit rigorous intermediate scaling, cached Euler length"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/m11-dk-cached-length-12k.yml'
+      - 'numerics/arb/m11_dk_adaptive_radius.py'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  halves:
+    name: "Verified 12k Dkappa half ${{ matrix.direction }}"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        direction: [1,-1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm exact current source and independently successful historical length CI
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$HEAD_SHA"
+          test "$(gh api "repos/$REPO/actions/runs/44359739062" --jq .conclusion)" = success
+          test "$(gh api "repos/$REPO/actions/runs/44359739062" --jq .head_sha)" = 6ddb354a85832bf5b35538996d7d619c63ac9a16
+          test "$(gh api "repos/$REPO/actions/runs/45179196734" --jq .conclusion)" = success
+      - name: Download archived full-length exact-rational interval
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44359739062
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          name: m11-euler-panel-certified-100k
+          path: historical-length
+      - name: Check immutable archive hash, install pinned Arb
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'a606d305f7d4c773695cee61cf56268022ec9cc5525f689f301e8822f22fe7b5  historical-length/m11-euler-panel-100k.json' | sha256sum --check
+          python -m pip install 'python-flint==0.9.0'
+      - name: Rigorously integrate this half with independent Cauchy radii and 12k-bit accuracy goal
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py \
+            --bits 21000 --target 12000 --panels 64 \
+            --direction ${{ matrix.direction }} \
+            --certified-length-manifest historical-length/m11-euler-panel-100k.json \
+            --output half.json 2>&1 | tee half.log
+          test -s half.json
+          grep -F 'Reused exact historical 100k full Eulerian length interval' half.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-dk-12k-half-${{ matrix.direction }}
+          path: |
+            half.json
+            half.log
+          if-no-files-found: warn
+  combine:
+    name: "Exact 12k-bit Dkappa two-sided recombination (not final 20k decimals)"
+    needs: halves
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned FLINT
+        run: python -m pip install 'python-flint==0.9.0'
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-12k-half-1
+          path: left
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-12k-half--1
+          path: right
+      - name: Rigorous exact-endpoint combination, confirm 12k bits and published 24 decimals
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -u numerics/arb/m11_dk_adaptive_radius.py \
+            --bits 21000 --target 12000 --panels 64 \
+            --combine left/half.json right/half.json \
+            --output m11-dk-12k-complete.json 2>&1 | tee combine.log
+          grep -F 'D_kappa local radii' combine.log
+          echo 'RIGOROUS 12k-BIT SCALING ONLY: 20,000 fractional-decimal Dkappa still pending'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-dk-12k-combined
+          path: |
+            m11-dk-12k-complete.json
+            combine.log
+          if-no-files-found: warn
