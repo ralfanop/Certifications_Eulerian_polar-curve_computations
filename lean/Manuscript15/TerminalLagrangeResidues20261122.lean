@@ -117,8 +117,9 @@ theorem residue_integration_by_parts (f g : L) :
   rw [← residue_add, ← derivative_mul, residue_derivative]
 
 /-- The Laurent derivative is a derivation over the real scalars. -/
-noncomputable def formalDerivation : Derivation ℝ L L :=
-  Derivation.mk'
+noncomputable def formalDerivation : Derivation ℝ L L := by
+  letI : Module ℝ L := Algebra.toModule
+  let d' : L →ₗ[ℝ] L :=
     { toFun := fun f => D f
       map_add' := by
         intro f g
@@ -126,10 +127,10 @@ noncomputable def formalDerivation : Derivation ℝ L L :=
       map_smul' := by
         intro r f
         simpa only [smul_eq_mul] using D.map_smul r f }
-    (by
-      intro f g
-      change D (f * g) = f • D g + g • D f
-      simpa only [smul_eq_mul, mul_comm, add_comm] using derivative_mul f g)
+  exact Derivation.mk' d' (by
+    intro f g
+    change D (f * g) = f • D g + g • D f
+    simpa only [smul_eq_mul, mul_comm, add_comm] using derivative_mul f g)
 
 /-- Integer-power rule, valid also for negative exponents. -/
 theorem derivative_zpow (f : L) (k : ℤ) :
@@ -150,7 +151,7 @@ theorem residue_lagrange_by_parts (g f : L) (n : ℕ) :
     push_cast
     rw [nsmul_eq_mul]
     ring
-  simp only [Int.cast_neg, Int.cast_natCast] at h
+  simp only [Int.cast_neg, Int.cast_natCast] at h hmul
   rw [hmul] at h
   have hneg : residue (-(n • (g * (f ^ (-(n : ℤ) - 1) * D f)))) =
       -(n : ℝ) * residue (g * (f ^ (-(n : ℤ) - 1) * D f)) := by
