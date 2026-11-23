@@ -105,8 +105,11 @@ private theorem rankOneBondQuadratic (W : Finset ℤ)
       intro k hk
       rw [Finset.mul_sum]
     _ = c * (∑ k ∈ W, v k * x k) ^ 2 := by
-      rw [pow_two, ← mul_assoc, Finset.mul_sum]
-      rfl
+      have hsum : (∑ k ∈ W, c * (v k * x k)) =
+          c * (∑ k ∈ W, v k * x k) := by
+        rw [Finset.mul_sum]
+      rw [hsum, pow_two]
+      ring
 
 /-- The actual finite spectral bond kernel has a positive quadratic
 form for every real finitely supported bond perturbation. The estimate
