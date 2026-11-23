@@ -65,7 +65,7 @@ theorem actual_entry_difference_of_frechet_derivative
   have hInt :
       IntervalIntegrable (fun τ : ℝ => ∑ m ∈ W, K τ k m * d m)
         volume (0 : ℝ) 1 := by
-    exact IntervalIntegrable.sum (fun m _ => hTerm m)
+    exact IntervalIntegrable.sum W (fun m _ => hTerm m)
   have hFTC :
       (∫ τ in (0 : ℝ)..1, ∑ m ∈ W, K τ k m * d m) =
         F (actualBond M) k - F (hybridBond M j L) k := by
@@ -77,7 +77,7 @@ theorem actual_entry_difference_of_frechet_derivative
   rw [← hFTC]
   change (∫ τ in (0 : ℝ)..1, ∑ m ∈ W, K τ k m * d m) =
     ∑ m ∈ W, averageKernel K k m * d m
-  rw [intervalIntegral.integral_finsetSum (fun m _ => hTerm m)]
+  rw [intervalIntegral.integral_finset_sum (fun m _ => hTerm m)]
   apply Finset.sum_congr rfl
   intro m hm
   unfold averageKernel
