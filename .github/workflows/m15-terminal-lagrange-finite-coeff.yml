@@ -40,7 +40,9 @@ jobs:
           names=['Manuscript15.TerminalLagrangeFinite.'+s for s in [
               'coeff_factored_power','coeff_factored_below',
               'coeff_factored_diagonal','coeff_factored_linear',
-              'coeff_factored_diagonal_ne_zero']]
+              'coeff_factored_diagonal_ne_zero',
+              'fixedpoint_coeff_shift', 'fixedpoint_constantCoeff_zero',
+              'fixedpoint_diagonal']]
           for name in names:
               m=re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]",log,re.S)
               assert m or ("'"+name+"' does not depend on any axioms") in log, name
