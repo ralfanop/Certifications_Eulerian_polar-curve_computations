@@ -17,7 +17,7 @@ No bound on `a_j` is assumed. The published Levin–Lubinsky input is not reprov
 
 namespace UniformLanczos.Lemma513BondGap
 
-open Set UniformLanczos.Theorem59
+open Set UniformLanczos.Theorem59 UniformLanczos.Lemma513
 
 /-- Exact elementary conversion of a squared gap into a Jacobi-bond gap.
 For 0 < δ ≤ 1/16, β ≥ 0, M > 0:
