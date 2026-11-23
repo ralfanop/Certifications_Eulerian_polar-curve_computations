@@ -1,0 +1,80 @@
+name: M14-M16 supplementary FLINT Arb strict 30000-place historical replay
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/m14-m16-arb30000-supplement.yml'
+      - 'numerics/arb/m13_m16_strict_30000_replay.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    name: strict-30000 supplementary (${{ matrix.label }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {label: m15-figure2-scalar, run: 43884679626, artifact: m15-figure2-scalar-million}
+          - {label: m15-figure2-modular, run: 43884679626, artifact: m15-figure2-modular-million}
+          - {label: m16-v166-reactive, run: 44045108492, artifact: m16-v166-reactive-holonomy-million}
+          - {label: m14-higher-moments, run: 44063519406, artifact: million-m14highermoments}
+          - {label: m14-seven-loops, run: 44176801650, artifact: m14-seven-loops-enclosures}
+          - {label: m14-pole-e6, run: 44187663292, artifact: m14-pole-e6-loops-enclosures}
+          - {label: m15-squarefree, run: 44296095160, artifact: m15-squarefree-moment-enclosures}
+          - {label: m16-v166-tail, run: 44495458470, artifact: m16-v166-tail-million}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact HEAD and historical successful source CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/${{ matrix.run }} --jq '.conclusion')" = success
+          python -m pip install 'python-flint==0.9.0'
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          repository: ${{ github.repository }}
+          run-id: ${{ matrix.run }}
+          github-token: ${{ github.token }}
+          path: archive
+      - name: Certify exact 30000-place rounding from archived Arb balls
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd archive
+          gzip -t million-enclosures.jsonl.gz
+          python ../numerics/arb/m13_m16_strict_30000_replay.py \
+            --label '${{ matrix.label }}' \
+            --source-run '${{ matrix.run }}' \
+            --source-artifact '${{ matrix.artifact }}' 2>&1 | tee arb30000.log
+          grep -F "SUCCESS STRICT 30000 FIXED DECIMAL ARB REPLAY ${{ matrix.label }}" arb30000.log
+          gzip -t arb30000-${{ matrix.label }}.jsonl.gz
+          python - <<'PY'
+          import glob,json
+          s=json.load(open(glob.glob('arb30000-*.json')[0]))
+          assert s['decimal_places_after_point']==30000
+          assert s['certificate_count']>0
+          assert s['status']=='CERTIFIED_BY_EXACT_REPLAY'
+          print('SUCCESS SUPPLEMENTAL ARB 30000',s['certificate_count'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: arb30000-${{ matrix.label }}
+          path: |
+            archive/arb30000.log
+            archive/arb30000-${{ matrix.label }}.json
+            archive/arb30000-${{ matrix.label }}.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn
