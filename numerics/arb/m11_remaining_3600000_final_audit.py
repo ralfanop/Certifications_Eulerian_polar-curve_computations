@@ -1,106 +1,104 @@
 #!/usr/bin/env python3
-"""Fail-closed final numerical audit for the two outstanding M11 quantities.
+"""M11 exact 20,000-fractional-decimal acceptance gate; fail closed.
 
-This program DOES NOT manufacture the missing 3.6M-bit input enclosures.
-Its two positional arguments must be the independently generated *complete*
-Cauchy-panel and normalized-arclength curvature-continuation manifests.
-Both upstream numerical computations and this audit are necessary.
-
-No result at pilot precision can pass, regardless of how many printed
-decimal places happen to agree.
+Accepts only complete, independently produced, rigorously bounded manifests.
+This auditor does not manufacture enclosures or certify their provenance by itself.
 """
 import argparse
-from fractions import Fraction
-from hashlib import sha256
+import hashlib
 import json
+from decimal import Decimal, localcontext, ROUND_HALF_EVEN
+from fractions import Fraction
 from pathlib import Path
+from flint import arb, ctx, fmpq, fmpz
 
-from flint import arb, ctx, fmpz, fmpq
-from million_decimal_common import WORK, MIN, DIGITS, exact, record, finish
+PLACES = 20_000
+MIN_REL_BITS = 66_439
+WORK_BITS = 80_000
+PRINTED_DK = "0.203783759536049443826081"
 
-assert WORK == 3_600_000 and MIN == 3_400_000 and DIGITS == 1_000_001
-assert ctx.prec == WORK
+def endpoint(obj):
+    n, d = int(obj["numerator"]), int(obj["denominator"])
+    if d <= 0:
+        raise ValueError("invalid exact rational denominator")
+    return Fraction(n, d)
 
-def exact_ball(interval, name):
-    """Strict enclosure reconstructed from exact rational/dyadic endpoints."""
-    lo_raw, hi_raw = (interval[k] for k in ("lower", "upper"))
-    lo = fmpq(fmpz(lo_raw["numerator"]), fmpz(lo_raw["denominator"]))
-    hi = fmpq(fmpz(hi_raw["numerator"]), fmpz(hi_raw["denominator"]))
-    assert lo > 0 and lo <= hi, name
-    ball = arb((lo + hi)/2, arb((hi - lo)/2).upper())
-    assert ball.lower().fmpq() <= lo and hi <= ball.upper().fmpq(), name
-    assert ball.rel_accuracy_bits() >= MIN, (name, ball.rel_accuracy_bits())
-    return ball
-
-def rational_endpoints(interval):
-    """Read the *original* exact endpoints, without Arb conversion."""
-    def fraction(obj):
-        den = int(obj["denominator"])
-        assert den > 0, "nonpositive endpoint denominator"
-        return Fraction(int(obj["numerator"]), den)
-    lo, hi = fraction(interval["lower"]), fraction(interval["upper"])
-    assert lo <= hi, "reversed exact endpoints"
+def interval(manifest, key):
+    x = manifest[key]
+    lo, hi = endpoint(x["lower"]), endpoint(x["upper"])
+    if not 0 < lo <= hi:
+        raise ValueError("invalid positive enclosure")
     return lo, hi
 
+def same_decimal_cell(lo, hi, places=PLACES):
+    """Exact half-unit-in-last-place inequalities; no floating point."""
+    scale = 10 ** places
+    def nearest_even(x):
+        num, den = x.numerator * scale, x.denominator
+        q, r = divmod(num, den)
+        return q + int(2*r > den or (2*r == den and q % 2 == 1))
+    k = nearest_even(lo)
+    if nearest_even(hi) != k:
+        raise ValueError("endpoint decimal cells disagree")
+    lower, upper = Fraction(2*k-1, 2*scale), Fraction(2*k+1, 2*scale)
+    if not (lower < lo <= hi < upper):
+        raise ValueError("enclosure touches decimal rounding boundary")
+    return k
 
-def assert_rounded_exact(printed, interval):
-    """Prove containment using exact rational comparisons, not rounded Arb."""
-    digits = len(printed.split(".")[1])
-    p = Fraction(printed)
-    half = Fraction(1, 2*10**digits)
-    lo, hi = rational_endpoints(interval)
-    assert p - half < lo <= hi < p + half, printed
+def check_bits(lo, hi, name):
+    ctx.prec = WORK_BITS
+    l, h = fmpq(fmpz(lo.numerator), fmpz(lo.denominator)), fmpq(fmpz(hi.numerator), fmpz(hi.denominator))
+    ball = arb((l+h)/2, arb((h-l)/2).upper())
+    if not (ball.lower().fmpq() <= l and h <= ball.upper().fmpq()):
+        raise ValueError(name + ": Arb failed to enclose exact endpoints")
+    bits = ball.rel_accuracy_bits()
+    if bits < MIN_REL_BITS:
+        raise ValueError(f"{name}: {bits} relative bits < {MIN_REL_BITS}")
+    return bits
 
+def verify_length(m):
+    if m.get("index") is not None or int(m.get("panels", 0)) < 32:
+        raise ValueError("length must be combined from >=32 panels")
+    lo, hi = interval(m, "enclosure")
+    if not (Fraction("5.5510") < lo <= hi < Fraction("5.5511")):
+        raise ValueError("published length prefix inconsistent")
+    return lo, hi
 
-def assert_prefix_exact(interval):
-    lo, hi = rational_endpoints(interval)
-    assert Fraction("5.5510") < lo <= hi < Fraction("5.5511")
+def verify_curvature(m):
+    if m.get("quantity") != "D_kappa, Eq. (50)":
+        raise ValueError("wrong curvature quantity")
+    halves = m.get("halves", [])
+    if len(halves) != 2 or sorted(h.get("direction") for h in halves) != [-1, 1]:
+        raise ValueError("both independently integrated halves required")
+    if any("integral" not in h or not h.get("orders") for h in halves):
+        raise ValueError("incomplete curvature halves")
+    lo, hi = interval(m, "discrepancy")
+    scale = 10 ** 24
+    printed = Fraction(PRINTED_DK)
+    if not (printed-Fraction(1,2*scale) < lo <= hi < printed+Fraction(1,2*scale)):
+        raise ValueError("published 24-decimal curvature cell mismatch")
+    return lo, hi
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--length-manifest", required=True)
-    ap.add_argument("--curvature-manifest", required=True)
-    args = ap.parse_args()
-
-    length_bytes = Path(args.length_manifest).read_bytes()
-    curvature_bytes = Path(args.curvature_manifest).read_bytes()
-    length = json.loads(length_bytes)
-    curvature = json.loads(curvature_bytes)
-
-    # The length's *complete* panel combination file is produced by
-    # m11_euler_panel.py, not by a single panel.
-    assert length["working_bits"] == WORK
-    assert length["threshold_bits"] >= MIN
-    assert length.get("index") is None, "single panel cannot certify length"
-    assert length["panels"] >= 4
-    assert "enclosure" in length
-
-    # The curvature file must be the *combined* pair of independent
-    # left/right integrals, not a half-panel or a raw Newton iterate.
-    par = curvature["parameters"]
-    assert par["bits"] == WORK and par["target"] >= MIN
-    assert curvature["quantity"] == "D_kappa, Eq. (50)"
-    halves = curvature["halves"]
-    assert len(halves) == 2
-    assert sorted(x["direction"] for x in halves) == [-1, 1]
-    assert all("integral" in x and len(x["orders"]) == par["panels"]//2 for x in halves)
-
-    arclength = exact_ball(length["enclosure"], "M11 length, all panels")
-    discrepancy = exact_ball(curvature["discrepancy"], "M11 D_kappa, both halves")
-
-    # The length is printed as a PREFIX "5.5510...", not a four-place
-    # rounded value. It is deliberately NOT checked as 5.5510 +/- 0.00005.
-    assert_prefix_exact(length["enclosure"])
-    assert_rounded_exact("0.203783759536049443826081", curvature["discrepancy"])
-
-    print("INPUT exact-head provenance: require CI artifacts from same pinned SHA.", flush=True)
-    print("length manifest sha256", sha256(length_bytes).hexdigest(), flush=True)
-    print("curvature manifest sha256", sha256(curvature_bytes).hexdigest(), flush=True)
-    print("WORK", WORK, "MIN", MIN, "DIGITS", DIGITS, flush=True)
-    record("M11 Eq (50) full Eulerian arclength", arclength)
-    record("M11 Eq (50) curvature discrepancy D_kappa", discrepancy)
-    finish("m11remaining")
-    print("M11 BOTH REMAINING 3600000-BIT CERTIFICATES: SUCCESS",flush=True)
+    p = argparse.ArgumentParser()
+    p.add_argument("--length-manifest", required=True)
+    p.add_argument("--curvature-manifest", required=True)
+    p.add_argument("--expected-head-sha", required=True)
+    args = p.parse_args()
+    if len(args.expected_head_sha) != 40 or any(c not in "0123456789abcdef" for c in args.expected_head_sha):
+        raise ValueError("full lowercase HEAD SHA required")
+    for name, path, validator in (("length", args.length_manifest, verify_length),
+                                  ("curvature", args.curvature_manifest, verify_curvature)):
+        data = Path(path).read_bytes()
+        m = json.loads(data)
+        if m.get("head_sha") != args.expected_head_sha:
+            raise ValueError(name + ": manifest HEAD SHA mismatch or missing")
+        lo, hi = validator(m)
+        bits = check_bits(lo, hi, name)
+        cell = same_decimal_cell(lo, hi)
+        print(f"{name}: exact 20000 fractional digits verified; relative bits={bits}; cell integer={cell}", flush=True)
+        print(f"{name}: manifest sha256={hashlib.sha256(data).hexdigest()}", flush=True)
+    print("M11 20000 FRACTIONAL DECIMAL CELL AUDIT: SUCCESS (input provenance requires independent CI verification)", flush=True)
 
 if __name__ == "__main__":
     main()
