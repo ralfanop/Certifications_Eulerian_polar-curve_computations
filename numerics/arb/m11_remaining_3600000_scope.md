@@ -1,4 +1,4 @@
-# Manuscript 11: remaining 3,600,000-bit Arb obligations (23 November 2026)
+# Manuscript 11: remaining 200,000-relative-bit Arb obligations (revised 23 November 2026)
 
 **Source:** author-owned `Manuscript_11_20261123_Eq33_24decimali.zip`;
 source label `eq:Dkappa`, present Eq. (50).
@@ -35,26 +35,33 @@ certified inverse radii, positive interval inequalities, and two-sided
 phase continuation. Rely on their *actual* execution, not a floating
 point approximation or overlap alone.
 
-## Exact final acceptance standard
+## Revised final acceptance standard — author instruction 23 November 2026
 
-A new production run must produce the **entire** length (not one
-panel) and the **entire** curvature discrepancy (not one half) with:
+**Superseding requirement for these two quantities only:** independently certify
+**at least 200000 actual relative bits** for each COMPLETE enclosure of
+the full Eulerian length and the full two-sided curvature discrepancy.
+Use pinned python-flint and an explicitly recorded Arb working precision
+sufficient to achieve that target; check each combined enclosure with
+`rel_accuracy_bits() >= 200000`, failing closed otherwise. This replaces
+the former 3600000 working / 3400000 relative / 1000001 significant-digit
+standard **for these two quantities only**, not for other manuscripts.
 
-- `python-flint==0.9.0`, exactly `ctx.prec=3600000`
-  working bits throughout the mandatory precision audit.
-- `rel_accuracy_bits() >= 3400000` **for each final interval**.
-- Strict containment of the two interval endpoints within the **same**
-  correctly rounded **1,000,001-significant-digit decimal cell**,
-  using exact rational endpoint comparisons.
-- Independently checked Eq. (50) 24-decimal correctly rounded cell,
-  and the `L_E` published prefix interval.
-- Exact GitHub HEAD SHA, pinned source scripts, input manifest hashes,
-  CI logs, outward endpoint objects, and compressed rounded digits.
+Each manifest must retain complete-panel or both-half provenance, exact
+outward rational endpoints, pinned source and HEAD SHA, independent
+rigorous tail bounds, hashes and reproducible CI logs. Check the exact
+rational endpoint containment against the printed D_kappa 24-decimal
+rounding cell and the published L_E prefix. A partial panel, a single
+curvature half, or a historical 100031/25503-bit certificate must fail.
 
-The new `m11_remaining_3600000_final_audit.py` implements those
-**fail-closed output checks**, but does not manufacture its required
-3.6M-bit input enclosures. DO NOT run it on pilot files and never call
-the final result SUCCESS before it passes on actual complete manifests.
+**Migration gate:** the existing
+`m11_remaining_3600000_final_audit.py` currently hard-codes the
+**superseded** 3600000/3400000/1000001 standard via
+`million_decimal_common`. It is not a valid auditor for the revised
+200000-relative-bit acceptance criterion until separately updated and
+tested fail-closed against complete new manifests. Do not label its
+syntax-only CI as final certification. The old filenames are retained
+temporarily for traceability; they do not define the new acceptance
+threshold.
 
 ## Scaling work started in this PR
 
@@ -66,9 +73,9 @@ artifact names and no false `MILLION SUCCESS` text.
 If resource limits prevent completion, inspect real logs and revise
 the algorithm/chunking rather than weakening any mathematical assertion.
 
-The eventual 3.6M-bit production jobs must be enabled only after
+The revised 200k-relative-bit production jobs must be enabled only after
 resource-scalable batching/checkpointing is demonstrated.
-**Pending as of filing**: neither final 3.6M-bit enclosure exists.
+**Pending as of revision**: neither final 200000-relative-bit complete enclosure exists.
 
 No new Lean 4 theorem is required merely to print a longer numerical
 approximation, assuming the exact identities and curvature analytic
