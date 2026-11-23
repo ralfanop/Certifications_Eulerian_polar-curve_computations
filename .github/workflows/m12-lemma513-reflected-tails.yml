@@ -29,6 +29,7 @@ jobs:
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.24.0'
           ! grep -n -E '^\s*(axiom|opaque)\b|\b(sorry|admit|native_decide)\b' UniformLanczos/Lemma513ReflectedTails.lean
           lake exe cache get
+          lake build UniformLanczos.Lemma513Legendre 2>&1 | tee /tmp/m12-513-dependency.log
           lake env lean UniformLanczos/Lemma513ReflectedTails.lean 2>&1 | tee /tmp/m12-513-two-sided.log
       - name: Audit the exact theorem and its transitive axioms
         run: |
@@ -52,4 +53,6 @@ jobs:
         if: always()
         with:
           name: m12-lemma513-reflected-tails
-          path: /tmp/m12-513-two-sided.log
+          path: |
+            /tmp/m12-513-dependency.log
+            /tmp/m12-513-two-sided.log
