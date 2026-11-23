@@ -39,7 +39,9 @@ jobs:
           assert ': error' not in data and 'sorryAx' not in data and 'Lean.ofReduceBool' not in data
           allowed = {'propext', 'Classical.choice', 'Quot.sound'}
           names = ['line_dilation','plane_dilation','originalFockNorm_plane_dilation',
-                   'critical_jacobian','normalized_originalFockNorm']
+                   'critical_jacobian','normalized_originalFockNorm',
+                   'root_ratio','actual_profile_scaled','actual_originalKernel_scaled',
+                   'normalized_Fock_eq_actual_scaled_integrand']
           for name in names:
               full = 'M12CriticalAssembly.' + name
               match = re.search(r"'" + re.escape(full) + r"' depends on axioms: \[([^\]]*)\]", data)
