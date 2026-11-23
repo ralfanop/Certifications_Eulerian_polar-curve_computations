@@ -1,13 +1,15 @@
-name: M12 Theorem 5.14 weighted strong monotonicity
+name: M12 Theorem 5.14 chain (monotonicity, Lemma 5.13 tails)
 on:
   pull_request:
     paths:
       - 'lean/EulerianGrothendieck/UniformLanczos/Rate514Monotone.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513Tails.lean'
       - '.github/workflows/m12-rate514-monotone.yml'
   push:
     branches: [main]
     paths:
       - 'lean/EulerianGrothendieck/UniformLanczos/Rate514Monotone.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513Tails.lean'
   workflow_dispatch:
 
 jobs:
@@ -28,9 +30,10 @@ jobs:
         working-directory: lean/EulerianGrothendieck
         run: |
           set -euo pipefail
-          f=UniformLanczos/Rate514Monotone.lean
-          ! grep -n -E '^\s*(axiom|opaque)\b' "$f"
-          ! grep -n -w -E 'sorry|admit|native_decide' "$f"
+          for f in UniformLanczos/Rate514Monotone.lean UniformLanczos/Lemma513Tails.lean; do
+            ! grep -n -E '^\s*(axiom|opaque)\b' "$f"
+            ! grep -n -w -E 'sorry|admit|native_decide' "$f"
+          done
       - name: Check Rate514Monotone.lean
         working-directory: lean/EulerianGrothendieck
         run: |
@@ -38,6 +41,7 @@ jobs:
           lean --version
           lake exe cache get
           lake env lean UniformLanczos/Rate514Monotone.lean 2>&1 | tee /tmp/m12-rate514-monotone.log
+          lake env lean UniformLanczos/Lemma513Tails.lean 2>&1 | tee -a /tmp/m12-rate514-monotone.log
           git rev-parse HEAD
       - name: Strict individual axiom audit
         run: |
@@ -53,7 +57,10 @@ jobs:
               'sw_sub_sq_le', 'quad_split', 'correction_lower', 'weighted_coercivity',
               'energy_of_coercive', 'centre_le', 'centre_bound', 'summable_profile',
               'row_moment_bound', 'sum_dist_le', 'ω_dist_le', 'residual_weighted_sum',
-              'residual_weighted_sum_rate')]
+              'residual_weighted_sum_rate')] + ['UniformLanczos.Lemma513Tails.' + n for n in (
+              'jpow_eq_zero_above', 'jpow_eq_zero_below', 'expand_step', 'expand_pow',
+              'integral_sq_expansion', 'integrable_sq_expansion', 'jpow_norm_sq', 'tail_bound',
+              'geometric_le_exp')]
           for name in names:
               match = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", text)
               if match:
