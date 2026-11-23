@@ -1,0 +1,79 @@
+name: M12 Theorem 5.14 chain (monotonicity, Lemma 5.13 tails)
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Rate514Monotone.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513Tails.lean'
+      - '.github/workflows/m12-rate514-monotone.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Rate514Monotone.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513Tails.lean'
+  workflow_dispatch:
+
+jobs:
+  rate514monotone:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean and Mathlib
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Source hygiene
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          for f in UniformLanczos/Rate514Monotone.lean UniformLanczos/Lemma513Tails.lean; do
+            ! grep -n -E '^\s*(axiom|opaque)\b' "$f"
+            ! grep -n -w -E 'sorry|admit|native_decide' "$f"
+          done
+      - name: Check Rate514Monotone.lean
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          lean --version
+          lake exe cache get
+          lake env lean UniformLanczos/Rate514Monotone.lean 2>&1 | tee /tmp/m12-rate514-monotone.log
+          lake env lean UniformLanczos/Lemma513Tails.lean 2>&1 | tee -a /tmp/m12-rate514-monotone.log
+          git rev-parse HEAD
+      - name: Strict individual axiom audit
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          text = Path('/tmp/m12-rate514-monotone.log').read_text()
+          assert ': error' not in text, 'compilation error'
+          assert "declaration uses 'sorry'" not in text
+          assert 'sorryAx' not in text and 'Lean.ofReduceBool' not in text
+          names = ['UniformLanczos.Rate514.' + n for n in (
+              'sw_sub_sq_le', 'quad_split', 'correction_lower', 'weighted_coercivity',
+              'energy_of_coercive', 'centre_le', 'centre_bound', 'summable_profile',
+              'row_moment_bound', 'sum_dist_le', 'ω_dist_le', 'residual_weighted_sum',
+              'residual_weighted_sum_rate')] + ['UniformLanczos.Lemma513Tails.' + n for n in (
+              'jpow_eq_zero_above', 'jpow_eq_zero_below', 'expand_step', 'expand_pow',
+              'integral_sq_expansion', 'integrable_sq_expansion', 'jpow_norm_sq', 'tail_bound',
+              'geometric_le_exp')]
+          for name in names:
+              match = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", text)
+              if match:
+                  axioms = {x.strip() for x in match.group(1).split(',') if x.strip()}
+              else:
+                  assert "'" + name + "' does not depend on any axioms" in text, name
+                  axioms = set()
+              assert axioms <= allowed, (name, axioms)
+              print('AXIOM AUDIT SUCCESS', name, sorted(axioms))
+          print('AUDITED', len(names))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-rate514-monotone-audit
+          path: /tmp/m12-rate514-monotone.log
