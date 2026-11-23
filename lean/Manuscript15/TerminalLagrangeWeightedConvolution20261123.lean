@@ -54,7 +54,9 @@ theorem weighted_coefficient (ψ : P) (m k : ℕ) (hm : 0 < m) :
     PowerSeries.coeff_derivative] at h
   have hm' : m - 1 + 1 = m := by omega
   rw [hm'] at h
+  have hc : ((m - 1 : ℕ) : ℝ) + 1 = (m : ℝ) := by exact_mod_cast hm'
   push_cast at h
+  rw [hc] at h
   simpa only [mul_comm, mul_left_comm, mul_assoc, Nat.cast_add] using h
 
 /-- The weighted finite Cauchy convolution, indexed by the antidiagonal.
@@ -135,8 +137,10 @@ theorem weighted_range_convolution (ψ : P) (m k : ℕ) (hm : 0 < m) :
         (PowerSeries.coeff (p.1 + 1) (ψ ^ k) * ((p.1 + 1 : ℕ) : ℝ)) *
           PowerSeries.coeff p.2 (ψ ^ m)) := by
     rw [Finset.sum_range_succ']
-    simp only [Nat.cast_zero, zero_mul, mul_zero, zero_add]
-    rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ]
+    simp only [Nat.cast_zero, zero_mul, mul_zero, add_zero]
+    rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ (f := fun a b =>
+      (PowerSeries.coeff (a + 1) (ψ ^ k) * ((a + 1 : ℕ) : ℝ)) *
+        PowerSeries.coeff b (ψ ^ m))]
     have hm' : (m - 1).succ = m := by omega
     rw [hm']
     apply Finset.sum_congr rfl
@@ -268,7 +272,9 @@ theorem coeff_derivative_mul_as_range (G Q : P) (n : ℕ) (hn : 0 < n) :
       ∑ k ∈ Finset.range (n + 1),
         ((k : ℝ) * PowerSeries.coeff k G) *
           PowerSeries.coeff (n - k) Q := by
-  rw [PowerSeries.coeff_mul, Finset.Nat.sum_antidiagonal_eq_sum_range_succ]
+  rw [PowerSeries.coeff_mul]
+  rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ (f := fun a b =>
+    PowerSeries.coeff a ((PowerSeries.derivative (R := ℝ)) G) * PowerSeries.coeff b Q)]
   simp_rw [PowerSeries.coeff_derivative]
   have hn' : (n - 1).succ = n := by omega
   rw [hn']
