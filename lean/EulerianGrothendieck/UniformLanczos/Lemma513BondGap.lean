@@ -58,8 +58,8 @@ theorem actual_uniform_bond_gap (hLL : LL_13_4) {K : Set ℝ}
   have hMnat : 0 < M := by
     by_contra h
     have hMzero : M = 0 := Nat.eq_zero_of_not_pos h
-    subst M
-    have hp : (0 : ℝ) < (j : ℝ) / (0 : ℝ) := hK0 hmem
+    have hp : (0 : ℝ) < (j : ℝ) / (M : ℝ) := hK0 hmem
+    rw [hMzero] at hp
     norm_num at hp
   have hMreal : (0 : ℝ) < M := by exact_mod_cast hMnat
   have hraw := hL j M hj hmem
