@@ -1,0 +1,62 @@
+name: M12 Lemma 5.13 actual local-window bond transfer
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513BondWindow.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513BondGap.lean'
+      - '.github/workflows/m12-lemma513-window.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  local-window:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean toolchain
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Compile actual coefficient gap and growing-window bridge
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.24.0'
+          for f in UniformLanczos/Lemma513BondGap.lean UniformLanczos/Lemma513BondWindow.lean; do
+            ! grep -n -E '^\s*(axiom|opaque)\b|\b(sorry|admit|native_decide)\b' "$f"
+          done
+          lake exe cache get
+          lake build UniformLanczos.Lemma513BondGap 2>&1 | tee /tmp/m12-window-build.log
+          lake env lean UniformLanczos/Lemma513BondWindow.lean 2>&1 | tee /tmp/m12-window.log
+      - name: Strict transitive axiom audit
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('/tmp/m12-window.log').read_text()
+          assert not re.search(r'(^|\n).*: error:',s)
+          assert 'sorryAx' not in s and 'Lean.ofReduceBool' not in s
+          full='UniformLanczos.Lemma513BondWindow.actual_window_bonds'
+          p=re.search(r"'"+re.escape(full)+r"' depends on axioms: \[([^\]]*)\]",s)
+          if p: axs={a.strip() for a in p.group(1).split(',') if a.strip()}
+          else:
+              assert "'"+full+"' does not depend on any axioms" in s
+              axs=set()
+          assert axs<= {'propext','Classical.choice','Quot.sound'},axs
+          print('M12 ACTUAL JACOBI WINDOW SUCCESS',full,sorted(axs))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-lemma513-actual-window
+          path: |
+            /tmp/m12-window-build.log
+            /tmp/m12-window.log
