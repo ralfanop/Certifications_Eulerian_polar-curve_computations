@@ -54,13 +54,13 @@ theorem quarticProfile_integrable : Integrable quarticProfile := by
     have h := integrableOn_rpow_mul_exp_neg_mul_rpow
       (p := 4) (s := 0) (b := 1/40) (by norm_num) (by norm_num) (by norm_num)
     refine h.congr_fun (fun x _ => ?_) measurableSet_Ioi
-    simp [quarticProfile, Real.rpow_natCast] <;> congr 1 <;> ring
+    simp only [quarticProfile, Real.rpow_natCast] <;> congr 1 <;> ring
   rw [← integrableOn_univ, ← @Iio_union_Ici _ _ (0:ℝ), integrableOn_union,
     integrableOn_Ici_iff_integrableOn_Ioi]
   refine ⟨?_, hp⟩
   rw [← (Measure.measurePreserving_neg (volume : Measure ℝ)).integrableOn_comp_preimage
     (Homeomorph.neg ℝ).measurableEmbedding]
-  simpa [Function.comp_def, quarticProfile, neg_pow, neg_preimage, neg_Iio] using hp
+  simpa only [Function.comp_def, quarticProfile, neg_pow, neg_preimage, neg_Iio] using hp
 
 theorem quartic_integral :
     (∫ x : ℝ, quarticProfile x) = (40:ℝ)^(1/4:ℝ) * Real.Gamma (1/4) / 2 := by
