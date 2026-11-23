@@ -1,0 +1,63 @@
+name: M12 Lemma 5.13 actual gM specialization
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513ActualGM.lean'
+      - '.github/workflows/m12-lemma513-actual-gm.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  actual-gm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore exact Lean 4.24 Mathlib toolchain
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Compile gM weight and reflected integrals
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.24.0'
+          ! grep -n -E '^\s*(axiom|opaque)\b|\b(sorry|admit|native_decide)\b' UniformLanczos/Lemma513ActualGM.lean
+          lake exe cache get
+          lake build UniformLanczos.Lemma513ReflectedTails UniformLanczos.Lemma56 2>&1 | tee /tmp/m12-actual-gm-build.log
+          lake env lean UniformLanczos/Lemma513ActualGM.lean 2>&1 | tee /tmp/m12-actual-gm.log
+      - name: Strict kernel axiom audit of exact theorem list
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('/tmp/m12-actual-gm.log').read_text()
+          assert not re.search(r'(^|\n).*: error:',s), 'Lean compilation error'
+          assert 'sorryAx' not in s and 'Lean.ofReduceBool' not in s
+          allowed={'propext','Classical.choice','Quot.sound'}
+          names='actual_gM_even actual_gM_nonneg actual_gM_deriv_odd actual_gM_log_deriv actual_phi_deriv_nonneg actual_gM_deriv_nonpos actual_gM_antitone actual_reflected_hasDerivAt second_tail_actual_gM actual_left_reflection'.split()
+          for name in names:
+              full='UniformLanczos.Lemma513ActualGM.'+name
+              m=re.search(r"'"+re.escape(full)+r"' depends on axioms: \[([^\]]*)\]",s)
+              if m: axioms={z.strip() for z in m.group(1).split(',') if z.strip()}
+              else:
+                  assert "'"+full+"' does not depend on any axioms" in s, full
+                  axioms=set()
+              assert axioms<=allowed, (full,axioms)
+              print('AUDIT PASS',full,sorted(axioms))
+          print('M12 ACTUAL gM SPECIALIZATION SUCCESS',len(names))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-lemma513-actual-gm
+          path: |
+            /tmp/m12-actual-gm-build.log
+            /tmp/m12-actual-gm.log
