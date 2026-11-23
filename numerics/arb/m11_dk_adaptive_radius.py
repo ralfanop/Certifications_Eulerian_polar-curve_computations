@@ -118,20 +118,43 @@ class Local(TwoSided):
         assert candidates
         return min(candidates)
 
-    def half(self,direction):
+    def half(self,direction,resume=None,stop_after=None):
         n=self.panels;h=arb(1)/(2*n);step=2*h
-        theta={};phase={};orders=[]
-        for k in ('E','L'):
-            ell=self.charts[k]['length'];R=self.radii[k][0 if direction==1 else -1];p=self.order_for(R,h)
-            ctx.cap=p+5
-            if direction==1:y=zero_jet(k,h*ell,self.a,self.b,p)
-            else:y=theta_jet(k,self.pi,-h*ell,self.a,self.b,p)
-            rem=5*(h/R)**p/(1-h/R)
-            ball=sum((y[i] for i in range(p)),arb(0))+arb(0,rem.upper())
-            assert 0<ball<self.pi
-            theta[k]=ball.mid();phase[k]=(4*ball.rad()/(self.pi*ell)).upper()
-        total=arb(0)
-        for j in range(n//2):
+        end=n//2 if stop_after is None else stop_after
+        assert 0<end<=n//2 and direction in (-1,1)
+        self.checkpoint_state=None
+        if resume is None:
+            start=0;theta={};phase={};orders=[]
+            for k in ('E','L'):
+                ell=self.charts[k]['length'];R=self.radii[k][0 if direction==1 else -1];p=self.order_for(R,h)
+                ctx.cap=p+5
+                if direction==1:y=zero_jet(k,h*ell,self.a,self.b,p)
+                else:y=theta_jet(k,self.pi,-h*ell,self.a,self.b,p)
+                rem=5*(h/R)**p/(1-h/R)
+                ball=sum((y[i] for i in range(p)),arb(0))+arb(0,rem.upper())
+                assert 0<ball<self.pi
+                theta[k]=ball.mid();phase[k]=(4*ball.rad()/(self.pi*ell)).upper()
+            total=arb(0)
+        else:
+            start=resume['next_panel']
+            assert isinstance(start,int) and 0<start<end
+            assert (resume['bits'],resume['target'],resume['panels'],resume['direction'])==(self.bits,self.target,n,direction)
+            assert resume.get('historical_euler_source')==self.historical_euler_source
+            orders=resume['orders'][:]
+            assert len(orders)==start and all(isinstance(o,int) and o>0 for o in orders)
+            # Each saved state is an outward exact-rational enclosure.
+            # Restore the angle as its exact midpoint and phase as an upper bound.
+            # Conservatively re-enclose the accumulated integral.
+            theta={k:from_endpoints(resume['theta'][k]) for k in ('E','L')}
+            assert all(x.is_exact() for x in theta.values())
+            phase={k:from_endpoints(resume['phase'][k]).upper() for k in ('E','L')}
+            total=from_endpoints(resume['partial_integral'])
+            assert all(0<theta[k]<self.pi and 0<=phase[k]<h/2 for k in ('E','L'))
+            for k,key in (('E','Eulerian_half_length'),('L','limacon_half_length')):
+                assert self.charts[k]['length'].overlaps(from_endpoints(resume[key]))
+            print('Resuming certified curvature',direction,'from panel',start,
+                  'checkpoint interval radius',total.rad().str(8),flush=True)
+        for j in range(start,end):
             u=(arb(j)+arb(1)/2)/n
             if direction==-1:u=1-u
             assert all(0<=v<h/2 for v in phase.values())
@@ -163,13 +186,38 @@ class Local(TwoSided):
                     theta[k]=ball.mid();phase[k]=(phase[k]+4*ball.rad()/(self.pi*self.charts[k]['length'])).upper()
             print('Local half',direction,'panel',j+1,'/',n//2,'R',R.str(8),'order',p,'radius',total.rad().str(8),flush=True)
         assert total>0
+        if end<n//2:
+            self.checkpoint_state={
+                'bits':self.bits,'target':self.target,'panels':n,'direction':direction,
+                'next_panel':end,'orders':orders,
+                'theta':{k:exact_endpoints(theta[k]) for k in ('E','L')},
+                'phase':{k:exact_endpoints(phase[k]) for k in ('E','L')},
+                'partial_integral':exact_endpoints(total),
+                'Eulerian_half_length':exact_endpoints(self.charts['E']['length']),
+                'limacon_half_length':exact_endpoints(self.charts['L']['length']),
+                'historical_euler_source':self.historical_euler_source,
+            }
+            print('Exact outward-rational checkpoint at',end,'/',n//2,
+                  'for curvature direction',direction,flush=True)
         return total,orders
 
 
 def work(args,direction):
     t=time.monotonic();c=Local(args.bits,args.target,args.panels,args.certified_length_manifest)
-    E=c.build_chart('E');L=c.build_chart('L');v,orders=c.half(direction)
+    E=c.build_chart('E');L=c.build_chart('L')
+    resume=None;source_digest=None
+    if getattr(args,'resume',None) is not None:
+        raw=Path(args.resume).read_bytes()
+        source_digest=hashlib.sha256(raw).hexdigest()
+        source=json.loads(raw)
+        if source['parameters'] != {k:getattr(args,k) for k in ('bits','target','panels')}:
+            raise ValueError('checkpoint numerical parameter mismatch')
+        resume=source['checkpoint']
+    v,orders=c.half(direction,resume,getattr(args,'stop_after',None))
     result={'direction':direction,'orders':orders,'integral':exact_endpoints(v),'Eulerian_half_length':exact_endpoints(E),'limacon_half_length':exact_endpoints(L),'elapsed_seconds':time.monotonic()-t,'peak_rss_kib':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss}
+    if c.checkpoint_state is not None:
+        result['checkpoint']=c.checkpoint_state
+        result['checkpoint_parent_sha256']=source_digest
     if c.historical_euler_source is not None:
         result['historical_euler_source']=c.historical_euler_source
     return result
@@ -178,12 +226,24 @@ def work(args,direction):
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--bits',type=int,default=4096);p.add_argument('--target',type=int,default=1000);p.add_argument('--panels',type=int,default=32);p.add_argument('--output',default='m11-dk-local.json')
     p.add_argument('--certified-length-manifest',default=None,help='Historical successful complete 32-panel Eulerian length manifest; SHA256 pinned')
+    p.add_argument('--resume',default=None,help='Prior exact interval checkpoint, same parameters and direction')
+    p.add_argument('--stop-after',type=int,default=None,help='Stop after this absolute half-panel number and emit exact checkpoint')
     mode=p.add_mutually_exclusive_group();mode.add_argument('--parallel',action='store_true');mode.add_argument('--direction',type=int,choices=(-1,1));mode.add_argument('--combine',nargs=2)
     args=p.parse_args();t=time.monotonic();params={k:getattr(args,k) for k in ('bits','target','panels')}
     if args.direction is not None:
         half=work(args,args.direction)
-        Path(args.output).write_text(json.dumps({'parameters':params,'half':half},indent=2)+'\n')
-        print('Half',args.direction,'completed',half['elapsed_seconds'],'peak RSS KiB',half['peak_rss_kib'],flush=True)
+        if 'checkpoint' in half:
+            payload={'parameters':params,'checkpoint':half.pop('checkpoint'),
+                     'checkpoint_parent_sha256':half.pop('checkpoint_parent_sha256'),
+                     'elapsed_seconds':half['elapsed_seconds'],
+                     'peak_rss_kib':half['peak_rss_kib']}
+            print('Half',args.direction,'safely checkpointed',payload['checkpoint']['next_panel'],
+                  'of',args.panels//2,'panels',flush=True)
+        else:
+            payload={'parameters':params,'half':half}
+            print('Half',args.direction,'completed',half['elapsed_seconds'],
+                  'peak RSS KiB',half['peak_rss_kib'],flush=True)
+        Path(args.output).write_text(json.dumps(payload,indent=2)+'\n')
         raise SystemExit(0)
     if args.combine:
         inputs=[json.loads(Path(path).read_text()) for path in args.combine]
