@@ -333,6 +333,141 @@ theorem propagation (u : ℤ → ℝ) (hu : ∀ m, 0 ≤ u m ∧ u m ≤ 1 / 2) 
       _ ≤ 8 ^ N * (1 + |t|) ^ N := by rw [one_mul]; exact hnear
       _ ≤ CN N * (1 + |t|) ^ N := mul_le_mul_of_nonneg_right hC1 (by positivity)
 
+/-! ## The Duhamel kernel: decay of `[Df(J)[E_m]]_{kl}`, (153)–(154) -/
+
+/-- `E(t)_{kl} = (e^{itJ})_{kl}`. -/
+noncomputable def Ent (u : ℤ → ℝ) (t : ℝ) (k l : ℤ) : ℂ := expEntry u l k t
+
+/-- The integrand of Duhamel's formula (155) for `H = E_m`:
+`(e^{it(1-s)J})_{k,m} (e^{itsJ})_{m-1,l} + (e^{it(1-s)J})_{k,m-1} (e^{itsJ})_{m,l}`. -/
+noncomputable def duhamelIntegrand (u : ℤ → ℝ) (k l m : ℤ) (t s : ℝ) : ℂ :=
+  Ent u (t * (1 - s)) k m * Ent u (t * s) (m - 1) l +
+    Ent u (t * (1 - s)) k (m - 1) * Ent u (t * s) m l
+
+/-- One product of two entries: propagation on the longer leg, unitarity on the other. -/
+theorem product_bound (u : ℤ → ℝ) (hu : ∀ m, 0 ≤ u m ∧ u m ≤ 1 / 2)
+    (hunit : ∀ t k l, ‖Ent u t k l‖ ≤ 1) {t t₁ t₂ : ℝ} (h1 : |t₁| ≤ |t|) (h2 : |t₂| ≤ |t|)
+    (k p q l : ℤ) :
+    ‖Ent u t₁ k p * Ent u t₂ q l‖ ≤
+      CN 5 * (1 + |t|) ^ 5 / (1 + max |(k:ℝ) - p| |(q:ℝ) - l|) ^ 5 := by
+  rw [norm_mul]
+  have hC : 0 ≤ CN 5 := by unfold CN; have := rate_pos; positivity
+  have ht : (1 + |t₁|) ^ 5 ≤ (1 + |t|) ^ 5 := pow_le_pow_left₀ (by positivity) (by linarith) 5
+  have ht2 : (1 + |t₂|) ^ 5 ≤ (1 + |t|) ^ 5 := pow_le_pow_left₀ (by positivity) (by linarith) 5
+  rcases le_total |(q:ℝ) - l| |(k:ℝ) - p| with hmax | hmax
+  · rw [max_eq_left hmax]
+    have hp := propagation u hu p k t₁ (hunit t₁ k p) 5
+    have hpos : 0 < (1 + |(k:ℝ) - p|) ^ 5 := by positivity
+    calc ‖Ent u t₁ k p‖ * ‖Ent u t₂ q l‖ ≤ ‖Ent u t₁ k p‖ * 1 :=
+          mul_le_mul_of_nonneg_left (hunit t₂ q l) (norm_nonneg _)
+      _ ≤ CN 5 * (1 + |t₁|) ^ 5 / (1 + |(k:ℝ) - p|) ^ 5 := by rw [mul_one]; exact hp
+      _ ≤ CN 5 * (1 + |t|) ^ 5 / (1 + |(k:ℝ) - p|) ^ 5 := by gcongr
+  · rw [max_eq_right hmax]
+    have hp := propagation u hu l q t₂ (hunit t₂ q l) 5
+    calc ‖Ent u t₁ k p‖ * ‖Ent u t₂ q l‖ ≤ 1 * ‖Ent u t₂ q l‖ :=
+          mul_le_mul_of_nonneg_right (hunit t₁ k p) (norm_nonneg _)
+      _ ≤ CN 5 * (1 + |t₂|) ^ 5 / (1 + |(q:ℝ) - l|) ^ 5 := by rw [one_mul]; exact hp
+      _ ≤ CN 5 * (1 + |t|) ^ 5 / (1 + |(q:ℝ) - l|) ^ 5 := by gcongr
+
+/-- Pointwise bound of the Duhamel integrand: at least one propagation distance is at least
+`(|k-m| + |m-l| - 1)/2`, whence `64 C₅ (1+|t|)^5/(1+|k-m|+|m-l|)^5`. -/
+theorem duhamelIntegrand_bound (u : ℤ → ℝ) (hu : ∀ m, 0 ≤ u m ∧ u m ≤ 1 / 2)
+    (hunit : ∀ t k l, ‖Ent u t k l‖ ≤ 1) (k l m : ℤ) (t s : ℝ) (hs : s ∈ Set.Icc (0:ℝ) 1) :
+    ‖duhamelIntegrand u k l m t s‖ ≤
+      64 * CN 5 * (1 + |t|) ^ 5 / (1 + (|(k:ℝ) - m| + |(m:ℝ) - l|)) ^ 5 := by
+  have hC : 0 ≤ CN 5 := by unfold CN; have := rate_pos; positivity
+  have hs1 : |t * (1 - s)| ≤ |t| := by
+    rw [abs_mul, abs_of_nonneg (show (0:ℝ) ≤ 1 - s by linarith [hs.2])]
+    exact mul_le_of_le_one_right (abs_nonneg t) (by linarith [hs.1])
+  have hs2 : |t * s| ≤ |t| := by
+    rw [abs_mul, abs_of_nonneg hs.1]; exact mul_le_of_le_one_right (abs_nonneg t) hs.2
+  set A := |(k:ℝ) - m| + |(m:ℝ) - l|
+  have hA : 0 ≤ A := by positivity
+  -- `1 + max ≥ (1 + A)/2` for both products
+  have key : ∀ x y : ℝ, A ≤ x + y + 1 → 0 ≤ x → 0 ≤ y →
+      CN 5 * (1 + |t|) ^ 5 / (1 + max x y) ^ 5 ≤ 32 * CN 5 * (1 + |t|) ^ 5 / (1 + A) ^ 5 := by
+    intro x y hxy hx hy
+    have hm : (1 + A) / 2 ≤ 1 + max x y := by
+      have := le_max_left x y; have := le_max_right x y; linarith
+    have hpos : 0 < (1 + A) / 2 := by positivity
+    have hp5 : ((1 + A) / 2) ^ 5 ≤ (1 + max x y) ^ 5 := pow_le_pow_left₀ hpos.le hm 5
+    have hnum : 0 ≤ CN 5 * (1 + |t|) ^ 5 := by positivity
+    calc CN 5 * (1 + |t|) ^ 5 / (1 + max x y) ^ 5
+        ≤ CN 5 * (1 + |t|) ^ 5 / ((1 + A) / 2) ^ 5 :=
+          div_le_div_of_nonneg_left hnum (by positivity) hp5
+      _ = 32 * CN 5 * (1 + |t|) ^ 5 / (1 + A) ^ 5 := by
+          rw [div_pow]; field_simp; ring
+  have e1 := product_bound u hu hunit hs1 hs2 k m (m - 1) l
+  have e2 := product_bound u hu hunit hs1 hs2 k (m - 1) m l
+  have k1 := key |(k:ℝ) - m| |((m - 1 : ℤ):ℝ) - l| (by
+    push_cast
+    have := abs_sub_abs_le_abs_sub ((m:ℝ) - l) ((m:ℝ) - 1 - l)
+    have h : (m:ℝ) - l - ((m:ℝ) - 1 - l) = 1 := by ring
+    rw [h, abs_one] at this; simp only [A]; linarith) (abs_nonneg _) (abs_nonneg _)
+  have k2 := key |(k:ℝ) - ((m - 1 : ℤ):ℝ)| |(m:ℝ) - l| (by
+    push_cast
+    have := abs_sub_abs_le_abs_sub ((k:ℝ) - m) ((k:ℝ) - (m - 1))
+    have h : (k:ℝ) - m - ((k:ℝ) - (m - 1)) = -1 := by ring
+    rw [h, abs_neg, abs_one] at this; simp only [A]; linarith) (abs_nonneg _) (abs_nonneg _)
+  unfold duhamelIntegrand
+  calc ‖Ent u (t * (1 - s)) k m * Ent u (t * s) (m - 1) l +
+        Ent u (t * (1 - s)) k (m - 1) * Ent u (t * s) m l‖
+      ≤ ‖Ent u (t * (1 - s)) k m * Ent u (t * s) (m - 1) l‖ +
+          ‖Ent u (t * (1 - s)) k (m - 1) * Ent u (t * s) m l‖ := norm_add_le _ _
+    _ ≤ 32 * CN 5 * (1 + |t|) ^ 5 / (1 + A) ^ 5 + 32 * CN 5 * (1 + |t|) ^ 5 / (1 + A) ^ 5 := by
+        have := e1.trans k1; have := e2.trans k2; push_cast at *; linarith
+    _ = 64 * CN 5 * (1 + |t|) ^ 5 / (1 + A) ^ 5 := by ring
+
+/-- **Decay of the Duhamel kernel, (153)–(154).** If `D` is given by Duhamel's formula (155)
+(a published result cited, with the Fourier inversion of `f ∈ C_c^∞`), then
+`|D| ≤ C_f/(1+|k-m|+|m-l|)^5` with `C_f = (32/π) C₅ ∫ |f̂(t)| |t| (1+|t|)^5 dt`. -/
+theorem duhamel_decay (u : ℤ → ℝ) (hu : ∀ m, 0 ≤ u m ∧ u m ≤ 1 / 2)
+    (hunit : ∀ t k l, ‖Ent u t k l‖ ≤ 1) (fhat : ℝ → ℂ)
+    (hint : MeasureTheory.Integrable (fun t => ‖fhat t‖ * |t| * (1 + |t|) ^ 5))
+    (k l m : ℤ) (D : ℂ)
+    (hD : D = (1 / (2 * Real.pi) : ℂ) *
+      ∫ t : ℝ, fhat t * (Complex.I * t) * ∫ s in (0:ℝ)..1, duhamelIntegrand u k l m t s) :
+    ‖D‖ ≤ (64 * CN 5 / (2 * Real.pi) * ∫ t : ℝ, ‖fhat t‖ * |t| * (1 + |t|) ^ 5) /
+      (1 + (|(k:ℝ) - m| + |(m:ℝ) - l|)) ^ 5 := by
+  set A := |(k:ℝ) - m| + |(m:ℝ) - l|
+  have hApos : 0 < (1 + A) ^ 5 := by positivity
+  have hC : 0 ≤ CN 5 := by unfold CN; have := rate_pos; positivity
+  have hinner : ∀ t : ℝ, ‖fhat t * (Complex.I * t) *
+      ∫ s in (0:ℝ)..1, duhamelIntegrand u k l m t s‖ ≤
+        64 * CN 5 / (1 + A) ^ 5 * (‖fhat t‖ * |t| * (1 + |t|) ^ 5) := by
+    intro t
+    have hs : ‖∫ s in (0:ℝ)..1, duhamelIntegrand u k l m t s‖ ≤
+        64 * CN 5 * (1 + |t|) ^ 5 / (1 + A) ^ 5 * |(1:ℝ) - 0| := by
+      apply intervalIntegral.norm_integral_le_of_norm_le_const
+      intro s hs
+      rw [Set.uIoc_of_le zero_le_one] at hs
+      exact duhamelIntegrand_bound u hu hunit k l m t s ⟨hs.1.le, hs.2⟩
+    rw [norm_mul, norm_mul, norm_mul, Complex.norm_I, one_mul, Complex.norm_real,
+      Real.norm_eq_abs]
+    calc ‖fhat t‖ * |t| * ‖∫ s in (0:ℝ)..1, duhamelIntegrand u k l m t s‖
+        ≤ ‖fhat t‖ * |t| * (64 * CN 5 * (1 + |t|) ^ 5 / (1 + A) ^ 5 * |(1:ℝ) - 0|) :=
+          mul_le_mul_of_nonneg_left hs (by positivity)
+      _ = 64 * CN 5 / (1 + A) ^ 5 * (‖fhat t‖ * |t| * (1 + |t|) ^ 5) := by
+          rw [sub_zero, abs_one, mul_one]; ring
+  have hout : ‖∫ t : ℝ, fhat t * (Complex.I * t) *
+      ∫ s in (0:ℝ)..1, duhamelIntegrand u k l m t s‖ ≤
+        ∫ t : ℝ, 64 * CN 5 / (1 + A) ^ 5 * (‖fhat t‖ * |t| * (1 + |t|) ^ 5) :=
+    MeasureTheory.norm_integral_le_of_norm_le (hint.const_mul _)
+      (Filter.Eventually.of_forall hinner)
+  rw [MeasureTheory.integral_const_mul] at hout
+  rw [hD, norm_mul]
+  have h2pi : ‖(1 / (2 * Real.pi) : ℂ)‖ = 1 / (2 * Real.pi) := by
+    rw [show (1 / (2 * Real.pi) : ℂ) = ((1 / (2 * Real.pi) : ℝ) : ℂ) by push_cast; ring,
+      Complex.norm_real, Real.norm_eq_abs, abs_of_pos (by positivity)]
+  rw [h2pi]
+  have hpi : 0 < 1 / (2 * Real.pi) := by positivity
+  calc 1 / (2 * Real.pi) * ‖∫ t : ℝ, fhat t * (Complex.I * t) *
+        ∫ s in (0:ℝ)..1, duhamelIntegrand u k l m t s‖
+      ≤ 1 / (2 * Real.pi) * (64 * CN 5 / (1 + A) ^ 5 *
+          ∫ t : ℝ, ‖fhat t‖ * |t| * (1 + |t|) ^ 5) := mul_le_mul_of_nonneg_left hout hpi.le
+    _ = (64 * CN 5 / (2 * Real.pi) * ∫ t : ℝ, ‖fhat t‖ * |t| * (1 + |t|) ^ 5) / (1 + A) ^ 5 := by
+        field_simp
+
 end UniformLanczos.Lemma512Propagation
 
 #print axioms UniformLanczos.Lemma512Propagation.col_eq_zero_far
@@ -343,3 +478,6 @@ end UniformLanczos.Lemma512Propagation
 #print axioms UniformLanczos.Lemma512Propagation.poly_exp_le
 #print axioms UniformLanczos.Lemma512Propagation.rate_pos
 #print axioms UniformLanczos.Lemma512Propagation.propagation
+#print axioms UniformLanczos.Lemma512Propagation.product_bound
+#print axioms UniformLanczos.Lemma512Propagation.duhamelIntegrand_bound
+#print axioms UniformLanczos.Lemma512Propagation.duhamel_decay

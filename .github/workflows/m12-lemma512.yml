@@ -52,7 +52,8 @@ jobs:
           assert 'sorryAx' not in text and 'Lean.ofReduceBool' not in text
           names = ['UniformLanczos.Lemma512Propagation.' + n for n in (
               'col_eq_zero_far', 'sum_shift_le', 'col_norm_sq_le', 'abs_col_le_one',
-              'expEntry_tail', 'poly_exp_le', 'rate_pos', 'propagation')]
+              'expEntry_tail', 'poly_exp_le', 'rate_pos', 'propagation', 'product_bound',
+              'duhamelIntegrand_bound', 'duhamel_decay')]
           for name in names:
               match = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", text)
               if match:
