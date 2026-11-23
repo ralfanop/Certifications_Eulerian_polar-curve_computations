@@ -1,0 +1,60 @@
+name: M12 Lemma 5.13 original signed two tails
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513OriginalIntegral.lean'
+      - '.github/workflows/m12-lemma513-original-integral.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-integral:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean 4
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Compile signed integrals and gM dependency
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.24.0'
+          for f in UniformLanczos/Lemma513ActualGM.lean UniformLanczos/Lemma513OriginalIntegral.lean; do
+            ! grep -n -E '^\s*(axiom|opaque)\b|\b(sorry|admit|native_decide)\b' "$f"
+          done
+          lake exe cache get
+          lake build UniformLanczos.Lemma513ActualGM 2>&1 | tee /tmp/m12-original-integral-build.log
+          lake env lean UniformLanczos/Lemma513OriginalIntegral.lean 2>&1 | tee /tmp/m12-original-integral.log
+      - name: Strict original-integral axiom audit
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/m12-original-integral.log').read_text()
+          assert not re.search(r'(^|\n).*: error:',s)
+          assert 'sorryAx' not in s and 'Lean.ofReduceBool' not in s
+          name='UniformLanczos.Lemma513OriginalIntegral.original_signed_two_tails'
+          match=re.search(r"'"+re.escape(name)+r"' depends on axioms: \[([^\]]*)\]",s)
+          if match: a={x.strip() for x in match.group(1).split(',') if x.strip()}
+          else:
+              assert "'"+name+"' does not depend on any axioms" in s,name
+              a=set()
+          assert a <= {'propext','Classical.choice','Quot.sound'},(name,a)
+          print('M12 ACTUAL ORIGINAL SIGNED INTEGRAL SUCCESS',name,sorted(a))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-original-signed-integral
+          path: |
+            /tmp/m12-original-integral-build.log
+            /tmp/m12-original-integral.log
