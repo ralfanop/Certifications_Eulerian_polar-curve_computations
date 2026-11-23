@@ -25,11 +25,11 @@ def deckA (s : G) (x : G × G) : G × G := (s * x.1, x.2)
 
 theorem phi_left_inverse (x : G × G) : phiInv (phi x) = x := by
   cases x with
-  | mk v q => simp [phi, phiInv, mul_assoc]
+  | mk v q => simp [phi, phiInv]
 
 theorem phi_right_inverse (x : G × G) : phi (phiInv x) = x := by
   cases x with
-  | mk v q => simp [phi, phiInv, mul_assoc]
+  | mk v q => simp [phi, phiInv]
 
 /-- The exact chart/deck conjugacy, without assuming commutativity. -/
 theorem phi_iota_eq_deckA_phi (s : G) (x : G × G) :
