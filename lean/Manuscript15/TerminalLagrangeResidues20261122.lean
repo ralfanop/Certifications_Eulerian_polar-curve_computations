@@ -116,29 +116,72 @@ theorem residue_integration_by_parts (f g : L) :
     residue (D f * g) + residue (f * D g) = 0 := by
   rw [← residue_add, ← derivative_mul, residue_derivative]
 
-/-- The Laurent derivative is a derivation over the real scalars. -/
-noncomputable def formalDerivation : Derivation ℝ L L :=
-  Derivation.mk'
-    { toFun := D
-      map_add' := by
-        intro f g
-        ext j
-        simp only [derivative_coeff, HahnSeries.coeff_add', Pi.add_apply]
-        ring
-      map_smul' := by
-        intro r f
-        have h := (LaurentSeries.derivative ℝ : L →ₗ[ℝ] L).map_smul r f
-        simpa only [D, smul_eq_mul] using h }
-    (by
-      intro f g
-      change D (f * g) = f • D g + g • D f
-      simpa only [smul_eq_mul, mul_comm, add_comm] using derivative_mul f g)
+/-- The derivative annihilates the multiplicative identity. -/
+theorem derivative_one : D (1 : L) = 0 := by
+  have h := derivative_mul (1 : L) 1
+  simp only [one_mul, mul_one] at h
+  have h' : D (1 : L) + 0 = D 1 + D 1 := by simpa using h
+  exact (add_left_cancel h').symm
 
-/-- Integer-power rule, valid also for negative exponents. -/
+/-- The inverse rule follows from the Laurent Leibniz identity. -/
+theorem derivative_inverse (f : L) :
+    D f⁻¹ = -(f⁻¹) ^ 2 * D f := by
+  by_cases hf : f = 0
+  · subst f
+    simp [D]
+  · have hmul : f * f⁻¹ = 1 := mul_inv_cancel₀ hf
+    have h := derivative_mul f f⁻¹
+    rw [hmul, derivative_one] at h
+    have hneg : f * D f⁻¹ = -(D f * f⁻¹) :=
+      eq_neg_of_add_eq_zero_left h.symm
+    calc
+      D f⁻¹ = (f * f⁻¹) * D f⁻¹ := by rw [hmul, one_mul]
+      _ = f⁻¹ * (f * D f⁻¹) := by ring
+      _ = f⁻¹ * (-(D f * f⁻¹)) := by rw [hneg]
+      _ = -(f⁻¹) ^ 2 * D f := by ring
+
+/-- Power rule for every positive natural exponent. -/
+theorem derivative_pow_succ (f : L) : ∀ n : ℕ,
+    D (f ^ (n + 1)) = ((n + 1 : ℕ) : L) * f ^ n * D f := by
+  intro n
+  induction n with
+  | zero => simp
+  | succ n ih =>
+      have hs : f ^ ((n + 1) + 1) = f ^ (n + 1) * f := by
+        rw [pow_succ]
+      change D (f ^ ((n + 1) + 1)) =
+        (((n + 1 + 1 : ℕ) : L) * f ^ (n + 1) * D f)
+      rw [hs, derivative_mul, ih]
+      simp only [pow_succ, Nat.cast_add, Nat.cast_one]
+      ring
+
+/-- Integer-power rule, valid also for negative exponents; independent of bundled
+derivations whose scalar-module instances may differ. -/
 theorem derivative_zpow (f : L) (k : ℤ) :
     D (f ^ k) = (k : L) * f ^ (k - 1) * D f := by
-  simpa [formalDerivation, zsmul_eq_mul, smul_eq_mul, mul_assoc] using
-    (formalDerivation.leibniz_zpow f k)
+  cases k with
+  | ofNat n =>
+      cases n with
+      | zero => simp [derivative_one]
+      | succ m =>
+          have hk : (Int.ofNat (Nat.succ m) : ℤ) - 1 = (m : ℤ) := by omega
+          rw [hk]
+          simpa [zpow_natCast, Nat.succ_eq_add_one] using
+            derivative_pow_succ f m
+  | negSucc n =>
+      have hleft : f ^ (Int.negSucc n) = (f⁻¹) ^ (n + 1) := by
+        simp [Int.negSucc_coe, zpow_neg, zpow_natCast]
+      have hright : f ^ ((Int.negSucc n) - 1) = (f⁻¹) ^ (n + 2) := by
+        have hk : (Int.negSucc n : ℤ) - 1 = -((n + 2 : ℕ) : ℤ) := by omega
+        rw [hk]
+        simp [zpow_neg, zpow_natCast]
+      have hk : ((Int.negSucc n : ℤ) : L) = -(((n + 1 : ℕ) : L)) := by
+        simp [Int.negSucc_coe]
+        push_cast
+        ring
+      rw [hleft, hright, derivative_pow_succ, derivative_inverse, hk]
+      simp only [pow_add]
+      ring
 
 /-- The algebraic integration-by-parts step in Lagrange–Bürmann, every positive order.
 The change-of-variable identity is a separate next theorem. -/
@@ -160,6 +203,7 @@ theorem residue_lagrange_by_parts (g f : L) (n : ℕ) :
     simp only [residue, HahnSeries.coeff_neg, HahnSeries.coeff_nsmul,
       Pi.smul_apply]
     simp only [nsmul_eq_mul]
+    ring
   rw [hneg] at h
   linarith
 
