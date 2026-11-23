@@ -25,9 +25,8 @@ private lemma truncation_gap_sum (N : ℕ) (θ : ℝ) :
         ∑ n ∈ Finset.range N,
           (A (n + 1) * Real.cos ((n + 1 : ℝ) * θ) -
            A (n + 1) * Real.cos ((n + 1 : ℝ) * π)) := by
-      unfold S
-      rw [Finset.sum_sub_distrib]
-      ring_nf
+      simp only [S, Finset.sum_sub_distrib]
+      abel
     _ = _ := by
       apply Finset.sum_congr rfl
       intro n hn
