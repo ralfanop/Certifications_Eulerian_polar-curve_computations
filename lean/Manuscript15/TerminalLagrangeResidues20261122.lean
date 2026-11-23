@@ -133,7 +133,7 @@ theorem derivative_inverse (f : L) :
     have h := derivative_mul f f⁻¹
     rw [hmul, derivative_one] at h
     have hneg : f * D f⁻¹ = -(D f * f⁻¹) :=
-      eq_neg_of_add_eq_zero_left h.symm
+      eq_neg_of_add_eq_zero_left (by simpa only [add_comm] using h.symm)
     calc
       D f⁻¹ = (f * f⁻¹) * D f⁻¹ := by rw [hmul, one_mul]
       _ = f⁻¹ * (f * D f⁻¹) := by ring
@@ -164,21 +164,22 @@ theorem derivative_zpow (f : L) (k : ℤ) :
       cases n with
       | zero => simp [derivative_one]
       | succ m =>
-          have hk : (Int.ofNat (Nat.succ m) : ℤ) - 1 = (m : ℤ) := by omega
+          change D (f ^ (((m + 1 : ℕ) : ℤ))) =
+            (((m + 1 : ℕ) : L) * f ^ ((((m + 1 : ℕ) : ℤ) - 1)) * D f)
+          have hk : (((m + 1 : ℕ) : ℤ) - 1) = (m : ℤ) := by
+            push_cast
+            ring
           rw [hk]
-          simpa [zpow_natCast, Nat.succ_eq_add_one] using
-            derivative_pow_succ f m
+          simpa only [zpow_natCast] using derivative_pow_succ f m
   | negSucc n =>
       have hleft : f ^ (Int.negSucc n) = (f⁻¹) ^ (n + 1) := by
-        simp [Int.negSucc_coe, zpow_neg, zpow_natCast]
+        simp [zpow_natCast]
       have hright : f ^ ((Int.negSucc n) - 1) = (f⁻¹) ^ (n + 2) := by
-        have hk : (Int.negSucc n : ℤ) - 1 = -((n + 2 : ℕ) : ℤ) := by omega
-        rw [hk]
-        simp [zpow_neg, zpow_natCast]
+        have hs : (Int.negSucc n : ℤ) - 1 = -((n + 2 : ℕ) : ℤ) := by omega
+        rw [hs, zpow_neg, zpow_natCast]
+        simp only [inv_pow]
       have hk : ((Int.negSucc n : ℤ) : L) = -(((n + 1 : ℕ) : L)) := by
-        simp [Int.negSucc_coe]
-        push_cast
-        ring
+        simp
       rw [hleft, hright, derivative_pow_succ, derivative_inverse, hk]
       simp only [pow_add]
       ring
