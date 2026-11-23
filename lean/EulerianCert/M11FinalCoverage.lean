@@ -21,7 +21,7 @@ private lemma truncation_gap_sum (N : ℕ) (θ : ℝ) :
       ∑ n ∈ Finset.range N,
         (cE n + (-1 : ℝ) ^ n * cE n * Real.cos ((n + 1 : ℝ) * θ)) := by
   let F : ℕ → ℝ → ℝ :=
-    fun n x => A (n + 1) * Real.cos ((n + 1 : ℝ) * x)
+    fun n x => A (n + 1) * Real.cos ((n + 1 : ℕ) * x)
   have hs (x : ℝ) :
       S N x = A 0 / 2 + ∑ n ∈ Finset.range N, F n x := rfl
   calc
@@ -33,6 +33,7 @@ private lemma truncation_gap_sum (N : ℕ) (θ : ℝ) :
       apply Finset.sum_congr rfl
       intro n hn
       dsimp [F]
+      simp only [Nat.cast_add, Nat.cast_one]
       rw [A_succ_eq]
       rw [term_pi (c := cE) n]
       ring
