@@ -27,7 +27,10 @@ theorem curvature_minimum_bound (nu : ℝ)
     (hnu : nu ≠ 0) (hbound : nu ^ 2 ≤ 1) :
     7 ≤ curvatureNu nu := by
   have hnonneg : 0 ≤ nu ^ 2 := sq_nonneg nu
-  have hp : 0 < nu ^ 4 := pow_pos (sq_pos_of_ne_zero hnu) 2
+  have hp : 0 < nu ^ 4 := by
+    calc
+      0 < (nu ^ 2) ^ 2 := pow_pos (sq_pos_of_ne_zero hnu) 2
+      _ = nu ^ 4 := by ring
   have hle : nu ^ 4 ≤ 1 := by
     have hmul : 0 ≤ nu ^ 2 * (1 - nu ^ 2) :=
       mul_nonneg hnonneg (by linarith)
@@ -49,14 +52,21 @@ theorem curvature_rational_factor (nu : ℝ)
       curvatureNu nu := by
   unfold curvatureNu
   field_simp [hnu, hchart]
-  ring
 
-/-- A normalized future null lift is on both unit spheres,
-provided its polynomial representative satisfies the null equation. -/
-theorem normalized_null_lift (a b : ℝ)
-    (ha : 0 ≤ a) (hb : 0 ≤ b) (hnul : a = b) :
-    a / (1 + b) = b / (1 + a) := by
-  rw [hnul]
+/-- Normalizing the polynomial null lift by a common positive radius
+puts the real-imaginary time pair and the spatial four-vector on unit
+spheres. This proves the stated component norm equations, not smoothness
+or the geometric embedding itself. -/
+theorem normalized_null_lift (t y z rho R : ℝ)
+    (hnull : y ^ 2 + z ^ 2 + rho ^ 4 + 1 = t ^ 2 + 1)
+    (hR : R ^ 2 = t ^ 2 + 1)
+    (hRn : R ≠ 0) :
+    (t / R) ^ 2 + (1 / R) ^ 2 = 1 ∧
+    (y / R) ^ 2 + (z / R) ^ 2 + (rho ^ 2 / R) ^ 2 +
+      (1 / R) ^ 2 = 1 := by
+  constructor
+  · field_simp [hRn] <;> nlinarith [hR]
+  · field_simp [hRn] <;> nlinarith [hR, hnull]
 
 #print axioms EulerianCert.CyclohedralFeffermanCurvature20261123.curvature_two_coordinates
 #print axioms EulerianCert.CyclohedralFeffermanCurvature20261123.curvature_minimum_bound
