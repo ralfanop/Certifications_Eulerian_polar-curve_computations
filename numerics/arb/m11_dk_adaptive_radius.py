@@ -4,7 +4,7 @@ The two-sided phase transport of #399 is retained. Each angular chart uses
 an exact dyadic audit of its own neighbourhood, rather than the worst global
 inverse radius. Choose the order by an outward Cauchy tail check.
 """
-import argparse,json,math,resource,time
+import argparse,hashlib,json,math,resource,time
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from flint import acb,arb,arb_poly,ctx
@@ -56,8 +56,11 @@ def local_radii():
 
 
 class Local(TwoSided):
-    def __init__(self,bits,target,panels):
-        self.target=target;self.radii=local_radii()
+    def __init__(self,bits,target,panels,certified_length_manifest=None):
+        self.target=target
+        self.certified_length_manifest=certified_length_manifest
+        self.historical_euler_source=None
+        self.radii=local_radii()
         # The inherited uniform radius is used for the translation bound.
         step=arb(1)/panels;R=min(x for row in self.radii.values() for x in row)
         maxorder=self.order_for(R,step)
@@ -76,7 +79,33 @@ class Local(TwoSided):
         if kind=='L':return super().build_chart(kind)
         target=self.target+self.maxorder+768
         assert target<self.bits-128
-        length=length_evaluate(self.bits,target)/2
+        if self.certified_length_manifest is None:
+            length=length_evaluate(self.bits,target)/2
+        else:
+            # Source: full Eulerian length, CI 44359739062 (32 panels).
+            # Its exact 20,000-decimal cell was separately re-audited by
+            # workflow m11-20000-length-reaudit.yml. Never relabel the
+            # historical CI as a new-HEAD numerical computation.
+            raw=Path(self.certified_length_manifest).read_bytes()
+            digest=hashlib.sha256(raw).hexdigest()
+            expected="a606d305f7d4c773695cee61cf56268022ec9cc5525f689f301e8822f22fe7b5"
+            if digest!=expected:
+                raise ValueError("historical full Eulerian length manifest SHA256 mismatch")
+            manifest=json.loads(raw)
+            if (manifest.get("working_bits"),manifest.get("threshold_bits"),
+                    manifest.get("panels"),manifest.get("index"))!=(110000,100000,32,None):
+                raise ValueError("historical complete length manifest parameters mismatch")
+            length=from_endpoints(manifest["enclosure"])/2
+            if length.rel_accuracy_bits()<target:
+                raise ValueError("historical full length interval not accurate enough for inverse-ODE Cauchy tail")
+            self.historical_euler_source={
+                "source_ci":44359739062,
+                "source_head_sha":"6ddb354a85832bf5b35538996d7d619c63ac9a16",
+                "manifest_sha256":digest,
+                "reported_original_relative_bits":manifest["enclosure"].get("relative_bits"),
+            }
+            print("Reused exact historical 100k full Eulerian length interval",
+                  "needed inverse-ODE chart bits",target,flush=True)
         assert 0<length<3
         self.charts[kind]={'length':length}
         return length
@@ -138,13 +167,17 @@ class Local(TwoSided):
 
 
 def work(args,direction):
-    t=time.monotonic();c=Local(args.bits,args.target,args.panels)
+    t=time.monotonic();c=Local(args.bits,args.target,args.panels,args.certified_length_manifest)
     E=c.build_chart('E');L=c.build_chart('L');v,orders=c.half(direction)
-    return {'direction':direction,'orders':orders,'integral':exact_endpoints(v),'Eulerian_half_length':exact_endpoints(E),'limacon_half_length':exact_endpoints(L),'elapsed_seconds':time.monotonic()-t,'peak_rss_kib':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss}
+    result={'direction':direction,'orders':orders,'integral':exact_endpoints(v),'Eulerian_half_length':exact_endpoints(E),'limacon_half_length':exact_endpoints(L),'elapsed_seconds':time.monotonic()-t,'peak_rss_kib':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss}
+    if c.historical_euler_source is not None:
+        result['historical_euler_source']=c.historical_euler_source
+    return result
 
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--bits',type=int,default=4096);p.add_argument('--target',type=int,default=1000);p.add_argument('--panels',type=int,default=32);p.add_argument('--output',default='m11-dk-local.json')
+    p.add_argument('--certified-length-manifest',default=None,help='Historical successful complete 32-panel Eulerian length manifest; SHA256 pinned')
     mode=p.add_mutually_exclusive_group();mode.add_argument('--parallel',action='store_true');mode.add_argument('--direction',type=int,choices=(-1,1));mode.add_argument('--combine',nargs=2)
     args=p.parse_args();t=time.monotonic();params={k:getattr(args,k) for k in ('bits','target','panels')}
     if args.direction is not None:
@@ -162,6 +195,9 @@ if __name__=='__main__':
     else:halves=[work(args,d) for d in (1,-1)]
     assert sorted(x['direction'] for x in halves)==[-1,1]
     assert all(len(x['orders'])==args.panels//2 for x in halves)
+    source_tags=[x.get('historical_euler_source') for x in halves]
+    if any(tag is not None for tag in source_tags):
+        assert source_tags[0] is not None and source_tags[0]==source_tags[1], "historical Euler length origins must agree"
     ctx.prec=args.bits
     for name in ('Eulerian_half_length','limacon_half_length'):
         assert from_endpoints(halves[0][name]).overlaps(from_endpoints(halves[1][name]))
