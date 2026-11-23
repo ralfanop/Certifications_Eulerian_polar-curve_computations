@@ -36,7 +36,8 @@ jobs:
           from pathlib import Path
           log=Path('/tmp/m15-weighted-convolution.log').read_text()
           names=['Manuscript15.TerminalLagrangeWeighted.'+s for s in (
-             'weighted_derivative','weighted_coefficient','weighted_finite_convolution')]
+             'weighted_derivative','weighted_coefficient','weighted_finite_convolution',
+             'fixedpoint_subst_finite','fixedpoint_power_finite_sum')]
           for name in names:
               m=re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]",log,re.S)
               assert m or ("'"+name+"' does not depend on any axioms") in log, name
