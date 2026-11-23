@@ -90,9 +90,10 @@ theorem fixedpoint_diagonal (H ψ : P)
   have h0 := fixedpoint_constantCoeff_zero H ψ hH
   have hs : PowerSeries.constantCoeff (PowerSeries.subst H ψ) =
       PowerSeries.constantCoeff ψ := by
-    simpa using
-      (PowerSeries.constantCoeff_subst_of_constantCoeff_zero
-        (R := ℝ) (S := ℝ) (a := H) h0 ψ)
+    change MvPowerSeries.constantCoeff (PowerSeries.subst H ψ) =
+      PowerSeries.constantCoeff ψ
+    exact PowerSeries.constantCoeff_subst_of_constantCoeff_zero
+      (R := ℝ) (S := ℝ) (a := H) h0 ψ
   rw [coeff_factored_diagonal H (PowerSeries.subst H ψ) hH]
   simp only [PowerSeries.coeff_zero_eq_constantCoeff_apply, hs, map_pow]
 
