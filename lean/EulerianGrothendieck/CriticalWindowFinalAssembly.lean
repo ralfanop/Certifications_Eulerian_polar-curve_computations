@@ -147,6 +147,8 @@ theorem actual_profile_scaled (e u w : ℝ) :
          ((e^2*w : ℝ) : ℂ)*Complex.I := by
       push_cast
       field_simp [hs3]
+      ring_nf
+      rw [Complex.I_sq]
       ring
     _ = ((u*e/Real.sqrt 2 : ℝ) : ℂ) +
           ((-w*e^2/Real.sqrt 2 : ℝ) : ℂ)*Complex.I := by
