@@ -1,0 +1,62 @@
+name: M17 Cassini area FLINT Arb 30000 exact decimal places
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m17_cassini_area_30000_decimal.py'
+      - '.github/workflows/m17-cassini-area-arb-30000-decimal.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact commit and pinned python-flint
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install 'python-flint==0.9.0'
+          python -m py_compile numerics/arb/m17_cassini_area_30000_decimal.py
+      - name: Prove strict exact 30000-place rounding for M17 area and L8
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python numerics/arb/m17_cassini_area_30000_decimal.py 2>&1 | tee m17-cassini-area-arb-30000.log
+          grep -F "SUCCESS M17 ARB 30000 EXACT DECIMAL PLACES" m17-cassini-area-arb-30000.log
+          grep -F "Historical M17 Arb 20,000-place SHA256 regression: PASS" m17-cassini-area-arb-30000.log
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          p=Path('m17-cassini-area-arb-30000-decimal-certificate.json')
+          d=json.loads(p.read_text())
+          assert d['status']=='CERTIFIED'
+          assert d['working_bits']==120000
+          assert d['required_min_relative_accuracy_bits']==110000
+          assert d['precision_definition']=='30,000 digits AFTER decimal point'
+          assert len(d['values'])==2
+          for v in d['values']:
+            assert v['decimal_places']==30000
+            assert len(v['rounded_decimal'].split('.')[1])==30000
+            assert v['relative_accuracy_bits']>=110000
+            assert v['strict_half_ulp_rounding_cell']
+            assert hashlib.sha256(v['rounded_decimal'].encode('ascii')).hexdigest()==v['rounded_sha256']
+            assert v['lower_endpoint_exact'] and v['upper_endpoint_exact']
+            assert v['arb_ball']
+          print('STRICT M17 ARB 30000 PLACE GATE PASSED')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m17-cassini-area-arb-30000-decimal-certificate
+          path: |
+            m17-cassini-area-arb-30000.log
+            m17-cassini-area-arb-30000-decimal-certificate.json
+          if-no-files-found: warn
