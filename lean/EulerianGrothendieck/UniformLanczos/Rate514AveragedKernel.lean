@@ -61,11 +61,11 @@ theorem averageKernel_quadratic_integral (K : ℝ → ℤ → ℤ → ℝ)
   have hinner (k : ℤ) :
       IntervalIntegrable (fun τ : ℝ => ∑ m ∈ W, K τ k m * x k * x m)
         volume (0 : ℝ) 1 := by
-    exact IntervalIntegrable.sum (fun m _ => hterm k m)
-  rw [intervalIntegral.integral_finsetSum (fun k _ => hinner k)]
+    exact IntervalIntegrable.sum W (fun m _ => hterm k m)
+  rw [intervalIntegral.integral_finset_sum (fun k _ => hinner k)]
   apply Finset.sum_congr rfl
   intro k hk
-  rw [intervalIntegral.integral_finsetSum (fun m _ => hterm k m)]
+  rw [intervalIntegral.integral_finset_sum (fun m _ => hterm k m)]
   apply Finset.sum_congr rfl
   intro m hm
   unfold averageKernel
@@ -96,10 +96,8 @@ theorem averageKernel_decay (K : ℝ → ℤ → ℤ → ℝ) {Cf : ℝ}
     (C := Cf * ((1 + |(k : ℝ) - (m : ℝ)|) ^ 5)⁻¹)
     (fun τ hτ => by
       rw [Real.norm_eq_abs]
-      have hI : τ ∈ Icc (0 : ℝ) 1 := by
-        simpa only [uIoc_of_le (by norm_num : (0 : ℝ) ≤ 1)] using
-          (show τ ∈ uIoc (0 : ℝ) 1 from hτ)
-      exact hDecay τ ⟨hI.1.le, hI.2⟩ k m)
+      rw [uIoc_of_le (by norm_num : (0 : ℝ) ≤ 1)] at hτ
+      exact hDecay τ ⟨hτ.1.le, hτ.2⟩ k m)
   rw [sub_zero, abs_one, mul_one, Real.norm_eq_abs] at h
   exact h
 
