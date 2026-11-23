@@ -34,7 +34,7 @@ theorem floor_window_eventually {t₁ : ℝ} (ht₁ : 0 < t₁) (L : ℕ) :
   have hMlower : ((16 : ℝ) + 8 * ((L : ℝ) + 1)) / t₁ < (M : ℝ) :=
     lt_of_lt_of_le hM₀ hMc
   have hbound : (16 : ℝ) + 8 * ((L : ℝ) + 1) < t₁ * (M : ℝ) :=
-    (div_lt_iff₀ ht₁).mp hMlower
+    (by simpa only [mul_comm (M : ℝ) t₁] using (div_lt_iff₀ ht₁).mp hMlower)
   have hMpos : 0 < (M : ℝ) := by
     by_contra hh
     have hn : (M : ℝ) ≤ 0 := le_of_not_gt hh
