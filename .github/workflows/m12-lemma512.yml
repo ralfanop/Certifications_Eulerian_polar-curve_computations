@@ -28,7 +28,7 @@ jobs:
         working-directory: lean/EulerianGrothendieck
         run: |
           set -euo pipefail
-          for f in UniformLanczos/Lemma512Propagation.lean; do
+          for f in UniformLanczos/Lemma512Propagation.lean UniformLanczos/Lemma512Kernel.lean; do
             ! grep -n -E '^\s*(axiom|opaque)\b' "$f"
             ! grep -n -w -E 'sorry|admit|native_decide' "$f"
           done
@@ -39,6 +39,7 @@ jobs:
           lean --version
           lake exe cache get
           lake env lean UniformLanczos/Lemma512Propagation.lean 2>&1 | tee /tmp/m12-lemma512.log
+          lake env lean UniformLanczos/Lemma512Kernel.lean 2>&1 | tee -a /tmp/m12-lemma512.log
           git rev-parse HEAD
       - name: Strict individual axiom audit
         run: |
@@ -53,7 +54,9 @@ jobs:
           names = ['UniformLanczos.Lemma512Propagation.' + n for n in (
               'col_eq_zero_far', 'sum_shift_le', 'col_norm_sq_le', 'abs_col_le_one',
               'expEntry_tail', 'poly_exp_le', 'rate_pos', 'propagation', 'product_bound',
-              'duhamelIntegrand_bound', 'duhamel_decay')]
+              'duhamelIntegrand_bound', 'duhamel_decay')] + ['UniformLanczos.Lemma512Kernel.' + n for n in (
+              'divDiff_nonneg', 'compressed_form_nonneg', 'kernel_psd_of_limit', 'kernel_symm_of_limit',
+              'average_psd', 'average_symm', 'average_decay')]
           for name in names:
               match = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", text)
               if match:
