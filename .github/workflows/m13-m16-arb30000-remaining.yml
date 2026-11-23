@@ -1,0 +1,76 @@
+name: M13-M16 remaining historic FLINT Arb exact 30000-place replay
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/m13-m16-arb30000-remaining.yml'
+      - 'numerics/arb/m13_m16_strict_30000_replay.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  certify:
+    name: 30000-decimals (${{ matrix.label }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {label: m15-revision, run: 43724374973, artifact: m15-revision-million}
+          - {label: m15-lipschitz, run: 43921676294, artifact: m15-lipschitz-extensions-million}
+          - {label: shared-det4, run: 44263029044, artifact: shared-det4-moment-enclosures}
+          - {label: m16-v165-reconciliation, run: 44322620584, artifact: m16-v165-reconciliation-million}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check exact PR HEAD and successful source run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/${{ matrix.run }} --jq .conclusion)" = success
+          python -m pip install 'python-flint==0.9.0'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: ${{ github.repository }}
+          run-id: ${{ matrix.run }}
+          github-token: ${{ github.token }}
+          name: ${{ matrix.artifact }}
+          path: archive
+      - name: Exact full-cell inclusion in 30000-place rounding cell
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd archive
+          gzip -t million-enclosures.jsonl.gz
+          python ../numerics/arb/m13_m16_strict_30000_replay.py \
+            --label '${{ matrix.label }}' \
+            --source-run '${{ matrix.run }}' \
+            --source-artifact '${{ matrix.artifact }}' 2>&1 | tee arb30000.log
+          grep -F "SUCCESS STRICT 30000 FIXED DECIMAL ARB REPLAY ${{ matrix.label }}" arb30000.log
+          gzip -t arb30000-${{ matrix.label }}.jsonl.gz
+          python - <<'PY'
+          import json,glob
+          j=json.load(open(glob.glob('arb30000-*.json')[0]))
+          assert j['status']=='CERTIFIED_BY_EXACT_REPLAY'
+          assert j['decimal_places_after_point']==30000
+          assert j['certificate_count']>0
+          print('SUCCESS REMAINING FLINT DECIMAL30000',j['certificate_count'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: arb30000-${{ matrix.label }}
+          path: |
+            archive/arb30000.log
+            archive/arb30000-${{ matrix.label }}.json
+            archive/arb30000-${{ matrix.label }}.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn
