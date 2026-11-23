@@ -70,6 +70,51 @@ theorem weighted_finite_convolution (ψ : P) (m k : ℕ) (hm : 0 < m) :
   simpa only [PowerSeries.coeff_mul, PowerSeries.coeff_derivative]
     using weighted_coefficient ψ m k hm
 
+
+/-- Substitution has an exact *finite* coefficient expansion when the
+inner series H has zero constant term. The bound j ≤ m follows from
+H = X * ψ(H), without any analytic convergence assumption. -/
+theorem fixedpoint_subst_finite (H ψ : P)
+    (hH : H = PowerSeries.X * PowerSeries.subst H ψ)
+    (m k : ℕ) :
+    PowerSeries.coeff m ((PowerSeries.subst H ψ) ^ k) =
+      ∑ j ∈ Finset.range (m + 1),
+        PowerSeries.coeff j (ψ ^ k) * PowerSeries.coeff m (H ^ j) := by
+  have h0 := Manuscript15.TerminalLagrangeFinite.fixedpoint_constantCoeff_zero H ψ hH
+  have hs : PowerSeries.HasSubst H :=
+    PowerSeries.HasSubst.of_constantCoeff_zero' h0
+  rw [← PowerSeries.subst_pow hs ψ k, PowerSeries.coeff_subst' hs]
+  rw [finsum_eq_sum_of_support_subset (s := Finset.range (m + 1))]
+  · simp only [smul_eq_mul]
+  · intro j hj
+    by_contra hj'
+    have hjgt : m < j := by
+      have hn : ¬ j < m + 1 := by
+        intro hlt
+        exact hj' (Finset.mem_range.mpr hlt)
+      omega
+    have hz : PowerSeries.coeff m (H ^ j) = 0 :=
+      Manuscript15.TerminalLagrangeFinite.coeff_factored_below
+        H (PowerSeries.subst H ψ) hH m j hjgt
+    have hzero :
+        PowerSeries.coeff j (ψ ^ k) • PowerSeries.coeff m (H ^ j) = 0 := by
+      simp [hz]
+    exact (Function.mem_support.mp hj) hzero
+
+/-- A true *finite* triangular recurrence for powers of the implicit
+solution H = X * ψ(H), valid uniformly in m and k. -/
+theorem fixedpoint_power_finite_sum (H ψ : P)
+    (hH : H = PowerSeries.X * PowerSeries.subst H ψ)
+    (m k : ℕ) :
+    PowerSeries.coeff (m + k) (H ^ k) =
+      ∑ j ∈ Finset.range (m + 1),
+        PowerSeries.coeff j (ψ ^ k) * PowerSeries.coeff m (H ^ j) := by
+  rw [Manuscript15.TerminalLagrangeFinite.fixedpoint_coeff_shift H ψ hH m k]
+  exact fixedpoint_subst_finite H ψ hH m k
+
+#print axioms Manuscript15.TerminalLagrangeWeighted.fixedpoint_subst_finite
+#print axioms Manuscript15.TerminalLagrangeWeighted.fixedpoint_power_finite_sum
+
 #print axioms Manuscript15.TerminalLagrangeWeighted.weighted_derivative
 #print axioms Manuscript15.TerminalLagrangeWeighted.weighted_coefficient
 #print axioms Manuscript15.TerminalLagrangeWeighted.weighted_finite_convolution
