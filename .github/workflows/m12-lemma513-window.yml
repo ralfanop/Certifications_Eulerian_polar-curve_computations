@@ -33,7 +33,7 @@ jobs:
             ! grep -n -E '^\s*(axiom|opaque)\b|\b(sorry|admit|native_decide)\b' "$f"
           done
           lake exe cache get
-          lake build UniformLanczos.Lemma513BondGap 2>&1 | tee /tmp/m12-window-build.log
+          lake build UniformLanczos.Lemma513BondGap UniformLanczos.Lemma513Tails 2>&1 | tee /tmp/m12-window-build.log
           lake env lean UniformLanczos/Lemma513BondWindow.lean 2>&1 | tee /tmp/m12-window.log
       - name: Strict transitive axiom audit
         run: |
