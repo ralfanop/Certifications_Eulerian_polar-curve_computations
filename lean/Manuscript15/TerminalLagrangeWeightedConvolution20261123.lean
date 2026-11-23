@@ -55,14 +55,14 @@ theorem weighted_coefficient (ψ : P) (m k : ℕ) (hm : 0 < m) :
   have hm' : m - 1 + 1 = m := by omega
   rw [hm'] at h
   push_cast at h
-  convert h using 1 <;> ring
+  simpa only [Nat.cast_add, mul_comm, mul_left_comm, mul_assoc] using h
 
 /-- The weighted finite Cauchy convolution, indexed by the antidiagonal.
 This is the key identity required to prove that Lagrange--Bürmann's
 candidate coefficients satisfy the inverse-series recurrence. -/
 theorem weighted_finite_convolution (ψ : P) (m k : ℕ) (hm : 0 < m) :
     ((m + k : ℕ) : ℝ) *
-        (∑ p ∈ Nat.antidiagonal (m - 1),
+        (∑ p ∈ Finset.antidiagonal (m - 1),
           (PowerSeries.coeff (p.1 + 1) (ψ ^ k) * ((p.1 + 1 : ℕ) : ℝ)) *
             PowerSeries.coeff p.2 (ψ ^ m)) =
       ((k : ℝ) * (m : ℝ)) *
@@ -130,7 +130,7 @@ theorem weighted_range_convolution (ψ : P) (m k : ℕ) (hm : 0 < m) :
       (∑ j ∈ Finset.range (m + 1),
         PowerSeries.coeff j (ψ ^ k) *
           ((j : ℝ) * PowerSeries.coeff (m - j) (ψ ^ m))) =
-      (∑ p ∈ Nat.antidiagonal (m - 1),
+      (∑ p ∈ Finset.antidiagonal (m - 1),
         (PowerSeries.coeff (p.1 + 1) (ψ ^ k) * ((p.1 + 1 : ℕ) : ℝ)) *
           PowerSeries.coeff p.2 (ψ ^ m)) := by
     rw [Finset.sum_range_succ']
