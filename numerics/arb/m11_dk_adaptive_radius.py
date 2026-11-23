@@ -4,7 +4,7 @@ The two-sided phase transport of #399 is retained. Each angular chart uses
 an exact dyadic audit of its own neighbourhood, rather than the worst global
 inverse radius. Choose the order by an outward Cauchy tail check.
 """
-import argparse,hashlib,json,math,resource,time
+import argparse,hashlib,json,math,resource,time,sys
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from flint import acb,arb,arb_poly,ctx
@@ -12,6 +12,12 @@ from m11_dk_twosided import TwoSided,from_endpoints
 from m11_dk_continuation import zero_jet
 from m11_dk_ode import geom,theta_jet,exact_endpoints
 from m11_euler_cauchy import evaluate as length_evaluate
+
+# Exact rational Arb endpoints exceed Python 3.11+'s default 4300-digit
+# integer-string limit at the required 20,000-decimal output precision.
+# This only lifts a serialization guard; interval rigor is unchanged.
+if hasattr(sys,'set_int_max_str_digits'):
+    sys.set_int_max_str_digits(0)
 
 
 def local_radii():
