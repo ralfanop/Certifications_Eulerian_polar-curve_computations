@@ -231,6 +231,89 @@ theorem closed_monomial_coeff (H ψ : P)
 
 #print axioms Manuscript15.TerminalLagrangeWeighted.closed_monomial_coeff
 
+
+/-- Coefficients of a general outer series after substitution are finite
+when H has order at least one. -/
+theorem general_subst_finite (H ψ G : P)
+    (hH : H = PowerSeries.X * PowerSeries.subst H ψ) (n : ℕ) :
+    PowerSeries.coeff n (PowerSeries.subst H G) =
+      ∑ k ∈ Finset.range (n + 1),
+        PowerSeries.coeff k G * PowerSeries.coeff n (H ^ k) := by
+  have h0 := Manuscript15.TerminalLagrangeFinite.fixedpoint_constantCoeff_zero H ψ hH
+  have hs : PowerSeries.HasSubst H :=
+    PowerSeries.HasSubst.of_constantCoeff_zero' h0
+  rw [PowerSeries.coeff_subst' hs]
+  rw [finsum_eq_sum_of_support_subset (s := Finset.range (n + 1))]
+  · simp only [smul_eq_mul]
+  · intro k hk
+    by_contra hkn
+    have hkgt : n < k := by
+      have hnot : ¬ k < n + 1 := by
+        intro hlt
+        exact hkn (Finset.mem_range.mpr hlt)
+      omega
+    have hz : PowerSeries.coeff n (H ^ k) = 0 :=
+      Manuscript15.TerminalLagrangeFinite.coeff_factored_below
+        H (PowerSeries.subst H ψ) hH n k hkgt
+    have heq :
+        PowerSeries.coeff k G • PowerSeries.coeff n (H ^ k) = 0 := by
+      simp [hz]
+    exact (Function.mem_support.mp hk) heq
+
+/-- Coefficients of G'Q as a finite derivative-weighted range sum. -/
+theorem coeff_derivative_mul_as_range (G Q : P) (n : ℕ) (hn : 0 < n) :
+    PowerSeries.coeff (n - 1)
+        (((PowerSeries.derivative (R := ℝ)) G) * Q) =
+      ∑ k ∈ Finset.range (n + 1),
+        ((k : ℝ) * PowerSeries.coeff k G) *
+          PowerSeries.coeff (n - k) Q := by
+  rw [PowerSeries.coeff_mul, Finset.Nat.sum_antidiagonal_eq_sum_range_succ]
+  simp_rw [PowerSeries.coeff_derivative]
+  have hn' : (n - 1).succ = n := by omega
+  rw [hn']
+  conv_rhs => rw [Finset.sum_range_succ']
+  simp only [Nat.cast_zero, zero_mul, zero_add]
+  apply Finset.sum_congr rfl
+  intro k _
+  have hsub : n - (k + 1) = n - 1 - k := by omega
+  rw [hsub]
+  ring
+
+/-- Closed Lagrange--Bürmann coefficient identity for any outer formal
+power series G and every positive order n. This follows from the
+already established monomial identity and finite coefficient substitution. -/
+theorem closed_general_coeff (H ψ G : P)
+    (hH : H = PowerSeries.X * PowerSeries.subst H ψ)
+    (n : ℕ) (hn : 0 < n) :
+    (n : ℝ) * PowerSeries.coeff n (PowerSeries.subst H G) =
+      PowerSeries.coeff (n - 1)
+        (((PowerSeries.derivative (R := ℝ)) G) * ψ ^ n) := by
+  rw [general_subst_finite H ψ G hH n, Finset.mul_sum,
+    coeff_derivative_mul_as_range G (ψ ^ n) n hn]
+  apply Finset.sum_congr rfl
+  intro k hk
+  by_cases hkzero : k = 0
+  · subst k
+    simp
+  · have hkpos : 0 < k := Nat.pos_of_ne_zero hkzero
+    have hkle : k ≤ n := by
+      have hlt := Finset.mem_range.mp hk
+      omega
+    have hmono := closed_monomial_coeff H ψ hH n k hkpos hkle
+    calc
+      (n : ℝ) *
+          (PowerSeries.coeff k G * PowerSeries.coeff n (H ^ k)) =
+        PowerSeries.coeff k G *
+          ((n : ℝ) * PowerSeries.coeff n (H ^ k)) := by ring
+      _ = PowerSeries.coeff k G *
+          ((k : ℝ) * PowerSeries.coeff (n - k) (ψ ^ n)) := by rw [hmono]
+      _ = ((k : ℝ) * PowerSeries.coeff k G) *
+          PowerSeries.coeff (n - k) (ψ ^ n) := by ring
+
+#print axioms Manuscript15.TerminalLagrangeWeighted.general_subst_finite
+#print axioms Manuscript15.TerminalLagrangeWeighted.coeff_derivative_mul_as_range
+#print axioms Manuscript15.TerminalLagrangeWeighted.closed_general_coeff
+
 #print axioms Manuscript15.TerminalLagrangeWeighted.weighted_derivative
 #print axioms Manuscript15.TerminalLagrangeWeighted.weighted_coefficient
 #print axioms Manuscript15.TerminalLagrangeWeighted.weighted_finite_convolution
