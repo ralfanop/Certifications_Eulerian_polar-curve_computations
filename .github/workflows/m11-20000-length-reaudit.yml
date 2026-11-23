@@ -1,0 +1,70 @@
+name: "M11 historical 100k full length — independent 20k decimal audit"
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m11_20000_length_historical_verify.py'
+      - '.github/workflows/m11-20000-length-reaudit.yml'
+      - 'numerics/arb/m11_remaining_3600000_final_audit.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  reaudited-length:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact current auditor source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify historical GitHub run succeeded on its original exact SHA
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          AUDITOR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$AUDITOR_HEAD"
+          test "$(gh api "repos/$REPO/actions/runs/44359739062" --jq .conclusion)" = "success"
+          test "$(gh api "repos/$REPO/actions/runs/44359739062" --jq .head_sha)" = "6ddb354a85832bf5b35538996d7d619c63ac9a16"
+      - name: Retrieve all original run artifacts by immutable run ID
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44359739062
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          pattern: m11-euler-panel-*
+          path: historical-artifacts
+      - name: Install pinned Arb bindings
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install 'python-flint==0.9.0'
+      - name: Independently recombine all 32 exact historical panel intervals and check 20k decimal cell
+        shell: bash
+        env:
+          AUDITOR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          python -u numerics/arb/m11_20000_length_historical_verify.py \
+            --combined historical-artifacts/m11-euler-panel-certified-100k/m11-euler-panel-100k.json \
+            --panel-root historical-artifacts \
+            --source-sha 6ddb354a85832bf5b35538996d7d619c63ac9a16 \
+            --source-run 44359739062 \
+            --auditor-sha "$AUDITOR_HEAD" \
+            --output m11-eulerian-length-20000-certified.json 2>&1 | tee length-reaudit.log
+          grep -F "HISTORICAL M11 LENGTH: 20000 FRACTIONAL DECIMALS EXACT AUDIT SUCCESS" length-reaudit.log
+      - name: Upload exact 20k decimal digits and 33 source checksums
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-full-length-20000-historical-reverified
+          path: |
+            m11-eulerian-length-20000-certified.json
+            length-reaudit.log
+          if-no-files-found: warn
