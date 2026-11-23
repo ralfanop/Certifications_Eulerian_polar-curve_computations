@@ -54,7 +54,10 @@ theorem quarticProfile_integrable : Integrable quarticProfile := by
     have h := integrableOn_rpow_mul_exp_neg_mul_rpow
       (p := 4) (s := 0) (b := 1/40) (by norm_num) (by norm_num) (by norm_num)
     refine h.congr_fun (fun x _ => ?_) measurableSet_Ioi
-    simp only [quarticProfile, Real.rpow_natCast, pow_zero, one_mul] <;> congr 1 <;> ring
+    change (x ^ 0 * Real.exp (-(1 / 40) * x ^ 4)) = quarticProfile x
+    simp only [pow_zero, one_mul, quarticProfile]
+    congr 1
+    ring
   rw [← integrableOn_univ, ← @Iio_union_Ici _ _ (0:ℝ), integrableOn_union,
     integrableOn_Ici_iff_integrableOn_Ioi]
   refine ⟨?_, hp⟩
