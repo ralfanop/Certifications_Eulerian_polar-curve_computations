@@ -1,0 +1,60 @@
+name: M12 5.14 finite spectral Jacobi kernel PSD from Higham
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Rate514HighamSpectral.lean'
+      - '.github/workflows/m12-514-higham-spectral.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  higham-bond:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean 4.24
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Compile genuine spectral bond matrix and audit
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.24.0'
+          ! grep -n -E '^\s*(axiom|opaque)\b|\b(sorry|admit|native_decide)\b' UniformLanczos/Rate514HighamSpectral.lean
+          lake exe cache get
+          lake build UniformLanczos.Rate514AveragedKernel 2>&1 | tee /tmp/m12-higham-deps.log
+          lake env lean UniformLanczos/Rate514HighamSpectral.lean 2>&1 | tee /tmp/m12-higham.log
+      - name: Strict standard-axiom audit
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/m12-higham.log').read_text()
+          assert not re.search(r'(^|\n).*: error:',s)
+          assert 'sorryAx' not in s and 'Lean.ofReduceBool' not in s
+          for n in ['dividedDifference_nonneg','spectralBondKernel_symmetric','spectralBondKernel_psd']:
+              full='UniformLanczos.Rate514HighamSpectral.'+n
+              m=re.search(r"'"+re.escape(full)+r"' depends on axioms: \[([^\]]*)\]",s)
+              if m: axs={a.strip() for a in m.group(1).split(',') if a.strip()}
+              else:
+                  assert "'"+full+"' does not depend on any axioms" in s, full
+                  axs=set()
+              assert axs <= {'propext','Classical.choice','Quot.sound'},(full,axs)
+              print('PASS',full,sorted(axs))
+          print('M12 HIGHAM FINITE SPECTRAL JACOBI BOND PSD SUCCESS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-514-higham-spectral-logs
+          path: |
+            /tmp/m12-higham-deps.log
+            /tmp/m12-higham.log
