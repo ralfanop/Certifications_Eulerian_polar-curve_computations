@@ -101,6 +101,24 @@ def main():
     assert not (l8 < l8_alt or l8 > l8_alt), "L8 intervals are disjoint"
     assert not (area < area_alt or area > area_alt), "Area intervals are disjoint"
 
+    # Historical 20,000-place certificates (#551): independently round
+    # the same rigorous 120,000-bit balls to the old place count and
+    # demand byte-for-byte SHA256 agreement, without editing old artifacts.
+    old_scale = fmpz(10) ** 20000
+    prior = (
+        (l8, "cf1edd8b15803ad1df0bb2bb974be969dc77c9d9b5d28f80b35b0cf2ca03e304"),
+        (area, "e1745b79dc6f811a3dc81f7cca63a096e604e5fbc315ed53f1b1affb243fa691"),
+    )
+    for ball, expected in prior:
+        lo, hi = ball.lower().fmpq(), ball.upper().fmpq()
+        k = (2 * lo.p * old_scale + lo.q) // (2 * lo.q)
+        assert 2 * lo.p * old_scale > (2 * k - 1) * lo.q
+        assert 2 * hi.p * old_scale < (2 * k + 1) * hi.q
+        old_digits = str(k // old_scale) + "." + str(k % old_scale).zfill(20000)
+        assert hashlib.sha256(old_digits.encode("ascii")).hexdigest() == expected, (
+            "Historical 20,000-place certificate regression")
+    print("Historical M17 Arb 20,000-place SHA256 regression: PASS", flush=True)
+
     result = {
         "status": "CERTIFIED",
         "precision_definition": "30,000 digits AFTER decimal point",
