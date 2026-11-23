@@ -159,7 +159,7 @@ jobs:
             m11-curvature-30k.json
             curvature.log
   final-auditor-static:
-    name: "Fail-closed final 3.6M-bit auditor syntax"
+    name: "Fail-closed exact 20k-decimal auditor syntax"
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -171,4 +171,4 @@ jobs:
       - run: python -m py_compile numerics/arb/m11_remaining_3600000_final_audit.py
       - run: |
           test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
-          echo "SYNTAX ONLY: final auditor is NOT executed without both 3.6M-bit input manifests"
+          echo "SYNTAX ONLY: 20k-decimal auditor is NOT executed without both complete input manifests"
