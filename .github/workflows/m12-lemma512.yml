@@ -1,13 +1,15 @@
-name: M12 Lemma 5.12 (Jacobi calculus)
+name: M12 Lemma 5.12 and the residuals of Theorem 5.14
 on:
   pull_request:
     paths:
       - 'lean/EulerianGrothendieck/UniformLanczos/Lemma512*.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Rate514Constant.lean'
       - '.github/workflows/m12-lemma512.yml'
   push:
     branches: [main]
     paths:
       - 'lean/EulerianGrothendieck/UniformLanczos/Lemma512*.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Rate514Constant.lean'
   workflow_dispatch:
 
 jobs:
@@ -28,7 +30,7 @@ jobs:
         working-directory: lean/EulerianGrothendieck
         run: |
           set -euo pipefail
-          for f in UniformLanczos/Lemma512Propagation.lean UniformLanczos/Lemma512Kernel.lean; do
+          for f in UniformLanczos/Lemma512Propagation.lean UniformLanczos/Lemma512Kernel.lean UniformLanczos/Rate514Constant.lean; do
             ! grep -n -E '^\s*(axiom|opaque)\b' "$f"
             ! grep -n -w -E 'sorry|admit|native_decide' "$f"
           done
@@ -40,6 +42,7 @@ jobs:
           lake exe cache get
           lake env lean UniformLanczos/Lemma512Propagation.lean 2>&1 | tee /tmp/m12-lemma512.log
           lake env lean UniformLanczos/Lemma512Kernel.lean 2>&1 | tee -a /tmp/m12-lemma512.log
+          lake env lean UniformLanczos/Rate514Constant.lean 2>&1 | tee -a /tmp/m12-lemma512.log
           git rev-parse HEAD
       - name: Strict individual axiom audit
         run: |
@@ -56,7 +59,8 @@ jobs:
               'expEntry_tail', 'poly_exp_le', 'rate_pos', 'propagation', 'product_bound',
               'duhamelIntegrand_bound', 'duhamel_decay')] + ['UniformLanczos.Lemma512Kernel.' + n for n in (
               'divDiff_nonneg', 'compressed_form_nonneg', 'kernel_psd_of_limit', 'kernel_symm_of_limit',
-              'average_psd', 'average_symm', 'average_decay')]
+              'average_psd', 'average_symm', 'average_decay')] + ['UniformLanczos.Rate514Constant.' + n for n in (
+              'constant_bond_integral', 'constant_bond_entry')]
           for name in names:
               match = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", text)
               if match:
