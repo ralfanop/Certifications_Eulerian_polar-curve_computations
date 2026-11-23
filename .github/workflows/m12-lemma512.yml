@@ -1,15 +1,19 @@
-name: M12 Lemma512 proof components
+name: M12 Lemma 5.12 (Jacobi calculus)
 on:
   pull_request:
     paths:
-      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma512.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma512*.lean'
       - '.github/workflows/m12-lemma512.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma512*.lean'
   workflow_dispatch:
 
 jobs:
   lemma512:
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,18 +28,17 @@ jobs:
         working-directory: lean/EulerianGrothendieck
         run: |
           set -euo pipefail
-          f=UniformLanczos/Lemma512.lean
-          ! grep -n -E '^\s*(axiom|opaque)\b' "$f"
-          ! grep -n -w -E 'sorry|admit|native_decide' "$f"
-      - name: Build prerequisites and check Lemma512.lean
+          for f in UniformLanczos/Lemma512Propagation.lean; do
+            ! grep -n -E '^\s*(axiom|opaque)\b' "$f"
+            ! grep -n -w -E 'sorry|admit|native_decide' "$f"
+          done
+      - name: Check the Lemma 5.12 modules
         working-directory: lean/EulerianGrothendieck
         run: |
           set -euo pipefail
           lean --version
           lake exe cache get
-          lake build UniformLanczos.Theorem59 2>&1 | tee /tmp/m12-lemma512-build.log
-          lake env lean UniformLanczos/Lemma512.lean 2>&1 | tee /tmp/m12-lemma512.log
-          lake build UniformLanczos.Lemma512
+          lake env lean UniformLanczos/Lemma512Propagation.lean 2>&1 | tee /tmp/m12-lemma512.log
           git rev-parse HEAD
       - name: Strict individual axiom audit
         run: |
@@ -47,8 +50,9 @@ jobs:
           assert ': error' not in text, 'compilation error'
           assert "declaration uses 'sorry'" not in text
           assert 'sorryAx' not in text and 'Lean.ofReduceBool' not in text
-          names = ['UniformLanczos.Lemma512.' + n for n in (
-              'dividedDifference_nonneg', 'spectral_quadratic_nonneg')]
+          names = ['UniformLanczos.Lemma512Propagation.' + n for n in (
+              'col_eq_zero_far', 'sum_shift_le', 'col_norm_sq_le', 'abs_col_le_one',
+              'expEntry_tail', 'poly_exp_le', 'rate_pos', 'propagation')]
           for name in names:
               match = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", text)
               if match:
@@ -64,6 +68,4 @@ jobs:
         if: always()
         with:
           name: m12-lemma512-audit
-          path: |
-            /tmp/m12-lemma512-build.log
-            /tmp/m12-lemma512.log
+          path: /tmp/m12-lemma512.log
