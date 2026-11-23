@@ -50,7 +50,7 @@ def denominator_for_exp(exp):
 def fixed_decimal_from_significant(value):
     assert isinstance(value, str)
     mantissa, exponent = value.rsplit("e", 1)
-    assert re.fullmatch(r"[+-]?\\d+", exponent), "Invalid decimal exponent"
+    assert re.fullmatch(r"[+-]?[0-9]+", exponent), "Invalid decimal exponent"
     exponent = int(exponent)
     is_negative = mantissa.startswith("-")
     if is_negative:
