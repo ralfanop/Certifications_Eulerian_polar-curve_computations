@@ -55,3 +55,6 @@ import EulerianCert.LocalLimit
 import EulerianCert.CentralSlope
 import EulerianCert.Figure5Apex
 import EulerianCert.KrapivskyLuckEnergy
+import EulerianCert.M11FinalCoverage
+
+import EulerianCert.M11OddFinite

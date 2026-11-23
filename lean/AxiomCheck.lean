@@ -227,3 +227,12 @@ open EulerianCert
 #print axioms EulerianCert.CentralSlope.slope_eq
 #print axioms EulerianCert.CentralSlope.slope_asymp
 #print axioms EulerianCert.CentralSlope.inverse_slope_asymp
+
+-- M11 original statements: Proposition 3.4 and Remark 3.16
+#print axioms EulerianCert.M11FinalCoverage.S_min_eq_only_endpoints
+#print axioms EulerianCert.M11FinalCoverage.S_zero_constant
+#print axioms EulerianCert.M11FinalCoverage.c3_eq_c5
+
+-- M11 Remark 3.16: every successive odd index 5,7,...,1001
+#print axioms EulerianCert.M11OddFinite.all_odd_steps
+#print axioms EulerianCert.M11OddFinite.odd_inverse_slopes_strictly_increasing
