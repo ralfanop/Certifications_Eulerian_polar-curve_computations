@@ -1,4 +1,4 @@
-import Mathlib.RingTheory.PowerSeries.Basic
+import Mathlib.RingTheory.PowerSeries.Substitution
 import Mathlib.Tactic
 
 /-!
@@ -66,10 +66,43 @@ theorem coeff_factored_diagonal_ne_zero (H Q : P)
   rw [coeff_factored_diagonal H Q hH]
   exact pow_ne_zero k hQ
 
+
+/-- The shifted coefficient identity for the *actual implicit fixed-point equation*
+    H = X * ψ(H), with substitution in the ordinary power-series ring. -/
+theorem fixedpoint_coeff_shift (H ψ : P)
+    (hH : H = PowerSeries.X * PowerSeries.subst H ψ) (n k : ℕ) :
+    PowerSeries.coeff (n + k) (H ^ k) =
+      PowerSeries.coeff n ((PowerSeries.subst H ψ) ^ k) :=
+  coeff_factored_power H (PowerSeries.subst H ψ) hH n k
+
+/-- A solution of H = X * ψ(H) necessarily has zero constant coefficient. -/
+theorem fixedpoint_constantCoeff_zero (H ψ : P)
+    (hH : H = PowerSeries.X * PowerSeries.subst H ψ) :
+    PowerSeries.constantCoeff H = 0 := by
+  rw [hH]
+  simp
+
+/-- The diagonal n = k case of closed Lagrange inversion, now for the
+    actual fixed-point equation rather than an arbitrary factorisation. -/
+theorem fixedpoint_diagonal (H ψ : P)
+    (hH : H = PowerSeries.X * PowerSeries.subst H ψ) (k : ℕ) :
+    PowerSeries.coeff k (H ^ k) = PowerSeries.coeff 0 (ψ ^ k) := by
+  have h0 := fixedpoint_constantCoeff_zero H ψ hH
+  have hs : PowerSeries.constantCoeff (PowerSeries.subst H ψ) =
+      PowerSeries.constantCoeff ψ := by
+    simpa using
+      (PowerSeries.constantCoeff_subst_of_constantCoeff_zero
+        (R := ℝ) (S := ℝ) (a := H) h0 ψ)
+  rw [coeff_factored_diagonal H (PowerSeries.subst H ψ) hH]
+  simp only [PowerSeries.coeff_zero_eq_constantCoeff_apply, hs, map_pow]
+
 #print axioms Manuscript15.TerminalLagrangeFinite.coeff_factored_power
 #print axioms Manuscript15.TerminalLagrangeFinite.coeff_factored_below
 #print axioms Manuscript15.TerminalLagrangeFinite.coeff_factored_diagonal
 #print axioms Manuscript15.TerminalLagrangeFinite.coeff_factored_linear
 #print axioms Manuscript15.TerminalLagrangeFinite.coeff_factored_diagonal_ne_zero
+#print axioms Manuscript15.TerminalLagrangeFinite.fixedpoint_coeff_shift
+#print axioms Manuscript15.TerminalLagrangeFinite.fixedpoint_constantCoeff_zero
+#print axioms Manuscript15.TerminalLagrangeFinite.fixedpoint_diagonal
 
 end Manuscript15.TerminalLagrangeFinite
