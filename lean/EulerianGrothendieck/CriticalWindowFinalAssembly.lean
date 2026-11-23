@@ -47,7 +47,8 @@ theorem plane_dilation (f : ℝ → ℝ → ℝ) (a b : ℝ)
       line_dilation (fun x => ∫ y : ℝ, f x y) a ha
     _ = a * ∫ w : ℝ, b * (∫ u : ℝ, f (a*w) (b*u)) := by
       congr 1
-      funext w
+      apply integral_congr_ae
+      filter_upwards [] with w
       exact line_dilation (fun y => f (a*w) y) b hb
     _ = a * (b * (∫ w : ℝ, ∫ u : ℝ, f (a*w) (b*u))) := by
       rw [integral_const_mul]
@@ -98,7 +99,7 @@ theorem normalized_originalFockNorm (M : ℕ) (e lam : ℝ)
     _ = (e * (((1/12+lam*e^2)*(M:ℝ))/Real.pi) * (6*e^3)) *
       (∫ w : ℝ, ∫ u : ℝ,
         originalKernel M ((1/12+lam*e^2)*(M:ℝ)) (a*w) (b*u)) := by ring
-    _ = _ := by rw [hcoef]; rfl
+    _ = _ := by rw [hcoef]
 
 end M12CriticalAssembly
 
