@@ -151,6 +151,46 @@ theorem lambert_unique_above_two :
   intro w hw
   exact lambert_branch_unique w hw.1 hw.2
 
+
+/-- On the punctured real axis, the Eulerian kernel
+Φ(u)=sinh(u)/u has its ordinary quotient-rule derivative.
+The proof first removes the artificial if-branch locally,
+using eventual equality in a neighbourhood of u. -/
+theorem eulerianPhi_hasDerivAt_of_ne_zero (u : ℝ) (hu : u ≠ 0) :
+    HasDerivAt eulerianPhi
+      ((Real.cosh u * u - Real.sinh u) / u ^ 2) u := by
+  have hd := (Real.hasDerivAt_sinh u).div (hasDerivAt_id u) hu
+  have heq :
+      eulerianPhi =ᶠ[𝓝 u] (fun v : ℝ => Real.sinh v / v) := by
+    filter_upwards [eventually_ne_nhds hu] with v hv
+    simp [eulerianPhi, hv]
+  convert hd.congr_of_eventuallyEq heq using 1 <;> ring
+
+/-- Eq. cl-eulerian-langevin: exact logarithmic derivative,
+not only the special value at the critical root.
+For u>0 it is coth(u)-1/u, the Langevin function. -/
+theorem eulerianPhi_log_derivative (u : ℝ) (hu : 0 < u) :
+    deriv (fun v : ℝ => Real.log (eulerianPhi v)) u =
+      langevinReal u := by
+  have hu0 : u ≠ 0 := hu.ne'
+  have hs : Real.sinh u ≠ 0 := (Real.sinh_pos_iff.mpr hu).ne'
+  have hp : eulerianPhi u ≠ 0 := by
+    simp only [eulerianPhi, hu0, ↓reduceIte]
+    exact div_ne_zero hs hu0
+  have hbase := (Real.hasDerivAt_log hp).comp u
+    (eulerianPhi_hasDerivAt_of_ne_zero u hu0)
+  have hid :
+      (eulerianPhi u)⁻¹ *
+        ((Real.cosh u * u - Real.sinh u) / u ^ 2) =
+          langevinReal u := by
+    unfold langevinReal eulerianPhi
+    simp only [hu0, ↓reduceIte]
+    field_simp [hu0, hs] <;> ring
+  exact hbase.deriv.trans hid
+
+#print axioms M15.eulerianPhi_hasDerivAt_of_ne_zero
+#print axioms M15.eulerianPhi_log_derivative
+
 #print axioms M15.lambert_branch_unique
 #print axioms M15.lambert_unique_above_two
 
