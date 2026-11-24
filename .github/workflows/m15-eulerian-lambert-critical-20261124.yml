@@ -53,6 +53,8 @@ jobs:
               'lambdaCL_from_lambert_parameter',
               'lambert_branch_unique',
               'lambert_unique_above_two',
+              'eulerianPhi_hasDerivAt_of_ne_zero',
+              'eulerianPhi_log_derivative',
           )
           allowed = {'propext', 'Classical.choice', 'Quot.sound'}
           for n in names:
@@ -63,7 +65,7 @@ jobs:
               else:
                   actual = {v.strip() for v in m.group(1).split(',') if v.strip()}
                   assert actual <= allowed, (q, actual)
-          print('SUCCESS: eight M15 Eulerian-Lambert declarations, standard axioms only')
+          print('SUCCESS: ten M15 Eulerian-Lambert declarations, standard axioms only')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
