@@ -60,9 +60,15 @@ theorem kernel_hasDerivAt (q a u : ℝ) (ha : 0 < a) :
     HasDerivAt (fun x => kernel q x u) (kernelDeriv q a u) a := by
   have h : u^2+a^2 ≠ 0 := by positivity
   have hd : HasDerivAt (fun x : ℝ => u^2+x^2) (2*a) a := by
-    convert ((hasDerivAt_id a).pow 2).const_add (u^2) using 1 <;> ring
+    convert ((hasDerivAt_id a).pow 2).const_add (u^2) using 1
+    · funext x
+      simp [Pi.pow_apply]
+    · simp <;> ring
   have hd' := (hd.inv h).const_mul (Real.cos (q*u))
-  convert hd' using 1 <;> unfold kernel kernelDeriv cauchy <;> ring
+  convert hd' using 1
+  · rfl
+  · unfold kernelDeriv
+    ring
 
 /-- An integrable Cauchy majorant for derivatives on a fixed neighbourhood. -/
 theorem kernel_deriv_bound (q a x u : ℝ) (ha : 0 < a)
@@ -81,7 +87,7 @@ theorem kernel_deriv_bound (q a x u : ℝ) (ha : 0 < a)
   rw [Real.norm_eq_abs, abs_div, abs_mul, abs_of_nonpos (by linarith : -2*x ≤ 0), abs_of_nonneg (sq_nonneg (u^2+x^2))]
   have hn : -(-2*x)*|Real.cos (q*u)| ≤ 4*a := by
     calc
-      _ ≤ -(-2*x) := mul_le_of_le_one_left (by linarith) (Real.abs_cos_le_one _)
+      _ ≤ -(-2*x) := mul_le_of_le_one_right (by linarith) (Real.abs_cos_le_one _)
       _ ≤ _ := by linarith [hx.2]
   calc
     _ ≤ (4*a)/(u^2+x^2)^2 := div_le_div_of_nonneg_right hn (by positivity)
@@ -124,9 +130,15 @@ theorem actual_cosine_fourier (a q : ℝ) (ha : 0 < a)
     potentialTransform a q = Real.pi/(2*a)*(1+a*|q|)*Real.exp (-a*|q|) := by
   have hd := actual_transform_derivative q a ha
   have h1 : HasDerivAt (fun x : ℝ => Real.pi/x) (-Real.pi/a^2) a := by
-    convert (hasDerivAt_const a Real.pi).div (hasDerivAt_id a) (ne_of_gt ha) using 1 <;> ring
+    convert (hasDerivAt_const a Real.pi).div (hasDerivAt_id a) (ne_of_gt ha) using 1
+    · rfl
+    · simp [id_eq] <;> ring
   have h2 : HasDerivAt (fun x : ℝ => -x*|q|) (-|q|) a := by
-    convert (hasDerivAt_id a).neg.mul_const |q| using 1 <;> ring
+    convert (hasDerivAt_id a).neg.mul_const |q| using 1
+    · funext x
+      simp
+      <;> ring
+    · ring
   have hcl := h1.mul h2.exp
   have heq : cauchyTransform q =ᶠ[𝓝 a] (fun x : ℝ => Real.pi/x*Real.exp (-x*|q|)) := by
     filter_upwards [Ioi_mem_nhds ha] with x hx
