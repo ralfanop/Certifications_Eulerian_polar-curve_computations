@@ -236,3 +236,9 @@ open EulerianCert
 -- M11 Remark 3.16: every successive odd index 5,7,...,1001
 #print axioms EulerianCert.M11OddFinite.all_odd_steps
 #print axioms EulerianCert.M11OddFinite.odd_inverse_slopes_strictly_increasing
+
+-- M11 completion gate, Proposition 3.4 and Remark 3.16
+#print axioms EulerianCert.M11Completion.S_min_cos_unique
+#print axioms EulerianCert.M11Completion.S_zero_constant
+#print axioms EulerianCert.M11Completion.c3_c5_exact
+#print axioms EulerianCert.M11Completion.odd_central_finite_integer_certificate
