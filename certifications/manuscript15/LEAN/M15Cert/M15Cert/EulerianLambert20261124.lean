@@ -97,6 +97,63 @@ theorem lambdaCL_from_lambert_parameter :
   congr 1
   ring
 
+
+/-- Conversely, any real solution of the generalized Lambert equation
+above two is the original Carlini–Laplace critical point. This uses
+the already certified uniqueness of u*tanh u = 1, rather than making
+an unjustified appeal to a named branch of Lambert W. -/
+theorem lambert_branch_unique (w : ℝ) (hw : 2 < w)
+    (hroot : ((w - 2) / (w + 2)) * Real.exp w = 1) :
+    w = 2 * uStar := by
+  have hd : w + 2 ≠ 0 := by linarith
+  have hquot : ((w - 2) * Real.exp w) / (w + 2) = 1 := by
+    calc
+      ((w - 2) * Real.exp w) / (w + 2) =
+          ((w - 2) / (w + 2)) * Real.exp w := by ring
+      _ = 1 := hroot
+  have hb : (w - 2) * Real.exp w = w + 2 := by
+    have hh := (div_eq_iff hd).mp hquot
+    nlinarith
+  let u : ℝ := w / 2
+  have hu : 0 < u := by dsimp [u]; linarith
+  have hw' : w = 2 * u := by dsimp [u]; ring
+  have hcrit : (u - 1) * Real.exp (2 * u) = u + 1 := by
+    rw [← hw']
+    dsimp [u]
+    nlinarith [hb]
+  have he : Real.exp (2 * u) = Real.exp u * Real.exp u := by
+    rw [show 2 * u = u + u by ring, Real.exp_add]
+  have hm : Real.exp (-u) * Real.exp u = 1 := by
+    rw [← Real.exp_add]
+    simp
+  have heq : (u - 1) * (Real.exp u * Real.exp u) = u + 1 := by
+    rw [← he]
+    exact hcrit
+  have hf0 : fCL u * Real.exp u = 0 := by
+    unfold fCL
+    rw [Real.sinh_eq, Real.cosh_eq]
+    linear_combination (1 / 2) * heq - ((u + 1) / 2) * hm
+  have hf : fCL u = 0 :=
+    (mul_eq_zero.mp hf0).resolve_right (Real.exp_pos u).ne'
+  have ht : u * Real.tanh u = 1 := (tanh_eq_iff u).2 hf
+  have huniq : u = uStar := uStar_unique hu ht
+  calc
+    w = 2 * u := hw'
+    _ = 2 * uStar := by rw [huniq]
+
+/-- The generalized Lambert equation has exactly one real solution on
+(2, infinity): w=2uStar. No analytic continuation or branch
+identification is silently assumed. -/
+theorem lambert_unique_above_two :
+    ∃! w : ℝ, (2 : ℝ) < w ∧
+      ((w - 2) / (w + 2)) * Real.exp w = 1 := by
+  refine ⟨2 * uStar, ⟨lambert_parameter_gt_two, lambert_at_threshold⟩, ?_⟩
+  intro w hw
+  exact lambert_branch_unique w hw.1 hw.2
+
+#print axioms M15.lambert_branch_unique
+#print axioms M15.lambert_unique_above_two
+
 #print axioms M15.eulerianPhi_eq_rEc
 #print axioms M15.lambdaCL_eulerian_critical
 #print axioms M15.langevin_critical_identity
