@@ -72,7 +72,9 @@ theorem real_jet (a b : ℝ) :
     (((((a:ℂ)+(b:ℂ)*Complex.I)^2)/2 -
       (((a:ℂ)+(b:ℂ)*Complex.I)^4)/20)).re =
     (a^2-b^2)/2-(a^4-6*a^2*b^2+b^4)/20 := by
-  simp [show (4:ℕ) = 2*2 by norm_num, pow_mul, pow_two, Complex.div_re, Complex.mul_re, Complex.mul_im,
+  have hfour (z : ℂ) : z^4 = (z*z)*(z*z) := by ring
+  rw [hfour]
+  norm_num [pow_two, Complex.div_re, Complex.mul_re, Complex.mul_im,
     Complex.normSq_apply] <;> ring
 
 theorem scaled_jet (e u w : ℝ) :
