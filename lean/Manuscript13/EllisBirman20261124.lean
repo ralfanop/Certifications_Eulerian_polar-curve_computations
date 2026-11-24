@@ -49,8 +49,9 @@ theorem overlap_exp (κ u v : ℝ) (hk : 0 < κ) :
     congr 1
     ring
   simp_rw [he]
-  rw [integral_const_mul, integral_exp_mul_Ioi h, mul_neg, ← mul_div_assoc, ← Real.exp_add]
-  have ha : κ*(u+v)+(-2*κ)*max u v = -κ*|u-v| := by
+  rw [integral_const_mul, integral_exp_mul_Ioi h]
+  rw [show (-2 : ℝ)*κ = -(2*κ) by ring, neg_div_neg_eq, ← mul_div_assoc, ← Real.exp_add]
+  have ha : κ*(u+v)+ -(2*κ)*max u v = -κ*|u-v| := by
     rcases le_total u v with huv | hvu
     · rw [max_eq_right huv, abs_of_nonpos (sub_nonpos.mpr huv)]
       ring
@@ -73,7 +74,7 @@ theorem gram_kernel_identity (a κ u v : ℝ) (hk : 0 < κ) :
 theorem diagonal (a κ u : ℝ) :
     bsKernel a κ u u = potential a u / (2*κ) := by
   unfold bsKernel
-  rw [sub_self, abs_zero, mul_zero, neg_zero, Real.exp_zero,
+  rw [sub_self, abs_zero, mul_zero, Real.exp_zero,
       ← pow_two, Real.sq_sqrt (potential_nonneg a u)]
   ring
 
@@ -92,8 +93,9 @@ theorem causal_square_section (a κ u : ℝ) (hk : 0 < κ) :
       (Ioi u).indicator (fun t => (potential a u*Real.exp (2*κ*u))*Real.exp ((-2*κ)*t)) := by
     funext t
     by_cases ht : u < t
-    · simp [causal, ht, Set.indicator, Set.mem_Ioi, mul_pow, Real.sq_sqrt (potential_nonneg a u),
-        pow_two, ← Real.exp_add, mul_assoc]
+    · simp only [causal, ht, if_pos, Set.indicator_of_mem (show t ∈ Ioi u from ht), mul_pow,
+        Real.sq_sqrt (potential_nonneg a u), pow_two, ← Real.exp_add]
+      rw [mul_assoc, ← Real.exp_add]
       congr 2 <;> ring
     · simp [causal, ht, Set.indicator, Set.mem_Ioi]
   rw [hf, integrable_indicator_iff measurableSet_Ioi]
@@ -118,7 +120,9 @@ theorem actual_hs_kernel_square_integrable (a κ : ℝ) (ha : 0 < a) (hk : 0 < �
   have he : (fun u : ℝ => ∫ t : ℝ, ‖causal a κ u t ^ 2‖) =
       fun u => potential a u / (2*κ) := by
     funext u
-    simp_rw [Real.norm_eq_abs, abs_of_nonneg (sq_nonneg _), pow_two]
+    have hnorm (t : ℝ) : ‖causal a κ u t ^ 2‖ = causal a κ u t ^ 2 :=
+      Real.norm_of_nonneg (sq_nonneg (causal a κ u t))
+    simp_rw [hnorm, pow_two]
     rw [gram_kernel_identity a κ u u hk, diagonal]
   rw [he]
   simpa [div_eq_mul_inv] using (potential_integrable a ha).mul_const (2*κ)⁻¹
@@ -130,39 +134,39 @@ theorem actual_hs_kernel_norm_sq (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
   simp_rw [pow_two, gram_kernel_identity a κ _ _ hk]
   exact diagonal_mass a κ ha hk
 
-def spectralDet (λ : ℕ → ℝ) : ℝ :=
-  Real.exp (∑' n, Real.log (1+λ n))
+def spectralDet (eig : ℕ → ℝ) : ℝ :=
+  Real.exp (∑' n, Real.log (1+eig n))
 
 /-- The actual spectral-series bound once the positive eigenvalues of the
 trace-class operator have been supplied by the operator-theoretic bridge. -/
-theorem spectral_det_bounds (λ : ℕ → ℝ) (hn : ∀ n, 0 ≤ λ n)
-    (hs : Summable λ) (ht : 0 < ∑' n, λ n) :
-    1 < spectralDet λ ∧ spectralDet λ ≤ Real.exp (∑' n, λ n) := by
-  have hlognonneg : ∀ n, 0 ≤ Real.log (1+λ n) :=
+theorem spectral_det_bounds (eig : ℕ → ℝ) (hn : ∀ n, 0 ≤ eig n)
+    (hs : Summable eig) (ht : 0 < ∑' n, eig n) :
+    1 < spectralDet eig ∧ spectralDet eig ≤ Real.exp (∑' n, eig n) := by
+  have hlognonneg : ∀ n, 0 ≤ Real.log (1+eig n) :=
     fun n => Real.log_nonneg (by linarith [hn n])
-  have hlogle : ∀ n, Real.log (1+λ n) ≤ λ n := by
+  have hlogle : ∀ n, Real.log (1+eig n) ≤ eig n := by
     intro n
-    have hh := Real.log_le_sub_one_of_pos (show 0 < 1+λ n by linarith [hn n])
+    have hh := Real.log_le_sub_one_of_pos (show 0 < 1+eig n by linarith [hn n])
     linarith
-  have hlogs : Summable (fun n => Real.log (1+λ n)) :=
+  have hlogs : Summable (fun n => Real.log (1+eig n)) :=
     Summable.of_nonneg_of_le hlognonneg hlogle hs
-  have hex : ∃ n, 0 < λ n := by
+  have hex : ∃ n, 0 < eig n := by
     by_contra! h
-    have hz : λ = fun _ => 0 := funext (fun n => le_antisymm (h n) (hn n))
+    have hz : eig = fun _ => 0 := funext (fun n => le_antisymm (h n) (hn n))
     rw [hz] at ht
     simpa using ht
   obtain ⟨n,hnpos⟩ := hex
-  have hpos := hlogs.tsum_pos hlognonneg n (Real.log_pos (by linarith : 1 < 1+λ n))
+  have hpos := hlogs.tsum_pos hlognonneg n (Real.log_pos (by linarith : 1 < 1+eig n))
   unfold spectralDet
   exact ⟨by simpa using Real.exp_lt_exp.mpr hpos,
     Real.exp_le_exp.mpr (hlogs.tsum_le_tsum hlogle hs)⟩
 
 theorem det_trace_specialization (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ)
-    (λ : ℕ → ℝ) (hn : ∀ n, 0 ≤ λ n) (hs : Summable λ)
-    (ht : (∑' n, λ n) = Real.pi/(4*a*κ)) :
-    1 < spectralDet λ ∧ spectralDet λ ≤ Real.exp (Real.pi/(4*a*κ)) := by
-  have hpos : 0 < ∑' n, λ n := by rw [ht]; positivity
-  simpa [ht] using spectral_det_bounds λ hn hs hpos
+    (eig : ℕ → ℝ) (hn : ∀ n, 0 ≤ eig n) (hs : Summable eig)
+    (ht : (∑' n, eig n) = Real.pi/(4*a*κ)) :
+    1 < spectralDet eig ∧ spectralDet eig ≤ Real.exp (Real.pi/(4*a*κ)) := by
+  have hpos : 0 < ∑' n, eig n := by rw [ht]; positivity
+  simpa [ht] using spectral_det_bounds eig hn hs hpos
 
 end
 end Manuscript13.EllisBirman20261124
