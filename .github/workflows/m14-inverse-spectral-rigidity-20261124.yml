@@ -1,0 +1,72 @@
+name: M14 Eulerian inverse spectral rigidity
+on:
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/InverseSpectralRigidity.lean'
+      - 'certificates/manuscript14/arb_inverse_spectral_rigidity.py'
+      - '.github/workflows/m14-inverse-spectral-rigidity-20261124.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: m14-inverse-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: true
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve Mathlib cache
+        working-directory: lean
+        run: lake exe cache get
+      - name: Compile and audit eight declarations
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean SpecialImaginaryPoint/InverseSpectralRigidity.lean 2>&1 | tee /tmp/m14-inverse.log
+          python - <<'PY'
+          import re
+          s = open('/tmp/m14-inverse.log').read()
+          assert not re.search(r'sorryAx|Lean\.ofReduceBool|declaration uses|: error:',s)
+          found = re.findall(r"depends on axioms: \[([^\]]*)\]",s)
+          assert len(found) == 8, found
+          for a in found:
+              assert set(filter(None,a.split(', '))) <= {'propext','Classical.choice','Quot.sound'}, a
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-inverse-lean-log
+          path: /tmp/m14-inverse.log
+  arb-budget:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install python-flint==0.9.0
+      - name: Strict Arb inequalities at 10000 bits
+        shell: bash
+        run: |
+          set -euo pipefail
+          python certificates/manuscript14/arb_inverse_spectral_rigidity.py --bits 10000 | tee /tmp/m14-inverse-arb.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-inverse-arb-budget
+          path: /tmp/m14-inverse-arb.log
