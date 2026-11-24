@@ -36,13 +36,13 @@ Decision of the scientific lead (24 Nov 2026): the unitary invariance of `det_p`
 
 | Obligation | Status |
 |---|---|
-| #458 compact-parametrix defects (normed spaces) | CI on `f678d81e` pending |
-| #459 finite Schur block index; affine norm path | CI on `661d3247` pending |
-| #566 M17 coordinate tangent pullback (`m17-feff-metric-proof`, `m17-feff-critical-metric`, `m17-feff-Dirichlet-energy`) | CI on `10c6efab` pending; FORMALIZZAZIONE PARZIALE (coordinate level: no smooth quotient, intrinsic Laplace–Beltrami or manifold integration) |
+| #458 compact-parametrix defects (normed spaces) | INTEGRATO (`8b9217cb`, 24 Nov 2026 11:50 UTC) |
+| #459 finite Schur block index; affine norm path | INTEGRATO (`3371f94e`, 24 Nov 2026 11:51 UTC) |
+| #566 M17 coordinate tangent pullback (`m17-feff-metric-proof`, `m17-feff-critical-metric`, `m17-feff-Dirichlet-energy`) | INTEGRATO (`813e9a87`, 24 Nov 2026 11:51 UTC); FORMALIZZAZIONE PARZIALE (coordinate level: no smooth quotient, intrinsic Laplace–Beltrami or manifold integration) |
 | `ind(T+K) = ind T` | LEAN 4 CERTIFICATO, INTEGRATO (`SharedCore.FredholmAtkinson.index_add_compact`) |
 | M16 `eq:feff-det`, finite dimension | LEAN 4 CERTIFICATO, INTEGRATO (#567) |
 | M16 `eq:feff-det` on `S_p` | published result cited (Simon 2005) |
-| M16 `thm:dirac-maxwell-obstruction-164` (i)–(ii) | Abstract typed form in `lean/Manuscript16/DiracMaxwellObstructionIndex20261124.lean` (draft PR, exact-head CI required): `𝒜` Fredholm iff `A_P` Fredholm and `ind 𝒜 = ind A_P`, with Mathlib `IsFredholm`/`index`, under the premises `L : D ≃L X` and `B L⁻¹ C` compact. APERTO for the concrete operators: construction of `L` from `L₀` and compactness of `B L⁻¹ C`; see `audits/manuscript16/M16_dirac_maxwell_obstruction_index_20261124.md` |
+| M16 `thm:dirac-maxwell-obstruction-164` (i)–(ii) | Abstract typed form in `lean/Manuscript16/DiracMaxwellObstructionIndex20261124.lean`, INTEGRATO (#576, `a67953ca`; exact-head CI job 138465626693 success on `be873bda`): `𝒜` Fredholm iff `A_P` Fredholm and `ind 𝒜 = ind A_P`, with Mathlib `IsFredholm`/`index`, under the premises `L : D ≃L X` and `B L⁻¹ C` compact. Graph-space form for an abstract closed bijective `L₀` with compact `R₀`, `‖R₀‖ ≤ 2/3`, `‖E‖ < 3/2`: `lean/Manuscript16/DiracMaxwellGraphSpace20261124.lean` (draft PR, exact-head CI required; see `audits/manuscript16/M16_dirac_maxwell_graph_space_20261124.md`). APERTO for the concrete `L₀ = W_R ⊕ D₃`: closedness, invertibility, `‖R₀‖ = 2/3`, compactness/Schatten membership of `R₀`; every `det₄` statement |
 | M17 L₈(1,χ₂), Area_Φ at 30,000 places | ARB CERTIFICATO (#553); certificate now persisted, see below |
 
 ## M17 numerical evidence
