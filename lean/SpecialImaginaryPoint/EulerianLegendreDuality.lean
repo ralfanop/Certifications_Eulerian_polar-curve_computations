@@ -147,8 +147,10 @@ theorem sinh_gt_self_pos (x : ℝ) (hx : 0 < x) :
       have hypos : 0 < y := hy
       rw [(sinh_sub_id_derivative y).deriv]
       exact sub_pos.mpr (cosh_gt_one_of_ne y (ne_of_gt hypos))
-  have h := hm (show (0 : ℝ) ∈ Set.Ici 0 by exact le_rfl)
-    (show x ∈ Set.Ici 0 from hx.le) hx
+  have hzero : (0 : ℝ) ∈ Set.Ici (0 : ℝ) := by
+    exact (le_rfl : (0 : ℝ) ≤ 0)
+  have hmem : x ∈ Set.Ici (0 : ℝ) := hx.le
+  have h := hm hzero hmem hx
   simp only [Real.sinh_zero, sub_self] at h
   linarith
 
