@@ -1,0 +1,69 @@
+name: "M11 exact 30,000 fractional decimals — historical full length re-audit"
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m11_30000_length_historical_verify.py'
+      - '.github/workflows/m11-30000-length-reaudit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: m11-30k-historical-length-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: true
+jobs:
+  reaudited-30k-length:
+    name: "Original 32-panel L_E: exact rational 30,000-place rounding audit"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin original length calculation, not the subsequent auditor
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          AUDITOR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$AUDITOR_HEAD"
+          test "$(gh api "repos/$REPO/actions/runs/44359739062" --jq .conclusion)" = success
+          test "$(gh api "repos/$REPO/actions/runs/44359739062" --jq .head_sha)" = 6ddb354a85832bf5b35538996d7d619c63ac9a16
+          test "$(gh api "repos/$REPO/actions/runs/45179196734" --jq .conclusion)" = success
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 44359739062
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          pattern: m11-euler-panel-*
+          path: historical-artifacts
+      - name: Pin FLINT/Arb, without recomputing any arclength quadrature
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Independently recombine all 32 panels and prove strict 30k-decimal cell
+        shell: bash
+        env:
+          AUDITOR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          python -u numerics/arb/m11_30000_length_historical_verify.py \
+            --combined historical-artifacts/m11-euler-panel-certified-100k/m11-euler-panel-100k.json \
+            --panel-root historical-artifacts \
+            --source-sha 6ddb354a85832bf5b35538996d7d619c63ac9a16 \
+            --source-run 44359739062 \
+            --auditor-sha "$AUDITOR_HEAD" \
+            --output m11-eulerian-length-30000-certified.json 2>&1 | tee length-30k-audit.log
+          grep -F "M11 L_E: 30000 FRACTIONAL DECIMALS STRICT EXACT AUDIT SUCCESS" length-30k-audit.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-original-length-30000-exact-reverified
+          path: |
+            m11-eulerian-length-30000-certified.json
+            length-30k-audit.log
+          retention-days: 90
+          if-no-files-found: warn
