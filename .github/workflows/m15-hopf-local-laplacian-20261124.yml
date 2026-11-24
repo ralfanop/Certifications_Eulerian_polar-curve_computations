@@ -52,7 +52,7 @@ jobs:
           assert not re.search(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s',src,re.M)
           assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.', dep+log)
           names=re.findall(r'^#print axioms (Manuscript15\.HopfLocalLaplacian20261124\.\w+)$',src,re.M)
-          assert len(names)==8 and len(set(names))==8,(len(names),names)
+          assert len(names)==18 and len(set(names))==18,(len(names),names)
           for name in names:
             m=re.search(re.escape("'"+name+"'")+r" depends on axioms: \[([^\]]*)\]",log,re.S)
             if m:
@@ -60,7 +60,7 @@ jobs:
               assert axioms <= {'propext','Classical.choice','Quot.sound'},(name,axioms)
             else:
               assert "'"+name+"' does not depend on any axioms" in log,name
-          print('M15 ACTUAL HOPF LOCAL LAPLACE EXACT-HEAD EIGHT THEOREMS SUCCESS')
+          print('M15 ACTUAL HOPF LOCAL LAPLACE EXACT-HEAD EIGHTEEN THEOREMS SUCCESS')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
