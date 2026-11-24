@@ -93,6 +93,7 @@ theorem exp_measure_eq_density : expMeasure = logarithmicDensity := by
     _ = ∫⁻ u, g u ∂logarithmicDensity := by
       unfold logarithmicDensity
       rw [lintegral_withDensity_eq_lintegral_mul _ (by fun_prop) hg]
+      rfl
     _ = logarithmicDensity s := by simp [g, lintegral_indicator hs]
 
 theorem log_measurePreserving :
