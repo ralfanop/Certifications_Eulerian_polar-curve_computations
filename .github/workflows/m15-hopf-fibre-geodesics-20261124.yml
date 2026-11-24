@@ -1,0 +1,66 @@
+name: M15 Hopf-fibre great-circle ODE pinned Lean4
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/HopfFibreGeodesics20261124.lean'
+      - '.github/workflows/m15-hopf-fibre-geodesics-20261124.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fibre-geodesics:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Exact-HEAD pinned Lean, Hopf dependency and 13 geometric audits
+        working-directory: lean
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          mkdir -p /tmp/m15-hopf-fibres
+          git rev-parse HEAD | tee /tmp/m15-hopf-fibres/head.txt
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 \
+            -o .lake/build/lib/lean/Manuscript15/HopfSubmersionDifferential20261124.olean \
+            Manuscript15/HopfSubmersionDifferential20261124.lean 2>&1 | tee /tmp/m15-hopf-fibres/dependency.log
+          lake env lean -M16768 Manuscript15/HopfFibreGeodesics20261124.lean \
+            2>&1 | tee /tmp/m15-hopf-fibres/lean.log
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          src=Path('Manuscript15/HopfFibreGeodesics20261124.lean').read_text()
+          log=Path('/tmp/m15-hopf-fibres/lean.log').read_text()
+          dep=Path('/tmp/m15-hopf-fibres/dependency.log').read_text()
+          assert not re.search(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s',src,re.M)
+          assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.',log+dep)
+          names=re.findall(r'^#print axioms (Manuscript15\.HopfFibreGeodesics20261124\.\w+)$',src,re.M)
+          assert len(names)==13 and len(set(names))==13,(len(names),names)
+          for name in names:
+            m=re.search(re.escape("'"+name+"'")+r" depends on axioms: \[([^\]]*)\]",log,re.S)
+            if m:
+              a={v.strip() for v in m.group(1).split(",") if v.strip()}
+              assert a <= {'propext','Classical.choice','Quot.sound'},(name,a)
+            else:
+              assert "'"+name+"' does not depend on any axioms" in log,name
+          print('M15 HOPF FIBRE ODE EXACT-HEAD 13 THEOREMS SUCCESS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-hopf-fibre-ode-exact-head
+          path: /tmp/m15-hopf-fibres/
