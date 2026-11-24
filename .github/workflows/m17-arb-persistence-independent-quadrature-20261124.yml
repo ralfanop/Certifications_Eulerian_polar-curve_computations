@@ -1,0 +1,65 @@
+name: M17 Arb persisted 30000-place certificate and independent quadrature
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m17_independent_quadrature.py'
+      - 'certificates/M17_cassini_area_L8_30000_decimal_certificate_20261124.json'
+      - '.github/workflows/m17-arb-persistence-independent-quadrature-20261124.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact commit and pinned python-flint
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee m17-arb-persistence-head.log
+          python -m pip install 'python-flint==0.9.0'
+          python -c "import flint; assert flint.__version__ == '0.9.0'"
+      - name: Re-derive the 30000-place certificate and compare with the persisted copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p rerun
+          cd rerun
+          python -I ../numerics/arb/m17_cassini_area_30000_decimal.py 2>&1 | tee ../m17-arb-30000-rerun.log
+          grep -F "SUCCESS M17 ARB 30000 EXACT DECIMAL PLACES" ../m17-arb-30000-rerun.log
+          sha256sum m17-cassini-area-arb-30000-decimal-certificate.json ../certificates/M17_cassini_area_L8_30000_decimal_certificate_20261124.json | tee -a ../m17-arb-30000-rerun.log
+          cmp m17-cassini-area-arb-30000-decimal-certificate.json ../certificates/M17_cassini_area_L8_30000_decimal_certificate_20261124.json
+          echo "PERSISTED CERTIFICATE BYTE-IDENTICAL TO EXACT-HEAD RERUN" | tee -a ../m17-arb-30000-rerun.log
+      - name: Independent rigorous quadrature at 10000 bits
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -I numerics/arb/m17_independent_quadrature.py 10000 2>&1 | tee m17-independent-quadrature-10000.log
+          grep -F "SUCCESS independent quadrature cross-check at 10000 bits" m17-independent-quadrature-10000.log
+          python - <<'PY'
+          import json, re
+          from pathlib import Path
+          txt = Path('m17-independent-quadrature-10000.log').read_text()
+          d = json.loads(txt[txt.index('{'):txt.rindex('}') + 1])
+          assert d['working_bits'] == 10000
+          assert all(d['overlap_checks'].values())
+          assert min(d['relative_accuracy_bits'].values()) >= 9900
+          print('INDEPENDENT QUADRATURE GATE PASSED')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m17-arb-persistence-independent-quadrature
+          path: |
+            m17-arb-persistence-head.log
+            m17-arb-30000-rerun.log
+            m17-independent-quadrature-10000.log
+          if-no-files-found: warn
