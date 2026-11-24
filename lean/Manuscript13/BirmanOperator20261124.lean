@@ -22,22 +22,22 @@ theorem gram_apply (B : H →L[ℝ] G) (x : H) :
     gram B x = B.adjoint (B x) := rfl
 
 theorem gram_inner (B : H →L[ℝ] G) (x y : H) :
-    ⟪gram B x, y⟫_ℝ = ⟪B x, B y⟫_ℝ := by
+    inner ℝ (gram B x) y = inner ℝ (B x) (B y) := by
   rw [gram_apply]
   first | exact B.adjoint_inner_left (B x) y | exact? 
 
 theorem gram_quadratic (B : H →L[ℝ] G) (x : H) :
-    ⟪gram B x, x⟫_ℝ = ‖B x‖ ^ 2 := by
+    inner ℝ (gram B x) x = ‖B x‖ ^ 2 := by
   rw [gram_inner]
   exact real_inner_self_eq_norm_sq _
 
 theorem gram_nonneg (B : H →L[ℝ] G) (x : H) :
-    0 ≤ ⟪gram B x, x⟫_ℝ := by
+    0 ≤ inner ℝ (gram B x) x := by
   rw [gram_quadratic]
   positivity
 
 theorem gram_symmetric (B : H →L[ℝ] G) (x y : H) :
-    ⟪gram B x, y⟫_ℝ = ⟪x, gram B y⟫_ℝ := by
+    inner ℝ (gram B x) y = inner ℝ x (gram B y) := by
   rw [gram_inner, real_inner_comm x (gram B y), gram_inner, real_inner_comm (B y) (B x)]
 
 theorem gram_kernel_iff (B : H →L[ℝ] G) (x : H) :
@@ -53,7 +53,7 @@ theorem gram_kernel_iff (B : H →L[ℝ] G) (x : H) :
 
 theorem gram_finite_diagonal {ι : Type*} (B : H →L[ℝ] G)
     (e : ι → H) (s : Finset ι) :
-    (∑ i ∈ s, ⟪gram B (e i), e i⟫_ℝ) =
+    (∑ i ∈ s, inner ℝ (gram B (e i)) (e i)) =
       ∑ i ∈ s, ‖B (e i)‖ ^ 2 := by
   apply Finset.sum_congr rfl
   intro i hi
@@ -61,17 +61,17 @@ theorem gram_finite_diagonal {ι : Type*} (B : H →L[ℝ] G)
 
 theorem gram_diagonal_summable (B : H →L[ℝ] G) (e : ℕ → H)
     (h : Summable (fun i => ‖B (e i)‖ ^ 2)) :
-    Summable (fun i => ⟪gram B (e i), e i⟫_ℝ) := by
+    Summable (fun i => inner ℝ (gram B (e i)) (e i)) := by
   simpa only [gram_quadratic] using h
 
 theorem gram_diagonal_tsum (B : H →L[ℝ] G) (e : ℕ → H) :
-    (∑' i, ⟪gram B (e i), e i⟫_ℝ) =
+    (∑' i, inner ℝ (gram B (e i)) (e i)) =
       ∑' i, ‖B (e i)‖ ^ 2 := by
   simp_rw [gram_quadratic]
 
 theorem gram_trace_specialization (B : H →L[ℝ] G) (e : ℕ → H)
     (a κ : ℝ) (h : (∑' i, ‖B (e i)‖ ^ 2) = Real.pi / (4*a*κ)) :
-    (∑' i, ⟪gram B (e i), e i⟫_ℝ) = Real.pi / (4*a*κ) := by
+    (∑' i, inner ℝ (gram B (e i)) (e i)) = Real.pi / (4*a*κ) := by
   rw [gram_diagonal_tsum, h]
 
 end
