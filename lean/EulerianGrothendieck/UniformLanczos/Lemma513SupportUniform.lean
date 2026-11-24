@@ -358,6 +358,125 @@ theorem uniform_scale_previous {t₁ t₂ s r : ℝ} (ht₁ : 0 < t₁)
     have hu := (div_le_iff₀ hp).mp hk.2
     linarith
 
+
+def tailMass (M : ℕ) (p : ℝ → ℝ) (r : ℝ) : ℝ :=
+  ∫ x in {x : ℝ | r ≤ |x|}, p x ^ 2 * gM M x
+
+def weightedTail (M : ℕ) (p q : ℝ → ℝ) (r : ℝ) : ℝ :=
+  ∫ x in {x : ℝ | r ≤ |x|}, |p x * q x| * |deriv (φM M) x| * gM M x
+
+theorem square_supported_integrable (M : ℕ) (hM : 4 ≤ M)
+    (p : ℝ → ℝ) (hp : Continuous p) :
+    Integrable (fun x => p x ^ 2 * gM M x) := by
+  apply continuous_supported_integrable
+  · exact (hp.pow 2).mul (actual_gM_continuous (by omega : 3 ≤ M))
+  · intro x hx
+    rw [actual_gM_zero_closed_outside (by omega : 3 ≤ M) hx.le, mul_zero]
+
+theorem tailMass_mono (M : ℕ) (hM : 4 ≤ M) (p : ℝ → ℝ) (hp : Continuous p)
+    {s r : ℝ} (hsr : s ≤ r) : tailMass M p r ≤ tailMass M p s := by
+  unfold tailMass
+  apply setIntegral_mono_set (square_supported_integrable M hM p hp).integrableOn
+  · exact Filter.Eventually.of_forall (fun x => mul_nonneg (sq_nonneg _) (actual_gM_nonneg M x))
+  · exact Filter.Eventually.of_forall (fun x hx => le_trans hsr hx)
+
+theorem first_tail_half_bounds (M : ℕ) (hM : 4 ≤ M) (p : ℝ → ℝ)
+    (hp : Continuous p) {s T : ℝ} (hs : 0 < s) (hsb : s ≤ 1/2)
+    (hT : tailMass M p s ≤ T) :
+    (∫ x in s..(1/2:ℝ), p x ^ 2 * gM M x) ≤ T ∧
+    (∫ x in s..(1/2:ℝ), p (-x) ^ 2 * gM M (-x)) ≤ T := by
+  have hsplit := support_tail_split (fun x => p x ^ 2 * gM M x)
+    ((hp.pow 2).mul (actual_gM_continuous (by omega : 3 ≤ M)))
+    (fun x hx => by rw [actual_gM_zero_closed_outside (by omega : 3 ≤ M) hx.le, mul_zero])
+    hs hsb
+  change tailMass M p s = _ at hsplit
+  have hp0 : 0 ≤ ∫ x in s..(1/2:ℝ), p x ^ 2 * gM M x :=
+    intervalIntegral.integral_nonneg hsb (fun x _ => mul_nonneg (sq_nonneg _) (actual_gM_nonneg M x))
+  have hn0 : 0 ≤ ∫ x in -(1/2:ℝ)..-s, p x ^ 2 * gM M x :=
+    intervalIntegral.integral_nonneg (by linarith) (fun x _ => mul_nonneg (sq_nonneg _) (actual_gM_nonneg M x))
+  rw [hsplit] at hT
+  constructor
+  · linarith
+  · rw [actual_left_reflection (fun x => p x ^ 2 * gM M x) s (1/2)]
+    linarith
+
+/-- The original unbounded-domain second inequality, with no truncated
+support endpoint or endpoint logarithm premise. The first-tail estimates
+and the classical polynomial endpoint estimates are explicit inputs. -/
+theorem global_weighted_tail (M k : ℕ) (hM : 4 ≤ M)
+    (p q : ℝ → ℝ) {s r c : ℝ} (hs : 0 < s) (hsr : s < r)
+    (hr : r < 1/2) (hscale : 1 ≤ (M : ℝ)*(r-s))
+    (hp : Continuous p) (hq : Continuous q)
+    (hLegPlus : ∀ x ∈ Icc r (1/2), p x ^ 2 ≤ ((k:ℝ)+1)^2/(x-s) * ∫ y in s..x, p y ^ 2)
+    (hLegPlus1 : ∀ x ∈ Icc r (1/2), q x ^ 2 ≤ ((k:ℝ)+1)^2/(x-s) * ∫ y in s..x, q y ^ 2)
+    (hLegMinus : ∀ x ∈ Icc r (1/2), p (-x) ^ 2 ≤ ((k:ℝ)+1)^2/(x-s) * ∫ y in s..x, p (-y) ^ 2)
+    (hLegMinus1 : ∀ x ∈ Icc r (1/2), q (-x) ^ 2 ≤ ((k:ℝ)+1)^2/(x-s) * ∫ y in s..x, q (-y) ^ 2)
+    (hFirst : tailMass M p s ≤ Real.exp (-c*(M:ℝ)))
+    (hFirst1 : tailMass M q s ≤ Real.exp (-c*(M:ℝ))) :
+    weightedTail M p q r ≤ 2*((k:ℝ)+1)^2*Real.exp (-c*(M:ℝ)) := by
+  have hsb : s ≤ (1/2:ℝ) := le_of_lt (lt_trans hsr hr)
+  obtain ⟨hpP,hpN⟩ := first_tail_half_bounds M hM p hp hs hsb hFirst
+  obtain ⟨hqP,hqN⟩ := first_tail_half_bounds M hM q hq hs hsb hFirst1
+  have h := original_signed_closed_tails M k hM p q hs.le hsr hr.le
+    (le_refl (1/2:ℝ)) hscale hp hq hLegPlus hLegPlus1 hLegMinus hLegMinus1 hpP hqP hpN hqN
+  unfold weightedTail
+  rw [support_tail_split _ (weighted_integrand_continuous M hM p q hp hq)
+    (fun x hx => by rw [actual_gM_zero_closed_outside (by omega : 3 ≤ M) hx.le, mul_zero])
+    (lt_trans hs hsr) hr.le]
+  exact h
+
+/-- A single radius, positive exponent and natural threshold work for every
+M and every k/M in the fixed compact interval. The already-proved first
+tail on the enlarged interval is supplied as a separate input, not the
+second tail. Classical Legendre inequalities are exposed at the two
+consecutive degrees. -/
+theorem uniform_actual_two_tails {t₁ t₂ s c : ℝ}
+    (ht₁ : 0 < t₁) (hs : 0 < s) (hsb : s < 1/2) (hc : 0 < c) (L : ℕ)
+    (p : ℕ → ℕ → ℝ → ℝ) (hp : ∀ M k, Continuous (p M k))
+    (hFirst : ∀ M k : ℕ, L ≤ M → (k:ℝ)/(M:ℝ) ∈ Icc (t₁/2) t₂ →
+      tailMass M (p M k) s ≤ Real.exp (-c*(M:ℝ)))
+    (hLeg : ∀ M k : ℕ, ∀ x : ℝ, s < x →
+      (p M k x)^2 ≤ ((k:ℝ)+1)^2/(x-s) * ∫ y in s..x, (p M k y)^2)
+    (hLegNeg : ∀ M k : ℕ, ∀ x : ℝ, s < x →
+      (p M k (-x))^2 ≤ ((k:ℝ)+1)^2/(x-s) * ∫ y in s..x, (p M k (-y))^2) :
+    ∃ r : ℝ, 0 < r ∧ r < 1/2 ∧ ∃ N : ℕ,
+      ∀ M k : ℕ, N ≤ M → (k:ℝ)/(M:ℝ) ∈ Icc t₁ t₂ →
+        tailMass M (p M k) r ≤ Real.exp (-c*(M:ℝ)) ∧
+        weightedTail M (p M k) (p M (k-1)) r ≤
+          2*((k:ℝ)+1)^2*Real.exp (-c*(M:ℝ)) := by
+  let r : ℝ := (s+1/2)/2
+  have hsr : s < r := by dsimp [r]; linarith
+  have hr : r < 1/2 := by dsimp [r]; linarith
+  obtain ⟨N,hNL,hN4,hN⟩ := uniform_scale_previous ht₁ hsr L
+  refine ⟨r,lt_trans hs hsr,hr,N,?_⟩
+  intro M k hM hk
+  obtain ⟨hscale,hk',hkprev⟩ := hN M k hM hk
+  have hM4 := le_trans hN4 hM
+  have hF := hFirst M k (le_trans hNL hM) hk'
+  have hFp := hFirst M (k-1) (le_trans hNL hM) hkprev
+  have hcoeff : (( (k-1 : ℕ) : ℝ)+1)^2 ≤ ((k:ℝ)+1)^2 := by
+    have hle : ((k-1 : ℕ) : ℝ) ≤ (k:ℝ) := by exact_mod_cast (Nat.sub_le k 1)
+    nlinarith [mul_nonneg (sub_nonneg.mpr hle) (show 0 ≤ ((k-1:ℕ):ℝ)+(k:ℝ)+2 by positivity)]
+  have hprevLeg : ∀ x ∈ Icc r (1/2), (p M (k-1) x)^2 ≤
+      ((k:ℝ)+1)^2/(x-s) * ∫ y in s..x, (p M (k-1) y)^2 := by
+    intro x hx
+    have hx' := lt_of_lt_of_le hsr hx.1
+    exact (hLeg M (k-1) x hx').trans
+      (mul_le_mul_of_nonneg_right (div_le_div_of_nonneg_right hcoeff (sub_nonneg.mpr hx'.le))
+        (intervalIntegral.integral_nonneg hx'.le (fun y _ => sq_nonneg _)))
+  have hprevLegNeg : ∀ x ∈ Icc r (1/2), (p M (k-1) (-x))^2 ≤
+      ((k:ℝ)+1)^2/(x-s) * ∫ y in s..x, (p M (k-1) (-y))^2 := by
+    intro x hx
+    have hx' := lt_of_lt_of_le hsr hx.1
+    exact (hLegNeg M (k-1) x hx').trans
+      (mul_le_mul_of_nonneg_right (div_le_div_of_nonneg_right hcoeff (sub_nonneg.mpr hx'.le))
+        (intervalIntegral.integral_nonneg hx'.le (fun y _ => sq_nonneg _)))
+  exact ⟨(tailMass_mono M hM4 (p M k) (hp M k) hsr.le).trans hF,
+    global_weighted_tail M k hM4 (p M k) (p M (k-1)) hs hsr hr hscale
+      (hp M k) (hp M (k-1))
+      (fun x hx => hLeg M k x (lt_of_lt_of_le hsr hx.1)) hprevLeg
+      (fun x hx => hLegNeg M k x (lt_of_lt_of_le hsr hx.1)) hprevLegNeg hF hFp⟩
+
 end UniformLanczos.Lemma513SupportUniform
 
 #print axioms UniformLanczos.Lemma513SupportUniform.actual_gM_zero_closed_outside
@@ -369,3 +488,9 @@ end UniformLanczos.Lemma513SupportUniform
 #print axioms UniformLanczos.Lemma513SupportUniform.continuous_supported_integrable
 #print axioms UniformLanczos.Lemma513SupportUniform.support_tail_split
 #print axioms UniformLanczos.Lemma513SupportUniform.uniform_scale_previous
+
+#print axioms UniformLanczos.Lemma513SupportUniform.square_supported_integrable
+#print axioms UniformLanczos.Lemma513SupportUniform.tailMass_mono
+#print axioms UniformLanczos.Lemma513SupportUniform.first_tail_half_bounds
+#print axioms UniformLanczos.Lemma513SupportUniform.global_weighted_tail
+#print axioms UniformLanczos.Lemma513SupportUniform.uniform_actual_two_tails
