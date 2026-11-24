@@ -53,12 +53,12 @@ theorem pair_deviation_bound (a φ n : ℝ) (hn : 1 ≤ n) :
       _ = (2*φ^2)*|a^2-n^2|+φ^4 := by
         rw [abs_mul, abs_of_nonneg hφ, abs_of_nonneg hφ4]
       _ ≤ (2*φ^2)*(a^2+n^2)+φ^4 :=
-        add_le_add_right (mul_le_mul_of_nonneg_left hdiff hφ) _
+        add_le_add (mul_le_mul_of_nonneg_left hdiff hφ) le_rfl
       _ ≤ (2*φ^2)*((a^2+1)*n^2)+φ^4*n^2 :=
         add_le_add (mul_le_mul_of_nonneg_left hscale hφ)
           (by simpa using mul_le_mul_of_nonneg_left hn2 hφ4)
       _ = pairConstant a φ*n^2 := by unfold pairConstant; ring
-  rw [pair_sub_one a φ n hn, abs_div, abs_of_nonneg (sq_nonneg _)]
+  rw [pair_sub_one a φ n hn, abs_div, abs_of_nonneg (sq_nonneg (n^2+a^2))]
   apply (div_le_div_iff₀ (by positivity) (by positivity)).2
   calc
     |2 * φ^2 * (a^2-n^2) + φ^4| * n^2 ≤
