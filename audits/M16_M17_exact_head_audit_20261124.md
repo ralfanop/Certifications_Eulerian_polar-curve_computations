@@ -1,6 +1,6 @@
 # M16/M17 exact-head audit — 24 Nov 2026
 
-Scope: Manuscripts 16 and 17 and PRs #458, #459, #566, #567 only. Manuscripts 11–15 are not touched.
+Scope: Manuscripts 16 and 17 and PRs #458, #459, #566, #567, #576, #585 only. Manuscripts 11–15 are not touched.
 
 ## Reference packages
 
@@ -21,6 +21,8 @@ Toolchain: Lean `v4.35.0-rc3`, Mathlib `0272bbe1c093d038d7257ab15306abd58245f9ff
 | #459 | `2094b78591f0cd88682d59dfee7d765002bbb2e6` | 135542411127 | `finiteIndex` depends on noncomputable `finrank` | `661d3247914939520faa56161a1e865c1d5b29f8` | `noncomputable def`; docstring |
 | #566 | `f401ac926c9629800e8faeaaa7c308137a973c99` | 138393702201 | `null_curve_tangent`: unsolved function-equality goal, hence `sorryAx` | `10c6efabd27c85e37bcf818956b9988d468f2b2e` | proof of the `convert` side goal only |
 | #567 | `38914fb8ce77893da12701314841edf697de715a` | — (success, merged 24 Nov 2026 11:33 UTC as `75a664b0`) | — | — | — |
+| #576 | `be873bda4fc77f64e60ce7fcb75b9d2298b227aa` | — (exact-head job 138465626693 success; merged 24 Nov 2026 13:30 UTC as `a67953ca`) | — | — | — |
+| #585 | `76de0e10893c5e1391a1de54b9f89b83df49612a` | — (exact-head job 138502217880 success: 18 declarations and 46 imported axiom reports, standard axioms only; merged 24 Nov 2026 14:10 UTC as `9c605296`) | — | — | — |
 
 No statement was changed. Before pushing, all 24 declarations were recompiled locally on the pinned toolchain; every one depends only on `propext`, `Classical.choice`, `Quot.sound`. The GitHub runs on the new heads are the certifying runs.
 
@@ -42,7 +44,7 @@ Decision of the scientific lead (24 Nov 2026): the unitary invariance of `det_p`
 | `ind(T+K) = ind T` | LEAN 4 CERTIFICATO, INTEGRATO (`SharedCore.FredholmAtkinson.index_add_compact`) |
 | M16 `eq:feff-det`, finite dimension | LEAN 4 CERTIFICATO, INTEGRATO (#567) |
 | M16 `eq:feff-det` on `S_p` | published result cited (Simon 2005) |
-| M16 `thm:dirac-maxwell-obstruction-164` (i)–(ii) | Abstract typed form in `lean/Manuscript16/DiracMaxwellObstructionIndex20261124.lean`, INTEGRATO (#576, `a67953ca`; exact-head CI job 138465626693 success on `be873bda`): `𝒜` Fredholm iff `A_P` Fredholm and `ind 𝒜 = ind A_P`, with Mathlib `IsFredholm`/`index`, under the premises `L : D ≃L X` and `B L⁻¹ C` compact. Graph-space form for an abstract closed bijective `L₀` with compact `R₀`, `‖R₀‖ ≤ 2/3`, `‖E‖ < 3/2`: `lean/Manuscript16/DiracMaxwellGraphSpace20261124.lean` (draft PR, exact-head CI required; see `audits/manuscript16/M16_dirac_maxwell_graph_space_20261124.md`). APERTO for the concrete `L₀ = W_R ⊕ D₃`: closedness, invertibility, `‖R₀‖ = 2/3`, compactness/Schatten membership of `R₀`; every `det₄` statement |
+| M16 `thm:dirac-maxwell-obstruction-164` (i)–(ii) | Abstract typed form in `lean/Manuscript16/DiracMaxwellObstructionIndex20261124.lean`, INTEGRATO (#576, `a67953ca`; exact-head CI job 138465626693 success on `be873bda`): `𝒜` Fredholm iff `A_P` Fredholm and `ind 𝒜 = ind A_P`, with Mathlib `IsFredholm`/`index`, under the premises `L : D ≃L X` and `B L⁻¹ C` compact. Graph-space form for an abstract closed bijective `L₀` with compact `R₀`, `‖R₀‖ ≤ 2/3`, `‖E‖ < 3/2`: `lean/Manuscript16/DiracMaxwellGraphSpace20261124.lean`, INTEGRATO (#585, `9c605296`; exact-head CI job 138502217880 success on `76de0e10`; see `audits/manuscript16/M16_dirac_maxwell_graph_space_20261124.md`). With #576 and #585 the abstract obligation (diagonal lemma `diag(F, L) = F.prodMap L`, `ker = ker F × 0`, `coker ≅ P / range F`, assembly through `typed_factorization`, `IsFredholm.index_comp`, `index_add_compact`) is closed and must not be re-proved. APERTO for the concrete `L₀ = W_R ⊕ D₃`: closedness, invertibility, `‖R₀‖ = 2/3`, compactness/Schatten membership of `R₀`; every `det₄` statement |
 | M17 L₈(1,χ₂), Area_Φ at 30,000 places | ARB CERTIFICATO (#553); certificate now persisted, see below |
 
 ## M17 numerical evidence
