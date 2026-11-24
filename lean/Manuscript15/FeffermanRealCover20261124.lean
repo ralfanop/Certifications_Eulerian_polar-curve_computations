@@ -28,13 +28,13 @@ open Manuscript15.HopfFibreGeodesics20261124
 theorem orbit_add (q : HopfQ) (s t : ℝ) :
     orbit (orbit q s) t = orbit q (s + t) := by
   rcases q with ⟨⟨a, b⟩, ⟨c, d⟩⟩
-  simp [orbit, phaseRotate, Real.cos_add, Real.sin_add] <;> ring
+  simp [orbit, phaseRotate, Real.cos_add, Real.sin_add] <;> ring <;> simp
 
 /-- The real flow is linear and commutes with the antipodal map. -/
 theorem orbit_neg (q : HopfQ) (t : ℝ) :
     orbit (-q) t = -(orbit q t) := by
   rcases q with ⟨⟨a, b⟩, ⟨c, d⟩⟩
-  simp [orbit, phaseRotate] <;> ring
+  simp [orbit, phaseRotate] <;> ring <;> simp
 
 /-- Diagonal antipodality and a half-period time shift cancel
 inside the actual Hopf-circle flow, on its real universal cover. -/
