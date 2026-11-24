@@ -9,7 +9,7 @@ the previously proved first-tail estimate and classical Legendre inequalities
 are explicit inputs to the final assembly.
 -/
 namespace UniformLanczos.Lemma513SupportUniform
-open Set MeasureTheory Filter intervalIntegral
+open Set MeasureTheory Filter Topology intervalIntegral
 open EulerianBridge.Saddle UniformLanczos.Lemma56 UniformLanczos.Lemma513ActualGM
 
 theorem actual_gM_zero_outside {M : ℕ} (hM : 3 ≤ M) {x : ℝ}
@@ -304,7 +304,7 @@ theorem support_tail_split (f : ℝ → ℝ) (hf : Continuous f)
       · have ht' : x ∉ {x : ℝ | r ≤ |x|} := ht
         have hn : x ∉ A ∪ B := fun h => ht (he.mpr h)
         rw [Set.indicator_apply, Set.indicator_apply, if_neg ht', if_neg hn]
-    · simp only [Set.indicator_apply, hz x (lt_of_not_ge hx), if_t_t]
+    · simp only [Set.indicator_apply, hz x (lt_of_not_ge hx)] <;> split <;> split <;> rfl
   have hd : Disjoint A B := by
     apply Set.disjoint_left.mpr
     intro x ha hb
