@@ -1,0 +1,66 @@
+name: M13 Ellis Rindler strict million-digit and 30000-place Arb
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m13_ellis_rindler_million.py'
+      - 'numerics/arb/million_decimal_common.py'
+      - '.github/workflows/m13-ellis-rindler-arb-20261124.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact head and pinned FLINT backend
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install 'python-flint==0.9.0'
+          python -m py_compile numerics/arb/m13_ellis_rindler_million.py
+      - name: Exact endpoint rounding and measured bit gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python numerics/arb/m13_ellis_rindler_million.py 2>&1 | tee m13-ellis-rindler-arb.log
+          grep -F 'MILLION SUCCESS m13-ellis-rindler checks 9' m13-ellis-rindler-arb.log
+          grep -F 'SUCCESS M13 ELLIS RINDLER STRICT 30000 PLACE GATE 9' m13-ellis-rindler-arb.log
+          python - <<'PY'
+          import gzip,json,hashlib
+          from pathlib import Path
+          d=json.loads(Path('million-m13-ellis-rindler.json').read_text())
+          assert d['working_bits']==3600000 and d['required_relative_bits']==3400000 and d['significant_digits']==1000001
+          assert len(d['certificates'])==9 and d['minimum_relative_bits']>=3400000
+          with gzip.open('million-enclosures.jsonl.gz','rt') as f:
+              rows=[json.loads(line) for line in f]
+          assert len(rows)==9
+          for row in rows:
+              mantissa, exp=row['rounded_significant_digits'].split('e')
+              assert len(mantissa.replace('.','').lstrip('-'))==1000001
+              assert row['relative_bits']>=3400000 and row['arb_ball']
+          fixed=json.loads(Path('m13-ellis-rindler-fixed30000.json').read_text())
+          assert fixed['status']=='CERTIFIED' and len(fixed['values'])==9
+          for row in fixed['values']:
+              assert row['strict_half_ulp_rounding_cell'] and row['relative_bits']>=3400000
+              assert len(row['rounded_decimal'].split('.')[1])==30000
+              assert hashlib.sha256(row['rounded_decimal'].encode('ascii')).hexdigest()==row['rounded_sha256']
+              assert row['lower_endpoint_exact'] and row['upper_endpoint_exact']
+          print('SUCCESS VERIFIED M13 BENCHMARK CERTIFICATE MANIFEST 9')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m13-ellis-rindler-benchmark-certificates
+          path: |
+            m13-ellis-rindler-arb.log
+            million-m13-ellis-rindler.json
+            million-enclosures.jsonl.gz
+            m13-ellis-rindler-fixed30000.json
+          if-no-files-found: warn
