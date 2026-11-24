@@ -164,7 +164,7 @@ theorem eulerianPhi_hasDerivAt_of_ne_zero (u : ℝ) (hu : u ≠ 0) :
       eulerianPhi =ᶠ[𝓝 u] (fun v : ℝ => Real.sinh v / v) := by
     filter_upwards [eventually_ne_nhds hu] with v hv
     simp [eulerianPhi, hv]
-  convert hd.congr_of_eventuallyEq heq using 1 <;> ring
+  simpa only [id_eq, mul_one] using hd.congr_of_eventuallyEq heq
 
 /-- Eq. cl-eulerian-langevin: exact logarithmic derivative,
 not only the special value at the critical root.
