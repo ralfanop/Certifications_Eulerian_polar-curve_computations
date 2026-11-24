@@ -1,4 +1,4 @@
-name: M15 actual Hopf angular chart and local Laplace exact-HEAD Lean 4
+name: M15 Hopf local Laplace and true C2 operator exact-HEAD Lean 4
 
 on:
   pull_request:
@@ -12,14 +12,14 @@ permissions:
   contents: read
 
 jobs:
-  angular-laplace:
+  angular-operator:
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - name: Exact SHA pinned Mathlib, actual Hopf chart and eight theorem axiom audit
+      - name: Exact-head Lean4 and twenty-five theorem audits
         working-directory: lean
         env:
           EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -41,50 +41,47 @@ jobs:
             -o .lake/build/lib/lean/Manuscript15/HopfSubmersionDifferential20261124.olean \
             Manuscript15/HopfSubmersionDifferential20261124.lean \
             2>&1 | tee /tmp/m15-hopf-local-laplacian/dependency.log
-          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/HopfLocalLaplacian20261124.olean Manuscript15/HopfLocalLaplacian20261124.lean \
-            2>&1 | tee /tmp/m15-hopf-local-laplacian/lean.log
-          lake env lean -M16768 Manuscript15/HopfBasicLocalOperator20261124.lean 2>&1 | tee /tmp/m15-hopf-local-laplacian/local-operator.log
+          lake env lean -M16768 \
+            -o .lake/build/lib/lean/Manuscript15/HopfLocalLaplacian20261124.olean \
+            Manuscript15/HopfLocalLaplacian20261124.lean \
+            2>&1 | tee /tmp/m15-hopf-local-laplacian/chart.log
+          lake env lean -M16768 \
+            Manuscript15/HopfBasicLocalOperator20261124.lean \
+            2>&1 | tee /tmp/m15-hopf-local-laplacian/operator.log
           python3 - <<'PY'
           import re
           from pathlib import Path
-          root=Path('/tmp/m15-hopf-local-laplacian')
-          src=Path('Manuscript15/HopfLocalLaplacian20261124.lean').read_text()
-          dep=(root/'dependency.log').read_text()
-          log=(root/'lean.log').read_text()
-          new_src=Path('Manuscript15/HopfBasicLocalOperator20261124.lean').read_text()
-          new_log=(root/'local-operator.log').read_text()
-          assert not re.search(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s',new_src,re.M)
-          assert not re.search(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s',src,re.M)
-          assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.', dep+log+new_log)
-          names=re.findall(r'^#print axioms (Manuscript15\.HopfLocalLaplacian20261124\.\w+)$',src,re.M)
-          assert len(names)==18 and len(set(names))==18,(len(names),names)
-          for name in names:
-            m=re.search(re.escape("'"+name+"'")+r" depends on axioms: \[([^\]]*)\]",log,re.S)
-            if m:
-              axioms={x.strip() for x in m.group(1).split(',') if x.strip()}
-              assert axioms <= {'propext','Classical.choice','Quot.sound'},(name,axioms)
-            else:
-              assert "'"+name+"' does not depend on any axioms" in log,name
-          extra=re.findall(r'^#print axioms (Manuscript15\.HopfBasicLocalOperator20261124\.\w+)
+          root = Path('/tmp/m15-hopf-local-laplacian')
+          dep = (root / 'dependency.log').read_text()
+          chart_log = (root / 'chart.log').read_text()
+          operator_log = (root / 'operator.log').read_text()
+          forbidden = re.compile(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s', re.M)
+          for log in [dep, chart_log, operator_log]:
+              assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.', log)
+          pairs = [
+              ('Manuscript15/HopfLocalLaplacian20261124.lean',
+               'Manuscript15.HopfLocalLaplacian20261124.', chart_log, 18),
+              ('Manuscript15/HopfBasicLocalOperator20261124.lean',
+               'Manuscript15.HopfBasicLocalOperator20261124.', operator_log, 7),
+          ]
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          for filename, prefix, log, expected in pairs:
+              source = Path(filename).read_text()
+              assert not forbidden.search(source)
+              names = re.findall(r'^#print axioms ([A-Za-z0-9_.]+)$', source, re.M)
+              assert len(names) == expected and len(set(names)) == expected, (filename, names)
+              for name in names:
+                  assert name.startswith(prefix), (filename, name)
+                  match = re.search(re.escape("'" + name + "'") + r' depends on axioms: \[([^\]]*)\]', log, re.S)
+                  if match:
+                      present = {x.strip() for x in match.group(1).split(',') if x.strip()}
+                      assert present <= allowed, (name, present)
+                  else:
+                      assert "'" + name + "' does not depend on any axioms" in log, name
+          print('M15 ACTUAL HOPF C2 OPERATOR EXACT-HEAD 25 THEOREMS SUCCESS')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: m15-hopf-local-laplace-ci
-          path: /tmp/m15-hopf-local-laplacian/
-,new_src,re.M)
-          assert len(extra)==7 and len(set(extra))==7,(len(extra),extra)
-          for name in extra:
-            m=re.search(re.escape("'"+name+"'")+r" depends on axioms: \[([^\]]*)\]",new_log,re.S)
-            if m:
-              axioms={x.strip() for x in m.group(1).split(',') if x.strip()}
-              assert axioms <= {'propext','Classical.choice','Quot.sound'},(name,axioms)
-            else:
-              assert "'"+name+"' does not depend on any axioms" in new_log,name
-          print('M15 ACTUAL HOPF LOCAL LAPLACE EXACT-HEAD TWENTY-FIVE THEOREMS SUCCESS')
-          PY
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: m15-hopf-local-laplace-ci
+          name: m15-hopf-local-operator-exact-head
           path: /tmp/m15-hopf-local-laplacian/
