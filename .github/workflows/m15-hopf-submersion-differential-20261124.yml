@@ -39,7 +39,7 @@ jobs:
           from pathlib import Path
           src=Path('Manuscript15/HopfSubmersionDifferential20261124.lean').read_text()
           log=Path('/tmp/m15-hopf-differential/lean.log').read_text()
-          forbidden=re.compile(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|(?m)^\s*axiom\s')
+          forbidden=re.compile(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s', re.M)
           assert not forbidden.search(src), "forbidden Lean source construct"
           assert not re.search(r'(sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.)',log), "Lean error or admitted proof"
           names=re.findall(r'^#print axioms (Manuscript15\.HopfDifferential20261124\.\w+)$',src,re.M)
