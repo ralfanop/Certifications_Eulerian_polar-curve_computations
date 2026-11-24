@@ -42,7 +42,7 @@ Decision of the scientific lead (24 Nov 2026): the unitary invariance of `det_p`
 | `ind(T+K) = ind T` | LEAN 4 CERTIFICATO, INTEGRATO (`SharedCore.FredholmAtkinson.index_add_compact`) |
 | M16 `eq:feff-det`, finite dimension | LEAN 4 CERTIFICATO, INTEGRATO (#567) |
 | M16 `eq:feff-det` on `S_p` | published result cited (Simon 2005) |
-| M16 `thm:dirac-maxwell-obstruction-164` (i)–(ii) | APERTO as an assembled statement: `V165GraphSchur.typed_factorization` assumes `L : D ≃L X`; transfer of Fredholmness/index through the shears and `diag(F, L)`, and the construction of `L` from `L₀`, are missing |
+| M16 `thm:dirac-maxwell-obstruction-164` (i)–(ii) | Abstract typed form in `lean/Manuscript16/DiracMaxwellObstructionIndex20261124.lean` (draft PR, exact-head CI required): `𝒜` Fredholm iff `A_P` Fredholm and `ind 𝒜 = ind A_P`, with Mathlib `IsFredholm`/`index`, under the premises `L : D ≃L X` and `B L⁻¹ C` compact. APERTO for the concrete operators: construction of `L` from `L₀` and compactness of `B L⁻¹ C`; see `audits/manuscript16/M16_dirac_maxwell_obstruction_index_20261124.md` |
 | M17 L₈(1,χ₂), Area_Φ at 30,000 places | ARB CERTIFICATO (#553); certificate now persisted, see below |
 
 ## M17 numerical evidence
