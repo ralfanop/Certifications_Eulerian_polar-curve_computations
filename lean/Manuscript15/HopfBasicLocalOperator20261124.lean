@@ -25,7 +25,7 @@ open Manuscript15.HopfLocalLaplacian20261124
 theorem deriv_double_argument (g : ℝ → ℝ) (hg : Differentiable ℝ g) (x : ℝ) :
     deriv (fun t : ℝ => g (2 * t)) x = 2 * deriv g (2 * x) := by
   have hlin : HasDerivAt (fun t : ℝ => 2 * t) 2 x := by
-    simpa only [mul_one] using ((hasDerivAt_id x).const_mul (2 : ℝ))
+    simpa only [id_eq, mul_one] using ((hasDerivAt_id x).const_mul (2 : ℝ))
   have h := (hg (2 * x)).hasDerivAt.comp x hlin
   simpa only [Function.comp_def, mul_comm] using h.deriv
 
@@ -42,10 +42,14 @@ theorem second_deriv_double_argument (g : ℝ → ℝ)
     exact deriv_double_argument g hg t
   rw [hfun]
   have hlin : HasDerivAt (fun t : ℝ => 2 * t) 2 x := by
-    simpa only [mul_one] using ((hasDerivAt_id x).const_mul (2 : ℝ))
+    simpa only [id_eq, mul_one] using ((hasDerivAt_id x).const_mul (2 : ℝ))
   have hout := (hg2 (2 * x)).hasDerivAt.comp x hlin
   have h := hout.const_mul (2 : ℝ)
-  convert h.deriv using 1 <;> ring
+  have hder : deriv (fun t : ℝ => 2 * deriv g (2 * t)) x =
+      2 * (deriv (deriv g) (2 * x) * 2) := by
+    simpa only [Function.comp_def] using h.deriv
+  rw [hder]
+  ring
 
 /-- First chain rule for a translated scalar argument. -/
 theorem deriv_sub_const_argument (g : ℝ → ℝ)
@@ -95,6 +99,12 @@ theorem second_deriv_const_sub_argument (g : ℝ → ℝ)
     (hasDerivAt_id x).const_sub c
   have hout := (hg2 (c - x)).hasDerivAt.comp x hlin
   have h := hout.neg
+  have hfunNeg :
+      (fun t : ℝ => -deriv g (c - t)) =
+      -(fun t : ℝ => deriv g (c - t)) := by
+    funext t
+    rfl
+  rw [hfunNeg]
   simpa only [Function.comp_def, mul_neg, mul_one, neg_neg] using h.deriv
 
 /-- Actual Hopf-basic scalar pullback in the real angular chart. -/
