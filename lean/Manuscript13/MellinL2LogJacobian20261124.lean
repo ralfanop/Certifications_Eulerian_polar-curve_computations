@@ -124,6 +124,78 @@ def logUnitary : Lp ℂ 2 expMeasure ≃ₗᵢ[ℂ] Lp ℂ 2 (volume : Measure �
 theorem logUnitary_norm (f : Lp ℂ 2 expMeasure) : ‖logUnitary f‖ = ‖f‖ :=
   logUnitary.norm_map f
 
+/-- Continuous functions on the spectral band cannot hide a larger
+value at a null endpoint: any strict excess persists on an interval. -/
+def bandMeasure : Measure ℝ := volume.restrict (Icc (-(1/2 : ℝ)) (1/2 : ℝ))
+
+theorem band_interval_positive (a b : ℝ) (hab : a < b)
+    (ha : -(1/2 : ℝ) ≤ a) (hb : b ≤ 1/2) :
+    bandMeasure (Ioo a b) ≠ 0 := by
+  unfold bandMeasure
+  rw [Measure.restrict_apply measurableSet_Ioo]
+  have h : Ioo a b ∩ Icc (-(1/2 : ℝ)) (1/2 : ℝ) = Ioo a b := by
+    apply inter_eq_left.mpr
+    intro x hx
+    exact ⟨le_trans ha hx.1.le, le_trans hx.2.le hb⟩
+  rw [h, Real.volume_Ioo]
+  exact ne_of_gt (ENNReal.ofReal_pos.mpr (sub_pos.mpr hab))
+
+theorem ae_band_bound_is_pointwise (m : ℝ → ℝ) (hm : Continuous m)
+    (C : ℝ) (hC : ∀ᵐ x ∂bandMeasure, m x ≤ C)
+    (x : ℝ) (hx : x ∈ Icc (-(1/2 : ℝ)) (1/2 : ℝ)) : m x ≤ C := by
+  by_contra! hbad
+  have ho : IsOpen {z : ℝ | C < m z} := isOpen_lt continuous_const hm
+  obtain ⟨δ, hδ, hball⟩ := Metric.isOpen_iff.mp ho x hbad
+  let ε : ℝ := min (δ/2) (1/2)
+  have hε : 0 < ε := lt_min (by linarith) (by norm_num)
+  have hεδ : ε < δ := lt_of_le_of_lt (min_le_left _ _) (by linarith)
+  have hεhalf : ε ≤ 1/2 := min_le_right _ _
+  have hz : bandMeasure {z : ℝ | ¬ m z ≤ C} = 0 := ae_iff.mp hC
+  by_cases hside : x ≤ 0
+  · have hsub : Ioo x (x+ε) ⊆ {z : ℝ | ¬ m z ≤ C} := by
+      intro z hz'
+      apply not_le.mpr
+      apply hball
+      rw [Metric.mem_ball, Real.dist_eq, abs_of_pos (sub_pos.mpr hz'.1)]
+      linarith [hz'.2]
+    have hn := band_interval_positive x (x+ε) (by linarith) hx.1 (by linarith)
+    exact hn (le_antisymm (hz ▸ measure_mono hsub) bot_le)
+  · have hsub : Ioo (x-ε) x ⊆ {z : ℝ | ¬ m z ≤ C} := by
+      intro z hz'
+      apply not_le.mpr
+      apply hball
+      rw [Metric.mem_ball, Real.dist_eq, abs_of_neg (sub_neg.mpr hz'.2)]
+      linarith [hz'.1]
+    have hn := band_interval_positive (x-ε) x (by linarith) (by linarith) hx.2
+    exact hn (le_antisymm (hz ▸ measure_mono hsub) bot_le)
+
+theorem sharp_essential_bound (m : ℝ → ℝ) (hm : Continuous m) (C : ℝ)
+    (hupper : ∀ x ∈ Icc (-(1/2 : ℝ)) (1/2 : ℝ), m x ≤ C)
+    (hattain : ∃ x ∈ Icc (-(1/2 : ℝ)) (1/2 : ℝ), m x = C) :
+    IsLeast {b : ℝ | ∀ᵐ x ∂bandMeasure, m x ≤ b} C := by
+  constructor
+  · change ∀ᵐ x ∂bandMeasure, m x ≤ C
+    filter_upwards [ae_restrict_mem (μ := (volume : Measure ℝ)) measurableSet_Icc] with x hx
+    exact hupper x hx
+  · intro b hb
+    obtain ⟨x, hx, heq⟩ := hattain
+    rw [← heq]
+    exact ae_band_bound_is_pointwise m hm b hb x hx
+
+/-- The actual Rindler multiplier; no assumption that its endpoint
+maximum is also essential is made. Pointwise bounds/attainment are
+the already certified #568 declarations and are explicit arguments
+here to keep the module independently compilable. -/
+theorem rindler_essential_bound (n : ℤ)
+    (hupper : ∀ x ∈ Icc (-(1/2 : ℝ)) (1/2 : ℝ),
+      Real.exp (-(2*Real.pi*(n : ℝ)*x)) ≤ Real.exp (Real.pi*|(n : ℝ)|))
+    (hattain : ∃ x ∈ Icc (-(1/2 : ℝ)) (1/2 : ℝ),
+      Real.exp (-(2*Real.pi*(n : ℝ)*x)) = Real.exp (Real.pi*|(n : ℝ)|)) :
+    IsLeast {b : ℝ | ∀ᵐ x ∂bandMeasure,
+      Real.exp (-(2*Real.pi*(n : ℝ)*x)) ≤ b}
+      (Real.exp (Real.pi*|(n : ℝ)|)) := by
+  apply sharp_essential_bound _ (by fun_prop) _ hupper hattain
+
 end
 end Manuscript13.MellinL2LogJacobian20261124
 
@@ -144,3 +216,8 @@ end Manuscript13.MellinL2LogJacobian20261124
 #print axioms Manuscript13.MellinL2LogJacobian20261124.logL2_surjective
 #print axioms Manuscript13.MellinL2LogJacobian20261124.logUnitary
 #print axioms Manuscript13.MellinL2LogJacobian20261124.logUnitary_norm
+
+#print axioms Manuscript13.MellinL2LogJacobian20261124.band_interval_positive
+#print axioms Manuscript13.MellinL2LogJacobian20261124.ae_band_bound_is_pointwise
+#print axioms Manuscript13.MellinL2LogJacobian20261124.sharp_essential_bound
+#print axioms Manuscript13.MellinL2LogJacobian20261124.rindler_essential_bound
