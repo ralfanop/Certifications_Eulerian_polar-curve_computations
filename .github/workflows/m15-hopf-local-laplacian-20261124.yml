@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'lean/Manuscript15/HopfLocalLaplacian20261124.lean'
+      - 'lean/Manuscript15/HopfBasicLocalOperator20261124.lean'
       - '.github/workflows/m15-hopf-local-laplacian-20261124.yml'
   workflow_dispatch:
 
@@ -40,8 +41,9 @@ jobs:
             -o .lake/build/lib/lean/Manuscript15/HopfSubmersionDifferential20261124.olean \
             Manuscript15/HopfSubmersionDifferential20261124.lean \
             2>&1 | tee /tmp/m15-hopf-local-laplacian/dependency.log
-          lake env lean -M16768 Manuscript15/HopfLocalLaplacian20261124.lean \
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/HopfLocalLaplacian20261124.olean Manuscript15/HopfLocalLaplacian20261124.lean \
             2>&1 | tee /tmp/m15-hopf-local-laplacian/lean.log
+          lake env lean -M16768 Manuscript15/HopfBasicLocalOperator20261124.lean 2>&1 | tee /tmp/m15-hopf-local-laplacian/local-operator.log
           python3 - <<'PY'
           import re
           from pathlib import Path
@@ -49,8 +51,11 @@ jobs:
           src=Path('Manuscript15/HopfLocalLaplacian20261124.lean').read_text()
           dep=(root/'dependency.log').read_text()
           log=(root/'lean.log').read_text()
+          new_src=Path('Manuscript15/HopfBasicLocalOperator20261124.lean').read_text()
+          new_log=(root/'local-operator.log').read_text()
+          assert not re.search(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s',new_src,re.M)
           assert not re.search(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s',src,re.M)
-          assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.', dep+log)
+          assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.', dep+log+new_log)
           names=re.findall(r'^#print axioms (Manuscript15\.HopfLocalLaplacian20261124\.\w+)$',src,re.M)
           assert len(names)==18 and len(set(names))==18,(len(names),names)
           for name in names:
@@ -60,7 +65,23 @@ jobs:
               assert axioms <= {'propext','Classical.choice','Quot.sound'},(name,axioms)
             else:
               assert "'"+name+"' does not depend on any axioms" in log,name
-          print('M15 ACTUAL HOPF LOCAL LAPLACE EXACT-HEAD EIGHTEEN THEOREMS SUCCESS')
+          extra=re.findall(r'^#print axioms (Manuscript15\.HopfBasicLocalOperator20261124\.\w+)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-hopf-local-laplace-ci
+          path: /tmp/m15-hopf-local-laplacian/
+,new_src,re.M)
+          assert len(extra)==7 and len(set(extra))==7,(len(extra),extra)
+          for name in extra:
+            m=re.search(re.escape("'"+name+"'")+r" depends on axioms: \[([^\]]*)\]",new_log,re.S)
+            if m:
+              axioms={x.strip() for x in m.group(1).split(',') if x.strip()}
+              assert axioms <= {'propext','Classical.choice','Quot.sound'},(name,axioms)
+            else:
+              assert "'"+name+"' does not depend on any axioms" in new_log,name
+          print('M15 ACTUAL HOPF LOCAL LAPLACE EXACT-HEAD TWENTY-FIVE THEOREMS SUCCESS')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
