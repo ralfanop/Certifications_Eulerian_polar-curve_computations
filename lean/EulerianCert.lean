@@ -58,3 +58,5 @@ import EulerianCert.KrapivskyLuckEnergy
 import EulerianCert.M11FinalCoverage
 
 import EulerianCert.M11OddFinite
+
+import EulerianCert.M11Completion
