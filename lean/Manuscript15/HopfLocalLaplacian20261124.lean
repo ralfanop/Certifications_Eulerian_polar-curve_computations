@@ -191,7 +191,8 @@ theorem chartAlpha_hasDerivAt (η α β : ℝ) :
   have hb := (Real.hasDerivAt_sin α).const_mul (Real.cos η)
   have hc := hasDerivAt_const α (Real.sin η * Real.cos β)
   have hd := hasDerivAt_const α (Real.sin η * Real.sin β)
-  simpa only [hopfChart, chartAlpha] using (ha.prodMk hb).prodMk (hc.prodMk hd)
+  simpa only [hopfChart, chartAlpha, mul_neg, neg_mul] using
+    (ha.prodMk hb).prodMk (hc.prodMk hd)
 
 /-- Actual β derivative of the Hopf chart into ℝ⁴. -/
 theorem chartBeta_hasDerivAt (η α β : ℝ) :
@@ -200,7 +201,8 @@ theorem chartBeta_hasDerivAt (η α β : ℝ) :
   have hb := hasDerivAt_const β (Real.cos η * Real.sin α)
   have hc := (Real.hasDerivAt_cos β).const_mul (Real.sin η)
   have hd := (Real.hasDerivAt_sin β).const_mul (Real.sin η)
-  simpa only [hopfChart, chartBeta] using (ha.prodMk hb).prodMk (hc.prodMk hd)
+  simpa only [hopfChart, chartBeta, mul_neg, neg_mul] using
+    (ha.prodMk hb).prodMk (hc.prodMk hd)
 
 /-- Metric g_ηη of the true round Hopf chart is exactly one. -/
 theorem chart_eta_metric (η α β : ℝ) :
@@ -284,9 +286,9 @@ theorem hopfChart_round_metric (η α β u v w : ℝ) :
     _ = u ^ 2 + Real.cos η ^ 2 * v ^ 2 +
         Real.sin η ^ 2 * w ^ 2 := by
       rw [Real.cos_sq_add_sin_sq α, Real.cos_sq_add_sin_sq β,
-        Real.sin_sq_add_cos_sq α, Real.sin_sq_add_cos_sq β,
-        Real.sin_sq_add_cos_sq η]
-      ring
+        Real.sin_sq_add_cos_sq α, Real.sin_sq_add_cos_sq β]
+      simp only [mul_one]
+      rw [Real.sin_sq_add_cos_sq η] <;> ring
 
 #print axioms Manuscript15.HopfLocalLaplacian20261124.chartEta_hasDerivAt
 #print axioms Manuscript15.HopfLocalLaplacian20261124.chartAlpha_hasDerivAt
