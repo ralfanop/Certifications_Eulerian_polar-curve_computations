@@ -46,8 +46,11 @@ theorem null_curve_tangent (c : ℝ → V) (s : ℝ) (u : V)
   have h4 := (hc 4).mul (hc 4)
   have h5 := (hc 5).mul (hc 5)
   have hd : HasDerivAt (fun t => B (c t) (c t)) (2 * B (c s) u) s := by
-    convert (((((h0.add h1).add h2).add h3).sub h4).sub h5) using 1 <;>
-      simp only [B] <;> ring
+    convert (((((h0.add h1).add h2).add h3).sub h4).sub h5) using 1
+    · funext t
+      simp only [B, Pi.add_apply, Pi.sub_apply, Pi.mul_apply]
+    · simp only [B]
+      ring
   have hz : HasDerivAt (fun t => B (c t) (c t)) 0 s := by
     rw [show (fun t => B (c t) (c t)) = (fun _ : ℝ => (0 : ℝ)) from funext hn]
     exact hasDerivAt_const s 0
