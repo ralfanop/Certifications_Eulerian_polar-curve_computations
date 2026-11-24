@@ -126,6 +126,34 @@ theorem basic_field_time_derivative
   rw [hfun]
   exact ha.mul_const (f (hopfMap q))
 
+
+/-- The *second ordinary time derivative* of a genuine Hopf-basic
+scalar pullback along the real Fefferman chart is exactly the
+second derivative of its time factor times the basic spatial
+field. This remains true for arbitrary a; the real field
+derivative is used without an unproved smoothness hypothesis. -/
+theorem basic_field_second_time_derivative
+    (a : ℝ → ℝ) (f : ((ℝ × ℝ) × ℝ) → ℝ)
+    (q : HopfQ) (t : ℝ) :
+    deriv (fun s : ℝ =>
+      deriv (fun r : ℝ => a r * f (hopfMap (orbit q r))) s) t =
+      deriv (deriv a) t * f (hopfMap q) := by
+  have hfun :
+      (fun r : ℝ => a r * f (hopfMap (orbit q r))) =
+        (fun r : ℝ => a r * f (hopfMap q)) := by
+    funext r
+    rw [orbit_hopfMap]
+  rw [hfun]
+  have hinner :
+      (fun s : ℝ => deriv (fun r : ℝ => a r * f (hopfMap q)) s) =
+      (fun s : ℝ => deriv a s * f (hopfMap q)) := by
+    funext s
+    exact deriv_mul_const_field (f (hopfMap q))
+  rw [hinner]
+  exact deriv_mul_const_field (f (hopfMap q))
+
+#print axioms Manuscript15.FeffermanRealCover20261124.basic_field_second_time_derivative
+
 #print axioms Manuscript15.FeffermanRealCover20261124.orbit_add
 #print axioms Manuscript15.FeffermanRealCover20261124.orbit_neg
 #print axioms Manuscript15.FeffermanRealCover20261124.orbit_antipodal_shift
