@@ -69,15 +69,15 @@ theorem eventual_uniform_majorant (L : ℝ) (hL : 0 ≤ L) :
   have hl : -L ≤ lam := by linarith [neg_abs_le lam]
   have hc : (1/24:ℝ) ≤ 1/12+lam*scale M^2 := by
     nlinarith only [ha,mul_le_mul_of_nonneg_right hl hsq]
-  have hb' : (6*|lam|+1)*scale M^2 ≤ M12GlobalMGF.deficitConstant := by
-    have h := mul_le_mul_of_nonneg_right (show 6*|lam|+1 ≤ 6*L+1 by linarith) hsq
+  have hb' : (6 * |lam| + 1)*scale M^2 ≤ M12GlobalMGF.deficitConstant := by
+    have h := mul_le_mul_of_nonneg_right (show 6 * |lam| + 1 ≤ 6*L+1 by linarith) hsq
     exact h.trans hb
   have hm := M12FockDomination.scaledIntegrand_le_majorant M (scale M) lam p.1 p.2
     hs (scale_identity M hM) hc hb'
   have hmon : M12FockDomination.majorant lam p ≤ M12FockDomination.majorant L p := by
     unfold M12FockDomination.majorant
     rw [abs_of_nonneg hL]
-    have hsq' : (6*|lam|+1)^2 ≤ (6*L+1)^2 := by
+    have hsq' : (6 * |lam| + 1)^2 ≤ (6*L+1)^2 := by
       apply pow_le_pow_left₀ (by positivity) (by linarith) 2
     gcongr
   exact hm.trans hmon
@@ -93,15 +93,15 @@ theorem eventual_H_integrable (lam : ℝ) :
 
 theorem profile_integrable (lam : ℝ) : Integrable (profile lam) := by
   have h := (integrable_exp_neg_mul_sq (b := 1) (by norm_num : (0:ℝ)<1)).const_mul
-    (Real.exp ((6*|lam|+1)^2*20))
+    (Real.exp ((6 * |lam| + 1)^2*20))
   apply h.mono' (by unfold profile; fun_prop)
   refine Eventually.of_forall fun u => ?_
   unfold profile
   rw [Real.norm_eq_abs,abs_of_pos (Real.exp_pos _),← Real.exp_add]
   apply Real.exp_le_exp.mpr
-  have hb := sq_nonneg (u^2/40-(6*|lam|+1)/2)
+  have hb := sq_nonneg (u^2/40-(6 * |lam| + 1)/2)
   have hl := mul_le_mul_of_nonneg_right (neg_le_abs lam) (sq_nonneg u)
-  nlinarith only [hb,hl,sq_nonneg (6*|lam|+1)]
+  nlinarith only [hb,hl,sq_nonneg (6 * |lam| + 1)]
 
 theorem G_eq_product (lam : ℝ) (p : ℝ × ℝ) :
     G lam p = profile lam p.1 * Real.exp (-p.2^2) := by
@@ -150,8 +150,7 @@ theorem eventual_original_Fock_eq (lam : ℝ) :
   have hm : 0 < M := by omega
   rw [M12CriticalAssembly.normalized_Fock_eq_actual_scaled_integrand M (scale M) lam
     (scale_pos M hm) (scale_identity M hm)]
-  rw [integral_prod_symm (H lam M) hi]
-  rfl
+  rw [integral_prod_symm (H lam M) hi] <;> rfl
 
 theorem fixed_lambda_Fock_limit (lam : ℝ) :
     Tendsto (fun M : ℕ => scale M * M12CriticalAssembly.originalFockNorm M
@@ -169,8 +168,8 @@ theorem fixed_lambda_Fock_limit (lam : ℝ) :
   have hpi : (Real.sqrt Real.pi)^2 = Real.pi := Real.sq_sqrt Real.pi_pos.le
   have heq : (1/(2*Real.pi))*((∫ u : ℝ, profile lam u)*Real.sqrt Real.pi) = F lam := by
     unfold F
-    field_simp [hs,Real.pi_ne_zero]
-    nlinarith only [hpi]
+    rw [← hpi]
+    field_simp [hs] <;> ring
   rw [heq] at h
   exact h.congr' (eventual_original_Fock_eq lam).symm
 
