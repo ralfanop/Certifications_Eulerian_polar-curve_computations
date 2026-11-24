@@ -163,7 +163,7 @@ theorem eulerianPhi_hasDerivAt_of_ne_zero (u : ℝ) (hu : u ≠ 0) :
       ((Real.cosh u * u - Real.sinh u) / u ^ 2) u := by
   have hd := (Real.hasDerivAt_sinh u).div (hasDerivAt_id u) hu
   have heq :
-      eulerianPhi =ᶠ[𝓝 u] (fun v : ℝ => Real.sinh v / v) := by
+      eulerianPhi =ᶠ[nhds u] (fun v : ℝ => Real.sinh v / v) := by
     filter_upwards [eventually_ne_nhds hu] with v hv
     simp [eulerianPhi, hv]
   simpa only [id_eq, mul_one] using hd.congr_of_eventuallyEq heq
