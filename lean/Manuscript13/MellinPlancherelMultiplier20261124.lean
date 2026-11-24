@@ -33,7 +33,7 @@ theorem mellin_surjective : Function.Surjective mellinFourier :=
 theorem mul_mem {μ : Measure ℝ} (m : ℝ → ℂ) (hm : Measurable m)
     (C : ℝ) (hC : 0 ≤ C) (hb : ∀ᵐ x ∂μ, ‖m x‖ ≤ C) (f : H μ) :
     MemLp (fun x => m x * f x) 2 μ := by
-  apply (((C : ℂ) • f).memLp).mono
+  apply (Lp.memLp ((C : ℂ) • f)).mono
   · exact hm.aestronglyMeasurable.mul f.aestronglyMeasurable
   · filter_upwards [hb, Lp.coeFn_smul (C : ℂ) f] with x hx he
     rw [norm_mul]
@@ -74,6 +74,7 @@ def mulLinear {μ : Measure ℝ} (m : ℝ → ℂ) (hm : Measurable m)
     apply Lp.ext
     filter_upwards [mulFun_ae m hm C hC hb (c • f), mulFun_ae m hm C hC hb f,
       Lp.coeFn_smul c f, Lp.coeFn_smul c (mulFun m hm C hC hb f)] with x hcf hf hsm hout
+    change mulFun m hm C hC hb (c • f) x = (c • mulFun m hm C hC hb f) x
     rw [hcf, hout]
     change (c • f) x = c * f x at hsm
     change m x * (c • f) x = c * mulFun m hm C hC hb f x
@@ -129,7 +130,10 @@ theorem mulOperator_norm_lower {μ : Measure ℝ} (m : ℝ → ℂ) (hm : Measur
         · exact mul_le_mul_of_nonneg_right (hlow x hxs) (norm_nonneg _)
         · have hfz : f x = 0 := by simpa [Set.indicator_of_notMem hxs] using hx
           simp [hfz])
-    simpa [norm_smul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hb0] using h
+    have heq : ‖(b : ℂ) • f‖ = b * ‖f‖ := by
+      rw [norm_smul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hb0]
+    rw [← heq]
+    exact h
   exact le_of_mul_le_mul_right (htest.trans (ContinuousLinearMap.le_opNorm _ f)) hnorm
 
 theorem rindler_ae_bound (n : ℤ) :
@@ -243,7 +247,7 @@ theorem angular_cosine_kernel (x : ℝ) :
     (∫ ξ in (-(1/2 : ℝ))..(1/2 : ℝ), Real.cos (ξ*x)) =
       if x = 0 then 1 else 2*Real.sin (x/2)/x := by
   by_cases hx : x = 0
-  · simp [hx]
+  · norm_num [hx]
   · have hd : ∀ t : ℝ, HasDerivAt (fun y : ℝ => Real.sin (y*x)/x)
         (Real.cos (t*x)) t := by
       intro t
