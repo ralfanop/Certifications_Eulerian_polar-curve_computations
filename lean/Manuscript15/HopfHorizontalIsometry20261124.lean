@@ -51,7 +51,7 @@ theorem differential_energy_identity (q v : HopfQ) :
       dot4 (gradZ q) v ^ 2 =
     4 * normSq4 q * dot4 v v -
       4 * dot4 (verticalGenerator q) v ^ 2 := by
-  simpa only [pow_two] using differential_metric_identity q v v
+  simpa only [pow_two, mul_assoc] using differential_metric_identity q v v
 
 /-- Tangential vectors orthogonal to the vertical Hopf-circle
 generator are preserved isometrically by the derivative of h/2
