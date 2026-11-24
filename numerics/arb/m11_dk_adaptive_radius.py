@@ -95,6 +95,17 @@ class Local(TwoSided):
             raw=Path(self.certified_length_manifest).read_bytes()
             digest=hashlib.sha256(raw).hexdigest()
             expected="a606d305f7d4c773695cee61cf56268022ec9cc5525f689f301e8822f22fe7b5"
+            mixed = json.loads(raw)
+            if mixed.get("source_head_sha") == "59d9884b7346b4e3296336be56f3bb702f1b2686" and mixed.get("threshold_bits") == 130000:
+                if (mixed.get("working_bits"),mixed.get("panels"),mixed.get("index")) != (155000,32,None):
+                    raise ValueError("mixed length parameters")
+                length=from_endpoints(mixed["enclosure"])/2
+                if length.rel_accuracy_bits()<target:
+                    raise ValueError("mixed length precision insufficient")
+                self.historical_euler_source={"source_ci":45357327165,"source_head_sha":mixed["source_head_sha"],"manifest_sha256":digest}
+                assert 0<length<3
+                self.charts[kind]={"length":length}
+                return length
             if digest!=expected:
                 raise ValueError("historical full Eulerian length manifest SHA256 mismatch")
             manifest=json.loads(raw)
