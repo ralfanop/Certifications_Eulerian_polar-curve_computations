@@ -95,12 +95,14 @@ theorem actual_gM_antitone {M : ℕ} (hM : 3 ≤ M)
     AntitoneOn (gM M) (Icc s b) := by
   apply antitoneOn_of_deriv_nonpos (convex_Icc s b)
     (actual_gM_continuous hM).continuousOn
-  intro x hx
-  rw [interior_Icc] at hx
-  have hxs : s < x := (mem_Ioo.mp hx).1
-  have hxb : x < b := (mem_Ioo.mp hx).2
-  exact actual_gM_deriv_nonpos hM
-    ⟨by linarith, by linarith⟩
+  · intro x _
+    exact (hasDerivAt_gM hM x).differentiableAt.differentiableWithinAt
+  · intro x hx
+    rw [interior_Icc] at hx
+    have hxs : s < x := (mem_Ioo.mp hx).1
+    have hxb : x < b := (mem_Ioo.mp hx).2
+    exact actual_gM_deriv_nonpos hM
+      ⟨le_trans hs hxs.le, lt_trans hxb hb⟩
 
 theorem actual_gM_reflected_antitone {M : ℕ} (hM : 3 ≤ M)
     {s b : ℝ} (hs : 0 ≤ s) (hb : b < 1 / 2) :
@@ -202,7 +204,7 @@ theorem second_tail_actual_gM (M k : ℕ) (hM : 4 ≤ M)
 change of variables; the left endpoint really is -b, not b. -/
 theorem actual_left_reflection (f : ℝ → ℝ) (r b : ℝ) :
     (∫ x in r..b, f (-x)) = ∫ x in -b..-r, f x :=
-  intervalIntegral.integral_comp_neg f r b
+  intervalIntegral.integral_comp_neg f
 
 end UniformLanczos.Lemma513ActualGM
 
