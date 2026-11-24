@@ -38,14 +38,21 @@ theorem gram_nonneg (B : H →L[ℝ] G) (x : H) :
 
 theorem gram_symmetric (B : H →L[ℝ] G) (x y : H) :
     inner ℝ (gram B x) y = inner ℝ x (gram B y) := by
-  rw [gram_inner, real_inner_comm x (gram B y), gram_inner, real_inner_comm (B y) (B x)]
+  calc
+    inner ℝ (gram B x) y = inner ℝ (B x) (B y) := gram_inner B x y
+    _ = inner ℝ (B y) (B x) := by
+      first | exact real_inner_comm _ _ | exact (real_inner_comm _ _).symm
+    _ = inner ℝ (gram B y) x := (gram_inner B y x).symm
+    _ = inner ℝ x (gram B y) := by
+      first | exact real_inner_comm _ _ | exact (real_inner_comm _ _).symm
 
 theorem gram_kernel_iff (B : H →L[ℝ] G) (x : H) :
     gram B x = 0 ↔ B x = 0 := by
   constructor
   · intro h
-    have hq := gram_quadratic B x
-    rw [h, zero_inner] at hq
+    have hq : ‖B x‖ ^ 2 = 0 := by
+      rw [← gram_quadratic B x, h]
+      simp
     have hz : ‖B x‖ = 0 := by nlinarith [norm_nonneg (B x)]
     exact norm_eq_zero.mp hz
   · intro h
