@@ -50,7 +50,7 @@ jobs:
           assert not forbidden.search(src), "no new axioms or unproved constructs"
           assert not re.search(r'(sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.)', log+dep)
           names=re.findall(r'^#print axioms (Manuscript15\.HopfHorizontalIsometry20261124\.\w+)$',src,re.M)
-          assert len(names)==7 and len(set(names))==7,(len(names),names)
+          assert len(names)==10 and len(set(names))==10,(len(names),names)
           for name in names:
               m=re.search(re.escape("'"+name+"'")+r" depends on axioms: \[([^\]]*)\]",log,re.S)
               if m:
@@ -58,7 +58,7 @@ jobs:
                   assert actual <= {'propext','Classical.choice','Quot.sound'},(name,actual)
               else:
                   assert "'"+name+"' does not depend on any axioms" in log,name
-          print('M15 HOPF HORIZONTAL METRIC EXACT-HEAD LEAN SUCCESS 7 THEOREMS')
+          print('M15 HOPF HORIZONTAL METRIC EXACT-HEAD LEAN SUCCESS 10 THEOREMS')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
