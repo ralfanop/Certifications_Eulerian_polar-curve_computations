@@ -67,8 +67,11 @@ theorem dyadic_stability_of_bounded (u d : ℕ → ℝ) (eps M : ℝ)
   exact Eventually.of_forall (fun n => by
     have hf := dyadic_finite_stability u d eps h hd n 0
     simp only [zero_add] at hf
-    exact hf.trans (add_le_add_left
-      (mul_le_mul_of_nonneg_left (hu n) (by positivity)) _))
+    have hpow : 0 ≤ (1 / 4 : ℝ)^n :=
+      pow_nonneg (by norm_num) n
+    have hmul : (1 / 4 : ℝ)^n * |u n| ≤ (1 / 4 : ℝ)^n * M :=
+      mul_le_mul_of_nonneg_left (hu n) hpow
+    exact hf.trans (add_le_add_left hmul _))
 
 theorem dyadic_rigidity_of_bounded (u : ℕ → ℝ) (M : ℝ)
     (h : ∀ n, 4 * u n = u (n + 1)) (hu : ∀ n, |u n| ≤ M) :
