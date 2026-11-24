@@ -71,8 +71,7 @@ theorem original_signed_two_tails (M k : ℕ) (hM : 4 ≤ M)
     rw [actual_gM_log_deriv hM3 hxi]
     dsimp [F]
     rw [abs_of_nonneg (hphi_plus x hx)]
-    field_simp [hMne]
-    ring
+    field_simp [hMne] <;> ring
   have hMinus : ∀ x ∈ Icc r b,
       |pk (-x) * pk1 (-x)| * (-(-(deriv (gM M) (-x))) / (M : ℝ)) =
         F (-x) := by
@@ -85,8 +84,7 @@ theorem original_signed_two_tails (M k : ℕ) (hM : 4 ≤ M)
     rw [actual_gM_log_deriv hM3 hxi]
     dsimp [F]
     rw [abs_of_nonpos hphi_minus]
-    field_simp [hMne]
-    ring
+    field_simp [hMne] <;> ring
   have hplus_integral :
     (∫ x in r..b,
       |pk x * pk1 x| * (-(deriv (gM M) x) / (M : ℝ))) =
