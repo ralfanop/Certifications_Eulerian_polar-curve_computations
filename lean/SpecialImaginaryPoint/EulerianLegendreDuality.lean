@@ -73,7 +73,7 @@ theorem envelope_derivative (K inv : ℝ → ℝ) (m d : ℝ)
 theorem sinh_pos_of_pos (x : ℝ) (hx : 0 < x) : 0 < Real.sinh x := by
   rw [Real.sinh_eq]
   have he : Real.exp (-x) < Real.exp x := Real.exp_lt_exp.mpr (by linarith)
-  positivity
+  exact div_pos (sub_pos.mpr he) (by norm_num)
 
 theorem sinh_ne_of_ne (x : ℝ) (hx : x ≠ 0) : Real.sinh x ≠ 0 := by
   rcases lt_or_gt_of_ne hx with h | h
@@ -118,6 +118,62 @@ theorem langevin_hasDerivAt_of_ne (x : ℝ) (hx : x ≠ 0) :
   have hy' : y ≠ 0 := by simpa using hy
   simp [langevin, hy']
 
+
+-- Prove the strict gap using the derivative of sinh x - x on [0,∞).
+theorem cosh_gt_one_of_ne (x : ℝ) (hx : x ≠ 0) :
+    1 < Real.cosh x := by
+  have hs := sinh_ne_of_ne x hx
+  have hsq : 0 < Real.sinh x ^ 2 := sq_pos_of_ne_zero hs
+  have hc := Real.cosh_pos x
+  have hident := Real.cosh_sq_sub_sinh_sq x
+  by_contra! h
+  have hprod : 0 ≤ (1 - Real.cosh x) * (1 + Real.cosh x) :=
+    mul_nonneg (sub_nonneg.mpr h) (by linarith)
+  nlinarith
+
+theorem sinh_sub_id_derivative (x : ℝ) :
+    HasDerivAt (fun y : ℝ => Real.sinh y - y) (Real.cosh x - 1) x := by
+  have hd : HasDerivAt Real.sinh (Real.cosh x) x := by
+    first | exact Real.hasDerivAt_sinh x | exact?
+  exact hd.sub (hasDerivAt_id x)
+
+theorem sinh_gt_self_pos (x : ℝ) (hx : 0 < x) :
+    x < Real.sinh x := by
+  have hm : StrictMonoOn (fun y : ℝ => Real.sinh y - y) (Set.Ici 0) := by
+    apply strictMonoOn_of_deriv_pos (convex_Ici (0 : ℝ))
+    · exact (Real.continuous_sinh.sub continuous_id).continuousOn
+    · intro y hy
+      rw [interior_Ici] at hy
+      have hypos : 0 < y := hy
+      rw [(sinh_sub_id_derivative y).deriv]
+      exact sub_pos.mpr (cosh_gt_one_of_ne y (ne_of_gt hypos))
+  have h := hm (show (0 : ℝ) ∈ Set.Ici 0 by exact le_rfl)
+    (show x ∈ Set.Ici 0 from hx.le) hx
+  simp only [Real.sinh_zero, sub_self] at h
+  linarith
+
+theorem sinh_sq_gt_sq (x : ℝ) (hx : x ≠ 0) :
+    x^2 < Real.sinh x ^ 2 := by
+  rcases lt_or_gt_of_ne hx with h | h
+  · have hg := sinh_gt_self_pos (-x) (by linarith)
+    rw [Real.sinh_neg] at hg
+    have hp : 0 < (x - Real.sinh x) * (-x - Real.sinh x) :=
+      mul_pos (by linarith) (by linarith)
+    nlinarith
+  · have hg := sinh_gt_self_pos x h
+    have hp : 0 < (Real.sinh x - x) * (Real.sinh x + x) :=
+      mul_pos (by linarith) (by linarith)
+    nlinarith
+
+theorem curvature_positive_of_ne (x : ℝ) (hx : x ≠ 0) :
+    0 < curvatureRaw x :=
+  curvature_positive_of_sinh_sq x hx (sinh_sq_gt_sq x hx)
+
+theorem langevin_deriv_positive_of_ne (x : ℝ) (hx : x ≠ 0) :
+    0 < deriv langevin x := by
+  rw [(langevin_hasDerivAt_of_ne x hx).deriv]
+  exact curvature_positive_of_ne x hx
+
 end
 end M14.EulerianLegendre
 
@@ -135,3 +191,10 @@ end M14.EulerianLegendre
 #print axioms M14.EulerianLegendre.profile_positive
 #print axioms M14.EulerianLegendre.langevinRaw_hasDerivAt
 #print axioms M14.EulerianLegendre.langevin_hasDerivAt_of_ne
+
+#print axioms M14.EulerianLegendre.cosh_gt_one_of_ne
+#print axioms M14.EulerianLegendre.sinh_sub_id_derivative
+#print axioms M14.EulerianLegendre.sinh_gt_self_pos
+#print axioms M14.EulerianLegendre.sinh_sq_gt_sq
+#print axioms M14.EulerianLegendre.curvature_positive_of_ne
+#print axioms M14.EulerianLegendre.langevin_deriv_positive_of_ne
