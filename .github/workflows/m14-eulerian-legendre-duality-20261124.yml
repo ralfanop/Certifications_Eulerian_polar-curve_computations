@@ -32,7 +32,7 @@ jobs:
         working-directory: lean
         run: |
           lake exe cache get
-      - name: Compile and audit eight declarations
+      - name: Compile and audit thirteen declarations
         working-directory: lean
         shell: bash
         run: |
@@ -43,7 +43,7 @@ jobs:
           s = open('/tmp/m14-legendre.log').read()
           assert not re.search(r'sorryAx|Lean\.ofReduceBool|declaration uses|: error:',s)
           found = re.findall(r"depends on axioms: \[([^\]]*)\]",s)
-          assert len(found) == 8, found
+          assert len(found) == 13, found
           for a in found:
               assert set(a.split(', ')) <= {'propext','Classical.choice','Quot.sound'}, a
           PY
