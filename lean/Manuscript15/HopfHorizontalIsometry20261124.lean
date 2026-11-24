@@ -106,6 +106,78 @@ theorem differential_kills_fibre (q : HopfQ) :
   rw [gradX_vertical_zero, gradY_vertical_zero, gradZ_vertical_zero]
   norm_num
 
+
+/-- For the actual four-dimensional Euclidean coordinate model, a
+vector with zero squared Euclidean norm is zero. No abstract axiom
+about the kernel of the Hopf differential is assumed. -/
+theorem dot4_self_zero_implies_zero (v : HopfQ)
+    (hv : dot4 v v = 0) : v = 0 := by
+  rcases v with ⟨⟨a, b⟩, ⟨c, d⟩⟩
+  change a * a + b * b + c * c + d * d = 0 at hv
+  have ha : a = 0 := by nlinarith [sq_nonneg b, sq_nonneg c, sq_nonneg d]
+  have hb : b = 0 := by nlinarith [sq_nonneg a, sq_nonneg c, sq_nonneg d]
+  have hc : c = 0 := by nlinarith [sq_nonneg a, sq_nonneg b, sq_nonneg d]
+  have hd : d = 0 := by nlinarith [sq_nonneg a, sq_nonneg b, sq_nonneg c]
+  simp [ha, hb, hc, hd]
+
+/-- Bilinear Pythagorean decomposition of the orthogonal
+projection along any real vector k. -/
+theorem dot4_sub_smul_self (v k : HopfQ) (t : ℝ) :
+    dot4 (v - t • k) (v - t • k) =
+      dot4 v v - 2 * t * dot4 k v + t ^ 2 * dot4 k k := by
+  rcases v with ⟨⟨a, b⟩, ⟨c, d⟩⟩
+  rcases k with ⟨⟨e, f⟩, ⟨g, h⟩⟩
+  dsimp [dot4]
+  ring
+
+/-- Exact kernel of the *actual Hopf differential* at each unit
+q ∈ S³: it is the one-dimensional vertical tangent spanned by
+the Hopf-circle generator. This gives the rank-two horizontal
+tangent geometry together with horizontal_metric_isometry. -/
+theorem hopf_differential_kernel_vertical
+    (q v : HopfQ) (hq : normSq4 q = 1)
+    (hv : dHopfBase q v = 0) :
+    v = (dot4 (verticalGenerator q) v) • verticalGenerator q := by
+  have hx : dot4 (gradX q) v = 0 := by
+    have h := congrArg (fun x : (ℝ × ℝ) × ℝ => x.1.1) hv
+    dsimp [dHopfBase] at h
+    linarith
+  have hy : dot4 (gradY q) v = 0 := by
+    have h := congrArg (fun x : (ℝ × ℝ) × ℝ => x.1.2) hv
+    dsimp [dHopfBase] at h
+    linarith
+  have hz : dot4 (gradZ q) v = 0 := by
+    have h := congrArg (fun x : (ℝ × ℝ) × ℝ => x.2) hv
+    dsimp [dHopfBase] at h
+    linarith
+  let t : ℝ := dot4 (verticalGenerator q) v
+  have he : dot4 v v = t ^ 2 := by
+    have h := differential_energy_identity q v
+    rw [hq, hx, hy, hz] at h
+    dsimp [t]
+    nlinarith [h]
+  have hk : dot4 (verticalGenerator q) (verticalGenerator q) = 1 := by
+    rw [vertical_length_sq, hq]
+  have hzero :
+      dot4 (v - t • verticalGenerator q) (v - t • verticalGenerator q) = 0 := by
+    calc
+      dot4 (v - t • verticalGenerator q) (v - t • verticalGenerator q) =
+          dot4 v v - 2 * t * dot4 (verticalGenerator q) v +
+            t ^ 2 * dot4 (verticalGenerator q) (verticalGenerator q) :=
+        dot4_sub_smul_self v (verticalGenerator q) t
+      _ = 0 := by
+        rw [hk]
+        change dot4 v v - 2 * t * t + t ^ 2 * 1 = 0
+        nlinarith [he]
+  have hvec :
+      v - t • verticalGenerator q = 0 :=
+    dot4_self_zero_implies_zero _ hzero
+  exact (sub_eq_zero.mp hvec).trans (by rfl)
+
+#print axioms Manuscript15.HopfHorizontalIsometry20261124.dot4_self_zero_implies_zero
+#print axioms Manuscript15.HopfHorizontalIsometry20261124.dot4_sub_smul_self
+#print axioms Manuscript15.HopfHorizontalIsometry20261124.hopf_differential_kernel_vertical
+
 #print axioms Manuscript15.HopfHorizontalIsometry20261124.differential_metric_identity
 #print axioms Manuscript15.HopfHorizontalIsometry20261124.differential_energy_identity
 #print axioms Manuscript15.HopfHorizontalIsometry20261124.horizontal_metric_isometry
