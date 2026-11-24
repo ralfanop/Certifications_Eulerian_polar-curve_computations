@@ -49,9 +49,9 @@ jobs:
         with:
           name: m14-inverse-lean-log
           path: /tmp/m14-inverse.log
-  arb-budget:
+  arb-pilot:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -60,13 +60,53 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install python-flint==0.9.0
-      - name: Strict Arb inequalities at 32000 bits
-        shell: bash
-        run: |
-          set -euo pipefail
-          python certificates/manuscript14/arb_inverse_spectral_rigidity.py --bits 32000 | tee /tmp/m14-inverse-arb.log
+      - name: Pilot at 32000 bits
+        run: python certificates/manuscript14/arb_inverse_spectral_rigidity.py --bits 32000 --output out/pilot
       - uses: actions/upload-artifact@v4
-        if: always()
         with:
-          name: m14-inverse-arb-budget
-          path: /tmp/m14-inverse-arb.log
+          name: m14-inverse-arb-pilot
+          path: out/pilot/
+          if-no-files-found: error
+  arb-intermediate:
+    needs: arb-pilot
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install python-flint==0.9.0
+      - name: Intermediate 300000-bit certificates
+        run: python certificates/manuscript14/arb_inverse_spectral_rigidity.py --bits 300000 --output out/intermediate
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m14-inverse-arb-300000
+          path: out/intermediate/
+          if-no-files-found: error
+  arb-full:
+    needs: arb-intermediate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        quantity: [amplification, data, remainder, budget, threshold, margin, rational_bound, lambda1_lo, lambda1_ref, lambda1_hi, lambda2_lo, lambda2_ref, lambda2_hi]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install python-flint==0.9.0
+      - name: Strict 3600000-bit million-digit rounding certificate
+        run: python certificates/manuscript14/arb_inverse_spectral_rigidity.py --bits 3600000 --quantity ${{ matrix.quantity }} --output out/full
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m14-inverse-arb-full-${{ matrix.quantity }}
+          path: out/full/
+          if-no-files-found: error
