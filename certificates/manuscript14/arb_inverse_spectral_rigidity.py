@@ -16,7 +16,7 @@ def chebyshev(n, x):
 
 def main():
     p=argparse.ArgumentParser()
-    p.add_argument("--bits",type=int,default=10000)
+    p.add_argument("--bits",type=int,default=32000)
     args=p.parse_args()
     ctx.prec=args.bits
     assert ctx.prec == args.bits
