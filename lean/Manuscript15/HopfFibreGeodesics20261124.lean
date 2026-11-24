@@ -27,7 +27,10 @@ theorem orbit_normSq4 (q : HopfQ) (t : ℝ) :
     normSq4 (orbit q t) = normSq4 q := by
   dsimp [orbit]
   rw [normSq4_phaseRotate]
-  nlinarith [Real.cos_sq_add_sin_sq t]
+  have hs : Real.cos t ^ 2 + (-Real.sin t) ^ 2 = 1 := by
+    nlinarith [Real.cos_sq_add_sin_sq t]
+  rw [hs]
+  ring
 
 /-- The actual Hopf map is constant on the complete circle orbit. -/
 theorem orbit_hopfMap (q : HopfQ) (t : ℝ) :
@@ -45,28 +48,48 @@ theorem orbit11_hasDerivAt (q : HopfQ) (t : ℝ) :
     HasDerivAt (fun s : ℝ => (orbit q s).1.1) ((orbit q t).1.2) t := by
   have h := ((Real.hasDerivAt_cos t).const_mul q.1.1).add
     ((Real.hasDerivAt_sin t).const_mul q.1.2)
-  convert h using 1 <;> try { funext s } <;> dsimp [orbit, phaseRotate] <;> ring
+  convert h using 1
+  · funext s
+    dsimp [orbit, phaseRotate]
+    ring
+  · dsimp [orbit, phaseRotate]
+    ring
 
 /-- Second coordinate: actual time derivative of the Hopf orbit. -/
 theorem orbit12_hasDerivAt (q : HopfQ) (t : ℝ) :
     HasDerivAt (fun s : ℝ => (orbit q s).1.2) (-(orbit q t).1.1) t := by
   have h := ((Real.hasDerivAt_sin t).const_mul (-q.1.1)).add
     ((Real.hasDerivAt_cos t).const_mul q.1.2)
-  convert h using 1 <;> try { funext s } <;> dsimp [orbit, phaseRotate] <;> ring
+  convert h using 1
+  · funext s
+    dsimp [orbit, phaseRotate]
+    ring
+  · dsimp [orbit, phaseRotate]
+    ring
 
 /-- Third coordinate: actual time derivative of the Hopf orbit. -/
 theorem orbit21_hasDerivAt (q : HopfQ) (t : ℝ) :
     HasDerivAt (fun s : ℝ => (orbit q s).2.1) ((orbit q t).2.2) t := by
   have h := ((Real.hasDerivAt_cos t).const_mul q.2.1).add
     ((Real.hasDerivAt_sin t).const_mul q.2.2)
-  convert h using 1 <;> try { funext s } <;> dsimp [orbit, phaseRotate] <;> ring
+  convert h using 1
+  · funext s
+    dsimp [orbit, phaseRotate]
+    ring
+  · dsimp [orbit, phaseRotate]
+    ring
 
 /-- Fourth coordinate: actual time derivative of the Hopf orbit. -/
 theorem orbit22_hasDerivAt (q : HopfQ) (t : ℝ) :
     HasDerivAt (fun s : ℝ => (orbit q s).2.2) (-(orbit q t).2.1) t := by
   have h := ((Real.hasDerivAt_sin t).const_mul (-q.2.1)).add
     ((Real.hasDerivAt_cos t).const_mul q.2.2)
-  convert h using 1 <;> try { funext s } <;> dsimp [orbit, phaseRotate] <;> ring
+  convert h using 1
+  · funext s
+    dsimp [orbit, phaseRotate]
+    ring
+  · dsimp [orbit, phaseRotate]
+    ring
 
 /-- The first coordinate satisfies the genuine second-order ODE γ''=-γ. -/
 theorem orbit11_second_deriv (q : HopfQ) (t : ℝ) :
