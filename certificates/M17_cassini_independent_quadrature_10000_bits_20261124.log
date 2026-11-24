@@ -1,0 +1,17 @@
+{
+  "backend": "FLINT/Arb via python-flint 0.9.0",
+  "working_bits": 10000,
+  "relative_accuracy_bits": {
+    "L8 quadrature": 9988,
+    "L8 atanh": 9996,
+    "area quadrature": 9988
+  },
+  "overlap_checks": {
+    "L8 quadrature vs closed form": true,
+    "L8 atanh vs closed form": true,
+    "area quadrature vs closed form": true
+  },
+  "L8_quadrature_ball_head": "[0.623225240140230513394020080250568002650695312346567252898715 +/- 2.24e-61]",
+  "area_quadrature_ball_head": "[1.18367281763351033518360664282512968378475392605370492767336 +/- 1.63e-60]"
+}
+SUCCESS independent quadrature cross-check at 10000 bits

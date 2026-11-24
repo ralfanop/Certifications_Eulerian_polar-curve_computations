@@ -1,0 +1,4 @@
+Historical M17 Arb 20,000-place SHA256 regression: PASS
+CERTIFIED L8(1,chi2) closed form 30,000 decimal places; verified relative bits: 119997 rounded SHA256: c49c5e659a0646b2a3ecc9b3131c8889fd8c5f471a6f4d12be0cc4bff6bb311e
+CERTIFIED Cassini critical lobe area 30,000 decimal places; verified relative bits: 119996 rounded SHA256: e1dfaefc1a6e89e546fecc0423d1fb282fc0f6b56ebfe0075dfb1e21eb0eb7bd
+SUCCESS M17 ARB 30000 EXACT DECIMAL PLACES
