@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513OriginalIntegral.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513ActualGM.lean'
       - '.github/workflows/m12-lemma513-original-integral.yml'
   workflow_dispatch:
 permissions:
