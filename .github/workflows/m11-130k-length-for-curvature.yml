@@ -1,0 +1,124 @@
+name: "M11 130k rigorously certified length input for curvature (reuse 13 original 150k panels)"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/m11-130k-length-for-curvature.yml'
+      - 'numerics/arb/m11_130k_length_mixed_recombine.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: m11-130k-curvature-length-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
+jobs:
+  missing-panels:
+    name: "Only previously missing high-precision Eulerian panel ${{ matrix.index }}"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        index: [10,11,12,13,14,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin exact source and FLINT/Arb
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install 'python-flint==0.9.0'
+      - name: Certify missing 130k relative-bit panel; original successful 150k panels NOT rerun
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python -u numerics/arb/m11_euler_panel.py \
+            --bits 155000 --target 130000 --panels 32 --index ${{ matrix.index }} \
+            --output panel.json 2>&1 | tee panel.log
+          test -s panel.json
+          sha256sum panel.json > sha256sums.txt
+          grep -F 'relative bits' panel.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-length-130k-new-panel-${{ matrix.index }}
+          path: |
+            panel.json
+            panel.log
+            sha256sums.txt
+          retention-days: 90
+          if-no-files-found: warn
+  recombine:
+    name: "Exact 32-panel 130k-bit recombination with 100k historic nesting"
+    needs: missing-panels
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify old 150k run provenance, original 100k success, and current auditor
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          AUDITOR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$AUDITOR_HEAD"
+          test "$(gh api "repos/$REPO/actions/runs/45157228615" --jq .head_sha)" = 688c66a8284bd801809bb1d3e21e03eafb86aeee
+          test "$(gh api "repos/$REPO/actions/runs/44359739062" --jq .conclusion)" = success
+          test "$(gh api "repos/$REPO/actions/runs/44359739062" --jq .head_sha)" = 6ddb354a85832bf5b35538996d7d619c63ac9a16
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45157228615
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          pattern: m11-length-150k-panel-*
+          path: previous-150k
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 44359739062
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          pattern: m11-euler-panel-*
+          path: historical-100k
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: m11-length-130k-new-panel-*
+          path: new-130k
+      - name: Reconstruct exact high-precision length enclosure and verify historic nesting
+        shell: bash
+        env:
+          AUDITOR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          python -m pip install 'python-flint==0.9.0'
+          python -u numerics/arb/m11_130k_length_mixed_recombine.py \
+            --original-150k-root previous-150k \
+            --new-130k-root new-130k \
+            --historical-100k-root historical-100k \
+            --source-run 44359739062 --original-run 45157228615 \
+            --auditor-head "$AUDITOR_HEAD" \
+            --output m11-length-130k-curvature-chart.json 2>&1 | tee combined-130k.log
+          grep -F "M11 L_E 130K CURVATURE-CHART INPUT EXACT RECOMBINATION SUCCESS" combined-130k.log
+          sha256sum m11-length-130k-curvature-chart.json > combined-130k-sha256.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-length-130k-curvature-chart-certified
+          path: |
+            m11-length-130k-curvature-chart.json
+            combined-130k-sha256.txt
+            combined-130k.log
+          retention-days: 90
+          if-no-files-found: warn
