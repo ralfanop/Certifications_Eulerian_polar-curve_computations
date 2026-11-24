@@ -16,6 +16,8 @@ branch are separate proof obligations, not silently assumed here.
 
 namespace M15
 
+open Filter
+
 /-- The removable real Eulerian profile r_E(2 i u). -/
 noncomputable def eulerianPhi (u : ℝ) : ℝ :=
   if u = 0 then 1 else Real.sinh u / u
@@ -185,7 +187,7 @@ theorem eulerianPhi_log_derivative (u : ℝ) (hu : 0 < u) :
           langevinReal u := by
     unfold langevinReal eulerianPhi
     simp only [hu0, ↓reduceIte]
-    field_simp [hu0, hs] <;> ring
+    field_simp [hu0, hs]
   exact hbase.deriv.trans hid
 
 #print axioms M15.eulerianPhi_hasDerivAt_of_ne_zero
