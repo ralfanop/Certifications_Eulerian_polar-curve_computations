@@ -121,7 +121,7 @@ theorem odd_central_finite_integer_certificate :
   obtain ⟨h1, h2, hI⟩ := M11OddFinite.all_odd_steps j
   dsimp [M11OddFinite.oddStep, M11OddFinite.centralGap] at h1 h2 hI
   have hk : (5 + 2 * (j : ℕ) - 1) / 2 = 2 + (j : ℕ) := by omega
-  have hk' : (5 + 2 * (j : ℕ) + 2 - 1) / 2 = 2 + (j : ℕ) + 1 := by omega
+  have hk' : (5 + 2 * (j : ℕ) + 1) / 2 = 2 + (j : ℕ) + 1 := by omega
   rw [hk] at h1 hI
   rw [hk', Nat.add_sub_cancel] at h2 hI
   exact ⟨by omega, by omega, hI⟩
