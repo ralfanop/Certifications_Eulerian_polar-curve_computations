@@ -1,4 +1,5 @@
 import Manuscript15.TerminalLagrangeWeightedConvolution20261123
+import Mathlib.RingTheory.PowerSeries.Inverse
 import Mathlib.Tactic
 
 /-!
