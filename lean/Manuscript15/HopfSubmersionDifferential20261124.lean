@@ -230,8 +230,18 @@ theorem hopfZ_hasDerivAt_affineLine (q v : HopfQ) (t : ℝ) :
   have hc := affineCoordinate_hasDerivAt q.2.1 v.2.1 t
   have hd := affineCoordinate_hasDerivAt q.2.2 v.2.2 t
   have h := (((ha.pow 2).add (hb.pow 2)).sub (hc.pow 2)).sub (hd.pow 2)
-  convert h using 1 <;> try { funext s } <;>
-    simp [hopfZ, affineLine, dot4, gradZ, Pi.pow_apply, Pi.add_apply, Pi.sub_apply] <;> ring
+  have hfun :
+      (fun s : ℝ => hopfZ (affineLine q v s)) =
+        ((fun s : ℝ => q.1.1 + s * v.1.1) ^ 2 +
+          (fun s : ℝ => q.1.2 + s * v.1.2) ^ 2 -
+          (fun s : ℝ => q.2.1 + s * v.2.1) ^ 2 -
+          (fun s : ℝ => q.2.2 + s * v.2.2) ^ 2) := by
+    funext s
+    simp only [Pi.pow_apply, Pi.add_apply, Pi.sub_apply]
+    dsimp [hopfZ, affineLine]
+    ring
+  rw [← hfun] at h
+  convert h using 1 <;> simp [dot4, gradZ, affineLine] <;> ring
 
 #print axioms Manuscript15.HopfDifferential20261124.hopf_norm_identity
 #print axioms Manuscript15.HopfDifferential20261124.hopf_base_radius_half
