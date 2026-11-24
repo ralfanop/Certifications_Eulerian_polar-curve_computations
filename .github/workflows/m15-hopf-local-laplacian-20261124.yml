@@ -1,0 +1,69 @@
+name: M15 actual Hopf angular chart and local Laplace exact-HEAD Lean 4
+
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/HopfLocalLaplacian20261124.lean'
+      - '.github/workflows/m15-hopf-local-laplacian-20261124.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  angular-laplace:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Exact SHA pinned Mathlib, actual Hopf chart and eight theorem axiom audit
+        working-directory: lean
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/m15-hopf-local-laplacian
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          git rev-parse HEAD | tee /tmp/m15-hopf-local-laplacian/head.txt
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 \
+            -o .lake/build/lib/lean/Manuscript15/HopfSubmersionDifferential20261124.olean \
+            Manuscript15/HopfSubmersionDifferential20261124.lean \
+            2>&1 | tee /tmp/m15-hopf-local-laplacian/dependency.log
+          lake env lean -M16768 Manuscript15/HopfLocalLaplacian20261124.lean \
+            2>&1 | tee /tmp/m15-hopf-local-laplacian/lean.log
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          root=Path('/tmp/m15-hopf-local-laplacian')
+          src=Path('Manuscript15/HopfLocalLaplacian20261124.lean').read_text()
+          dep=(root/'dependency.log').read_text()
+          log=(root/'lean.log').read_text()
+          assert not re.search(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s',src,re.M)
+          assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.', dep+log)
+          names=re.findall(r'^#print axioms (Manuscript15\.HopfLocalLaplacian20261124\.\w+)$',src,re.M)
+          assert len(names)==8 and len(set(names))==8,(len(names),names)
+          for name in names:
+            m=re.search(re.escape("'"+name+"'")+r" depends on axioms: \[([^\]]*)\]",log,re.S)
+            if m:
+              axioms={x.strip() for x in m.group(1).split(',') if x.strip()}
+              assert axioms <= {'propext','Classical.choice','Quot.sound'},(name,axioms)
+            else:
+              assert "'"+name+"' does not depend on any axioms" in log,name
+          print('M15 ACTUAL HOPF LOCAL LAPLACE EXACT-HEAD EIGHT THEOREMS SUCCESS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-hopf-local-laplace-ci
+          path: /tmp/m15-hopf-local-laplacian/
