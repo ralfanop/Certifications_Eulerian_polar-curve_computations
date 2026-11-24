@@ -53,7 +53,6 @@ theorem langevin_critical_identity :
   unfold langevinReal
   rw [cosh_uStar]
   field_simp
-  ring
 
 /-- The generalized Lambert relation at wStar = 2 * uStar. -/
 theorem lambert_at_threshold :
