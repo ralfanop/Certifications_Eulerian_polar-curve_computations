@@ -3,9 +3,8 @@ import Mathlib
 /-! M13, Theorem 4.14: logarithmic measure and actual L² composition.
 The first theorem is the one-dimensional Lebesgue change of variables
 with the explicit density 1/u. The L² map uses the pushforward measure
-and is a genuine complex-linear isometry. Identification of the
-pushforward with the density, surjectivity, Fourier Plancherel transport
-and multiplication-operator norm are distinct proof obligations. -/
+and is a genuine complex-linear isometry. The measure equality and surjectivity are also targeted below. Fourier
+Plancherel transport and multiplication-operator norm remain separate. -/
 
 open MeasureTheory Set
 open scoped ENNReal
@@ -73,6 +72,58 @@ theorem exp_measure_positive : expMeasure (Ioi (0 : ℝ))ᶜ = 0 := by
     simp [Real.exp_pos x]
   rw [h, measure_empty]
 
+def logarithmicDensity : Measure ℝ :=
+  ((volume : Measure ℝ).restrict (Ioi (0 : ℝ))).withDensity
+    (fun u => ENNReal.ofReal u⁻¹)
+
+theorem exp_measure_eq_density : expMeasure = logarithmicDensity := by
+  ext s hs
+  let g : ℝ → ℝ≥0∞ := s.indicator (fun _ => 1)
+  have hg : Measurable g := measurable_const.indicator hs
+  calc
+    expMeasure s = ∫⁻ u, g u ∂expMeasure := by
+      simp [g, lintegral_indicator hs]
+    _ = ∫⁻ x : ℝ, g (Real.exp x) := by
+      exact lintegral_map hg Real.continuous_exp.measurable
+    _ = ∫⁻ u in Ioi (0 : ℝ), ENNReal.ofReal u⁻¹ * g u := by
+      rw [logarithmic_lintegral]
+      apply lintegral_congr_ae
+      filter_upwards [ae_restrict_mem measurableSet_Ioi] with u hu
+      rw [Real.exp_log hu]
+    _ = ∫⁻ u, g u ∂logarithmicDensity := by
+      unfold logarithmicDensity
+      rw [lintegral_withDensity_eq_lintegral_mul _ (by fun_prop) hg]
+    _ = logarithmicDensity s := by simp [g, lintegral_indicator hs]
+
+theorem log_measurePreserving :
+    MeasurePreserving Real.log expMeasure volume := by
+  refine ⟨Real.measurable_log, ?_⟩
+  rw [expMeasure, Measure.map_map Real.measurable_log Real.continuous_exp.measurable]
+  have h : Real.log ∘ Real.exp = id := by
+    funext x
+    exact Real.log_exp x
+  rw [h, Measure.map_id]
+
+def expL2 : Lp ℂ 2 (volume : Measure ℝ) →ₗᵢ[ℂ] Lp ℂ 2 expMeasure :=
+  Lp.compMeasurePreservingₗᵢ ℂ Real.log log_measurePreserving
+
+theorem logL2_surjective : Function.Surjective logL2 := by
+  intro f
+  refine ⟨expL2 f, ?_⟩
+  change Lp.compMeasurePreserving Real.exp exp_measurePreserving
+    (Lp.compMeasurePreserving Real.log log_measurePreserving f) = f
+  rw [← Lp.compMeasurePreserving_comp_apply f log_measurePreserving exp_measurePreserving]
+  have h : Real.log ∘ Real.exp = id := by
+    funext x
+    exact Real.log_exp x
+  simp [h]
+
+def logUnitary : Lp ℂ 2 expMeasure ≃ₗᵢ[ℂ] Lp ℂ 2 (volume : Measure ℝ) :=
+  LinearIsometryEquiv.ofSurjective logL2 logL2_surjective
+
+theorem logUnitary_norm (f : Lp ℂ 2 expMeasure) : ‖logUnitary f‖ = ‖f‖ :=
+  logUnitary.norm_map f
+
 end
 end Manuscript13.MellinL2LogJacobian20261124
 
@@ -86,3 +137,10 @@ end Manuscript13.MellinL2LogJacobian20261124
 #print axioms Manuscript13.MellinL2LogJacobian20261124.logL2_norm
 #print axioms Manuscript13.MellinL2LogJacobian20261124.logL2_ae
 #print axioms Manuscript13.MellinL2LogJacobian20261124.exp_measure_positive
+
+#print axioms Manuscript13.MellinL2LogJacobian20261124.exp_measure_eq_density
+#print axioms Manuscript13.MellinL2LogJacobian20261124.log_measurePreserving
+#print axioms Manuscript13.MellinL2LogJacobian20261124.expL2
+#print axioms Manuscript13.MellinL2LogJacobian20261124.logL2_surjective
+#print axioms Manuscript13.MellinL2LogJacobian20261124.logUnitary
+#print axioms Manuscript13.MellinL2LogJacobian20261124.logUnitary_norm
