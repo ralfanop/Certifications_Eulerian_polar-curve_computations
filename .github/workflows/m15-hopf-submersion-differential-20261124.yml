@@ -43,7 +43,7 @@ jobs:
           assert not forbidden.search(src), "forbidden Lean source construct"
           assert not re.search(r'(sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.)',log), "Lean error or admitted proof"
           names=re.findall(r'^#print axioms (Manuscript15\.HopfDifferential20261124\.\w+)$',src,re.M)
-          assert len(names)==28 and len(set(names))==20,(len(names),names)
+          assert len(names)==28 and len(set(names))==28,(len(names),names)
           for name in names:
             match=re.search(re.escape("'"+name+"'")+r' depends on axioms: \[([^\]]*)\]',log,re.S)
             if match:
