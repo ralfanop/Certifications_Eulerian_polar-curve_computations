@@ -1,5 +1,6 @@
 import EulerianCert.FourierSeries
 import EulerianCert.Bracket
+import EulerianCert.M11OddFinite
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Complex
 
 /-!
@@ -38,7 +39,7 @@ private lemma gap_sum (N : ℕ) (θ : ℝ) :
           (A (n + 1) * Real.cos ((n + 1 : ℕ) * θ) -
            A (n + 1) * Real.cos ((n + 1 : ℕ) * π)) := by
       simp only [S]
-      rw [← Finset.sum_sub_distrib]
+      rw [Finset.sum_sub_distrib]
       ring
     _ = ∑ n ∈ Finset.range N, gap n θ := by
       apply Finset.sum_congr rfl
@@ -64,10 +65,28 @@ theorem S_min_cos_unique (N : ℕ) (hN : 1 ≤ N) (θ : ℝ)
     have hp := gap_nonneg 0 θ
     linarith
   have hfactor : cE 0 * (1 + Real.cos θ) = 0 := by
-    simpa [gap] using hfirst
+    simp only [gap, pow_zero, one_mul, Nat.cast_zero, zero_add] at hfirst
+    calc
+      cE 0 * (1 + Real.cos θ) = cE 0 * Real.cos θ + cE 0 := by ring
+      _ = 0 := by simpa [gap] using hfirst
   have hcos : 1 + Real.cos θ = 0 :=
     (mul_eq_zero.mp hfactor).resolve_left (ne_of_gt (cE_pos 0))
   linarith
+
+/-- On the manuscript's closed angular interval the minimum occurs only at the endpoints. -/
+theorem S_min_endpoint_unique (N : ℕ) (hN : 1 ≤ N) (θ : ℝ)
+    (hθ : θ ∈ Set.Icc (-π) π) (heq : S N θ = S N π) :
+    θ = -π ∨ θ = π := by
+  have hc := S_min_cos_unique N hN θ heq
+  rcases le_total 0 θ with hp | hn
+  · right
+    have h := Real.arccos_cos hp hθ.2
+    rw [hc, Real.arccos_neg_one] at h
+    exact h.symm
+  · left
+    have h := Real.arccos_cos (show 0 ≤ -θ by linarith) (show -θ ≤ π by linarith [hθ.1])
+    rw [Real.cos_neg, hc, Real.arccos_neg_one] at h
+    linarith
 
 /-- Proposition 3.4: for N=0 the truncation is constant. -/
 theorem S_zero_constant (θ : ℝ) : S 0 θ = S 0 π := by
@@ -98,6 +117,13 @@ theorem odd_central_finite_integer_certificate :
       E (n + 2) k < E (n + 2) (k + 1) ∧
       (n + 3) * (E (n + 2) (k + 1) - E (n + 2) k) <
         (n + 2) * (n + 1) ^ 2 * (E n k - E n (k - 1)) := by
-  decide +kernel
+  intro j
+  obtain ⟨h1, h2, hI⟩ := M11OddFinite.all_odd_steps j
+  dsimp [M11OddFinite.oddStep, M11OddFinite.centralGap] at h1 h2 hI
+  have hk : (5 + 2 * (j : ℕ) - 1) / 2 = 2 + (j : ℕ) := by omega
+  have hk' : (5 + 2 * (j : ℕ) + 2 - 1) / 2 = 2 + (j : ℕ) + 1 := by omega
+  rw [hk] at h1 hI
+  rw [hk', Nat.add_sub_cancel] at h2 hI
+  exact ⟨by omega, by omega, hI⟩
 
 end EulerianCert.M11Completion
