@@ -284,6 +284,7 @@ theorem coeff_derivative_mul_as_range (G Q : P) (n : ℕ) (hn : 0 < n) :
   intro k _
   have hsub : n - (k + 1) = n - 1 - k := by omega
   rw [hsub]
+  push_cast
   ring
 
 /-- Closed Lagrange--Bürmann coefficient identity for any outer formal
