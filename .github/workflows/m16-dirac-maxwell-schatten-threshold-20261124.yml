@@ -1,0 +1,99 @@
+name: M16 Dirac-Maxwell Schatten threshold of L0^-1 (exact HEAD)
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/DiracMaxwellSchattenThreshold20261124.lean'
+      - 'lean/Manuscript16/DiracMaxwellCoefficientModel20261124.lean'
+      - 'lean/Manuscript16/V166L2SpectralInverse.lean'
+      - 'lean/Manuscript16/V166SpectralCutoffs.lean'
+      - 'lean/Manuscript16/DiracMaxwellGraphSpace20261124.lean'
+      - 'lean/Manuscript16/DiracMaxwellObstructionIndex20261124.lean'
+      - 'lean/Manuscript16/V165GraphNeumann.lean'
+      - 'lean/Manuscript16/V166CompactTransfer.lean'
+      - 'lean/Manuscript16/V165TypedGraphSchur.lean'
+      - 'lean/SharedCore/FredholmAtkinson.lean'
+      - 'lean/SharedCore/FredholmCompactParametrix.lean'
+      - '.github/workflows/m16-dirac-maxwell-schatten-threshold-20261124.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean 4 toolchain and Mathlib
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m16-dmst-head.log
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          lake env lean --version | tee -a /tmp/m16-dmst-head.log
+      - name: Compile imported modules and the new module, audit every declaration
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          SRC=Manuscript16/DiracMaxwellSchattenThreshold20261124.lean
+          if grep -nE '\bsorry\b|\badmit\b|^\s*axiom\b|\bunsafe\b|implemented_by|extern' "$SRC"; then exit 1; fi
+          mkdir -p .lake/build/lib/lean/SharedCore .lake/build/lib/lean/Manuscript16
+          for m in SharedCore/FredholmCompactParametrix SharedCore/FredholmAtkinson Manuscript16/V165TypedGraphSchur Manuscript16/V165GraphNeumann Manuscript16/V166CompactTransfer Manuscript16/DiracMaxwellObstructionIndex20261124 Manuscript16/DiracMaxwellGraphSpace20261124 Manuscript16/V166L2SpectralInverse Manuscript16/V166SpectralCutoffs Manuscript16/DiracMaxwellCoefficientModel20261124; do
+            lake env lean -o ".lake/build/lib/lean/$m.olean" "$m.lean" 2>&1 | tee "/tmp/m16-dmst-dep-$(basename $m).log"
+            if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' "/tmp/m16-dmst-dep-$(basename $m).log"; then exit 1; fi
+          done
+          lake env lean -o .lake/build/lib/lean/Manuscript16/DiracMaxwellSchattenThreshold20261124.olean "$SRC" 2>&1 | tee /tmp/m16-dmst-lean.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|warning:|declaration uses .sorry.' /tmp/m16-dmst-lean.log; then exit 1; fi
+          python3 - <<'PY'
+          import hashlib, json, re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          deps = {}
+          for p in sorted(Path('/tmp').glob('m16-dmst-dep-*.log')):
+              found = re.findall(r"'([^']+)' depends on axioms: \[([^\]]*)\]", p.read_text(), re.S)
+              for name, a in found:
+                  axioms = sorted({x.strip() for x in a.split(',') if x.strip()})
+                  assert set(axioms) <= allowed, (p.name, name, axioms)
+                  deps[name] = axioms
+          src = Path('Manuscript16/DiracMaxwellSchattenThreshold20261124.lean')
+          log = Path('/tmp/m16-dmst-lean.log').read_text()
+          requested = re.findall(r'^#print axioms (\S+)', src.read_text(), re.M)
+          assert len(requested) == 19 and len(set(requested)) == 19, requested
+          audit = {}
+          for name in requested:
+              found = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert found or ("'" + name + "' does not depend on any axioms") in log, name
+              axioms = sorted({x.strip() for a in found for x in a.split(',') if x.strip()})
+              assert set(axioms) <= allowed, (name, axioms)
+              audit[name] = axioms
+              print('AXIOM AUDIT SUCCESS:', name, axioms)
+          out = {
+              'head': Path('/tmp/m16-dmst-head.log').read_text().split()[0],
+              'source_sha256': hashlib.sha256(src.read_bytes()).hexdigest(),
+              'olean_sha256': hashlib.sha256(Path('.lake/build/lib/lean/Manuscript16/DiracMaxwellSchattenThreshold20261124.olean').read_bytes()).hexdigest(),
+              'log_sha256': hashlib.sha256(log.encode()).hexdigest(),
+              'axioms': audit,
+              'imported_module_axioms': deps,
+          }
+          Path('/tmp/m16-dmst-audit.json').write_text(json.dumps(out, indent=2) + '\n')
+          print('SUCCESS:', len(audit), 'declarations and', len(deps), 'imported reports; standard axioms only')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-dirac-maxwell-schatten-threshold-audit
+          path: |
+            /tmp/m16-dmst-*.log
+            /tmp/m16-dmst-audit.json
