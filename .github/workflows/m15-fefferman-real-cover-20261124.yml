@@ -53,7 +53,7 @@ jobs:
           assert not re.search(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s',src,re.M)
           assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.', ''.join(logs))
           names=re.findall(r'^#print axioms (Manuscript15\.FeffermanRealCover20261124\.\w+)$',src,re.M)
-          assert len(names)==9 and len(set(names))==9,(len(names),names)
+          assert len(names)==10 and len(set(names))==10,(len(names),names)
           for n in names:
             m=re.search(re.escape("'"+n+"'")+r" depends on axioms: \[([^\]]*)\]",log,re.S)
             if m:
@@ -61,7 +61,7 @@ jobs:
               assert got <= {'propext','Classical.choice','Quot.sound'},(n,got)
             else:
               assert "'"+n+"' does not depend on any axioms" in log,n
-          print('M15 FEFFERMAN REAL COVER EXACT HEAD 9 AXIOMS AUDIT SUCCESS')
+          print('M15 FEFFERMAN REAL COVER EXACT HEAD 10 AXIOMS AUDIT SUCCESS')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
