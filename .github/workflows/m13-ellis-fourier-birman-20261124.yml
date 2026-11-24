@@ -1,0 +1,70 @@
+name: M13 Ellis Fourier and Birman-Schwinger exact-head audit
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript13/EllisFourier20261124.lean'
+      - 'lean/Manuscript13/EllisBirman20261124.lean'
+      - '.github/workflows/m13-ellis-fourier-birman-20261124.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Exact-head pinned Lean 4 compile and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/ellis-fourier-birman.log
+          mkdir -p /tmp/ellis-olean/Manuscript13
+          lake env lean -M16768 -o /tmp/ellis-olean/Manuscript13/EllisFourier20261124.olean Manuscript13/EllisFourier20261124.lean 2>&1 | tee -a /tmp/ellis-fourier-birman.log
+          lake env bash -c 'export LEAN_PATH="/tmp/ellis-olean:$LEAN_PATH"; lean -M16768 Manuscript13/EllisBirman20261124.lean' 2>&1 | tee -a /tmp/ellis-fourier-birman.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/ellis-fourier-birman.log; then exit 1; fi
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('/tmp/ellis-fourier-birman.log').read_text()
+          declarations={
+            "Manuscript13.EllisFourier20261124":[
+              "cauchy_integrable","cauchy_mass","kernel_integrable","kernel_hasDerivAt",
+              "kernel_deriv_bound","actual_transform_derivative","derivative_to_potential",
+              "actual_cosine_fourier","actual_potential_mass"],
+            "Manuscript13.EllisBirman20261124":[
+              "potential_nonneg","potential_integrable","overlap_exp","gram_kernel_identity",
+              "diagonal","diagonal_mass","causal_square_section","causal_square_measurable",
+              "actual_hs_kernel_square_integrable","actual_hs_kernel_norm_sq",
+              "spectral_det_bounds","det_trace_specialization"]
+          }
+          count=0
+          for ns, names in declarations.items():
+            for name in names:
+              full="'"+ns+"."+name+"'"
+              found=re.findall(re.escape(full)+r" depends on axioms: \[([^\]]*)\]",t,re.S)
+              assert found or full+" does not depend on any axioms" in t,full
+              for a in found:
+                assert {x.strip() for x in a.split(',') if x.strip()} <= {
+                   'propext','Quot.sound','Classical.choice'},(full,a)
+              count+=1
+          assert count==21
+          print("SUCCESS ELLIS FOURIER BIRMAN LEAN AXIOM AUDIT",count)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ellis-fourier-birman-lean-20261124-log
+          path: /tmp/ellis-fourier-birman.log
+          if-no-files-found: warn
