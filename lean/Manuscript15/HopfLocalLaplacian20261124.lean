@@ -113,7 +113,6 @@ theorem hopf_cosecant_coefficient (η : ℝ)
         (Real.sin η ^ 2 + Real.cos η ^ 2) /
           (Real.sin η ^ 2 * Real.cos η ^ 2) := by
             field_simp [hs, hc]
-            ring
     _ = 1 / (Real.sin η ^ 2 * Real.cos η ^ 2) := by
       rw [Real.sin_sq_add_cos_sq η]
     _ = 4 / Real.sin (2 * η) ^ 2 := by
@@ -154,7 +153,6 @@ theorem hopf_local_laplacian_coefficient_identity (η A B C : ℝ)
           (2 * (Real.cos η / Real.sin η - Real.sin η / Real.cos η)) * B +
           (1 / Real.cos η ^ 2 + 1 / Real.sin η ^ 2) * C := by
             dsimp [hopfS3LocalTrace]
-            ring
     _ = 4 * A +
           (4 * (Real.cos (2 * η) / Real.sin (2 * η))) * B +
           (4 / Real.sin (2 * η) ^ 2) * C := by rw [hcot, hcsc]
