@@ -257,11 +257,11 @@ theorem continuous_supported_integrable (f : ℝ → ℝ) (hf : Continuous f)
   have he : (Icc (-(1/2 : ℝ)) (1/2)).indicator f = f := by
     funext x
     by_cases hx : x ∈ Icc (-(1/2 : ℝ)) (1/2)
-    · simp [hx]
+    · exact Set.indicator_of_mem hx _
     · have hxa : (1/2 : ℝ) < |x| := by
         by_contra! h
         exact hx (abs_le.mp h)
-      simp [hx, hz x hxa]
+      rw [Set.indicator_apply, if_neg hx, hz x hxa]
   rw [← he, integrable_indicator_iff measurableSet_Icc]
   exact hf.continuousOn.integrableOn_compact isCompact_Icc
 
@@ -299,9 +299,12 @@ theorem support_tail_split (f : ℝ → ℝ) (hf : Continuous f)
             · linarith [h.2]
             · linarith [h.1]
       by_cases ht : r ≤ |x|
-      · simp [ht, he.mp ht]
-      · simp [ht, fun h => ht (he.mpr h)]
-    · simp [hz x (lt_of_not_ge hx)]
+      · have ht' : x ∈ {x : ℝ | r ≤ |x|} := ht
+        rw [Set.indicator_apply, Set.indicator_apply, if_pos ht', if_pos (he.mp ht)]
+      · have ht' : x ∉ {x : ℝ | r ≤ |x|} := ht
+        have hn : x ∉ A ∪ B := fun h => ht (he.mpr h)
+        rw [Set.indicator_apply, Set.indicator_apply, if_neg ht', if_neg hn]
+    · simp only [Set.indicator_apply, hz x (lt_of_not_ge hx), if_t_t]
   have hd : Disjoint A B := by
     apply Set.disjoint_left.mpr
     intro x ha hb
@@ -347,7 +350,7 @@ theorem uniform_scale_previous {t₁ t₂ s r : ℝ} (ht₁ : 0 < t₁)
     have hkzero : k = 0 := by omega
     rw [hkzero, Nat.cast_zero] at hklo
     nlinarith
-  have hprev : ((k-1 : ℕ) : ℝ) = (k : ℝ)-1 := by exact Nat.cast_sub hkpos
+  have hprev : ((k-1 : ℕ) : ℝ) = (k : ℝ)-1 := by rw [Nat.cast_sub hkpos] <;> norm_num
   refine ⟨hscale, ⟨by linarith [hk.1], hk.2⟩, ?_⟩
   constructor
   · apply (le_div_iff₀ hp).mpr
@@ -359,10 +362,10 @@ theorem uniform_scale_previous {t₁ t₂ s r : ℝ} (ht₁ : 0 < t₁)
     linarith
 
 
-def tailMass (M : ℕ) (p : ℝ → ℝ) (r : ℝ) : ℝ :=
+noncomputable def tailMass (M : ℕ) (p : ℝ → ℝ) (r : ℝ) : ℝ :=
   ∫ x in {x : ℝ | r ≤ |x|}, p x ^ 2 * gM M x
 
-def weightedTail (M : ℕ) (p q : ℝ → ℝ) (r : ℝ) : ℝ :=
+noncomputable def weightedTail (M : ℕ) (p q : ℝ → ℝ) (r : ℝ) : ℝ :=
   ∫ x in {x : ℝ | r ≤ |x|}, |p x * q x| * |deriv (φM M) x| * gM M x
 
 theorem square_supported_integrable (M : ℕ) (hM : 4 ≤ M)
@@ -387,7 +390,9 @@ theorem first_tail_half_bounds (M : ℕ) (hM : 4 ≤ M) (p : ℝ → ℝ)
     (∫ x in s..(1/2:ℝ), p (-x) ^ 2 * gM M (-x)) ≤ T := by
   have hsplit := support_tail_split (fun x => p x ^ 2 * gM M x)
     ((hp.pow 2).mul (actual_gM_continuous (by omega : 3 ≤ M)))
-    (fun x hx => by rw [actual_gM_zero_closed_outside (by omega : 3 ≤ M) hx.le, mul_zero])
+    (fun x hx => by
+      change p x ^ 2 * gM M x = 0
+      rw [actual_gM_zero_closed_outside (by omega : 3 ≤ M) hx.le, mul_zero])
     hs hsb
   change tailMass M p s = _ at hsplit
   have hp0 : 0 ≤ ∫ x in s..(1/2:ℝ), p x ^ 2 * gM M x :=
