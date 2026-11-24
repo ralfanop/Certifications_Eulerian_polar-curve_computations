@@ -1,0 +1,87 @@
+name: M15 Hopf local Laplace and true C2 operator exact-HEAD Lean 4
+
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/HopfLocalLaplacian20261124.lean'
+      - 'lean/Manuscript15/HopfBasicLocalOperator20261124.lean'
+      - '.github/workflows/m15-hopf-local-laplacian-20261124.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  angular-operator:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Exact-head Lean4 and twenty-five theorem audits
+        working-directory: lean
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/m15-hopf-local-laplacian
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          git rev-parse HEAD | tee /tmp/m15-hopf-local-laplacian/head.txt
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 \
+            -o .lake/build/lib/lean/Manuscript15/HopfSubmersionDifferential20261124.olean \
+            Manuscript15/HopfSubmersionDifferential20261124.lean \
+            2>&1 | tee /tmp/m15-hopf-local-laplacian/dependency.log
+          lake env lean -M16768 \
+            -o .lake/build/lib/lean/Manuscript15/HopfLocalLaplacian20261124.olean \
+            Manuscript15/HopfLocalLaplacian20261124.lean \
+            2>&1 | tee /tmp/m15-hopf-local-laplacian/chart.log
+          lake env lean -M16768 \
+            Manuscript15/HopfBasicLocalOperator20261124.lean \
+            2>&1 | tee /tmp/m15-hopf-local-laplacian/operator.log
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          root = Path('/tmp/m15-hopf-local-laplacian')
+          dep = (root / 'dependency.log').read_text()
+          chart_log = (root / 'chart.log').read_text()
+          operator_log = (root / 'operator.log').read_text()
+          forbidden = re.compile(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s', re.M)
+          for log in [dep, chart_log, operator_log]:
+              assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.', log)
+          pairs = [
+              ('Manuscript15/HopfLocalLaplacian20261124.lean',
+               'Manuscript15.HopfLocalLaplacian20261124.', chart_log, 18),
+              ('Manuscript15/HopfBasicLocalOperator20261124.lean',
+               'Manuscript15.HopfBasicLocalOperator20261124.', operator_log, 7),
+          ]
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          for filename, prefix, log, expected in pairs:
+              source = Path(filename).read_text()
+              assert not forbidden.search(source)
+              names = re.findall(r'^#print axioms ([A-Za-z0-9_.]+)$', source, re.M)
+              assert len(names) == expected and len(set(names)) == expected, (filename, names)
+              for name in names:
+                  assert name.startswith(prefix), (filename, name)
+                  match = re.search(re.escape("'" + name + "'") + r' depends on axioms: \[([^\]]*)\]', log, re.S)
+                  if match:
+                      present = {x.strip() for x in match.group(1).split(',') if x.strip()}
+                      assert present <= allowed, (name, present)
+                  else:
+                      assert "'" + name + "' does not depend on any axioms" in log, name
+          print('M15 ACTUAL HOPF C2 OPERATOR EXACT-HEAD 25 THEOREMS SUCCESS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-hopf-local-operator-exact-head
+          path: /tmp/m15-hopf-local-laplacian/
