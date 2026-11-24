@@ -1,6 +1,6 @@
 # M16/M17 exact-head audit — 24 Nov 2026
 
-Scope: Manuscripts 16 and 17 and PRs #458, #459, #566, #567, #576, #585 only. Manuscripts 11–15 are not touched.
+Scope: Manuscripts 16 and 17 and PRs #458, #459, #566, #567, #576, #585, #588, #589, #592, #593, #594 only. Manuscripts 11–15 are not touched.
 
 ## Reference packages
 
@@ -23,6 +23,11 @@ Toolchain: Lean `v4.35.0-rc3`, Mathlib `0272bbe1c093d038d7257ab15306abd58245f9ff
 | #567 | `38914fb8ce77893da12701314841edf697de715a` | — (success, merged 24 Nov 2026 11:33 UTC as `75a664b0`) | — | — | — |
 | #576 | `be873bda4fc77f64e60ce7fcb75b9d2298b227aa` | — (exact-head job 138465626693 success; merged 24 Nov 2026 13:30 UTC as `a67953ca`) | — | — | — |
 | #585 | `76de0e10893c5e1391a1de54b9f89b83df49612a` | — (exact-head job 138502217880 success: 18 declarations and 46 imported axiom reports, standard axioms only; merged 24 Nov 2026 14:10 UTC as `9c605296`) | — | — | — |
+| #588 | `26feb5138136e592551caf480c471b08d5dec239` | — (exact-head job 138585661565 success; merged 24 Nov 2026 20:29 UTC as `ef3ce900`) | — | — | — |
+| #589 | `3bcc3980d43af708958559c459e0781c5aef0271` | — (exact-head jobs 138629459202, 138629456454 success; head reached `main` through the #594 merge `9f949f04`, 24 Nov 2026 20:30 UTC) | — | — | — |
+| #594 | `b2dba1339fd15196c3c6cb64e899ed41ae47fe56` | — (exact-head jobs 138740702462, 138740701048, 138740700805 success; merged 24 Nov 2026 20:30 UTC as `9f949f04`) | — | — | — |
+| #593 | `5c36eba71306420fc58df71613fe51f1f3b5c42c` | — (exact-head job 138699649288 `area-integration` success, job 138699646173 M11 suite success; merged 24 Nov 2026 20:31 UTC as `1bbc0bfa`) | — | — | — |
+| #592 | `ed0bcdc1567043521a4cd14db37acf2a70ba326d` | — (exact-head jobs 138663895750, 138663893085 success; merged 24 Nov 2026 20:31 UTC as `5f3cdc87`) | — | — | — |
 
 No statement was changed. Before pushing, all 24 declarations were recompiled locally on the pinned toolchain; every one depends only on `propext`, `Classical.choice`, `Quot.sound`. The GitHub runs on the new heads are the certifying runs.
 
@@ -44,8 +49,32 @@ Decision of the scientific lead (24 Nov 2026): the unitary invariance of `det_p`
 | `ind(T+K) = ind T` | LEAN 4 CERTIFICATO, INTEGRATO (`SharedCore.FredholmAtkinson.index_add_compact`) |
 | M16 `eq:feff-det`, finite dimension | LEAN 4 CERTIFICATO, INTEGRATO (#567) |
 | M16 `eq:feff-det` on `S_p` | published result cited (Simon 2005) |
-| M16 `thm:dirac-maxwell-obstruction-164` (i)–(ii) | Abstract typed form in `lean/Manuscript16/DiracMaxwellObstructionIndex20261124.lean`, INTEGRATO (#576, `a67953ca`; exact-head CI job 138465626693 success on `be873bda`): `𝒜` Fredholm iff `A_P` Fredholm and `ind 𝒜 = ind A_P`, with Mathlib `IsFredholm`/`index`, under the premises `L : D ≃L X` and `B L⁻¹ C` compact. Graph-space form for an abstract closed bijective `L₀` with compact `R₀`, `‖R₀‖ ≤ 2/3`, `‖E‖ < 3/2`: `lean/Manuscript16/DiracMaxwellGraphSpace20261124.lean`, INTEGRATO (#585, `9c605296`; exact-head CI job 138502217880 success on `76de0e10`; see `audits/manuscript16/M16_dirac_maxwell_graph_space_20261124.md`). With #576 and #585 the abstract obligation (diagonal lemma `diag(F, L) = F.prodMap L`, `ker = ker F × 0`, `coker ≅ P / range F`, assembly through `typed_factorization`, `IsFredholm.index_comp`, `index_add_compact`) is closed and must not be re-proved. APERTO for the concrete `L₀ = W_R ⊕ D₃`: closedness, invertibility, `‖R₀‖ = 2/3`, compactness/Schatten membership of `R₀`; every `det₄` statement |
+| M16 `thm:dirac-maxwell-obstruction-164` (i)–(ii) | Abstract typed form in `lean/Manuscript16/DiracMaxwellObstructionIndex20261124.lean`, INTEGRATO (#576, `a67953ca`; exact-head CI job 138465626693 success on `be873bda`): `𝒜` Fredholm iff `A_P` Fredholm and `ind 𝒜 = ind A_P`, with Mathlib `IsFredholm`/`index`, under the premises `L : D ≃L X` and `B L⁻¹ C` compact. Graph-space form for an abstract closed bijective `L₀` with compact `R₀`, `‖R₀‖ ≤ 2/3`, `‖E‖ < 3/2`: `lean/Manuscript16/DiracMaxwellGraphSpace20261124.lean`, INTEGRATO (#585, `9c605296`; exact-head CI job 138502217880 success on `76de0e10`; see `audits/manuscript16/M16_dirac_maxwell_graph_space_20261124.md`). With #576 and #585 the abstract obligation (diagonal lemma `diag(F, L) = F.prodMap L`, `ker = ker F × 0`, `coker ≅ P / range F`, assembly through `typed_factorization`, `IsFredholm.index_comp`, `index_add_compact`) is closed and must not be re-proved. For the coefficient-space realization of `L₀ = W_R ⊕ D₃` on `ℓ²(MixedIndex, ℂ)` the four premises (closed, bijective, `‖R₀‖ = 2/3`, `R₀` compact) are discharged in `lean/Manuscript16/DiracMaxwellCoefficientModel20261124.lean`, INTEGRATO (#588, `ef3ce900`; see `audits/manuscript16/M16_dirac_maxwell_coefficient_model_20261124.md`): `coefficientModel_isFredholm_iff_and_index_eq` has no premise on `L₀`. The unitary identification of `ℓ²(MixedIndex)` with `R ⊕ L²(S³; Σ)` is a published input, not formalized; no geometric statement on `S³` is derived |
 | M17 L₈(1,χ₂), Area_Φ at 30,000 places | ARB CERTIFICATO (#553); certificate now persisted, see below |
+| M16 `eq:mixed-schatten-164`, sequence level | LEAN 4 CERTIFICATO, INTEGRATO (#589, via `9f949f04`): `mixedWeight_summable_iff`, `∑ᵢ |wᵢ|ᵖ < ∞ ⇔ p > 3` for every real `p`; `L0_resolvent_weights_memℓp_iff`. Operator form `L₀⁻¹ ∈ S_p ⇔ p > 3`: published inputs cited (Simon 2005, Ch. 2: `diag(w) ∈ S_p ⇔ w ∈ ℓᵖ`, ideal property), not a Lean theorem (no Schatten classes in Mathlib at the pinned commit) |
+| M16 `eq:mixed-lower-series-164`, `eq:mixed-upper-series-164` | LEAN 4 CERTIFICATO, INTEGRATO (#594, `9f949f04`): `lowerSeries_summable_iff`, `maxwell_summable_iff`, `maxwellWeight_memℓp_iff`, `upperSeries_le` on the actual index type `MaxwellIndex`. Correspondence with the printed displays of `16.tex` still to be confirmed against the source (not available to the certifying run) |
+| M16 `eq:mixed-det4-criterion-164`, operator part | LEAN 4 CERTIFICATO, INTEGRATO (#592, `5f3cdc87`): `coefficientModel_resonant_invertibility`, for every `μ ≠ 0`: `𝒜(μ)` bijective ⇔ injective ⇔ `I − μ⁻¹K` bijective ⇔ `μ ∉ σ(K)`, eigenspace finite-dimensional, `K = B L⁻¹ C` compact. The `det₄` step (`I + T` invertible ⇔ `det₄(I + T) ≠ 0`, `T ∈ S₄`) and `K ∈ S₄`: published inputs (Simon 2005, Ch. 9 and Ch. 2), not Lean theorems |
+| M16 `eq:mixed-det4-164` and `det₄` step of `eq:mixed-det4-criterion-164` | DECISIONE DEL RESPONSABILE RICHIESTA: published result cited (Simon 2005), as for `eq:feff-det`, or open Lean obligation (construction of `S₄` and `det₄`). Precise theorem numbers in Simon 2005 still to be located |
+| M16 discreteness of `σ(K) \ {0}` | Riesz–Schauder theory, classical; not formalized |
+| M17 `eq:m17-area-integration` | LEAN 4 CERTIFICATO, INTEGRATO (#593, `1bbc0bfa`): `area_integration`, `2π ∫₀¹ ν²/(2−ν²)² dν = π(1 − log(1+√2)/√2)` as a Mathlib interval integral. Not claimed: that the integral is the area of the critical Cassini lobe (metric integration, geometric), `log(1+√2)/√2 = L₈(1, χ₂)` (Dirichlet, cited) |
+
+## Post-merge consistency of `main` (#588, #589, #592, #593, #594)
+
+Checked 24 Nov 2026 on `main` = `9e762b4b9dc72ad0cc2f5d5be66fa741249ba493`. The seven files certified by these PRs are byte-identical in `main` and at their certifying heads (SHA-256):
+
+| File | Certifying head | SHA-256 |
+|---|---|---|
+| `lean/Manuscript16/DiracMaxwellCoefficientModel20261124.lean` | #588 `26feb513` | `449afea7fadc8e610f0c3bbbeb1f4c9af6d193ec10a0308210a34ec88aa000e4` |
+| `lean/Manuscript16/V166L2SpectralInverse.lean` | #588 `26feb513` | `f7fdb0b544f7bb5c9be5ad83885d6c3b7c4ac518f2a4ee2dcd6c25189d84cab5` |
+| `lean/Manuscript16/V166SpectralCutoffs.lean` | #588 `26feb513` | `47fd91b90ca0a75336a83821cab632f0c0495f99e2efe8b79a44d98aac827634` |
+| `lean/Manuscript16/DiracMaxwellSchattenThreshold20261124.lean` | #589 `3bcc3980` | `71335d9d9d9f8b67de5b17af4a0fbfa699787b668bae70204f19d8bfff59d6b0` |
+| `lean/Manuscript16/MaxwellLowerUpperSeries20261124.lean` | #594 `b2dba133` | `ac9cd6600cb801258502ce06d8f804bb42cdc38bce690c3db6f556078e93d6b8` |
+| `lean/Manuscript16/DiracMaxwellResonantInvertibility20261124.lean` | #592 `ed0bcdc1` | `7f11155a0707aad3eecd4a254ebe7ffc1a70972fe7a4267db47acdadca4a9f1f` |
+| `lean/EulerianCert/CassiniAreaIntegral20261124.lean` | #593 `5c36eba7` | `772e441955a1dbfe6dca4c2479cd5ef4997bbc400cc68cc1989f652cacecdc0b` |
+
+Between each certifying head and `main`, `git diff` restricted to `lean/SharedCore`, `lean/Manuscript16`, the M17 file, `lean/lakefile.toml` and `lean/lean-toolchain` shows only added files (the other PRs of this group); no imported module, the toolchain or the Mathlib pin changed. The PR-triggered workflows do not run on pushes to `main`; the combined state is re-audited by `.github/workflows/m16-m17-post-merge-reaudit-20261124.yml` (exact-HEAD checkout, ancestry check of the four merge commits, hash check of the seven files, compilation of the 15 modules in dependency order on the pinned toolchain, `#print axioms` audit of all 170 reports, failure on any warning in the five new modules, artifacts). That run is the certifying run for the combined state.
+
+The `push` runs of `.github/workflows/m11-dk-20000-decimal-production.yml` on `main` fail on every merge, including those of this group; that workflow belongs to Manuscript 11 and is outside the scope of this register.
 
 ## M17 numerical evidence
 

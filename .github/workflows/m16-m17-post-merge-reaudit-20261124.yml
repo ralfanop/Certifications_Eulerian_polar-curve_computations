@@ -1,0 +1,129 @@
+name: M16/M17 post-merge re-audit of #588, #589, #592, #593, #594 (exact HEAD)
+on:
+  pull_request:
+    paths:
+      - 'audits/M16_M17_exact_head_audit_20261124.md'
+      - '.github/workflows/m16-m17-post-merge-reaudit-20261124.yml'
+      - 'lean/SharedCore/FredholmCompactParametrix.lean'
+      - 'lean/SharedCore/FredholmAtkinson.lean'
+      - 'lean/Manuscript16/V165TypedGraphSchur.lean'
+      - 'lean/Manuscript16/V165GraphNeumann.lean'
+      - 'lean/Manuscript16/V166CompactTransfer.lean'
+      - 'lean/Manuscript16/DiracMaxwellObstructionIndex20261124.lean'
+      - 'lean/Manuscript16/DiracMaxwellGraphSpace20261124.lean'
+      - 'lean/Manuscript16/V166L2SpectralInverse.lean'
+      - 'lean/Manuscript16/V166SpectralCutoffs.lean'
+      - 'lean/Manuscript16/DiracMaxwellCoefficientModel20261124.lean'
+      - 'lean/Manuscript16/DiracMaxwellSchattenThreshold20261124.lean'
+      - 'lean/Manuscript16/MaxwellLowerUpperSeries20261124.lean'
+      - 'lean/Manuscript16/V165SchurClosedRange.lean'
+      - 'lean/Manuscript16/DiracMaxwellResonantInvertibility20261124.lean'
+      - 'lean/EulerianCert/CassiniAreaIntegral20261124.lean'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Exact HEAD contains the five merge results; pinned Lean 4 toolchain and Mathlib
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m1617-pm-head.log
+          # main merge commits of #588, #594 (brings #589), #593, #592
+          for c in ef3ce90076f5869c8ee46e9821f3c9d94ee16c7d 9f949f044061a9d5566b650d2cd19343276252fc 1bbc0bfa54ec4ab9edcf20daf66fa62d92ea284c 5f3cdc87a198e6a1eb9ad707d61c9217c2174890; do
+            git merge-base --is-ancestor "$c" HEAD
+            echo "ancestor $c" | tee -a /tmp/m1617-pm-head.log
+          done
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          lake env lean --version | tee -a /tmp/m1617-pm-head.log
+      - name: Byte identity with the certified PR heads
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          sha256sum -c <<'SUMS' | tee /tmp/m1617-pm-sha256.log
+          449afea7fadc8e610f0c3bbbeb1f4c9af6d193ec10a0308210a34ec88aa000e4  Manuscript16/DiracMaxwellCoefficientModel20261124.lean
+          f7fdb0b544f7bb5c9be5ad83885d6c3b7c4ac518f2a4ee2dcd6c25189d84cab5  Manuscript16/V166L2SpectralInverse.lean
+          47fd91b90ca0a75336a83821cab632f0c0495f99e2efe8b79a44d98aac827634  Manuscript16/V166SpectralCutoffs.lean
+          71335d9d9d9f8b67de5b17af4a0fbfa699787b668bae70204f19d8bfff59d6b0  Manuscript16/DiracMaxwellSchattenThreshold20261124.lean
+          ac9cd6600cb801258502ce06d8f804bb42cdc38bce690c3db6f556078e93d6b8  Manuscript16/MaxwellLowerUpperSeries20261124.lean
+          7f11155a0707aad3eecd4a254ebe7ffc1a70972fe7a4267db47acdadca4a9f1f  Manuscript16/DiracMaxwellResonantInvertibility20261124.lean
+          772e441955a1dbfe6dca4c2479cd5ef4997bbc400cc68cc1989f652cacecdc0b  EulerianCert/CassiniAreaIntegral20261124.lean
+          SUMS
+      - name: Compile the 15 modules in dependency order and audit every printed axiom report
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          MODULES="SharedCore/FredholmCompactParametrix SharedCore/FredholmAtkinson Manuscript16/V165TypedGraphSchur Manuscript16/V165GraphNeumann Manuscript16/V166CompactTransfer Manuscript16/DiracMaxwellObstructionIndex20261124 Manuscript16/DiracMaxwellGraphSpace20261124 Manuscript16/V166L2SpectralInverse Manuscript16/V166SpectralCutoffs Manuscript16/DiracMaxwellCoefficientModel20261124 Manuscript16/DiracMaxwellSchattenThreshold20261124 Manuscript16/MaxwellLowerUpperSeries20261124 Manuscript16/V165SchurClosedRange Manuscript16/DiracMaxwellResonantInvertibility20261124 EulerianCert/CassiniAreaIntegral20261124"
+          STRICT="Manuscript16/DiracMaxwellCoefficientModel20261124 Manuscript16/DiracMaxwellSchattenThreshold20261124 Manuscript16/MaxwellLowerUpperSeries20261124 Manuscript16/DiracMaxwellResonantInvertibility20261124 EulerianCert/CassiniAreaIntegral20261124"
+          mkdir -p .lake/build/lib/lean/SharedCore .lake/build/lib/lean/Manuscript16 .lake/build/lib/lean/EulerianCert
+          for m in $MODULES; do
+            if grep -nE '\bsorry\b|\badmit\b|^\s*axiom\b|\bunsafe\b|implemented_by|extern' "$m.lean"; then exit 1; fi
+            lake env lean -M16768 -o ".lake/build/lib/lean/$m.olean" "$m.lean" 2>&1 | tee "/tmp/m1617-pm-$(basename $m).log"
+            if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' "/tmp/m1617-pm-$(basename $m).log"; then exit 1; fi
+          done
+          for m in $STRICT; do
+            if grep -q 'warning:' "/tmp/m1617-pm-$(basename $m).log"; then echo "warning in $m"; exit 1; fi
+          done
+          python3 - <<'PY'
+          import hashlib, json, re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          modules = """SharedCore/FredholmCompactParametrix SharedCore/FredholmAtkinson Manuscript16/V165TypedGraphSchur Manuscript16/V165GraphNeumann Manuscript16/V166CompactTransfer Manuscript16/DiracMaxwellObstructionIndex20261124 Manuscript16/DiracMaxwellGraphSpace20261124 Manuscript16/V166L2SpectralInverse Manuscript16/V166SpectralCutoffs Manuscript16/DiracMaxwellCoefficientModel20261124 Manuscript16/DiracMaxwellSchattenThreshold20261124 Manuscript16/MaxwellLowerUpperSeries20261124 Manuscript16/V165SchurClosedRange Manuscript16/DiracMaxwellResonantInvertibility20261124 EulerianCert/CassiniAreaIntegral20261124""".split()
+          expected = {'DiracMaxwellCoefficientModel20261124': 28, 'DiracMaxwellSchattenThreshold20261124': 19,
+                      'MaxwellLowerUpperSeries20261124': 12, 'DiracMaxwellResonantInvertibility20261124': 14,
+                      'CassiniAreaIntegral20261124': 13}
+          report, total = {}, 0
+          for m in modules:
+              base = m.split('/')[-1]
+              src = Path(m + '.lean').read_text()
+              log = Path('/tmp/m1617-pm-' + base + '.log').read_text()
+              requested = re.findall(r'^#print axioms (\S+)', src, re.M)
+              if base in expected:
+                  assert len(requested) == expected[base] and len(set(requested)) == expected[base], (base, len(requested))
+              found = re.findall(r"'([^']+)' depends on axioms: \[([^\]]*)\]", log, re.S)
+              none = re.findall(r"'([^']+)' does not depend on any axioms", log)
+              assert len(found) + len(none) == len(requested), (base, len(found), len(none), len(requested))
+              entries = {}
+              for name, a in found:
+                  axioms = sorted({x.strip() for x in a.split(',') if x.strip()})
+                  assert set(axioms) <= allowed, (base, name, axioms)
+                  entries[name] = axioms
+              for name in none:
+                  entries[name] = []
+              report[m] = {
+                  'source_sha256': hashlib.sha256(Path(m + '.lean').read_bytes()).hexdigest(),
+                  'olean_sha256': hashlib.sha256(Path('.lake/build/lib/lean/' + m + '.olean').read_bytes()).hexdigest(),
+                  'axiom_reports': entries,
+              }
+              total += len(requested)
+              print('AXIOM AUDIT SUCCESS:', m, len(requested), 'reports')
+          out = {'head': Path('/tmp/m1617-pm-head.log').read_text().split()[0], 'reports_total': total, 'modules': report}
+          Path('/tmp/m1617-pm-audit.json').write_text(json.dumps(out, indent=2) + '\n')
+          print('SUCCESS:', len(modules), 'modules,', total, 'axiom reports; standard axioms only')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-m17-post-merge-reaudit
+          path: |
+            /tmp/m1617-pm-*.log
+            /tmp/m1617-pm-audit.json
