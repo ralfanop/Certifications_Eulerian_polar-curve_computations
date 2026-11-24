@@ -1,0 +1,70 @@
+name: M15 Fefferman actual real-cover scalar geometry exact-head Lean4
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/FeffermanRealCover20261124.lean'
+      - '.github/workflows/m15-fefferman-real-cover-20261124.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-cover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned dependency chain and nine actual Fefferman cover audits
+        working-directory: lean
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          mkdir -p /tmp/m15-fefferman-real-cover
+          git rev-parse HEAD | tee /tmp/m15-fefferman-real-cover/head.txt
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 \
+            -o .lake/build/lib/lean/Manuscript15/HopfSubmersionDifferential20261124.olean \
+            Manuscript15/HopfSubmersionDifferential20261124.lean 2>&1 | tee /tmp/m15-fefferman-real-cover/hopf-dependency.log
+          lake env lean -M16768 \
+            -o .lake/build/lib/lean/Manuscript15/HopfFibreGeodesics20261124.olean \
+            Manuscript15/HopfFibreGeodesics20261124.lean 2>&1 | tee /tmp/m15-fefferman-real-cover/fibre-dependency.log
+          lake env lean -M16768 Manuscript15/FeffermanRealCover20261124.lean \
+            2>&1 | tee /tmp/m15-fefferman-real-cover/lean.log
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          src=Path('Manuscript15/FeffermanRealCover20261124.lean').read_text()
+          logs=[Path('/tmp/m15-fefferman-real-cover/'+x).read_text() for x in (
+            'hopf-dependency.log','fibre-dependency.log','lean.log')]
+          log=logs[-1]
+          assert not re.search(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s',src,re.M)
+          assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.', ''.join(logs))
+          names=re.findall(r'^#print axioms (Manuscript15\.FeffermanRealCover20261124\.\w+)$',src,re.M)
+          assert len(names)==9 and len(set(names))==9,(len(names),names)
+          for n in names:
+            m=re.search(re.escape("'"+n+"'")+r" depends on axioms: \[([^\]]*)\]",log,re.S)
+            if m:
+              got={x.strip() for x in m.group(1).split(',') if x.strip()}
+              assert got <= {'propext','Classical.choice','Quot.sound'},(n,got)
+            else:
+              assert "'"+n+"' does not depend on any axioms" in log,n
+          print('M15 FEFFERMAN REAL COVER EXACT HEAD 9 AXIOMS AUDIT SUCCESS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-fefferman-real-cover
+          path: /tmp/m15-fefferman-real-cover/
