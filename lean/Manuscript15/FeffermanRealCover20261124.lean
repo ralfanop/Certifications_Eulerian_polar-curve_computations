@@ -90,7 +90,7 @@ theorem orbit_dot_isometry (v w : HopfQ) (t : ℝ) :
   rcases w with ⟨⟨e, f⟩, ⟨g, h⟩⟩
   have htrig := Real.cos_sq_add_sin_sq t
   calc
-    dot4 (orbit ((a, b), (c, d))) (orbit ((e, f), (g, h))) t =
+    dot4 (orbit ((a, b), (c, d)) t) (orbit ((e, f), (g, h)) t) =
       (Real.cos t ^ 2 + Real.sin t ^ 2) *
         dot4 ((a, b), (c, d)) ((e, f), (g, h)) := by
         dsimp [dot4, orbit, phaseRotate]
