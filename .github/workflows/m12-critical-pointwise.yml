@@ -1,0 +1,61 @@
+name: M12 actual critical exponent and pointwise limit
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/CriticalWindowPointwise.lean'
+      - '.github/workflows/m12-critical-pointwise.yml'
+  workflow_dispatch:
+jobs:
+  pointwise:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Compile actual pointwise limit and prerequisites
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "EXACT_HEAD=$(git rev-parse HEAD)"
+          lake exe cache get
+          mkdir -p .lake/build/lib/lean
+          for module in CriticalWindowQuartic CriticalWindowGlobalMGF CriticalWindowComplexMGF CriticalWindowAnalyticRemainder CriticalWindowFockDomination CriticalWindowGammaVacuum CriticalWindowFinalAssembly; do
+            lake env lean -o ".lake/build/lib/lean/${module}.olean" "${module}.lean"
+          done
+          lake env lean CriticalWindowPointwise.lean 2>&1 | tee /tmp/m12-critical-pointwise.log
+      - name: Strict exact-declaration axiom audit
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          data = Path('/tmp/m12-critical-pointwise.log').read_text()
+          assert ': error' not in data and 'sorryAx' not in data and 'Lean.ofReduceBool' not in data
+          src = Path('lean/EulerianGrothendieck/CriticalWindowPointwise.lean').read_text()
+          assert not re.search(r'\b(sorry|admit|axiom|opaque|native_decide)\b', src)
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          names = ['mgf_ne_zero','q_norm_bound','real_jet','scaled_jet','exponent_error',
+                   'scaledIntegrand_eq_exp','scale_pos','scale_identity','scale_tendsto',
+                   'actual_exponent_tendsto','actual_integrand_tendsto']
+          for name in names:
+              full = 'M12CriticalPointwise.' + name
+              match = re.search(r"'" + re.escape(full) + r"' depends on axioms: \[([^\]]*)\]", data)
+              if match:
+                  axioms = {x.strip() for x in match.group(1).split(',') if x.strip()}
+                  assert axioms <= allowed, (full, axioms - allowed)
+              else:
+                  assert "'" + full + "' does not depend on any axioms" in data, full
+              print('AXIOM AUDIT SUCCESS', full)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-critical-pointwise-audit
+          path: /tmp/m12-critical-pointwise.log
