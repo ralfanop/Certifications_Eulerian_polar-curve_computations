@@ -68,6 +68,56 @@ theorem envelope_derivative (K inv : ℝ → ℝ) (m d : ℝ)
       (1 * inv m + m * d - m * d) m := hh
   convert hh' using 1 <;> ring
 
+
+-- Analytic stage: strict positivity of the actual sinh quotient off the origin.
+theorem sinh_pos_of_pos (x : ℝ) (hx : 0 < x) : 0 < Real.sinh x := by
+  rw [Real.sinh_eq]
+  have he : Real.exp (-x) < Real.exp x := Real.exp_lt_exp.mpr (by linarith)
+  positivity
+
+theorem sinh_ne_of_ne (x : ℝ) (hx : x ≠ 0) : Real.sinh x ≠ 0 := by
+  rcases lt_or_gt_of_ne hx with h | h
+  · have hp := sinh_pos_of_pos (-x) (by linarith)
+    rw [Real.sinh_neg] at hp
+    exact ne_of_lt (by linarith)
+  · exact ne_of_gt (sinh_pos_of_pos x h)
+
+theorem profile_positive (x : ℝ) : 0 < profile x := by
+  by_cases hx : x = 0
+  · simp [hx, profile]
+  · rw [profile, if_neg hx]
+    rcases lt_or_gt_of_ne hx with h | h
+    · have hp := sinh_pos_of_pos (-x) (by linarith)
+      rw [Real.sinh_neg] at hp
+      exact div_pos_of_neg_of_neg (by linarith) h
+    · exact div_pos (sinh_pos_of_pos x h) h
+
+theorem langevinRaw_hasDerivAt (x : ℝ) (hx : x ≠ 0) :
+    HasDerivAt langevinRaw (curvatureRaw x) x := by
+  have hs := sinh_ne_of_ne x hx
+  have hdS : HasDerivAt Real.sinh (Real.cosh x) x := by
+    first | exact Real.hasDerivAt_sinh x | exact?
+  have hdC : HasDerivAt Real.cosh (Real.sinh x) x := by
+    first | exact Real.hasDerivAt_cosh x | exact?
+  have hh := (hdC.div hdS hs).sub ((hasDerivAt_const x (1 : ℝ)).div (hasDerivAt_id x) hx)
+  have he : HasDerivAt langevinRaw
+      ((Real.sinh x * Real.sinh x - Real.cosh x * Real.cosh x) / Real.sinh x ^ 2 -
+        (0 * x - 1 * 1) / x ^ 2) x := hh
+  have hpy := Real.cosh_sq_sub_sinh_sq x
+  have hn : Real.sinh x * Real.sinh x - Real.cosh x * Real.cosh x = -1 := by
+    nlinarith
+  rw [hn] at he
+  convert he using 1
+  unfold curvatureRaw
+  ring
+
+theorem langevin_hasDerivAt_of_ne (x : ℝ) (hx : x ≠ 0) :
+    HasDerivAt langevin (curvatureRaw x) x := by
+  apply (langevinRaw_hasDerivAt x hx).congr_of_eventuallyEq
+  filter_upwards [isOpen_compl_singleton.mem_nhds (show x ∈ ({0} : Set ℝ)ᶜ by simpa using hx)] with y hy
+  have hy' : y ≠ 0 := by simpa using hy
+  simp [langevin, hy']
+
 end
 end M14.EulerianLegendre
 
@@ -79,3 +129,9 @@ end M14.EulerianLegendre
 #print axioms M14.EulerianLegendre.reciprocal_origin
 #print axioms M14.EulerianLegendre.conjugate_eq_of_support
 #print axioms M14.EulerianLegendre.envelope_derivative
+
+#print axioms M14.EulerianLegendre.sinh_pos_of_pos
+#print axioms M14.EulerianLegendre.sinh_ne_of_ne
+#print axioms M14.EulerianLegendre.profile_positive
+#print axioms M14.EulerianLegendre.langevinRaw_hasDerivAt
+#print axioms M14.EulerianLegendre.langevin_hasDerivAt_of_ne
