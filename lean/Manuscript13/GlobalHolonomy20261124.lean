@@ -106,13 +106,15 @@ theorem conjugate_leftInverse (U : X ≃ Y) (A R : X → X)
     (h : Function.LeftInverse R A) :
     Function.LeftInverse (conjugate U R) (conjugate U A) := by
   intro y
-  simp [conjugate, h]
+  simp only [conjugate, Equiv.symm_apply_apply]
+  rw [h (U.symm y), Equiv.apply_symm_apply]
 
 theorem conjugate_rightInverse (U : X ≃ Y) (A R : X → X)
     (h : Function.RightInverse R A) :
     Function.RightInverse (conjugate U R) (conjugate U A) := by
   intro y
-  simp [conjugate, h]
+  simp only [conjugate, Equiv.symm_apply_apply]
+  rw [h (U.symm y), Equiv.apply_symm_apply]
 
 theorem inverse_on_domain_transport (U : X ≃ Y) (D : Set X)
     (A R : X → X) (h : ∀ x ∈ D, R (A x) = x)
