@@ -29,7 +29,7 @@ theorem cosine_average (x : ℝ) :
       have h := ((Real.hasDerivAt_sin (t*x)).comp t
         ((hasDerivAt_id t).mul_const x)).div_const x
       convert h using 1
-      simp [id_eq, hx]
+      all_goals simp [id_eq] <;> field_simp [hx]
     have hi : IntervalIntegrable (fun t : ℝ => Real.cos (t*x)) volume 0 1 :=
       (by fun_prop : Continuous (fun t : ℝ => Real.cos (t*x))).intervalIntegrable _ _
     rw [intervalIntegral.integral_eq_sub_of_hasDerivAt (fun t _ => hd t) hi]
