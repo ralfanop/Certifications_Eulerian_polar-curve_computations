@@ -1,0 +1,70 @@
+name: M15 Eulerian-Lambert critical identities (Lean 4)
+
+on:
+  pull_request:
+    paths:
+      - 'certifications/manuscript15/LEAN/M15Cert/M15Cert/EulerianLambert20261124.lean'
+      - '.github/workflows/m15-eulerian-lambert-critical-20261124.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean-m15-lambert:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean toolchain
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Build M15Cert and audit new exact-head theorem candidates
+        working-directory: certifications/manuscript15/LEAN/M15Cert
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/m15-lambert
+          printf 'HEAD=%s\n' "$(git rev-parse HEAD)" | tee /tmp/m15-lambert/exact-head.txt
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F 'c55e6e786f49471c72fbddbec5415808896aec1e' lake-manifest.json
+          lake exe cache get
+          lake build 2>&1 | tee /tmp/m15-lambert/build.log
+          lake env lean M15Cert/EulerianLambert20261124.lean 2>&1 | tee /tmp/m15-lambert/axioms.log
+          if grep -En 'sorryAx|Lean.ofReduceBool|declaration uses .sorry.|error:' /tmp/m15-lambert/axioms.log; then exit 1; fi
+          if grep -En '(^|[^[:alnum:]_])(sorry|admit|native_decide|unsafe)([^[:alnum:]_]|$)|^[[:space:]]*axiom ' \
+            M15Cert/EulerianLambert20261124.lean; then exit 1; fi
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s = Path('/tmp/m15-lambert/axioms.log').read_text()
+          names = (
+              'eulerianPhi_eq_rEc',
+              'lambdaCL_eulerian_critical',
+              'langevin_critical_identity',
+              'lambert_at_threshold',
+              'lambert_parameter_gt_two',
+              'lambdaCL_from_lambert_parameter',
+          )
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          for n in names:
+              q = 'M15.' + n
+              m = re.search(re.escape("'" + q + "'") + r' depends on axioms: \[([^\]]*)\]', s, re.S)
+              if m is None:
+                  assert "'" + q + "' does not depend on any axioms" in s, q
+              else:
+                  actual = {v.strip() for v in m.group(1).split(',') if v.strip()}
+                  assert actual <= allowed, (q, actual)
+          print('SUCCESS: six M15 Eulerian-Lambert declarations, standard axioms only')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-eulerian-lambert-exact-head-logs
+          path: /tmp/m15-lambert/
