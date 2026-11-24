@@ -130,10 +130,10 @@ theorem exists_fixedpoint_from_normalized_phi (φ : P)
     rw [hF1]
     exact isUnit_one
   let H : P := PowerSeries.substInvOfIsUnit
-    (PowerSeries.X * φ) hF0 hFu
+    (PowerSeries.X * φ) hFu
   have hs : PowerSeries.HasSubst H := by
     exact PowerSeries.HasSubst.substInvOfIsUnit
-      (PowerSeries.X * φ) hF0 hFu
+      (PowerSeries.X * φ) hFu
   have hright : PowerSeries.subst H (PowerSeries.X * φ) = PowerSeries.X := by
     exact PowerSeries.subst_substInvOfIsUnit_right
       (PowerSeries.X * φ) hF0 hFu
