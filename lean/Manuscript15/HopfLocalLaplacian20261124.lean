@@ -148,9 +148,19 @@ theorem hopf_local_laplacian_coefficient_identity (η A B C : ℝ)
       baseSphereLocalTrace (2 * η) A B C := by
   have hcot := hopf_cotangent_coefficient η hs hc
   have hcsc := hopf_cosecant_coefficient η hs hc
-  dsimp [hopfS3LocalTrace, baseSphereLocalTrace]
-  rw [← hcot, ← hcsc]
-  ring
+  calc
+    hopfS3LocalTrace η A B C =
+        4 * A +
+          (2 * (Real.cos η / Real.sin η - Real.sin η / Real.cos η)) * B +
+          (1 / Real.cos η ^ 2 + 1 / Real.sin η ^ 2) * C := by
+            dsimp [hopfS3LocalTrace]
+            ring
+    _ = 4 * A +
+          (4 * (Real.cos (2 * η) / Real.sin (2 * η))) * B +
+          (4 / Real.sin (2 * η) ^ 2) * C := by rw [hcot, hcsc]
+    _ = baseSphereLocalTrace (2 * η) A B C := by
+          dsimp [baseSphereLocalTrace]
+          ring
 
 #print axioms Manuscript15.HopfLocalLaplacian20261124.hopfChart_unit
 #print axioms Manuscript15.HopfLocalLaplacian20261124.hopfChart_X
