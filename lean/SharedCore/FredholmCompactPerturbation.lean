@@ -1,11 +1,15 @@
 import Mathlib.Analysis.Normed.Operator.Compact.Basic
+import Mathlib.Analysis.Complex.Basic
 
 /-! Shared Fredholm F8 continuation, applicable to M16.6 §13.
 Compact perturbations preserve the left and right compact parametrix defects.
 This proves the algebraic/operator-ideal step of Atkinson stability
 without assuming any norm bound on the perturbation or normality.
-Closed range and finite defects are addressed by #455; index constancy
-on the resulting continuous Fredholm path remains a separate obligation. -/
+Closed range and finite defects are addressed by #455. Fredholmness and
+index invariance under compact perturbation are already proved in
+`SharedCore.FredholmAtkinson` (`isFredholm_add_compact`, `index_add_compact`,
+PR #469, in `main`); this module only isolates the two defect identities
+for arbitrary normed spaces. -/
 namespace SharedCore.FredholmCompactPerturbation
 
 variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
