@@ -31,7 +31,11 @@ theorem radius_derivative (a u : ℝ) (ha : 0 < a) :
     HasDerivAt (radius a) (u / radius a u) u := by
   have h : 0 < u^2 + a^2 := by positivity
   have hd : HasDerivAt (fun x : ℝ => x^2 + a^2) (2*u) u := by
-    convert ((hasDerivAt_id u).pow 2).add_const (a^2) using 1 <;> ring
+    convert ((hasDerivAt_id u).pow 2).add_const (a^2) using 1
+    · funext x
+      simp [Pi.pow_apply, add_comm]
+    · simp
+      <;> ring
   have hs := hd.sqrt (ne_of_gt h)
   convert hs using 1 <;> unfold radius <;> ring
 
@@ -40,7 +44,9 @@ theorem radius_slope_derivative (a u : ℝ) (ha : 0 < a) :
   have hr := radius_pos a u ha
   have h := (hasDerivAt_id u).div (radius_derivative a u ha) (ne_of_gt hr)
   convert h using 1
-  · field_simp [ne_of_gt hr]
+  · rfl
+  · simp only [id_eq, one_mul]
+    field_simp [ne_of_gt hr]
     nlinarith [radius_sq a u]
 
 theorem radial_potential_identity (a u : ℝ) (ha : 0 < a) :
@@ -69,11 +75,17 @@ def avgPrimitive (c t : ℝ) : ℝ := -(2+c*t) * Real.exp (-c*t) / c
 theorem avgPrimitive_derivative (c t : ℝ) (hc : c ≠ 0) :
     HasDerivAt (avgPrimitive c) ((1+c*t)*Real.exp (-c*t)) t := by
   have h1 : HasDerivAt (fun x : ℝ => -(2+c*x)) (-c) t := by
-    convert (((hasDerivAt_id t).const_mul c).const_add 2).neg using 1 <;> ring
+    convert (((hasDerivAt_id t).const_mul c).const_add 2).neg using 1
+    · funext x
+      simp
+    · ring
   have h2 : HasDerivAt (fun x : ℝ => -c*x) (-c) t := by
-    convert (hasDerivAt_id t).const_mul (-c) using 1 <;> ring
+    convert (hasDerivAt_id t).const_mul (-c) using 1
+    · rfl
+    · ring
   have hd := (h1.mul h2.exp).div_const c
   convert hd using 1
+  · rfl
   · field_simp [hc]
     <;> ring
 
