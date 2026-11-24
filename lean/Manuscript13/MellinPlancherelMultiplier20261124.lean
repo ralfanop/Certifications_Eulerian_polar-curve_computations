@@ -186,17 +186,76 @@ theorem cyclesBand_angular (x : ℝ) :
   have h2 : 0 < 2*Real.pi := by positivity
   change (-(1/(4*Real.pi)) ≤ x ∧ x ≤ 1/(4*Real.pi)) ↔
     (-(1/2 : ℝ) ≤ 2*Real.pi*x ∧ 2*Real.pi*x ≤ 1/2)
-  constructor <;> rintro ⟨hl, hu⟩ <;> constructor
-  · have h := mul_le_mul_of_nonneg_left hl h2.le
-    field_simp [ne_of_gt hp] at h
-    nlinarith
-  · have h := mul_le_mul_of_nonneg_left hu h2.le
-    field_simp [ne_of_gt hp] at h
-    nlinarith
-  · apply (le_div_iff₀ (by positivity : 0 < 4*Real.pi)).mpr at hu
-    rw [neg_div]
-    exact (div_le_iff₀ (by positivity : 0 < 4*Real.pi)).mpr (by nlinarith)
-  · exact (le_div_iff₀ (by positivity : 0 < 4*Real.pi)).mpr (by nlinarith)
+  constructor
+  · rintro ⟨hl,hu⟩
+    constructor
+    · have h := (div_le_iff₀ (by positivity : 0 < 4*Real.pi)).mp
+        (show (-1 : ℝ)/(4*Real.pi) ≤ x by simpa [neg_div] using hl)
+      nlinarith
+    · have h := (le_div_iff₀ (by positivity : 0 < 4*Real.pi)).mp hu
+      nlinarith
+  · rintro ⟨hl,hu⟩
+    constructor
+    · rw [← neg_div]
+      exact (div_le_iff₀ (by positivity : 0 < 4*Real.pi)).mpr (by nlinarith)
+    · exact (le_div_iff₀ (by positivity : 0 < 4*Real.pi)).mpr (by nlinarith)
+
+def cutoff : ℝ → ℂ := cyclesBand.indicator (fun _ => 1)
+
+theorem cutoff_measurable : Measurable cutoff :=
+  measurable_const.indicator measurableSet_Icc
+
+theorem cutoff_bound : ∀ᵐ x ∂(volume : Measure ℝ), ‖cutoff x‖ ≤ (1:ℝ) := by
+  filter_upwards [] with x
+  by_cases hx : x ∈ cyclesBand <;> simp [cutoff, hx]
+
+def spectralProject : H volume →L[ℂ] H volume :=
+  mulOperator cutoff cutoff_measurable 1 zero_le_one cutoff_bound
+
+theorem spectralProject_ae (f : H volume) :
+    (fun x => spectralProject f x) =ᵐ[volume] (fun x => cutoff x * f x) :=
+  mulOperator_ae _ _ _ _ _ f
+
+theorem spectralProject_idempotent (f : H volume) :
+    spectralProject (spectralProject f) = spectralProject f := by
+  apply Lp.ext
+  filter_upwards [spectralProject_ae f, spectralProject_ae (spectralProject f)] with x hx hy
+  rw [hy, hx]
+  by_cases h : x ∈ cyclesBand <;> simp [cutoff, h]
+
+theorem spectralProject_norm_le : ‖spectralProject‖ ≤ 1 :=
+  mulOperator_norm_le _ _ _ _ _
+
+def mellinProject : H expMeasure →L[ℂ] H expMeasure :=
+  mellinFourier.symm.toContinuousLinearEquiv.toContinuousLinearMap.comp
+    (spectralProject.comp mellinFourier.toContinuousLinearEquiv.toContinuousLinearMap)
+
+theorem mellinProject_apply (f : H expMeasure) :
+    mellinProject f = mellinFourier.symm (spectralProject (mellinFourier f)) := rfl
+
+theorem mellinProject_idempotent (f : H expMeasure) :
+    mellinProject (mellinProject f) = mellinProject f := by
+  simp only [mellinProject_apply, LinearIsometryEquiv.apply_symm_apply,
+    spectralProject_idempotent]
+
+/-- Angular-frequency cosine kernel, including the removable value. -/
+theorem angular_cosine_kernel (x : ℝ) :
+    (∫ ξ in (-(1/2 : ℝ))..(1/2 : ℝ), Real.cos (ξ*x)) =
+      if x = 0 then 1 else 2*Real.sin (x/2)/x := by
+  by_cases hx : x = 0
+  · simp [hx]
+  · have hd : ∀ t : ℝ, HasDerivAt (fun y : ℝ => Real.sin (y*x)/x)
+        (Real.cos (t*x)) t := by
+      intro t
+      have h := ((Real.hasDerivAt_sin (t*x)).comp t
+        ((hasDerivAt_id t).mul_const x)).div_const x
+      convert h using 1
+      all_goals simp [id_eq] <;> field_simp [hx]
+    have hi : IntervalIntegrable (fun t : ℝ => Real.cos (t*x)) volume (-(1/2)) (1/2) :=
+      (by fun_prop : Continuous (fun t : ℝ => Real.cos (t*x))).intervalIntegrable _ _
+    rw [intervalIntegral.integral_eq_sub_of_hasDerivAt (fun t _ => hd t) hi]
+    simp only [hx, if_false, neg_mul, Real.sin_neg]
+    ring_nf
 
 end
 end Manuscript13.MellinPlancherelMultiplier20261124
@@ -217,3 +276,14 @@ end Manuscript13.MellinPlancherelMultiplier20261124
 #print axioms Manuscript13.MellinPlancherelMultiplier20261124.rindlerOperator
 #print axioms Manuscript13.MellinPlancherelMultiplier20261124.rindlerOperator_norm
 #print axioms Manuscript13.MellinPlancherelMultiplier20261124.cyclesBand_angular
+
+#print axioms Manuscript13.MellinPlancherelMultiplier20261124.cutoff_measurable
+#print axioms Manuscript13.MellinPlancherelMultiplier20261124.cutoff_bound
+#print axioms Manuscript13.MellinPlancherelMultiplier20261124.spectralProject
+#print axioms Manuscript13.MellinPlancherelMultiplier20261124.spectralProject_ae
+#print axioms Manuscript13.MellinPlancherelMultiplier20261124.spectralProject_idempotent
+#print axioms Manuscript13.MellinPlancherelMultiplier20261124.spectralProject_norm_le
+#print axioms Manuscript13.MellinPlancherelMultiplier20261124.mellinProject
+#print axioms Manuscript13.MellinPlancherelMultiplier20261124.mellinProject_apply
+#print axioms Manuscript13.MellinPlancherelMultiplier20261124.mellinProject_idempotent
+#print axioms Manuscript13.MellinPlancherelMultiplier20261124.angular_cosine_kernel
