@@ -64,7 +64,7 @@ theorem envelope_derivative (K inv : ℝ → ℝ) (m d : ℝ)
     (hi : HasDerivAt inv d m) (hk : HasDerivAt K m (inv m)) :
     HasDerivAt (fun t => t * inv t - K (inv t)) (inv m) m := by
   have hh := ((hasDerivAt_id m).mul hi).sub (hk.comp m hi)
-  convert hh using 1 <;> simp <;> ring
+  convert hh using 1 <;> try simp <;> ring
 
 end
 end M14.EulerianLegendre
