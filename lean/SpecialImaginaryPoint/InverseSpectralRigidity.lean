@@ -58,11 +58,12 @@ theorem dyadic_stability_of_bounded (u d : ℕ → ℝ) (eps M : ℝ)
     tendsto_pow_atTop_nhds_zero_of_lt_one (by norm_num) (by norm_num)
   have hc : Tendsto (fun n : ℕ => eps / 3 * (1 - (1 / 4 : ℝ)^n) +
       (1 / 4 : ℝ)^n * M) atTop (nhds (eps / 3)) := by
-    have ht := (tendsto_const_nhds.mul (tendsto_const_nhds.sub hq)).add
-      (hq.mul tendsto_const_nhds)
-    simpa using (show Tendsto (fun n : ℕ => eps / 3 * (1 - (1 / 4 : ℝ)^n) +
-      (1 / 4 : ℝ)^n * M) atTop (nhds (eps / 3 * (1 - 0) + 0 * M)) from ht)
-  apply le_of_tendsto hc
+    have h1 : Tendsto (fun _ : ℕ => (1 : ℝ)) atTop (nhds 1) := tendsto_const_nhds
+    have he : Tendsto (fun _ : ℕ => eps / 3) atTop (nhds (eps / 3)) := tendsto_const_nhds
+    have hm : Tendsto (fun _ : ℕ => M) atTop (nhds M) := tendsto_const_nhds
+    have ht := (he.mul (h1.sub hq)).add (hq.mul hm)
+    simpa using ht
+  apply ge_of_tendsto hc
   exact Eventually.of_forall (fun n => by
     have hf := dyadic_finite_stability u d eps h hd n 0
     simp only [zero_add] at hf
