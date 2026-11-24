@@ -242,6 +242,85 @@ theorem hopfZ_hasDerivAt_affineLine (q v : HopfQ) (t : ℝ) :
   rw [← hfun] at h
   convert h using 1 <;> simp [dot4, gradZ, affineLine] <;> ring
 
+/-- Infinitesimal generator at s=0 of the *negative* Hopf-circle flow
+q ↦ exp(-i s) q. This is the K orientation used in the manuscript. -/
+def verticalGenerator (q : HopfQ) : HopfQ :=
+  ((q.1.2, -q.1.1), (q.2.2, -q.2.1))
+
+/-- The Hopf-circle generator is tangent to the unit S³:
+its radial component vanishes identically in the ambient ℝ⁴. -/
+theorem vertical_radial_orthogonal (q : HopfQ) :
+    dot4 q (verticalGenerator q) = 0 := by
+  dsimp [dot4, verticalGenerator]
+  ring
+
+/-- Hopf-circle flow has unit-speed generator on the unit S³. -/
+theorem vertical_length_sq (q : HopfQ) :
+    dot4 (verticalGenerator q) (verticalGenerator q) = normSq4 q := by
+  dsimp [dot4, verticalGenerator, normSq4]
+  ring
+
+/-- Infinitesimally, the Hopf X coordinate is constant along each fibre. -/
+theorem gradX_vertical_zero (q : HopfQ) :
+    dot4 (gradX q) (verticalGenerator q) = 0 := by
+  dsimp [dot4, gradX, verticalGenerator]
+  ring
+
+/-- Infinitesimally, the Hopf Y coordinate is constant along each fibre. -/
+theorem gradY_vertical_zero (q : HopfQ) :
+    dot4 (gradY q) (verticalGenerator q) = 0 := by
+  dsimp [dot4, gradY, verticalGenerator]
+  ring
+
+/-- Infinitesimally, the Hopf Z coordinate is constant along each fibre. -/
+theorem gradZ_vertical_zero (q : HopfQ) :
+    dot4 (gradZ q) (verticalGenerator q) = 0 := by
+  dsimp [dot4, gradZ, verticalGenerator]
+  ring
+
+/-- The actual negative Hopf flow exp(-it) fixes the Hopf-map base point,
+for all real times. This does not assume a quotient by an abstract group. -/
+theorem hopfMap_negative_circle_orbit (q : HopfQ) (t : ℝ) :
+    hopfMap (phaseRotate (Real.cos t) (-Real.sin t) q) = hopfMap q := by
+  apply hopfMap_phase_invariant
+  simpa only [sq_neg] using Real.cos_sq_add_sin_sq t
+
+/-- Every scalar function pulled back through the actual Hopf map is
+constant on each negative Hopf-circle orbit. No smoothness assumption
+on the outer function is needed for this equality. -/
+theorem basic_pullback_fibre_constant
+    (f : ((ℝ × ℝ) × ℝ) → ℝ) (q : HopfQ) (t : ℝ) :
+    f (hopfMap (phaseRotate (Real.cos t) (-Real.sin t) q)) =
+      f (hopfMap q) := by
+  rw [hopfMap_negative_circle_orbit]
+
+/-- Verified vertical analytic reduction: the real derivative along the
+Hopf-circle flow of ANY basic scalar pullback vanishes. This is the
+explicit-coordinate \mathcal L_K-annihilation needed in
+eq:hopf-fefferman-basic-reduction; it is not yet the Laplace--Beltrami
+intertwining or the Lorentzian Fefferman wave conjugacy. -/
+theorem basic_pullback_fibre_deriv_zero
+    (f : ((ℝ × ℝ) × ℝ) → ℝ) (q : HopfQ) (t : ℝ) :
+    deriv (fun s : ℝ =>
+      f (hopfMap (phaseRotate (Real.cos s) (-Real.sin s) q))) t = 0 := by
+  have hconst :
+      (fun s : ℝ =>
+        f (hopfMap (phaseRotate (Real.cos s) (-Real.sin s) q))) =
+      (fun _ : ℝ => f (hopfMap q)) := by
+    funext s
+    exact basic_pullback_fibre_constant f q s
+  rw [hconst]
+  simp
+
+#print axioms Manuscript15.HopfDifferential20261124.vertical_radial_orthogonal
+#print axioms Manuscript15.HopfDifferential20261124.vertical_length_sq
+#print axioms Manuscript15.HopfDifferential20261124.gradX_vertical_zero
+#print axioms Manuscript15.HopfDifferential20261124.gradY_vertical_zero
+#print axioms Manuscript15.HopfDifferential20261124.gradZ_vertical_zero
+#print axioms Manuscript15.HopfDifferential20261124.hopfMap_negative_circle_orbit
+#print axioms Manuscript15.HopfDifferential20261124.basic_pullback_fibre_constant
+#print axioms Manuscript15.HopfDifferential20261124.basic_pullback_fibre_deriv_zero
+
 #print axioms Manuscript15.HopfDifferential20261124.hopf_norm_identity
 #print axioms Manuscript15.HopfDifferential20261124.hopf_base_radius_half
 #print axioms Manuscript15.HopfDifferential20261124.gram_xx
