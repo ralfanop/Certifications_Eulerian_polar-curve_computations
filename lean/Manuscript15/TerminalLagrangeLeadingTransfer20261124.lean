@@ -110,6 +110,74 @@ theorem closed_general_coeff_div (H ψ G : P)
     _ = PowerSeries.coeff (n - 1)
           (((PowerSeries.derivative (R := ℝ)) G) * ψ ^ n) := hc
 
+
+/-- Construct the actual formal inverse from any normalized series
+φ(0)=1. The fixed-point equation is derived from the two-sided
+composition inverse in Mathlib, not assumed. -/
+theorem exists_fixedpoint_from_normalized_phi (φ : P)
+    (hφ : PowerSeries.coeff 0 φ = 1) :
+    ∃ H : P,
+      H = PowerSeries.X * PowerSeries.subst H (φ⁻¹) ∧
+      PowerSeries.subst H (PowerSeries.X * φ) = PowerSeries.X := by
+  have hφ0 : PowerSeries.constantCoeff φ = 1 := by
+    simpa only [PowerSeries.coeff_zero_eq_constantCoeff_apply] using hφ
+  have hF0 : PowerSeries.constantCoeff (PowerSeries.X * φ) = 0 := by
+    simp
+  have hF1 : PowerSeries.coeff 1 (PowerSeries.X * φ) = 1 := by
+    have h := PowerSeries.coeff_X_pow_mul φ 1 0
+    simpa only [pow_one, zero_add, hφ] using h
+  have hFu : IsUnit (PowerSeries.coeff 1 (PowerSeries.X * φ)) := by
+    rw [hF1]
+    exact isUnit_one
+  let H : P := PowerSeries.substInvOfIsUnit
+    (PowerSeries.X * φ) hF0 hFu
+  have hs : PowerSeries.HasSubst H := by
+    exact PowerSeries.HasSubst.substInvOfIsUnit
+      (PowerSeries.X * φ) hF0 hFu
+  have hright : PowerSeries.subst H (PowerSeries.X * φ) = PowerSeries.X := by
+    exact PowerSeries.subst_substInvOfIsUnit_right
+      (PowerSeries.X * φ) hF0 hFu
+  have hproduct : H * PowerSeries.subst H φ = PowerSeries.X := by
+    simpa only [PowerSeries.subst_mul hs, PowerSeries.subst_X hs]
+      using hright
+  have hmul : φ * φ⁻¹ = 1 := by
+    exact PowerSeries.mul_inv_cancel φ (by simp [hφ0])
+  have hmapone : PowerSeries.subst H (1 : P) = 1 := by
+    rw [← PowerSeries.coe_substAlgHom hs]
+    exact map_one _
+  have hsubstunit :
+      PowerSeries.subst H φ * PowerSeries.subst H (φ⁻¹) = 1 := by
+    rw [← PowerSeries.subst_mul hs, hmul]
+    exact hmapone
+  refine ⟨H, ?_, hright⟩
+  calc
+    H = H * 1 := by ring
+    _ = H * (PowerSeries.subst H φ * PowerSeries.subst H (φ⁻¹)) := by
+      rw [hsubstunit]
+    _ = (H * PowerSeries.subst H φ) * PowerSeries.subst H (φ⁻¹) := by
+      ring
+    _ = PowerSeries.X * PowerSeries.subst H (φ⁻¹) := by rw [hproduct]
+
+/-- Closed all-order Lagrange--Bürmann formula with an ACTUALLY CONSTRUCTED
+formal compositional inverse of F=X·φ. There is no fixed-point
+hypothesis in the statement. This remains an algebraic power-series
+result, distinct from analytic convergence at the terminal graph. -/
+theorem exists_closed_general_for_normalized_phi (φ G : P)
+    (hφ : PowerSeries.coeff 0 φ = 1) :
+    ∃ H : P,
+      PowerSeries.subst H (PowerSeries.X * φ) = PowerSeries.X ∧
+      ∀ n : ℕ, 0 < n →
+        PowerSeries.coeff n (PowerSeries.subst H G) =
+          PowerSeries.coeff (n - 1)
+            (((PowerSeries.derivative (R := ℝ)) G) * (φ⁻¹) ^ n) /
+              (n : ℝ) := by
+  obtain ⟨H, hH, hF⟩ :=
+    exists_fixedpoint_from_normalized_phi φ hφ
+  exact ⟨H, hF, fun n hn => closed_general_coeff_div H (φ⁻¹) G hH n hn⟩
+
+#print axioms Manuscript15.TerminalLagrangeLeadingTransfer.exists_fixedpoint_from_normalized_phi
+#print axioms Manuscript15.TerminalLagrangeLeadingTransfer.exists_closed_general_for_normalized_phi
+
 #print axioms Manuscript15.TerminalLagrangeLeadingTransfer.lower_coeff_vanish
 #print axioms Manuscript15.TerminalLagrangeLeadingTransfer.leading_coeff_transfer
 #print axioms Manuscript15.TerminalLagrangeLeadingTransfer.leading_coeff_normalized
