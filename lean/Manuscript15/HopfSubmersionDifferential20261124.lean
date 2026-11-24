@@ -51,7 +51,7 @@ def hopfMap (q : HopfQ) : (ℝ × ℝ) × ℝ :=
   ((hopfX q, hopfY q), hopfZ q)
 
 /-- Actual curvature-4 sphere coordinates: the map rescaled by 1/2. -/
-def hopfBase (q : HopfQ) : (ℝ × ℝ) × ℝ :=
+noncomputable def hopfBase (q : HopfQ) : (ℝ × ℝ) × ℝ :=
   ((hopfX q / 2, hopfY q / 2), hopfZ q / 2)
 
 /-- The quadratic Hopf identity, for every q in the ambient ℝ⁴. -/
@@ -230,7 +230,8 @@ theorem hopfZ_hasDerivAt_affineLine (q v : HopfQ) (t : ℝ) :
   have hc := affineCoordinate_hasDerivAt q.2.1 v.2.1 t
   have hd := affineCoordinate_hasDerivAt q.2.2 v.2.2 t
   have h := (((ha.pow 2).add (hb.pow 2)).sub (hc.pow 2)).sub (hd.pow 2)
-  convert h using 1 <;> simp [hopfZ, affineLine, dot4, gradZ] <;> ring
+  convert h using 1 <;> try { funext s } <;>
+    simp [hopfZ, affineLine, dot4, gradZ, Pi.pow_apply, Pi.add_apply, Pi.sub_apply] <;> ring
 
 #print axioms Manuscript15.HopfDifferential20261124.hopf_norm_identity
 #print axioms Manuscript15.HopfDifferential20261124.hopf_base_radius_half
