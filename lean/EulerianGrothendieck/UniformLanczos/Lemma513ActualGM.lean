@@ -56,8 +56,7 @@ theorem actual_gM_log_deriv {M : ℕ} (hM : 3 ≤ M) {x : ℝ}
   change (M : ℝ) * (deriv (w M) ((M : ℝ) * x) * (M : ℝ)) =
     -(M : ℝ) * ((M : ℝ) * w M ((M : ℝ) * x)) *
       (-(deriv (w M) ((M : ℝ) * x) / w M ((M : ℝ) * x)))
-  field_simp [hw.ne']
-  ring
+  field_simp [hw.ne'] <;> ring
 
 theorem actual_phi_deriv_nonneg {M : ℕ} (hM : 3 ≤ M)
     {x : ℝ} (hx : x ∈ Ico (0 : ℝ) (1 / 2)) :
@@ -81,7 +80,10 @@ theorem actual_gM_deriv_nonpos {M : ℕ} (hM : 3 ≤ M)
   have hM0 : (0 : ℝ) ≤ M := Nat.cast_nonneg M
   have hpos := actual_gM_nonneg M x
   have hφ := actual_phi_deriv_nonneg hM hx
-  exact neg_nonpos.mpr (mul_nonneg (mul_nonneg hM0 hpos) hφ)
+  calc
+    -(M : ℝ) * gM M x * deriv (φM M) x
+        = -((M : ℝ) * gM M x * deriv (φM M) x) := by ring
+    _ ≤ 0 := neg_nonpos.mpr (mul_nonneg (mul_nonneg hM0 hpos) hφ)
 
 theorem actual_gM_continuous {M : ℕ} (hM : 3 ≤ M) :
     Continuous (gM M) :=
@@ -93,10 +95,14 @@ theorem actual_gM_antitone {M : ℕ} (hM : 3 ≤ M)
     AntitoneOn (gM M) (Icc s b) := by
   apply antitoneOn_of_deriv_nonpos (convex_Icc s b)
     (actual_gM_continuous hM).continuousOn
-  intro x hx
-  rw [interior_Icc] at hx
-  exact actual_gM_deriv_nonpos hM
-    ⟨by linarith [hx.1], by linarith [hx.2]⟩
+  · intro x _
+    exact (hasDerivAt_gM hM x).differentiableAt.differentiableWithinAt
+  · intro x hx
+    rw [interior_Icc] at hx
+    have hxs : s < x := (mem_Ioo.mp hx).1
+    have hxb : x < b := (mem_Ioo.mp hx).2
+    exact actual_gM_deriv_nonpos hM
+      ⟨le_trans hs hxs.le, lt_trans hxb hb⟩
 
 theorem actual_gM_reflected_antitone {M : ℕ} (hM : 3 ≤ M)
     {s b : ℝ} (hs : 0 ≤ s) (hb : b < 1 / 2) :
@@ -119,7 +125,7 @@ theorem actual_reflected_hasDerivAt {M : ℕ} (hM : 3 ≤ M) (x : ℝ) :
     HasDerivAt (fun y : ℝ => gM M (-y)) (-(deriv (gM M) (-x))) x := by
   have h : HasDerivAt (gM M) (deriv (gM M) x) x := by
     convert (hasDerivAt_gM hM x) using 1
-    exact ((hasDerivAt_gM hM x).deriv).symm
+    exact (hasDerivAt_gM hM x).deriv
   rw [show (fun y : ℝ => gM M (-y)) = gM M from
       funext (actual_gM_even (by omega : 2 ≤ M)),
       actual_gM_deriv_odd (by omega : 2 ≤ M) x, neg_neg]
@@ -163,7 +169,7 @@ theorem second_tail_actual_gM (M k : ℕ) (hM : 4 ≤ M)
       HasDerivAt (gM M) (deriv (gM M) x) x := by
     intro x hx
     convert (hasDerivAt_gM (by omega : 3 ≤ M) x) using 1
-    exact ((hasDerivAt_gM (by omega : 3 ≤ M) x).deriv).symm
+    exact (hasDerivAt_gM (by omega : 3 ≤ M) x).deriv
   have hgMinus : ∀ x ∈ Icc s b,
       HasDerivAt (fun y : ℝ => gM M (-y))
         (-(deriv (gM M) (-x))) x :=
@@ -198,7 +204,7 @@ theorem second_tail_actual_gM (M k : ℕ) (hM : 4 ≤ M)
 change of variables; the left endpoint really is -b, not b. -/
 theorem actual_left_reflection (f : ℝ → ℝ) (r b : ℝ) :
     (∫ x in r..b, f (-x)) = ∫ x in -b..-r, f x :=
-  intervalIntegral.integral_comp_neg
+  intervalIntegral.integral_comp_neg f
 
 end UniformLanczos.Lemma513ActualGM
 
