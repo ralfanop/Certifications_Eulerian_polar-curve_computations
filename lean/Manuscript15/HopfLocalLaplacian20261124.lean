@@ -160,6 +160,145 @@ theorem hopf_local_laplacian_coefficient_identity (η A B C : ℝ)
           dsimp [baseSphereLocalTrace]
           ring
 
+
+/-- True coordinate tangent of the Hopf chart in the η direction. -/
+noncomputable def chartEta (η α β : ℝ) : HopfQ :=
+  ((-Real.sin η * Real.cos α, -Real.sin η * Real.sin α),
+    (Real.cos η * Real.cos β, Real.cos η * Real.sin β))
+
+/-- True coordinate tangent of the Hopf chart in the α direction. -/
+noncomputable def chartAlpha (η α β : ℝ) : HopfQ :=
+  ((-Real.cos η * Real.sin α, Real.cos η * Real.cos α), (0, 0))
+
+/-- True coordinate tangent of the Hopf chart in the β direction. -/
+noncomputable def chartBeta (η α β : ℝ) : HopfQ :=
+  ((0, 0), (-Real.sin η * Real.sin β, Real.sin η * Real.cos β))
+
+/-- The η derivative is a genuine analytic derivative of the
+actual chart map into ℝ⁴, not a formal velocity postulate. -/
+theorem chartEta_hasDerivAt (η α β : ℝ) :
+    HasDerivAt (fun t : ℝ => hopfChart t α β) (chartEta η α β) η := by
+  have ha := (Real.hasDerivAt_cos η).mul_const (Real.cos α)
+  have hb := (Real.hasDerivAt_cos η).mul_const (Real.sin α)
+  have hc := (Real.hasDerivAt_sin η).mul_const (Real.cos β)
+  have hd := (Real.hasDerivAt_sin η).mul_const (Real.sin β)
+  simpa only [hopfChart, chartEta] using (ha.prodMk hb).prodMk (hc.prodMk hd)
+
+/-- Actual α derivative of the Hopf chart into ℝ⁴. -/
+theorem chartAlpha_hasDerivAt (η α β : ℝ) :
+    HasDerivAt (fun t : ℝ => hopfChart η t β) (chartAlpha η α β) α := by
+  have ha := (Real.hasDerivAt_cos α).const_mul (Real.cos η)
+  have hb := (Real.hasDerivAt_sin α).const_mul (Real.cos η)
+  have hc := hasDerivAt_const α (Real.sin η * Real.cos β)
+  have hd := hasDerivAt_const α (Real.sin η * Real.sin β)
+  simpa only [hopfChart, chartAlpha] using (ha.prodMk hb).prodMk (hc.prodMk hd)
+
+/-- Actual β derivative of the Hopf chart into ℝ⁴. -/
+theorem chartBeta_hasDerivAt (η α β : ℝ) :
+    HasDerivAt (fun t : ℝ => hopfChart η α t) (chartBeta η α β) β := by
+  have ha := hasDerivAt_const β (Real.cos η * Real.cos α)
+  have hb := hasDerivAt_const β (Real.cos η * Real.sin α)
+  have hc := (Real.hasDerivAt_cos β).const_mul (Real.sin η)
+  have hd := (Real.hasDerivAt_sin β).const_mul (Real.sin η)
+  simpa only [hopfChart, chartBeta] using (ha.prodMk hb).prodMk (hc.prodMk hd)
+
+/-- Metric g_ηη of the true round Hopf chart is exactly one. -/
+theorem chart_eta_metric (η α β : ℝ) :
+    dot4 (chartEta η α β) (chartEta η α β) = 1 := by
+  calc
+    dot4 (chartEta η α β) (chartEta η α β) =
+      Real.sin η ^ 2 * (Real.cos α ^ 2 + Real.sin α ^ 2) +
+      Real.cos η ^ 2 * (Real.cos β ^ 2 + Real.sin β ^ 2) := by
+        dsimp [dot4, chartEta]
+        ring
+    _ = Real.sin η ^ 2 + Real.cos η ^ 2 := by
+      rw [Real.cos_sq_add_sin_sq α, Real.cos_sq_add_sin_sq β]
+      ring
+    _ = 1 := Real.sin_sq_add_cos_sq η
+
+/-- Metric g_αα is cos²η, established from genuine derivatives. -/
+theorem chart_alpha_metric (η α β : ℝ) :
+    dot4 (chartAlpha η α β) (chartAlpha η α β) = Real.cos η ^ 2 := by
+  calc
+    dot4 (chartAlpha η α β) (chartAlpha η α β) =
+      Real.cos η ^ 2 * (Real.sin α ^ 2 + Real.cos α ^ 2) := by
+        dsimp [dot4, chartAlpha]
+        ring
+    _ = Real.cos η ^ 2 := by rw [Real.sin_sq_add_cos_sq α]; ring
+
+/-- Metric g_ββ is sin²η, established from genuine derivatives. -/
+theorem chart_beta_metric (η α β : ℝ) :
+    dot4 (chartBeta η α β) (chartBeta η α β) = Real.sin η ^ 2 := by
+  calc
+    dot4 (chartBeta η α β) (chartBeta η α β) =
+      Real.sin η ^ 2 * (Real.sin β ^ 2 + Real.cos β ^ 2) := by
+        dsimp [dot4, chartBeta]
+        ring
+    _ = Real.sin η ^ 2 := by rw [Real.sin_sq_add_cos_sq β]; ring
+
+/-- The η and α coordinate tangent fields are orthogonal. -/
+theorem chart_eta_alpha_orthogonal (η α β : ℝ) :
+    dot4 (chartEta η α β) (chartAlpha η α β) = 0 := by
+  dsimp [dot4, chartEta, chartAlpha]
+  ring
+
+/-- The η and β coordinate tangent fields are orthogonal. -/
+theorem chart_eta_beta_orthogonal (η α β : ℝ) :
+    dot4 (chartEta η α β) (chartBeta η α β) = 0 := by
+  dsimp [dot4, chartEta, chartBeta]
+  ring
+
+/-- The α and β coordinate tangent fields are orthogonal. -/
+theorem chart_alpha_beta_orthogonal (η α β : ℝ) :
+    dot4 (chartAlpha η α β) (chartBeta η α β) = 0 := by
+  dsimp [dot4, chartAlpha, chartBeta]
+  ring
+
+/-- Actual pushforward of any angular coordinate velocity
+(u,v,w) through the TRUE Hopf parametrisation. -/
+noncomputable def chartVelocity (η α β u v w : ℝ) : HopfQ :=
+  ((-u * Real.sin η * Real.cos α - v * Real.cos η * Real.sin α,
+    -u * Real.sin η * Real.sin α + v * Real.cos η * Real.cos α),
+   (u * Real.cos η * Real.cos β - w * Real.sin η * Real.sin β,
+    u * Real.cos η * Real.sin β + w * Real.sin η * Real.cos β))
+
+/-- Full pullback of the actual round S³ metric, for an arbitrary
+angular velocity, is dη²+cos²η dα²+sin²η dβ². This PROVES the
+metric input used in the local Laplace–Beltrami coefficients. -/
+theorem hopfChart_round_metric (η α β u v w : ℝ) :
+    dot4 (chartVelocity η α β u v w)
+      (chartVelocity η α β u v w) =
+        u ^ 2 + Real.cos η ^ 2 * v ^ 2 + Real.sin η ^ 2 * w ^ 2 := by
+  calc
+    dot4 (chartVelocity η α β u v w)
+      (chartVelocity η α β u v w) =
+        u ^ 2 *
+          (Real.sin η ^ 2 * (Real.cos α ^ 2 + Real.sin α ^ 2) +
+            Real.cos η ^ 2 * (Real.cos β ^ 2 + Real.sin β ^ 2)) +
+        v ^ 2 * Real.cos η ^ 2 *
+          (Real.sin α ^ 2 + Real.cos α ^ 2) +
+        w ^ 2 * Real.sin η ^ 2 *
+          (Real.sin β ^ 2 + Real.cos β ^ 2) := by
+        dsimp [dot4, chartVelocity]
+        ring
+    _ = u ^ 2 + Real.cos η ^ 2 * v ^ 2 +
+        Real.sin η ^ 2 * w ^ 2 := by
+      rw [Real.cos_sq_add_sin_sq α, Real.cos_sq_add_sin_sq β,
+        Real.sin_sq_add_cos_sq α, Real.sin_sq_add_cos_sq β,
+        Real.sin_sq_add_cos_sq η]
+      ring
+
+#print axioms Manuscript15.HopfLocalLaplacian20261124.chartEta_hasDerivAt
+#print axioms Manuscript15.HopfLocalLaplacian20261124.chartAlpha_hasDerivAt
+#print axioms Manuscript15.HopfLocalLaplacian20261124.chartBeta_hasDerivAt
+#print axioms Manuscript15.HopfLocalLaplacian20261124.chart_eta_metric
+#print axioms Manuscript15.HopfLocalLaplacian20261124.chart_alpha_metric
+#print axioms Manuscript15.HopfLocalLaplacian20261124.chart_beta_metric
+#print axioms Manuscript15.HopfLocalLaplacian20261124.chart_eta_alpha_orthogonal
+#print axioms Manuscript15.HopfLocalLaplacian20261124.chart_eta_beta_orthogonal
+#print axioms Manuscript15.HopfLocalLaplacian20261124.chart_alpha_beta_orthogonal
+#print axioms Manuscript15.HopfLocalLaplacian20261124.hopfChart_round_metric
+
 #print axioms Manuscript15.HopfLocalLaplacian20261124.hopfChart_unit
 #print axioms Manuscript15.HopfLocalLaplacian20261124.hopfChart_X
 #print axioms Manuscript15.HopfLocalLaplacian20261124.hopfChart_Y
