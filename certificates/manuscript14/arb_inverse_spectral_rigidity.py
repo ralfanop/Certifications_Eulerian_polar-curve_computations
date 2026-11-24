@@ -78,13 +78,13 @@ def main():
     assert Q > h
     amplification=chebyshev(N,1+2*Q/h)
     data=eta*amplification
-    remainder=2*(S*Q).exp()*(S*(Q+h))**(N+1)/factorial(N+1)
+    remainder=2*(S*Q).exp()*(S*(Q+h))**(N+1)/math.factorial(N+1)
     budget=data+remainder
     threshold=delta.sin()/rho
     assert data > 0 and remainder > 0
     assert budget < threshold
     assert Q < 40 and rho < arb(63)/10 and arb(8).exp() < 3000
-    rational_bound=arb(162)**32/arb(10)**74+6000*(arb(41)/5)**33/factorial(33)
+    rational_bound=arb(162)**32/arb(10)**74+6000*(arb(41)/5)**33/math.factorial(33)
     assert rational_bound < arb(3)/2000
     assert arb(3)/2000 < (delta-delta**3/6)/(arb(63)/10)
     assert (delta-delta**3/6)/(arb(63)/10) < threshold
