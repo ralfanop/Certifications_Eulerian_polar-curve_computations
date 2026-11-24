@@ -1,6 +1,6 @@
 # M16/M17 exact-head audit — 24 Nov 2026
 
-Scope: Manuscripts 16 and 17 and PRs #458, #459, #566, #567, #576, #585, #588, #589, #592, #593, #594 only. Manuscripts 11–15 are not touched.
+Scope: Manuscripts 16 and 17 and PRs #458, #459, #566, #567, #576, #585, #588, #589, #592, #593, #594, #596 only. Manuscripts 11–15 are not touched.
 
 ## Reference packages
 
@@ -28,6 +28,7 @@ Toolchain: Lean `v4.35.0-rc3`, Mathlib `0272bbe1c093d038d7257ab15306abd58245f9ff
 | #594 | `b2dba1339fd15196c3c6cb64e899ed41ae47fe56` | — (exact-head jobs 138740702462, 138740701048, 138740700805 success; merged 24 Nov 2026 20:30 UTC as `9f949f04`) | — | — | — |
 | #593 | `5c36eba71306420fc58df71613fe51f1f3b5c42c` | — (exact-head job 138699649288 `area-integration` success, job 138699646173 M11 suite success; merged 24 Nov 2026 20:31 UTC as `1bbc0bfa`) | — | — | — |
 | #592 | `ed0bcdc1567043521a4cd14db37acf2a70ba326d` | — (exact-head jobs 138663895750, 138663893085 success; merged 24 Nov 2026 20:31 UTC as `5f3cdc87`) | — | — | — |
+| #596 | `d2ada6a7f84a3f3b7135fd1a060e1e664d3c63b6` | — (exact-head job 138777926572 success: 12 declarations and 17 imported axiom reports, standard axioms only; merged 24 Nov 2026 21:21 UTC as `6bb2c80f`) | — | — | — |
 
 No statement was changed. Before pushing, all 24 declarations were recompiled locally on the pinned toolchain; every one depends only on `propext`, `Classical.choice`, `Quot.sound`. The GitHub runs on the new heads are the certifying runs.
 
@@ -56,6 +57,8 @@ Decision of the scientific lead (24 Nov 2026): the unitary invariance of `det_p`
 | M16 `eq:mixed-det4-criterion-164`, operator part | LEAN 4 CERTIFICATO, INTEGRATO (#592, `5f3cdc87`): `coefficientModel_resonant_invertibility`, for every `μ ≠ 0`: `𝒜(μ)` bijective ⇔ injective ⇔ `I − μ⁻¹K` bijective ⇔ `μ ∉ σ(K)`, eigenspace finite-dimensional, `K = B L⁻¹ C` compact. The `det₄` step (`I + T` invertible ⇔ `det₄(I + T) ≠ 0`, `T ∈ S₄`) and `K ∈ S₄`: published inputs (Simon 2005, Ch. 9 and Ch. 2), not Lean theorems |
 | M16 `eq:mixed-det4-164` and `det₄` step of `eq:mixed-det4-criterion-164` | DECISIONE DEL RESPONSABILE RICHIESTA: published result cited (Simon 2005), as for `eq:feff-det`, or open Lean obligation (construction of `S₄` and `det₄`). Precise theorem numbers in Simon 2005 still to be located |
 | M16 discreteness of `σ(K) \ {0}` | Riesz–Schauder theory, classical; not formalized |
+| M16 `eq:hol-det`, Euler evaluation for fixed `(a, φ)` | LEAN 4 CERTIFICATO, INTEGRATO (#596, `6bb2c80f`; `lean/Manuscript16/HolonomyEulerProduct20261124.lean`, byte-identical in `main` and at `d2ada6a7`, SHA-256 `0296b10f05937f556988795af477f15015e2118b88d1bfb8f130ef2df67caf4c`; see `audits/manuscript16/M16_hol_det_euler_product_20261124.md`): `paired_product_tendsto`, `holonomy_det_tendsto` (`a > 0`, every real `φ`), `holonomy_det_limit_ge_one`. Euler's sine product: Mathlib `Complex.tendsto_euler_sin_prod`. Not claimed: identification of `∏ pairRatio` with an operator determinant |
+| M16 `eq:hol-det`, local uniform convergence and nonvanishing in `(a, φ)` | CANDIDATO (Draft PR, branch `draft/m16-hol-det-uniform-convergence-20261124`; `lean/Manuscript16/HolonomyUniformConvergence20261124.lean`, see `audits/manuscript16/M16_hol_det_uniform_convergence_20261124.md`): uniform convergence on every compact `K ⊆ {a > 0}` and locally uniform convergence on `{a > 0}` of the paired product and of the product with the `n = 0` factor; positive limit. Certifying run: exact-head CI of that PR |
 | M17 `eq:m17-area-integration` | LEAN 4 CERTIFICATO, INTEGRATO (#593, `1bbc0bfa`): `area_integration`, `2π ∫₀¹ ν²/(2−ν²)² dν = π(1 − log(1+√2)/√2)` as a Mathlib interval integral. Not claimed: that the integral is the area of the critical Cassini lobe (metric integration, geometric), `log(1+√2)/√2 = L₈(1, χ₂)` (Dirichlet, cited) |
 
 ## Post-merge consistency of `main` (#588, #589, #592, #593, #594)
