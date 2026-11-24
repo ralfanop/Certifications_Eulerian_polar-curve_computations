@@ -43,7 +43,7 @@ jobs:
           set -euo pipefail
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.24.0'
           lake exe cache get
-          lake build UniformLanczos.Rate514Assembly UniformLanczos.Rate514ActualOperatorCertificate UniformLanczos.Rate514Residual UniformLanczos.Lemma512Propagation UniformLanczos.Lemma512Kernel UniformLanczos.Rate514Constant 2>&1 | tee /tmp/m12-operator-main-build.log
+          lake build UniformLanczos.Rate514Assembly UniformLanczos.Rate514ActualOperatorCertificate UniformLanczos.Rate514HighamSpectral UniformLanczos.Rate514Residual UniformLanczos.Lemma512Propagation UniformLanczos.Lemma512Kernel UniformLanczos.Rate514Constant 2>&1 | tee /tmp/m12-operator-main-build.log
           lake env lean AuditM12OperatorMain.lean 2>&1 | tee /tmp/m12-operator-main-audit.log
       - name: Complete checked-declaration axiom audit and source statement record
         run: |

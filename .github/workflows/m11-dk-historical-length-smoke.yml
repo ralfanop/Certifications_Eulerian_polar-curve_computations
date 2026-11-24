@@ -1,0 +1,108 @@
+name: "M11 Dkappa — rigorously reuse archived 100k length, small pilot"
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m11_dk_adaptive_radius.py'
+      - '.github/workflows/m11-dk-historical-length-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  curvature-halves:
+    name: "Validated Dkappa pilot half ${{ matrix.direction }}"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1,-1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify successful historical length run on original SHA
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          CURRENT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$CURRENT_SHA"
+          test "$(gh api "repos/$REPO/actions/runs/44359739062" --jq .conclusion)" = success
+          test "$(gh api "repos/$REPO/actions/runs/44359739062" --jq .head_sha)" = 6ddb354a85832bf5b35538996d7d619c63ac9a16
+      - name: Download independently audited historical full length interval
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44359739062
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          name: m11-euler-panel-certified-100k
+          path: historical-length
+      - name: Verify historical manifest and install pinned python-flint
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'a606d305f7d4c773695cee61cf56268022ec9cc5525f689f301e8822f22fe7b5  historical-length/m11-euler-panel-100k.json' | sha256sum --check
+          python -m pip install 'python-flint==0.9.0'
+      - name: Run small rigorous curvature continuation with historical Eulerian chart
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py \
+            --bits 4096 --target 600 --panels 32 \
+            --direction ${{ matrix.direction }} \
+            --certified-length-manifest historical-length/m11-euler-panel-100k.json \
+            --output half.json 2>&1 | tee half.log
+          grep -F 'Reused exact historical 100k full Eulerian length interval' half.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-dk-historical-length-smoke-half-${{ matrix.direction }}
+          path: |
+            half.json
+            half.log
+          if-no-files-found: warn
+  combine:
+    name: "Exact 2-half recombination of 600-bit pilot (NOT 20k decimals)"
+    needs: curvature-halves
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'python-flint==0.9.0'
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-historical-length-smoke-half-1
+          path: left
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-historical-length-smoke-half--1
+          path: right
+      - name: Verify exact two-sided recombination and published 24 decimal places
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -u numerics/arb/m11_dk_adaptive_radius.py \
+            --bits 4096 --target 600 --panels 32 \
+            --combine left/half.json right/half.json \
+            --output m11-dk-historical-length-smoke-combined.json 2>&1 | tee combined.log
+          grep -F 'D_kappa local radii' combined.log
+          echo 'LOW-PRECISION PILOT ONLY: the 20,000-place D_kappa obligation remains open'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-dk-historical-length-smoke-combined
+          path: |
+            m11-dk-historical-length-smoke-combined.json
+            combined.log
+          if-no-files-found: warn

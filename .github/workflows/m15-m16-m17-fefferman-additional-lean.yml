@@ -1,0 +1,63 @@
+name: M15-M17 Fefferman second-stage Lean 4 exact-head audit
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/FeffermanNullModes20261123.lean'
+      - 'lean/Manuscript16/FeffermanAdditional20261123.lean'
+      - 'lean/EulerianCert/CyclohedralFeffermanCurvature20261123.lean'
+      - '.github/workflows/m15-m16-m17-fefferman-additional-lean.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean 4 and exact-head build with declaration-level axiom audit
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/fefferman-additional-lean.log
+          for file in Manuscript15/FeffermanNullModes20261123.lean Manuscript16/FeffermanAdditional20261123.lean EulerianCert/CyclohedralFeffermanCurvature20261123.lean; do
+            echo "COMPILING $file" | tee -a /tmp/fefferman-additional-lean.log
+            lake env lean -M16768 "$file" 2>&1 | tee -a /tmp/fefferman-additional-lean.log
+          done
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/fefferman-additional-lean.log; then exit 1; fi
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/fefferman-additional-lean.log').read_text()
+          d={
+           'Manuscript15.FeffermanNullModes20261123':['integer_between_squares_nonresonance','periodic_null_eigenvalue_iff'],
+           'Manuscript16.FeffermanAdditional20261123':['pullback_coframe_expansion','scalar_curvature_constant_rescaling','shifted_resonance_parity_iff','paired_resonance_multiplicity','fixed_iff_under_conjugacy','conjugation_kernel_iff'],
+           'EulerianCert.CyclohedralFeffermanCurvature20261123':['curvature_two_coordinates','curvature_minimum_bound','curvature_pole','curvature_rational_factor','normalized_null_lift']
+          }
+          k=0
+          for ns,decls in d.items():
+            for dec in decls:
+              name="'"+ns+'.'+dec+"'"
+              found=re.findall(re.escape(name)+r" depends on axioms: \[([^\]]*)\]",s,re.S)
+              assert found or name+" does not depend on any axioms" in s, name
+              for a in found:
+                assert {x.strip() for x in a.split(',') if x.strip()} <= {'propext','Classical.choice','Quot.sound'},(name,a)
+              k+=1
+          print("SUCCESS FEFFERMAN ADDITIONAL LEAN AXIOM AUDIT",k)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fefferman-additional-lean-log
+          path: /tmp/fefferman-additional-lean.log

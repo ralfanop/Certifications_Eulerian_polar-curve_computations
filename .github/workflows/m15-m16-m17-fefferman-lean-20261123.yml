@@ -1,0 +1,80 @@
+name: M15 M16 M17 Fefferman algebraic identities Lean 4 exact-head
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/FeffermanHopfScalar20261123.lean'
+      - 'lean/Manuscript16/FeffermanDeckAlgebra20261123.lean'
+      - 'lean/EulerianCert/CyclohedralFefferman20261123.lean'
+      - '.github/workflows/m15-m16-m17-fefferman-lean-20261123.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Exact-head pinned Lean and independent axiom audit
+        working-directory: lean
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/fefferman-lean.log
+          for file in             Manuscript15/FeffermanHopfScalar20261123.lean             Manuscript16/FeffermanDeckAlgebra20261123.lean             EulerianCert/CyclohedralFefferman20261123.lean; do
+            echo "COMPILING $file" | tee -a /tmp/fefferman-lean.log
+            lake env lean -M16768 "$file" 2>&1 | tee -a /tmp/fefferman-lean.log
+          done
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/fefferman-lean.log; then exit 1; fi
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          log=Path('/tmp/fefferman-lean.log').read_text()
+          names={
+            "Manuscript15.Fefferman20261123": [
+              "doubled_degree_eigenvalue","hopf_mode_eigenvalue_factor",
+              "between_consecutive_squares","no_positive_degree_square",
+              "zero_degree_only_zero_frequency"],
+            "Manuscript16.Fefferman20261123": [
+              "phi_left_inverse","phi_right_inverse","phi_iota_eq_deckA_phi",
+              "iota_involutive","deckA_involutive","transported_intertwines",
+              "shifted_resonance_factor","resonance_shift_or",
+              "fefferman_invariant_resonance_even","original_resonances_deck_even"],
+            "EulerianCert.CyclohedralFefferman20261123": [
+              "quartic_square_identity","quartic_positive",
+              "hemisphere_denominator_identity","fefferman_factor_positive",
+              "fefferman_hemisphere_coefficient","conformal_dirichlet_density",
+              "conformal_laplacian_multiplier"]
+          }
+          count=0
+          for ns,decls in names.items():
+            for decl in decls:
+              fullname=ns+"."+decl
+              msg="'"+fullname+"'"
+              found=re.findall(re.escape(msg)+r" depends on axioms: \[([^\]]*)\]",log,re.S)
+              assert found or msg+" does not depend on any axioms" in log, fullname
+              for group in found:
+                assert {s.strip() for s in group.split(',') if s.strip()} <= {
+                  'propext','Classical.choice','Quot.sound'},(fullname,group)
+              count+=1
+          print("FEFFERMAN EXACT-HEAD LEAN AXIOM AUDIT SUCCESS:",count)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-m16-m17-fefferman-lean-20261123
+          path: /tmp/fefferman-lean.log

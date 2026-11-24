@@ -1,0 +1,56 @@
+name: M17 Cassini area FLINT Arb 20000 exact decimal places
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m17_cassini_area_20000_decimal.py'
+      - '.github/workflows/m17-cassini-area-arb-20000-decimal.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact commit and pinned python-flint
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install 'python-flint==0.9.0'
+          python -m py_compile numerics/arb/m17_cassini_area_20000_decimal.py
+      - name: Prove strict exact endpoint decimal rounding for area and L8
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python numerics/arb/m17_cassini_area_20000_decimal.py 2>&1 | tee m17-cassini-area-arb-20000.log
+          grep -F "SUCCESS M17 ARB 20000 EXACT DECIMAL PLACES" m17-cassini-area-arb-20000.log
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('m17-cassini-area-arb-20000-decimal-certificate.json')
+          d=json.loads(p.read_text())
+          assert d['status']=='CERTIFIED'
+          assert d['working_bits']==80000
+          assert len(d['values'])==2
+          for v in d['values']:
+            assert v['decimal_places']==20000
+            assert len(v['rounded_decimal'].split('.')[1])==20000
+            assert v['relative_accuracy_bits']>=70000
+            assert v['strict_half_ulp_rounding_cell']
+          print("STRICT M17 AREA AND L8 CERTIFICATE GATE PASSED")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m17-cassini-area-arb-20000-decimal-certificate
+          path: |
+            m17-cassini-area-arb-20000.log
+            m17-cassini-area-arb-20000-decimal-certificate.json
+          if-no-files-found: warn

@@ -37,9 +37,9 @@ Independent reproduced CI evidence for the existing steps:
   `PublishedJacobiInput`.
 - [#538](https://github.com/ralfanop/Certifications_Eulerian_polar-curve_computations/pull/538):
   explicit Higham finite-spectral Jacobi bond kernel and PSD; include in this
-  audit only after its exact-HEAD Lean CI has passed and it is on `main`.
+  audit after its exact-HEAD Lean CI passed and it was merged into `main`.
 
-## What the current Lean theorem does and does not establish
+## What the checked Lean theorem does and does not establish
 
 The source module
 `UniformLanczos/Rate514ActualOperatorCertificate.lean`
@@ -81,3 +81,15 @@ A complete claim requires a further Lean theorem that constructs the
 `PublishedJacobiInput` *from the actual operator and previously proved
 manuscript facts*, plus a successful audit on the exact merge commit of
 `main`, with no conclusion-equivalent hypothesis.
+
+## Integrated revisions audited
+
+- #539, merged to `main` at `17ad29cb752408bb91296f4d8078dfae6be713db`,
+  adds the actual Frechet path, hybrid residual and conditional operator
+  certificate from the previously CI-verified stacked PRs #534–#536.
+- #538, merged to `main` at `ca1e0edc5dd2b1eed085e587bd5357ba5f9bbec0`,
+  adds a **finite** Higham spectral bond-kernel PSD theorem.
+- The `main` commit **containing this audit** and its exact workflow run
+  must be read from the `AUDITED_HEAD` printed by the final GitHub Actions
+  audit artifact. Neither the green PR CI nor its SHA alone is substituted
+  for this post-merge audit.

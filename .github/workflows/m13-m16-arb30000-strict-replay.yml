@@ -1,0 +1,93 @@
+name: M13-M16 FLINT Arb historical million-bit enclosures strict 30000-place replay
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m13_m16_strict_30000_replay.py'
+      - '.github/workflows/m13-m16-arb30000-strict-replay.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  certify:
+    name: strict-30000 (${{ matrix.label }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {label: m13-core, run: 43701995391, artifact: million-m13}
+          - {label: m13-gram-0, run: 44496039899, artifact: m13-gram-row-0}
+          - {label: m13-gram-1, run: 44496039899, artifact: m13-gram-row-1}
+          - {label: m13-gram-2, run: 44496039899, artifact: m13-gram-row-2}
+          - {label: m13-gram-3, run: 44496039899, artifact: m13-gram-row-3}
+          - {label: m13-gram-4, run: 44496039899, artifact: m13-gram-row-4}
+          - {label: m13-gram-5, run: 44496039899, artifact: m13-gram-row-5}
+          - {label: m13-gram-6, run: 44496039899, artifact: m13-gram-row-6}
+          - {label: m13-gram-7, run: 44496039899, artifact: m13-gram-row-7}
+          - {label: m13-gram-8, run: 44496039899, artifact: m13-gram-row-8}
+          - {label: m13-gram-9, run: 44496039899, artifact: m13-gram-row-9}
+          - {label: m14-displayed, run: 44086383005, artifact: m14-displayed-million-digit-enclosures}
+          - {label: m15-gibbs-magnetic, run: 43921559615, artifact: m15-gibbs-magnetic-million}
+          - {label: m15-gibbs-geometry, run: 43921559615, artifact: m15-gibbs-geometry-million}
+          - {label: m16-core, run: 43701995391, artifact: million-source306}
+          - {label: m16-eq60, run: 44483563757, artifact: m16-eq60-trilogarithm-million}
+          - {label: shared-bridge, run: 43701995391, artifact: million-source281}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact HEAD, historical upstream CI and pinned FLINT
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/${{ matrix.run }} --jq '.conclusion')" = 'success'
+          python -m pip install 'python-flint==0.9.0'
+          python -m py_compile numerics/arb/m13_m16_strict_30000_replay.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          repository: ${{ github.repository }}
+          run-id: ${{ matrix.run }}
+          github-token: ${{ github.token }}
+          path: archive
+      - name: Exact rational replay of the previous strict Arb interval
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd archive
+          test -s million-enclosures.jsonl.gz
+          gzip -t million-enclosures.jsonl.gz
+          python ../numerics/arb/m13_m16_strict_30000_replay.py \
+            --label '${{ matrix.label }}' \
+            --source-run '${{ matrix.run }}' \
+            --source-artifact '${{ matrix.artifact }}' 2>&1 | tee arb30000.log
+          grep -F "SUCCESS STRICT 30000 FIXED DECIMAL ARB REPLAY ${{ matrix.label }}" arb30000.log
+          test -s arb30000-${{ matrix.label }}.json
+          gzip -t arb30000-${{ matrix.label }}.jsonl.gz
+          python - <<'PY'
+          import json,glob
+          s=json.load(open(glob.glob('arb30000-*.json')[0]))
+          assert s['status']=='CERTIFIED_BY_EXACT_REPLAY'
+          assert s['decimal_places_after_point']==30000
+          assert s['certificate_count']>0
+          assert s['upstream_min_verified_relative_bits']>=3400000
+          print('SUCCESS EXACT INTERVAL DECIMAL CELL VALIDATION',s['certificate_count'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: arb30000-${{ matrix.label }}
+          path: |
+            archive/arb30000.log
+            archive/arb30000-${{ matrix.label }}.json
+            archive/arb30000-${{ matrix.label }}.jsonl.gz
+          compression-level: 0
+          if-no-files-found: warn

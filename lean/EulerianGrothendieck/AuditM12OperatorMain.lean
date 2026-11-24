@@ -9,6 +9,7 @@ import UniformLanczos.Lemma512Propagation
 import UniformLanczos.Lemma512Kernel
 import UniformLanczos.Rate514Residual
 import UniformLanczos.Rate514Constant
+import UniformLanczos.Rate514HighamSpectral
 
 /-!
 # Manuscript 12, Theorem 5.14 — reproducible final operator-chain audit
@@ -25,8 +26,9 @@ explicit fields of `PublishedJacobiInput`; such claims must not be inferred
 from a green CI. The quantitative uniform conclusion only follows after
 the analytical inputs are instantiated in that structure.
 
-The finite-compression spectral kernel is audited in a separate import added
-after Higham PR #538 has a green exact-HEAD CI and is merged to main.
+The finite-compression spectral kernel from merged Higham PR #538 is
+audited here as well. Finite spectral positivity does not prove the
+infinite-operator passage or the uniform off-diagonal Frechet bounds.
 -/
 
 #print UniformLanczos.Rate514ActualOperatorCertificate.PublishedJacobiInput
@@ -51,3 +53,7 @@ after Higham PR #538 has a green exact-HEAD CI and is merged to main.
 #print axioms UniformLanczos.Rate514ActualOperatorCertificate.constructActualCertificate
 #print axioms UniformLanczos.Rate514ActualOperatorCertificate.actual_rate_of_published_calculus
 #print axioms UniformLanczos.Rate514ActualOperatorCertificate.compact_uniform_rate_of_published_calculus
+
+#print axioms UniformLanczos.Rate514HighamSpectral.dividedDifference_nonneg
+#print axioms UniformLanczos.Rate514HighamSpectral.spectralBondKernel_symmetric
+#print axioms UniformLanczos.Rate514HighamSpectral.spectralBondKernel_psd
