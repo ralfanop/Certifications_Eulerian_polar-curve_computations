@@ -58,7 +58,6 @@ theorem overlap_exp (κ u v : ℝ) (hk : 0 < κ) :
     · rw [max_eq_left hvu, abs_of_nonneg (sub_nonneg.mpr hvu)]
       ring
   rw [ha]
-  ring
 
 theorem gram_kernel_identity (a κ u v : ℝ) (hk : 0 < κ) :
     (∫ t : ℝ, causal a κ u t * causal a κ v t) = bsKernel a κ u v := by
@@ -94,8 +93,8 @@ theorem causal_square_section (a κ u : ℝ) (hk : 0 < κ) :
     funext t
     by_cases ht : u < t
     · simp only [causal, ht, if_pos, Set.indicator_of_mem (show t ∈ Ioi u from ht), mul_pow,
-        Real.sq_sqrt (potential_nonneg a u), pow_two, ← Real.exp_add]
-      rw [mul_assoc, ← Real.exp_add]
+        Real.sq_sqrt (potential_nonneg a u)]
+      rw [pow_two, ← Real.exp_add, mul_assoc, ← Real.exp_add]
       congr 2 <;> ring
     · simp [causal, ht, Set.indicator, Set.mem_Ioi]
   rw [hf, integrable_indicator_iff measurableSet_Ioi]
