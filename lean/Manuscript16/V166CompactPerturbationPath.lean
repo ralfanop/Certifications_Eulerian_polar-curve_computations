@@ -5,7 +5,9 @@ block has index equal to the difference of the dimensions of its fixed
 domain and codomain, even when its rank changes. The actual affine
 operator path is norm-continuous with an exact difference norm.
 Unlike shared #458, this does not reprove compact-parametrix preservation.
-The continuous block reduction for a general Fredholm map remains open. -/
+Index invariance ind(T + K) = ind(T) for an arbitrary Fredholm map T and
+compact K is already proved in `SharedCore.FredholmAtkinson.index_add_compact`
+(PR #469, in `main`), via local constancy of the index along T + t•K. -/
 namespace Manuscript16.V166CompactPerturbationPath
 
 open Module
@@ -15,7 +17,7 @@ variable {U V : Type*} [AddCommGroup U] [Module ℂ U]
   [AddCommGroup V] [Module ℂ V]
   [FiniteDimensional ℂ U] [FiniteDimensional ℂ V]
 
-def finiteIndex (A : U →ₗ[ℂ] V) : ℤ :=
+noncomputable def finiteIndex (A : U →ₗ[ℂ] V) : ℤ :=
   (Module.finrank ℂ A.ker : ℤ) -
     (Module.finrank ℂ (V ⧸ A.range) : ℤ)
 
