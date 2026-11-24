@@ -283,7 +283,7 @@ for all real times. This does not assume a quotient by an abstract group. -/
 theorem hopfMap_negative_circle_orbit (q : HopfQ) (t : ℝ) :
     hopfMap (phaseRotate (Real.cos t) (-Real.sin t) q) = hopfMap q := by
   apply hopfMap_phase_invariant
-  simpa only [sq_neg] using Real.cos_sq_add_sin_sq t
+  nlinarith [Real.cos_sq_add_sin_sq t]
 
 /-- Every scalar function pulled back through the actual Hopf map is
 constant on each negative Hopf-circle orbit. No smoothness assumption
