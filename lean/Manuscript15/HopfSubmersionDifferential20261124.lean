@@ -239,7 +239,6 @@ theorem hopfZ_hasDerivAt_affineLine (q v : HopfQ) (t : ℝ) :
     funext s
     simp only [Pi.pow_apply, Pi.add_apply, Pi.sub_apply]
     dsimp [hopfZ, affineLine]
-    ring
   rw [← hfun] at h
   convert h using 1 <;> simp [dot4, gradZ, affineLine] <;> ring
 
