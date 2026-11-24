@@ -167,7 +167,7 @@ theorem baseX_second_deriv_affineLine (q v : HopfQ) (t : ℝ) :
       rowX_dot_affineLine]
   rw [hfun]
   have h := ((hasDerivAt_id t).mul_const (hopfX v)).const_add (dot4 (rowX q) v)
-  exact h.deriv
+  simpa only [id_eq, one_mul] using h.deriv
 
 theorem baseY_second_deriv_affineLine (q v : HopfQ) (t : ℝ) :
     deriv (fun s : ℝ => deriv
@@ -182,7 +182,7 @@ theorem baseY_second_deriv_affineLine (q v : HopfQ) (t : ℝ) :
       rowY_dot_affineLine]
   rw [hfun]
   have h := ((hasDerivAt_id t).mul_const (hopfY v)).const_add (dot4 (rowY q) v)
-  exact h.deriv
+  simpa only [id_eq, one_mul] using h.deriv
 
 theorem baseZ_second_deriv_affineLine (q v : HopfQ) (t : ℝ) :
     deriv (fun s : ℝ => deriv
@@ -197,7 +197,7 @@ theorem baseZ_second_deriv_affineLine (q v : HopfQ) (t : ℝ) :
       rowZ_dot_affineLine]
   rw [hfun]
   have h := ((hasDerivAt_id t).mul_const (hopfZ v)).const_add (dot4 (rowZ q) v)
-  exact h.deriv
+  simpa only [id_eq, one_mul] using h.deriv
 
 /-- The four Euclidean unit directions. -/
 def axisA : HopfQ := ((1, 0), (0, 0))
