@@ -1,0 +1,82 @@
+name: M13 Mellin L2 log Jacobian 2026-11-24 Lean exact-head audit
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript13/MellinL2LogJacobian20261124.lean'
+      - '.github/workflows/m13-mellin-l2-log-jacobian-20261124.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Exact-head pinned Lean 4 compile and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/mellin-l2-log-jacobian-lean.log
+          for f in Manuscript13/MellinL2LogJacobian20261124.lean; do
+            echo "COMPILING $f" | tee -a /tmp/mellin-l2-log-jacobian-lean.log
+            lake env lean -M16768 "$f" 2>&1 | tee -a /tmp/mellin-l2-log-jacobian-lean.log
+          done
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/mellin-l2-log-jacobian-lean.log; then exit 1; fi
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('/tmp/mellin-l2-log-jacobian-lean.log').read_text()
+          declarations={
+            "Manuscript13.MellinL2LogJacobian20261124":[
+              "log_image_positive",
+              "log_injOn_positive",
+              "log_jacobian",
+              "logarithmic_lintegral",
+              "logarithmic_energy",
+              "exp_measurePreserving",
+              "logL2",
+              "logL2_norm",
+              "logL2_ae",
+              "exp_measure_positive",
+              "exp_measure_eq_density",
+              "log_measurePreserving",
+              "expL2",
+              "logL2_surjective",
+              "logUnitary",
+              "logUnitary_norm",
+              "band_interval_positive",
+              "ae_band_bound_is_pointwise",
+              "sharp_essential_bound",
+              "rindler_essential_bound"]
+          }
+          count=0
+          for ns, names in declarations.items():
+            for name in names:
+              full="'"+ns+"."+name+"'"
+              found=re.findall(re.escape(full)+r" depends on axioms: \[([^\]]*)\]",t,re.S)
+              assert found or full+" does not depend on any axioms" in t,full
+              for a in found:
+                assert {x.strip() for x in a.split(',') if x.strip()} <= {
+                   'propext','Quot.sound','Classical.choice'},(full,a)
+              count+=1
+          assert count==20
+          print("SUCCESS MELLIN L2 LOG JACOBIAN M13 LEAN AXIOM AUDIT",count)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mellin-l2-log-jacobian-m13-lean-20261124-log
+          path: /tmp/mellin-l2-log-jacobian-lean.log
+          if-no-files-found: warn
