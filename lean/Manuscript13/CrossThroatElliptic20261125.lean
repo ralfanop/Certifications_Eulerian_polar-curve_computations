@@ -244,6 +244,47 @@ theorem actual_throat_quartic (a b Z : ℝ) (ha : 0 < a) (hb : 0 ≤ b) (hb1 : b
   rw [actual_throat_period a b ha hb hb1,hK]
   ring
 
+theorem elliptic_den_pos (b θ : ℝ) (hb : 0 ≤ b) (hb1 : b < 1) :
+    0 < 1-b^2*Real.sin θ^2 := by
+  have hs : Real.sin θ^2 ≤ 1 := by
+    nlinarith [Real.sin_sq_add_cos_sq θ,sq_nonneg (Real.cos θ)]
+  have h := mul_le_mul_of_nonneg_left hs (sq_nonneg b)
+  nlinarith [mul_pos (sub_pos.mpr hb1) (show 0 < 1+b by linarith)]
+
+theorem elliptic_continuous (b : ℝ) (hb : 0 ≤ b) (hb1 : b < 1) :
+    Continuous (ellipticIntegrand b) := by
+  unfold ellipticIntegrand
+  apply continuous_const.div
+  · fun_prop
+  · intro θ
+    exact ne_of_gt (Real.sqrt_pos.2 (elliptic_den_pos b θ hb hb1))
+
+theorem scaledWeight_integrable (b : ℝ) (hb : 0 ≤ b) (hb1 : b < 1) :
+    IntegrableOn (scaledWeight (complementary b)) (Ioi (0:ℝ)) := by
+  have h := integrableOn_image_iff_integrableOn_abs_deriv_smul measurableSet_Ioo
+    (tangent_jacobian b hb hb1) (tangent_inj b hb hb1)
+    (scaledWeight (complementary b))
+  rw [tangent_image b hb hb1] at h
+  apply h.mpr
+  have hi : IntegrableOn (fun θ => complementary b * ellipticIntegrand b θ)
+      (Ioo (0:ℝ) (Real.pi/2)) :=
+    ((continuous_const.mul (elliptic_continuous b hb hb1)).integrableOn_Icc).mono_set Ioo_subset_Icc_self
+  apply hi.congr
+  filter_upwards [ae_restrict_mem measurableSet_Ioo] with θ hθ
+  rw [abs_of_nonneg (div_nonneg (complementary_pos b hb hb1).le (sq_nonneg _)),smul_eq_mul]
+  exact (tangent_weight b θ hb hb1 hθ).symm
+
+theorem actual_self_dual (a : ℝ) (ha : 0 < a)
+    (hK : ellipticK (1/Real.sqrt 2) = Real.sqrt (2*Real.pi/5)*criticalF0^2) :
+    (1/a)*(∫ u in Ioi (0:ℝ), weight a (complementary (1/Real.sqrt 2)) u) =
+      Real.sqrt (Real.pi/5)*criticalF0^2 := by
+  have hs : 1 < Real.sqrt 2 := by
+    have h := Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 2)
+    nlinarith [Real.sqrt_nonneg (2:ℝ)]
+  apply self_dual_bridge _ _ hK
+  exact actual_throat_period a _ ha (by positivity)
+    ((div_lt_one (by positivity : 0 < Real.sqrt 2)).2 hs)
+
 end
 end Manuscript13.CrossThroatElliptic20261125
 #print axioms Manuscript13.CrossThroatElliptic20261125.complementary_pos
@@ -269,3 +310,8 @@ end Manuscript13.CrossThroatElliptic20261125
 #print axioms Manuscript13.CrossThroatElliptic20261125.scaled_integral_elliptic
 #print axioms Manuscript13.CrossThroatElliptic20261125.actual_throat_period
 #print axioms Manuscript13.CrossThroatElliptic20261125.actual_throat_quartic
+
+#print axioms Manuscript13.CrossThroatElliptic20261125.elliptic_den_pos
+#print axioms Manuscript13.CrossThroatElliptic20261125.elliptic_continuous
+#print axioms Manuscript13.CrossThroatElliptic20261125.scaledWeight_integrable
+#print axioms Manuscript13.CrossThroatElliptic20261125.actual_self_dual
