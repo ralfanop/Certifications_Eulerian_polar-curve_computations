@@ -10,6 +10,7 @@ namespace M12CriticalCorrelation
 
 open Filter MeasureTheory ProbabilityTheory
 open scoped Topology
+set_option maxHeartbeats 2000000
 open M12CriticalPointwise M12CriticalDCT M12CriticalVacuum
 open EulerianGrothendieck EulerianGrothendieck.Fock
 
@@ -72,7 +73,7 @@ theorem P_tendsto (lam : ℝ) : Tendsto (fun M : ℕ => P M lam) atTop (𝓝 0) 
 theorem eventual_P_pos (lam : ℝ) : ∀ᶠ M : ℕ in atTop, 0 < P M lam := by
   have hpos : 0 < (Fcrit lam)⁻¹ := inv_pos.mpr (F_pos lam)
   filter_upwards [eventually_ge_atTop 1,
-    (B_tendsto U hU hind hlaw lam).eventually (gt_mem_nhds hpos)] with M hm hb
+    (B_tendsto U hU hind hlaw lam).eventually (lt_mem_nhds hpos)] with M hm hb
   rw [← scale_mul_B M (by omega) lam]
   exact mul_pos (scale_pos M (by omega)) hb
 
@@ -100,18 +101,21 @@ theorem actual_correlation_at_critical :
   have h := actual_correlation_limit U hU hind hlaw 0
   have hF : Fcrit 0 = (40:ℝ)^(1/4:ℝ)*Real.Gamma (1/4)/(4*Real.sqrt Real.pi) := F_zero
   rw [hF] at h
-  convert h using 1
-  · funext M
-    unfold Q P
-    congr 4 <;> ring
-  · congr 1
+  have hcoeff : 1/(2*(Real.pi^2+1)*
+      ((40:ℝ)^(1/4:ℝ)*Real.Gamma (1/4)/(4*Real.sqrt Real.pi))) =
+      2*Real.sqrt Real.pi/((Real.pi^2+1)*(40:ℝ)^(1/4:ℝ)*Real.Gamma (1/4)) := by
     have hp : Real.pi^2+1 ≠ 0 := by positivity
     have hs : Real.sqrt Real.pi ≠ 0 := by positivity
     have h40 : (40:ℝ)^(1/4:ℝ) ≠ 0 := by positivity
     have hg : Real.Gamma (1/4:ℝ) ≠ 0 := (Real.Gamma_pos_of_pos (by norm_num)).ne'
     field_simp [hp,hs,h40,hg] <;> ring
+  rw [hcoeff] at h
+  apply h.congr'
+  exact Eventually.of_forall fun M => by
+    have ha : (1/12+0*scale M^2)*(M:ℝ) = (M:ℝ)/12 := by ring
+    simp only [Q,P,ha]
 
-/-- The exact premise delivered by PR #609. It is isolated to permit an
+/- The exact premise delivered by PR #609. It is isolated to permit an
 independent audit of the subsequent uniform inversion and correlation transfer. -/
 omit hU hind hlaw in
 def UniformNorm : Prop :=
@@ -160,7 +164,7 @@ theorem uniform_vacuum_of_norm (hnorm : UniformNorm) (L : ℝ) (hL : 0 ≤ L)
   rw [he,abs_div,abs_of_pos (mul_pos ha0 hf0),abs_sub_comm]
   apply (div_lt_iff₀ (mul_pos ha0 hf0)).mpr
   have hprod : m*m/2 ≤ a*f := by
-    have hh := mul_le_mul ha.le hf hm.le (by linarith : 0 ≤ m/2)
+    have hh := mul_le_mul ha.le hf hm.le ha0.le
     nlinarith only [hh]
   exact lt_of_lt_of_le hdiff ((min_le_right _ _).trans
     (mul_le_mul_of_nonneg_left hprod heps.le))
@@ -186,7 +190,7 @@ theorem uniform_correlation_of_norm (hnorm : UniformNorm) (L : ℝ) (hL : 0 ≤ 
   obtain ⟨hp,hB⟩ := hV lam hlam
   have hm : 0 < Fcrit L := F_pos L
   have hf : Fcrit L ≤ Fcrit lam := Fcrit_antitone (le_trans (le_abs_self lam) hlam)
-  have hInv : (Fcrit lam)⁻¹ ≤ (Fcrit L)⁻¹ := inv_le_inv_of_le hm hf
+  have hInv : (Fcrit lam)⁻¹ ≤ (Fcrit L)⁻¹ := by simpa only [one_div] using one_div_le_one_div_of_le hm hf
   have hB1 : B M lam ≤ T := by
     have hh := (abs_lt.mp hB).2
     have he1 : e ≤ 1 := min_le_left _ _
