@@ -1,0 +1,63 @@
+name: M12 actual Fock dominated convergence
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/CriticalWindowDCT.lean'
+      - '.github/workflows/m12-critical-dct.yml'
+  workflow_dispatch:
+jobs:
+  dct:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Compile genuine Fock DCT and prerequisites
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "EXACT_HEAD=$(git rev-parse HEAD)"
+          lake exe cache get
+          mkdir -p .lake/build/lib/lean
+          for module in CriticalWindowQuartic CriticalWindowGlobalMGF CriticalWindowComplexMGF CriticalWindowAnalyticRemainder CriticalWindowFockDomination CriticalWindowGammaVacuum CriticalWindowFinalAssembly CriticalWindowPointwise; do
+            lake env lean -o ".lake/build/lib/lean/${module}.olean" "${module}.lean"
+          done
+          lake env lean CriticalWindowDCT.lean 2>&1 | tee /tmp/m12-critical-dct.log
+      - name: Strict exact-declaration axiom audit
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          data = Path('/tmp/m12-critical-dct.log').read_text()
+          assert ': error' not in data and 'sorryAx' not in data and 'Lean.ofReduceBool' not in data
+          src = Path('lean/EulerianGrothendieck/CriticalWindowDCT.lean').read_text()
+          assert not re.search(r'\b(sorry|admit|axiom|opaque|native_decide)\b', src)
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          names = ['csinhc_measurable','mgf_measurable','H_measurable','H_nonneg',
+                   'eventual_scale_conditions','eventual_uniform_majorant','eventual_H_integrable',
+                   'profile_integrable','G_eq_product','G_integrable','integral_H_tendsto',
+                   'integral_G_factor','eventual_original_Fock_eq','fixed_lambda_Fock_limit',
+                   'F_pos','F_zero','reciprocal_Fock_limit']
+          for name in names:
+              full = 'M12CriticalDCT.' + name
+              match = re.search(r"'" + re.escape(full) + r"' depends on axioms: \[([^\]]*)\]", data)
+              if match:
+                  axioms = {x.strip() for x in match.group(1).split(',') if x.strip()}
+                  assert axioms <= allowed, (full, axioms - allowed)
+              else:
+                  assert "'" + full + "' does not depend on any axioms" in data, full
+              print('AXIOM AUDIT SUCCESS', full)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-critical-dct-audit
+          path: /tmp/m12-critical-dct.log
