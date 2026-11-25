@@ -155,7 +155,10 @@ theorem quarticZ_hasDerivAt (t : ℝ) (ht : 1 - t ^ 2 ≠ 0) :
       ((hasDerivAt_id t).const_mul (Real.sqrt 2))
   have hden :
       HasDerivAt (fun x : ℝ => 1 - x ^ 2) (-2 * t) t := by
-    convert ((hasDerivAt_id t).pow 2).const_sub (1 : ℝ) using 1 <;> ring
+    convert ((hasDerivAt_id t).pow 2).const_sub (1 : ℝ) using 1
+    · funext x
+      simp only [Pi.pow_apply, id_eq]
+    · simp only [id_eq]
   have h := hnum.div hden ht
   convert h using 1
   · funext x
