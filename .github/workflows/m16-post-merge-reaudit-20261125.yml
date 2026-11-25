@@ -1,0 +1,150 @@
+name: M16 post-merge re-audit of #596, #597, #600-#603, #605-#607, #610, #611 (exact HEAD)
+on:
+  pull_request:
+    paths:
+      - 'audits/M16_M17_exact_head_audit_20261124.md'
+      - '.github/workflows/m16-post-merge-reaudit-20261125.yml'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/Manuscript16/V166HolonomyPair.lean'
+      - 'lean/Manuscript16/ReactiveHolonomyV166.lean'
+      - 'lean/Manuscript16/HolonomyEulerProduct20261124.lean'
+      - 'lean/Manuscript16/HolonomyUniformConvergence20261124.lean'
+      - 'lean/Manuscript16/V165ResonanceGenerating.lean'
+      - 'lean/Manuscript16/V165ResonanceInfinite.lean'
+      - 'lean/Manuscript16/MaxwellGibbsTailObstruction20261125.lean'
+      - 'lean/Manuscript16/MaxwellGibbsW1OptimalCoupling20261125.lean'
+      - 'lean/Manuscript16/FreeEvanescentResolvent20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletRankOne20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletL2Bounded20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletPositive20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletInjective20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletWeakResolvent20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletRealisation20261125.lean'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Exact HEAD contains the merge results and the certifying heads; pinned Lean 4 toolchain and Mathlib
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m16-pm25-head.log
+          # main merge commits: #596, #597, #601 (brings #600), #602, #611 (brings #603, #605, #606, #607, #610)
+          for c in 6bb2c80fb56345b699ecc45562aa1d7302984af7 0f4fcb9a1bb7ed15c27fdb4e33c54d7cc5babcc5 7eb2b0bde0c17692f49a350671b603acd86f0da0 5cded9bd7908a8ec1bb46a06ad53cf8045ffcfb4 be053cf5dc9545148dcb0eac3978bd1d80b4c0ea; do
+            git merge-base --is-ancestor "$c" HEAD
+            echo "ancestor merge $c" | tee -a /tmp/m16-pm25-head.log
+          done
+          # certifying heads of #596, #597, #600, #601, #602, #603, #605, #606, #607, #610, #611
+          for c in d2ada6a7f84a3f3b7135fd1a060e1e664d3c63b6 143120ce08402b92c6cb59d51e8291af699ee3b5 bac294a7a4445ee72d92de4a049d1d4edad96033 44ab062ae19ae19ba75bec403a9963d2c5381cd3 0b66bc713ea03ad8415f675b971e7be5fb180323 0a0022bffded18c25781fec7fa94fa1c8e07d04a 2a5ec351dc5f5b652fd76caa8411be46eac1032b bfbce14106db70d48952e00544ac1ab01dadbe65 ee465b9c095abdf2e0ca6705a47f3e120633ed8d 4844a0e49d63522c6216f71f7cd20fdca14edac5 8822a96db19ef192617dbc88580002e6e67b2784; do
+            git merge-base --is-ancestor "$c" HEAD
+            echo "ancestor head $c" | tee -a /tmp/m16-pm25-head.log
+          done
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          lake env lean --version | tee -a /tmp/m16-pm25-head.log
+      - name: Byte identity with the certified PR heads
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          sha256sum -c <<'SUMS' | tee /tmp/m16-pm25-sha256.log
+          0296b10f05937f556988795af477f15015e2118b88d1bfb8f130ef2df67caf4c  Manuscript16/HolonomyEulerProduct20261124.lean
+          bfa4821b40332f50a642ca4ae81eb0e22b848dbeca661b06e049f26612763491  Manuscript16/HolonomyUniformConvergence20261124.lean
+          b3feb0ed0b3362a232c01d97f2459c9471a2748d2d2b3fc337d3bdcb4152e3a0  Manuscript16/MaxwellGibbsTailObstruction20261125.lean
+          a591280b6bbd2c51470bacc34180dbbcf4d2d746b627d11226453634b6d54d90  Manuscript16/MaxwellGibbsW1OptimalCoupling20261125.lean
+          48aa9f674e7fbc74fcced11015c3e4f1098fd5682c24b98aff45e65b2b2aa0ec  Manuscript16/FreeEvanescentResolvent20261125.lean
+          78663893e197799f53ae47ef4ec670314cf8770982475d6d02746042e6dad6fc  Manuscript16/RobinDirichletRankOne20261125.lean
+          303e9028ae0b34a14e0c02dcd44db48fa4fa5bf4578aa9e8f6b05318db479e4a  Manuscript16/RobinDirichletL2Bounded20261125.lean
+          bdfd818ada54b17c72df2a031a06fde742f6c5f8db029cc61a3228924b3e681c  Manuscript16/RobinDirichletPositive20261125.lean
+          e2ac547e5743055dede0269dce067e1efca99d7d75a811c77dbdb5535e04e7bb  Manuscript16/RobinDirichletInjective20261125.lean
+          faa42c88d1ad1e6ebb6bee64662165c844859351513d9432e6cc327ef0401403  Manuscript16/RobinDirichletWeakResolvent20261125.lean
+          2cfefd3712856c16fc45e316548d422981a02382f55fccf52e6424172990d9ab  Manuscript16/RobinDirichletRealisation20261125.lean
+          SUMS
+      - name: Compile the 15 modules in dependency order and audit every printed axiom report
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          MODULES="Manuscript16/V166HolonomyPair Manuscript16/ReactiveHolonomyV166 Manuscript16/HolonomyEulerProduct20261124 Manuscript16/HolonomyUniformConvergence20261124 Manuscript16/V165ResonanceGenerating Manuscript16/V165ResonanceInfinite Manuscript16/MaxwellGibbsTailObstruction20261125 Manuscript16/MaxwellGibbsW1OptimalCoupling20261125 Manuscript16/FreeEvanescentResolvent20261125 Manuscript16/RobinDirichletRankOne20261125 Manuscript16/RobinDirichletL2Bounded20261125 Manuscript16/RobinDirichletPositive20261125 Manuscript16/RobinDirichletInjective20261125 Manuscript16/RobinDirichletWeakResolvent20261125 Manuscript16/RobinDirichletRealisation20261125"
+          STRICT="Manuscript16/HolonomyEulerProduct20261124 Manuscript16/HolonomyUniformConvergence20261124 Manuscript16/MaxwellGibbsTailObstruction20261125 Manuscript16/MaxwellGibbsW1OptimalCoupling20261125 Manuscript16/FreeEvanescentResolvent20261125 Manuscript16/RobinDirichletRankOne20261125 Manuscript16/RobinDirichletL2Bounded20261125 Manuscript16/RobinDirichletPositive20261125 Manuscript16/RobinDirichletInjective20261125 Manuscript16/RobinDirichletWeakResolvent20261125 Manuscript16/RobinDirichletRealisation20261125"
+          mkdir -p .lake/build/lib/lean/Manuscript16
+          for m in $MODULES; do
+            if grep -nE '\bsorry\b|\badmit\b|^\s*axiom\b|\bunsafe\b|implemented_by|extern' "$m.lean"; then exit 1; fi
+            lake env lean -M16768 -o ".lake/build/lib/lean/$m.olean" "$m.lean" 2>&1 | tee "/tmp/m16-pm25-$(basename $m).log"
+            if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' "/tmp/m16-pm25-$(basename $m).log"; then exit 1; fi
+          done
+          for m in $STRICT; do
+            if grep -Eq 'warning:|Try this' "/tmp/m16-pm25-$(basename $m).log"; then echo "warning in $m"; exit 1; fi
+          done
+          python3 - <<'PY'
+          import hashlib, json, re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          expected = {
+              'V166HolonomyPair': 5, 'ReactiveHolonomyV166': 12,
+              'HolonomyEulerProduct20261124': 12, 'HolonomyUniformConvergence20261124': 11,
+              'V165ResonanceGenerating': 3, 'V165ResonanceInfinite': 5,
+              'MaxwellGibbsTailObstruction20261125': 22, 'MaxwellGibbsW1OptimalCoupling20261125': 25,
+              'FreeEvanescentResolvent20261125': 44, 'RobinDirichletRankOne20261125': 64,
+              'RobinDirichletL2Bounded20261125': 29, 'RobinDirichletPositive20261125': 50,
+              'RobinDirichletInjective20261125': 17, 'RobinDirichletWeakResolvent20261125': 36,
+              'RobinDirichletRealisation20261125': 23,
+          }
+          order = ['V166HolonomyPair', 'ReactiveHolonomyV166', 'HolonomyEulerProduct20261124',
+                   'HolonomyUniformConvergence20261124', 'V165ResonanceGenerating', 'V165ResonanceInfinite',
+                   'MaxwellGibbsTailObstruction20261125', 'MaxwellGibbsW1OptimalCoupling20261125',
+                   'FreeEvanescentResolvent20261125', 'RobinDirichletRankOne20261125',
+                   'RobinDirichletL2Bounded20261125', 'RobinDirichletPositive20261125',
+                   'RobinDirichletInjective20261125', 'RobinDirichletWeakResolvent20261125',
+                   'RobinDirichletRealisation20261125']
+          report, total = {}, 0
+          for base in order:
+              m = 'Manuscript16/' + base
+              src = Path(m + '.lean').read_text()
+              log = Path('/tmp/m16-pm25-' + base + '.log').read_text()
+              requested = re.findall(r'^#print axioms (\S+)', src, re.M)
+              assert len(requested) == expected[base] and len(set(requested)) == expected[base], (base, len(requested))
+              entries = {}
+              for name in requested:
+                  found = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+                  assert found or ("'" + name + "' does not depend on any axioms") in log, (base, name)
+                  axioms = sorted({x.strip() for a in found for x in a.split(',') if x.strip()})
+                  assert set(axioms) <= allowed, (base, name, axioms)
+                  entries[name] = axioms
+              report[m] = {
+                  'source_sha256': hashlib.sha256(Path(m + '.lean').read_bytes()).hexdigest(),
+                  'olean_sha256': hashlib.sha256(Path('.lake/build/lib/lean/' + m + '.olean').read_bytes()).hexdigest(),
+                  'axiom_reports': entries,
+              }
+              total += len(requested)
+              print('AXIOM AUDIT SUCCESS:', m, len(requested), 'reports')
+          assert total == 358, total
+          out = {'head': Path('/tmp/m16-pm25-head.log').read_text().split()[0], 'reports_total': total, 'modules': report}
+          Path('/tmp/m16-pm25-audit.json').write_text(json.dumps(out, indent=2) + '\n')
+          print('SUCCESS:', len(order), 'modules,', total, 'axiom reports; standard axioms only')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-post-merge-reaudit-20261125
+          path: |
+            /tmp/m16-pm25-*.log
+            /tmp/m16-pm25-audit.json
