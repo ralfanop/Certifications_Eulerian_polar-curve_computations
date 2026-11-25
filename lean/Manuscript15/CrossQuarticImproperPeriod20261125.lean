@@ -199,7 +199,7 @@ theorem cross_curve_period15_literal :
   rw [← intervalIntegral.integral_const_mul]
   apply intervalIntegral.integral_congr
   intro t ht
-  simp only [sourceIntegrand, div_eq_mul_inv, one_div]
+  simp only [sourceIntegrand, div_eq_mul_inv, one_mul]
 
 #print axioms Manuscript15.CrossQuarticImproperPeriod20261125.cross_curve_period15_literal
 
