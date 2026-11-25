@@ -184,6 +184,25 @@ theorem complete_quartic_elliptic_period_identity :
     exact finite_elliptic_period_change_of_variables r h0 hr
   exact tendsto_nhds_unique (htargetLimit.congr' hEq) hsourceLimit
 
+
+/-- Literal formulation of M15 Eq. (555), with sqrt(2)
+outside the source quartic period integral. No new
+assumptions: exact re-expression of the complete improper
+period theorem already certified in this module. -/
+theorem cross_curve_period15_literal :
+    (∫ z in Ioi (0 : ℝ),
+      1 / Real.sqrt ((1 + z ^ 2) * (1 + 2 * z ^ 2))) =
+      Real.sqrt 2 *
+        (∫ t in (0 : ℝ)..1, 1 / Real.sqrt (1 + t ^ 4)) := by
+  change (∫ z in Ioi (0 : ℝ), targetIntegrand z) = _
+  rw [complete_quartic_elliptic_period_identity]
+  rw [← intervalIntegral.integral_const_mul]
+  apply intervalIntegral.integral_congr
+  intro t ht
+  simp only [sourceIntegrand, div_eq_mul_inv, one_div]
+
+#print axioms Manuscript15.CrossQuarticImproperPeriod20261125.cross_curve_period15_literal
+
 #print axioms Manuscript15.CrossQuarticImproperPeriod20261125.sourceIntegrand_continuous
 #print axioms Manuscript15.CrossQuarticImproperPeriod20261125.targetIntegrand_continuous
 #print axioms Manuscript15.CrossQuarticImproperPeriod20261125.targetIntegrand_norm_bound
