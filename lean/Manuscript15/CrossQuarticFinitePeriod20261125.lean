@@ -89,7 +89,7 @@ theorem period_integrands_equal_on_chart (t : ℝ)
   have h := actual_positive_period_integrand t ht
   rw [(quarticZ_hasDerivAt t ht).deriv] at h
   simpa only [targetIntegrand, sourceIntegrand, zDerivativeFormula,
-    Function.comp_apply, div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm] using h
+    Function.comp_apply, div_eq_mul_inv, one_mul, mul_assoc, mul_comm, mul_left_comm] using h
 
 /-- The actual finite-interval elliptic PERIOD identity.
 For every 0 ≤ r < 1, the source integral from 0 to r
