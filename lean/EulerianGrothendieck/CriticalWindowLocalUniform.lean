@@ -103,10 +103,10 @@ theorem uniform_pointwise_error (L : ℝ) (hL : 0 ≤ L) (M : ℕ) (hM : 0 < M)
       (H (-L) M p-G (-L) p)*a+G (-L) p*(a-b) := by ring
   rw [he]
   calc
-    _ ≤ |(H (-L) M p-G (-L) p)*a|+|G (-L) p*(a-b)| := abs_add_le _ _
-    _ = |H (-L) M p-G (-L) p|*a+G (-L) p*|a-b| := by
+    _ ≤ |(H (-L) M p-G (-L) p)*a| + |G (-L) p*(a-b)| := abs_add_le _ _
+    _ = |H (-L) M p-G (-L) p| *a+G (-L) p* |a-b| := by
       rw [abs_mul,abs_mul,abs_of_nonneg ha0,abs_of_nonneg (G_nonneg _ _)]
-    _ ≤ |H (-L) M p-G (-L) p|*1+G (-L) p*(1-d) :=
+    _ ≤ |H (-L) M p-G (-L) p| *1+G (-L) p*(1-d) :=
       add_le_add (mul_le_mul_of_nonneg_left ha1 (abs_nonneg _))
         (mul_le_mul_of_nonneg_left hdiff (G_nonneg _ _))
     _ = err L M p := by simp [err,d]
@@ -141,8 +141,10 @@ theorem eventual_err_bound (L : ℝ) (hL : 0 ≤ L) :
   intro p
   rw [Real.norm_eq_abs, abs_of_nonneg (err_nonneg L hL M p)]
   have h := hM (-L) (by simpa [abs_of_nonneg hL]) p
-  have ht := abs_sub_le (H (-L) M p) (G (-L) p)
-  rw [abs_of_nonneg (H_nonneg _ _ _),abs_of_nonneg (G_nonneg _ _)] at ht
+  have ht : |H (-L) M p - G (-L) p| ≤ H (-L) M p + G (-L) p := by
+    calc
+      _ ≤ |H (-L) M p| + |-G (-L) p| := abs_add_le _ _
+      _ = _ := by rw [abs_neg, abs_of_nonneg (H_nonneg _ _ _), abs_of_nonneg (G_nonneg _ _)]
   have hg := mul_nonneg (G_nonneg (-L) p)
     (Real.exp_nonneg (-12*L*scale M^2*p.2^2))
   unfold err errBound
@@ -180,6 +182,7 @@ theorem eventual_integral_error (L : ℝ) (hL : 0 ≤ L) :
     _ ≤ ∫ p, ‖H lam M p-G lam p‖ ∂planeMeasure := norm_integral_le_integral_norm _
     _ ≤ _ := integral_mono_ae (hi.sub (G_integrable lam)).norm he
       (Eventually.of_forall fun p => by
+        change ‖H lam M p-G lam p‖ ≤ err L M p
         rw [Real.norm_eq_abs]
         exact uniform_pointwise_error L hL M (by omega) lam hlam p)
 
@@ -223,7 +226,7 @@ theorem uniformBound_tendsto (L : ℝ) (hL : 0 ≤ L) :
     simpa using ((scale_tendsto.pow 2).const_mul (6*L)).div_const Real.pi
   have h2 := h1.mul_const (∫ p, M12FockDomination.majorant L p ∂planeMeasure)
   have h3 := (integral_err_tendsto L hL).const_mul (1/(2*Real.pi))
-  simpa [uniformBound] using h2.add h3
+  convert h2.add h3 using 1 <;> simp [uniformBound, div_eq_mul_inv, mul_comm, mul_left_comm, mul_assoc]
 
 theorem eventual_normalized_error (L : ℝ) (hL : 0 ≤ L) :
     ∀ᶠ M : ℕ in atTop, ∀ lam, |lam| ≤ L →
@@ -257,8 +260,8 @@ theorem eventual_normalized_error (L : ℝ) (hL : 0 ≤ L) :
   change |c*I-d*J| ≤ _
   rw [show c*I-d*J = (c-d)*I+d*(I-J) by ring]
   calc
-    _ ≤ |(c-d)*I|+|d*(I-J)| := abs_add_le _ _
-    _ = |c-d|*I+d*|I-J| := by rw [abs_mul,abs_mul,abs_of_nonneg hi0,abs_of_nonneg hd0]
+    _ ≤ |(c-d)*I| + |d*(I-J)| := abs_add_le _ _
+    _ = |c-d| *I+d* |I-J| := by rw [abs_mul,abs_mul,abs_of_nonneg hi0,abs_of_nonneg hd0]
     _ ≤ (6*L*scale M^2/Real.pi)*K + d*(∫ p, err L M p ∂planeMeasure) :=
       add_le_add (mul_le_mul hc hiK hi0 (by positivity))
         (mul_le_mul_of_nonneg_left (hE lam hlam) hd0)
