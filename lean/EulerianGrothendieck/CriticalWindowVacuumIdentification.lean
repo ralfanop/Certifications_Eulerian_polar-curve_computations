@@ -18,7 +18,7 @@ theorem rE_eq_profile (z : ℂ) : rE z = M12FockDomination.fockProfile z := by
 theorem density_kernel (M : ℕ) (a x y : ℝ) :
     ‖rE (⟨x,y⟩ : ℂ)^M‖^2 * fockDensity a ⟨x,y⟩ =
       (a/Real.pi)*M12CriticalAssembly.originalKernel M a x y := by
-  rw [fockDensity, mk_norm_sq, norm_pow, ← pow_mul, mk_eq, rE_eq_profile]
+  rw [fockDensity, mk_norm_sq x y, norm_pow, ← pow_mul, mk_eq, rE_eq_profile]
   unfold M12CriticalAssembly.originalKernel
   rw [show M*2=2*M by omega]
   ring
@@ -49,6 +49,8 @@ variable {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω} [IsProbabilityMeasu
 variable (U : ℕ → Ω → ℝ) (hU : ∀ i, Measurable (U i))
 variable (hind : iIndepFun U μ) (hlaw : ∀ i, μ.map (U i) = V033.UniformSum.uniformLaw)
 
+include hU hind hlaw
+
 theorem original_eq_probability (M : ℕ) {a : ℝ} (ha : 0 < a) :
     M12CriticalAssembly.originalFockNorm M a =
       ∫ xy, Real.exp ((∑ i ∈ range M, U i xy.1) *
@@ -65,6 +67,7 @@ theorem vacuum_eq_original_inv (M : ℕ) {a : ℝ} (ha : 0 < a) :
   rw [fockVacuumProbability, (fock_vacuum_probability U hU hind hlaw M ha).2.2,
     original_eq_probability U hU hind hlaw M ha, one_div]
 
+omit hU hind hlaw in
 theorem eventual_alpha_pos (lam : ℝ) :
     ∀ᶠ M : ℕ in atTop, 0 < (1/12+lam*scale M^2)*(M:ℝ) := by
   filter_upwards [eventual_scale_conditions |lam| (abs_nonneg lam)] with M hM
