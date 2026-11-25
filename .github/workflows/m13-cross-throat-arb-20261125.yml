@@ -1,0 +1,68 @@
+name: M13 cross throat AGM Gamma strict Arb
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m13_cross_throat_million.py'
+      - 'numerics/arb/million_decimal_common.py'
+      - '.github/workflows/m13-cross-throat-arb-20261125.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pinned FLINT and exact HEAD
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          python -m pip install 'python-flint==0.9.0'
+          python -m py_compile numerics/arb/m13_cross_throat_million.py
+      - name: Strict Arb AGM and Gamma rounding agreement
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python numerics/arb/m13_cross_throat_million.py 2>&1 | tee m13-cross-throat-arb.log
+          grep -F 'MILLION SUCCESS m13-cross-throat checks 2' m13-cross-throat-arb.log
+          grep -F 'SUCCESS M13 CROSS THROAT AGM GAMMA STRICT AGREEMENT' m13-cross-throat-arb.log
+          python - <<'PY'
+          import gzip,hashlib,json
+          from pathlib import Path
+          d=json.loads(Path('million-m13-cross-throat.json').read_text())
+          assert d['working_bits']==3600000 and d['required_relative_bits']==3400000
+          assert d['significant_digits']==1000001 and d['minimum_relative_bits']>=3400000
+          with gzip.open('million-enclosures.jsonl.gz','rt') as f:
+              rows=[json.loads(line) for line in f]
+          assert len(rows)==2
+          for r in rows:
+              assert r['relative_bits']>=3400000 and r['arb_ball']
+              assert len(r['rounded_significant_digits'].split('e')[0].replace('.',''))==1000001
+          assert rows[0]['rounded_significant_digits']==rows[1]['rounded_significant_digits']
+          fixed=json.loads(Path('m13-cross-throat-fixed30000.json').read_text())
+          assert fixed['status']=='CERTIFIED' and fixed['distinct_quantities']==1
+          assert len(fixed['values'])==2
+          for r in fixed['values']:
+              assert r['strict_half_ulp_rounding_cell'] and r['relative_bits']>=3400000
+              assert len(r['rounded_decimal'].split('.')[1])==30000
+              assert hashlib.sha256(r['rounded_decimal'].encode('ascii')).hexdigest()==r['rounded_sha256']
+              assert r['lower_endpoint_exact'] and r['upper_endpoint_exact']
+          assert fixed['values'][0]['rounded_decimal']==fixed['values'][1]['rounded_decimal']
+          print('SUCCESS M13 CROSS THROAT CERTIFICATE MANIFEST')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m13-cross-throat-agm-gamma
+          path: |
+            m13-cross-throat-arb.log
+            million-m13-cross-throat.json
+            million-enclosures.jsonl.gz
+            m13-cross-throat-fixed30000.json
+          if-no-files-found: warn
