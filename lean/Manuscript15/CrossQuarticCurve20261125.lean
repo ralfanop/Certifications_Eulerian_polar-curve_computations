@@ -264,7 +264,10 @@ theorem quarticZ_companion (t : ℝ)
     apply hd
     linarith
   unfold quarticZ
-  field_simp [ht, hd, hdp, hminus] <;> field_simp [hminus] <;> ring
+  have hinv : (-1 + t ^ 2) * (-1 + t ^ 2)⁻¹ = 1 := by
+    field_simp [hminus]
+  field_simp [ht, hd, hdp, hminus] <;>
+    linear_combination hinv
 
 /-- Companion source points have the SAME actual target W
 coordinate, not merely the same quadratic polynomial. -/
@@ -277,7 +280,11 @@ theorem quarticW_companion (t Y : ℝ)
     rw [hx]
     exact pow_ne_zero 2 hd
   unfold quarticW
-  field_simp [ht, hd, hdp, hquartic] <;> field_simp [hquartic] <;> ring
+  have hinv :
+      (1 - t ^ 2 * 2 + t ^ 4) * (1 - t ^ 2 * 2 + t ^ 4)⁻¹ = 1 := by
+    field_simp [hquartic]
+  field_simp [ht, hd, hdp, hquartic] <;>
+    linear_combination ((1 + t ^ 2) * Y) * hinv
 
 /-- The two real affine companion parameters are distinct.
 This excludes a spurious double count of the two roots. -/
