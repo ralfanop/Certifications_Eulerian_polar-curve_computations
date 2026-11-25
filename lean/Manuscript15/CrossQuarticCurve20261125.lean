@@ -80,7 +80,8 @@ theorem quartic_target_affine (t Y : ℝ)
     quarticW t Y ^ 2 =
         (((1 + t ^ 2) * Y) ^ 2) / (1 - t ^ 2) ^ 4 := by
           unfold quarticW
-          ring
+          simp only [div_pow, ← pow_mul]
+          norm_num
     _ = (((1 - t ^ 2) ^ 2 + (Real.sqrt 2) ^ 2 * t ^ 2) *
          ((1 - t ^ 2) ^ 2 + 2 * (Real.sqrt 2) ^ 2 * t ^ 2)) /
          (1 - t ^ 2) ^ 4 := by
@@ -88,7 +89,6 @@ theorem quartic_target_affine (t Y : ℝ)
     _ = (1 + quarticZ t ^ 2) * (1 + 2 * quarticZ t ^ 2) := by
           unfold quarticZ
           field_simp [ht]
-          ring
 
 /-- Every source parameter t satisfies the quadratic equation
 z*t²+sqrt(2)*t-z=0 at its actual target coordinate z.
@@ -107,7 +107,7 @@ theorem quartic_fibre_quadratic (t : ℝ)
 
 /-- The real-analytic self-dual crease's claimed quartic TAYLOR
 POLYNOMIAL, rather than the actual transcendental D_k. -/
-def creaseQuarticJet (k u : ℝ) : ℝ :=
+noncomputable def creaseQuarticJet (k u : ℝ) : ℝ :=
   (1 - k ^ 2) / 2 * u ^ 2 +
     (1 - 2 * k ^ 2 + 5 * k ^ 4) / 24 * u ^ 4
 
@@ -124,18 +124,18 @@ theorem crease_selfdual_quartic (u : ℝ) :
   ring
 
 /-- Polynomial identity for the critical scaling
-k²=1-80 λ ε², u=εv of eq:cross-creaseLim,
+k²=1-80 lam ε², u=εv of eq:cross-creaseLim,
 including BOTH subleading corrections in ε² and ε⁴.
 This is an exact identity for the source's quartic Taylor
 POLYNOMIAL (not an unproved limiting theorem about D_k). -/
 theorem crease_critical_exact_rescaling
-    (k ε v λ : ℝ) (hk : k ^ 2 = 1 - 80 * λ * ε ^ 2) :
+    (k ε v lam : ℝ) (hk : k ^ 2 = 1 - 80 * lam * ε ^ 2) :
     3 * creaseQuarticJet k (ε * v) =
       20 * ε ^ 4 *
-        (v ^ 4 / 40 + 6 * λ * v ^ 2 -
-          4 * λ * ε ^ 2 * v ^ 4 +
-          200 * λ ^ 2 * ε ^ 4 * v ^ 4) := by
-  have hk4 : k ^ 4 = (1 - 80 * λ * ε ^ 2) ^ 2 := by
+        (v ^ 4 / 40 + 6 * lam * v ^ 2 -
+          4 * lam * ε ^ 2 * v ^ 4 +
+          200 * lam ^ 2 * ε ^ 4 * v ^ 4) := by
+  have hk4 : k ^ 4 = (1 - 80 * lam * ε ^ 2) ^ 2 := by
     calc
       k ^ 4 = (k ^ 2) ^ 2 := by ring
       _ = _ := by rw [hk]
