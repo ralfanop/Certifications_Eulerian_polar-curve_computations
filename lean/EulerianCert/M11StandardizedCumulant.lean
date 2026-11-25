@@ -54,7 +54,6 @@ theorem mgf_eq_sinh (h : ℝ) (hh : h ≠ 0) :
   have hz : Real.sqrt 3 * h ≠ 0 := mul_ne_zero
     (ne_of_gt (Real.sqrt_pos.2 (by norm_num))) hh
   field_simp
-  <;> ring
 
 /-- Joint total version of (116) and (117); division by zero in Lean is not the extension. -/
 theorem mgf_eq_total (h : ℝ) :
