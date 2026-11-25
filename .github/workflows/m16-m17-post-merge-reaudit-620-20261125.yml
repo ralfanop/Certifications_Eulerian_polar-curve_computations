@@ -1,0 +1,125 @@
+name: M16/M17 post-merge re-audit of #620 (exact HEAD)
+on:
+  pull_request:
+    paths:
+      - 'audits/M16_M17_exact_head_audit_20261124.md'
+      - '.github/workflows/m16-m17-post-merge-reaudit-620-20261125.yml'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/Manuscript16/QuarticPartitionSusceptibility20261125.lean'
+      - 'lean/Manuscript17/CrossConnections20261125.lean'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Exact HEAD contains the merge of #620 and its certifying head; pinned Lean 4 toolchain and Mathlib
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m1617-pm620-head.log
+          # main merge commit of #620 and its certifying head (second parent)
+          git merge-base --is-ancestor 309ecd102400d86c25810add4e644f45c13551ee HEAD
+          echo "ancestor merge 309ecd102400d86c25810add4e644f45c13551ee" | tee -a /tmp/m1617-pm620-head.log
+          git merge-base --is-ancestor b307be8147093b4dc052700210b829f577074df4 HEAD
+          echo "ancestor head b307be8147093b4dc052700210b829f577074df4" | tee -a /tmp/m1617-pm620-head.log
+          test "$(git rev-parse 309ecd102400d86c25810add4e644f45c13551ee^1)" = e14af22947cd55f19e0e3cd3561c4444aedccbcb
+          test "$(git rev-parse 309ecd102400d86c25810add4e644f45c13551ee^2)" = b307be8147093b4dc052700210b829f577074df4
+          echo "parents of 309ecd10: e14af229 (main), b307be81 (certifying head)" | tee -a /tmp/m1617-pm620-head.log
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          lake env lean --version | tee -a /tmp/m1617-pm620-head.log
+      - name: Byte identity with the certified PR head
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          sha256sum -c <<'SUMS' | tee /tmp/m1617-pm620-sha256.log
+          6427fa50fdd0160b0ad751d7211d2e01c6a759256a063ad26daedc73f4fa9ac2  Manuscript16/QuarticPartitionSusceptibility20261125.lean
+          46056795babfcc9192c41d24f8279362225eb80c1fa627026bb7f0c2ed92d02b  Manuscript17/CrossConnections20261125.lean
+          SUMS
+          H=b307be8147093b4dc052700210b829f577074df4
+          for f in Manuscript16/QuarticPartitionSusceptibility20261125.lean Manuscript17/CrossConnections20261125.lean; do
+            test "$(git show "$H:lean/$f" | sha256sum | cut -c1-64)" = "$(sha256sum "$f" | cut -c1-64)"
+            echo "identical to certifying head $H: $f" | tee -a /tmp/m1617-pm620-sha256.log
+          done
+          # no Lean module, toolchain or Mathlib pin was modified, deleted or renamed since the certifying head
+          test -z "$(git diff --name-only --diff-filter=MDR "$H" HEAD -- SharedCore Manuscript16 Manuscript17 EulerianCert lakefile.toml lean-toolchain)"
+          echo "no modified dependency since $H" | tee -a /tmp/m1617-pm620-sha256.log
+      - name: Compile both modules and audit every printed axiom report
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          MODULES="Manuscript16/QuarticPartitionSusceptibility20261125 Manuscript17/CrossConnections20261125"
+          mkdir -p .lake/build/lib/lean/Manuscript16 .lake/build/lib/lean/Manuscript17
+          for m in $MODULES; do
+            if grep -nE '\bsorry\b|\badmit\b|^\s*axiom\b|\bunsafe\b|implemented_by|extern' "$m.lean"; then exit 1; fi
+            lake env lean -M16768 -o ".lake/build/lib/lean/$m.olean" "$m.lean" 2>&1 | tee "/tmp/m1617-pm620-$(basename $m).log"
+            if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|warning:|declaration uses .sorry.|Try this' "/tmp/m1617-pm620-$(basename $m).log"; then exit 1; fi
+          done
+          python3 - <<'PY'
+          import hashlib, json, re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          order = [('Manuscript16', 'QuarticPartitionSusceptibility20261125', 12),
+                   ('Manuscript17', 'CrossConnections20261125', 8)]
+          report, total = {}, 0
+          for lib, base, n in order:
+              m = lib + '/' + base
+              src = Path(m + '.lean').read_text()
+              log = Path('/tmp/m1617-pm620-' + base + '.log').read_text()
+              requested = re.findall(r'^#print axioms (\S+)', src, re.M)
+              assert len(requested) == n and len(set(requested)) == n, (base, len(requested))
+              # one printed report per request (names may carry primes, so count the report lines)
+              n_dep = len(re.findall(r"' depends on axioms: \[", log))
+              n_none = len(re.findall(r"' does not depend on any axioms", log))
+              assert n_dep + n_none == n, (base, n_dep, n_none, n)
+              # every printed list, including those that wrap over several lines, is standard
+              for block in re.findall(r"' depends on axioms: \[([^\]]*)\]", log, re.S):
+                  axioms = {x.strip() for x in block.split(',') if x.strip()}
+                  assert axioms <= allowed, (base, sorted(axioms))
+              entries = {}
+              for name in requested:
+                  pre = r"'(?:[^\s']+\.)?" + re.escape(name)
+                  found = re.findall(pre + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+                  none = re.findall(pre + r"' does not depend on any axioms", log)
+                  assert len(found) + len(none) == 1, (base, name, len(found), len(none))
+                  axioms = sorted({x.strip() for a in found for x in a.split(',') if x.strip()})
+                  assert set(axioms) <= allowed, (base, name, axioms)
+                  entries[name] = axioms
+              report[m] = {
+                  'source_sha256': hashlib.sha256(Path(m + '.lean').read_bytes()).hexdigest(),
+                  'olean_sha256': hashlib.sha256(Path('.lake/build/lib/lean/' + m + '.olean').read_bytes()).hexdigest(),
+                  'axiom_reports': entries,
+              }
+              total += n
+              print('AXIOM AUDIT SUCCESS:', m, n, 'reports')
+          assert total == 20, total
+          out = {'head': Path('/tmp/m1617-pm620-head.log').read_text().split()[0], 'reports_total': total, 'modules': report}
+          Path('/tmp/m1617-pm620-audit.json').write_text(json.dumps(out, indent=2) + '\n')
+          print('SUCCESS:', len(order), 'modules,', total, 'axiom reports; standard axioms only')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-m17-post-merge-reaudit-620-20261125
+          path: |
+            /tmp/m1617-pm620-*.log
+            /tmp/m1617-pm620-audit.json
