@@ -1,0 +1,101 @@
+name: M12 quartic critical window post-merge exact main audit
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+    paths:
+      - '.github/workflows/m12-critical-main-reaudit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      AUDIT_SHA: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+      - name: Check exact integrated commit and all certified blobs
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$AUDIT_SHA"
+          echo "EXACT_MAIN_MERGE_HEAD=$(git rev-parse HEAD)"
+          test "$(git hash-object CriticalWindowQuartic.lean)" = "d0d8e1aa6318d3edc34548710d4951e9e8f1449b"
+          echo "BLOB VERIFIED CriticalWindowQuartic d0d8e1aa6318d3edc34548710d4951e9e8f1449b"
+          test "$(git hash-object CriticalWindowGlobalMGF.lean)" = "97dc3f265c72a9e98cad81a067866986b333104b"
+          echo "BLOB VERIFIED CriticalWindowGlobalMGF 97dc3f265c72a9e98cad81a067866986b333104b"
+          test "$(git hash-object CriticalWindowComplexMGF.lean)" = "ee0b449729e03ea794a251fbec137c847997fd65"
+          echo "BLOB VERIFIED CriticalWindowComplexMGF ee0b449729e03ea794a251fbec137c847997fd65"
+          test "$(git hash-object CriticalWindowAnalyticRemainder.lean)" = "910fe32288fbb92bb29df4409e37aa676b5bb8e6"
+          echo "BLOB VERIFIED CriticalWindowAnalyticRemainder 910fe32288fbb92bb29df4409e37aa676b5bb8e6"
+          test "$(git hash-object CriticalWindowFockDomination.lean)" = "1215dd062ed580866e733dab75991fe34b568b98"
+          echo "BLOB VERIFIED CriticalWindowFockDomination 1215dd062ed580866e733dab75991fe34b568b98"
+          test "$(git hash-object CriticalWindowGammaVacuum.lean)" = "32e6af6489e765140f4c4ae9953a1ccd4ad23015"
+          echo "BLOB VERIFIED CriticalWindowGammaVacuum 32e6af6489e765140f4c4ae9953a1ccd4ad23015"
+          test "$(git hash-object CriticalWindowFinalAssembly.lean)" = "3a1c7c3962fde3e51c9c76888160813c37bef04c"
+          echo "BLOB VERIFIED CriticalWindowFinalAssembly 3a1c7c3962fde3e51c9c76888160813c37bef04c"
+          test "$(git hash-object CriticalWindowPointwise.lean)" = "0a5bb95c951189e4478ce930c1a2760de755ad3d"
+          echo "BLOB VERIFIED CriticalWindowPointwise 0a5bb95c951189e4478ce930c1a2760de755ad3d"
+          test "$(git hash-object CriticalWindowDCT.lean)" = "bb52d62d52519975b6658c3f7902dbd10dc8860d"
+          echo "BLOB VERIFIED CriticalWindowDCT bb52d62d52519975b6658c3f7902dbd10dc8860d"
+          test "$(git hash-object CriticalWindowVacuumIdentification.lean)" = "cc5633b606e87bf9d55726478549f8b228ae418c"
+          echo "BLOB VERIFIED CriticalWindowVacuumIdentification cc5633b606e87bf9d55726478549f8b228ae418c"
+          test "$(git hash-object CriticalWindowLocalUniform.lean)" = "cda98caf58c26aa745e90d44c66254ae15083777"
+          echo "BLOB VERIFIED CriticalWindowLocalUniform cda98caf58c26aa745e90d44c66254ae15083777"
+          test "$(git hash-object CriticalWindowCorrelation.lean)" = "66f52a0d5387669d638b0e5ba1c8f27d46e3d37b"
+          echo "BLOB VERIFIED CriticalWindowCorrelation 66f52a0d5387669d638b0e5ba1c8f27d46e3d37b"
+          test "$(git hash-object CriticalWindowComplete.lean)" = "6521e206a46b5a86d15337209110879f1a28f0d6"
+          echo "BLOB VERIFIED CriticalWindowComplete 6521e206a46b5a86d15337209110879f1a28f0d6"
+      - name: Restore pinned Lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Compile complete dependency chain
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/m12-main-audit .lake/build/lib/lean
+          lake exe cache get
+          lake build EulerianGrothendieck.FockVacuumProjection EulerianGrothendieck.VectorOptimum
+          for module in CriticalWindowQuartic CriticalWindowGlobalMGF CriticalWindowComplexMGF CriticalWindowAnalyticRemainder CriticalWindowFockDomination CriticalWindowGammaVacuum CriticalWindowFinalAssembly CriticalWindowPointwise CriticalWindowDCT CriticalWindowVacuumIdentification CriticalWindowLocalUniform CriticalWindowCorrelation CriticalWindowComplete; do
+            lake env lean -o ".lake/build/lib/lean/${module}.olean" "${module}.lean" 2>&1 | tee "/tmp/m12-main-audit/${module}.log"
+          done
+      - name: Audit every declared checkpoint in all thirteen modules
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' | tee /tmp/m12-main-audit/summary.txt
+          import re
+          from pathlib import Path
+          modules = ["CriticalWindowQuartic","CriticalWindowGlobalMGF","CriticalWindowComplexMGF","CriticalWindowAnalyticRemainder","CriticalWindowFockDomination","CriticalWindowGammaVacuum","CriticalWindowFinalAssembly","CriticalWindowPointwise","CriticalWindowDCT","CriticalWindowVacuumIdentification","CriticalWindowLocalUniform","CriticalWindowCorrelation","CriticalWindowComplete"]
+          allowed = {'propext','Classical.choice','Quot.sound'}
+          total = 0
+          for module in modules:
+              src = Path(module + '.lean').read_text()
+              log = Path('/tmp/m12-main-audit', module + '.log').read_text()
+              names = re.findall(r'^\s*#print axioms\s+(\S+)', src, re.M)
+              assert names and len(names) == len(set(names)), module
+              assert 'sorryAx' not in log and 'Lean.ofReduceBool' not in log and ': error:' not in log, module
+              for full in names:
+                  m = re.search(r"'" + re.escape(full) + r"' depends on axioms: \[([^\]]*)\]", log)
+                  if m:
+                      assert {x.strip() for x in m.group(1).split(',') if x.strip()} <= allowed, full
+                  else:
+                      assert "'" + full + "' does not depend on any axioms" in log, full
+                  print('AXIOM AUDIT SUCCESS', full)
+                  total += 1
+          assert total == 130, total
+          print('M12 MAIN AXIOM AUDIT SUCCESS', total, '/ 130')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-critical-main-reaudit
+          path: /tmp/m12-main-audit
