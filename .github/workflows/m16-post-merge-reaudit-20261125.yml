@@ -122,10 +122,17 @@ jobs:
               log = Path('/tmp/m16-pm25-' + base + '.log').read_text()
               requested = re.findall(r'^#print axioms (\S+)', src, re.M)
               assert len(requested) == expected[base] and len(set(requested)) == expected[base], (base, len(requested))
+              # one printed report per request (names may carry primes, so count the report lines)
+              n_dep = len(re.findall(r"' depends on axioms: \[", log))
+              n_none = len(re.findall(r"' does not depend on any axioms", log))
+              assert n_dep + n_none == len(requested), (base, n_dep, n_none, len(requested))
               entries = {}
               for name in requested:
-                  found = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
-                  assert found or ("'" + name + "' does not depend on any axioms") in log, (base, name)
+                  # a request may use the short name inside its namespace; Lean prints the full name
+                  pre = r"'(?:[^\s']+\.)?" + re.escape(name)
+                  found = re.findall(pre + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+                  none = re.findall(pre + r"' does not depend on any axioms", log)
+                  assert len(found) + len(none) == 1, (base, name, len(found), len(none))
                   axioms = sorted({x.strip() for a in found for x in a.split(',') if x.strip()})
                   assert set(axioms) <= allowed, (base, name, axioms)
                   entries[name] = axioms
