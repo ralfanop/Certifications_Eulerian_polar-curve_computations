@@ -1,0 +1,73 @@
+name: M15 2026-11-25 exhaustive quartic affine fibre Lean4
+
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/CrossQuarticCurve20261125.lean'
+      - 'lean/Manuscript15/CrossQuarticFibreClassification20261125.lean'
+      - '.github/workflows/m15-cross-quartic-fibre-classification-20261125.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fibre-complete:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Compile exact-HEAD dependency and exhaustive fibre proofs with kernel audit
+        working-directory: lean
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/m15-fibre-complete
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          git rev-parse HEAD | tee /tmp/m15-fibre-complete/head.txt
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 \
+            -o .lake/build/lib/lean/Manuscript15/CrossQuarticCurve20261125.olean \
+            Manuscript15/CrossQuarticCurve20261125.lean \
+            2>&1 | tee /tmp/m15-fibre-complete/dependency.log
+          lake env lean -M16768 Manuscript15/CrossQuarticFibreClassification20261125.lean \
+            2>&1 | tee /tmp/m15-fibre-complete/new.log
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          root = Path('/tmp/m15-fibre-complete')
+          src = Path('Manuscript15/CrossQuarticFibreClassification20261125.lean').read_text()
+          old = Path('Manuscript15/CrossQuarticCurve20261125.lean').read_text()
+          log = (root/'new.log').read_text()
+          dep = (root/'dependency.log').read_text()
+          forbidden = re.compile(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s', re.M)
+          assert not forbidden.search(src)
+          assert not forbidden.search(old)
+          assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.', log + dep)
+          names=re.findall(r'^#print axioms (Manuscript15\.CrossQuarticFibreClassification20261125\.\w+)$',src,re.M)
+          assert len(names)==3 and len(set(names))==3,(len(names),names)
+          for name in names:
+            match=re.search(re.escape("'"+name+"'")+r' depends on axioms: \[([^\]]*)\]',log,re.S)
+            if match:
+              present={x.strip() for x in match.group(1).split(',') if x.strip()}
+              assert present <= {'propext','Classical.choice','Quot.sound'},(name,present)
+            else:
+              assert "'"+name+"' does not depend on any axioms" in log,name
+          print('M15 NOV25 EXACT COMPLETE AFFINE FIBRE THREE LEAN THEOREMS SUCCESS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-nov25-complete-affine-fibre-lean
+          path: /tmp/m15-fibre-complete/

@@ -1,0 +1,63 @@
+name: M15 2026-11-25 quartic cross-connections Lean4 exact-HEAD
+
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/CrossQuarticCurve20261125.lean'
+      - '.github/workflows/m15-cross-quartic-curve-20261125.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cross-quartic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify pinned mathlib and all twenty kernel proofs on exact PR HEAD
+        working-directory: lean
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/m15-cross-quartic-20261125
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          git rev-parse HEAD | tee /tmp/m15-cross-quartic-20261125/head.txt
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          lake env lean -M16768 Manuscript15/CrossQuarticCurve20261125.lean \
+            2>&1 | tee /tmp/m15-cross-quartic-20261125/lean.log
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          src=Path('Manuscript15/CrossQuarticCurve20261125.lean').read_text()
+          log=Path('/tmp/m15-cross-quartic-20261125/lean.log').read_text()
+          forbidden=re.compile(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s',re.M)
+          assert not forbidden.search(src), 'forbidden source construct'
+          assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.',log), 'admitted proof or Lean error'
+          names=re.findall(r'^#print axioms (Manuscript15\.CrossQuartic20261125\.\w+)$',src,re.M)
+          assert len(names)==20 and len(set(names))==20, (len(names),names)
+          for name in names:
+            m=re.search(re.escape("'"+name+"'")+r' depends on axioms: \[([^\]]*)\]',log,re.S)
+            if m:
+              present={x.strip() for x in m.group(1).split(',') if x.strip()}
+              assert present <= {'propext','Classical.choice','Quot.sound'},(name,present)
+            else:
+              assert "'"+name+"' does not depend on any axioms" in log,name
+          print('M15 25 NOV CROSS QUARTIC EXACT HEAD TWENTY THEOREMS SUCCESS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-20261125-cross-quartic-exact-head
+          path: /tmp/m15-cross-quartic-20261125/
