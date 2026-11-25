@@ -20,8 +20,7 @@ theorem uniformNorm_proved : UniformNorm := by
 theorem scale_inv_eq_rpow (M : ℕ) :
     (scale M)⁻¹ = (M:ℝ)^(1/4:ℝ) := by
   rw [scale, inv_inv, Real.sqrt_eq_rpow, Real.sqrt_eq_rpow,
-    ← Real.rpow_mul (Nat.cast_nonneg M)]
-  norm_num
+    ← Real.rpow_mul (Nat.cast_nonneg M)] <;> norm_num
 
 theorem scale_sq_eq_inv_sqrt (M : ℕ) :
     scale M ^ 2 = (Real.sqrt (M:ℝ))⁻¹ := by
@@ -51,7 +50,8 @@ variable (U : ℕ → Ω → ℝ) (hU : ∀ i, Measurable (U i))
 variable (hind : iIndepFun U μ) (hlaw : ∀ i, μ.map (U i) = V033.UniformSum.uniformLaw)
 include hU hind hlaw
 
-/-- The actual probability partition function, in the notation of M12. -/
+/- The actual probability partition function, in the notation of M12. -/
+omit hU hind hlaw in
 noncomputable def N (M : ℕ) (a : ℝ) : ℝ :=
   ∫ xy, Real.exp ((∑ i ∈ range M, U i xy.1) *
     (∑ i ∈ range M, U i xy.2) / a) ∂μ.prod μ
@@ -64,7 +64,8 @@ theorem locally_uniform_probability (L : ℝ) (hL : 0 ≤ L) (eps : ℝ) (heps :
   have hn : N (μ := μ) U M (c M lam*(M:ℝ)) =
       M12CriticalAssembly.originalFockNorm M (c M lam*(M:ℝ)) :=
     (original_eq_probability U hU hind hlaw M (hp lam hlam)).symm
-  rw [hn, c_eq, ← scale_inv_eq_rpow, div_eq_mul_inv, inv_inv, mul_comm]
+  rw [hn, c_eq, ← scale_inv_eq_rpow, div_eq_mul_inv, inv_inv]
+  rw [mul_comm (M12CriticalAssembly.originalFockNorm M _) (scale M)]
   exact hM lam hlam
 
 theorem locally_uniform_vacuum (L : ℝ) (hL : 0 ≤ L) (eps : ℝ) (heps : 0 < eps) :
