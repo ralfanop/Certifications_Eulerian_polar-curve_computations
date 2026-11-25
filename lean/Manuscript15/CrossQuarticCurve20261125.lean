@@ -220,6 +220,75 @@ theorem crease_critical_scaled_quotient
 #print axioms Manuscript15.CrossQuartic20261125.quartic_fibre_companion_root
 #print axioms Manuscript15.CrossQuartic20261125.crease_critical_scaled_quotient
 
+
+/-! ## Affine companion involution for the quartic period map -/
+
+/-- The denominator of the companion parameter t'=-1/t,
+cleared of its nonzero real denominator. -/
+theorem companion_denominator_identity (t : ℝ) (ht : t ≠ 0) :
+    (1 - (-1 / t) ^ 2) * t ^ 2 = t ^ 2 - 1 := by
+  field_simp [ht] <;> ring
+
+/-- The companion parameter remains in the SAME admissible
+affine chart when the original source parameter is admissible. -/
+theorem companion_denominator_nonzero (t : ℝ)
+    (ht : t ≠ 0) (hd : 1 - t ^ 2 ≠ 0) :
+    1 - (-1 / t) ^ 2 ≠ 0 := by
+  intro h
+  have hx := companion_denominator_identity t ht
+  rw [h] at hx
+  apply hd
+  nlinarith [hx]
+
+/-- The genuine companion point (t',Y')=(-1/t,Y/t²)
+lies on the source curve Y'²=1+t'⁴ whenever (t,Y)
+lies on Y²=1+t⁴. -/
+theorem companion_source_curve (t Y : ℝ)
+    (ht : t ≠ 0) (hY : Y ^ 2 = 1 + t ^ 4) :
+    (Y / t ^ 2) ^ 2 = 1 + (-1 / t) ^ 4 := by
+  calc
+    (Y / t ^ 2) ^ 2 = Y ^ 2 / t ^ 4 := by
+      simp only [div_pow, ← pow_mul]
+    _ = (1 + t ^ 4) / t ^ 4 := by rw [hY]
+    _ = 1 + (-1 / t) ^ 4 := by
+      field_simp [ht] <;> ring
+
+/-- Both source parameters t and -1/t have the SAME actual target z
+coordinate. This proves a genuine companion fibre relation. -/
+theorem quarticZ_companion (t : ℝ)
+    (ht : t ≠ 0) (hd : 1 - t ^ 2 ≠ 0) :
+    quarticZ (-1 / t) = quarticZ t := by
+  have hdp := companion_denominator_nonzero t ht hd
+  unfold quarticZ
+  field_simp [ht, hd, hdp] <;> ring
+
+/-- Companion source points have the SAME actual target W
+coordinate, not merely the same quadratic polynomial. -/
+theorem quarticW_companion (t Y : ℝ)
+    (ht : t ≠ 0) (hd : 1 - t ^ 2 ≠ 0) :
+    quarticW (-1 / t) (Y / t ^ 2) = quarticW t Y := by
+  have hdp := companion_denominator_nonzero t ht hd
+  unfold quarticW
+  field_simp [ht, hd, hdp] <;> ring
+
+/-- The two real affine companion parameters are distinct.
+This excludes a spurious double count of the two roots. -/
+theorem quartic_companion_distinct (t : ℝ) (ht : t ≠ 0) :
+    -1 / t ≠ t := by
+  intro h
+  have hm : (-1 / t) * t = t * t :=
+    congrArg (fun x : ℝ => x * t) h
+  have hdiv : (-1 / t) * t = -1 := by field_simp [ht]
+  rw [hdiv] at hm
+  nlinarith [sq_nonneg t]
+
+#print axioms Manuscript15.CrossQuartic20261125.companion_denominator_identity
+#print axioms Manuscript15.CrossQuartic20261125.companion_denominator_nonzero
+#print axioms Manuscript15.CrossQuartic20261125.companion_source_curve
+#print axioms Manuscript15.CrossQuartic20261125.quarticZ_companion
+#print axioms Manuscript15.CrossQuartic20261125.quarticW_companion
+#print axioms Manuscript15.CrossQuartic20261125.quartic_companion_distinct
+
 #print axioms Manuscript15.CrossQuartic20261125.sqrt_two_sq
 #print axioms Manuscript15.CrossQuartic20261125.quartic_factor_one
 #print axioms Manuscript15.CrossQuartic20261125.quartic_factor_two
