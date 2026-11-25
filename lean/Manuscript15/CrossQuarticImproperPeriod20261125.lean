@@ -32,13 +32,25 @@ open scoped Interval Topology
 on the real line, including the endpoint 1. -/
 theorem sourceIntegrand_continuous : Continuous sourceIntegrand := by
   unfold sourceIntegrand
-  fun_prop (discharger := positivity)
+  have hden : Continuous (fun t : ℝ => Real.sqrt (1 + t ^ 4)) := by
+    fun_prop
+  have hne : ∀ t : ℝ, Real.sqrt (1 + t ^ 4) ≠ 0 := by
+    intro t
+    exact ne_of_gt (Real.sqrt_pos.2 (by positivity))
+  exact continuous_const.div₀ hden hne
 
 /-- The actual target elliptic integrand is continuous everywhere
 on the real line, including z=0. -/
 theorem targetIntegrand_continuous : Continuous targetIntegrand := by
   unfold targetIntegrand
-  fun_prop (discharger := positivity)
+  have hden : Continuous
+      (fun z : ℝ => Real.sqrt ((1 + z ^ 2) * (1 + 2 * z ^ 2))) := by
+    fun_prop
+  have hne : ∀ z : ℝ,
+      Real.sqrt ((1 + z ^ 2) * (1 + 2 * z ^ 2)) ≠ 0 := by
+    intro z
+    exact ne_of_gt (Real.sqrt_pos.2 (by positivity))
+  exact continuous_const.div₀ hden hne
 
 /-- The true target density is pointwise dominated by the
 integrable Cauchy density 1/(1+z²). This supplies the required
@@ -77,7 +89,10 @@ period integrand on ALL of ℝ, and hence on (0,+∞). -/
 theorem targetIntegrand_integrable : Integrable targetIntegrand := by
   refine Integrable.mono' integrable_inv_one_add_sq
     targetIntegrand_continuous.aestronglyMeasurable ?_
-  exact Filter.Eventually.of_forall targetIntegrand_norm_bound
+  exact Filter.Eventually.of_forall (fun z : ℝ => by
+    have hh := targetIntegrand_norm_bound z
+    simpa only [Real.norm_eq_abs,
+      abs_of_nonneg (inv_nonneg.mpr (by positivity : 0 ≤ 1 + z ^ 2))] using hh)
 
 /-- The TRUE rational coordinate z(r) diverges to +∞ as
 r tends to 1 from below. This is not an assumed endpoint map. -/
@@ -97,12 +112,12 @@ theorem quarticZ_tendsto_atTop :
       (hc.tendsto (1 : ℝ)).mono_left nhdsWithin_le_nhds
   have hbelow :
       ∀ᶠ t : ℝ in 𝓝[<] (1 : ℝ), t < 1 := by
-    simpa only [mem_Iio] using
-      (self_mem_nhdsWithin : ∀ᶠ t : ℝ in 𝓝[<] (1 : ℝ), t ∈ Iio 1)
+    filter_upwards [self_mem_nhdsWithin] with t ht
+    exact ht
   have habove :
       ∀ᶠ t : ℝ in 𝓝[<] (1 : ℝ), 0 < t := by
-    exact (Ioi_mem_nhds (show (0 : ℝ) < 1 by norm_num)).filter_mono
-      nhdsWithin_le_nhds
+    exact nhdsWithin_le_nhds
+      (Ioi_mem_nhds (show (0 : ℝ) < 1 by norm_num))
   have hpos :
       ∀ᶠ t : ℝ in 𝓝[<] (1 : ℝ), 0 < 1 - t ^ 2 := by
     filter_upwards [hbelow, habove] with t ht h0
@@ -121,7 +136,10 @@ theorem quarticZ_tendsto_atTop :
     tendsto_inv_nhdsGT_zero.comp hdenGT
   have hmul := Filter.Tendsto.atTop_mul_pos
     (show 0 < Real.sqrt (2 : ℝ) by positivity) hinv hnum
-  simpa only [quarticZ, div_eq_mul_inv, mul_comm] using hmul
+  convert hmul using 1
+  funext t
+  unfold quarticZ
+  ring
 
 /-- Full analytic period equation (555), with ordinary Bochner/
 Lebesgue integral on (0,+∞) on the left, and the finite endpoint
@@ -143,19 +161,20 @@ theorem complete_quartic_elliptic_period_identity :
         (𝓝[<] (1 : ℝ))
         (𝓝 (∫ t in (0 : ℝ)..1, sourceIntegrand t)) := by
     have hcont := intervalIntegral.continuous_primitive
+      (μ := volume)
       (fun a b => sourceIntegrand_continuous.intervalIntegrable a b)
       (0 : ℝ)
     exact (hcont.tendsto (1 : ℝ)).mono_left nhdsWithin_le_nhds
   have hbelow :
       ∀ᶠ r : ℝ in 𝓝[<] (1 : ℝ), r < 1 := by
-    simpa only [mem_Iio] using
-      (self_mem_nhdsWithin : ∀ᶠ r : ℝ in 𝓝[<] (1 : ℝ), r ∈ Iio 1)
+    filter_upwards [self_mem_nhdsWithin] with r hr
+    exact hr
   have habove :
       ∀ᶠ r : ℝ in 𝓝[<] (1 : ℝ), 0 ≤ r := by
     have hgt :
         ∀ᶠ r : ℝ in 𝓝[<] (1 : ℝ), 0 < r :=
-      (Ioi_mem_nhds (show (0 : ℝ) < 1 by norm_num)).filter_mono
-        nhdsWithin_le_nhds
+      nhdsWithin_le_nhds
+        (Ioi_mem_nhds (show (0 : ℝ) < 1 by norm_num))
     exact hgt.mono (fun _ h => h.le)
   have hEq :
       (fun r : ℝ => ∫ z in (0 : ℝ)..quarticZ r, targetIntegrand z)
