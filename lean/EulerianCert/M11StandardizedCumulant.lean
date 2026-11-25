@@ -35,9 +35,10 @@ theorem mgf_eq_sinh (h : ℝ) (hh : h ≠ 0) :
     intro x
     have hd := ((Real.hasDerivAt_exp (c * x)).comp x
       ((hasDerivAt_id x).const_mul c)).div_const c
-    convert hd using 1
-    field_simp [hc]
-    <;> ring
+    have hcancel : Real.exp (c * x) * (c * 1) / c = Real.exp (c * x) := by
+      rw [mul_one, mul_div_cancel_right₀ _ hc]
+    rw [hcancel] at hd
+    exact hd
   have he : (∫ x in (-1 / 2 : ℝ)..(1 / 2), Real.exp (c * x)) =
       Real.exp (c * (1 / 2)) / c - Real.exp (c * (-1 / 2)) / c := by
     rw [intervalIntegral.integral_deriv_eq_sub' _ (funext fun x => (D x).deriv)
@@ -65,11 +66,10 @@ theorem mgf_eq_total (h : ℝ) :
 
 theorem moment_eq (n : ℕ) : moment n =
     (Real.sqrt 12) ^ n * (((1 / 2 : ℝ) ^ (n + 1) -
-      (-1 / 2 : ℝ) ^ (n + 1)) / (n + 1 : ℕ)) := by
+      (-1 / 2 : ℝ) ^ (n + 1)) / ((n : ℝ) + 1)) := by
   unfold moment
   simp only [mul_pow]
   rw [intervalIntegral.integral_const_mul, integral_pow]
-  push_cast
 
 theorem moment_one : moment 1 = 0 := by
   rw [moment_eq]
