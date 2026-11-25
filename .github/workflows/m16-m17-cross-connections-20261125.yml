@@ -1,0 +1,88 @@
+name: M16 Prop 15.1 and M17 Prop 10.1 / Cor 10.2 cross connections (exact HEAD)
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/QuarticPartitionSusceptibility20261125.lean'
+      - 'lean/Manuscript17/CrossConnections20261125.lean'
+      - '.github/workflows/m16-m17-cross-connections-20261125.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean 4 toolchain and Mathlib
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/cross-head.log
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          lake env lean --version | tee -a /tmp/cross-head.log
+      - name: Compile both modules and audit every requested declaration
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          M16=Manuscript16/QuarticPartitionSusceptibility20261125
+          M17=Manuscript17/CrossConnections20261125
+          for m in $M16 $M17; do
+            if grep -nE '\bsorry\b|\badmit\b|^\s*axiom\b|\bunsafe\b|implemented_by|extern' "$m.lean"; then exit 1; fi
+          done
+          mkdir -p .lake/build/lib/lean/Manuscript16 .lake/build/lib/lean/Manuscript17
+          lake env lean -M16768 -o ".lake/build/lib/lean/$M16.olean" "$M16.lean" 2>&1 | tee /tmp/cross-m16.log
+          lake env lean -M16768 -o ".lake/build/lib/lean/$M17.olean" "$M17.lean" 2>&1 | tee /tmp/cross-m17.log
+          for f in /tmp/cross-m16.log /tmp/cross-m17.log; do
+            if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|warning:|declaration uses .sorry.|Try this' "$f"; then exit 1; fi
+          done
+          python3 - <<'PY'
+          import hashlib, json, re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          out = {'head': Path('/tmp/cross-head.log').read_text().split()[0], 'modules': {}}
+          for mod, log, n in [('Manuscript16/QuarticPartitionSusceptibility20261125', '/tmp/cross-m16.log', 12),
+                              ('Manuscript17/CrossConnections20261125', '/tmp/cross-m17.log', 8)]:
+              src = Path(mod + '.lean')
+              text = Path(log).read_text()
+              requested = re.findall(r'^#print axioms (\S+)', src.read_text(), re.M)
+              assert len(requested) == n and len(set(requested)) == n, (mod, requested)
+              audit = {}
+              for name in requested:
+                  found = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", text, re.S)
+                  assert found or ("'" + name + "' does not depend on any axioms") in text, name
+                  axioms = sorted({x.strip() for a in found for x in a.split(',') if x.strip()})
+                  assert set(axioms) <= allowed, (name, axioms)
+                  audit[name] = axioms
+                  print('AXIOM AUDIT SUCCESS:', name, axioms)
+              out['modules'][mod] = {
+                  'source_sha256': hashlib.sha256(src.read_bytes()).hexdigest(),
+                  'olean_sha256': hashlib.sha256(Path('.lake/build/lib/lean/' + mod + '.olean').read_bytes()).hexdigest(),
+                  'axioms': audit,
+              }
+          Path('/tmp/cross-audit.json').write_text(json.dumps(out, indent=2))
+          print('M16/M17 CROSS CONNECTIONS: ALL', sum(len(m['axioms']) for m in out['modules'].values()), 'DECLARATIONS AUDITED')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-m17-cross-connections-20261125
+          path: |
+            /tmp/cross-head.log
+            /tmp/cross-m16.log
+            /tmp/cross-m17.log
+            /tmp/cross-audit.json
+          if-no-files-found: warn
