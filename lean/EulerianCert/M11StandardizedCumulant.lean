@@ -36,7 +36,8 @@ theorem mgf_eq_sinh (h : ℝ) (hh : h ≠ 0) :
     have hd := ((Real.hasDerivAt_exp (c * x)).comp x
       ((hasDerivAt_id x).const_mul c)).div_const c
     convert hd using 1
-    simp [hc]
+    field_simp [hc]
+    <;> ring
   have he : (∫ x in (-1 / 2 : ℝ)..(1 / 2), Real.exp (c * x)) =
       Real.exp (c * (1 / 2)) / c - Real.exp (c * (-1 / 2)) / c := by
     rw [intervalIntegral.integral_deriv_eq_sub' _ (funext fun x => (D x).deriv)
@@ -68,6 +69,7 @@ theorem moment_eq (n : ℕ) : moment n =
   unfold moment
   simp only [mul_pow]
   rw [intervalIntegral.integral_const_mul, integral_pow]
+  push_cast
 
 theorem moment_one : moment 1 = 0 := by
   rw [moment_eq]
@@ -78,8 +80,11 @@ theorem moment_two : moment 2 = 1 := by
   norm_num
 
 theorem moment_four : moment 4 = 9 / 5 := by
-  rw [moment_eq, show (4 : ℕ) = 2 * 2 by norm_num, pow_mul,
-    Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 12)]
+  have hs : (Real.sqrt 12) ^ 4 = 144 := by
+    calc
+      (Real.sqrt 12) ^ 4 = ((Real.sqrt 12) ^ 2) ^ 2 := by ring
+      _ = 144 := by rw [Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 12)]; norm_num
+  rw [moment_eq, hs]
   norm_num
 
 /-- Eq. (119), through the actual centered standardized moments.
