@@ -158,7 +158,7 @@ theorem quarticZ_hasDerivAt (t : ℝ) (ht : 1 - t ^ 2 ≠ 0) :
     convert ((hasDerivAt_id t).pow 2).const_sub (1 : ℝ) using 1
     · funext x
       simp only [Pi.pow_apply, id_eq]
-    · simp only [id_eq]
+    · norm_num <;> ring
   have h := hnum.div hden ht
   convert h using 1
   · funext x
