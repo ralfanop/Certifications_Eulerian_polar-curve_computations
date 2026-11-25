@@ -1,0 +1,57 @@
+name: M11 Proposition 3.17 Lean kernel audit
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianCert/M11StandardizedCumulant.lean'
+      - '.github/workflows/m11-standardized-cumulant-20261125.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: lean
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Exact head and pinned toolchain
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = "leanprover/lean4:v4.35.0-rc3"
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+      - name: Install Lean
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Get pinned Mathlib
+        run: |
+          lake exe cache get
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = "0272bbe1c093d038d7257ab15306abd58245f9ff"
+      - name: Compile and audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean EulerianCert/M11StandardizedCumulant.lean 2>&1 | tee m11-cumulant-audit.log
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          s = Path("m11-cumulant-audit.log").read_text()
+          assert not re.search(r'\b(?:error|warning):|sorryAx|Lean\.ofReduceBool', s), s
+          reports = re.findall(r"'([^']+)' depends on axioms:\s*\[([^\]]*)\]", s)
+          no_axioms = re.findall(r"'([^']+)' does not depend on any axioms", s)
+          expected = {"mgf_zero","mgf_eq_sinh","mgf_eq_total","moment_eq","moment_one","moment_two","moment_four","fourth_centered_cumulant","quartic_log_jet","fourth_log_coefficient"}
+          found = {n.split(".")[-1] for n, _ in reports} | {n.split(".")[-1] for n in no_axioms}
+          assert found == expected, (found, expected)
+          for name, axioms in reports:
+              assert set(re.findall(r'[A-Za-z_][A-Za-z0-9_.]*', axioms)) <= {"propext", "Classical.choice", "Quot.sound"}, (name, axioms)
+          print("SUCCESS: ten declarations, standard axioms only")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-cumulant-audit
+          path: lean/m11-cumulant-audit.log
