@@ -31,7 +31,7 @@ noncomputable def c (M : ℕ) (lam : ℝ) : ℝ :=
 
 theorem c_eq (M : ℕ) (lam : ℝ) :
     c M lam = 1/12+lam*scale M^2 := by
-  rw [c, scale_sq_eq_inv_sqrt, div_eq_mul_inv]
+  simp only [c, scale_sq_eq_inv_sqrt, div_eq_mul_inv]
 
 theorem eventual_c_pos (L : ℝ) (hL : 0 ≤ L) :
     ∀ᶠ M : ℕ in atTop, ∀ lam : ℝ, |lam| ≤ L → 0 < c M lam * (M:ℝ) := by
