@@ -22,7 +22,7 @@ of the quartic Taylor polynomial of the self-dual crease.
 
 The analytic assertions not covered by this module are:
 (1) extension to smooth projective genus-one curves and degree two;
-(2) derivative one-form and the real period INTEGRAL identity;
+(2) global one-form descent and the real period INTEGRAL identity;
 (3) equality between the ACTUAL analytic crease D_k and its
     quartic Taylor jet with a uniform O(u^6) remainder;
 (4) the scaling LIMIT of the actual D_{k_M}, and the vacuum
@@ -141,6 +141,81 @@ theorem crease_critical_exact_rescaling
   unfold creaseQuarticJet
   rw [hk4, hk]
   ring
+
+
+/-! ## Actual affine derivative and the second quadratic fibre root -/
+
+/-- Derivative of the actual z(t) rational map of Eq. (551). -/
+theorem quarticZ_hasDerivAt (t : ℝ) (ht : 1 - t ^ 2 ≠ 0) :
+    HasDerivAt quarticZ
+      (Real.sqrt 2 * (1 + t ^ 2) / (1 - t ^ 2) ^ 2) t := by
+  have hnum :
+      HasDerivAt (fun x : ℝ => Real.sqrt 2 * x) (Real.sqrt 2) t := by
+    simpa only [id_eq, mul_one] using
+      ((hasDerivAt_id t).const_mul (Real.sqrt 2))
+  have hden :
+      HasDerivAt (fun x : ℝ => 1 - x ^ 2) (-2 * t) t := by
+    convert ((hasDerivAt_id t).pow 2).const_sub (1 : ℝ) using 1 <;> ring
+  have h := hnum.div hden ht
+  convert h using 1
+  · funext x
+    rfl
+  · field_simp [ht] <;> ring
+
+/-- The source quartic curve has no real branch point with Y zero. -/
+theorem quartic_source_y_nonzero (t Y : ℝ)
+    (hY : Y ^ 2 = 1 + t ^ 4) : Y ≠ 0 := by
+  intro hy
+  have hp : 0 ≤ t ^ 4 := by positivity
+  rw [hy] at hY
+  nlinarith
+
+/-- Exact scalar Jacobian ratio, the affine differential identity
+dz/W = sqrt(2) dt/Y in Eq. (554), using genuine Lean differentiation.
+The period integration is a separate obligation. -/
+theorem quartic_differential_ratio (t Y : ℝ)
+    (ht : 1 - t ^ 2 ≠ 0) (hY : Y ≠ 0) :
+    deriv quarticZ t / quarticW t Y = Real.sqrt 2 / Y := by
+  rw [(quarticZ_hasDerivAt t ht).deriv]
+  unfold quarticW
+  have hp : 1 + t ^ 2 ≠ 0 := by positivity
+  have hpow : (1 - t ^ 2) ^ 2 ≠ 0 := pow_ne_zero 2 ht
+  have hnum : (1 + t ^ 2) * Y ≠ 0 := mul_ne_zero hp hY
+  have hW : (1 + t ^ 2) * Y / (1 - t ^ 2) ^ 2 ≠ 0 :=
+    div_ne_zero hnum hpow
+  field_simp [ht, hY, hp, hpow, hnum, hW] <;> ring
+
+/-- For nonzero source t the companion root -1/t solves the
+same quadratic fibre equation at z=z(t). -/
+theorem quartic_fibre_companion_root (t : ℝ)
+    (ht : t ≠ 0) (hd : 1 - t ^ 2 ≠ 0) :
+    quarticZ t * (-1 / t) ^ 2 +
+      Real.sqrt 2 * (-1 / t) - quarticZ t = 0 := by
+  calc
+    quarticZ t * (-1 / t) ^ 2 +
+        Real.sqrt 2 * (-1 / t) - quarticZ t =
+        -(quarticZ t * t ^ 2 + Real.sqrt 2 * t - quarticZ t) /
+          t ^ 2 := by
+            field_simp [ht] <;> ring
+    _ = 0 := by rw [quartic_fibre_quadratic t hd]; ring
+
+/-- Critical rescaling quotient of the exact quartic Taylor
+polynomial. The true analytic remainder is a separate issue. -/
+theorem crease_critical_scaled_quotient
+    (k ε v lam : ℝ) (hε : ε ≠ 0)
+    (hk : k ^ 2 = 1 - 80 * lam * ε ^ 2) :
+    3 * creaseQuarticJet k (ε * v) / (20 * ε ^ 4) =
+      v ^ 4 / 40 + 6 * lam * v ^ 2 -
+        4 * lam * ε ^ 2 * v ^ 4 +
+        200 * lam ^ 2 * ε ^ 4 * v ^ 4 := by
+  rw [crease_critical_exact_rescaling k ε v lam hk]
+  field_simp [hε] <;> ring
+
+#print axioms Manuscript15.CrossQuartic20261125.quarticZ_hasDerivAt
+#print axioms Manuscript15.CrossQuartic20261125.quartic_source_y_nonzero
+#print axioms Manuscript15.CrossQuartic20261125.quartic_differential_ratio
+#print axioms Manuscript15.CrossQuartic20261125.quartic_fibre_companion_root
+#print axioms Manuscript15.CrossQuartic20261125.crease_critical_scaled_quotient
 
 #print axioms Manuscript15.CrossQuartic20261125.sqrt_two_sq
 #print axioms Manuscript15.CrossQuartic20261125.quartic_factor_one
