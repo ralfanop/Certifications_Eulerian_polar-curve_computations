@@ -1,0 +1,94 @@
+name: M16 v16.5 Thm 14.5 eq (W1) exact W1 and explicit optimal coupling (exact HEAD)
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/MaxwellGibbsW1OptimalCoupling20261125.lean'
+      - 'lean/Manuscript16/MaxwellGibbsTailObstruction20261125.lean'
+      - 'lean/Manuscript16/V165ResonanceGenerating.lean'
+      - 'lean/Manuscript16/V165ResonanceInfinite.lean'
+      - '.github/workflows/m16-gibbs-w1-optimal-coupling-20261125.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean 4 toolchain and Mathlib
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m16-gw1-head.log
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          lake env lean --version | tee -a /tmp/m16-gw1-head.log
+      - name: Compile the imported modules and the new module, audit every declaration
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          SRC=Manuscript16/MaxwellGibbsW1OptimalCoupling20261125.lean
+          mkdir -p .lake/build/lib/lean/Manuscript16
+          for m in Manuscript16/V165ResonanceGenerating Manuscript16/V165ResonanceInfinite Manuscript16/MaxwellGibbsTailObstruction20261125 Manuscript16/MaxwellGibbsW1OptimalCoupling20261125; do
+            if grep -nE '\bsorry\b|\badmit\b|^\s*axiom\b|\bunsafe\b|implemented_by|extern' "$m.lean"; then exit 1; fi
+          done
+          for m in Manuscript16/V165ResonanceGenerating Manuscript16/V165ResonanceInfinite Manuscript16/MaxwellGibbsTailObstruction20261125; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/$m.olean" "$m.lean" 2>&1 | tee "/tmp/m16-gw1-dep-$(basename $m).log"
+            if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' "/tmp/m16-gw1-dep-$(basename $m).log"; then exit 1; fi
+          done
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript16/MaxwellGibbsW1OptimalCoupling20261125.olean "$SRC" 2>&1 | tee /tmp/m16-gw1-lean.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|warning:|declaration uses .sorry.|Try this' /tmp/m16-gw1-lean.log; then exit 1; fi
+          python3 - <<'PY'
+          import hashlib, json, re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          deps = {}
+          for p in sorted(Path('/tmp').glob('m16-gw1-dep-*.log')):
+              for name, a in re.findall(r"'([^']+)' depends on axioms: \[([^\]]*)\]", p.read_text(), re.S):
+                  axioms = sorted({x.strip() for x in a.split(',') if x.strip()})
+                  assert set(axioms) <= allowed, (p.name, name, axioms)
+                  deps[name] = axioms
+          assert len(deps) == 30, len(deps)
+          src = Path('Manuscript16/MaxwellGibbsW1OptimalCoupling20261125.lean')
+          log = Path('/tmp/m16-gw1-lean.log').read_text()
+          requested = re.findall(r'^#print axioms (\S+)', src.read_text(), re.M)
+          assert len(requested) == 25 and len(set(requested)) == 25, requested
+          audit = {}
+          for name in requested:
+              found = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert found or ("'" + name + "' does not depend on any axioms") in log, name
+              axioms = sorted({x.strip() for a in found for x in a.split(',') if x.strip()})
+              assert set(axioms) <= allowed, (name, axioms)
+              audit[name] = axioms
+              print('AXIOM AUDIT SUCCESS:', name, axioms)
+          out = {
+              'head': Path('/tmp/m16-gw1-head.log').read_text().split()[0],
+              'source_sha256': hashlib.sha256(src.read_bytes()).hexdigest(),
+              'olean_sha256': hashlib.sha256(Path('.lake/build/lib/lean/Manuscript16/MaxwellGibbsW1OptimalCoupling20261125.olean').read_bytes()).hexdigest(),
+              'log_sha256': hashlib.sha256(log.encode()).hexdigest(),
+              'axioms': audit,
+              'imported_module_axioms': deps,
+          }
+          Path('/tmp/m16-gw1-audit.json').write_text(json.dumps(out, indent=2) + '\n')
+          print('SUCCESS:', len(audit), 'declarations and', len(deps), 'imported reports; standard axioms only')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-gibbs-w1-optimal-coupling-audit
+          path: |
+            /tmp/m16-gw1-*.log
+            /tmp/m16-gw1-audit.json
