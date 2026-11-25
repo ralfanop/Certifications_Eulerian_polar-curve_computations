@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - name: Verify pinned mathlib and all fourteen kernel proofs on exact PR HEAD
+      - name: Verify pinned mathlib and all twenty kernel proofs on exact PR HEAD
         working-directory: lean
         env:
           EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -46,7 +46,7 @@ jobs:
           assert not forbidden.search(src), 'forbidden source construct'
           assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.',log), 'admitted proof or Lean error'
           names=re.findall(r'^#print axioms (Manuscript15\.CrossQuartic20261125\.\w+)$',src,re.M)
-          assert len(names)==14 and len(set(names))==14, (len(names),names)
+          assert len(names)==20 and len(set(names))==20, (len(names),names)
           for name in names:
             m=re.search(re.escape("'"+name+"'")+r' depends on axioms: \[([^\]]*)\]',log,re.S)
             if m:
@@ -54,7 +54,7 @@ jobs:
               assert present <= {'propext','Classical.choice','Quot.sound'},(name,present)
             else:
               assert "'"+name+"' does not depend on any axioms" in log,name
-          print('M15 25 NOV CROSS QUARTIC EXACT HEAD FOURTEEN THEOREMS SUCCESS')
+          print('M15 25 NOV CROSS QUARTIC EXACT HEAD TWENTY THEOREMS SUCCESS')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
