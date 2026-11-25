@@ -81,7 +81,6 @@ theorem quartic_target_affine (t Y : ℝ)
         (((1 + t ^ 2) * Y) ^ 2) / (1 - t ^ 2) ^ 4 := by
           unfold quarticW
           simp only [div_pow, ← pow_mul]
-          norm_num
     _ = (((1 - t ^ 2) ^ 2 + (Real.sqrt 2) ^ 2 * t ^ 2) *
          ((1 - t ^ 2) ^ 2 + 2 * (Real.sqrt 2) ^ 2 * t ^ 2)) /
          (1 - t ^ 2) ^ 4 := by
