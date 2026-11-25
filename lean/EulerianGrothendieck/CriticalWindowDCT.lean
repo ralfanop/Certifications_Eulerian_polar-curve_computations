@@ -79,6 +79,7 @@ theorem eventual_uniform_majorant (L : ℝ) (hL : 0 ≤ L) :
     rw [abs_of_nonneg hL]
     have hsq' : (6 * |lam| + 1)^2 ≤ (6*L+1)^2 := by
       apply pow_le_pow_left₀ (by positivity) (by linarith) 2
+    have hb0 := M12GlobalMGF.deficitConstant_pos
     gcongr
   exact hm.trans hmon
 
@@ -138,7 +139,11 @@ theorem integral_G_factor (lam : ℝ) :
     funext (G_eq_product lam)
   rw [heq]
   unfold planeMeasure
-  rw [integral_prod_mul, M12FockDomination.gaussian_factor]
+  calc
+    _ = (∫ u : ℝ, profile lam u) * (∫ w : ℝ, Real.exp (-w^2)) :=
+      integral_prod_mul (μ := (volume : Measure ℝ)) (ν := (volume : Measure ℝ))
+        (profile lam) (fun w : ℝ => Real.exp (-w^2))
+    _ = _ := by rw [M12FockDomination.gaussian_factor]
 
 theorem eventual_original_Fock_eq (lam : ℝ) :
     ∀ᶠ M : ℕ in atTop,
@@ -150,7 +155,11 @@ theorem eventual_original_Fock_eq (lam : ℝ) :
   have hm : 0 < M := by omega
   rw [M12CriticalAssembly.normalized_Fock_eq_actual_scaled_integrand M (scale M) lam
     (scale_pos M hm) (scale_identity M hm)]
-  rw [integral_prod_symm (H lam M) hi] <;> rfl
+  have hf := integral_prod_symm (μ := (volume : Measure ℝ))
+    (ν := (volume : Measure ℝ)) (H lam M) hi
+  change (∫ p, H lam M p ∂planeMeasure) =
+    (∫ w : ℝ, ∫ u : ℝ, M12FockDomination.scaledIntegrand M (scale M) lam u w) at hf
+  rw [hf]
 
 theorem fixed_lambda_Fock_limit (lam : ℝ) :
     Tendsto (fun M : ℕ => scale M * M12CriticalAssembly.originalFockNorm M
@@ -168,10 +177,12 @@ theorem fixed_lambda_Fock_limit (lam : ℝ) :
   have hpi : (Real.sqrt Real.pi)^2 = Real.pi := Real.sq_sqrt Real.pi_pos.le
   have heq : (1/(2*Real.pi))*((∫ u : ℝ, profile lam u)*Real.sqrt Real.pi) = F lam := by
     unfold F
-    rw [← hpi]
-    field_simp [hs] <;> ring
+    field_simp [hs, Real.pi_ne_zero]
+    linear_combination (∫ u : ℝ, profile lam u) * hpi
   rw [heq] at h
-  exact h.congr' (eventual_original_Fock_eq lam).symm
+  apply h.congr'
+  filter_upwards [eventual_original_Fock_eq lam] with M hM
+  exact hM.symm
 
 theorem F_pos (lam : ℝ) : 0 < F lam := by
   unfold F
