@@ -149,6 +149,7 @@ theorem quartic_difference (t : ℝ) :
 theorem quartic_difference_nonnegative (t : ℝ) (ht : 0 ≤ t) (ht1 : t ≤ 1) :
     0 ≤ (3+6*t^2-t^4)/8-t := by
   rw [quartic_difference]
+  have h : 0 ≤ 1-t := sub_nonneg.mpr ht1
   positivity
 
 theorem quartic_area_primitive :
@@ -169,7 +170,9 @@ theorem selectivity_error_bound
   have h := abs_le.mp hr
   have ha := abs_le.mp h1
   have hb := abs_le.mp h0
-  rw [← sub_div' (ne_of_gt hw), abs_div, abs_of_pos hw]
+  have heq : C-(Sh-Sh0)/w = (w*C-(Sh-Sh0))/w := by
+    field_simp [ne_of_gt hw] <;> ring
+  rw [heq, abs_div, abs_of_pos hw]
   apply (div_le_div_iff_of_pos_right hw).2
   exact abs_le.mpr ⟨by linarith, by linarith⟩
 
