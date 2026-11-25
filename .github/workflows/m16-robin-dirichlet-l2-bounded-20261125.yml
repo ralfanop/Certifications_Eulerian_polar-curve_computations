@@ -1,0 +1,100 @@
+name: M16 v16.5 Prop 14.2 Dirichlet and Robin Green operators bounded on L2(0,inf) (exact HEAD)
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/RobinDirichletL2Bounded20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletRankOne20261125.lean'
+      - '.github/workflows/m16-robin-dirichlet-l2-bounded-20261125.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean 4 toolchain and Mathlib
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m16-rdl2-head.log
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          lake env lean --version | tee -a /tmp/m16-rdl2-head.log
+      - name: Compile the imported module and the new module, audit every declaration
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          SRC=Manuscript16/RobinDirichletL2Bounded20261125.lean
+          DEP=Manuscript16/RobinDirichletRankOne20261125.lean
+          mkdir -p .lake/build/lib/lean/Manuscript16
+          for m in "$DEP" "$SRC"; do
+            if grep -nE '\bsorry\b|\badmit\b|^\s*axiom\b|\bunsafe\b|implemented_by|extern' "$m"; then exit 1; fi
+          done
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript16/RobinDirichletRankOne20261125.olean "$DEP" 2>&1 | tee /tmp/m16-rdl2-dep.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|warning:|declaration uses .sorry.|Try this' /tmp/m16-rdl2-dep.log; then exit 1; fi
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript16/RobinDirichletL2Bounded20261125.olean "$SRC" 2>&1 | tee /tmp/m16-rdl2-lean.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|warning:|declaration uses .sorry.|Try this' /tmp/m16-rdl2-lean.log; then exit 1; fi
+          python3 - <<'PY'
+          import hashlib, json, re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          deps = {}
+          dep_log = Path('/tmp/m16-rdl2-dep.log').read_text()
+          dep_src = Path('Manuscript16/RobinDirichletRankOne20261125.lean')
+          dep_requested = re.findall(r'^#print axioms (\S+)', dep_src.read_text(), re.M)
+          assert len(dep_requested) == 64 and len(set(dep_requested)) == 64, len(dep_requested)
+          for name in dep_requested:
+              found = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]",
+                                 dep_log, re.S)
+              assert found or ("'" + name + "' does not depend on any axioms") in dep_log, name
+              axioms = sorted({x.strip() for a in found for x in a.split(',') if x.strip()})
+              assert set(axioms) <= allowed, (name, axioms)
+              deps[name] = axioms
+          assert len(deps) == 64, len(deps)
+          src = Path('Manuscript16/RobinDirichletL2Bounded20261125.lean')
+          log = Path('/tmp/m16-rdl2-lean.log').read_text()
+          requested = re.findall(r'^#print axioms (\S+)', src.read_text(), re.M)
+          assert len(requested) == 29 and len(set(requested)) == 29, requested
+          audit = {}
+          for name in requested:
+              found = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert found or ("'" + name + "' does not depend on any axioms") in log, name
+              axioms = sorted({x.strip() for a in found for x in a.split(',') if x.strip()})
+              assert set(axioms) <= allowed, (name, axioms)
+              audit[name] = axioms
+              print('AXIOM AUDIT SUCCESS:', name, axioms)
+          out = {
+              'head': Path('/tmp/m16-rdl2-head.log').read_text().split()[0],
+              'source_sha256': hashlib.sha256(src.read_bytes()).hexdigest(),
+              'dependency_sha256': hashlib.sha256(dep_src.read_bytes()).hexdigest(),
+              'olean_sha256': hashlib.sha256(
+                  Path('.lake/build/lib/lean/Manuscript16/RobinDirichletL2Bounded20261125.olean').read_bytes()).hexdigest(),
+              'log_sha256': hashlib.sha256(log.encode()).hexdigest(),
+              'dependency_declarations': len(deps),
+              'axioms': audit,
+          }
+          Path('/tmp/m16-rdl2-audit.json').write_text(json.dumps(out, indent=2) + '\n')
+          print('SUCCESS:', len(audit), 'theorems and', len(deps),
+                'imported declarations; standard axioms only')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-robin-dirichlet-l2-bounded-audit
+          path: |
+            /tmp/m16-rdl2-*.log
+            /tmp/m16-rdl2-audit.json
