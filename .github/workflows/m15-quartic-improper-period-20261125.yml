@@ -66,7 +66,7 @@ jobs:
             'quartic.log','differential.log','finite.log','new.log']]
           assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.',''.join(logs))
           names=re.findall(r'^#print axioms (Manuscript15\.CrossQuarticImproperPeriod20261125\.\w+)$',src,re.M)
-          assert len(names)==6 and len(set(names))==6,(len(names),names)
+          assert len(names)==7 and len(set(names))==7,(len(names),names)
           log=logs[-1]
           for n in names:
             m=re.search(re.escape("'"+n+"'")+r' depends on axioms: \[([^\]]*)\]',log,re.S)
@@ -75,7 +75,7 @@ jobs:
               assert present <= {'propext','Classical.choice','Quot.sound'},(n,present)
             else:
               assert "'"+n+"' does not depend on any axioms" in log,n
-          print('M15 FULL IMPROPER ELLIPTIC PERIOD SIX LEAN THEOREMS SUCCESS')
+          print('M15 FULL IMPROPER ELLIPTIC PERIOD SEVEN LEAN THEOREMS SUCCESS')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
