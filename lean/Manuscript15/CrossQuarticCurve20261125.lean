@@ -264,7 +264,7 @@ theorem quarticZ_companion (t : ℝ)
     apply hd
     linarith
   unfold quarticZ
-  field_simp [ht, hd, hdp, hminus] <;> ring
+  field_simp [ht, hd, hdp, hminus] <;> field_simp [hminus] <;> ring
 
 /-- Companion source points have the SAME actual target W
 coordinate, not merely the same quadratic polynomial. -/
@@ -277,7 +277,7 @@ theorem quarticW_companion (t Y : ℝ)
     rw [hx]
     exact pow_ne_zero 2 hd
   unfold quarticW
-  field_simp [ht, hd, hdp, hquartic] <;> ring
+  field_simp [ht, hd, hdp, hquartic] <;> field_simp [hquartic] <;> ring
 
 /-- The two real affine companion parameters are distinct.
 This excludes a spurious double count of the two roots. -/
