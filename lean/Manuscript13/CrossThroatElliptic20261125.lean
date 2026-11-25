@@ -190,6 +190,60 @@ theorem self_dual_bridge (T : ℝ)
   rw [h2]
   field_simp [show Real.sqrt (2:ℝ) ≠ 0 by positivity]
 
+theorem tangent_inj (b : ℝ) (hb : 0 ≤ b) (hb1 : b < 1) :
+    InjOn (fun θ => complementary b * Real.tan θ) (Ioo (0:ℝ) (Real.pi/2)) := by
+  intro x hx y hy h
+  have hc := complementary_pos b hb hb1
+  have ht : Real.tan x = Real.tan y := mul_left_cancel₀ (ne_of_gt hc) h
+  exact Real.injOn_tan ⟨by linarith [Real.pi_pos,hx.1],hx.2⟩
+    ⟨by linarith [Real.pi_pos,hy.1],hy.2⟩ ht
+
+theorem tangent_image (b : ℝ) (hb : 0 ≤ b) (hb1 : b < 1) :
+    (fun θ => complementary b * Real.tan θ) '' Ioo (0:ℝ) (Real.pi/2) = Ioi 0 := by
+  have hc := complementary_pos b hb hb1
+  ext x
+  constructor
+  · rintro ⟨θ,hθ,rfl⟩
+    apply mul_pos hc
+    rw [Real.tan_eq_sin_div_cos]
+    exact div_pos (Real.sin_pos_of_pos_of_lt_pi hθ.1 (by linarith [Real.pi_pos,hθ.2]))
+      (Real.cos_pos_of_mem_Ioo ⟨by linarith [Real.pi_pos,hθ.1],hθ.2⟩)
+  · intro hx
+    refine ⟨Real.arctan (x/complementary b),⟨Real.arctan_pos.mpr (div_pos hx hc),
+      Real.arctan_lt_pi_div_two _⟩,?_⟩
+    rw [Real.tan_arctan]
+    field_simp [ne_of_gt hc]
+
+theorem scaled_integral_elliptic (b : ℝ) (hb : 0 ≤ b) (hb1 : b < 1) :
+    (∫ x in Ioi (0:ℝ), scaledWeight (complementary b) x) =
+      complementary b * ellipticK b := by
+  have h := integral_image_eq_integral_abs_deriv_smul measurableSet_Ioo
+    (tangent_jacobian b hb hb1) (tangent_inj b hb hb1)
+    (scaledWeight (complementary b))
+  rw [tangent_image b hb hb1] at h
+  rw [h]
+  unfold ellipticK
+  rw [intervalIntegral.integral_of_le (by positivity), integral_Ioc_eq_integral_Ioo,
+    ← integral_const_mul]
+  refine setIntegral_congr_fun measurableSet_Ioo fun θ hθ => ?_
+  have hj : 0 ≤ complementary b / Real.cos θ^2 :=
+    div_nonneg (complementary_pos b hb hb1).le (sq_nonneg _)
+  rw [abs_of_nonneg hj, smul_eq_mul]
+  exact tangent_weight b θ hb hb1 hθ
+
+theorem actual_throat_period (a b : ℝ) (ha : 0 < a) (hb : 0 ≤ b) (hb1 : b < 1) :
+    (1/a)*(∫ u in Ioi (0:ℝ), weight a (complementary b) u) =
+      complementary b * ellipticK b := by
+  rw [overlap_scale a (complementary b) ha (complementary_pos b hb hb1),
+    scaled_integral_elliptic b hb hb1]
+
+theorem actual_throat_quartic (a b Z : ℝ) (ha : 0 < a) (hb : 0 ≤ b) (hb1 : b < 1)
+    (hK : ellipticK b = Real.sqrt (2*Real.pi/5)*Z) :
+    (1/a)*(∫ u in Ioi (0:ℝ), weight a (complementary b) u) =
+      Real.sqrt (2*Real.pi/5)*complementary b*Z := by
+  rw [actual_throat_period a b ha hb hb1,hK]
+  ring
+
 end
 end Manuscript13.CrossThroatElliptic20261125
 #print axioms Manuscript13.CrossThroatElliptic20261125.complementary_pos
@@ -209,3 +263,9 @@ end Manuscript13.CrossThroatElliptic20261125
 #print axioms Manuscript13.CrossThroatElliptic20261125.criticalF0_gamma
 #print axioms Manuscript13.CrossThroatElliptic20261125.self_dual_complement
 #print axioms Manuscript13.CrossThroatElliptic20261125.self_dual_bridge
+
+#print axioms Manuscript13.CrossThroatElliptic20261125.tangent_inj
+#print axioms Manuscript13.CrossThroatElliptic20261125.tangent_image
+#print axioms Manuscript13.CrossThroatElliptic20261125.scaled_integral_elliptic
+#print axioms Manuscript13.CrossThroatElliptic20261125.actual_throat_period
+#print axioms Manuscript13.CrossThroatElliptic20261125.actual_throat_quartic
