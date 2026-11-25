@@ -54,8 +54,14 @@ jobs:
           allowed = {'propext', 'Classical.choice', 'Quot.sound'}
           deps = {}
           dep_log = Path('/tmp/m16-rdp-dep.log').read_text()
-          for name, a in re.findall(r"'([^']+)' depends on axioms: \[([^\]]*)\]", dep_log, re.S):
-              axioms = sorted({x.strip() for x in a.split(',') if x.strip()})
+          dep_src = Path('Manuscript16/RobinDirichletRankOne20261125.lean')
+          dep_requested = re.findall(r'^#print axioms (\S+)', dep_src.read_text(), re.M)
+          assert len(dep_requested) == 64 and len(set(dep_requested)) == 64, len(dep_requested)
+          for name in dep_requested:
+              found = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]",
+                                 dep_log, re.S)
+              assert found or ("'" + name + "' does not depend on any axioms") in dep_log, name
+              axioms = sorted({x.strip() for a in found for x in a.split(',') if x.strip()})
               assert set(axioms) <= allowed, (name, axioms)
               deps[name] = axioms
           assert len(deps) == 64, len(deps)
