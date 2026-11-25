@@ -14,7 +14,10 @@ theorem inverse_jet_cubic (s : ℝ) :
 theorem rate_jet_derivative (s : ℝ) :
     HasDerivAt (fun x : ℝ => x^2/2 + x^4/20) (s+s^3/5) s := by
   convert (((hasDerivAt_id s).pow 2).div_const 2).add
-    (((hasDerivAt_id s).pow 4).div_const 20) using 1 <;> ring
+    (((hasDerivAt_id s).pow 4).div_const 20) using 1
+  · funext x
+    rfl
+  · simp [id] <;> ring
 
 theorem orthogonal_quadratic (u w q : ℝ) (hq : q^2 = 1/2) :
     ((u+w)*q)^2 + ((u-w)*q)^2 = u^2+w^2 := by
@@ -39,7 +42,7 @@ theorem orthogonal_quartic (u w q : ℝ) (hq : q^2 = 1/2) :
     _ = 2*q^4*(u^4+6*u^2*w^2+w^4) := by ring
     _ = _ := by rw [h4]; ring
 
-def jet (s : ℝ) : ℝ := s^2/2+s^4/20
+noncomputable def jet (s : ℝ) : ℝ := s^2/2+s^4/20
 
 theorem coupled_jet (u w q : ℝ) (hq : q^2 = 1/2) :
     jet ((u+w)*q) + jet ((u-w)*q) - ((u+w)*q)*((u-w)*q) =
@@ -69,7 +72,15 @@ theorem scaled_jet_error (e v z l : ℝ) (hd : 1+12*l*e^2 ≠ 0) :
       -(z^2+v^4/40+6*l*v^2) =
     (6*e^2*v^2*z^2+e^4*z^4)/40
       -6*l*e^2*(z^2+12*l*v^2)/(1+12*l*e^2) := by
-  field_simp [hd] <;> ring
+  have h : 6*l*(v^2-e^2*z^2)/(1+12*l*e^2) - 6*l*v^2 =
+      -6*l*e^2*(z^2+12*l*v^2)/(1+12*l*e^2) := by
+    apply (eq_div_iff hd).2
+    rw [sub_mul, div_mul_cancel₀ _ hd]
+    ring
+  calc
+    _ = (6*e^2*v^2*z^2+e^4*z^4)/40 +
+        (6*l*(v^2-e^2*z^2)/(1+12*l*e^2)-6*l*v^2) := by ring
+    _ = _ := by rw [h]; ring
 
 /-- Avoids division by the scale, so it is also valid at zero. -/
 theorem scaled_jet_factor (e v z l : ℝ) (hd : 1+12*l*e^2 ≠ 0) :
