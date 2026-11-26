@@ -21,12 +21,14 @@ def geom(kind,t,a,b):
     V=r*r+p*p; v=V.sqrt()
     return r,p,q,V,v
 
-def theta_jet(kind,theta0,scale,a,b,degree,budget=None,weight_rate=0):
+def theta_jet(kind,theta0,scale,a,b,degree,budget=None,weight_rate=0,initial_coeffs=None):
     # Invariant: coeffs contain the exact solution coefficients 0..m-1.
     # Given their exact polynomial y, solve delta'=F'(y) delta+F(y)-y'
     # with delta(0)=0. Since delta=O(z^m), quadratic remainder O(z^(2m));
     # the correction determines coefficients through degree 2m-1 exactly.
-    coeffs=[theta0];m=1;work=ctx.prec
+    coeffs=[theta0] if initial_coeffs is None else list(initial_coeffs)
+    m=len(coeffs);work=ctx.prec
+    assert 1<=m<=degree and coeffs[0].contains(theta0)
     try:
         while m<degree:
             if budget is not None:
