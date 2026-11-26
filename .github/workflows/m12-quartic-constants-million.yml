@@ -1,0 +1,45 @@
+name: M12 quartic critical constants at 1000001 exact digits
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_quartic_constants_million.py'
+      - '.github/workflows/m12-quartic-constants-million.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact HEAD and pinned FLINT
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "EXACT_HEAD=$(git rev-parse HEAD)"
+          python -m pip install python-flint==0.9.0
+      - name: Three strict significant and fixed decimal rounding certificates
+        run: |
+          set -euo pipefail
+          python numerics/arb/m12_quartic_constants_million.py 2>&1 | tee m12-quartic-constants.log
+          grep -F 'MILLION SUCCESS m12-quartic-constants checks 3' m12-quartic-constants.log
+          test "$(grep -c '1000001 fixed decimal places: PASS' m12-quartic-constants.log)" -eq 3
+          gzip -t million-enclosures.jsonl.gz m12-quartic-fixed-endpoints.jsonl.gz
+          sha256sum million-enclosures.jsonl.gz m12-quartic-fixed-endpoints.jsonl.gz million-m12-quartic-constants.json m12-quartic-constants.log > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-quartic-constants-million
+          path: |
+            million-enclosures.jsonl.gz
+            m12-quartic-fixed-endpoints.jsonl.gz
+            million-m12-quartic-constants.json
+            m12-quartic-constants.log
+            SHA256SUMS
+          compression-level: 0
+          if-no-files-found: error
