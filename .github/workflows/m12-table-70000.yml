@@ -1,0 +1,141 @@
+name: M12 Table 1 at 70000 exact digits
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m12_table_70000.py'
+      - '.github/workflows/m12-table-70000.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Authenticate exact source runs and artifacts
+        working-directory: numerics/arb
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "EXACT_HEAD=$(git rev-parse HEAD)"
+          python -m pip install python-flint==0.9.0
+          python -m py_compile m12_table_70000.py
+          for spec in \
+            '44782807031 2ce55dc3f6ab4af4e407d322ac3b3b5afa842e64' \
+            '44898333059 8962f7317e489050e0eb322dbe1c1884f5f3a7df' \
+            '45043079648 1faead55103ac368d4b2cf2b1fd019e66abc76fd'; do
+            read -r run head <<< "$spec"
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run" | jq -e --arg sha "$head" '.head_sha == $sha and .conclusion == "success"' > /dev/null
+          done
+          jq '.inputs |= ([.[] | select(.run == 44782807031 or .run == 44898333059)] + [{"run":45043079648,"id":14762806069,"name":"m12-table-68000","digest":"8e43ab140e8d35fd0a3b9626b72612b61f7947d3797c42fd292243a79a9c28f4","scope":"all"}])' m12_table_1000000_stage.json > m12_table_70000_inputs.json
+          sed 's/stage=m12_table_1000000_stage.json/stage=m12_table_70000_inputs.json/' m12_table_1000000_fetch.sh | bash -s -- work
+          test "$(ls inputs/m12m-x2-*.json | wc -l)" = 5
+          test "$(ls inputs/m12-deriv-*.json | wc -l)" = 5
+          test "$(ls inputs/m12-pre-*.json | wc -l)" = 5
+          test -f inputs/m12-table-68000.json
+          test -f inputs/m12-table-100000.json
+          sha256sum inputs/*.json sources/m12-lanczos-*.json > INPUT_SHA256SUMS
+      - name: Plan targeted residual shards
+        id: plan
+        working-directory: numerics/arb
+        run: |
+          set -euo pipefail
+          python m12_table_70000.py matrix --folder inputs | tee plan.log
+          matrix=$(tail -n 1 plan.log)
+          echo "$matrix" | jq -e 'length > 0 and length <= 256' > /dev/null
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-70000-authenticated-inputs
+          path: |
+            numerics/arb/inputs/*.json
+            numerics/arb/sources/m12-lanczos-*.json
+            numerics/arb/INPUT_SHA256SUMS
+            numerics/arb/plan.log
+          if-no-files-found: error
+  residual:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: m12-70000-authenticated-inputs
+          path: numerics/arb
+      - name: Certified periodic residual shard
+        working-directory: numerics/arb
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          sha256sum -c INPUT_SHA256SUMS
+          python -m pip install python-flint==0.9.0
+          python m12_table_70000.py worker --row '${{ matrix.row }}' --index '${{ matrix.index }}' --folder inputs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-70000-shard-${{ matrix.slug }}-${{ matrix.index }}
+          path: numerics/arb/m12m-r3-${{ matrix.slug }}-${{ matrix.index }}.json
+          if-no-files-found: error
+  certify:
+    needs: [prepare, residual]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: m12-70000-authenticated-inputs
+          path: numerics/arb
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: m12-70000-shard-*
+          path: numerics/arb/inputs
+          merge-multiple: true
+      - name: Certified Newton intersections and strict rounding of all 25 cells
+        working-directory: numerics/arb
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "EXACT_HEAD=$(git rev-parse HEAD)"
+          sha256sum -c INPUT_SHA256SUMS
+          expected=$(echo '${{ needs.prepare.outputs.matrix }}' | jq length)
+          test "$(ls inputs/m12m-r3-*.json | wc -l)" = "$expected"
+          python -m pip install python-flint==0.9.0
+          python m12_table_70000.py combine --folder inputs | tee certify-70000.log
+          grep -F 'TABLE 70000 SUCCESS 25 checks' certify-70000.log
+          sha256sum m12-table-70000.json certify-70000.log inputs/m12-70000-root-*.json > SHA256SUMS-70000
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m12-table-70000
+          path: |
+            numerics/arb/m12-table-70000.json
+            numerics/arb/certify-70000.log
+            numerics/arb/inputs/m12-70000-root-*.json
+            numerics/arb/SHA256SUMS-70000
+          if-no-files-found: error
