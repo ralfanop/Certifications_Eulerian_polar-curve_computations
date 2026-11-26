@@ -64,6 +64,7 @@ theorem profile_langevin_first (x : ℝ) :
   have hL0 : HasDerivAt langevin ((deriv langevin) x) x :=
     (langevin_analytic x).differentiableAt.hasDerivAt
   have hd := hP0.mul hL0
+  change HasDerivAt (fun y : ℝ => profile y * langevin y) _ x at hd
   rw [hf] at hd
   exact hd.unique hP1
 
@@ -83,6 +84,7 @@ theorem profile_langevin_second (x : ℝ) :
   have hL1 : HasDerivAt (deriv langevin) ((deriv (deriv langevin)) x) x :=
     (langevin_analytic x).deriv.differentiableAt.hasDerivAt
   have hd := (hP1.mul hL0).add (hP0.mul hL1)
+  change HasDerivAt (fun y : ℝ => deriv profile y * langevin y + profile y * deriv langevin y) _ x at hd
   rw [hf] at hd
   have he := hd.unique hP2
   linarith
@@ -109,6 +111,7 @@ theorem profile_langevin_third (x : ℝ) :
   have hL2 : HasDerivAt (deriv (deriv langevin)) ((deriv (deriv (deriv langevin))) x) x :=
     (langevin_analytic x).deriv.deriv.differentiableAt.hasDerivAt
   have hd := ((hP2.mul hL0).add ((hP1.const_mul 2).mul hL1)).add (hP0.mul hL2)
+  change HasDerivAt (fun y : ℝ => deriv (deriv profile) y * langevin y + 2 * deriv profile y * deriv langevin y + profile y * deriv (deriv langevin) y) _ x at hd
   rw [hf] at hd
   have he := hd.unique hP3
   linarith
