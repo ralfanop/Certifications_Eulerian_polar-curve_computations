@@ -6,7 +6,14 @@ namespace M16KreinOperator
 -- Proposition 9.12: actual Hilbert topology and dense domains.
 theorem dense_transport {E F : Type*} [TopologicalSpace E] [TopologicalSpace F]
     (u : E ≃ₜ F) (s : Set E) (hs : Dense s) : Dense (u '' s) := by
-  exact u.denseRange.dense_image hs u.continuous
+  have h : Set.univ ⊆ closure (u '' s) := by
+    intro z hz
+    have hm : u.symm z ∈ closure s := hs (u.symm z)
+    have hi : u (u.symm z) ∈ u '' closure s := ⟨u.symm z, hm, rfl⟩
+    have hc := u.continuous.image_closure_subset_closure_image hi
+    simpa only [Homeomorph.apply_symm_apply] using hc
+  intro z
+  exact h (Set.mem_univ z)
 
 -- If the two closed graphs are the closure of one common core graph,
 -- they coincide; the application to a concrete Dirac core is separate.
@@ -94,8 +101,8 @@ theorem neumann_inverse {R : Type*} [NormedRing R] [CompleteSpace R]
   let u : Rˣ := Units.oneSub k hk
   have hu : (u : R) = 1-k := by rfl
   let v : R := ↑u⁻¹
-  have h1 : (1-k)*v = 1 := by rw [← hu]; exact u.val_inv
-  have h2 : v*(1-k) = 1 := by rw [← hu]; exact u.inv_val
+  have h1 : (1-k)*v = 1 := by rw [← hu]; simp [v]
+  have h2 : v*(1-k) = 1 := by rw [← hu]; simp [v]
   have hv : v = 1+k*v := by
     calc
       v = (1-k)*v + k*v := by noncomm_ring
@@ -104,7 +111,7 @@ theorem neumann_inverse {R : Type*} [NormedRing R] [CompleteSpace R]
     calc
       ‖v‖ = ‖1+k*v‖ := congrArg norm hv
       _ ≤ ‖(1:R)‖+‖k*v‖ := norm_add_le _ _
-      _ ≤ 1+‖k‖*‖v‖ := by rw [norm_one]; gcongr; exact norm_mul_le _ _
+      _ ≤ 1+‖k‖*‖v‖ := by rw [norm_one]; exact add_le_add_left (norm_mul_le _ _) _
   refine ⟨v,h1,h2,?_⟩
   apply (le_div_iff₀ (sub_pos.mpr hk)).2
   nlinarith only [hn]
@@ -122,6 +129,78 @@ theorem schur_bound (a d c : ℝ) (ha : 0<a) (hd : 0<d)
   field_simp [ne_of_gt ha,ne_of_gt hd, hh]
   <;> ring
 
+-- Explicit bounded block inverse on the underlying Hilbert spaces.
+-- ra and rd represent the inverses of the shifted diagonal realizations;
+-- no total extension of the unbounded diagonal operators is needed.
+theorem block_resolvent_of_factor {E F : Type*}
+    [NormedAddCommGroup E] [NormedSpace ℂ E]
+    [NormedAddCommGroup F] [NormedSpace ℂ F]
+    (ra : E →L[ℂ] E) (rd : F →L[ℂ] F)
+    (x : F →L[ℂ] E) (y : E →L[ℂ] F)
+    (v : E →L[ℂ] E)
+    (hleft : ∀ a, v (a-ra (x (rd (y a)))) = a)
+    (hright : ∀ a, v a-ra (x (rd (y (v a)))) = a)
+    (f : E) (g : F) :
+    ∃! w : E × F,
+      w.1 = ra (f-x w.2) ∧ w.2 = rd (g-y w.1) := by
+  let a := v (ra (f-x (rd g)))
+  let c := rd (g-y a)
+  have he : a-ra (x (rd (y a))) = ra (f-x (rd g)) :=
+    hright (ra (f-x (rd g)))
+  have ha : a = ra (f-x c) := by
+    dsimp [c]
+    simp only [map_sub] at he ⊢
+    abel_nf at he ⊢
+    exact he
+  refine ⟨(a,c), ⟨ha,rfl⟩, ?_⟩
+  rintro ⟨b,d⟩ ⟨hb,hd⟩
+  change b = ra (f-x d) at hb
+  change d = rd (g-y b) at hd
+  rw [hd] at hb
+  have hb' : b-ra (x (rd (y b))) = ra (f-x (rd g)) := by
+    simp only [map_sub] at hb ⊢
+    abel_nf at hb ⊢
+    exact hb
+  have hab : b = a := by
+    dsimp [a]
+    rw [← hb', hleft]
+  exact Prod.ext hab (by simpa only [hab] using hd)
+
+-- The continuous linear maps that realize the Schur solution, as an
+-- actual bounded map on the product, not merely pointwise solvability.
+noncomputable def blockInverse {E F : Type*}
+    [NormedAddCommGroup E] [NormedSpace ℂ E]
+    [NormedAddCommGroup F] [NormedSpace ℂ F]
+    (ra : E →L[ℂ] E) (rd : F →L[ℂ] F)
+    (x : F →L[ℂ] E) (y : E →L[ℂ] F) (v : E →L[ℂ] E) :
+    E × F →L[ℂ] E × F :=
+  let p := ContinuousLinearMap.fst ℂ E F
+  let q := ContinuousLinearMap.snd ℂ E F
+  let a := v.comp (ra.comp (p-x.comp (rd.comp q)))
+  a.prod (rd.comp (q-y.comp a))
+
+theorem blockInverse_first {E F : Type*}
+    [NormedAddCommGroup E] [NormedSpace ℂ E]
+    [NormedAddCommGroup F] [NormedSpace ℂ F]
+    (ra : E →L[ℂ] E) (rd : F →L[ℂ] F)
+    (x : F →L[ℂ] E) (y : E →L[ℂ] F) (v : E →L[ℂ] E)
+    (f : E) (g : F) :
+    (blockInverse ra rd x y v (f,g)).1 = v (ra (f-x (rd g))) := by
+  rfl
+
+theorem blockInverse_second {E F : Type*}
+    [NormedAddCommGroup E] [NormedSpace ℂ E]
+    [NormedAddCommGroup F] [NormedSpace ℂ F]
+    (ra : E →L[ℂ] E) (rd : F →L[ℂ] F)
+    (x : F →L[ℂ] E) (y : E →L[ℂ] F) (v : E →L[ℂ] E)
+    (f : E) (g : F) :
+    (blockInverse ra rd x y v (f,g)).2 =
+      rd (g-y (v (ra (f-x (rd g))))) := by
+  rfl
+
+#print axioms block_resolvent_of_factor
+#print axioms blockInverse_first
+#print axioms blockInverse_second
 #print axioms dense_transport
 #print axioms core_closure_unique
 #print axioms heat_limit_compact
