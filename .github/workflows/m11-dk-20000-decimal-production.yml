@@ -1,4 +1,4 @@
-name: M11 curvature 30000 fractional decimal production
+name: M11 curvature 10000 fractional decimal production
 on:
   pull_request:
     paths:
@@ -8,7 +8,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: m11-dk-30k-${{ github.event.pull_request.head.sha || github.sha }}
+  group: m11-dk-10k-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: false
 jobs:
   newton_smoke:
@@ -66,7 +66,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_newton_checkpoint.py --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --kind ${{ matrix.kind }} --degree 2048 --output result/coefficients.gz 2>&1 | tee result/production.log
+          /usr/bin/time -v python -u numerics/arb/m11_dk_newton_checkpoint.py --bits 60000 --target 34000 --panels 128 --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --kind ${{ matrix.kind }} --degree 2048 --output result/coefficients.gz 2>&1 | tee result/production.log
           printf '%s\n' "$M11_PRODUCER_HEAD" > result/producer-head.txt
           (cd result && sha256sum coefficients.gz > sha256.txt)
       - uses: actions/upload-artifact@v4
@@ -126,7 +126,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_newton_checkpoint.py --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --kind ${{ matrix.kind }} --degree 4096 --resume previous/coefficients.gz --output result/coefficients.gz 2>&1 | tee result/production.log
+          /usr/bin/time -v python -u numerics/arb/m11_dk_newton_checkpoint.py --bits 60000 --target 34000 --panels 128 --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --kind ${{ matrix.kind }} --degree 4096 --resume previous/coefficients.gz --output result/coefficients.gz 2>&1 | tee result/production.log
           printf '%s\n' "$M11_PRODUCER_HEAD" > result/producer-head.txt
           (cd result && sha256sum coefficients.gz > sha256.txt)
       - uses: actions/upload-artifact@v4
@@ -136,8 +136,8 @@ jobs:
           compression-level: 0
           if-no-files-found: error
           retention-days: 90
-  newton_8192:
-    name: "Newton 8192 direction ${{ matrix.direction }} curve ${{ matrix.kind }}"
+  newton_full:
+    name: "Newton full direction ${{ matrix.direction }} curve ${{ matrix.kind }}"
     needs: newton_4096
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -180,133 +180,13 @@ jobs:
         run: |
           test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
           (cd previous && sha256sum -c sha256.txt)
-      - name: Continue one curve to order 8192
-        env:
-          M11_PRODUCER_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: |
-          set -euo pipefail
-          mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_newton_checkpoint.py --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --kind ${{ matrix.kind }} --degree 8192 --resume previous/coefficients.gz --output result/coefficients.gz 2>&1 | tee result/production.log
-          printf '%s\n' "$M11_PRODUCER_HEAD" > result/producer-head.txt
-          (cd result && sha256sum coefficients.gz > sha256.txt)
-      - uses: actions/upload-artifact@v4
-        with:
-          name: m11-newton-${{ matrix.direction }}-${{ matrix.kind }}-8192
-          path: result/
-          compression-level: 0
-          if-no-files-found: error
-          retention-days: 90
-  newton_16384:
-    name: "Newton 16384 direction ${{ matrix.direction }} curve ${{ matrix.kind }}"
-    needs: newton_8192
-    runs-on: ubuntu-24.04
-    timeout-minutes: 350
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        direction: [1, -1]
-        kind: [E, L]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Pin source and length provenance
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
-          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
-          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
-      - uses: actions/download-artifact@v4
-        with:
-          run-id: 45357327165
-          github-token: ${{ github.token }}
-          name: m11-length-130k-curvature-chart-certified
-          path: length
-      - name: Validate length and pin FLINT
-        run: |
-          (cd length && sha256sum -c combined-130k-sha256.txt)
-          python -m pip install python-flint==0.9.0
-      - uses: actions/download-artifact@v4
-        with:
-          name: m11-newton-${{ matrix.direction }}-${{ matrix.kind }}-8192
-          path: previous
-      - name: Check exact previous coefficient artifact
-        run: |
-          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
-          (cd previous && sha256sum -c sha256.txt)
-      - name: Continue one curve to order 16384
-        env:
-          M11_PRODUCER_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: |
-          set -euo pipefail
-          mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_newton_checkpoint.py --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --kind ${{ matrix.kind }} --degree 16384 --resume previous/coefficients.gz --output result/coefficients.gz 2>&1 | tee result/production.log
-          printf '%s\n' "$M11_PRODUCER_HEAD" > result/producer-head.txt
-          (cd result && sha256sum coefficients.gz > sha256.txt)
-      - uses: actions/upload-artifact@v4
-        with:
-          name: m11-newton-${{ matrix.direction }}-${{ matrix.kind }}-16384
-          path: result/
-          compression-level: 0
-          if-no-files-found: error
-          retention-days: 90
-  newton_full:
-    name: "Newton full direction ${{ matrix.direction }} curve ${{ matrix.kind }}"
-    needs: newton_16384
-    runs-on: ubuntu-24.04
-    timeout-minutes: 350
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        direction: [1, -1]
-        kind: [E, L]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Pin source and length provenance
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
-          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
-          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
-      - uses: actions/download-artifact@v4
-        with:
-          run-id: 45357327165
-          github-token: ${{ github.token }}
-          name: m11-length-130k-curvature-chart-certified
-          path: length
-      - name: Validate length and pin FLINT
-        run: |
-          (cd length && sha256sum -c combined-130k-sha256.txt)
-          python -m pip install python-flint==0.9.0
-      - uses: actions/download-artifact@v4
-        with:
-          name: m11-newton-${{ matrix.direction }}-${{ matrix.kind }}-16384
-          path: previous
-      - name: Check exact previous coefficient artifact
-        run: |
-          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
-          (cd previous && sha256sum -c sha256.txt)
       - name: Continue one curve to order full
         env:
           M11_PRODUCER_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_newton_checkpoint.py --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --kind ${{ matrix.kind }} --degree full --resume previous/coefficients.gz --output result/starter.json 2>&1 | tee result/production.log
+          /usr/bin/time -v python -u numerics/arb/m11_dk_newton_checkpoint.py --bits 60000 --target 34000 --panels 128 --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --kind ${{ matrix.kind }} --degree full --resume previous/coefficients.gz --output result/starter.json 2>&1 | tee result/production.log
           printf '%s\n' "$M11_PRODUCER_HEAD" > result/producer-head.txt
           (cd result && sha256sum starter.json > sha256.txt)
       - uses: actions/upload-artifact@v4
@@ -367,17 +247,17 @@ jobs:
             (cd "$d" && sha256sum -c sha256.txt)
           done
           mkdir -p result
-          python -u numerics/arb/m11_dk_newton_checkpoint.py --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --euler euler/starter.json --limacon limacon/starter.json --output result/checkpoint.json
+          python -u numerics/arb/m11_dk_newton_checkpoint.py --bits 60000 --target 34000 --panels 128 --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --euler euler/starter.json --limacon limacon/starter.json --output result/checkpoint.json
           printf '%s\n' "$M11_PRODUCER_HEAD" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-0
+          name: m11-dk-10k-${{ matrix.direction }}-panel-0
           path: result/
           if-no-files-found: error
           retention-days: 90
   panel_1:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 1"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 1"
     needs: panel_0
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -412,7 +292,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-0
+          name: m11-dk-10k-${{ matrix.direction }}-panel-0
           path: previous
       - name: Verify previous stage
         run: |
@@ -423,24 +303,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 1 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==1 and len(m["checkpoint"]["orders"])==1 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 1 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==1 and len(m["checkpoint"]["orders"])==1 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-1
+          name: m11-dk-10k-${{ matrix.direction }}-panel-1
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-1
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-1
           path: result/production.log
           if-no-files-found: ignore
   panel_2:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 2"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 2"
     needs: panel_1
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -475,7 +355,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-1
+          name: m11-dk-10k-${{ matrix.direction }}-panel-1
           path: previous
       - name: Verify previous stage
         run: |
@@ -486,24 +366,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 2 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==2 and len(m["checkpoint"]["orders"])==2 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 2 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==2 and len(m["checkpoint"]["orders"])==2 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-2
+          name: m11-dk-10k-${{ matrix.direction }}-panel-2
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-2
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-2
           path: result/production.log
           if-no-files-found: ignore
   panel_3:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 3"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 3"
     needs: panel_2
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -538,7 +418,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-2
+          name: m11-dk-10k-${{ matrix.direction }}-panel-2
           path: previous
       - name: Verify previous stage
         run: |
@@ -549,24 +429,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 3 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==3 and len(m["checkpoint"]["orders"])==3 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 3 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==3 and len(m["checkpoint"]["orders"])==3 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-3
+          name: m11-dk-10k-${{ matrix.direction }}-panel-3
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-3
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-3
           path: result/production.log
           if-no-files-found: ignore
   panel_4:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 4"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 4"
     needs: panel_3
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -601,7 +481,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-3
+          name: m11-dk-10k-${{ matrix.direction }}-panel-3
           path: previous
       - name: Verify previous stage
         run: |
@@ -612,24 +492,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 4 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==4 and len(m["checkpoint"]["orders"])==4 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 4 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==4 and len(m["checkpoint"]["orders"])==4 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-4
+          name: m11-dk-10k-${{ matrix.direction }}-panel-4
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-4
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-4
           path: result/production.log
           if-no-files-found: ignore
   panel_6:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 6"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 6"
     needs: panel_4
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -664,7 +544,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-4
+          name: m11-dk-10k-${{ matrix.direction }}-panel-4
           path: previous
       - name: Verify previous stage
         run: |
@@ -675,24 +555,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 6 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==6 and len(m["checkpoint"]["orders"])==6 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 6 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==6 and len(m["checkpoint"]["orders"])==6 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-6
+          name: m11-dk-10k-${{ matrix.direction }}-panel-6
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-6
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-6
           path: result/production.log
           if-no-files-found: ignore
   panel_8:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 8"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 8"
     needs: panel_6
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -727,7 +607,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-6
+          name: m11-dk-10k-${{ matrix.direction }}-panel-6
           path: previous
       - name: Verify previous stage
         run: |
@@ -738,24 +618,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 8 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==8 and len(m["checkpoint"]["orders"])==8 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 8 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==8 and len(m["checkpoint"]["orders"])==8 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-8
+          name: m11-dk-10k-${{ matrix.direction }}-panel-8
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-8
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-8
           path: result/production.log
           if-no-files-found: ignore
   panel_12:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 12"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 12"
     needs: panel_8
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -790,7 +670,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-8
+          name: m11-dk-10k-${{ matrix.direction }}-panel-8
           path: previous
       - name: Verify previous stage
         run: |
@@ -801,24 +681,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 12 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==12 and len(m["checkpoint"]["orders"])==12 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 12 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==12 and len(m["checkpoint"]["orders"])==12 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-12
+          name: m11-dk-10k-${{ matrix.direction }}-panel-12
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-12
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-12
           path: result/production.log
           if-no-files-found: ignore
   panel_16:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 16"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 16"
     needs: panel_12
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -853,7 +733,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-12
+          name: m11-dk-10k-${{ matrix.direction }}-panel-12
           path: previous
       - name: Verify previous stage
         run: |
@@ -864,24 +744,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 16 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==16 and len(m["checkpoint"]["orders"])==16 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 16 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==16 and len(m["checkpoint"]["orders"])==16 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-16
+          name: m11-dk-10k-${{ matrix.direction }}-panel-16
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-16
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-16
           path: result/production.log
           if-no-files-found: ignore
   panel_20:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 20"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 20"
     needs: panel_16
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -916,7 +796,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-16
+          name: m11-dk-10k-${{ matrix.direction }}-panel-16
           path: previous
       - name: Verify previous stage
         run: |
@@ -927,24 +807,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 20 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==20 and len(m["checkpoint"]["orders"])==20 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 20 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==20 and len(m["checkpoint"]["orders"])==20 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-20
+          name: m11-dk-10k-${{ matrix.direction }}-panel-20
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-20
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-20
           path: result/production.log
           if-no-files-found: ignore
   panel_24:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 24"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 24"
     needs: panel_20
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -979,7 +859,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-20
+          name: m11-dk-10k-${{ matrix.direction }}-panel-20
           path: previous
       - name: Verify previous stage
         run: |
@@ -990,24 +870,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 24 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==24 and len(m["checkpoint"]["orders"])==24 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 24 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==24 and len(m["checkpoint"]["orders"])==24 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-24
+          name: m11-dk-10k-${{ matrix.direction }}-panel-24
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-24
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-24
           path: result/production.log
           if-no-files-found: ignore
   panel_28:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 28"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 28"
     needs: panel_24
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -1042,7 +922,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-24
+          name: m11-dk-10k-${{ matrix.direction }}-panel-24
           path: previous
       - name: Verify previous stage
         run: |
@@ -1053,24 +933,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 28 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==28 and len(m["checkpoint"]["orders"])==28 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 28 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==28 and len(m["checkpoint"]["orders"])==28 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-28
+          name: m11-dk-10k-${{ matrix.direction }}-panel-28
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-28
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-28
           path: result/production.log
           if-no-files-found: ignore
   panel_32:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 32"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 32"
     needs: panel_28
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -1105,7 +985,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-28
+          name: m11-dk-10k-${{ matrix.direction }}-panel-28
           path: previous
       - name: Verify previous stage
         run: |
@@ -1116,24 +996,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 32 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==32 and len(m["checkpoint"]["orders"])==32 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 32 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==32 and len(m["checkpoint"]["orders"])==32 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-32
+          name: m11-dk-10k-${{ matrix.direction }}-panel-32
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-32
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-32
           path: result/production.log
           if-no-files-found: ignore
   panel_36:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 36"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 36"
     needs: panel_32
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -1168,7 +1048,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-32
+          name: m11-dk-10k-${{ matrix.direction }}-panel-32
           path: previous
       - name: Verify previous stage
         run: |
@@ -1179,24 +1059,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 36 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==36 and len(m["checkpoint"]["orders"])==36 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 36 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==36 and len(m["checkpoint"]["orders"])==36 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-36
+          name: m11-dk-10k-${{ matrix.direction }}-panel-36
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-36
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-36
           path: result/production.log
           if-no-files-found: ignore
   panel_40:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 40"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 40"
     needs: panel_36
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -1231,7 +1111,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-36
+          name: m11-dk-10k-${{ matrix.direction }}-panel-36
           path: previous
       - name: Verify previous stage
         run: |
@@ -1242,24 +1122,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 40 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==40 and len(m["checkpoint"]["orders"])==40 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 40 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==40 and len(m["checkpoint"]["orders"])==40 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-40
+          name: m11-dk-10k-${{ matrix.direction }}-panel-40
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-40
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-40
           path: result/production.log
           if-no-files-found: ignore
   panel_44:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 44"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 44"
     needs: panel_40
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -1294,7 +1174,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-40
+          name: m11-dk-10k-${{ matrix.direction }}-panel-40
           path: previous
       - name: Verify previous stage
         run: |
@@ -1305,24 +1185,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 44 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==44 and len(m["checkpoint"]["orders"])==44 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 44 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==44 and len(m["checkpoint"]["orders"])==44 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-44
+          name: m11-dk-10k-${{ matrix.direction }}-panel-44
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-44
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-44
           path: result/production.log
           if-no-files-found: ignore
   panel_48:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 48"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 48"
     needs: panel_44
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -1357,7 +1237,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-44
+          name: m11-dk-10k-${{ matrix.direction }}-panel-44
           path: previous
       - name: Verify previous stage
         run: |
@@ -1368,24 +1248,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 48 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==48 and len(m["checkpoint"]["orders"])==48 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 48 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==48 and len(m["checkpoint"]["orders"])==48 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-48
+          name: m11-dk-10k-${{ matrix.direction }}-panel-48
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-48
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-48
           path: result/production.log
           if-no-files-found: ignore
   panel_52:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 52"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 52"
     needs: panel_48
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -1420,7 +1300,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-48
+          name: m11-dk-10k-${{ matrix.direction }}-panel-48
           path: previous
       - name: Verify previous stage
         run: |
@@ -1431,24 +1311,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 52 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==52 and len(m["checkpoint"]["orders"])==52 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 52 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==52 and len(m["checkpoint"]["orders"])==52 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-52
+          name: m11-dk-10k-${{ matrix.direction }}-panel-52
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-52
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-52
           path: result/production.log
           if-no-files-found: ignore
   panel_56:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 56"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 56"
     needs: panel_52
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -1483,7 +1363,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-52
+          name: m11-dk-10k-${{ matrix.direction }}-panel-52
           path: previous
       - name: Verify previous stage
         run: |
@@ -1494,24 +1374,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 56 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==56 and len(m["checkpoint"]["orders"])==56 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 56 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==56 and len(m["checkpoint"]["orders"])==56 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-56
+          name: m11-dk-10k-${{ matrix.direction }}-panel-56
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-56
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-56
           path: result/production.log
           if-no-files-found: ignore
   panel_60:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 60"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 60"
     needs: panel_56
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -1546,7 +1426,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-56
+          name: m11-dk-10k-${{ matrix.direction }}-panel-56
           path: previous
       - name: Verify previous stage
         run: |
@@ -1557,24 +1437,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 60 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==60 and len(m["checkpoint"]["orders"])==60 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 60 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==60 and len(m["checkpoint"]["orders"])==60 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-60
+          name: m11-dk-10k-${{ matrix.direction }}-panel-60
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-60
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-60
           path: result/production.log
           if-no-files-found: ignore
   panel_64:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 64"
+    name: "M11 10k direction ${{ matrix.direction }} through panel 64"
     needs: panel_60
     runs-on: ubuntu-24.04
     timeout-minutes: 350
@@ -1609,7 +1489,7 @@ jobs:
           python -m pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-60
+          name: m11-dk-10k-${{ matrix.direction }}-panel-60
           path: previous
       - name: Verify previous stage
         run: |
@@ -1620,20 +1500,20 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 64 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["half"]["direction"]==${{ matrix.direction }} and len(m["half"]["orders"])==64 '
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 64 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}; assert m["half"]["direction"]==${{ matrix.direction }} and len(m["half"]["orders"])==64 '
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30k-${{ matrix.direction }}-panel-64
+          name: m11-dk-10k-${{ matrix.direction }}-panel-64
           path: result/
           if-no-files-found: error
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-64
+          name: m11-dk-10k-diagnostics-${{ matrix.direction }}-panel-64
           path: result/production.log
           if-no-files-found: ignore
   audit:
@@ -1649,11 +1529,11 @@ jobs:
       - run: pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k-1-panel-64
+          name: m11-dk-10k-1-panel-64
           path: positive
       - uses: actions/download-artifact@v4
         with:
-          name: m11-dk-30k--1-panel-64
+          name: m11-dk-10k--1-panel-64
           path: negative
       - uses: actions/download-artifact@v4
         with:
@@ -1670,11 +1550,164 @@ jobs:
             (cd "$d" && sha256sum -c checkpoint.sha256)
           done
           (cd length && sha256sum -c combined-130k-sha256.txt)
-          python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --combine positive/checkpoint.json negative/checkpoint.json --output combined.json
-          python -u numerics/arb/m11_30000_curvature_final_verify.py --combined combined.json --positive-half positive/checkpoint.json --negative-half negative/checkpoint.json --length-manifest length/m11-length-130k-curvature-chart.json --length-run-id 45357327165 --length-source-head 59d9884b7346b4e3296336be56f3bb702f1b2686 --producer-head "$(git rev-parse HEAD)" --output certified.json
+          python -u numerics/arb/m11_dk_adaptive_radius.py --bits 60000 --target 34000 --panels 128 --combine positive/checkpoint.json negative/checkpoint.json --output combined.json
+          PYTHONPATH=numerics/arb python - --combined combined.json --positive-half positive/checkpoint.json --negative-half negative/checkpoint.json --length-manifest length/m11-length-130k-curvature-chart.json --length-run-id 45357327165 --length-source-head 59d9884b7346b4e3296336be56f3bb702f1b2686 --producer-head "$(git rev-parse HEAD)" --output certified.json <<'PY'
+          #!/usr/bin/env python3
+          """Fail-closed, independent M11 D_kappa 10,000-fractional-place acceptance gate.
+          
+          This does not compute the two half-integrals or turn a smoke test into a
+          certificate. Its input must be actual CI-produced exact-rational manifests,
+          with a >125k-relative-bit length input for the CURRENT inverse-ODE method.
+          """
+          import argparse
+          import hashlib
+          import json
+          import sys
+          from pathlib import Path
+          from m11_remaining_3600000_final_audit import (
+              endpoint, interval, same_decimal_cell, exact_decimal, PRINTED_DK,
+          )
+          from fractions import Fraction
+          from flint import arb, ctx, fmpq, fmpz
+          
+          def measured_bits(lo, hi):
+              ctx.prec = 60000
+              a = fmpq(fmpz(lo.numerator), fmpz(lo.denominator))
+              b = fmpq(fmpz(hi.numerator), fmpz(hi.denominator))
+              ball = arb((a+b)/2, arb((b-a)/2).upper())
+              if not (ball.lower().fmpq() <= a <= b <= ball.upper().fmpq()):
+                  raise ValueError("independent Arb reconstruction lost an exact endpoint")
+              return int(ball.rel_accuracy_bits())
+          
+          
+          if hasattr(sys, "set_int_max_str_digits"):
+              sys.set_int_max_str_digits(0)
+          
+          PLACES = 10_000
+          MIN_DK_REL_BITS = 34_000
+          MIN_LENGTH_REL_BITS = 125_000
+          MIN_WORK_BITS = 60_000
+          MIN_PANELS = 128
+          
+          
+          def verify_curvature(m):
+              if m.get("quantity") != "D_kappa, Eq. (50)":
+                  raise ValueError("wrong curvature quantity")
+              params = m.get("parameters", {})
+              n = params.get("panels")
+              if not isinstance(n, int) or n < 32 or n % 2:
+                  raise ValueError("invalid curvature panel count")
+              if int(params.get("bits", 0)) < MIN_WORK_BITS:
+                  raise ValueError("insufficient curvature working precision")
+              halves = m.get("halves", [])
+              if len(halves) != 2 or sorted(h.get("direction") for h in halves) != [-1, 1]:
+                  raise ValueError("both independently integrated curvature halves required")
+              if any(not isinstance(h.get("orders"), list) or len(h["orders"]) != n // 2 or
+                     any(not isinstance(o, int) or o <= 0 for o in h["orders"]) for h in halves):
+                  raise ValueError("missing or incomplete curvature Taylor orders")
+              integrals = [interval(h, "integral") for h in halves]
+              a, b = (sum(pair[i] for pair in integrals) for i in (0, 1))
+              lo, hi = interval(m, "discrepancy")
+              # D_kappa = sqrt(I_left + I_right): exact necessary enclosure conditions.
+              if not (lo * lo <= a <= b <= hi * hi):
+                  raise ValueError("D_kappa enclosure does not enclose sqrt of both half-integrals")
+              scale = 10 ** 24
+              printed = Fraction(PRINTED_DK)
+              if not (printed - Fraction(1, 2 * scale) < lo <= hi < printed + Fraction(1, 2 * scale)):
+                  raise ValueError("published 24-place curvature cell mismatch")
+              return lo, hi
+          
+          
+          
+          def load(path):
+              data = Path(path).read_bytes()
+              return json.loads(data), hashlib.sha256(data).hexdigest()
+          
+          
+          def main():
+              p = argparse.ArgumentParser(description=__doc__)
+              p.add_argument("--combined", required=True)
+              p.add_argument("--positive-half", required=True)
+              p.add_argument("--negative-half", required=True)
+              p.add_argument("--length-manifest", required=True)
+              p.add_argument("--length-run-id", required=True, type=int)
+              p.add_argument("--length-source-head", required=True)
+              p.add_argument("--producer-head", required=True)
+              p.add_argument("--output", required=True)
+              a = p.parse_args()
+              if any(len(s) != 40 or any(c not in "0123456789abcdef" for c in s)
+                     for s in (a.length_source_head, a.producer_head)):
+                  raise ValueError("full pinned source and producer SHA-1 required")
+              if a.length_run_id <= 0:
+                  raise ValueError("original length certification run not specified")
+              m, combined_sha = load(a.combined)
+              length, length_sha = load(a.length_manifest)
+              if length.get("index") is not None or int(length.get("panels", 0)) < 32:
+                  raise ValueError("not a complete rigorously enclosed length manifest")
+              length_lo, length_hi = interval(length, "enclosure")
+              if not ((length_hi - length_lo) * (1 << MIN_LENGTH_REL_BITS) < length_lo):
+                  raise ValueError("length interval lacks 125,000 relative bits required by current ODE method")
+              params = m.get("parameters", {})
+              if int(params.get("bits", 0)) < MIN_WORK_BITS:
+                  raise ValueError("insufficient FLINT/Arb operating precision")
+              if int(params.get("target", 0)) < MIN_DK_REL_BITS:
+                  raise ValueError("insufficient requested certified curvature bits")
+              if int(params.get("panels", 0)) < MIN_PANELS:
+                  raise ValueError("insufficient independently bounded curvature panels")
+              if int(params["panels"]) % 2:
+                  raise ValueError("curvature panel count must be even")
+              halves = {}
+              half_hashes = {}
+              for direction, path in ((1, a.positive_half), (-1, a.negative_half)):
+                  one, digest = load(path)
+                  if one.get("parameters") != params:
+                      raise ValueError("half source parameters do not match combined result")
+                  half = one.get("half")
+                  if not isinstance(half, dict) or half.get("direction") != direction:
+                      raise ValueError("missing or wrong-direction full curvature half")
+                  source = half.get("historical_euler_source")
+                  if not isinstance(source, dict) or (
+                          source.get("manifest_sha256"), source.get("source_ci"),
+                          source.get("source_head_sha")) != (
+                              length_sha, a.length_run_id, a.length_source_head):
+                      raise ValueError("curvature chart does not pin the verified high-precision length source")
+                  halves[direction] = half
+                  half_hashes[str(direction)] = digest
+              if m.get("halves") != [halves[d] for d in (1, -1)] and (
+                      m.get("halves") != [halves[d] for d in (-1, 1)]):
+                  raise ValueError("combined curvature halves differ from independent source artifacts")
+              lo, hi = verify_curvature(m)
+              bits = measured_bits(lo, hi)
+              if bits < MIN_DK_REL_BITS:
+                  raise ValueError(f"measured D_kappa bits {bits} < required {MIN_DK_REL_BITS}")
+              decimal = exact_decimal(same_decimal_cell(lo, hi, PLACES), PLACES)
+              if len(decimal.split(".")[1]) != PLACES:
+                  raise ValueError("wrong number of fractional places")
+              result = {
+                  "quantity": "Manuscript 11 D_kappa Eq. (50)",
+                  "fractional_places": PLACES,
+                  "rounded_decimal": decimal,
+                  "decimal_sha256": hashlib.sha256(decimal.encode("ascii")).hexdigest(),
+                  "measured_arb_relative_bits": bits,
+                  "combined_sha256": combined_sha,
+                  "half_manifests_sha256": half_hashes,
+                  "length_manifest_sha256": length_sha,
+                  "length_source_run_id": a.length_run_id,
+                  "length_source_head_sha": a.length_source_head,
+                  "producer_head_sha": a.producer_head,
+                  "proof": "full independent half-manifests and high-precision length source pinned; exact square enclosure, printed 24 places, and both rational endpoints strictly in same nearest-even 10,000-place rounding cell",
+              }
+              Path(a.output).write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+              print("M11 D_KAPPA: 10000 FRACTIONAL DECIMALS STRICT AUDIT SUCCESS")
+              print("Measured Arb bits:", bits, "decimal SHA256:", result["decimal_sha256"], flush=True)
+          
+          
+          if __name__ == "__main__":
+              main()
+          PY
       - uses: actions/upload-artifact@v4
         with:
-          name: m11-dk-30000-final
+          name: m11-dk-10000-final
           path: |
             combined.json
             certified.json
