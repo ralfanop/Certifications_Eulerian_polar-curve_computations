@@ -7,14 +7,18 @@ on:
 permissions:
   contents: read
   actions: read
+concurrency:
+  group: m11-dk-30k-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
 jobs:
-  halves:
+  panel_0:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 0"
     runs-on: ubuntu-24.04
     timeout-minutes: 350
     strategy:
       fail-fast: false
       matrix:
-        direction: [1,-1]
+        direction: [1, -1]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,10 +26,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Verify length provenance
+      - name: Pin source and length provenance
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
           test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
           test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
       - uses: actions/download-artifact@v4
@@ -34,33 +40,1293 @@ jobs:
           github-token: ${{ github.token }}
           name: m11-length-130k-curvature-chart-certified
           path: length
-      - run: |
-          cd length
-          sha256sum -c combined-130k-sha256.txt
-          python -m pip install python-flint==0.9.0
-      - name: Integrate first checkpoint
+      - name: Validate length and pin FLINT
         run: |
-          python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --stop-after 2 --output checkpoint-2.json
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: m11-dk-30k-first-checkpoint-${{ matrix.direction }}
-          path: checkpoint-2.json
-      - name: Continue with exact checkpoints
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - name: Produce rigorous checkpoint 0
+        shell: bash
         run: |
           set -euo pipefail
-          prev=checkpoint-2.json
-          for n in 8 16 24 32 40 48 56 64; do
-            python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume "$prev" --stop-after "$n" --output "checkpoint-$n.json"
-            prev="checkpoint-$n.json"
-          done
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --stop-after 0 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==0 and len(m["checkpoint"]["orders"])==0 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
-        if: always()
         with:
-          name: m11-dk-30k-half-${{ matrix.direction }}
-          path: checkpoint-*.json
+          name: m11-dk-30k-${{ matrix.direction }}-panel-0
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-0
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_1:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 1"
+    needs: panel_0
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-0
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 1 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==1 and len(m["checkpoint"]["orders"])==1 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-1
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-1
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_2:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 2"
+    needs: panel_1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-1
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 2 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==2 and len(m["checkpoint"]["orders"])==2 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-2
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-2
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_3:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 3"
+    needs: panel_2
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-2
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 3 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==3 and len(m["checkpoint"]["orders"])==3 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-3
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-3
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_4:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 4"
+    needs: panel_3
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-3
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 4 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==4 and len(m["checkpoint"]["orders"])==4 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-4
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-4
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_6:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 6"
+    needs: panel_4
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-4
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 6
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 6 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==6 and len(m["checkpoint"]["orders"])==6 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-6
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-6
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_8:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 8"
+    needs: panel_6
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-6
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 8
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 8 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==8 and len(m["checkpoint"]["orders"])==8 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-8
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-8
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_12:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 12"
+    needs: panel_8
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-8
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 12
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 12 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==12 and len(m["checkpoint"]["orders"])==12 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-12
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-12
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_16:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 16"
+    needs: panel_12
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-12
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 16
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 16 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==16 and len(m["checkpoint"]["orders"])==16 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-16
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-16
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_20:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 20"
+    needs: panel_16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-16
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 20
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 20 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==20 and len(m["checkpoint"]["orders"])==20 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-20
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-20
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_24:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 24"
+    needs: panel_20
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-20
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 24
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 24 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==24 and len(m["checkpoint"]["orders"])==24 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-24
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-24
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_28:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 28"
+    needs: panel_24
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-24
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 28
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 28 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==28 and len(m["checkpoint"]["orders"])==28 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-28
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-28
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_32:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 32"
+    needs: panel_28
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-28
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 32
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 32 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==32 and len(m["checkpoint"]["orders"])==32 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-32
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-32
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_36:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 36"
+    needs: panel_32
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-32
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 36 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==36 and len(m["checkpoint"]["orders"])==36 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-36
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-36
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_40:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 40"
+    needs: panel_36
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-36
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 40
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 40 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==40 and len(m["checkpoint"]["orders"])==40 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-40
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-40
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_44:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 44"
+    needs: panel_40
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-40
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 44
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 44 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==44 and len(m["checkpoint"]["orders"])==44 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-44
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-44
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_48:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 48"
+    needs: panel_44
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-44
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 48
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 48 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==48 and len(m["checkpoint"]["orders"])==48 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-48
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-48
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_52:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 52"
+    needs: panel_48
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-48
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 52
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 52 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==52 and len(m["checkpoint"]["orders"])==52 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-52
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-52
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_56:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 56"
+    needs: panel_52
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-52
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 56
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 56 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==56 and len(m["checkpoint"]["orders"])==56 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-56
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-56
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_60:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 60"
+    needs: panel_56
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-56
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 60
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 60 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==60 and len(m["checkpoint"]["orders"])==60 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-60
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-60
+          path: result/production.log
+          if-no-files-found: ignore
+  panel_64:
+    name: "M11 30k direction ${{ matrix.direction }} through panel 64"
+    needs: panel_60
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        direction: [1, -1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-60
+          path: previous
+      - name: Verify previous stage
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c checkpoint.sha256)
+      - name: Produce rigorous checkpoint 64
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --resume previous/checkpoint.json --stop-after 64 --output result/checkpoint.json 2>&1 | tee result/production.log
+          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["half"]["direction"]==${{ matrix.direction }} and len(m["half"]["orders"])==64 '
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          (cd result && sha256sum checkpoint.json > checkpoint.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-dk-30k-${{ matrix.direction }}-panel-64
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-64
+          path: result/production.log
+          if-no-files-found: ignore
   audit:
-    needs: halves
+    needs: panel_64
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -72,20 +1338,34 @@ jobs:
       - run: pip install python-flint==0.9.0
       - uses: actions/download-artifact@v4
         with:
-          pattern: m11-dk-30k-half-*
-          path: halves
+          name: m11-dk-30k-1-panel-64
+          path: positive
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-dk-30k--1-panel-64
+          path: negative
       - uses: actions/download-artifact@v4
         with:
           run-id: 45357327165
           github-token: ${{ github.token }}
           name: m11-length-130k-curvature-chart-certified
           path: length
-      - run: |
-          python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --combine halves/m11-dk-30k-half-1/checkpoint-64.json halves/m11-dk-30k-half--1/checkpoint-64.json --output combined.json
-          python -u numerics/arb/m11_30000_curvature_final_verify.py --combined combined.json --positive-half halves/m11-dk-30k-half-1/checkpoint-64.json --negative-half halves/m11-dk-30k-half--1/checkpoint-64.json --length-manifest length/m11-length-130k-curvature-chart.json --length-run-id 45357327165 --length-source-head 59d9884b7346b4e3296336be56f3bb702f1b2686 --producer-head "$(git rev-parse HEAD)" --output certified.json
+      - name: Independently verify exact full integral and unique decimal cell
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          for d in positive negative; do
+            test "$(cat "$d/producer-head.txt")" = "${{ github.event.pull_request.head.sha || github.sha }}"
+            (cd "$d" && sha256sum -c checkpoint.sha256)
+          done
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --combine positive/checkpoint.json negative/checkpoint.json --output combined.json
+          python -u numerics/arb/m11_30000_curvature_final_verify.py --combined combined.json --positive-half positive/checkpoint.json --negative-half negative/checkpoint.json --length-manifest length/m11-length-130k-curvature-chart.json --length-run-id 45357327165 --length-source-head 59d9884b7346b4e3296336be56f3bb702f1b2686 --producer-head "$(git rev-parse HEAD)" --output certified.json
       - uses: actions/upload-artifact@v4
         with:
           name: m11-dk-30000-final
           path: |
             combined.json
             certified.json
+          if-no-files-found: error
+          retention-days: 90
