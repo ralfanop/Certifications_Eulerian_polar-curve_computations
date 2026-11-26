@@ -148,19 +148,20 @@ theorem block_resolvent_of_factor {E F : Type*}
   have he : a-ra (x (rd (y a))) = ra (f-x (rd g)) :=
     hright (ra (f-x (rd g)))
   have ha : a = ra (f-x c) := by
-    dsimp [c]
-    simp only [map_sub] at he ⊢
-    abel_nf at he ⊢
-    exact he
+    calc
+      a = (a-ra (x (rd (y a))))+ra (x (rd (y a))) := by abel
+      _ = _ := by rw [he]; simp only [c, map_sub]; abel
   refine ⟨(a,c), ⟨ha,rfl⟩, ?_⟩
   rintro ⟨b,d⟩ ⟨hb,hd⟩
   change b = ra (f-x d) at hb
   change d = rd (g-y b) at hd
   rw [hd] at hb
   have hb' : b-ra (x (rd (y b))) = ra (f-x (rd g)) := by
-    simp only [map_sub] at hb ⊢
-    abel_nf at hb ⊢
-    exact hb
+    calc
+      b-ra (x (rd (y b))) =
+        ra (f-x (rd (g-y b)))-ra (x (rd (y b))) :=
+          congrArg (fun u => u-ra (x (rd (y b)))) hb
+      _ = _ := by simp only [map_sub]; abel
   have hab : b = a := by
     dsimp [a]
     rw [← hb', hleft]
@@ -198,6 +199,71 @@ theorem blockInverse_second {E F : Type*}
       rd (g-y (v (ra (f-x (rd g))))) := by
   rfl
 
+-- The numerical hypothesis produces an invertible bounded Schur
+-- factor on the actual pair of different Hilbert spaces.
+theorem schur_factor_inverse {E F : Type*}
+    [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E] [Nontrivial E]
+    [NormedAddCommGroup F] [NormedSpace ℂ F]
+    (ra : E →L[ℂ] E) (rd : F →L[ℂ] F)
+    (x : F →L[ℂ] E) (y : E →L[ℂ] F)
+    (ha : ‖ra‖*‖x‖*‖rd‖*‖y‖ < 1) :
+    ∃ v : E →L[ℂ] E,
+      (∀ a, v (a-ra (x (rd (y a)))) = a) ∧
+      (∀ a, v a-ra (x (rd (y (v a)))) = a) := by
+  let k := ((ra.comp x).comp rd).comp y
+  have hk : ‖k‖ < 1 := by
+    apply lt_of_le_of_lt _ ha
+    dsimp [k]
+    calc
+      _ ≤ ‖(ra.comp x).comp rd‖ * ‖y‖ := ContinuousLinearMap.opNorm_comp_le _ _
+      _ ≤ (‖ra.comp x‖*‖rd‖)*‖y‖ := by
+        gcongr <;> exact ContinuousLinearMap.opNorm_comp_le _ _
+      _ ≤ (‖ra‖*‖x‖)*‖rd‖*‖y‖ := by
+        gcongr <;> exact ContinuousLinearMap.opNorm_comp_le _ _
+  obtain ⟨v, h1, h2, hn⟩ := neumann_inverse k hk
+  refine ⟨v, ?_, ?_⟩
+  · intro a
+    have hh := congrArg (fun w : E →L[ℂ] E => w a) h2
+    simpa [k] using hh
+  · intro a
+    have hh := congrArg (fun w : E →L[ℂ] E => w a) h1
+    simpa [k] using hh
+
+-- Full existence/uniqueness of the bounded block inverse when the
+-- product of the four relevant operator norms is below one.
+theorem block_resolvent_small_coupling {E F : Type*}
+    [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E] [Nontrivial E]
+    [NormedAddCommGroup F] [NormedSpace ℂ F]
+    (ra : E →L[ℂ] E) (rd : F →L[ℂ] F)
+    (x : F →L[ℂ] E) (y : E →L[ℂ] F)
+    (ha : ‖ra‖*‖x‖*‖rd‖*‖y‖ < 1) :
+    ∃ inv : E × F →L[ℂ] E × F, ∀ f g, 
+      (inv (f,g)).1 = ra (f-x (inv (f,g)).2) ∧
+      (inv (f,g)).2 = rd (g-y (inv (f,g)).1) ∧
+      ∀ w : E × F, (w.1 = ra (f-x w.2) ∧ w.2 = rd (g-y w.1)) →
+        w = inv (f,g) := by
+  obtain ⟨v, hleft, hright⟩ := schur_factor_inverse ra rd x y ha
+  refine ⟨blockInverse ra rd x y v, ?_⟩
+  intro f g
+  let a := v (ra (f-x (rd g)))
+  let c := rd (g-y a)
+  have he : a-ra (x (rd (y a))) = ra (f-x (rd g)) :=
+    hright (ra (f-x (rd g)))
+  have ha' : a = ra (f-x c) := by
+    calc
+      a = (a-ra (x (rd (y a))))+ra (x (rd (y a))) := by abel
+      _ = _ := by rw [he]; simp only [c, map_sub]; abel
+  have hi : blockInverse ra rd x y v (f,g) = (a,c) := by
+    exact Prod.ext (blockInverse_first ra rd x y v f g)
+      (blockInverse_second ra rd x y v f g)
+  rw [hi]
+  refine ⟨ha',rfl,?_⟩
+  intro w hw
+  obtain ⟨u, hu, huniq⟩ := block_resolvent_of_factor ra rd x y v hleft hright f g
+  exact (huniq w hw).trans (huniq (a,c) ⟨ha',rfl⟩).symm
+
+#print axioms schur_factor_inverse
+#print axioms block_resolvent_small_coupling
 #print axioms block_resolvent_of_factor
 #print axioms blockInverse_first
 #print axioms blockInverse_second
