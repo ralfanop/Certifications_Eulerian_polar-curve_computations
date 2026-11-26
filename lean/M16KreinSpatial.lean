@@ -20,9 +20,9 @@ theorem transport_involution {R : Type*} [Ring R] (u v s : R)
     _ = 1 := by rw [hv, mul_one]; rw [mul_assoc u s s, hs, mul_one, hu]
 
 -- Block elimination, with the factor of two and the sign in (171).
-theorem schur_elimination {R : Type*} [Ring R] (a d r x y p q g : R)
-    (hr : r*d = 1) (hx : x = -(y+y)) (hq : y*p + d*q = g) :
-    a*p + x*q = (a+(y+y)*r*y)*p - (y+y)*r*g := by
+theorem schur_elimination {R : Type*} [Ring R] (a d r x y yadj p q g : R)
+    (hr : r*d = 1) (hx : x = -(yadj+yadj)) (hq : y*p + d*q = g) :
+    a*p + x*q = (a+(yadj+yadj)*r*y)*p - (yadj+yadj)*r*g := by
   have hq' : q = r*g-r*y*p := by
     calc
       q = (r*d)*q := by rw [hr, one_mul]
