@@ -139,9 +139,8 @@ lemma complexNumerator_deriv_zero : deriv complexNumerator 0 = 1 := by
   have hp := Complex.hasDerivAt_exp (0 : ℂ)
   have hm := (Complex.hasDerivAt_exp (-(0 : ℂ))).comp (0 : ℂ) (hasDerivAt_neg (0 : ℂ))
   have hd := (hp.sub hm).div_const (2 : ℂ)
-  have hd' : HasDerivAt complexNumerator 1 0 := by
-    simpa [complexNumerator, Function.comp_def] using hd
-  exact hd'.deriv
+  change deriv (fun z : ℂ => (Complex.exp z - Complex.exp (-z)) / 2) 0 = 1
+  simpa [Function.comp_def] using hd.deriv
 
 theorem complexMGF_zero : complexMGF 0 = 1 := by
   rw [complexMGF, mul_zero, dslope_same, complexNumerator_deriv_zero]
@@ -151,7 +150,7 @@ theorem complexMGF_eq_sinh (z : ℂ) (hz : z ≠ 0) :
   have hc : (Real.sqrt 3 : ℂ) ≠ 0 := by
     exact_mod_cast (ne_of_gt (Real.sqrt_pos.2 (by norm_num : (0 : ℝ) < 3)))
   rw [complexMGF, dslope_of_ne _ (mul_ne_zero hc hz)]
-  simp [slope, complexNumerator_zero, complexNumerator, Complex.sinh_eq, div_eq_inv_mul]
+  simp [slope, complexNumerator, Complex.sinh, div_eq_inv_mul]
 
 theorem complexMGF_entire (z : ℂ) : AnalyticAt ℂ complexMGF z := by
   have hd : DifferentiableOn ℂ complexNumerator Set.univ :=
@@ -161,7 +160,8 @@ theorem complexMGF_entire (z : ℂ) : AnalyticAt ℂ complexMGF z := by
       (s := Set.univ) (c := (0 : ℂ)) (by simp)).2 hd)
   have hda : Differentiable ℂ complexMGF := by
     unfold complexMGF
-    exact hds.comp (differentiable_const.mul differentiable_id)
+    have hlin : Differentiable ℂ (fun w : ℂ => (Real.sqrt 3 : ℂ) * w) := by fun_prop
+    exact hds.comp hlin
   exact Complex.analyticAt_of_differentiable_on_punctured_nhds_of_continuousAt
     (Filter.Eventually.of_forall hda) (hda z).continuousAt
 
@@ -172,7 +172,6 @@ theorem complexMGF_restrict_real (h : ℝ) : complexMGF (h : ℂ) = (mgf h : ℂ
   · have hc : (h : ℂ) ≠ 0 := by exact_mod_cast hh
     rw [complexMGF_eq_sinh _ hc, mgf_eq_sinh h hh]
     push_cast
-    rw [← Complex.ofReal_sinh]
 
 /-- Taylor expansion of the actual real exponential, with an analytic seventh-order factor. -/
 lemma exp_jet7 (c : ℝ) :
@@ -184,7 +183,7 @@ lemma exp_jet7 (c : ℝ) :
   obtain ⟨R,hR,hEq⟩ := ha.exists_eq_sum_add_pow_mul 7
   refine ⟨R,hR,fun h => ?_⟩
   have H := hEq h
-  simp only [Real.iteratedDeriv_exp_const_mul, mul_zero, Real.exp_zero, mul_one,
+  simp only [iteratedDeriv_exp_const_mul, mul_zero, Real.exp_zero, mul_one,
     smul_eq_mul] at H
   norm_num [Finset.sum_range_succ] at H
   convert H using 1 <;> ring
@@ -210,11 +209,11 @@ theorem mgf_analytic_jet :
         2*c*h*(1+c^2*h^2/6+c^4*h^4/120+h^6*((P h-N h)/(2*c))) := by
       rw [hp h, hn h]
       field_simp [hc]
-      <;> ring
+      ring
     have hs : mgf h = Real.sinh (c*h)/(c*h) := mgf_eq_sinh h hh
     rw [hs, Real.sinh_eq, show -(c*h) = (-c)*h by ring, hd, hc2, hc4]
     field_simp [hc,hh]
-    <;> ring
+    ring
 
 theorem mgf_analyticAt_zero : AnalyticAt ℝ mgf 0 := by
   obtain ⟨R,hR,h⟩ := mgf_analytic_jet
@@ -227,7 +226,8 @@ lemma log_one_add_jet :
   have ha : AnalyticAt ℝ (fun t : ℝ => Real.log (1+t)) 0 := by
     have hl : AnalyticAt ℝ Real.log (1 : ℝ) :=
       (Real.contDiffAt_log (n := ω)).2 (by norm_num) |>.analyticAt
-    exact hl.comp (by fun_prop : AnalyticAt ℝ (fun t : ℝ => 1+t) 0)
+    have hlin : AnalyticAt ℝ (fun t : ℝ => 1+t) 0 := by fun_prop
+    exact hl.comp_of_eq hlin (by norm_num)
   have hd : deriv (fun t : ℝ => Real.log (1+t)) =ᶠ[𝓝 (0 : ℝ)]
       fun t => (1+t)⁻¹ := by
     filter_upwards [Ioo_mem_nhds (by norm_num : (-1 : ℝ) < 0)
@@ -266,7 +266,13 @@ theorem log_mgf_analytic_jet :
     have h := hS
     rw [← hu0] at h
     exact h.comp hu
-  refine ⟨fun h => R h-B h*(A h+1/2)/2+(A h)^3*S (u h), by fun_prop, ?_⟩
+  have hA' : AnalyticAt ℝ (fun h => A h + 1/2) 0 := by fun_prop
+  have hBA : AnalyticAt ℝ (fun h => B h * (A h + 1/2)/2) 0 :=
+    (hB.mul hA').div_const
+  have hprod : AnalyticAt ℝ (fun h => (A h)^3 * S (u h)) 0 :=
+    (hA.pow 3).mul hSu
+  refine ⟨fun h => R h-B h*(A h+1/2)/2+(A h)^3*S (u h),
+    (hR.sub hBA).add hprod, ?_⟩
   intro h
   have hm : mgf h = 1+u h := by rw [hr h]; dsimp [u,A,B]; ring
   rw [hm, hs (u h)]
@@ -303,7 +309,7 @@ theorem log_mgf_fourth_deriv :
   have hP : AnalyticAt ℝ P 0 := by dsimp [P]; fun_prop
   have hdiff : AnalyticAt ℝ (f-P) 0 := hf.sub hP
   have hord : (6 : ℕ∞) ≤ analyticOrderAt (f-P) 0 := by
-    apply (hdiff.natCast_le_analyticOrderAt (n := 6)).2
+    apply (natCast_le_analyticOrderAt hdiff (n := 6)).2
     refine ⟨R,hR,Filter.Eventually.of_forall (fun h => ?_)⟩
     simp only [Pi.sub_apply, smul_eq_mul, f,P,hr]
     ring
