@@ -95,6 +95,17 @@ class Local(TwoSided):
             raw=Path(self.certified_length_manifest).read_bytes()
             digest=hashlib.sha256(raw).hexdigest()
             expected="a606d305f7d4c773695cee61cf56268022ec9cc5525f689f301e8822f22fe7b5"
+            mixed = json.loads(raw)
+            if mixed.get("source_head_sha") == "59d9884b7346b4e3296336be56f3bb702f1b2686" and mixed.get("threshold_bits") == 130000:
+                if (mixed.get("working_bits"),mixed.get("panels"),mixed.get("index")) != (155000,32,None):
+                    raise ValueError("mixed length parameters")
+                length=from_endpoints(mixed["enclosure"])/2
+                if length.rel_accuracy_bits()<target:
+                    raise ValueError("mixed length precision insufficient")
+                self.historical_euler_source={"source_ci":45357327165,"source_head_sha":mixed["source_head_sha"],"manifest_sha256":digest}
+                assert 0<length<3
+                self.charts[kind]={"length":length}
+                return length
             if digest!=expected:
                 raise ValueError("historical full Eulerian length manifest SHA256 mismatch")
             manifest=json.loads(raw)
@@ -127,15 +138,19 @@ class Local(TwoSided):
     def half(self,direction,resume=None,stop_after=None):
         n=self.panels;h=arb(1)/(2*n);step=2*h
         end=n//2 if stop_after is None else stop_after
-        assert 0<end<=n//2 and direction in (-1,1)
+        assert 0<=end<=n//2 and direction in (-1,1)
+        assert end>0 or resume is None
         self.checkpoint_state=None
         if resume is None:
             start=0;theta={};phase={};orders=[]
             for k in ('E','L'):
                 ell=self.charts[k]['length'];R=self.radii[k][0 if direction==1 else -1];p=self.order_for(R,h)
                 ctx.cap=p+5
+                print('Starter begin',direction,k,'order',p,'bits',ctx.prec,flush=True)
+                started=time.monotonic()
                 if direction==1:y=zero_jet(k,h*ell,self.a,self.b,p)
                 else:y=theta_jet(k,self.pi,-h*ell,self.a,self.b,p)
+                print('Starter end',direction,k,'seconds',time.monotonic()-started,'RSS KiB',resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,flush=True)
                 rem=5*(h/R)**p/(1-h/R)
                 ball=sum((y[i] for i in range(p)),arb(0))+arb(0,rem.upper())
                 assert 0<ball<self.pi
@@ -143,7 +158,7 @@ class Local(TwoSided):
             total=arb(0)
         else:
             start=resume['next_panel']
-            assert isinstance(start,int) and 0<start<end
+            assert isinstance(start,int) and 0<=start<end
             assert (resume['bits'],resume['target'],resume['panels'],resume['direction'])==(self.bits,self.target,n,direction)
             assert resume.get('historical_euler_source')==self.historical_euler_source
             orders=resume['orders'][:]
@@ -172,7 +187,13 @@ class Local(TwoSided):
             nearzero=direction==1 and j<2
             if not nearzero:
                 budget=self.target+1024;rate=math.log2(float(s/step))
-            Y={k:theta_jet(k,theta[k],s*self.charts[k]['length'],self.a,self.b,p,budget,rate) for k in theta}
+            Y={}
+            for k in theta:
+                print('Panel jet begin',direction,j+1,k,'order',p,'bits',ctx.prec,flush=True)
+                started=time.monotonic()
+                Y[k]=theta_jet(k,theta[k],s*self.charts[k]['length'],self.a,self.b,p,budget,rate)
+                print('Panel jet end',direction,j+1,k,'seconds',time.monotonic()-started,'RSS KiB',resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,flush=True)
+            print('Panel curvature begin',direction,j+1,flush=True)
             try:
                 if not nearzero:ctx.prec=min(self.bits,self.target+2048)
                 curv={}
@@ -191,7 +212,7 @@ class Local(TwoSided):
                     assert 0<ball<self.pi
                     theta[k]=ball.mid();phase[k]=(phase[k]+4*ball.rad()/(self.pi*self.charts[k]['length'])).upper()
             print('Local half',direction,'panel',j+1,'/',n//2,'R',R.str(8),'order',p,'radius',total.rad().str(8),flush=True)
-        assert total>0
+        assert (total.is_zero() if end==0 else total>0)
         if end<n//2:
             self.checkpoint_state={
                 'bits':self.bits,'target':self.target,'panels':n,'direction':direction,
@@ -210,7 +231,9 @@ class Local(TwoSided):
 
 def work(args,direction):
     t=time.monotonic();c=Local(args.bits,args.target,args.panels,args.certified_length_manifest)
+    print('Begin length charts',direction,flush=True)
     E=c.build_chart('E');L=c.build_chart('L')
+    print('Length charts ready',direction,'E bits',E.rel_accuracy_bits(),'L bits',L.rel_accuracy_bits(),flush=True)
     resume=None;source_digest=None
     if getattr(args,'resume',None) is not None:
         raw=Path(args.resume).read_bytes()
@@ -233,7 +256,7 @@ if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--bits',type=int,default=4096);p.add_argument('--target',type=int,default=1000);p.add_argument('--panels',type=int,default=32);p.add_argument('--output',default='m11-dk-local.json')
     p.add_argument('--certified-length-manifest',default=None,help='Historical successful complete 32-panel Eulerian length manifest; SHA256 pinned')
     p.add_argument('--resume',default=None,help='Prior exact interval checkpoint, same parameters and direction')
-    p.add_argument('--stop-after',type=int,default=None,help='Stop after this absolute half-panel number and emit exact checkpoint')
+    p.add_argument('--stop-after',type=int,default=None,help='Stop after this absolute half-panel number (0 = validated starter only) and emit exact checkpoint')
     mode=p.add_mutually_exclusive_group();mode.add_argument('--parallel',action='store_true');mode.add_argument('--direction',type=int,choices=(-1,1));mode.add_argument('--combine',nargs=2)
     args=p.parse_args();t=time.monotonic();params={k:getattr(args,k) for k in ('bits','target','panels')}
     if args.direction is not None:
