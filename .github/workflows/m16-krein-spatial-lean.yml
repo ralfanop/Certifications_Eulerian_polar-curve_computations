@@ -39,7 +39,7 @@ jobs:
           assert not re.search(r'\b(sorry|admit|axiom|opaque|native_decide)\b',src)
           assert ': error:' not in data and 'sorryAx' not in data and 'Lean.ofReduceBool' not in data
           names=re.findall(r'^#print axioms (\S+)$',src,re.M)
-          assert len(names)==10
+          assert len(names)==12
           for name in names:
               name='M16Krein.'+name
               m=re.search(r"'"+re.escape(name)+r"' depends on axioms: \[([^\]]*)\]",data)
