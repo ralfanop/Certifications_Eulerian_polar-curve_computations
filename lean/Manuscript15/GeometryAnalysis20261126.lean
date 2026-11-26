@@ -18,10 +18,10 @@ theorem immersion_x_derivative (R Phi : ℝ → ℝ) (x theta r Rp q : ℝ)
     HasDerivAt (fun t => R t*r*Real.sin (theta+Phi t))
       (Rp*r*Real.sin (theta+Phi x)+R x*r*q*Real.cos (theta+Phi x)) x := by
   have hA : HasDerivAt (fun t => theta+Phi t) q x := by
-    simpa using (hasDerivAt_const x theta).add hPhi
+    exact hPhi.const_add theta
   constructor
-  · convert (hR.mul_const r).mul hA.cos using 1 <;> ring
-  · convert (hR.mul_const r).mul hA.sin using 1 <;> ring
+  · convert (hR.mul_const r).mul hA.cos using 1 <;> first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
+  · convert (hR.mul_const r).mul hA.sin using 1 <;> first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
 
 theorem immersion_theta_derivative (r : ℝ → ℝ) (theta R phi rp : ℝ)
     (hr : HasDerivAt r rp theta) :
@@ -29,10 +29,11 @@ theorem immersion_theta_derivative (r : ℝ → ℝ) (theta R phi rp : ℝ)
       (R*rp*Real.cos (theta+phi)-R*r theta*Real.sin (theta+phi)) theta ∧
     HasDerivAt (fun t => R*r t*Real.sin (t+phi))
       (R*rp*Real.sin (theta+phi)+R*r theta*Real.cos (theta+phi)) theta := by
-  have hA := (hasDerivAt_id theta).add_const phi
+  have hA : HasDerivAt (fun t : ℝ => t+phi) 1 theta :=
+    (hasDerivAt_id theta).add_const phi
   constructor
-  · convert (hr.const_mul R).mul hA.cos using 1 <;> ring
-  · convert (hr.const_mul R).mul hA.sin using 1 <;> ring
+  · convert (hr.const_mul R).mul hA.cos using 1 <;> first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
+  · convert (hr.const_mul R).mul hA.sin using 1 <;> first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
 
 -- Actual second x derivatives of the differentiated immersion, not merely
 -- formal symbols for the first derivative.
@@ -49,11 +50,11 @@ theorem immersion_x_second_derivative
       ((Rpp-R x*(q x)^2)*r*Real.sin (theta+Phi x)+
         (2*Rp x*q x+R x*qp)*r*Real.cos (theta+Phi x)) x := by
   have hA : HasDerivAt (fun t => theta+Phi t) (q x) x := by
-    simpa using (hasDerivAt_const x theta).add hPhi
+    exact hPhi.const_add theta
   have hB := (hR.mul_const r).mul hq
   constructor
-  · convert ((hRp.mul_const r).mul hA.cos).sub (hB.mul hA.sin) using 1 <;> ring
-  · convert ((hRp.mul_const r).mul hA.sin).add (hB.mul hA.cos) using 1 <;> ring
+  · convert ((hRp.mul_const r).mul hA.cos).sub (hB.mul hA.sin) using 1 <;> first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
+  · convert ((hRp.mul_const r).mul hA.sin).add (hB.mul hA.cos) using 1 <;> first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
 
 -- Contractions with the unnormalised normal in the rotating frame.
 theorem second_form_xx (R Rp Rpp Zp Zpp r rp q qp : ℝ) :
@@ -143,7 +144,7 @@ theorem rounded_deriv (c0 c2 c4 t : ℝ) :
   unfold rounded
   have h := ((hasDerivAt_id t).pow 2 |>.const_mul c2).add
     ((hasDerivAt_id t).pow 4 |>.const_mul c4)
-  convert h.const_add c0 using 1 <;> first | rfl | ring
+  convert h.const_add c0 using 1 <;> first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
 
 theorem rounded_matching (d f fp fpp : ℝ) (hd : d ≠ 0) :
     let c4 := (fpp+fp/d)/(8*d^2)
@@ -166,7 +167,7 @@ theorem smoothing_primitive_deriv (t : ℝ) :
   have h2 := ((hasDerivAt_id t).pow 2).div_const 2
   have h3 := ((hasDerivAt_id t).pow 3).div_const 4
   have h5 := ((hasDerivAt_id t).pow 5).div_const 40
-  convert ((h1.sub h2).add h3).sub h5 using 1 <;> first | rfl | ring
+  convert ((h1.sub h2).add h3).sub h5 using 1 <;> first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
 
 theorem smoothing_integral :
     (∫ t in (0:ℝ)..1, (1-t)^3*(t+3)/8) = 1/10 := by
@@ -190,9 +191,9 @@ theorem deltoid_derivatives (b t : ℝ) :
   have h := (hasDerivAt_id t).const_mul (2:ℝ)
   constructor
   · convert (((Real.hasDerivAt_cos t).const_mul 2).add h.cos).const_mul b using 1 <;>
-      first | rfl | ring
+      first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
   · convert (((Real.hasDerivAt_sin t).const_mul 2).sub h.sin).const_mul b using 1 <;>
-      first | rfl | ring
+      first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
 
 theorem deltoid_speed_squared (b t : ℝ) :
     (-2*b*(Real.sin t+Real.sin (2*t)))^2+
@@ -221,7 +222,7 @@ theorem deltoid_area_primitive_deriv (b t : ℝ) :
     HasDerivAt (deltoidAreaPrimitive b) (b^2*(1-Real.cos (3*t))) t := by
   unfold deltoidAreaPrimitive
   have h := ((hasDerivAt_id t).const_mul (3:ℝ)).sin.div_const 3
-  convert ((hasDerivAt_id t).sub h).const_mul (b^2) using 1 <;> first | rfl | ring
+  convert ((hasDerivAt_id t).sub h).const_mul (b^2) using 1 <;> first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
 
 theorem deltoid_signed_area_integral (b : ℝ) :
     (∫ t in (0:ℝ)..(2*Real.pi),
@@ -242,7 +243,7 @@ theorem deltoid_signed_area_integral (b : ℝ) :
     · exact (by fun_prop : Continuous (fun t : ℝ => b^2*(1-Real.cos (3*t)))).intervalIntegrable 0 (2*Real.pi)
   rw [h]
   unfold deltoidAreaPrimitive
-  rw [show 3*(2*Real.pi)= (6:ℕ)*Real.pi by push_cast; ring]
+  rw [show 3*(2*Real.pi)= (6:ℕ)*Real.pi by push_cast; ring, Real.sin_nat_mul_pi]
   simp <;> ring
 
 end Manuscript15.GeometryAnalysis20261126
