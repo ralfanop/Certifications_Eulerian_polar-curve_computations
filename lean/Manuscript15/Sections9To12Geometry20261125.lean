@@ -111,8 +111,7 @@ theorem tensor_quadratic_positive (s u v A B C : ℝ)
     · by_cases hB : B = 0
       · subst A
         subst B
-        simp only [mul_zero, add_zero, zero_add, zero_sub, neg_sq]
-        exact mul_pos (sq_pos_of_ne_zero hs) (sq_pos_of_ne_zero hC)
+        simpa using (mul_pos (sq_pos_of_ne_zero hs) (sq_pos_of_ne_zero hC))
       · have h : 0 < B^2 := sq_pos_of_ne_zero hB
         positivity
     · have h : 0 < A^2 := sq_pos_of_ne_zero hA
@@ -224,7 +223,9 @@ theorem quartic_potential_bridge (b bp x : ℝ) (hb : 0 < b)
   rw [he]
   have hprod : (1/(1+x^2))^2*(bp^2/(x^2+bp^2))^2 =
       ((bp/Real.sqrt ((1+x^2)*(x^2+bp^2)))^2)^2 := by
-    rw [div_pow, hsq]
+    have hquot : (bp/Real.sqrt ((1+x^2)*(x^2+bp^2)))^2 =
+        bp^2/((1+x^2)*(x^2+bp^2)) := by rw [div_pow, hsq]
+    rw [hquot]
     field_simp [ne_of_gt hX, ne_of_gt hY] <;> ring
   rw [hprod, Real.sqrt_sq (sq_nonneg _),
       Real.sqrt_sq (div_nonneg hp.le hden.le)]
