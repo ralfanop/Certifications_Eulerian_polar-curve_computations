@@ -211,6 +211,7 @@ theorem tangent_image (b : ℝ) (hb : 0 ≤ b) (hb1 : b < 1) :
   · intro hx
     refine ⟨Real.arctan (x/complementary b),⟨Real.arctan_pos.mpr (div_pos hx hc),
       Real.arctan_lt_pi_div_two _⟩,?_⟩
+    change complementary b * Real.tan (Real.arctan (x / complementary b)) = x
     rw [Real.tan_arctan]
     field_simp [ne_of_gt hc]
 
@@ -218,7 +219,7 @@ theorem scaled_integral_elliptic (b : ℝ) (hb : 0 ≤ b) (hb1 : b < 1) :
     (∫ x in Ioi (0:ℝ), scaledWeight (complementary b) x) =
       complementary b * ellipticK b := by
   have h := integral_image_eq_integral_abs_deriv_smul measurableSet_Ioo
-    (tangent_jacobian b hb hb1) (tangent_inj b hb hb1)
+    (fun θ hθ => tangent_jacobian b θ hb hb1 hθ) (tangent_inj b hb hb1)
     (scaledWeight (complementary b))
   rw [tangent_image b hb hb1] at h
   rw [h]
@@ -262,7 +263,7 @@ theorem elliptic_continuous (b : ℝ) (hb : 0 ≤ b) (hb1 : b < 1) :
 theorem scaledWeight_integrable (b : ℝ) (hb : 0 ≤ b) (hb1 : b < 1) :
     IntegrableOn (scaledWeight (complementary b)) (Ioi (0:ℝ)) := by
   have h := integrableOn_image_iff_integrableOn_abs_deriv_smul measurableSet_Ioo
-    (tangent_jacobian b hb hb1) (tangent_inj b hb hb1)
+    (fun θ hθ => tangent_jacobian b θ hb hb1 hθ) (tangent_inj b hb hb1)
     (scaledWeight (complementary b))
   rw [tangent_image b hb hb1] at h
   apply h.mpr
