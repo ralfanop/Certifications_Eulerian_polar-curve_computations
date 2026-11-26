@@ -172,6 +172,7 @@ theorem complexMGF_restrict_real (h : ℝ) : complexMGF (h : ℂ) = (mgf h : ℂ
   · have hc : (h : ℂ) ≠ 0 := by exact_mod_cast hh
     rw [complexMGF_eq_sinh _ hc, mgf_eq_sinh h hh]
     push_cast
+    rfl
 
 /-- Taylor expansion of the actual real exponential, with an analytic seventh-order factor. -/
 lemma exp_jet7 (c : ℝ) :
@@ -186,7 +187,8 @@ lemma exp_jet7 (c : ℝ) :
   simp only [iteratedDeriv_exp_const_mul, mul_zero, Real.exp_zero, mul_one,
     smul_eq_mul] at H
   norm_num [Finset.sum_range_succ] at H
-  convert H using 1 <;> ring
+  convert H using 1
+  ring
 
 /-- Actual MGF: the even fourth-degree jet and analytic sixth-order factor. -/
 theorem mgf_analytic_jet :
@@ -247,7 +249,7 @@ lemma log_one_add_jet :
   refine ⟨R,hR,fun t => ?_⟩
   have H := hEq t
   norm_num [Finset.sum_range_succ, smul_eq_mul, h1,h2] at H
-  convert H using 1 <;> ring
+  convert H using 1
 
 /-- Stronger than Eq. (118): exact equality with an analytic sixth-order factor. -/
 theorem log_mgf_analytic_jet :
