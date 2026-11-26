@@ -43,12 +43,12 @@ jobs:
           assert not re.search(r'\b(?:error|warning):|sorryAx|Lean\.ofReduceBool', s), s
           reports = re.findall(r"'([^']+)' depends on axioms:\s*\[([^\]]*)\]", s)
           no_axioms = re.findall(r"'([^']+)' does not depend on any axioms", s)
-          expected = {"mgf_zero","mgf_eq_sinh","mgf_eq_total","moment_eq","moment_one","moment_two","moment_four","fourth_centered_cumulant","quartic_log_jet","fourth_log_coefficient"}
+          expected = {"mgf_zero","mgf_eq_sinh","mgf_eq_total","moment_eq","moment_one","moment_two","moment_four","fourth_centered_cumulant","quartic_log_jet","fourth_log_coefficient","complexMGF_zero","complexMGF_eq_sinh","complexMGF_entire","complexMGF_restrict_real","mgf_analytic_jet","mgf_analyticAt_zero","log_mgf_analytic_jet","log_mgf_bigO","log_mgf_fourth_deriv","fourth_derivative_eq_moment_cumulant"}
           found = {n.split(".")[-1] for n, _ in reports} | {n.split(".")[-1] for n in no_axioms}
           assert found == expected, (found, expected)
           for name, axioms in reports:
               assert set(re.findall(r'[A-Za-z_][A-Za-z0-9_.]*', axioms)) <= {"propext", "Classical.choice", "Quot.sound"}, (name, axioms)
-          print("SUCCESS: ten declarations, standard axioms only")
+          print("SUCCESS: twenty declarations, standard axioms only")
           PY
       - uses: actions/upload-artifact@v4
         if: always()
