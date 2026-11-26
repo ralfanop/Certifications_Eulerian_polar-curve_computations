@@ -34,7 +34,7 @@ theorem mul_mem {μ : Measure ℝ} (m : ℝ → ℂ) (hm : Measurable m)
     (C : ℝ) (hC : 0 ≤ C) (hb : ∀ᵐ x ∂μ, ‖m x‖ ≤ C) (f : H μ) :
     MemLp (fun x => m x * f x) 2 μ := by
   apply (Lp.memLp ((C : ℂ) • f)).mono
-  · exact hm.aestronglyMeasurable.mul f.aestronglyMeasurable
+  · exact hm.aestronglyMeasurable.mul (Lp.memLp f).aestronglyMeasurable
   · filter_upwards [hb, Lp.coeFn_smul (C : ℂ) f] with x hx he
     rw [norm_mul]
     change (((C : ℂ) • f) x) = (C : ℂ) * f x at he
