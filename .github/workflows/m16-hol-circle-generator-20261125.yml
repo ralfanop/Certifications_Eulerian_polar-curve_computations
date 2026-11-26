@@ -1,0 +1,116 @@
+name: M16 eq:hol-integral self-adjoint operator B on L2(S1) with domain H2(S1) (exact HEAD)
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/HolonomyCircleGenerator20261125.lean'
+      - 'lean/Manuscript16/HolonomyCircleResolvent20261125.lean'
+      - 'lean/Manuscript16/HolonomyMomentSeries20261124.lean'
+      - 'lean/Manuscript16/HolonomyEulerProduct20261124.lean'
+      - 'lean/Manuscript16/ReactiveHolonomyV166.lean'
+      - 'lean/Manuscript16/V166HolonomyPair.lean'
+      - 'lean/Manuscript16/DiracMaxwellCoefficientModel20261124.lean'
+      - 'lean/Manuscript16/V166SpectralCutoffs.lean'
+      - 'lean/Manuscript16/V166L2SpectralInverse.lean'
+      - 'lean/Manuscript16/DiracMaxwellGraphSpace20261124.lean'
+      - 'lean/Manuscript16/DiracMaxwellObstructionIndex20261124.lean'
+      - 'lean/Manuscript16/V166CompactTransfer.lean'
+      - 'lean/Manuscript16/V165GraphNeumann.lean'
+      - 'lean/Manuscript16/V165TypedGraphSchur.lean'
+      - 'lean/SharedCore/FredholmAtkinson.lean'
+      - 'lean/SharedCore/FredholmCompactParametrix.lean'
+      - 'lean/Manuscript16/RobinDirichletRankOne20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletL2Bounded20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletPositive20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletInjective20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletWeakResolvent20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletRealisation20261125.lean'
+      - 'lean/lakefile.toml'
+      - 'lean/lean-toolchain'
+      - 'audits/manuscript16/M16_hol_circle_generator_20261125.md'
+      - '.github/workflows/m16-hol-circle-generator-20261125.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean 4 toolchain and Mathlib
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m16-hcgen-head.log
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          lake env lean --version | tee -a /tmp/m16-hcgen-head.log
+      - name: Compile the 21 imported modules and the new module, audit every declaration
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          SRC=Manuscript16/HolonomyCircleGenerator20261125
+          DEPS="SharedCore/FredholmCompactParametrix SharedCore/FredholmAtkinson Manuscript16/V165TypedGraphSchur Manuscript16/V165GraphNeumann Manuscript16/V166CompactTransfer Manuscript16/DiracMaxwellObstructionIndex20261124 Manuscript16/DiracMaxwellGraphSpace20261124 Manuscript16/V166L2SpectralInverse Manuscript16/V166SpectralCutoffs Manuscript16/DiracMaxwellCoefficientModel20261124 Manuscript16/V166HolonomyPair Manuscript16/ReactiveHolonomyV166 Manuscript16/HolonomyEulerProduct20261124 Manuscript16/HolonomyMomentSeries20261124 Manuscript16/HolonomyCircleResolvent20261125 Manuscript16/RobinDirichletRankOne20261125 Manuscript16/RobinDirichletL2Bounded20261125 Manuscript16/RobinDirichletPositive20261125 Manuscript16/RobinDirichletInjective20261125 Manuscript16/RobinDirichletWeakResolvent20261125 Manuscript16/RobinDirichletRealisation20261125"
+          mkdir -p .lake/build/lib/lean/Manuscript16 .lake/build/lib/lean/SharedCore
+          for m in $DEPS $SRC; do
+            if grep -nE '\bsorry\b|\badmit\b|^\s*axiom\b|\bunsafe\b|implemented_by|extern' "$m.lean"; then exit 1; fi
+          done
+          for m in $DEPS; do
+            lake env lean -M16768 -o ".lake/build/lib/lean/$m.olean" "$m.lean" 2>&1 | tee "/tmp/m16-hcgen-dep-$(basename $m).log"
+            if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' "/tmp/m16-hcgen-dep-$(basename $m).log"; then exit 1; fi
+          done
+          lake env lean -M16768 -o ".lake/build/lib/lean/$SRC.olean" "$SRC.lean" 2>&1 | tee /tmp/m16-hcgen-lean.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|warning:|declaration uses .sorry.|Try this' /tmp/m16-hcgen-lean.log; then exit 1; fi
+          python3 - <<'PY'
+          import hashlib, json, re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          deps = {}
+          for p in sorted(Path('/tmp').glob('m16-hcgen-dep-*.log')):
+              for name, a in re.findall(r"'([^']+)' depends on axioms: \[([^\]]*)\]", p.read_text(), re.S):
+                  axioms = sorted({x.strip() for x in a.split(',') if x.strip()})
+                  assert set(axioms) <= allowed, (p.name, name, axioms)
+                  deps[name] = axioms
+          assert len(deps) == 402, len(deps)
+          src = Path('Manuscript16/HolonomyCircleGenerator20261125.lean')
+          log = Path('/tmp/m16-hcgen-lean.log').read_text()
+          requested = re.findall(r'^#print axioms (\S+)', src.read_text(), re.M)
+          assert len(requested) == 29 and len(set(requested)) == 29, requested
+          audit = {}
+          for name in requested:
+              found = re.findall(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+              assert found or ("'" + name + "' does not depend on any axioms") in log, name
+              axioms = sorted({x.strip() for a in found for x in a.split(',') if x.strip()})
+              assert set(axioms) <= allowed, (name, axioms)
+              audit[name] = axioms
+              print('AXIOM AUDIT SUCCESS:', name, axioms)
+          out = {
+              'head': Path('/tmp/m16-hcgen-head.log').read_text().split()[0],
+              'source_sha256': hashlib.sha256(src.read_bytes()).hexdigest(),
+              'olean_sha256': hashlib.sha256(Path('.lake/build/lib/lean/Manuscript16/HolonomyCircleGenerator20261125.olean').read_bytes()).hexdigest(),
+              'log_sha256': hashlib.sha256(log.encode()).hexdigest(),
+              'axioms': audit,
+              'imported_module_axioms': deps,
+          }
+          Path('/tmp/m16-hcgen-audit.json').write_text(json.dumps(out, indent=2) + '\n')
+          print('SUCCESS:', len(audit), 'declarations and', len(deps), 'imported reports; standard axioms only')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-hol-circle-generator-audit
+          path: |
+            /tmp/m16-hcgen-*.log
+            /tmp/m16-hcgen-audit.json
