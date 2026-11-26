@@ -10,7 +10,7 @@ theorem cumulant_support_strict (x y : ℝ) (hxy : y ≠ x) :
   let g : ℝ → ℝ := fun t => cumulant t - langevin x * t
   have hg (t : ℝ) : HasDerivAt g (langevin t - langevin x) t := by
     have hlin : HasDerivAt (fun y : ℝ => langevin x * y) (langevin x) t := by
-      simpa only [mul_one] using (hasDerivAt_id t).const_mul (langevin x)
+      simpa only [mul_one, id_eq] using (hasDerivAt_id t).const_mul (langevin x)
     change HasDerivAt (fun y : ℝ => cumulant y - langevin x * y) (langevin t - langevin x) t
     exact (cumulant_hasDerivAt t).sub hlin
   rcases lt_or_gt_of_ne hxy with h | h
