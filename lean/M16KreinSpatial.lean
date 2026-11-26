@@ -31,7 +31,7 @@ theorem schur_elimination {R : Type*} [Ring R] (a d r x y yadj p q g : R)
   noncomm_ring
 
 -- Corollary 9.14: exact scalar quadratic and its positive branch.
-def gapRadius (a d c : ℝ) : ℝ :=
+noncomputable def gapRadius (a d c : ℝ) : ℝ :=
   (a+d-Real.sqrt ((a-d)^2+8*c^2))/2
 
 theorem gap_root (a d c : ℝ) :
