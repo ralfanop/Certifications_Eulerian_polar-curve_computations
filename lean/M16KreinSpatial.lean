@@ -92,6 +92,52 @@ theorem unperturbed_threshold (c : ℝ) (hc : 0 ≤ c) :
       (show 0 < Real.sqrt 3+c by linarith)
     nlinarith only [hs, hp]
 
+-- Typed Schur reduction between distinct additive spaces.
+theorem typed_schur_iff {E F : Type*} [AddCommGroup E] [AddCommGroup F]
+    (a : E →+ E) (d r : F →+ F) (y : E →+ F) (x : F →+ E)
+    (hrd : ∀ v, r (d v) = v) (hdr : ∀ v, d (r v) = v)
+    (p : E) (q : F) (f : E) (g : F) :
+    (a p - (x q + x q) = f ∧ y p + d q = g) ↔
+      (q = r g - r (y p) ∧
+        a p + (x (r (y p)) + x (r (y p))) = f + (x (r g) + x (r g))) := by
+  constructor
+  · rintro ⟨hf, hg⟩
+    have hh : r (y p) + q = r g := by
+      simpa only [map_add, hrd] using congrArg (fun z : F => r z) hg
+    have hq : q = r g - r (y p) := by
+      calc
+        q = (r (y p) + q) - r (y p) := by abel
+        _ = r g - r (y p) := by rw [hh]
+    refine ⟨hq, ?_⟩
+    rw [hq, map_sub] at hf
+    rw [← hf]
+    abel
+  · rintro ⟨hq, hf⟩
+    constructor
+    · rw [hq, map_sub]
+      calc
+        _ = (a p + (x (r (y p)) + x (r (y p)))) -
+          (x (r g) + x (r g)) := by abel
+        _ = f := by rw [hf]; abel
+    · simp only [hq, map_sub, hdr]
+      abel
+
+-- Closed graph transport under a homeomorphism of the ambient product.
+theorem closed_graph_transport {E F : Type*} [TopologicalSpace E] [TopologicalSpace F]
+    (u : E × E ≃ₜ F × F) (G : Set (E × E)) (hG : IsClosed G) :
+    IsClosed (u '' G) := by
+  have h : u '' G = u.symm ⁻¹' G := by
+    ext z
+    constructor
+    · rintro ⟨w, hw, rfl⟩
+      simpa only [Set.mem_preimage, Homeomorph.symm_apply_apply] using hw
+    · intro hz
+      exact ⟨u.symm z, hz, u.apply_symm_apply z⟩
+  rw [h]
+  exact hG.preimage u.symm.continuous
+
+#print axioms typed_schur_iff
+#print axioms closed_graph_transport
 #print axioms weighted_pairing
 #print axioms scale_coupling
 #print axioms transport_involution
