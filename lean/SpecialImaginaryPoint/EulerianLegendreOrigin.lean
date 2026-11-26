@@ -17,7 +17,20 @@ theorem profile_eq_dslope : profile = dslope Real.sinh 0 := by
 
 theorem profile_analytic (x : ℝ) : AnalyticAt ℝ profile x := by
   rw [profile_eq_dslope]
-  exact (Real.analyticAt_sinh (x := x)).dslope 0
+  have h : AnalyticAt ℝ Real.sinh x := Real.analyticAt_sinh
+  first
+  | exact AnalyticAt.dslope h 0
+  | exact h.dslope 0
+  | have hh : AnalyticOnNhd ℝ Real.sinh Set.univ := fun y _ => Real.analyticAt_sinh
+    exact AnalyticOnNhd.dslope hh 0 x (Set.mem_univ x)
+  | by_cases hx : x = 0
+    · subst x
+      obtain ⟨p, hp⟩ := h
+      first
+      | exact ⟨p.fslope, hp.dslope_fslope⟩
+      | exact ⟨p.fslope, hp.has_fpower_series_dslope_fslope⟩
+    · have hh : AnalyticWithinAt ℝ Real.sinh Set.univ x := h.analyticWithinAt
+      exact analyticWithinAt_univ.mp (AnalyticWithinAt.dslope_of_ne hh hx)
 
 theorem profile_mul_eq_sinh (x : ℝ) : x * profile x = Real.sinh x := by
   by_cases hx : x = 0
