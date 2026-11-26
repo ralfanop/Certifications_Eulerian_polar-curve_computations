@@ -9,8 +9,10 @@ theorem cumulant_support_strict (x y : ℝ) (hxy : y ≠ x) :
     cumulant x + langevin x * (y - x) < cumulant y := by
   let g : ℝ → ℝ := fun t => cumulant t - langevin x * t
   have hg (t : ℝ) : HasDerivAt g (langevin t - langevin x) t := by
-    have hd := (cumulant_hasDerivAt t).sub ((hasDerivAt_id t).const_mul (langevin x))
-    simpa [g] using hd
+    have hlin : HasDerivAt (fun y : ℝ => langevin x * y) (langevin x) t := by
+      simpa only [mul_one] using (hasDerivAt_id t).const_mul (langevin x)
+    change HasDerivAt (fun y : ℝ => cumulant y - langevin x * y) (langevin t - langevin x) t
+    exact (cumulant_hasDerivAt t).sub hlin
   rcases lt_or_gt_of_ne hxy with h | h
   · have hm : StrictMonoOn (fun t : ℝ => -g t) (Set.Iic x) := by
       apply strictMonoOn_of_deriv_pos (convex_Iic x)
@@ -18,10 +20,11 @@ theorem cumulant_support_strict (x y : ℝ) (hxy : y ≠ x) :
         exact (hg t).neg.continuousAt.continuousWithinAt
       · intro t ht
         rw [interior_Iic] at ht
-        rw [(hg t).neg.deriv]
+        have hn : HasDerivAt (fun y : ℝ => -g y) (-(langevin t - langevin x)) t := (hg t).neg
+        rw [hn.deriv]
         have hh := langevin_strictMono (show t < x from ht)
         linarith
-    have hh := hm (show y ∈ Set.Iic x from h.le) (show x ∈ Set.Iic x from le_rfl) h
+    have hh := hm (show y ∈ Set.Iic x from h.le) (Set.mem_Iic.mpr (le_refl x)) h
     dsimp [g] at hh
     linarith
   · have hm : StrictMonoOn g (Set.Ici x) := by
@@ -32,7 +35,7 @@ theorem cumulant_support_strict (x y : ℝ) (hxy : y ≠ x) :
         rw [interior_Ici] at ht
         rw [(hg t).deriv]
         exact sub_pos.mpr (langevin_strictMono (show x < t from ht))
-    have hh := hm (show x ∈ Set.Ici x from le_rfl) (show y ∈ Set.Ici x from h.le) h
+    have hh := hm (Set.mem_Ici.mpr (le_refl x)) (show y ∈ Set.Ici x from h.le) h
     dsimp [g] at hh
     linarith
 
