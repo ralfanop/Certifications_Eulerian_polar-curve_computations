@@ -88,7 +88,7 @@ theorem lem_weight (t : ℝ) (ht : t ∈ Ioo (0:ℝ) 1) :
     have hh := mul_pos hq (show 0 < 1+t^2 by positivity)
     nlinarith only [hh]
   have hc : 0 < c := by unfold c; positivity
-  have hD : (1+lemMap t^2)*(c^2+lemMap t^2) = (1-t^4)/(2*(1-t^2)^2) := by
+  have hD : (1+lemMap t^2)*(c^2+lemMap t^2) = (1+t^2)/(2*(1-t^2)^2) := by
     rw [lem_map_sq t ht,selfdual_sq]
     field_simp [ne_of_gt hq] <;> ring
   have hDpos : 0 < (1+lemMap t^2)*(c^2+lemMap t^2) := by positivity
@@ -101,7 +101,7 @@ theorem lem_weight (t : ℝ) (ht : t ∈ Ioo (0:ℝ) 1) :
   have he : ((1/(Real.sqrt (1-t^2))^3) * (c/Real.sqrt ((1+lemMap t^2)*(c^2+lemMap t^2))))^2 =
       (1/Real.sqrt (1-t^4))^2 := by
     rw [mul_pow,div_pow,div_pow,div_pow,hs6,Real.sq_sqrt hDpos.le,selfdual_sq,hD,Real.sq_sqrt ht4.le]
-    field_simp [ne_of_gt hq,ne_of_gt ht4] <;> ring
+    field_simp [ne_of_gt hq,ne_of_gt ht4,show 1+t^2 ≠ 0 by positivity] <;> ring
   nlinarith only [he,hL,hR]
 
 theorem lem_period :
