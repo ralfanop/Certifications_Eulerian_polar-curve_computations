@@ -11,10 +11,315 @@ concurrency:
   group: m11-dk-30k-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: false
 jobs:
-  panel_0:
-    name: "M11 30k direction ${{ matrix.direction }} through panel 0"
+  newton_smoke:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install python-flint==0.9.0
+          python -m py_compile numerics/arb/m11_dk_newton_checkpoint.py numerics/arb/m11_dk_ode.py numerics/arb/m11_dk_continuation.py
+          python -u numerics/arb/m11_dk_newton_checkpoint.py --smoke
+  newton_2048:
+    name: "Newton 2048 direction ${{ matrix.direction }} curve ${{ matrix.kind }}"
+    needs: newton_smoke
     runs-on: ubuntu-24.04
     timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        direction: [1, -1]
+        kind: [E, L]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - name: Continue one curve to order 2048
+        env:
+          M11_PRODUCER_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_newton_checkpoint.py --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --kind ${{ matrix.kind }} --degree 2048 --output result/coefficients.gz 2>&1 | tee result/production.log
+          printf '%s\n' "$M11_PRODUCER_HEAD" > result/producer-head.txt
+          (cd result && sha256sum coefficients.gz > sha256.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-newton-${{ matrix.direction }}-${{ matrix.kind }}-2048
+          path: result/
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 90
+  newton_4096:
+    name: "Newton 4096 direction ${{ matrix.direction }} curve ${{ matrix.kind }}"
+    needs: newton_2048
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        direction: [1, -1]
+        kind: [E, L]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-newton-${{ matrix.direction }}-${{ matrix.kind }}-2048
+          path: previous
+      - name: Check exact previous coefficient artifact
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c sha256.txt)
+      - name: Continue one curve to order 4096
+        env:
+          M11_PRODUCER_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_newton_checkpoint.py --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --kind ${{ matrix.kind }} --degree 4096 --resume previous/coefficients.gz --output result/coefficients.gz 2>&1 | tee result/production.log
+          printf '%s\n' "$M11_PRODUCER_HEAD" > result/producer-head.txt
+          (cd result && sha256sum coefficients.gz > sha256.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-newton-${{ matrix.direction }}-${{ matrix.kind }}-4096
+          path: result/
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 90
+  newton_8192:
+    name: "Newton 8192 direction ${{ matrix.direction }} curve ${{ matrix.kind }}"
+    needs: newton_4096
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        direction: [1, -1]
+        kind: [E, L]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-newton-${{ matrix.direction }}-${{ matrix.kind }}-4096
+          path: previous
+      - name: Check exact previous coefficient artifact
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c sha256.txt)
+      - name: Continue one curve to order 8192
+        env:
+          M11_PRODUCER_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_newton_checkpoint.py --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --kind ${{ matrix.kind }} --degree 8192 --resume previous/coefficients.gz --output result/coefficients.gz 2>&1 | tee result/production.log
+          printf '%s\n' "$M11_PRODUCER_HEAD" > result/producer-head.txt
+          (cd result && sha256sum coefficients.gz > sha256.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-newton-${{ matrix.direction }}-${{ matrix.kind }}-8192
+          path: result/
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 90
+  newton_16384:
+    name: "Newton 16384 direction ${{ matrix.direction }} curve ${{ matrix.kind }}"
+    needs: newton_8192
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        direction: [1, -1]
+        kind: [E, L]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-newton-${{ matrix.direction }}-${{ matrix.kind }}-8192
+          path: previous
+      - name: Check exact previous coefficient artifact
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c sha256.txt)
+      - name: Continue one curve to order 16384
+        env:
+          M11_PRODUCER_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_newton_checkpoint.py --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --kind ${{ matrix.kind }} --degree 16384 --resume previous/coefficients.gz --output result/coefficients.gz 2>&1 | tee result/production.log
+          printf '%s\n' "$M11_PRODUCER_HEAD" > result/producer-head.txt
+          (cd result && sha256sum coefficients.gz > sha256.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-newton-${{ matrix.direction }}-${{ matrix.kind }}-16384
+          path: result/
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 90
+  newton_full:
+    name: "Newton full direction ${{ matrix.direction }} curve ${{ matrix.kind }}"
+    needs: newton_16384
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        direction: [1, -1]
+        kind: [E, L]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin source and length provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .conclusion)" = success
+          test "$(gh api repos/${{ github.repository }}/actions/runs/45357327165 --jq .head_sha)" = 59d9884b7346b4e3296336be56f3bb702f1b2686
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 45357327165
+          github-token: ${{ github.token }}
+          name: m11-length-130k-curvature-chart-certified
+          path: length
+      - name: Validate length and pin FLINT
+        run: |
+          (cd length && sha256sum -c combined-130k-sha256.txt)
+          python -m pip install python-flint==0.9.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-newton-${{ matrix.direction }}-${{ matrix.kind }}-16384
+          path: previous
+      - name: Check exact previous coefficient artifact
+        run: |
+          test "$(cat previous/producer-head.txt)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          (cd previous && sha256sum -c sha256.txt)
+      - name: Continue one curve to order full
+        env:
+          M11_PRODUCER_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p result
+          /usr/bin/time -v python -u numerics/arb/m11_dk_newton_checkpoint.py --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --kind ${{ matrix.kind }} --degree full --resume previous/coefficients.gz --output result/starter.json 2>&1 | tee result/production.log
+          printf '%s\n' "$M11_PRODUCER_HEAD" > result/producer-head.txt
+          (cd result && sha256sum starter.json > sha256.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-newton-${{ matrix.direction }}-${{ matrix.kind }}-full
+          path: result/
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 90
+  panel_0:
+    name: "Assemble starter direction ${{ matrix.direction }}"
+    needs: newton_full
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -44,14 +349,26 @@ jobs:
         run: |
           (cd length && sha256sum -c combined-130k-sha256.txt)
           python -m pip install python-flint==0.9.0
-      - name: Produce rigorous checkpoint 0
-        shell: bash
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-newton-${{ matrix.direction }}-E-full
+          path: euler
+      - uses: actions/download-artifact@v4
+        with:
+          name: m11-newton-${{ matrix.direction }}-L-full
+          path: limacon
+      - name: Assemble both independently checked starter jets
+        env:
+          M11_PRODUCER_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           set -euo pipefail
+          for d in euler limacon; do
+            test "$(cat "$d/producer-head.txt")" = "$M11_PRODUCER_HEAD"
+            (cd "$d" && sha256sum -c sha256.txt)
+          done
           mkdir -p result
-          /usr/bin/time -v python -u numerics/arb/m11_dk_adaptive_radius.py --bits 150000 --target 100100 --panels 128 --direction ${{ matrix.direction }} --certified-length-manifest length/m11-length-130k-curvature-chart.json --stop-after 0 --output result/checkpoint.json 2>&1 | tee result/production.log
-          python -c 'import json; m=json.load(open("result/checkpoint.json")); assert m["parameters"]=={"bits":150000,"target":100100,"panels":128}; assert m["checkpoint"]["direction"]==${{ matrix.direction }} and m["checkpoint"]["next_panel"]==0 and len(m["checkpoint"]["orders"])==0 '
-          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > result/producer-head.txt
+          python -u numerics/arb/m11_dk_newton_checkpoint.py --length length/m11-length-130k-curvature-chart.json --direction ${{ matrix.direction }} --euler euler/starter.json --limacon limacon/starter.json --output result/checkpoint.json
+          printf '%s\n' "$M11_PRODUCER_HEAD" > result/producer-head.txt
           (cd result && sha256sum checkpoint.json > checkpoint.sha256)
       - uses: actions/upload-artifact@v4
         with:
@@ -59,12 +376,6 @@ jobs:
           path: result/
           if-no-files-found: error
           retention-days: 90
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: m11-dk-30k-diagnostics-${{ matrix.direction }}-panel-0
-          path: result/production.log
-          if-no-files-found: ignore
   panel_1:
     name: "M11 30k direction ${{ matrix.direction }} through panel 1"
     needs: panel_0
