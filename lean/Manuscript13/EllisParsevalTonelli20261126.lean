@@ -14,7 +14,6 @@ namespace Manuscript13.EllisParsevalTonelli20261126
 noncomputable section
 open Manuscript13.EllisGramKernelOperator20261124
 open Manuscript13.EllisBirman20261124
-open Manuscript13.EllisFourier20261124 (potential potential_integrable potential_nonneg)
 
 theorem lp_norm_sq_integral (f : H) :
     ‖f‖^2 = ∫ u : ℝ, (f u)^2 := by
@@ -45,7 +44,7 @@ theorem row_energy_lintegral (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
   rw [← weightLp_norm_sq a κ ha hk, lp_norm_sq_lintegral]
   apply lintegral_congr_ae
   filter_upwards [weightLp_ae a κ ha hk] with u hu
-  rw [hu,row_weight_eq a κ hk u, Real.norm_eq_abs, abs_of_nonneg (norm_nonneg _)]
+  rw [hu,row_weight_eq a κ hk u]
 
 theorem row_coordinate_ae (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) (f : H) :
     (fun u => kernelOperator a κ ha hk f u) =ᵐ[volume] rowApply a κ hk f :=
@@ -82,9 +81,8 @@ theorem kernel_hs_summable (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ)
   have h : (∑' i, ENNReal.ofReal (‖kernelOperator a κ ha hk (e i)‖^2)) ≠ ⊤ := by
     rw [kernel_hs_lintegral a κ ha hk e]
     exact ENNReal.ofReal_ne_top
-  first
-  | exact ENNReal.summable_toReal h
-  | exact? 
+  have hh := ENNReal.summable_toReal h
+  simpa only [ENNReal.toReal_ofReal (sq_nonneg _)] using hh 
 
 theorem kernel_hs_exact (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ)
     (e : HilbertBasis ℕ ℝ H) :
@@ -116,7 +114,11 @@ theorem adjoint_hs_lintegral (A : H →L[ℝ] H) (e : HilbertBasis ℕ ℝ H) :
       intro i
       apply tsum_congr
       intro j
-      rw [real_inner_comm (e j) (A.adjoint (e i)), A.adjoint_inner_left, real_inner_comm (e i) (A (e j))]
+      have he : inner ℝ (e j) (A.adjoint (e i)) = inner ℝ (e i) (A (e j)) := by
+        calc
+          _ = inner ℝ (A.adjoint (e i)) (e j) := by exact real_inner_comm _ _
+          _ = _ := A.adjoint_inner_left (e i) (e j)
+      rw [he]
     _ = ∑' j, ∑' i, ENNReal.ofReal ((inner ℝ (e i) (A (e j)))^2) := by
       exact ENNReal.tsum_comm
     _ = _ := by
