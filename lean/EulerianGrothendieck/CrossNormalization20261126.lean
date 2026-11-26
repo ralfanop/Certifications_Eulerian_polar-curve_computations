@@ -27,13 +27,14 @@ theorem cwKernel_measurable (lam : ℝ) (M : ℕ) : Measurable (cwKernel lam M) 
 
 theorem cwKernel_tendsto (lam u : ℝ) :
     Tendsto (fun M : ℕ => cwKernel lam M u) atTop (𝓝 (profile lam u)) := by
-  simpa [cwKernel,H,limitingExponent,profile] using actual_integrand_tendsto lam u 0
+  simpa [cwKernel,H,limitingExponent,profile,neg_div] using actual_integrand_tendsto lam u 0
 
 theorem cw_uniform_majorant (L : ℝ) (hL : 0 ≤ L) :
     ∀ᶠ M : ℕ in atTop, ∀ lam, |lam| ≤ L →
       ∀ u, ‖cwKernel lam M u‖ ≤ cwBound L u := by
   filter_upwards [eventual_uniform_majorant L hL] with M hM
   intro lam hlam u
+  change ‖H lam M (u,0)‖ ≤ cwBound L u
   rw [Real.norm_eq_abs, abs_of_nonneg (H_nonneg lam M (u,0))]
   simpa [cwKernel,cwBound,M12FockDomination.majorant] using hM lam hlam (u,0)
 
@@ -97,6 +98,7 @@ theorem cw_locally_uniform_integral (L : ℝ) (hL : 0 ≤ L) (eps : ℝ) (heps :
       apply integral_mono_ae ((hi lam hlam).sub (profile_integrable lam)).norm
       · simpa only [Real.norm_eq_abs] using (hj.sub (profile_integrable (-L))).norm
       · exact Eventually.of_forall fun u => by
+          change ‖cwKernel lam M u-profile lam u‖ ≤ |cwKernel (-L) M u-profile (-L) u|
           rw [Real.norm_eq_abs]
           exact cw_error M (by omega) L lam u hlam
     _ < eps := hE
@@ -137,7 +139,7 @@ theorem binaryZ_selfdual :
   have hs : Real.sqrt Real.pi ≠ 0 := by positivity
   have hpi : (Real.sqrt Real.pi)^2 = Real.pi := Real.sq_sqrt Real.pi_pos.le
   field_simp [hs,Real.pi_ne_zero]
-  rw [← hpi]
+  simp only [Real.sq_sqrt Real.pi_pos.le]
   <;> ring
 
 theorem cw_bipartite_exponent_difference (t a b m : ℝ) (hm : m ≠ 0) :
