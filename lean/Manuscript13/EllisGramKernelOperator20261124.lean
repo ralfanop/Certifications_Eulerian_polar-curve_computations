@@ -46,8 +46,9 @@ theorem row_inner (a κ : ℝ) (hk : 0 < κ) (u v : ℝ) :
   apply integral_congr_ae
   filter_upwards [row_ae a κ hk u, row_ae a κ hk v] with t hu hv
   rw [hu, hv]
-  change _ * _ = _ * _
-  first | rfl | exact mul_comm _ _
+  first
+  | change causal a κ u t * causal a κ v t = causal a κ u t * causal a κ v t; rfl
+  | change causal a κ v t * causal a κ u t = causal a κ u t * causal a κ v t; exact mul_comm _ _
 
 theorem row_norm_sq (a κ : ℝ) (hk : 0 < κ) (u : ℝ) :
     ‖row a κ hk u‖ ^ 2 = potential a u / (2*κ) := by
@@ -96,8 +97,9 @@ theorem rowApply_integral (a κ : ℝ) (hk : 0 < κ) (f : H) (u : ℝ) :
   apply integral_congr_ae
   filter_upwards [row_ae a κ hk u] with t ht
   rw [ht]
-  change _ * _ = _ * _
-  first | rfl | exact mul_comm _ _
+  first
+  | change causal a κ u t * (f t : ℝ) = causal a κ u t * f t; rfl
+  | change (f t : ℝ) * causal a κ u t = causal a κ u t * f t; exact mul_comm _ _
 
 theorem rowApply_measurable (a κ : ℝ) (hk : 0 < κ) (f : H) :
     AEStronglyMeasurable (rowApply a κ hk f) volume := by
