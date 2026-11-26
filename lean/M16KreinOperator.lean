@@ -10,7 +10,7 @@ theorem dense_transport {E F : Type*} [TopologicalSpace E] [TopologicalSpace F]
     intro z hz
     have hm : u.symm z ∈ closure s := hs (u.symm z)
     have hi : u (u.symm z) ∈ u '' closure s := ⟨u.symm z, hm, rfl⟩
-    have hc := u.continuous.image_closure_subset_closure_image hi
+    have hc := image_closure_subset_closure_image u.continuous hi
     simpa only [Homeomorph.apply_symm_apply] using hc
   intro z
   exact h (Set.mem_univ z)
@@ -111,7 +111,7 @@ theorem neumann_inverse {R : Type*} [NormedRing R] [CompleteSpace R]
     calc
       ‖v‖ = ‖1+k*v‖ := congrArg norm hv
       _ ≤ ‖(1:R)‖+‖k*v‖ := norm_add_le _ _
-      _ ≤ 1+‖k‖*‖v‖ := by rw [norm_one]; exact add_le_add_left (norm_mul_le _ _) _
+      _ ≤ 1+‖k‖*‖v‖ := by rw [norm_one]; exact add_le_add le_rfl (norm_mul_le k v)
   refine ⟨v,h1,h2,?_⟩
   apply (le_div_iff₀ (sub_pos.mpr hk)).2
   nlinarith only [hn]
