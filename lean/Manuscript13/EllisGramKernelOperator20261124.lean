@@ -46,11 +46,12 @@ theorem row_inner (a κ : ℝ) (hk : 0 < κ) (u v : ℝ) :
   apply integral_congr_ae
   filter_upwards [row_ae a κ hk u, row_ae a κ hk v] with t hu hv
   rw [hu, hv]
-  simp [real_inner_eq_mul, mul_comm]
+  change _ * _ = _ * _
+  first | rfl | exact mul_comm _ _
 
 theorem row_norm_sq (a κ : ℝ) (hk : 0 < κ) (u : ℝ) :
     ‖row a κ hk u‖ ^ 2 = potential a u / (2*κ) := by
-  rw [← real_inner_self_eq_norm_sq, row_inner, diagonal]
+  rw [← real_inner_self_eq_norm_sq, row_inner, EllisBirman20261124.diagonal]
 
 def rowWeight (a κ u : ℝ) : ℝ := Real.sqrt (potential a u / (2*κ))
 
@@ -82,8 +83,8 @@ theorem weightLp_norm_sq (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
   rw [← real_inner_self_eq_norm_sq, L2.inner_def, ← diagonal_mass a κ ha hk]
   apply integral_congr_ae
   filter_upwards [weightLp_ae a κ ha hk] with u hu
-  rw [hu, diagonal]
-  simp only [real_inner_eq_mul, ← pow_two, rowWeight]
+  rw [hu, EllisBirman20261124.diagonal]
+  rw [real_inner_self_eq_norm_sq, Real.norm_eq_abs, sq_abs]
   exact Real.sq_sqrt (div_nonneg (potential_nonneg a u) (by positivity))
 
 def rowApply (a κ : ℝ) (hk : 0 < κ) (f : H) (u : ℝ) : ℝ :=
@@ -95,12 +96,13 @@ theorem rowApply_integral (a κ : ℝ) (hk : 0 < κ) (f : H) (u : ℝ) :
   apply integral_congr_ae
   filter_upwards [row_ae a κ hk u] with t ht
   rw [ht]
-  simp [real_inner_eq_mul, mul_comm]
+  change _ * _ = _ * _
+  first | rfl | exact mul_comm _ _
 
 theorem rowApply_measurable (a κ : ℝ) (hk : 0 < κ) (f : H) :
     AEStronglyMeasurable (rowApply a κ hk f) volume := by
   have hm : StronglyMeasurable (fun p : ℝ × ℝ => causal a κ p.1 p.2 * f p.2) :=
-    ((causal_measurable a κ).mul (f.stronglyMeasurable.measurable.comp measurable_snd)).stronglyMeasurable
+    ((causal_measurable a κ).mul ((Lp.stronglyMeasurable f).measurable.comp measurable_snd)).stronglyMeasurable
   have he : rowApply a κ hk f = fun u => ∫ t : ℝ, causal a κ u t * f t := by
     funext u
     exact rowApply_integral a κ hk f u
@@ -131,7 +133,9 @@ theorem applyLp_norm_bound (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) (f : H) :
   rw [mul_comm]
   apply Lp.norm_le_mul_norm_of_ae_le_mul
   filter_upwards [applyLp_ae a κ ha hk f, weightLp_ae a κ ha hk] with u hu hw
-  rw [hu, hw, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _)]
+  rw [hu, hw]
+  have h : ‖rowWeight a κ u‖ = rowWeight a κ u := Real.norm_of_nonneg (Real.sqrt_nonneg _)
+  rw [h]
   exact rowApply_bound a κ hk f u
 
 def kernelLinear (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) : H →ₗ[ℝ] H where
@@ -141,13 +145,18 @@ def kernelLinear (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) : H →ₗ[ℝ] H where
     filter_upwards [applyLp_ae a κ ha hk (f+g), applyLp_ae a κ ha hk f,
       applyLp_ae a κ ha hk g, Lp.coeFn_add (applyLp a κ ha hk f) (applyLp a κ ha hk g)]
       with u hfg hf hg hout
-    rw [hfg, hout, hf, hg]
+    rw [hfg, hout]
+    change rowApply a κ hk (f+g) u = applyLp a κ ha hk f u + applyLp a κ ha hk g u
+    rw [hf, hg]
     simp [rowApply, inner_add_right]
   map_smul' c f := by
     apply Lp.ext
     filter_upwards [applyLp_ae a κ ha hk (c • f), applyLp_ae a κ ha hk f,
       Lp.coeFn_smul c (applyLp a κ ha hk f)] with u hcf hf hout
-    rw [hcf, hout, hf]
+    change applyLp a κ ha hk (c • f) u = (c • applyLp a κ ha hk f) u
+    rw [hcf, hout]
+    change rowApply a κ hk (c • f) u = c * applyLp a κ ha hk f u
+    rw [hf]
     simp [rowApply, inner_smul_right]
 
 def kernelOperator (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) : H →L[ℝ] H :=
