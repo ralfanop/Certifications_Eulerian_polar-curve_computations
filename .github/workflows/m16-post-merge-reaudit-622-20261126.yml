@@ -1,0 +1,129 @@
+name: 'M16 post-merge re-audit of #622 (exact HEAD)'
+on:
+  pull_request:
+    paths:
+      - 'audits/M16_M17_exact_head_audit_20261124.md'
+      - '.github/workflows/m16-post-merge-reaudit-622-20261126.yml'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/Manuscript16/HolonomyCircleGenerator20261125.lean'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: 'Exact HEAD contains the merge of #622 and its certifying head; pinned Lean 4 toolchain and Mathlib'
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m16-pm622-head.log
+          # main merge commit of #622 and its certifying head (second parent)
+          git merge-base --is-ancestor 2cf112a715ebedd13c3f0d1ba80efac5ceeffd55 HEAD
+          echo "ancestor merge 2cf112a715ebedd13c3f0d1ba80efac5ceeffd55" | tee -a /tmp/m16-pm622-head.log
+          git merge-base --is-ancestor 65dd8505fa03514949f1044549f194fa4eda7d93 HEAD
+          echo "ancestor head 65dd8505fa03514949f1044549f194fa4eda7d93" | tee -a /tmp/m16-pm622-head.log
+          test "$(git rev-parse 2cf112a715ebedd13c3f0d1ba80efac5ceeffd55^1)" = 5a149650b7c1bcde8a3d11d7d94a9b63c764d652
+          test "$(git rev-parse 2cf112a715ebedd13c3f0d1ba80efac5ceeffd55^2)" = 65dd8505fa03514949f1044549f194fa4eda7d93
+          echo "parents of 2cf112a7: 5a149650 (main), 65dd8505 (certifying head)" | tee -a /tmp/m16-pm622-head.log
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          lake env lean --version | tee -a /tmp/m16-pm622-head.log
+      - name: Byte identity with the certified PR head
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          sha256sum -c <<'SUMS' | tee /tmp/m16-pm622-sha256.log
+          31c54150cb9cd12af255b4aa1aa6b33f938f6283b096ee81417040740f33bcad  Manuscript16/HolonomyCircleGenerator20261125.lean
+          SUMS
+          H=65dd8505fa03514949f1044549f194fa4eda7d93
+          f=Manuscript16/HolonomyCircleGenerator20261125.lean
+          test "$(git show "$H:lean/$f" | sha256sum | cut -c1-64)" = "$(sha256sum "$f" | cut -c1-64)"
+          echo "identical to certifying head $H: $f" | tee -a /tmp/m16-pm622-sha256.log
+          # no Lean module, toolchain or Mathlib pin was modified, deleted or renamed since the certifying head
+          test -z "$(git diff --name-only --diff-filter=MDR "$H" HEAD -- SharedCore Manuscript16 Manuscript17 EulerianCert lakefile.toml lean-toolchain)"
+          echo "no modified dependency since $H" | tee -a /tmp/m16-pm622-sha256.log
+      - name: 'Compile the 21 imported modules and the module of #622, audit every printed axiom report'
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          MODULES="SharedCore/FredholmCompactParametrix SharedCore/FredholmAtkinson Manuscript16/V165TypedGraphSchur Manuscript16/V165GraphNeumann Manuscript16/V166CompactTransfer Manuscript16/DiracMaxwellObstructionIndex20261124 Manuscript16/DiracMaxwellGraphSpace20261124 Manuscript16/V166L2SpectralInverse Manuscript16/V166SpectralCutoffs Manuscript16/DiracMaxwellCoefficientModel20261124 Manuscript16/V166HolonomyPair Manuscript16/ReactiveHolonomyV166 Manuscript16/HolonomyEulerProduct20261124 Manuscript16/HolonomyMomentSeries20261124 Manuscript16/HolonomyCircleResolvent20261125 Manuscript16/RobinDirichletRankOne20261125 Manuscript16/RobinDirichletL2Bounded20261125 Manuscript16/RobinDirichletPositive20261125 Manuscript16/RobinDirichletInjective20261125 Manuscript16/RobinDirichletWeakResolvent20261125 Manuscript16/RobinDirichletRealisation20261125 Manuscript16/HolonomyCircleGenerator20261125"
+          mkdir -p .lake/build/lib/lean/Manuscript16 .lake/build/lib/lean/SharedCore
+          echo "$MODULES" | tr ' ' '\n' > /tmp/m16-pm622-modules.txt
+          for m in $MODULES; do
+            if grep -nE '\bsorry\b|\badmit\b|^\s*axiom\b|\bunsafe\b|implemented_by|extern' "$m.lean"; then exit 1; fi
+            lake env lean -M16768 -o ".lake/build/lib/lean/$m.olean" "$m.lean" 2>&1 | tee "/tmp/m16-pm622-$(basename $m).log"
+            if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' "/tmp/m16-pm622-$(basename $m).log"; then exit 1; fi
+          done
+          if grep -Eq 'warning:|Try this' /tmp/m16-pm622-HolonomyCircleGenerator20261125.log; then exit 1; fi
+          python3 - <<'PY'
+          import hashlib, json, re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          modules = Path('/tmp/m16-pm622-modules.txt').read_text().split()
+          assert len(modules) == 22, len(modules)
+          report, total, wrapped = {}, 0, 0
+          for m in modules:
+              base = m.split('/')[-1]
+              src = Path(m + '.lean').read_text()
+              log = Path('/tmp/m16-pm622-' + base + '.log').read_text()
+              requested = re.findall(r'^#print axioms (\S+)', src, re.M)
+              n = len(requested)
+              assert len(set(requested)) == n, (base, n)
+              # one printed report per request (names may carry primes, so count the report lines)
+              n_dep = len(re.findall(r"' depends on axioms: \[", log))
+              n_none = len(re.findall(r"' does not depend on any axioms", log))
+              assert n_dep + n_none == n, (base, n_dep, n_none, n)
+              # every printed list, including those that wrap over several lines, is standard
+              for block in re.findall(r"' depends on axioms: \[([^\]]*)\]", log, re.S):
+                  wrapped += '\n' in block
+                  axioms = {x.strip() for x in block.split(',') if x.strip()}
+                  assert axioms <= allowed, (base, sorted(axioms))
+              entries = {}
+              for name in requested:
+                  pre = r"'(?:[^\s']+\.)?" + re.escape(name)
+                  found = re.findall(pre + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+                  none = re.findall(pre + r"' does not depend on any axioms", log)
+                  assert len(found) + len(none) == 1, (base, name, len(found), len(none))
+                  axioms = sorted({x.strip() for a in found for x in a.split(',') if x.strip()})
+                  assert set(axioms) <= allowed, (base, name, axioms)
+                  entries[name] = axioms
+              report[m] = {
+                  'source_sha256': hashlib.sha256(Path(m + '.lean').read_bytes()).hexdigest(),
+                  'olean_sha256': hashlib.sha256(Path('.lake/build/lib/lean/' + m + '.olean').read_bytes()).hexdigest(),
+                  'axiom_reports': entries,
+              }
+              total += n
+              print('AXIOM AUDIT SUCCESS:', m, n, 'reports')
+          assert len(report['Manuscript16/HolonomyCircleGenerator20261125']['axiom_reports']) == 29
+          assert total == 434, total
+          out = {'head': Path('/tmp/m16-pm622-head.log').read_text().split()[0], 'reports_total': total,
+                 'wrapped_lists': wrapped, 'modules': report}
+          Path('/tmp/m16-pm622-audit.json').write_text(json.dumps(out, indent=2) + '\n')
+          print('SUCCESS:', len(modules), 'modules,', total, 'axiom reports (', wrapped, 'wrapped lists ); standard axioms only')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-post-merge-reaudit-622-20261126
+          path: |
+            /tmp/m16-pm622-*.log
+            /tmp/m16-pm622-modules.txt
+            /tmp/m16-pm622-audit.json
