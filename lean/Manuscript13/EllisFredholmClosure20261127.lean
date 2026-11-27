@@ -73,8 +73,10 @@ theorem eigVec_span_orthogonal (T : H →L[ℝ] H)
             (Submodule.subset_span ⟨⟨μ,i⟩,rfl⟩)
         have hsum : HasSum (fun _ : eigIndex T μ => (0:ℝ)) (inner ℝ x z) := by
           convert hinner using 1
-          funext i
-          simp [f, eigVec, inner_smul_right, hzero]
+          · funext i
+            have hi : inner ℝ x (eigBasis T μ i : H) = 0 := hzero i
+            simp [f, hi]
+          · rfl
         rw [real_inner_comm]
         exact hsum.unique (hasSum_zero)
       obtain ⟨c,rfl⟩ := Submodule.mem_span_singleton.mp hv
@@ -102,13 +104,26 @@ theorem gram_product_from_enumeration (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ)
       HasProd (fun i => 1 + eig i) (spectralDet eig) ∧
       1 < spectralDet eig ∧ spectralDet eig ≤ Real.exp (Real.pi/(4*a*κ)) := by
   let T := gramOperator a κ ha hk
-  let b := spectralBasis T (gram_compact a κ ha hk ordinary) (gram_symmetric a κ ha hk)
-  let e := b.reindex enumerate
+  let v : ℕ → H := fun i => eigVec T (enumerate.symm i)
+  have ho : Orthonormal ℝ v :=
+    (eigVec_orthonormal T (gram_symmetric a κ ha hk)).comp enumerate.symm enumerate.symm.injective
+  have hr : Set.range v = Set.range (eigVec T) := by
+    ext x
+    constructor
+    · rintro ⟨i,rfl⟩
+      exact ⟨enumerate.symm i,rfl⟩
+    · rintro ⟨i,rfl⟩
+      exact ⟨enumerate i,by simp [v]⟩
+  have ht : (Submodule.span ℝ (Set.range v))ᗮ = ⊥ := by
+    rw [hr]
+    exact eigVec_span_orthogonal T (gram_compact a κ ha hk ordinary) (gram_symmetric a κ ha hk)
+  let e := HilbertBasis.mkOfOrthogonalEqBot ho ht
   let eig : ℕ → ℝ := fun i => (enumerate.symm i).1
   have he : ∀ i, T (e i) = eig i • e i := by
     intro i
-    rw [show e i = b (enumerate.symm i) by exact HilbertBasis.reindex_apply b enumerate i]
-    rw [spectralBasis_apply]
+    have hcoe : (e : ℕ → H) = v := HilbertBasis.coe_mkOfOrthogonalEqBot ho ht
+    change T ((e : ℕ → H) i) = eig i • (e : ℕ → H) i
+    rw [hcoe]
     exact eigVec_eigen T (enumerate.symm i)
   exact ⟨e,eig,he,gram_eigen_product a κ ha hk e eig he⟩
 
