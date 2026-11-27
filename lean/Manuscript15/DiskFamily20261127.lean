@@ -478,7 +478,7 @@ theorem metallic_cosh_log {n : ℝ} (hn : 0 ≤ n) :
     Real.cosh (Real.log (metallic n)) = Real.sqrt (1+(n/2)^2) := by
   have h := Real.cosh_sq (Real.log (metallic n))
   rw [metallic_sinh_log hn] at h
-  rw [← h, Real.sqrt_sq (Real.cosh_pos _).le]
+  rw [add_comm 1 ((n/2)^2), ← h, Real.sqrt_sq (Real.cosh_pos _).le]
 
 theorem metallic_gd_log {n : ℝ} (hn : 0 ≤ n) :
     EulerianBridge.AppendixA.gd (Real.log (metallic n)) = Real.arctan (n/2) := by
@@ -551,8 +551,7 @@ theorem metallic_three_halves : metallic (3/2) = 2 := by
 theorem metallic_two : metallic 2 = 1+Real.sqrt 2 := by
   unfold metallic
   have h : Real.sqrt ((2:ℝ)^2+4) = 2*Real.sqrt 2 := by
-    rw [show (2:ℝ)^2+4=4*2 by norm_num,Real.sqrt_mul (by norm_num : (0:ℝ) ≤ 4)]
-    norm_num
+    rw [show (2:ℝ)^2+4=4*2 by norm_num,Real.sqrt_mul (by norm_num : (0:ℝ) ≤ 4), show Real.sqrt 4 = 2 by rw [show (4:ℝ) = 2^2 by norm_num, Real.sqrt_sq (by norm_num : (0:ℝ) ≤ 2)]]
   rw [h]
   ring
 
