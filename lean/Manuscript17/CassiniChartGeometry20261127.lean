@@ -54,7 +54,7 @@ theorem round_pp (u p : ℝ) (h : u ∈ Ioo (0:ℝ) 1) :
     dot3 (tangentP u p) (tangentP u p) = 1-u^2 := by
   simp [dot3, tangentP]
   calc
-    (-altitude u * sin p) * (-altitude u * sin p) +
+    (altitude u * sin p) * (altitude u * sin p) +
         altitude u * cos p * (altitude u * cos p)
         = altitude u^2 * (sin p^2 + cos p^2) := by ring
     _ = 1-u^2 := by rw [Real.sin_sq_add_cos_sq, alt_sq u h]; ring
@@ -66,7 +66,7 @@ theorem round_uu (u p : ℝ) (h : u ∈ Ioo (0:ℝ) 1) :
     -u / altitude u * cos p * (-u / altitude u * cos p) +
         -u / altitude u * sin p * (-u / altitude u * sin p) + 1
         = (u^2 / altitude u^2) * (sin p^2+cos p^2)+1 := by ring
-    _ = 1/(1-u^2) := by
+    _ = (1-u^2)⁻¹ := by
       rw [Real.sin_sq_add_cos_sq, alt_sq u h]
       field_simp [ne_of_gt (qpos u h)]
       <;> ring
@@ -140,7 +140,7 @@ theorem chart_area :
     (∫ u in (0:ℝ)..1, ∫ p in (0:ℝ)..(2*Real.pi), areaDensity u) =
     Real.pi*(1-Real.log (1+Real.sqrt 2)/Real.sqrt 2) := by
   simp only [intervalIntegral.integral_const, sub_zero, smul_eq_mul]
-  rw [← intervalIntegral.integral_const_mul]
+  rw [intervalIntegral.integral_const_mul]
   exact area_integration
 
 #print axioms qpos
