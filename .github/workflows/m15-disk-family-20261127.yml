@@ -31,7 +31,7 @@ jobs:
         working-directory: lean/EulerianGrothendieck
         run: |
           set -euo pipefail
-          lake build EulerianGrothendieck.ComplexArcsineDisk 2>&1 | tee /tmp/disk-family-build.log
+          lake build EulerianGrothendieck.ComplexArcsineDisk Bridge.AppendixAGd 2>&1 | tee /tmp/disk-family-build.log
           mkdir -p Manuscript15
           cp ../Manuscript15/DiskFamily20261127.lean Manuscript15/
           lake env lean -M16768 Manuscript15/DiskFamily20261127.lean 2>&1 | tee /tmp/disk-family-axioms.log
@@ -42,7 +42,7 @@ jobs:
           source = Path('Manuscript15/DiskFamily20261127.lean').read_text()
           log = Path('/tmp/disk-family-axioms.log').read_text()
           names = re.findall(r'^#print axioms (\S+)', source, re.M)
-          assert len(names) >= 19, names
+          assert len(names) >= 53, names
           for name in names:
               m = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
               if m is None:
