@@ -80,7 +80,9 @@ theorem interval_orthonormal : Orthonormal ℝ intervalVector := by
       _ = 1 := by
         have hm : MeasurableSet (intervalSet i) := measurableSet_Ico
         rw [integral_indicator hm, integral_const]
-        simp [interval_mass]
+        change (volume (intervalSet i)).toReal = 1
+        rw [interval_mass]
+        norm_num
   · simp only [if_neg hij]
     calc
       _ = ∫ x : ℝ, (0:ℝ) := by
