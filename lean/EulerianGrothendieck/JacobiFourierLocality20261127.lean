@@ -214,13 +214,16 @@ theorem fourier_bond_decay (u : Bonds) (w : ℝ → ℂ) (m k l : ℤ) (N : ℕ)
     ‖∫ t : ℝ, w t*((t:ℂ)*Complex.I)*entry (bondDuhamel u t m) k l‖ ≤
       (2*2^N*K N*(∫ t : ℝ, ‖w t‖*|t| *(1+|t|)^N))/(1+|(k:ℝ)-m|+|(m:ℝ)-l|)^N := by
   let C := 2*2^N*K N/(1+|(k:ℝ)-m|+|(m:ℝ)-l|)^N
-  have hC : 0 ≤ C := by dsimp [C]; positivity
+  have hC : 0 ≤ C := by
+    dsimp [C]
+    exact div_nonneg (mul_nonneg (by positivity) (propagation_constant_nonneg N)) (by positivity)
   calc
     _ ≤ ∫ t : ℝ, ‖w t*((t:ℂ)*Complex.I)*entry (bondDuhamel u t m) k l‖ :=
       norm_integral_le_integral_norm _
     _ ≤ ∫ t : ℝ, C*(‖w t‖*|t| *(1+|t|)^N) := by
       apply integral_mono hi.norm (hm.const_mul C)
       intro t
+      change ‖w t*((t:ℂ)*Complex.I)*entry (bondDuhamel u t m) k l‖ ≤ C*(‖w t‖*|t| *(1+|t|)^N)
       rw [norm_mul,norm_mul,norm_mul,Complex.norm_real,Complex.norm_I,mul_one,Real.norm_eq_abs]
       have h := mul_le_mul_of_nonneg_left (duhamel_entry_bound u t m k l N)
         (mul_nonneg (norm_nonneg _) (abs_nonneg _))
