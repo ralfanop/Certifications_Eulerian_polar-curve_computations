@@ -1,0 +1,84 @@
+name: M16 Krein graph and spectral disk exact HEAD
+on:
+  pull_request:
+    paths:
+      - 'lean/M16KreinGraphGap.lean'
+      - 'lean/M16KreinSpatial.lean'
+      - 'lean/M16KreinDomains.lean'
+      - 'lean/M16KreinOperator.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - '.github/workflows/m16-krein-graph-gap-lean.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned toolchain
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m16-gap-head.log
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake exe cache get
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake env lean --version
+      - name: Compile dependencies and graph bridge
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean
+          for m in M16KreinSpatial M16KreinDomains M16KreinOperator M16KreinGraphGap; do
+            lake env lean -o ".lake/build/lib/lean/$m.olean" "$m.lean" 2>&1 | tee "/tmp/m16-gap-$m.log"
+          done
+      - name: Strict declaration and dependency audit
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import re, json, hashlib
+          from pathlib import Path
+          out = {}
+          for m,n in [('M16KreinSpatial',12),('M16KreinDomains',7),('M16KreinOperator',15),('M16KreinGraphGap',7)]:
+              p = Path('lean') / (m+'.lean')
+              src = p.read_text()
+              log = Path('/tmp/m16-gap-'+m+'.log').read_text()
+              assert not re.search(r'\b(sorry|admit|axiom|opaque|unsafe|native_decide)\b', src)
+              assert not re.search(r'error:|sorryAx|Lean.ofReduceBool', log)
+              expected = re.findall(r'^#print axioms (\S+)$',src,re.M)
+              assert len(expected) == n and len(set(expected)) == n
+              actual = re.findall(r"^'(\S+)' (?:depends on axioms: \[([^\]]*)\]|(does not depend on any axioms))", log, re.M)
+              assert len(actual) == n, (m,len(actual),n)
+              reports = {}
+              for name, body, empty in actual:
+                  vals = sorted(x.strip() for x in body.split(',') if x.strip())
+                  assert set(vals) <= {'propext','Classical.choice','Quot.sound'}, (name,vals)
+                  reports[name] = vals
+                  print('AXIOM AUDIT SUCCESS', name)
+              namespace = 'M16Krein' if m == 'M16KreinSpatial' else m
+              assert set(reports) == {namespace+'.'+x for x in expected}
+              out[m] = {'source_sha256':hashlib.sha256(p.read_bytes()).hexdigest(), 'axioms':reports}
+          out['head'] = Path('/tmp/m16-gap-head.log').read_text().strip()
+          Path('/tmp/m16-gap-audit.json').write_text(json.dumps(out,indent=2)+'\n')
+          print('SUCCESS: 7 new and 34 dependency declarations')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-krein-graph-gap-audit
+          path: |
+            /tmp/m16-gap-*.log
+            /tmp/m16-gap-audit.json
