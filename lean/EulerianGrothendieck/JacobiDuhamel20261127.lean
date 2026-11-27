@@ -27,7 +27,9 @@ theorem exp_line_continuous (A : R) : Continuous (fun t : ℝ => exp (t • A)) 
 theorem path_derivative (A C : R) (s : ℝ) :
     HasDerivAt (path A C) (density A C (C-A) s) s := by
   have h₁ : HasDerivAt (fun t : ℝ => 1-t) (-1) s := by
-    simpa using (hasDerivAt_const s (1:ℝ)).sub (hasDerivAt_id' s)
+    have h := (hasDerivAt_const s (1:ℝ)).sub (hasDerivAt_id' s)
+    change HasDerivAt ((fun _ : ℝ => (1:ℝ)) - (fun t : ℝ => t)) (-1) s
+    simpa only [zero_sub] using h
   have h₂ := (exp_line_deriv A (1-s)).scomp s h₁
   have h₃ : HasDerivAt (fun t : ℝ => exp (t • C)) (C * exp (s • C)) s :=
     hasDerivAt_exp_smul_const' C s
