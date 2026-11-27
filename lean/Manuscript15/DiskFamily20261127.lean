@@ -271,6 +271,67 @@ theorem disk_second_min {r : ℝ} (hr : 0 < r) (hr2 : r < Real.sqrt 2)
   rintro v ⟨z,hz,rfl⟩
   exact disk_second_lower hz hr2
 
+/-- Extension of the existing branch derivative proof; the upper half-plane
+case directly uses the original theorem. -/
+theorem disk_hasDerivAt {z : ℂ} {r : ℝ} (hz : z ∈ disk r)
+    (hr : r < Real.sqrt 2) : HasDerivAt H0 (1/sqrtOneSub z) z := by
+  by_cases hpos : 0 < z.im
+  · exact hasDerivAt_H0 hpos
+  have hw := disk_slit hz hr
+  have hw0 := Complex.slitPlane_ne_zero hw
+  have hsq := sqrtOneSub_sq z
+  have hs0 : sqrtOneSub z ≠ 0 := by
+    intro h
+    apply hw0
+    rw [← hsq,h]
+    norm_num
+  have h1 : HasDerivAt (fun z : ℂ => 1-z^2) (-(2*z)) z := by
+    simpa using ((hasDerivAt_pow 2 z).const_sub 1)
+  have h2 : HasDerivAt sqrtOneSub ((1/2 : ℂ) * (1-z^2)^((1/2 : ℂ)-1) * (-(2*z))) z :=
+    h1.cpow_const hw
+  have hpow : (1-z^2)^((1/2 : ℂ)-1) = sqrtOneSub z/(1-z^2) := by
+    rw [Complex.cpow_sub _ _ hw0,Complex.cpow_one]; rfl
+  rw [hpow] at h2
+  have h3 : HasDerivAt (fun z : ℂ => I*z+sqrtOneSub z)
+      (I+(1/2 : ℂ)*(sqrtOneSub z/(1-z^2))*(-(2*z))) z := by
+    simpa using (((hasDerivAt_id z).const_mul I).add h2)
+  have h4 := (h3.clog (branch_mem_slitPlane z)).const_mul (-I)
+  have hb := branch_ne_zero z
+  have hderiv : -I*((I+(1/2 : ℂ)*(sqrtOneSub z/(1-z^2))*(-(2*z)))/
+      (I*z+sqrtOneSub z)) = 1/sqrtOneSub z := by
+    rw [← hsq]
+    have e1 : (1/2 : ℂ)*(sqrtOneSub z/sqrtOneSub z^2)*(-(2*z)) = -(z/sqrtOneSub z) := by
+      field_simp <;> ring
+    have e2 : I + -(z/sqrtOneSub z) = (I*sqrtOneSub z-z)/sqrtOneSub z := by
+      field_simp <;> ring
+    have e3 : -I*(I*sqrtOneSub z-z) = I*z+sqrtOneSub z := by
+      linear_combination (-(sqrtOneSub z))*I_sq
+    rw [e1,e2,div_div,← mul_div_assoc,e3,mul_comm (sqrtOneSub z) (I*z+sqrtOneSub z),
+      ← div_div,div_self hb]
+  exact h4.congr_deriv hderiv
+
+theorem norm_branch_derivative (z : ℂ) :
+    ‖1/sqrtOneSub z‖ = 1/Real.sqrt ‖1-z^2‖ := by
+  rw [norm_div,norm_one,← norm_sqrtOneSub_sq,Real.sqrt_sq (norm_nonneg _)]
+
+/-- Mean-value upper estimate from a positive squared modulus bound. -/
+theorem lipschitz_from_modulus {r m : ℝ} (hr : r < Real.sqrt 2) (hm : 0 < m)
+    (hmin : ∀ z ∈ disk r, m ≤ ‖1-z^2‖^2) {z w : ℂ}
+    (hz : z ∈ disk r) (hw : w ∈ disk r) :
+    ‖H0 z-H0 w‖ ≤ (1/Real.sqrt (Real.sqrt m))*‖z-w‖ := by
+  have hc : Convex ℝ (disk r) := convex_closedBall _ _
+  apply hc.norm_image_sub_le_of_norm_hasDerivWithin_le
+    (f := H0) (f' := fun x => 1/sqrtOneSub x)
+    (fun x hx => (disk_hasDerivAt hx hr).hasDerivWithinAt) _ hw hz
+  intro x hx
+  have h1 := Real.sqrt_le_sqrt (hmin x hx)
+  rw [Real.sqrt_sq (norm_nonneg _)] at h1
+  have h2 := Real.sqrt_le_sqrt h1
+  have hp : 0 < Real.sqrt (Real.sqrt m) := Real.sqrt_pos.2 (Real.sqrt_pos.2 hm)
+  have hxpos : 0 < Real.sqrt ‖1-x^2‖ := lt_of_lt_of_le hp h2
+  rw [norm_branch_derivative]
+  exact (div_le_div_iff₀ hxpos hp).2 (by linarith)
+
 end Manuscript15.DiskFamily20261127
 #print axioms Manuscript15.DiskFamily20261127.disk_half
 #print axioms Manuscript15.DiskFamily20261127.threshold_pos
@@ -301,3 +362,7 @@ end Manuscript15.DiskFamily20261127
 #print axioms Manuscript15.DiskFamily20261127.disk_slit
 #print axioms Manuscript15.DiskFamily20261127.disk_first_min
 #print axioms Manuscript15.DiskFamily20261127.disk_second_min
+
+#print axioms Manuscript15.DiskFamily20261127.disk_hasDerivAt
+#print axioms Manuscript15.DiskFamily20261127.norm_branch_derivative
+#print axioms Manuscript15.DiskFamily20261127.lipschitz_from_modulus
