@@ -202,6 +202,29 @@ theorem fibre_evaluation_invariant {ι κ : Type*}
   intro a ha
   exact orthogonal_sum_sq U (fun j => v j a) hU
 
+-- Transitivity and orthogonal action on a finite eigenspace imply the
+-- diagonal evaluation density is independent of the point.
+theorem eigenspace_diagonal_constant {Ω ι κ : Type*}
+    [Fintype ι] [DecidableEq ι] [Fintype κ]
+    (v : Ω → ι → κ → ℝ)
+    (h : ∀ x y, ∃ U : ι → ι → ℝ,
+      (∀ j k, ∑ i, U i j * U i k = if j = k then 1 else 0) ∧
+      (∀ i a, v y i a = ∑ j, U i j * v x j a)) :
+    ∀ x y, (∑ a : κ, ∑ j : ι, (v y j a)^2) =
+      ∑ a : κ, ∑ j : ι, (v x j a)^2 := by
+  intro x y
+  obtain ⟨U,hU,hv⟩ := h x y
+  simp_rw [hv]
+  exact fibre_evaluation_invariant U (v x) hU
+
+theorem pairGraph_singleValued {E : Type*} (G : Set (E × E))
+    (hG : ∀ x y z, (x,y) ∈ G → (x,z) ∈ G → y = z) :
+    ∀ x y z : E × E, (x,y) ∈ pairGraph G → (x,z) ∈ pairGraph G → y = z := by
+  intro x y z hy hz
+  exact Prod.ext (hG _ _ _ hy.1 hz.1) (hG _ _ _ hy.2 hz.2)
+
+#print axioms eigenspace_diagonal_constant
+#print axioms pairGraph_singleValued
 #print axioms basis_from_complete_eigenfamily
 #print axioms eigenfamily_zero_resolvent
 #print axioms eigenfamily_block_disk
