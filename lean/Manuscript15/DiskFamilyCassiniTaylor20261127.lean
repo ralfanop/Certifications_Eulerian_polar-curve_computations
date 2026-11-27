@@ -18,8 +18,8 @@ def cassiniCurvature (t : ℝ) : ℝ :=
 
 theorem cassini_level_identity (x y : ℝ) :
     ‖(⟨x,y⟩ : ℂ)^2-1‖^2=cassiniLevel x y := by
-  rw [norm_sub_rev,Complex.sq_norm,Complex.normSq_apply,one_sub_sq_re,one_sub_sq_im]
-  change (1-x^2+y^2)^2+(-(2*x*y))^2=_
+  rw [norm_sub_rev,Complex.sq_norm,Complex.normSq_apply]
+  simp only [Complex.sub_re, Complex.sub_im, Complex.one_re, Complex.one_im, pow_two, Complex.mul_re, Complex.mul_im]
   unfold cassiniLevel
   ring
 
@@ -32,8 +32,9 @@ theorem cassini_graph_on_level {t x : ℝ} (ht : 0 < t)
   have ha : 0 ≤ a := by dsimp [a]; positivity
   have hq : a ≤ q := by
     dsimp [q]
-    rw [← Real.sqrt_sq ha]
-    exact Real.sqrt_le_sqrt (by nlinarith)
+    calc
+      a = Real.sqrt (a^2) := (Real.sqrt_sq ha).symm
+      _ ≤ _ := Real.sqrt_le_sqrt (by nlinarith [sq_nonneg x])
   have hqn : 0 ≤ q-1-x^2 := by dsimp [a] at hq; linarith
   have hy : (cassiniGraph t x)^2=q-1-x^2 := by
     unfold cassiniGraph
@@ -85,10 +86,13 @@ theorem cassini_level_remainder {t x y : ℝ} (ht : 0 < t) (hy : 0 ≤ y)
   have hb : |d-x^2| ≤ x^2 := by
     rw [abs_le]
     constructor <;> linarith
-  have heabs : |e|*t ≤ x^2 := by
+  have heabs : |e| *t ≤ x^2 := by
     have hpos : 0 ≤ y+t := by linarith
-    have h1 : |e|*(y+t)=|d-x^2| := by
-      rw [← abs_of_nonneg hpos,← abs_mul,heprod]
+    have h1 : |e| *(y+t)=|d-x^2| := by
+      calc
+        _ = |e| * |y+t| := by rw [abs_of_nonneg hpos]
+        _ = |e*(y+t)| := (abs_mul _ _).symm
+        _ = _ := by rw [heprod]
     have h2 := mul_le_mul_of_nonneg_left (show t ≤ y+t by linarith) (abs_nonneg e)
     exact h2.trans (h1.le.trans hb)
   have hediv : |e| ≤ 3*x^2/t := by
@@ -119,8 +123,11 @@ theorem cassini_level_remainder {t x y : ℝ} (ht : 0 < t) (hy : 0 ≤ y)
     nlinarith
   have hnonneg : 0 ≤ d^2/(2*a)+e^2 := by positivity
   have hAbs : (2*t)*|e-cassiniCurvature t*x^2/2| = d^2/(2*a)+e^2 := by
-    rw [← abs_of_pos (by positivity : 0 < 2*t),← abs_mul,herr]
-    rw [show -(d^2/(2*a))-e^2 = -(d^2/(2*a)+e^2) by ring,abs_neg,abs_of_nonneg hnonneg]
+    calc
+      _ = |(2*t)*(e-cassiniCurvature t*x^2/2)| := by rw [abs_mul,abs_of_pos (by positivity : 0 < 2*t)]
+      _ = _ := by
+        rw [herr]
+        rw [show -(d^2/(2*a))-e^2 = -(d^2/(2*a)+e^2) by ring,abs_neg,abs_of_nonneg hnonneg]
   have hfinal : (2*t)*|e-cassiniCurvature t*x^2/2| ≤
       (2+9/t^2)*x^4 := by
     rw [hAbs]
@@ -171,7 +178,7 @@ theorem lower_circle_remainder {r x : ℝ} (hr : 0 < r) (hx : x^2 ≤ r^2) :
   rw [show 1-s-(1-r)=d by dsimp [d]; ring,he,abs_of_nonneg hnon]
   calc
     _ ≤ (x^4/r^2)/(2*r) := div_le_div_of_nonneg_right hsq (by positivity)
-    _ = _ := by field_simp [hr.ne']; ring
+    _ = _ := by field_simp [hr.ne'] <;> ring
 
 theorem cassini_circle_curvature_contact {r : ℝ} (hr : 0 < r) (hr1 : r < 1) :
     cassiniCurvature (1-r)=1/r ↔ r=threshold := by
