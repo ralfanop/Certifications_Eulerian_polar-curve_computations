@@ -19,40 +19,54 @@ theorem secondFrequency_iff_bessel (u : H) : secondFrequency u ↔ besselH2 u :=
   unfold secondFrequency besselH2
   constructor
   · intro h
-    apply (h.add (Lp.memLp (fourier u))).congr
+    have h' : MemLp ((fun x : ℝ => (frequencySquare x : ℂ) * fourier u x) +
+        (fun x : ℝ => fourier u x)) 2 volume := h.add (Lp.memLp (fourier u))
+    refine MemLp.congr h' ?_
     filter_upwards [] with x
+    simp only [Pi.add_apply, Pi.sub_apply]
     push_cast
-    ring
+    <;> ring
   · intro h
-    apply (h.sub (Lp.memLp (fourier u))).congr
+    have h' : MemLp ((fun x : ℝ => ((1 + frequencySquare x : ℝ) : ℂ) * fourier u x) -
+        (fun x : ℝ => fourier u x)) 2 volume := h.sub (Lp.memLp (fourier u))
+    refine MemLp.congr h' ?_
     filter_upwards [] with x
+    simp only [Pi.add_apply, Pi.sub_apply]
     push_cast
-    ring
+    <;> ring
 
 theorem shiftedMem_iff_second (κ : ℝ) (u : H) :
     MemLp (fun x => (symbol κ x : ℂ) * fourier u x) 2 volume ↔ secondFrequency u := by
   unfold secondFrequency
-  have hc := (Lp.memLp (fourier u)).const_mul ((κ^2 : ℝ) : ℂ)
+  have hc : MemLp (fun x : ℝ => ((κ^2 : ℝ) : ℂ) * fourier u x) 2 volume :=
+    (Lp.memLp (fourier u)).const_mul ((κ^2 : ℝ) : ℂ)
   constructor
   · intro h
-    apply (h.sub hc).congr
+    have h' : MemLp ((fun x : ℝ => (symbol κ x : ℂ) * fourier u x) -
+        (fun x : ℝ => ((κ^2 : ℝ) : ℂ) * fourier u x)) 2 volume := h.sub hc
+    refine MemLp.congr h' ?_
     filter_upwards [] with x
     unfold symbol frequencySquare
+    simp only [Pi.add_apply, Pi.sub_apply]
     push_cast
-    ring
+    <;> ring
   · intro h
-    apply (h.add hc).congr
+    have h' : MemLp ((fun x : ℝ => (frequencySquare x : ℂ) * fourier u x) +
+        (fun x : ℝ => ((κ^2 : ℝ) : ℂ) * fourier u x)) 2 volume := h.add hc
+    refine MemLp.congr h' ?_
     filter_upwards [] with x
     unfold symbol frequencySquare
+    simp only [Pi.add_apply, Pi.sub_apply]
     push_cast
-    ring
+    <;> ring
 
 theorem graph_iff_shiftedMem (κ : ℝ) (u : H) :
     (∃ f : H, shiftedGraph κ u f) ↔
       MemLp (fun x => (symbol κ x : ℂ) * fourier u x) 2 volume := by
   constructor
   · rintro ⟨f,hf⟩
-    exact (Lp.memLp (fourier f)).congr hf.symm
+    have hf' : MemLp (fun x : ℝ => fourier f x) 2 volume := Lp.memLp (fourier f)
+    exact MemLp.congr hf' hf.symm
   · intro h
     refine ⟨fourier.symm (h.toLp _), ?_⟩
     unfold shiftedGraph
