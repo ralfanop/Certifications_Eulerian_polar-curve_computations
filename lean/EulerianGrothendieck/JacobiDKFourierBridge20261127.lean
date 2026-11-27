@@ -112,7 +112,7 @@ theorem scalar_DK_offdiag (g : 𝓢(ℝ,ℂ)) (a b : ℝ) (hab : a ≠ b) :
     have hd (s : ℝ) : HasDerivAt (fun s => phase t (p s))
         ((((t:ℂ)*Complex.I)*phase t (p s))*((b:ℂ)-(a:ℂ))) s := by
       have h := (phase_derivative t (p s)).scomp s (hp s)
-      convert h using 1 <;> (try simp [Complex.real_smul,Complex.ofReal_sub]) <;> (try ring)
+      convert h using 1 <;> (try rfl) <;> (try simp [Function.comp_def,Complex.real_smul,Complex.ofReal_sub]) <;> (try ring)
     have hc : Continuous (fun s => phase t (p s)) :=
       (continuous_iff_continuousAt.mpr fun s => (phase_derivative t s).continuousAt).comp
         (((continuous_const.sub continuous_id).mul continuous_const).add (continuous_id.mul continuous_const))
