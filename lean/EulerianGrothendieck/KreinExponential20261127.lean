@@ -17,13 +17,19 @@ def E (u : Bonds) (t : ℝ) : Op :=
 
 theorem E_zero (u : Bonds) : E u 0 = 1 := by
   unfold E
-  rw [Complex.ofReal_zero,show (0:ℂ) • J u = (0:Op) from zero_smul ℂ _,NormedSpace.exp_zero]
+  rw [Complex.ofReal_zero,show (0:ℂ) • J u = (0:Op) by
+    ext x k
+    change (0:ℂ)*J u x k=0
+    ring,NormedSpace.exp_zero]
 
 theorem E_add (u : Bonds) (s t : ℝ) : E u (s+t) = E u s*E u t := by
   have hc : Commute ((s:ℂ) • J u) ((t:ℂ) • J u) :=
     ((Commute.refl (J u)).smul_left (s:ℂ)).smul_right (t:ℂ)
   unfold E
-  rw [Complex.ofReal_add,show ((s:ℂ)+(t:ℂ)) • J u = (s:ℂ) • J u + (t:ℂ) • J u from add_smul _ _ _,NormedSpace.exp_add_of_commute hc]
+  rw [Complex.ofReal_add,show ((s:ℂ)+(t:ℂ)) • J u = (s:ℂ) • J u + (t:ℂ) • J u by
+    ext x k
+    change ((s:ℂ)+(t:ℂ))*J u x k=(s:ℂ)*J u x k+(t:ℂ)*J u x k
+    ring,NormedSpace.exp_add_of_commute hc]
 
 theorem E_inverse (u : Bonds) (t : ℝ) :
     E u t*E u (-t)=1 := by
@@ -40,7 +46,9 @@ theorem parity_E (u : Bonds) (t : ℝ) :
   have h : SemiconjBy S0 ((t:ℂ) • J u) (((-t:ℝ):ℂ) • J u) := by
     change S0*((t:ℂ) • J u)=(((-t:ℝ):ℂ) • J u)*S0
     rw [mul_smul_comm,smul_mul_assoc,parity_anticomm,Complex.ofReal_neg]
-    rw [smul_neg,neg_smul]
+    ext x k
+    change -((t:ℂ)*(J u (S0 x) k)) = (-(t:ℂ))*(J u (S0 x) k)
+    ring
   unfold E
   simp_rw [NormedSpace.exp_eq_tsum ℂ]
   exact SemiconjBy.tsum_right S0 (NormedSpace.expSeries_summable' (𝕂 := ℂ) _)
