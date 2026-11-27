@@ -19,9 +19,14 @@ theorem exp_diff_le (a γ : ℝ) (hγ : 0 ≤ γ) (ha : |a| ≤ γ) :
   have hsum : 2 ≤ Real.exp (-γ)+Real.exp γ := by
     have h := sq_nonneg (Real.exp γ-1)
     have hp := Real.exp_pos γ
-    apply (mul_le_mul_right₀ hp).mp
-    nlinarith [hprod]
+    by_contra! hs
+    have hh := mul_pos (sub_pos.mpr hs) hp
+    nlinarith [hprod,sq_nonneg (Real.exp γ-1)]
   exact abs_le.mpr ⟨by linarith,by linarith⟩
+
+theorem exp_one_le {γ : ℝ} (hγ : 0 ≤ γ) : 1 ≤ Real.exp γ := by
+  rw [← Real.exp_zero]
+  exact Real.exp_le_exp.mpr hγ
 
 def cap (l : ℤ) (L : ℝ) (k : ℤ) : ℝ := min |(k:ℝ)-l| L
 
@@ -73,10 +78,11 @@ def perturbationCoeff (u : Bonds) (d : ℤ) (k : ℤ) : ℂ :=
   ((if d = -1 then u.1 k else u.1 (k+1)) *
     (Real.exp (γ*(ρ k-ρ (k+d)))-1):ℝ)
 
+include hγ in
 theorem perturbationCoeff_bound (u : Bonds) (d : ℤ)
     (hstep : ∀ k, |ρ k-ρ (k+d)| ≤ 1) (k : ℤ) :
     ‖perturbationCoeff ρ γ u d k‖ ≤ (Real.exp γ-1)/2 := by
-  have hg : 0 ≤ Real.exp γ-1 := sub_nonneg.mpr (Real.one_le_exp.mpr hγ)
+  have hg : 0 ≤ Real.exp γ-1 := sub_nonneg.mpr (exp_one_le hγ)
   have harg : |γ*(ρ k-ρ (k+d))| ≤ γ := by
     rw [abs_mul,abs_of_nonneg hγ]
     simpa using mul_le_mul_of_nonneg_left (hstep k) hγ
@@ -92,9 +98,9 @@ theorem perturbationCoeff_bound (u : Bonds) (d : ℤ)
       mul_le_mul hu1 (exp_diff_le _ _ hγ harg) (abs_nonneg _) (by norm_num)
     _ = _ := by ring
 
-def deltaOp (u : Bonds) (d : ℤ) (hstep : ∀ k, |ρ k-ρ (k+d)| ≤ 1) : Op :=
+def deltaOp (hγ : 0 ≤ γ) (u : Bonds) (d : ℤ) (hstep : ∀ k, |ρ k-ρ (k+d)| ≤ 1) : Op :=
   diagonal (perturbationCoeff ρ γ u d) ((Real.exp γ-1)/2)
-    (by have := Real.one_le_exp.mpr hγ; linarith)
+    (by have := exp_one_le hγ; linarith)
     (perturbationCoeff_bound ρ γ hγ u d hstep) * shift d
 
 theorem deltaOp_norm (u : Bonds) (d : ℤ) (hstep : ∀ k, |ρ k-ρ (k+d)| ≤ 1) :
@@ -102,11 +108,11 @@ theorem deltaOp_norm (u : Bonds) (d : ℤ) (hstep : ∀ k, |ρ k-ρ (k+d)| ≤ 1
   unfold deltaOp
   calc
     _ ≤ ‖diagonal (perturbationCoeff ρ γ u d) ((Real.exp γ-1)/2)
-      (by have := Real.one_le_exp.mpr hγ; linarith)
+      (by have := exp_one_le hγ; linarith)
       (perturbationCoeff_bound ρ γ hγ u d hstep)‖ * ‖shift d‖ := norm_mul_le _ _
     _ ≤ ((Real.exp γ-1)/2)*1 := mul_le_mul
       (diagonal_norm_le _ _ _ _) (shift_norm_le d) (norm_nonneg _)
-      (by have := Real.one_le_exp.mpr hγ; linarith)
+      (by have := exp_one_le hγ; linarith)
     _ = _ := mul_one _
 
 theorem conjugated_difference (u : Bonds)
@@ -164,7 +170,7 @@ theorem similarity_resolvent_bound (J R W V : Op) (z : ℂ) (δ : ℝ)
       _ = 1 := by rw [hVW,mul_one,hR₁,mul_one,hWV]
   have hdiff : (Z-J)*S=1+(K-J)*S := by
     calc
-      _ = (Z-K)*S+(K-J)*S := by noncomm_ring
+      _ = (Z-K)*S+(K-J)*S := by rw [← add_mul]; congr 1; abel
       _ = _ := by rw [hS]
   have hrec : S=R+R*(K-J)*S := by
     calc
@@ -216,11 +222,11 @@ theorem resolvent_entry_decay (u : Bonds) (R : Op) (z : ℂ) (γ : ℝ) (hγ : 0
   have hx : ‖x‖ = 1 := by simp [x,lp.norm_single]
   have hVx : V x=x := by
     ext m
-    change (Real.exp (-(γ*ρ m)):ℂ)*lp.single 2 l 1 m = lp.single 2 l 1 m
+    change (Real.exp (-(γ*ρ m)):ℂ)*x m = x m
     by_cases hm : m=l
     · subst m
       rw [hρl,mul_zero,neg_zero,Real.exp_zero,Complex.ofReal_one,one_mul]
-    · simp [lp.single_apply,hm,Ne.symm hm]
+    · simp [x,lp.single_apply,hm,Ne.symm hm]
   have he : entry (W*R*V) k l = (Real.exp (γ*L):ℂ)*entry R k l := by
     change (Real.exp (γ*ρ k):ℂ)*R (V x) k = _
     rw [hVx,hρk]
