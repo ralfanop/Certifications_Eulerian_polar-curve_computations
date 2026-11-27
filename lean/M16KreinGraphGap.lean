@@ -2,6 +2,7 @@ import Mathlib
 import M16KreinSpatial
 import M16KreinDomains
 import M16KreinOperator
+import Manuscript16.DiracMaxwellCoefficientModel20261124
 
 namespace M16KreinGraphGap
 open M16KreinDomains
@@ -293,4 +294,260 @@ theorem schur_graph_inverse_bound {E F : Type*}
 #print axioms disk_graph_resolvent
 #print axioms schur_selfAdjoint_graph
 #print axioms schur_graph_inverse_bound
+end M16KreinGraphGap
+ 
+
+namespace M16KreinGraphGap
+
+open scoped BigOperators
+open M16KreinDomains
+open Manuscript16.V166L2SpectralInverse
+open Manuscript16.DiracMaxwellCoefficientModel20261124
+
+-- Spectral model of the coclosed Hodge modes, with both polarizations.
+def HodgeIndex := Σ n : ℕ, Fin (2 * ((n+2)^2-1))
+
+def hodgeEigen (j : HodgeIndex) : ℝ := ((j.1 : ℝ)+2)^2
+
+theorem hodgeEigen_lower (j : HodgeIndex) : 4 ≤ hodgeEigen j := by
+  unfold hodgeEigen
+  nlinarith [Nat.cast_nonneg (α := ℝ) j.1]
+
+theorem diracEigen_lower (j : DiracIndex) : (3:ℝ)/2 ≤ |diracEigen j| := by
+  unfold diracEigen
+  split <;> simp only [abs_neg, abs_of_nonneg (by positivity : 0 ≤ (j.1 : ℝ)+3/2)] <;> linarith [Nat.cast_nonneg (α := ℝ) j.1]
+
+noncomputable def hodgeRealization : L2 HodgeIndex →ₗ.[ℂ] L2 HodgeIndex :=
+  multOp (fun j => (hodgeEigen j : ℂ))
+
+noncomputable def diracRealization : L2 DiracIndex →ₗ.[ℂ] L2 DiracIndex :=
+  multOp (fun j => (diracEigen j : ℂ))
+
+theorem reference_realizations_closed :
+    hodgeRealization.IsClosed ∧ diracRealization.IsClosed :=
+  ⟨multOp_isClosed _,multOp_isClosed _⟩
+
+-- A finite union of finite spectral multiplicities is finite.
+theorem hodge_finite_levels (N : ℕ) : {j : HodgeIndex | j.1 < N}.Finite := by
+  let f : (Σ n : Fin N, Fin (2*((n.val+2)^2-1))) → HodgeIndex :=
+    fun j => ⟨j.1.val,j.2⟩
+  apply (Set.finite_range f).subset
+  intro j hj
+  exact ⟨⟨⟨j.1,hj⟩,j.2⟩,rfl⟩
+
+noncomputable def heatSymbol (t : ℝ) (j : HodgeIndex) : ℂ :=
+  (Real.exp (-t*hodgeEigen j) : ℂ)
+
+theorem heatSymbol_bound (t : ℝ) (ht : 0 ≤ t) (j : HodgeIndex) :
+    ‖heatSymbol t j‖ ≤ 1 := by
+  rw [heatSymbol, Complex.norm_real, Real.norm_of_nonneg (Real.exp_pos _).le, ← Real.exp_zero]
+  apply Real.exp_le_exp.mpr
+  have hj := hodgeEigen_lower j
+  nlinarith [mul_nonneg ht (show 0 ≤ hodgeEigen j by linarith)]
+
+noncomputable def heat (t : ℝ) (ht : 0 ≤ t) : L2 HodgeIndex →L[ℂ] L2 HodgeIndex :=
+  diagonal (heatSymbol t) 1 (by norm_num) (heatSymbol_bound t ht)
+
+theorem heatSymbol_finite (t : ℝ) (ht : 0 < t) (δ : ℝ) (hδ : 0 < δ) :
+    {j : HodgeIndex | δ < ‖heatSymbol t j‖}.Finite := by
+  obtain ⟨N,hN⟩ := exists_nat_gt (|Real.log δ|/t)
+  apply (hodge_finite_levels N).subset
+  intro j hj
+  change j.1 < N
+  by_contra! hjN
+  have hNt : |Real.log δ| < (N:ℝ)*t := (div_lt_iff₀ ht).mp hN
+  have hjN' : (N:ℝ) ≤ (j.1:ℝ) := by exact_mod_cast hjN
+  have hlev : (j.1:ℝ) ≤ hodgeEigen j := by
+    unfold hodgeEigen
+    nlinarith [Nat.cast_nonneg (α := ℝ) j.1]
+  have hprod : (N:ℝ)*t ≤ hodgeEigen j*t :=
+    mul_le_mul_of_nonneg_right (hjN'.trans hlev) ht.le
+  have hlog : -t*hodgeEigen j ≤ Real.log δ := by
+    have hh := neg_abs_le (Real.log δ)
+    nlinarith
+  have hbound : ‖heatSymbol t j‖ ≤ δ := by
+    rw [heatSymbol,Complex.norm_real,Real.norm_of_nonneg (Real.exp_pos _).le, ← Real.exp_log hδ]
+    exact Real.exp_le_exp.mpr hlog
+  exact (not_lt_of_ge hbound) hj
+
+theorem heat_compact (t : ℝ) (ht : 0 < t) : IsCompactOperator (heat t ht.le) :=
+  diagonal_isCompactOperator _ 1 (by norm_num) (heatSymbol_bound t ht.le)
+    (fun δ hδ => heatSymbol_finite t ht δ hδ)
+
+theorem heat_semigroup (s t : ℝ) (hs : 0 ≤ s) (ht : 0 ≤ t) :
+    heat (s+t) (add_nonneg hs ht) = (heat s hs).comp (heat t ht) := by
+  ext x j
+  simp only [heat, ContinuousLinearMap.comp_apply, diagonal_apply,heatSymbol]
+  rw [← mul_assoc, ← Complex.ofReal_mul, ← Real.exp_add]
+  congr 2
+  ring
+
+-- Actual bounded Hilbert-space maps, with the geometric multiplication
+-- map M and the heat/projection operator H left as explicit inputs.
+section Couplings
+variable {E F : Type*}
+  [NormedAddCommGroup E] [InnerProductSpace ℝ E] [CompleteSpace E]
+  [NormedAddCommGroup F] [InnerProductSpace ℝ F] [CompleteSpace F]
+
+noncomputable def couplingY (M : E →L[ℝ] F) (H : E →L[ℝ] E) (e : ℝ) :
+    E →L[ℝ] F := e • (M.comp H)
+
+noncomputable def couplingX (M : E →L[ℝ] F) (H : E →L[ℝ] E) (e : ℝ) :
+    F →L[ℝ] E := (-2*e) • (H.comp (ContinuousLinearMap.adjoint M))
+
+theorem coupling_adjoint (M : E →L[ℝ] F) (H : E →L[ℝ] E) (e : ℝ)
+    (hH : ContinuousLinearMap.adjoint H = H) :
+    couplingX M H e = (-2:ℝ) • (ContinuousLinearMap.adjoint (couplingY M H e)) := by
+  unfold couplingX couplingY
+  rw [map_smul,ContinuousLinearMap.adjoint_comp,hH,smul_smul]
+
+theorem couplingY_bound (M : E →L[ℝ] F) (H : E →L[ℝ] E) (e C : ℝ)
+    (hC : 0 ≤ C) (h : ∀ a, ‖M (H a)‖ ≤ C*‖a‖) :
+    ‖couplingY M H e‖ ≤ |e|*C := by
+  apply ContinuousLinearMap.opNorm_le_bound _ (mul_nonneg (abs_nonneg e) hC)
+  intro a
+  change ‖e • M (H a)‖ ≤ _
+  rw [norm_smul,Real.norm_eq_abs,mul_assoc]
+  exact mul_le_mul_of_nonneg_left (h a) (abs_nonneg e)
+
+theorem coupling_norm_factor (X : F →L[ℝ] E) (Y : E →L[ℝ] F)
+    (h : X = (-2:ℝ) • (ContinuousLinearMap.adjoint Y)) :
+    ‖X‖ = 2*‖Y‖ := by
+  rw [h,norm_smul]
+  simp
+
+theorem coupling_compact (M : E →L[ℝ] F) (H : E →L[ℝ] E) (e : ℝ)
+    (hH : IsCompactOperator (H : E → E)) :
+    IsCompactOperator (couplingX M H e : F → E) ∧
+    IsCompactOperator (couplingY M H e : E → F) := by
+  unfold couplingX couplingY
+  exact ⟨(hH.comp_clm (ContinuousLinearMap.adjoint M)).smul _,(hH.clm_comp M).smul _⟩
+end Couplings
+
+-- Explicit norm-convergent series, not just existence of an inverse.
+theorem neumann_series {R : Type*} [NormedRing R] [CompleteSpace R]
+    [NormOneClass R] (k : R) (hk : ‖k‖ < 1) :
+    HasSum (fun n : ℕ => k^n) (∑' n : ℕ, k^n) ∧
+    (1-k)*(∑' n : ℕ, k^n) = 1 ∧
+    (∑' n : ℕ, k^n)*(1-k) = 1 ∧
+    ‖∑' n : ℕ, k^n‖ ≤ 1/(1-‖k‖) := by
+  refine ⟨(summable_geometric_of_norm_lt_one hk).hasSum,
+    mul_neg_geom_series k hk,geom_series_mul_neg k hk,?_⟩
+  obtain ⟨v,h1,h2,hn⟩ := M16KreinOperator.neumann_inverse k hk
+  have he : (∑' n : ℕ, k^n) = v := by
+    calc
+      _ = (∑' n : ℕ, k^n)*((1-k)*v) := by rw [h1,mul_one]
+      _ = v := by rw [← mul_assoc,geom_series_mul_neg k hk,one_mul]
+  rwa [he]
+
+-- A bounded zero-shift inverse with gap g yields (175)-(176) for any
+-- bounded perturbation V. The graph includes the original domain.
+theorem perturbed_diagonal_resolvent {E : Type*}
+    [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E] [Nontrivial E]
+    (G : Set (E × E)) (R : E →L[ℂ] E) (V : E →L[ℂ] E) (z : ℂ)
+    (g : ℝ) (hg : 0 < g) (hR : ‖R‖ ≤ 1/g)
+    (hgap : ‖V‖+‖z‖ < g) (hG : GraphResolvent G 0 R) :
+    ∃ S : E →L[ℂ] E, GraphResolvent (perturb G V) z S ∧
+      ‖S‖ ≤ 1/(g-‖V‖-‖z‖) := by
+  let P : E →L[ℂ] E := z • (1 : E →L[ℂ] E)-V
+  let K := R.comp P
+  let b := ‖V‖+‖z‖
+  have hb : 0 ≤ b := by dsimp [b]; positivity
+  have hP : ‖P‖ ≤ b := by
+    calc
+      _ ≤ ‖z • (1 : E →L[ℂ] E)‖+‖V‖ := norm_sub_le _ _
+      _ = b := by simp [b,norm_smul,add_comm]
+  have hK : ‖K‖ ≤ b/g := by
+    calc
+      _ ≤ ‖R‖*‖P‖ := ContinuousLinearMap.opNorm_comp_le _ _
+      _ ≤ (1/g)*b := mul_le_mul hR hP (norm_nonneg _) (by positivity)
+      _ = b/g := by ring
+  have hq : b/g < 1 := (div_lt_one hg).2 hgap
+  have hk : ‖K‖ < 1 := hK.trans_lt hq
+  let W : E →L[ℂ] E := ∑' n : ℕ, K^n
+  obtain ⟨_,h1,h2,hn⟩ := neumann_series K hk
+  change (1-K)*W = 1 at h1
+  change W*(1-K) = 1 at h2
+  change ‖W‖ ≤ 1/(1-‖K‖) at hn
+  have hleft (u : E) : W (u-K u) = u := by
+    have hh := congrArg (fun T : E →L[ℂ] E => T u) h2
+    simpa using hh
+  have hright (u : E) : W u-K (W u) = u := by
+    have hh := congrArg (fun T : E →L[ℂ] E => T u) h1
+    simpa using hh
+  refine ⟨W.comp R,?_,?_⟩
+  · intro x f
+    change (x,f+z • x-V x) ∈ G ↔ x = W (R f)
+    have hh : f+z • x-V x = (f+P x)+ (0:ℂ) • x := by
+      simp [P,sub_eq_add_neg,add_assoc]
+    rw [hh,hG x (f+P x),map_add]
+    change (x = R f+K x) ↔ _
+    constructor
+    · intro hx
+      have he : x-K x = R f := by rw [hx,add_sub_cancel_right]
+      rw [← he,hleft]
+    · intro hx
+      rw [hx]
+      have he := hright (R f)
+      exact eq_add_of_sub_eq he
+  · have hW : ‖W‖ ≤ 1/(1-b/g) := by
+      apply le_trans hn
+      exact (div_le_div_iff₀ (sub_pos.mpr hk) (sub_pos.mpr hq)).2 (by nlinarith)
+    calc
+      _ ≤ ‖W‖*‖R‖ := ContinuousLinearMap.opNorm_comp_le _ _
+      _ ≤ (1/(1-b/g))*(1/g) := mul_le_mul hW hR (norm_nonneg _) (by positivity)
+      _ = 1/(g-b) := by
+        have hgb : g-b ≠ 0 := ne_of_gt (sub_pos.mpr hgap)
+        have hd : 1-b/g ≠ 0 := ne_of_gt (sub_pos.mpr hq)
+        field_simp [ne_of_gt hg,hgb,hd] <;> ring
+      _ = _ := by congr 1 <;> dsimp [b] <;> ring
+
+-- Zero resolvent in the maximal coefficient domain.
+theorem reference_zero_graph {ι : Type*} (lam : ι → ℝ) (g : ℝ)
+    (hg : 0 < g) (hl : ∀ j, g ≤ |lam j|) :
+    ∃ R : L2 ι →L[ℂ] L2 ι,
+      GraphResolvent ((multOp (fun j => (lam j : ℂ))).graph : Set (L2 ι × L2 ι)) 0 R ∧
+      ‖R‖ ≤ 1/g := by
+  let w : ι → ℂ := fun j => (lam j : ℂ)⁻¹
+  have hne (j : ι) : (lam j : ℂ) ≠ 0 := by
+    intro h
+    have hh : lam j = 0 := by exact_mod_cast h
+    have hj := hl j
+    rw [hh,abs_zero] at hj
+    linarith
+  have hw (j : ι) : ‖w j‖ ≤ 1/g := by
+    rw [w,norm_inv,Complex.norm_real,Real.norm_eq_abs,← one_div]
+    exact one_div_le_one_div_of_le hg (hl j)
+  let R := diagonal w (1/g) (by positivity) hw
+  refine ⟨R,?_,diagonal_norm_le _ _ _ _⟩
+  intro x f
+  simp only [zero_smul,add_zero]
+  rw [SetLike.mem_coe,mem_graph_multOp_iff]
+  constructor
+  · intro h
+    apply lp.ext
+    funext j
+    rw [diagonal_apply,h j]
+    dsimp [w]
+    rw [← mul_assoc,inv_mul_cancel₀ (hne j),one_mul]
+  · intro h j
+    rw [h,diagonal_apply]
+    dsimp [w]
+    rw [← mul_assoc,mul_inv_cancel₀ (hne j),one_mul]
+
+#print axioms hodgeEigen_lower
+#print axioms diracEigen_lower
+#print axioms reference_realizations_closed
+#print axioms hodge_finite_levels
+#print axioms heatSymbol_bound
+#print axioms heatSymbol_finite
+#print axioms heat_compact
+#print axioms heat_semigroup
+#print axioms coupling_adjoint
+#print axioms couplingY_bound
+#print axioms coupling_norm_factor
+#print axioms coupling_compact
+#print axioms neumann_series
+#print axioms perturbed_diagonal_resolvent
+#print axioms reference_zero_graph
 end M16KreinGraphGap
