@@ -213,9 +213,8 @@ theorem gamma_beta_ratio :
     congr 1 <;> ring_nf
   rw [← he] at h
   have hcast : (∫ s in Ioo (0:ℝ) 1,(betaProfile s : ℂ)) =
-      ((∫ s in Ioo (0:ℝ) 1,betaProfile s):ℂ) := by
+      Complex.ofReal (∫ s in Ioo (0:ℝ) 1,betaProfile s) := by
     first | exact Complex.ofReal_integral.symm | exact?
-  rw [hcast] at h
   norm_num only [show (1/4:ℂ)+(1/2:ℂ)=3/4 by ring] at h
   have hq : Complex.Gamma (1/4:ℂ) = (Real.Gamma (1/4):ℂ) := by
     rw [show (1/4:ℂ) = ((1/4:ℝ):ℂ) by norm_num]
@@ -227,7 +226,8 @@ theorem gamma_beta_ratio :
     rw [show (3/4:ℂ) = ((3/4:ℝ):ℂ) by norm_num]
     exact Complex.Gamma_ofReal _
   rw [hq,hh,ht,← Complex.ofReal_mul,← Complex.ofReal_div] at h
-  exact Complex.ofReal_inj.mp (hcast.symm.trans h)
+  apply Complex.ofReal_inj.mp
+  exact hcast.symm.trans h
 
 theorem lem_gamma_of_beta :
     lemPeriod = Real.Gamma (1/4)^2/(4*Real.sqrt (2*Real.pi)) := by
