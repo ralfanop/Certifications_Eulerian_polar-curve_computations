@@ -41,7 +41,7 @@ theorem scaled_error_from_remainder (D : ℝ → ℝ → ℝ)
         |200*lam^2*ε^4*v^4| := abs_add_le _ _
     _ ≤ (|3*(D k (ε*v)-creaseQuarticJet k (ε*v))/(20*ε^4)| + 
         |-4*lam*ε^2*v^4|)+|200*lam^2*ε^4*v^4| :=
-      add_le_add_right (abs_add_le _ _) _
+      add_le_add_left (abs_add_le _ _) _
     _ ≤ _ := by rw [ha,hb]; linarith
 
 theorem scaled_error_uniform_box (D : ℝ → ℝ → ℝ)
