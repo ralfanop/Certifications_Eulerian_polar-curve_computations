@@ -16,8 +16,8 @@ abbrev Op := H →L[ℂ] H
 def translation (d : ℤ) : ℤ ≃ ℤ where
   toFun k := k + d
   invFun k := k - d
-  left_inv k := by omega
-  right_inv k := by omega
+  left_inv k := by change k+d-d=k; omega
+  right_inv k := by change k-d+d=k; omega
 
 def reindexVector (e : ℤ ≃ ℤ) (x : H) : H :=
   ⟨fun k => x (e k), by
@@ -37,7 +37,9 @@ def shift (d : ℤ) : Op :=
     { toFun := reindexVector (translation d)
       map_add' x y := by apply lp.ext; funext k; rfl
       map_smul' c x := by apply lp.ext; funext k; rfl }).mkContinuous 1
-    (fun x => by rw [reindex_norm, one_mul])
+    (fun x => by
+      change ‖reindexVector (translation d) x‖ ≤ 1 * ‖x‖
+      rw [reindex_norm, one_mul])
 
 @[simp] theorem shift_apply (d : ℤ) (x : H) (k : ℤ) :
     shift d x k = x (k + d) := rfl
@@ -100,8 +102,8 @@ theorem J_selfAdjoint (u : Bonds) : IsSelfAdjoint (J u) := by
   change ⟪weight u (shift (-1) x) + shift 1 (weight u x), y⟫_ℂ =
     ⟪x, weight u (shift (-1) y) + shift 1 (weight u y)⟫_ℂ
   rw [inner_add_left, inner_add_right, forward_backward]
-  have h := congrArg star (forward_backward u y x)
-  simp only [inner_conj_symm] at h
+  have h := congrArg (starRingEnd ℂ) (forward_backward u y x)
+  rw [inner_conj_symm, inner_conj_symm] at h
   rw [← h, add_comm]
 
 def paritySign (k : ℤ) : ℂ := if k % 2 = 0 then 1 else -1
@@ -126,9 +128,7 @@ def S0 : Op := diagonal paritySign 1 (by norm_num) (fun k => by
     S0 x k = paritySign k * x k := rfl
 
 theorem S0_square : S0 * S0 = 1 := by
-  ext x
-  apply lp.ext
-  funext k
+  ext x k
   change paritySign k * (paritySign k * x k) = x k
   unfold paritySign
   split <;> simp
@@ -139,16 +139,13 @@ theorem S0_selfAdjoint : IsSelfAdjoint S0 := by
   rw [lp.inner_eq_tsum, lp.inner_eq_tsum]
   congr 1
   funext k
-  simp only [S0_apply]
   change ⟪paritySign k • x k, y k⟫_ℂ = ⟪x k, paritySign k • y k⟫_ℂ
   rw [inner_smul_left, inner_smul_right]
   unfold paritySign
   split <;> simp
 
 theorem parity_anticomm (u : Bonds) : S0 * J u = -(J u * S0) := by
-  ext x
-  apply lp.ext
-  funext k
+  ext x k
   change S0 (J u x) k = -(J u (S0 x) k)
   rw [S0_apply, J_apply, J_apply, S0_apply, S0_apply, paritySign_prev, paritySign_step]
   ring
