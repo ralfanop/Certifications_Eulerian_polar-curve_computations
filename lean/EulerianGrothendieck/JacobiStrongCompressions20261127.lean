@@ -3,6 +3,7 @@ import EulerianGrothendieck.JacobiDKBilateral20261127
 /-! M12 Lemma 5.12: strong convergence of literal finite bond compressions
 on every vector, of all their powers and of differentiated powers. Uses
 density of finite coordinate sums, not convergence in operator norm. -/
+set_option maxHeartbeats 2000000
 noncomputable section
 open Filter Set
 open scoped Topology ENNReal
@@ -72,7 +73,6 @@ theorem cutoff_strong (u : Bonds) (x : H) :
 
 /-- Strong convergence is stable under applying a uniformly bounded varying
 operator to a norm-convergent varying vector. -/
-set_option maxHeartbeats 2000000 in
 theorem strong_apply (T : ℕ → Op) (A : Op) (x : ℕ → H) (y : H)
     (hT : ∀ z : H, Tendsto (fun N => T N z) atTop (𝓝 (A z)))
     (C : ℝ) (hC : 0 ≤ C) (hb : ∀ N, ‖T N‖ ≤ C)
