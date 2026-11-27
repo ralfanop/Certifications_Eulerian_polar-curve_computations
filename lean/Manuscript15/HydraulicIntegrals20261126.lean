@@ -45,8 +45,8 @@ theorem radial_hasDerivAt (t : ℝ) : HasDerivAt radial (slope t) t := by
     filter_upwards [ae_restrict_mem (μ := volume) (s := Ioc (0:ℝ) 1) measurableSet_Ioc] with u hu
     intro x _
     have hu0 : 0 ≤ u/2 := by linarith [hu.1]
-    unfold F'
-    rw [Real.norm_eq_abs, abs_mul, abs_neg, abs_of_nonneg hu0]
+    change |-(u/2)*Real.sin ((u/2)*x)| ≤ u/2
+    rw [abs_mul, abs_neg, abs_of_nonneg hu0]
     calc
       _ ≤ (u/2)*1 := mul_le_mul_of_nonneg_left
         (abs_le.mpr ⟨Real.neg_one_le_sin _, Real.sin_le_one _⟩) hu0
@@ -55,7 +55,8 @@ theorem radial_hasDerivAt (t : ℝ) : HasDerivAt radial (slope t) t := by
     filter_upwards [] with u
     intro x _
     unfold F F'
-    convert ((hasDerivAt_id x).const_mul (u/2)).cos using 1 <;> first | rfl | ring
+    convert ((hasDerivAt_id x).const_mul (u/2)).cos using 1 <;>
+      first | rfl | (simp only [id_eq]; ring) | ring
   have h := (hasDerivAt_integral_of_dominated_loc_of_deriv_le
     (μ := μ) (F := F) (F' := F') (bound := fun u => u/2)
     (s := Set.univ) (by simp : Set.univ ∈ 𝓝 t) hm (hi t) h'm hbound hb hd).2
@@ -85,7 +86,7 @@ theorem slope_abs_bound (t : ℝ) : |slope t| ≤ 1/4 := by
       _ ≤ (u/2)*1 := mul_le_mul_of_nonneg_left
         (abs_le.mpr ⟨Real.neg_one_le_sin _, Real.sin_le_one _⟩) hu0
       _ = _ := by ring
-  have hm := intervalIntegral.integral_mono_on (by norm_num : (0:ℝ) ≤ 1)
+  have hm := intervalIntegral.integral_mono_on (μ := volume) (by norm_num : (0:ℝ) ≤ 1)
     (hc.intervalIntegrable 0 1) (hlin.intervalIntegrable 0 1) hpoint
   have hp : (∫ u in (0:ℝ)..1, u/2) = 1/4 := by
     have he : (∫ u in (0:ℝ)..1, u/2) = (1:ℝ)^2/4-(0:ℝ)^2/4 := by
@@ -145,7 +146,7 @@ theorem slope_lipschitz_bound (x y : ℝ) : |slope x-slope y| ≤ |x-y|/4 := by
         calc
           _ ≤ (1/4)*|x-y| := mul_le_mul_of_nonneg_right hs (abs_nonneg _)
           _ = _ := by ring
-  have hm := intervalIntegral.integral_mono_on (by norm_num : (0:ℝ) ≤ 1)
+  have hm := intervalIntegral.integral_mono_on (μ := volume) (by norm_num : (0:ℝ) ≤ 1)
     (habs.intervalIntegrable 0 1)
     (continuous_const.intervalIntegrable 0 1) hpoint
   have ha := intervalIntegral.abs_integral_le_integral_abs
@@ -203,7 +204,7 @@ theorem radial_continuous : Continuous radial :=
 theorem radial_slope_energy_bound :
     (∫ t in (0:ℝ)..Real.pi, (slope t)^2) ≤
     (Real.pi^2/64)*polarArea := by
-  have hf := slope_continuous.pow 2
+  have hf : Continuous (fun t : ℝ => (slope t)^2) := slope_continuous.pow 2
   have hg : Continuous (fun t => (Real.pi^2/64)*(radial t)^2) :=
     continuous_const.mul (radial_continuous.pow 2)
   have hp : ∀ t ∈ Icc (0:ℝ) Real.pi,
@@ -220,19 +221,20 @@ theorem radial_slope_energy_bound :
       field_simp [Real.pi_ne_zero] <;> ring
     rw [h5] at h4
     exact h1.trans h4
-  have h := intervalIntegral.integral_mono_on Real.pi_pos.le
+  have h := intervalIntegral.integral_mono_on (μ := volume) Real.pi_pos.le
     (hf.intervalIntegrable 0 Real.pi) (hg.intervalIntegrable 0 Real.pi) hp
   rw [intervalIntegral.integral_const_mul] at h
   exact h
 
 theorem polar_area_positive : 0 < polarArea := by
-  have hc := radial_continuous.pow 2
+  have hc : Continuous (fun t : ℝ => (radial t)^2) := radial_continuous.pow 2
   have h : (∫ t in (0:ℝ)..Real.pi, (2/Real.pi)^2) ≤ polarArea := by
     apply intervalIntegral.integral_mono_on Real.pi_pos.le
       (continuous_const.intervalIntegrable 0 Real.pi) (hc.intervalIntegrable 0 Real.pi)
     intro t ht
     have hr := radial_lower t (by simpa [abs_of_nonneg ht.1] using ht.2)
     have hp : 0 < 2/Real.pi := by positivity
+    change (2/Real.pi)^2 ≤ (radial t)^2
     nlinarith [mul_nonneg (sub_nonneg.mpr hr) (show 0 ≤ radial t+2/Real.pi by linarith)]
   rw [intervalIntegral.integral_const, sub_zero, smul_eq_mul] at h
   exact lt_of_lt_of_le (by positivity) h
@@ -246,9 +248,11 @@ theorem polar_perimeter_energy_bound :
   have he : (fun t => (f t)^2) = (fun t => (radial t)^2+(slope t)^2) := by
     funext t
     exact Real.sq_sqrt (by positivity)
-  rw [he, intervalIntegral.integral_add
-    ((radial_continuous.pow 2).intervalIntegrable 0 Real.pi)
-    ((slope_continuous.pow 2).intervalIntegrable 0 Real.pi), sub_zero] at h
+  have hrad : IntervalIntegrable (fun t : ℝ => (radial t)^2) volume 0 Real.pi :=
+    (radial_continuous.pow 2).intervalIntegrable 0 Real.pi
+  have hslope : IntervalIntegrable (fun t : ℝ => (slope t)^2) volume 0 Real.pi :=
+    (slope_continuous.pow 2).intervalIntegrable 0 Real.pi
+  rw [he, intervalIntegral.integral_add hrad hslope, sub_zero] at h
   unfold polarPerimeter polarArea
   change (2*(∫ t in (0:ℝ)..Real.pi, f t))^2 ≤ _
   nlinarith
