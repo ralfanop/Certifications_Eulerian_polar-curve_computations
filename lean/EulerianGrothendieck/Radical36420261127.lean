@@ -28,10 +28,15 @@ theorem fourth_root_factor :
     rw [← Real.rpow_natCast, ← Real.rpow_mul (by norm_num : (0:ℝ) ≤ 40)]
     norm_num
   have hb4 : b^4 = 40 := by
-    dsimp [b]
-    rw [mul_pow, show (4:ℕ) = 2*2 by decide, pow_mul,
-      Real.sq_sqrt (Real.sqrt_nonneg (5/2)), Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 5/2)]
-    norm_num
+    have hb2 : b^2 = 4 * Real.sqrt (5/2) := by
+      dsimp [b]
+      rw [mul_pow, Real.sq_sqrt (Real.sqrt_nonneg (5/2))]
+      norm_num
+    calc
+      b^4 = (b^2)^2 := by ring
+      _ = 40 := by
+        rw [hb2, mul_pow, Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 5/2)]
+        norm_num
   have hzero : (a-b)*((a+b)*(a^2+b^2)) = 0 := by
     calc
       _ = a^4-b^4 := by ring
