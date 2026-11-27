@@ -104,7 +104,6 @@ theorem determinant (n : ℕ) (d : Fin (n+2) → ℂ) (r w : ℂ) :
     funext i
     simp
   rw [he, upper_minor]
-  simp only [one_pow, mul_one]
   rw [neg_pow]
   have hs : (-1:ℂ)^(n+1) * (-1)^(n+1) = 1 := by
     rw [← mul_pow]
