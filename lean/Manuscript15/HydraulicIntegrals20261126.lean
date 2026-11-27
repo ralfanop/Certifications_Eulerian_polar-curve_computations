@@ -91,8 +91,10 @@ theorem slope_abs_bound (t : ℝ) : |slope t| ≤ 1/4 := by
   have hp : (∫ u in (0:ℝ)..1, u/2) = 1/4 := by
     have he : (∫ u in (0:ℝ)..1, u/2) = (1:ℝ)^2/4-(0:ℝ)^2/4 := by
       apply intervalIntegral.integral_eq_sub_of_hasDerivAt
+        (f := fun u : ℝ => u^2/4) (f' := fun u : ℝ => u/2)
       · intro u _
-        convert ((hasDerivAt_id u).pow 2).div_const 4 using 1 <;> first | rfl | ring
+        convert ((hasDerivAt_id u).pow 2).div_const 4 using 1 <;>
+          first | rfl | (simp only [id_eq]; ring) | ring
       · exact hlin.intervalIntegrable 0 1
     rw [he]
     norm_num
@@ -149,7 +151,7 @@ theorem slope_lipschitz_bound (x y : ℝ) : |slope x-slope y| ≤ |x-y|/4 := by
   have hm := intervalIntegral.integral_mono_on (μ := volume) (by norm_num : (0:ℝ) ≤ 1)
     (habs.intervalIntegrable 0 1)
     (continuous_const.intervalIntegrable 0 1) hpoint
-  have ha := intervalIntegral.abs_integral_le_integral_abs
+  have ha := intervalIntegral.abs_integral_le_integral_abs (μ := volume)
     (f := fun u => f x u-f y u) (by norm_num : (0:ℝ) ≤ 1)
   exact ha.trans (by simpa using hm)
 
