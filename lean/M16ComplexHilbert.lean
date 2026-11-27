@@ -386,6 +386,9 @@ end Adjoint
 
 end Operator
 
+theorem hilbert_complete [CompleteSpace H] : CompleteSpace (Complexification H) :=
+  inferInstance
+
 end Complexification
 
 end M16ComplexHilbert
@@ -400,3 +403,5 @@ end M16ComplexHilbert
 #print axioms M16ComplexHilbert.Complexification.norm_complexify
 #print axioms M16ComplexHilbert.Complexification.adjoint_complexify
 #print axioms M16ComplexHilbert.Complexification.conj_eq_self_iff
+
+#print axioms M16ComplexHilbert.Complexification.hilbert_complete
