@@ -8,7 +8,7 @@ The extension to arbitrary compactly supported smooth functions (Fourier
 inversion, Duhamel, and positivity of divided differences) is not claimed
 by this module. -/
 noncomputable section
-open scoped RightActions
+open scoped RightActions ENNReal
 namespace M12JacobiFrechet
 open M12BilateralJacobi
 
@@ -30,7 +30,9 @@ theorem power_hasFDerivAt (A : Op) (n : ℕ) :
       simpa only [pow_zero,powerD] using (hasFDerivAt_const (1:Op) A)
   | succ n ih =>
       have h := (hasFDerivAt_id (𝕜 := ℂ) A).mul' ih
-      simpa only [id_eq,pow_succ',powerD,Pi.mul_apply] using h
+      rw [show (fun T : Op => T^(n+1)) = id * (fun T : Op => T^n) by
+        funext T; exact pow_succ' T n]
+      exact h
 
 theorem power_fderiv (A : Op) (n : ℕ) :
     fderiv ℂ (fun T : Op => T^n) A = powerD A n :=
@@ -42,9 +44,11 @@ theorem powerD_norm (A X : Op) (hA : ‖A‖ ≤ 1) (n : ℕ) :
   | zero => simp [powerD_zero]
   | succ n ih =>
       have hp : ‖A^n‖ ≤ 1 := by
-        calc
-          _ ≤ ‖A‖^n := norm_pow_le _ _
-          _ ≤ 1 := pow_le_one₀ (norm_nonneg A) hA
+        by_cases hn : n = 0
+        · subst n
+          rw [pow_zero]
+          exact ContinuousLinearMap.norm_id_le
+        · exact (norm_pow_le' A (Nat.pos_of_ne_zero hn)).trans (pow_le_one₀ (norm_nonneg A) hA)
       rw [powerD_succ]
       calc
         _ ≤ ‖A*powerD A n X‖ + ‖X*A^n‖ := norm_add_le _ _
@@ -62,7 +66,7 @@ theorem powerD_opNorm (A : Op) (hA : ‖A‖ ≤ 1) (n : ℕ) :
 
 /-- A single actual bond, with off-diagonal entries equal to one. -/
 def halfBond (m : ℤ) : Bonds :=
-  ⟨fun k => if k=m then 1/2 else 0, fun k => by split <;> norm_num⟩
+  ⟨fun k => if k=m then 1/2 else 0, fun k => by by_cases hk : k = m <;> simp [hk]⟩
 
 def bond (m : ℤ) : Op := (2:ℂ) • J (halfBond m)
 
@@ -107,8 +111,8 @@ theorem derivative_entry_outside (u : Bonds) (n : ℕ) (m k l : ℤ)
   induction n generalizing k with
   | zero => simp [powerD,entry]
   | succ n ih =>
-      have hm : k-1<m-(n:ℤ) ∨ m+(n:ℤ)<k-1 := by omega
-      have hp : k+1<m-(n:ℤ) ∨ m+(n:ℤ)<k+1 := by omega
+      have hm : k - 1 < m - (n:ℤ) ∨ m + (n:ℤ) < k - 1 := by omega
+      have hp : k + 1 < m - (n:ℤ) ∨ m + (n:ℤ) < k + 1 := by omega
       have hk0 : k≠m := by omega
       have hk1 : k+1≠m := by omega
       have hminus := ih (k-1) hm
@@ -131,26 +135,30 @@ def polynomialD (N : ℕ) (a : ℕ → ℂ) (A : Op) : Op →L[ℂ] Op :=
 theorem polynomial_hasFDerivAt (N : ℕ) (a : ℕ → ℂ) (A : Op) :
     HasFDerivAt (polynomialOp N a) (polynomialD N a A) A := by
   induction N with
-  | zero => simpa [polynomialOp,polynomialD] using (hasFDerivAt_const (0:Op) A)
+  | zero =>
+      have he : polynomialOp 0 a = (fun _ : Op => (0:Op)) := by funext T; simp [polynomialOp]
+      rw [he,show polynomialD 0 a A = 0 by simp [polynomialD]]
+      exact hasFDerivAt_const (0:Op) A
   | succ N ih =>
       have h := ih.add ((power_hasFDerivAt A N).const_smul (a N))
-      simpa only [polynomialOp,polynomialD,Finset.sum_range_succ,Pi.add_apply] using h
+      rw [show polynomialOp (N+1) a = polynomialOp N a + a N • (fun T : Op => T^N) by
+        funext T; simp only [polynomialOp,Finset.sum_range_succ,Pi.add_apply,Pi.smul_apply]]
+      simpa only [polynomialD,Finset.sum_range_succ] using h
 
 theorem polynomialD_locality (N : ℕ) (a : ℕ → ℂ) (u : Bonds) (m k l : ℤ)
     (hk : k < m-(N:ℤ) ∨ m+(N:ℤ)<k) :
     entry (polynomialD N a (J u) (bond m)) k l = 0 := by
-  classical
-  unfold polynomialD
-  simp only [ContinuousLinearMap.sum_apply,ContinuousLinearMap.smul_apply]
-  unfold entry
-  simp only [ContinuousLinearMap.sum_apply,ContinuousLinearMap.smul_apply,lp.sum_apply,lp.smul_apply]
-  apply Finset.sum_eq_zero
-  intro n hn
-  have hn' := Finset.mem_range.mp hn
-  have hh : k<m-(n:ℤ) ∨ m+(n:ℤ)<k := by omega
-  have he := derivative_entry_outside u n m k l hh
-  unfold entry at he
-  rw [he,smul_zero]
+  induction N with
+  | zero => simp [polynomialD,entry]
+  | succ N ih =>
+      have hh : k < m - (N:ℤ) ∨ m + (N:ℤ) < k := by omega
+      have h1 := ih hh
+      have h2 := derivative_entry_outside u N m k l hh
+      have he : polynomialD (N+1) a (J u) = polynomialD N a (J u) + a N • powerD (J u) N := by
+        simp only [polynomialD,Finset.sum_range_succ]
+      rw [he]
+      change entry (polynomialD N a (J u) (bond m)) k l + a N * entry (powerD (J u) N (bond m)) k l = 0
+      rw [h1,h2,mul_zero,add_zero]
 
 end M12JacobiFrechet
 
