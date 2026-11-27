@@ -44,7 +44,7 @@ theorem actualResidual_integrable (M : ℕ) (hM : 4 ≤ M)
 
 theorem cross_integrable (M : ℕ) (hM : 4 ≤ M)
     (p q : ℝ → ℝ) (hp : Continuous p) (hq : Continuous q) :
-    Integrable (fun x => |p x*q x|*gM M x) := by
+    Integrable (fun x => |p x*q x| *gM M x) := by
   apply continuous_supported_integrable
   · exact (hp.mul hq).abs.mul (actual_gM_continuous (by omega : 3 ≤ M))
   · intro x hx
@@ -57,7 +57,7 @@ theorem cross_pointwise (p q : ℝ) : |p*q| ≤ (p^2+q^2)/2 := by
 theorem normalized_cross (M : ℕ) (hM : 4 ≤ M) (p q : ℝ → ℝ)
     (hp : Continuous p) (hq : Continuous q)
     (hp1 : ∫ x, p x^2*gM M x = 1) (hq1 : ∫ x, q x^2*gM M x = 1) :
-    (∫ x, |p x*q x|*gM M x) ≤ 1 := by
+    (∫ x, |p x*q x| *gM M x) ≤ 1 := by
   have hpi := square_supported_integrable M hM p hp
   have hqi := square_supported_integrable M hM q hq
   calc
@@ -79,10 +79,10 @@ theorem actual_integral_residual_bound (M : ℕ) (hM : 4 ≤ M)
     |actualResidual M f p q| ≤ A/(M:ℝ)+Cf*T₁+T₂ := by
   let S : Set ℝ := {x | r ≤ |x|}
   let F : ℝ → ℝ := fun x => (f x-deriv (φM M) x)*(p x*q x)*gM M x
-  let U : ℝ → ℝ := fun x => |p x*q x|*gM M x
+  let U : ℝ → ℝ := fun x => |p x*q x| *gM M x
   let P : ℝ → ℝ := fun x => p x^2*gM M x
   let Q : ℝ → ℝ := fun x => q x^2*gM M x
-  let V : ℝ → ℝ := fun x => |p x*q x|*|deriv (φM M) x|*gM M x
+  let V : ℝ → ℝ := fun x => |p x*q x| *|deriv (φM M) x| *gM M x
   have hS : MeasurableSet S := measurableSet_le measurable_const continuous_abs.measurable
   have hF : Integrable F := actualResidual_integrable M hM f p q hf hp hq
   have hU : Integrable U := cross_integrable M hM p q hp hq
