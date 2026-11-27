@@ -33,7 +33,7 @@ theorem powers_independent (n : ℕ) (a : Fin (n+2) → ℂ) (r w : ℂ) (hr : r
 
 theorem minpoly_eq_charpoly (n : ℕ) (a : Fin (n+2) → ℂ) (r w : ℂ) (hr : r ≠ 0) :
     minpoly ℂ (matrix n a r w) = (matrix n a r w).charpoly := by
-  apply minpoly.eq_of_linearIndependent (matrix n a r w).charpoly_monic
+  apply minpoly.eq_of_linearIndependent ℂ (matrix n a r w) (matrix n a r w).charpoly_monic
     (Matrix.aeval_self_charpoly _) (n+2)
   · simp [Matrix.charpoly_degree_eq_dim]
   · exact powers_independent n a r w hr
@@ -49,7 +49,7 @@ theorem eigenvector_last_nonzero (n : ℕ) (a : Fin (n+2) → ℂ) (r w z : ℂ)
       v ⟨n+1-k, by omega⟩ = 0 := by
     intro k
     induction k with
-    | zero => intro hk; simpa using hz
+    | zero => intro hk; exact hz
     | succ k ih =>
       intro hk
       have hk' : k ≤ n+1 := by omega
@@ -62,7 +62,7 @@ theorem eigenvector_last_nonzero (n : ℕ) (a : Fin (n+2) → ℂ) (r w z : ℂ)
         omega
       have hrow := congrFun he i.succ
       rw [row_succ, h1] at hrow
-      simp at hrow
+      simp [h1] at hrow
       have h0 : v i.castSucc = 0 := (mul_eq_zero.mp hrow).resolve_left hr
       convert h0 using 1
       congr 1
