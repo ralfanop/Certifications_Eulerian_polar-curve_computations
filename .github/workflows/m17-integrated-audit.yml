@@ -1,0 +1,86 @@
+name: M17 integrated exact head audit
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript17/**'
+      - 'lean/EulerianCert/CassiniAreaIntegral20261124.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - '.github/workflows/m17-integrated-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'lean/Manuscript17/**'
+      - 'lean/EulerianCert/CassiniAreaIntegral20261124.lean'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - '.github/workflows/m17-integrated-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Verify exact HEAD and byte identity with certifying heads
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m17-audit-head.log
+          git merge-base --is-ancestor 5c36eba71306420fc58df71613fe51f1f3b5c42c HEAD
+          git show '5c36eba71306420fc58df71613fe51f1f3b5c42c:lean/EulerianCert/CassiniAreaIntegral20261124.lean' | cmp - 'EulerianCert/CassiniAreaIntegral20261124.lean'
+          git merge-base --is-ancestor 6381fba2bfe3e7eb3ea5b4fb3b7e7e4ab004cea7 HEAD
+          git show '6381fba2bfe3e7eb3ea5b4fb3b7e7e4ab004cea7:lean/Manuscript17/CassiniChartGeometry20261127.lean' | cmp - 'Manuscript17/CassiniChartGeometry20261127.lean'
+          git merge-base --is-ancestor 8af0628e675c69814b75fb1adc8dcf12a526e99a HEAD
+          git show '8af0628e675c69814b75fb1adc8dcf12a526e99a:lean/Manuscript17/StrongCycleGeneral20261127.lean' | cmp - 'Manuscript17/StrongCycleGeneral20261127.lean'
+          git merge-base --is-ancestor 0ca743fda482bff0e138cf7b57aced74a956799c HEAD
+          git show '0ca743fda482bff0e138cf7b57aced74a956799c:lean/Manuscript17/StrongCycleKrylov20261127.lean' | cmp - 'Manuscript17/StrongCycleKrylov20261127.lean'
+          git merge-base --is-ancestor cb839dc5521ef108191604da03dadd6e2c4f32d2 HEAD
+          git show 'cb839dc5521ef108191604da03dadd6e2c4f32d2:lean/Manuscript17/CassiniChartMeasure20261127.lean' | cmp - 'Manuscript17/CassiniChartMeasure20261127.lean'
+          git merge-base --is-ancestor 4719dbbc4b95a367c5f18f186ea12260b9422444 HEAD
+          git show 'c1d3f32d12cffe9f90129b35b55f9e2d9ded835d:numerics/arb/m17_cassini_area_million.py' | cmp - ../numerics/arb/m17_cassini_area_million.py
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan.sh
+          sh /tmp/elan.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+      - name: Recompile all four merged modules and the area dependency
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/{EulerianCert,Manuscript17}
+          lake env lean -o '.lake/build/lib/lean/EulerianCert/CassiniAreaIntegral20261124.olean' 'EulerianCert/CassiniAreaIntegral20261124.lean' 2>&1 | tee '/tmp/m17-audit-CassiniAreaIntegral20261124.log'
+          lake env lean -o '.lake/build/lib/lean/Manuscript17/CassiniChartGeometry20261127.olean' 'Manuscript17/CassiniChartGeometry20261127.lean' 2>&1 | tee '/tmp/m17-audit-CassiniChartGeometry20261127.log'
+          lake env lean -o '.lake/build/lib/lean/Manuscript17/StrongCycleGeneral20261127.olean' 'Manuscript17/StrongCycleGeneral20261127.lean' 2>&1 | tee '/tmp/m17-audit-StrongCycleGeneral20261127.log'
+          lake env lean -o '.lake/build/lib/lean/Manuscript17/StrongCycleKrylov20261127.olean' 'Manuscript17/StrongCycleKrylov20261127.lean' 2>&1 | tee '/tmp/m17-audit-StrongCycleKrylov20261127.log'
+          lake env lean -o '.lake/build/lib/lean/Manuscript17/CassiniChartMeasure20261127.olean' 'Manuscript17/CassiniChartMeasure20261127.lean' 2>&1 | tee '/tmp/m17-audit-CassiniChartMeasure20261127.log'
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          modules = [["CassiniAreaIntegral20261124",13],["CassiniChartGeometry20261127",13],["StrongCycleGeneral20261127",9],["StrongCycleKrylov20261127",7],["CassiniChartMeasure20261127",9]]
+          total = 0
+          for m,n in modules:
+              s = Path('/tmp/m17-audit-'+m+'.log').read_text()
+              assert not re.search(r'sorryAx|Lean.ofReduceBool|error:', s)
+              a = re.findall(r"depends on axioms: \[([^\]]*)\]", s, re.S)
+              assert len(a)+s.count('does not depend on any axioms') == n
+              assert all(set(x.strip() for x in b.split(',') if x.strip()) <= {'propext','Classical.choice','Quot.sound'} for b in a)
+              total += n
+          assert total == 51
+          print('SUCCESS M17 integrated 51 reports; standard axioms only')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m17-integrated-audit
+          path: /tmp/m17-audit-*.log
