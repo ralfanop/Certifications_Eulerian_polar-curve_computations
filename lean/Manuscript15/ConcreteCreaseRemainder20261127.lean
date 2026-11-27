@@ -133,7 +133,7 @@ theorem sinh_local_bounds (t : ℝ) (ht : |t| ≤ 1) :
   have hp := Real.exp_bound (x := t) (n := 3) ht (by decide)
   have hm := Real.exp_bound (x := -t) (n := 3) (by simpa using ht) (by decide)
   norm_num [Finset.sum_range_succ, Nat.factorial] at hp hm
-  rw [abs_neg] at hm
+  simp only [abs_neg] at hm
   have he : Real.sinh t-t =
       ((Real.exp t-(1+t+t^2/2))-(Real.exp (-t)-(1-t+t^2/2)))/2 := by
     rw [Real.sinh_eq]
@@ -146,7 +146,9 @@ theorem sinh_local_bounds (t : ℝ) (ht : |t| ≤ 1) :
     have hm' : |Real.exp (-t)-(1-t+t^2/2)| ≤ (2/9:ℝ)*|t|^3 := by
       convert hm using 1 <;> ring_nf
     calc
-      _ ≤ |Real.exp t-(1+t+t^2/2)|+|Real.exp (-t)-(1-t+t^2/2)| := abs_sub _ _
+      _ ≤ |Real.exp t-(1+t+t^2/2)|+|Real.exp (-t)-(1-t+t^2/2)| := by
+        simpa only [sub_eq_add_neg, abs_neg] using
+          (abs_add_le (Real.exp t-(1+t+t^2/2)) (-(Real.exp (-t)-(1-t+t^2/2))))
       _ ≤ _ := by linarith [hp',hm',show 0 ≤ |t|^3 by positivity]
   refine ⟨?_,hr⟩
   have hc : |t|^3 ≤ |t| := by
