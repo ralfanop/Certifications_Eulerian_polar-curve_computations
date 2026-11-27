@@ -19,7 +19,7 @@ theorem exp_diff_le (a γ : ℝ) (hγ : 0 ≤ γ) (ha : |a| ≤ γ) :
   have hsum : 2 ≤ Real.exp (-γ)+Real.exp γ := by
     have h := sq_nonneg (Real.exp γ-1)
     have hp := Real.exp_pos γ
-    apply (le_of_mul_le_mul_right _ hp)
+    apply (mul_le_mul_right₀ hp).mp
     nlinarith [hprod]
   exact abs_le.mpr ⟨by linarith,by linarith⟩
 
@@ -176,12 +176,63 @@ theorem similarity_resolvent_bound (J R W V : Op) (z : ℂ) (δ : ℝ)
       ‖S‖ = ‖R+R*(K-J)*S‖ := congrArg norm hrec
       _ ≤ ‖R‖+‖R*(K-J)*S‖ := norm_add_le _ _
       _ ≤ ‖R‖+‖R*(K-J)‖*‖S‖ :=
-        add_le_add_left (norm_mul_le _ _) _
-      _ ≤ ‖R‖+(‖R‖*δ)*‖S‖ := add_le_add_left
+        add_le_add le_rfl (norm_mul_le _ _)
+      _ ≤ ‖R‖+(‖R‖*δ)*‖S‖ := add_le_add le_rfl
         (mul_le_mul_of_nonneg_right ((norm_mul_le _ _).trans
-          (mul_le_mul_of_nonneg_left hδ (norm_nonneg _))) (norm_nonneg _)) _
+          (mul_le_mul_of_nonneg_left hδ (norm_nonneg _))) (norm_nonneg _))
   have h := mul_le_mul_of_nonneg_right hsmall (norm_nonneg S)
   linarith
+
+/-- The actual entry estimate, with the cap chosen equal to the
+distance of the two entries. No limit in the cutoff is needed. -/
+theorem resolvent_entry_decay (u : Bonds) (R : Op) (z : ℂ) (γ : ℝ) (hγ : 0 ≤ γ)
+    (hR₁ : (z • (1:Op)-J u)*R=1) (hR₂ : R*(z • (1:Op)-J u)=1)
+    (hsmall : ‖R‖*(Real.exp γ-1) ≤ 1/2) (k l : ℤ) :
+    ‖entry R k l‖ ≤ 2*‖R‖*Real.exp (-γ*|(k:ℝ)-l|) := by
+  let L : ℝ := |(k:ℝ)-l|
+  let ρ : ℤ → ℝ := cap l L
+  have hL : 0 ≤ L := abs_nonneg _
+  have hρ0 : ∀ m, 0 ≤ ρ m := cap_nonneg l hL
+  have hρL : ∀ m, ρ m ≤ L := cap_le l L
+  let W := Wplus ρ L γ hγ hρL
+  let V := Wminus ρ γ hγ hρ0
+  have hW := weights_inverse ρ L γ hγ hρ0 hρL
+  have hm : ∀ m : ℤ, |ρ m-ρ (m+(-1))| ≤ 1 := by
+    intro m
+    apply (cap_lipschitz l L m (m+(-1))).trans
+    push_cast
+    norm_num
+  have hp : ∀ m : ℤ, |ρ m-ρ (m+1)| ≤ 1 := by
+    intro m
+    apply (cap_lipschitz l L m (m+1)).trans
+    push_cast
+    norm_num
+  have hn : ‖W*R*V‖ ≤ 2*‖R‖ :=
+    similarity_resolvent_bound (J u) R W V z (Real.exp γ-1)
+      hW.1 hW.2 hR₁ hR₂ (conjugated_norm ρ L γ hγ hρ0 hρL u hm hp) hsmall
+  have hρl : ρ l=0 := by simp [ρ,cap,min_eq_left hL]
+  have hρk : ρ k=L := by simp [ρ,cap,L]
+  let x : H := lp.single 2 l 1
+  have hx : ‖x‖ = 1 := by simp [x,lp.norm_single]
+  have hVx : V x=x := by
+    ext m
+    change (Real.exp (-(γ*ρ m)):ℂ)*lp.single 2 l 1 m = lp.single 2 l 1 m
+    by_cases hm : m=l
+    · subst m
+      rw [hρl,mul_zero,neg_zero,Real.exp_zero,Complex.ofReal_one,one_mul]
+    · simp [lp.single_apply,hm,Ne.symm hm]
+  have he : entry (W*R*V) k l = (Real.exp (γ*L):ℂ)*entry R k l := by
+    change (Real.exp (γ*ρ k):ℂ)*R (V x) k = _
+    rw [hVx,hρk]
+    rfl
+  have hb : ‖entry (W*R*V) k l‖ ≤ ‖W*R*V‖ := by
+    calc
+      _ ≤ ‖(W*R*V) x‖ := lp.norm_apply_le_norm (by norm_num : (2:ℝ≥0∞) ≠ 0) _ _
+      _ ≤ ‖W*R*V‖*‖x‖ := (W*R*V).le_opNorm x
+      _ = _ := by rw [hx,mul_one]
+  rw [he,norm_mul,Complex.norm_real,Real.norm_of_nonneg (Real.exp_nonneg _)] at hb
+  have h := (le_div_iff₀ (Real.exp_pos (γ*L))).mpr (by linarith [hb.trans hn] : ‖entry R k l‖*Real.exp (γ*L) ≤ 2*‖R‖)
+  simpa only [div_eq_mul_inv,← Real.exp_neg,neg_mul,L] using h
 
 end M12JacobiResolventWeights
 #print axioms M12JacobiResolventWeights.exp_diff_le
@@ -194,3 +245,4 @@ end M12JacobiResolventWeights
 #print axioms M12JacobiResolventWeights.conjugated_difference
 #print axioms M12JacobiResolventWeights.conjugated_norm
 #print axioms M12JacobiResolventWeights.similarity_resolvent_bound
+#print axioms M12JacobiResolventWeights.resolvent_entry_decay
