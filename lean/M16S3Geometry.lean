@@ -150,6 +150,47 @@ theorem current_difference_derivative (b c : ℝ) :
       (((hasDerivAt_id (0:ℝ)).pow 2).mul_const c) using 1 <;> ring
   simpa using h
 
+section ProjectedCouplings
+
+variable {E H F : Type*}
+  [NormedAddCommGroup E] [InnerProductSpace ℝ E] [CompleteSpace E]
+  [NormedAddCommGroup H] [InnerProductSpace ℝ H] [CompleteSpace H]
+  [NormedAddCommGroup F] [InnerProductSpace ℝ F] [CompleteSpace F]
+
+-- J is inclusion of transverse fields, J† the orthogonal projection.
+def projectedY (J : E →L[ℝ] H) (M : H →L[ℝ] F)
+    (T : H →L[ℝ] H) (e : ℝ) : E →L[ℝ] F :=
+  e • (M.comp (T.comp J))
+
+def projectedX (J : E →L[ℝ] H) (M : H →L[ℝ] F)
+    (T : H →L[ℝ] H) (e : ℝ) : F →L[ℝ] E :=
+  (-2*e) • ((ContinuousLinearMap.adjoint J).comp
+    (T.comp (ContinuousLinearMap.adjoint M)))
+
+theorem projected_adjoint (J : E →L[ℝ] H) (M : H →L[ℝ] F)
+    (T : H →L[ℝ] H) (e : ℝ) (hT : ContinuousLinearMap.adjoint T = T) :
+    projectedX J M T e =
+      (-2:ℝ) • (ContinuousLinearMap.adjoint (projectedY J M T e)) := by
+  unfold projectedX projectedY
+  rw [map_smul, ContinuousLinearMap.adjoint_comp, ContinuousLinearMap.adjoint_comp,
+    hT, smul_smul]
+  congr 1
+  ext x
+  rfl
+
+theorem projected_compact (J : E →L[ℝ] H) (M : H →L[ℝ] F)
+    (T : H →L[ℝ] H) (e : ℝ) (hT : IsCompactOperator (T : H → H)) :
+    IsCompactOperator (projectedX J M T e : F → E) ∧
+    IsCompactOperator (projectedY J M T e : E → F) := by
+  unfold projectedX projectedY
+  exact ⟨((hT.comp_clm (ContinuousLinearMap.adjoint M)).clm_comp
+      (ContinuousLinearMap.adjoint J)).smul _,
+    ((hT.comp_clm J).clm_comp M).smul _⟩
+
+end ProjectedCouplings
+
+#print axioms projected_adjoint
+#print axioms projected_compact
 #print axioms qSq_mul
 #print axioms qSq_conj
 #print axioms qMul_assoc
