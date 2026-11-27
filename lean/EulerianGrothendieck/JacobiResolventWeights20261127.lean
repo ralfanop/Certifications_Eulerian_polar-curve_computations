@@ -132,7 +132,7 @@ theorem conjugated_difference (u : Bonds)
     rw [← Complex.ofReal_mul,← Real.exp_add]
     congr 1
     ring
-  simp only [perturbationCoeff,if_pos rfl,show (1:ℤ) ≠ -1 by norm_num,if_false,
+  simp only [perturbationCoeff,if_pos rfl,if_true,show (1:ℤ) ≠ -1 by norm_num,if_false,
     Complex.ofReal_mul,Complex.ofReal_sub,Complex.ofReal_one,← sub_eq_add_neg,he]
   ring
 
