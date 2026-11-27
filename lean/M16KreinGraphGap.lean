@@ -30,7 +30,7 @@ theorem transport_graph_resolvent {E F : Type*}
       (u.toContinuousLinearMap.comp (R.comp u.symm.toContinuousLinearMap)) := by
   intro x f
   change (u.symm x, u.symm (f + z • x)) ∈ G ↔ x = u (R (u.symm f))
-  rw [map_add, map_smul, h]
+  rw [map_add, map_smul, h (u.symm x) (u.symm f)]
   constructor
   · intro hh
     calc
@@ -159,7 +159,7 @@ theorem block_graph_shift_iff {E F : Type*}
     (w.2, f.2+z • w.2-y w.1) ∈ GD) ↔ _
   rw [show f.1+z • w.1-x w.2 = (f.1-x w.2)+z • w.1 by abel,
       show f.2+z • w.2-y w.1 = (f.2-y w.1)+z • w.2 by abel,
-      hA, hD]
+      hA w.1 (f.1-x w.2), hD w.2 (f.2-y w.1)]
 
 -- Bounded full graph inverse for every point in the disk, not merely
 -- algebraic elimination. Geometric diagonal bounds remain inputs.
@@ -189,6 +189,101 @@ theorem disk_graph_resolvent {E F : Type*}
     rw [hw]
     exact ⟨h1,h2⟩
 
+-- The actual Schur graph correction is symmetric at real resolvent
+-- points when the diagonal graph and its resolvent are self-adjoint.
+theorem schur_selfAdjoint_graph {E F : Type*}
+    [AddCommGroup E]
+    (pE : E → E → ℂ) (pF : F → F → ℂ)
+    (GA : Set (E × E)) (x : F → E) (y : E → F) (rd : F → F)
+    (hA : adjGraph pE GA = GA)
+    (he : ∀ a b c, pE (a+b) c = pE a c + pE b c)
+    (hs : ∀ a b c, pE a (b-c) = pE a b - pE a c)
+    (hnl : ∀ a b, pE (-a) b = -pE a b)
+    (hnr : ∀ a b, pE a (-b) = -pE a b)
+    (hx : ∀ v a, pE (x v) a = -2*pF v (y a))
+    (hy : ∀ a v, pE a (x v) = -2*pF (y a) v)
+    (hr : ∀ a b, pF (rd a) b = pF a (rd b)) :
+    adjGraph pE (perturb GA (fun u => -x (rd (y u)))) =
+      perturb GA (fun u => -x (rd (y u))) := by
+  let k : E → E := fun u => -x (rd (y u))
+  have hk : ∀ u v, pE (k u) v = pE u (k v) := by
+    intro u v
+    change pE (-x (rd (y u))) v = pE u (-x (rd (y v)))
+    rw [hnl, hnr, hx, hy, hr]
+  change adjGraph pE (perturb GA k) = perturb GA k
+  rw [adjGraph_perturb pE GA k k he hs hk, hA]
+
+-- Equation (173): bounded inverse of the effective Schur graph,
+-- with the printed norm bound. Here a,d are the shifted positive gaps.
+theorem schur_graph_inverse_bound {E F : Type*}
+    [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E] [Nontrivial E]
+    [NormedAddCommGroup F] [NormedSpace ℂ F]
+    (GA : Set (E × E)) (z : ℂ)
+    (ra : E →L[ℂ] E) (rd : F →L[ℂ] F)
+    (x : F →L[ℂ] E) (y : E →L[ℂ] F)
+    (a d : ℝ) (ha : 0<a) (hd : 0<d)
+    (hg : 2*‖y‖^2<a*d)
+    (hra : ‖ra‖ ≤ 1/a) (hrd : ‖rd‖ ≤ 1/d)
+    (hx : ‖x‖ ≤ 2*‖y‖) (hA : GraphResolvent GA z ra) :
+    ∃ rs : E →L[ℂ] E,
+      GraphResolvent (perturb GA (fun u => -x (rd (y u)))) z rs ∧
+      ‖rs‖ ≤ d/(a*d-2*‖y‖^2) := by
+  let k := ((ra.comp x).comp rd).comp y
+  let q : ℝ := 2*‖y‖^2/(a*d)
+  have hq : q < 1 :=
+    (M16KreinOperator.schur_bound a d ‖y‖ ha hd (norm_nonneg _) hg).1
+  have hkn : ‖k‖ ≤ q := by
+    calc
+      _ ≤ ‖(ra.comp x).comp rd‖*‖y‖ := ContinuousLinearMap.opNorm_comp_le _ _
+      _ ≤ (‖ra.comp x‖*‖rd‖)*‖y‖ := by
+        gcongr <;> exact ContinuousLinearMap.opNorm_comp_le _ _
+      _ ≤ (‖ra‖*‖x‖)*‖rd‖*‖y‖ := by
+        gcongr <;> exact ContinuousLinearMap.opNorm_comp_le _ _
+      _ ≤ (1/a)*(2*‖y‖)*(1/d)*‖y‖ := by gcongr
+      _ = q := by
+        dsimp [q]
+        field_simp [ne_of_gt ha, ne_of_gt hd] <;> ring
+  have hk : ‖k‖ < 1 := lt_of_le_of_lt hkn hq
+  obtain ⟨v,h1,h2,hn⟩ := M16KreinOperator.neumann_inverse k hk
+  have hleft : ∀ u, v (u-ra (x (rd (y u)))) = u := by
+    intro u
+    have hh := congrArg (fun w : E →L[ℂ] E => w u) h2
+    simpa [k] using hh
+  have hright : ∀ u, v u-ra (x (rd (y (v u)))) = u := by
+    intro u
+    have hh := congrArg (fun w : E →L[ℂ] E => w u) h1
+    simpa [k] using hh
+  have hvq : ‖v‖ ≤ 1/(1-q) := by
+    apply le_trans hn
+    apply (div_le_div_iff₀ (sub_pos.mpr hk) (sub_pos.mpr hq)).2
+    nlinarith only [hkn]
+  refine ⟨v.comp ra, ?_, ?_⟩
+  · intro u f
+    change (u,f+z • u - (-x (rd (y u)))) ∈ GA ↔ u = v (ra f)
+    rw [show f+z • u-(-x (rd (y u))) = (f+x (rd (y u)))+z • u by abel,
+      hA u (f+x (rd (y u))), map_add]
+    constructor
+    · intro hu
+      have hfix : u-ra (x (rd (y u))) = ra f := by
+        calc
+          _ = (ra f+ra (x (rd (y u))))-ra (x (rd (y u))) :=
+            congrArg (fun w : E => w-ra (x (rd (y u)))) hu
+          _ = _ := add_sub_cancel_right _ _
+      calc
+        u = v (u-ra (x (rd (y u)))) := (hleft u).symm
+        _ = _ := congrArg v hfix
+    · intro hu
+      rw [hu]
+      calc
+        _ = (v (ra f)-ra (x (rd (y (v (ra f))))))+ra (x (rd (y (v (ra f))))) := by abel
+        _ = _ := by rw [hright]
+  · calc
+      _ ≤ ‖v‖*‖ra‖ := ContinuousLinearMap.opNorm_comp_le _ _
+      _ ≤ (1/(1-q))*(1/a) := mul_le_mul hvq hra (norm_nonneg _) (by positivity)
+      _ = (1/a)/(1-q) := by simp only [div_eq_mul_inv, one_mul]; ring
+      _ = d/(a*d-2*‖y‖^2) :=
+        (M16KreinOperator.schur_bound a d ‖y‖ ha hd (norm_nonneg _) hg).2
+
 #print axioms fundamental_pairing_transport
 #print axioms transport_graph_resolvent
 #print axioms adjGraph_weighted_diagonal
@@ -196,4 +291,6 @@ theorem disk_graph_resolvent {E F : Type*}
 #print axioms disk_small_coupling
 #print axioms block_graph_shift_iff
 #print axioms disk_graph_resolvent
+#print axioms schur_selfAdjoint_graph
+#print axioms schur_graph_inverse_bound
 end M16KreinGraphGap
