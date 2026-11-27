@@ -4,14 +4,16 @@ import Mathlib.Analysis.CStarAlgebra.Basic
 
 noncomputable section
 open MeasureTheory Set Filter NormedSpace
-open scoped Topology
+open scoped Topology InnerProductSpace ENNReal
 namespace M12JacobiFourier
 open M12BilateralJacobi M12ExpFrechet
 
 /-- Actual skew-adjoint subspace of bounded operators, with real scalars. -/
 def skewSpace : Submodule ℝ Op where
   carrier := {A | star A = -A}
-  zero_mem' := by simp
+  zero_mem' := by
+    change star (0:Op) = -(0:Op)
+    simp
   add_mem' := by
     intro A C hA hC
     change star A = -A at hA
@@ -22,16 +24,18 @@ def skewSpace : Submodule ℝ Op where
     intro t A hA
     change star A = -A at hA
     change star (t • A) = -(t • A)
-    rw [star_smul,hA,star_trivial,smul_neg]
+    change star ((t:ℂ) • A) = -((t:ℂ) • A)
+    rw [star_smul,hA,smul_neg]
+    simp
 
 theorem exp_unitary (A : Op) (hA : star A = -A) :
     exp A ∈ unitary Op := by
   rw [Unitary.mem_iff,NormedSpace.star_exp,hA]
-  have h₁ := NormedSpace.exp_add_of_commute_of_mem_ball (𝕂 := ℂ)
+  have h₁ : exp (-A + A) = exp (-A) * exp A := NormedSpace.exp_add_of_commute_of_mem_ball (𝕂 := ℂ)
     (Commute.refl A).neg_left
     ((expSeries_radius_eq_top ℂ Op).symm ▸ edist_lt_top _ _)
     ((expSeries_radius_eq_top ℂ Op).symm ▸ edist_lt_top _ _)
-  have h₂ := NormedSpace.exp_add_of_commute_of_mem_ball (𝕂 := ℂ)
+  have h₂ : exp (A + -A) = exp A * exp (-A) := NormedSpace.exp_add_of_commute_of_mem_ball (𝕂 := ℂ)
     (Commute.refl A).neg_right
     ((expSeries_radius_eq_top ℂ Op).symm ▸ edist_lt_top _ _)
   rw [neg_add_cancel,exp_zero] at h₁
@@ -42,7 +46,10 @@ theorem skew_norm (A : Op) (hA : star A = -A) : ‖exp A‖ = 1 :=
   CStarRing.norm_of_mem_unitary (exp_unitary A hA)
 
 theorem skew_smul (A : Op) (hA : star A = -A) (t : ℝ) :
-    star (t • A) = -(t • A) := by rw [star_smul,star_trivial,hA,smul_neg]
+    star (t • A) = -(t • A) := by
+  change star ((t:ℂ) • A) = -((t:ℂ) • A)
+  rw [star_smul,hA,smul_neg]
+  simp
 
 theorem D_norm_le (A C : Op) (hA : star A = -A) (hC : star C = -C) :
     ‖D A C‖ ≤ 1 := by
@@ -113,7 +120,10 @@ theorem fourier_hasFDerivAt (w : ℝ → ℂ) (A : skewSpace)
     hmoment (Eventually.of_forall fun t X _ => integrand_hasFDerivAt w X t)
 
 theorem jacobi_skew (u : Bonds) : star (Complex.I • J u) = -(Complex.I • J u) := by
-  rw [star_smul,(J_selfAdjoint u).star_eq,Complex.star_def,Complex.conj_I,neg_smul]
+  rw [star_smul,(J_selfAdjoint u).star_eq,Complex.star_def,Complex.conj_I]
+  ext x k
+  change (-Complex.I)*J u x k = -(Complex.I*J u x k)
+  ring
 
 def jacobiGenerator (u : Bonds) : skewSpace :=
   ⟨Complex.I • J u, jacobi_skew u⟩
