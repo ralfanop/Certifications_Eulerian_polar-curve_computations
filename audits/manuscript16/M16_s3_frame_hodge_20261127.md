@@ -1,0 +1,12 @@
+# M16 §9.5 — explicit tangent frame and Hodge coordinate pullback
+
+Base: exact main 880d9696a50a69972599065c1de9eeda70f6745c (merge #678). This extends the S³ unit-quaternion model, not a new assumed spectral identification.
+
+For a unit quaternion x, the radial vector x and the three vectors x qi, x qj, x qk form an orthonormal frame in ambient real four-space. The last three span the radial-orthogonal hyperplane, with unique real coordinates obtained by left multiplication by the quaternion conjugate of x. They are covariant under left multiplication by a unit quaternion. The algebraic bracket of the three ambient linear vector fields is [E1,E2]=2E3 and cyclic permutations; the new code gives these structure constants explicitly.
+
+For a differentiable real function on the ambient coordinate space, E_j f(x)=Df(x)[x qj]. The actual Fréchet chain rule gives E_j(f∘L_u)=(E_j f)∘L_u. In the left coframe, the differential expressions curl=*d and codifferential are
+curl(a)_1=E2(a_3)−E3(a_2)−2a_1, with cyclic permutations;
+δa=−Σ_j E_j(a_j); grad f=(E1 f,E2 f,E3 f).
+These are the classical formulas for the round unit sphere with this orientation and left frame (Levi-Civita connection ∇_{E_i} E_j=[E_i,E_j]/2). Thus Δ_1=curl²+grad δ in these coordinates. The candidate checks covariance of the actual coordinate differential expressions using Mathlib's Fréchet derivative, with explicit differentiability hypotheses at first and second derivative levels; it is not merely an assumed commuting derivative. Constant coframe components give δa=0, curl(a)=−2a, Δ_1 a=4a. This supplies the three left-invariant lowest transverse modes in the coordinate model. The remaining three lowest modes are right-invariant; the complete Hodge and Dirac eigenfamilies are not yet constructed. The comparison of coordinate expressions with the intrinsic exterior derivative, Hodge star, and closed L² geometric realization remains an external geometric step, as does invariance under restriction to the sphere of arbitrary smooth ambient extensions. No claim about a full intrinsic Hodge operator, the global heat estimate, the Hilbert complexification instance or the actual Dirac spin connection is made.
+
+CI: 21 candidate declarations, exact HEAD audit of 102 previous Krein declarations plus imported coefficient modules, and independent audit of integrated main 880d9696. No certification before positive logs.
