@@ -131,7 +131,7 @@ theorem gaussianCW_tendsto (lam : ℝ) :
       (𝓝 (Real.sqrt 2*F lam)) := by
   apply (cwScaled_tendsto lam).congr'
   filter_upwards [eventually_ge_atTop 1,
-    (invT_tendsto lam).eventually (gt_mem_nhds (by norm_num : (0:ℝ)<1))] with M hm hv
+    (invT_tendsto lam).eventually (Ioi_mem_nhds (by norm_num : (0:ℝ)<1))] with M hm hv
   exact (actual_gaussian_normalization M (by omega) lam hv.le).symm
 
 theorem fock_A_tendsto (lam : ℝ) :
@@ -178,6 +178,7 @@ theorem binaryZ_polar (b : ℝ) :
   rw [← Measure.volume_eq_prod, ← integral_comp_polarCoord_symm, polarCoord_target]
   refine setIntegral_congr_fun (measurableSet_Ioi.prod measurableSet_Ioo) fun p hp => ?_
   rw [polarCoord_symm_apply, smul_eq_mul, binaryQ_polar]
+  congr 2 <;> ring
 
 theorem angular_coefficient_pos (b θ : ℝ) (hb : 0 ≤ b) (hb1 : b < 1) :
     0 < 1-b^2*Real.sin (2*θ)^2 := by
@@ -191,7 +192,9 @@ theorem radial_quartic (a : ℝ) (ha : 0 < a) :
       Real.sqrt (Real.pi/(a/40))/4 := by
   calc
     _ = (1/2:ℝ)*(∫ y in Ioi (0:ℝ), Real.exp (-(a/40)*y^2)) := by
-      rw [← integral_comp_rpow_Ioi_of_pos (by norm_num : (0:ℝ) < 2), ← integral_const_mul]
+      have h := integral_comp_rpow_Ioi_of_pos
+        (g := fun y : ℝ => Real.exp (-(a/40)*y^2)) (by norm_num : (0:ℝ) < 2)
+      rw [← h, ← integral_const_mul]
       refine setIntegral_congr_fun measurableSet_Ioi fun r hr => ?_
       norm_num [smul_eq_mul, Real.rpow_natCast] <;> ring_nf
     _ = _ := by
