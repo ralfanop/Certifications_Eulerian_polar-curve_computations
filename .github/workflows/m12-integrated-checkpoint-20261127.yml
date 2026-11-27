@@ -1,4 +1,4 @@
-name: M12 integrated checkpoint exact-main audit (216 declarations + 16 operator-chain checks)
+name: M12 integrated checkpoint exact-main audit (226 declarations + 16 operator-chain checks)
 on:
   pull_request:
     paths:
@@ -13,13 +13,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Exact-head pinned Lean 4 compile and axiom audit
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
@@ -62,7 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Restore pinned Lean
         run: |
           set -euo pipefail
@@ -73,7 +73,7 @@ jobs:
         working-directory: lean/EulerianGrothendieck
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           echo "EXACT_HEAD=$(git rev-parse HEAD)"
           lake exe cache get
           lake build EulerianGrothendieck.FockVacuumProjection EulerianGrothendieck.VectorOptimum
@@ -112,7 +112,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Restore pinned Lean
         run: |
           set -euo pipefail
@@ -123,7 +123,7 @@ jobs:
         working-directory: lean/EulerianGrothendieck
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           echo "EXACT_HEAD=$(git rev-parse HEAD)"
           lake exe cache get
           lake build EulerianGrothendieck.FockVacuumProjection EulerianGrothendieck.VectorOptimum
@@ -162,13 +162,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Exact-head pinned Lean 4 compile and axiom audit
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
@@ -209,13 +209,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Exact-head pinned Lean 4 compile and axiom audit
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
@@ -264,13 +264,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Exact-head pinned Lean 4 compile and axiom audit
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
@@ -313,13 +313,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Exact-head pinned Lean 4 compile and axiom audit
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
@@ -361,13 +361,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Exact-head pinned Lean 4 compile and axiom audit
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
@@ -410,13 +410,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Exact-head pinned Lean 4 compile and axiom audit
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
@@ -460,13 +460,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Compile exact source and audit transitive axioms
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
@@ -510,13 +510,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Compile exact source and audit transitive axioms
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
@@ -557,13 +557,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Compile exact source and audit transitive axioms
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
@@ -604,11 +604,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Assert audit uses the exact source HEAD
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           echo "AUDITED_SHA=$(git rev-parse HEAD)" | tee -a "$GITHUB_STEP_SUMMARY"
           echo "AUDITED_REF=$(git symbolic-ref --short HEAD 2>/dev/null || echo detached)" >> "$GITHUB_STEP_SUMMARY"
       - name: Install repository pinned Lean toolchain
@@ -706,13 +706,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Compile exact source and audit transitive axioms
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
@@ -758,12 +758,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Restore pinned Lean and verify historical blobs
         working-directory: lean/EulerianGrothendieck
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.24.0'
           test "$(git hash-object UniformLanczos/Lemma513BondWindow.lean)" = '551841427c717aab4812fab88e3e69a23163b4a0'
           test "$(git hash-object UniformLanczos/Lemma513ActualTail.lean)" = '9308b0c3b1af70abc98f2e68e34180f1003b271e'
@@ -817,11 +817,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Assert audit uses the exact source HEAD
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           echo "AUDITED_SHA=$(git rev-parse HEAD)" | tee -a "$GITHUB_STEP_SUMMARY"
           echo "AUDITED_REF=$(git symbolic-ref --short HEAD 2>/dev/null || echo detached)" >> "$GITHUB_STEP_SUMMARY"
       - name: Install repository pinned Lean toolchain
@@ -869,13 +869,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Compile exact source and audit transitive axioms
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
@@ -922,13 +922,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Compile exact source and audit transitive axioms
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
@@ -973,11 +973,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Assert audit uses the exact source HEAD
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           echo "AUDITED_SHA=$(git rev-parse HEAD)" | tee -a "$GITHUB_STEP_SUMMARY"
           echo "AUDITED_REF=$(git symbolic-ref --short HEAD 2>/dev/null || echo detached)" >> "$GITHUB_STEP_SUMMARY"
       - name: Install repository pinned Lean toolchain
@@ -1025,13 +1025,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Compile exact source and audit transitive axioms
         working-directory: lean
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
@@ -1074,11 +1074,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 6a74ded9537f185d35c4f7cde9e61712a87cc427
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
       - name: Assert audit uses the exact source HEAD
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6a74ded9537f185d35c4f7cde9e61712a87cc427"
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
           echo "AUDITED_SHA=$(git rev-parse HEAD)" | tee -a "$GITHUB_STEP_SUMMARY"
           echo "AUDITED_REF=$(git symbolic-ref --short HEAD 2>/dev/null || echo detached)" >> "$GITHUB_STEP_SUMMARY"
       - name: Install repository pinned Lean toolchain
@@ -1120,3 +1120,56 @@ jobs:
           path: |
             /tmp/m12-saddle-all-order-build.log
             /tmp/m12-saddle-all-order.log
+  audit_685:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 40c187452b66556c1ba6a70362bf4e6e6e272cdb
+      - name: Compile exact source and audit transitive axioms
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "40c187452b66556c1ba6a70362bf4e6e6e272cdb"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          mkdir -p /tmp/JacobiCFCIntegral20261127/Manuscript16 /tmp/JacobiCFCIntegral20261127/EulerianGrothendieck
+          git rev-parse HEAD | tee /tmp/JacobiCFCIntegral20261127.log
+          lake env bash -c 'export LEAN_PATH="/tmp/JacobiCFCIntegral20261127:$LEAN_PATH"; lean -M16768 -o /tmp/JacobiCFCIntegral20261127/Manuscript16/V166L2SpectralInverse.olean Manuscript16/V166L2SpectralInverse.lean' 2>&1 | tee -a /tmp/JacobiCFCIntegral20261127.log
+          lake env bash -c 'export LEAN_PATH="/tmp/JacobiCFCIntegral20261127:$LEAN_PATH"; lean -M16768 -o /tmp/JacobiCFCIntegral20261127/EulerianGrothendieck/KreinBilateralJacobi20261127.olean EulerianGrothendieck/KreinBilateralJacobi20261127.lean' 2>&1 | tee -a /tmp/JacobiCFCIntegral20261127.log
+          lake env bash -c 'export LEAN_PATH="/tmp/JacobiCFCIntegral20261127:$LEAN_PATH"; lean -M16768 -o /tmp/JacobiCFCIntegral20261127/EulerianGrothendieck/JacobiFrechet20261127.olean EulerianGrothendieck/JacobiFrechet20261127.lean' 2>&1 | tee -a /tmp/JacobiCFCIntegral20261127.log
+          lake env bash -c 'export LEAN_PATH="/tmp/JacobiCFCIntegral20261127:$LEAN_PATH"; lean -M16768 -o /tmp/JacobiCFCIntegral20261127/EulerianGrothendieck/JacobiDuhamel20261127.olean EulerianGrothendieck/JacobiDuhamel20261127.lean' 2>&1 | tee -a /tmp/JacobiCFCIntegral20261127.log
+          lake env bash -c 'export LEAN_PATH="/tmp/JacobiCFCIntegral20261127:$LEAN_PATH"; lean -M16768 -o /tmp/JacobiCFCIntegral20261127/EulerianGrothendieck/JacobiExpFrechet20261127.olean EulerianGrothendieck/JacobiExpFrechet20261127.lean' 2>&1 | tee -a /tmp/JacobiCFCIntegral20261127.log
+          lake env bash -c 'export LEAN_PATH="/tmp/JacobiCFCIntegral20261127:$LEAN_PATH"; lean -M16768 -o /tmp/JacobiCFCIntegral20261127/EulerianGrothendieck/JacobiFourier20261127.olean EulerianGrothendieck/JacobiFourier20261127.lean' 2>&1 | tee -a /tmp/JacobiCFCIntegral20261127.log
+          lake env bash -c 'export LEAN_PATH="/tmp/JacobiCFCIntegral20261127:$LEAN_PATH"; lean -M16768 EulerianGrothendieck/JacobiCFCIntegral20261127.lean' 2>&1 | tee -a /tmp/JacobiCFCIntegral20261127.log
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          source=Path('EulerianGrothendieck/JacobiCFCIntegral20261127.lean').read_text()
+          log=Path('/tmp/JacobiCFCIntegral20261127.log').read_text()
+          assert not re.search(r'\b(sorry|admit|axiom|opaque|native_decide)\b',source)
+          assert 'sorryAx' not in log and 'Lean.ofReduceBool' not in log and not re.search(r'\.lean:\d+:\d+: error',log)
+          names=re.findall(r'^#print axioms (\S+)$',source,re.M)
+          assert len(names)==10
+          for name in names:
+              m=re.search(r"'"+re.escape(name)+r"' depends on axioms: \[([^\]]*)\]",log)
+              if m:
+                  assert {x.strip() for x in m.group(1).split(',') if x.strip()} <= {'propext','Classical.choice','Quot.sound'},name
+              else:
+                  assert "'"+name+"' does not depend on any axioms" in log,name
+              print('AXIOM AUDIT SUCCESS',name)
+          print('SUCCESS',len(names))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: JacobiCFCIntegral20261127-audit
+          path: /tmp/JacobiCFCIntegral20261127.log
+          if-no-files-found: warn
