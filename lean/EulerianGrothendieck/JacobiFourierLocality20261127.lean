@@ -226,7 +226,7 @@ theorem fourier_bond_decay (u : Bonds) (w : ℝ → ℂ) (m k l : ℤ) (N : ℕ)
       change ‖w t*((t:ℂ)*Complex.I)*entry (bondDuhamel u t m) k l‖ ≤ C*(‖w t‖*|t| *(1+|t|)^N)
       rw [norm_mul,norm_mul,norm_mul,Complex.norm_real,Complex.norm_I,mul_one,Real.norm_eq_abs]
       have h := mul_le_mul_of_nonneg_left (duhamel_entry_bound u t m k l N)
-        (mul_nonneg (norm_nonneg _) (abs_nonneg _))
+        (mul_nonneg (norm_nonneg (w t)) (abs_nonneg t))
       convert h using 1 <;> dsimp [C] <;> ring
     _ = _ := by rw [integral_const_mul]; dsimp [C]; ring
 
