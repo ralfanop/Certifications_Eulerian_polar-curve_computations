@@ -66,7 +66,10 @@ theorem support (n : ℕ) (a : Fin (n+2) → ℂ) (r w : ℂ)
     | succ i =>
       rw [iterate, row_succ]
       have h1 : k < i.succ.val := by omega
-      have h2 : k < i.castSucc.val := by omega
+      have h2 : k < i.castSucc.val := by
+        simp only [Fin.val_succ] at h
+        simp only [Fin.val_castSucc]
+        omega
       rw [ih i.succ h1, ih i.castSucc h2]
       ring
 
@@ -84,7 +87,10 @@ theorem pivot (n : ℕ) (a : Fin (n+2) → ℂ) (r w : ℂ)
     | succ i =>
       rw [iterate, row_succ]
       have h1 : k < i.succ.val := by omega
-      have h2 : i.castSucc.val = k := by omega
+      have h2 : i.castSucc.val = k := by
+        simp only [Fin.val_succ] at h
+        simp only [Fin.val_castSucc]
+        omega
       rw [support n a r w k i.succ h1, ih i.castSucc h2, pow_succ]
       ring
 
