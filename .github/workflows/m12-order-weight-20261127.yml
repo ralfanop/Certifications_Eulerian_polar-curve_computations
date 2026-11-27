@@ -1,0 +1,63 @@
+name: M12 equation 201 arbitrary-order weights and stability
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Rate516Weighted.lean'
+      - '.github/workflows/m12-order-weight-20261127.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  audit-weighted:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Assert audit uses the exact source HEAD
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "AUDITED_SHA=$(git rev-parse HEAD)" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "AUDITED_REF=$(git symbolic-ref --short HEAD 2>/dev/null || echo detached)" >> "$GITHUB_STEP_SUMMARY"
+      - name: Install repository pinned Lean toolchain
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Build existing chain and audit equation 201
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.24.0'
+          lake exe cache get
+          lake build UniformLanczos.Rate514Assembly 2>&1 | tee /tmp/m12-order-weight-build.log
+          lake env lean UniformLanczos/Rate516Weighted.lean 2>&1 | tee /tmp/m12-order-weight.log
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          src=Path('UniformLanczos/Rate516Weighted.lean').read_text()
+          log=Path('/tmp/m12-order-weight.log').read_text()
+          assert not re.search(r'^\s*(axiom|opaque)\b|\b(sorry|admit|native_decide)\b',src,re.M)
+          assert 'sorryAx' not in log and 'Lean.ofReduceBool' not in log
+          assert not re.search(r'\.lean:\d+:\d+: error',log)
+          names=re.findall(r'^#print axioms (\S+)$',src,re.M)
+          assert len(names)==10 and len(set(names))==10
+          for name in names:
+              m=re.search(r"'"+re.escape(name)+r"' depends on axioms: \[([^\]]*)\]",log)
+              if m:
+                  assert {x.strip() for x in m.group(1).split(',') if x.strip()} <= {'propext','Classical.choice','Quot.sound'},name
+              else:
+                  assert "'"+name+"' does not depend on any axioms" in log,name
+              print('AXIOM AUDIT SUCCESS',name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-order-weight-audit
+          path: |
+            /tmp/m12-order-weight-build.log
+            /tmp/m12-order-weight.log
