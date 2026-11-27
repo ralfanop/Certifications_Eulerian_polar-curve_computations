@@ -1,0 +1,79 @@
+name: M13 Ellis final bridges and main baseline audit
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript13/**'
+      - '.github/workflows/m13-ellis-final-bridges-20261127.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'lean/Manuscript13/**'
+      - '.github/workflows/m13-ellis-final-bridges-20261127.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [baseline, EllisWeakSobolev20261127, EllisGreenConvolution20261127, EllisSpectralEnumeration20261127]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.target == 'baseline' && github.event_name == 'pull_request' && '5ed073d341d9ee578892df5f5a294e920018f344' || github.event.pull_request.head.sha || github.sha }}
+      - name: Compile pinned modules and audit every printed declaration
+        working-directory: lean
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+          EXPECTED_HEAD: ${{ matrix.target == 'baseline' && github.event_name == 'pull_request' && '5ed073d341d9ee578892df5f5a294e920018f344' || github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/m13-final.log
+          mkdir -p /tmp/m13-final-olean/Manuscript13
+          modules=(EllisFourier20261124 EllisBirman20261124 BirmanOperator20261124 EllisGramKernelOperator20261124 EllisParsevalTonelli20261126 MellinRindler20261124 MellinL2LogJacobian20261124 MellinPlancherelMultiplier20261124 EllisComplexResolvent20261127 EllisFredholmProduct20261127 EllisSobolevDomain20261127 EllisGreenKernel20261127 EllisCompactSpectrum20261127 EllisFredholmClosure20261127)
+          if [[ "$TARGET" != baseline ]]; then modules+=("$TARGET"); fi
+          printf '%s\n' "${modules[@]}" > /tmp/m13-final-modules
+          for module in "${modules[@]}"; do
+            export M13_MODULE="$module"
+            lake env bash -c 'export LEAN_PATH="/tmp/m13-final-olean:$LEAN_PATH"; lean -M16768 -o "/tmp/m13-final-olean/Manuscript13/$M13_MODULE.olean" "Manuscript13/$M13_MODULE.lean"' 2>&1 | tee -a /tmp/m13-final.log
+          done
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m13-final.log; then exit 1; fi
+          python - <<'PY'
+          from pathlib import Path
+          import re, os
+          log=Path('/tmp/m13-final.log').read_text()
+          modules=Path('/tmp/m13-final-modules').read_text().splitlines()
+          total=0
+          for module in modules:
+            src=Path(f'Manuscript13/{module}.lean').read_text()
+            names=re.findall(r'^#print axioms\s+(\S+)\s*$',src,re.M)
+            assert names, module
+            assert len(names)==len(set(names)), module
+            for name in names:
+              full="'"+name+"'"
+              found=re.findall(re.escape(full)+r" depends on axioms: \[([^\]]*)\]",log,re.S)
+              assert found or full+" does not depend on any axioms" in log,name
+              for a in found:
+                assert {x.strip() for x in a.split(',') if x.strip()} <= {'propext','Quot.sound','Classical.choice'},(name,a)
+            print("AUDITED",module,len(names))
+            total+=len(names)
+          print("SUCCESS M13 FINAL BRIDGES AUDIT",os.environ['TARGET'],total)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m13-final-${{ matrix.target }}
+          path: /tmp/m13-final.log
+          if-no-files-found: warn
