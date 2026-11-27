@@ -145,9 +145,10 @@ theorem actualScaledPotential_box_bound (R : ℝ) (hR : 1 ≤ R) :
   have hj : coupledApproximation (1/d) (e*v) (e^2*z) -
       e^4*anisotropicLimit v z l =
       e^6*((6*v^2*z^2+e^2*z^4)/40-6*l*(z^2+12*l*v^2)/d) := by
+    have hden : d = 1+12*l*e^2 := rfl
+    generalize hq : d = q at hden hdp ⊢
     unfold coupledApproximation anisotropicLimit
-    dsimp [d] at *
-    field_simp [ne_of_gt hdp] <;> ring
+    field_simp [ne_of_gt hdp] <;> rw [hden] <;> ring
   have hprod := mul_le_mul hv2 hz2 (sq_nonneg z) (sq_nonneg R)
   have hz4 : z^4 ≤ R^4 := by
     have hh := pow_le_pow_left₀ (abs_nonneg z) hz 4
