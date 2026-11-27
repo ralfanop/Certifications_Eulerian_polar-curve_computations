@@ -2,7 +2,7 @@ import Mathlib
 import Manuscript13.EllisGreenKernel20261127
 open MeasureTheory Set Filter SchwartzMap FourierTransform
 open ContinuousLinearMap
-open scoped FourierTransform Convolution Topology ENNReal
+open scoped FourierTransform Convolution Topology ENNReal ContDiff
 namespace Manuscript13.EllisGreenConvolution20261127
 noncomputable section
 open Manuscript13.EllisComplexResolvent20261127
@@ -59,20 +59,22 @@ theorem fourier_integral_agreement (f : H) (hf : Integrable (fun x : ℝ => f x)
     ((Lp.memLp (EllisComplexResolvent20261127.fourier f)).locallyIntegrable (by norm_num)) hc.locallyIntegrable
   intro t ht hs
   have hs' : HasCompactSupport (Complex.ofRealCLM ∘ t) := hs.comp_left rfl
-  have ht' : ContDiff ℝ ∞ (Complex.ofRealCLM ∘ t) := by fun_prop
+  have ht' : ContDiff ℝ (⊤ : WithTop ℕ∞) (Complex.ofRealCLM ∘ t) := by fun_prop
   let φ := hs'.toSchwartzMap ht'
   have he := congrArg (fun z : TemperedDistribution ℝ ℂ => z φ)
     (Lp.fourier_toTemperedDistribution_eq f)
   simp only [TemperedDistribution.fourier_apply, Lp.toTemperedDistribution_apply] at he
   calc
     _ = ∫ x : ℝ, φ x • EllisComplexResolvent20261127.fourier f x := by rfl
-    _ = ∫ x : ℝ, (𝓕 φ) x • f x := he.symm
+    _ = ∫ x : ℝ, (𝓕 φ) x • f x := by
+      change (∫ x : ℝ, (𝓕 φ) x • f x) =
+        (∫ x : ℝ, φ x • EllisComplexResolvent20261127.fourier f x) at he
+      exact he.symm
     _ = ∫ x : ℝ, φ x • (𝓕 (fun y : ℝ => f y)) x := by
       rw [SchwartzMap.fourier_coe]
-      first
-      | exact VectorFourier.integral_fourierIntegral_smul_eq_flip
-          Real.continuous_fourierChar (innerSL ℝ).continuous₂ φ.integrable hf
-      | exact?
+      simpa using! VectorFourier.integral_bilin_fourierIntegral_eq_flip
+        (ContinuousLinearMap.lsmul ℂ ℂ) (L := innerₗ ℝ)
+        Real.continuous_fourierChar continuous_inner φ.integrable hf
     _ = _ := by rfl
 
 def conv (κ : ℝ) (f : ℝ → ℂ) : ℝ → ℂ :=
@@ -95,8 +97,12 @@ theorem conv_row_pair (κ : ℝ) (hk : 0 < κ) (x : ℝ) (f : H) :
   filter_upwards [(conv_row_mem κ hk x).coeFn_toLp] with t ht
   have hrow : convRow κ hk x t = green κ (x-t) := ht
   rw [hrow]
-  change green κ (x-t) * f t = star (green κ (x-t)) * f t
-  rw [show star (green κ (x-t)) = green κ (x-t) by unfold green; exact Complex.conj_ofReal _]
+  rw [RCLike.inner_apply]
+  have hc : (starRingEnd ℂ) (green κ (x-t)) = green κ (x-t) := by
+    unfold green
+    exact Complex.conj_ofReal _
+  rw [hc]
+  ring
 
 theorem conv_input_continuous (κ : ℝ) (hk : 0 < κ) (x : ℝ) :
     Continuous (fun f : H => conv κ (fun t => f t) x) := by
@@ -171,7 +177,10 @@ theorem resolvent_convolution_ae (κ : ℝ) (hk : 0 < κ) (f : H) :
     have hf : f ∈ closure (Set.range (SchwartzMap.toLpCLM ℝ ℂ 2 (volume : Measure ℝ))) := hd f
     obtain ⟨a,ha,ht⟩ := mem_closure_iff_seq_limit.mp hf
     choose s hs using ha
-    exact ⟨s, by simpa only [SchwartzMap.toLpCLM_apply, hs] using ht⟩
+    have he : (fun n => (s n).toLp 2 volume) = a := by
+      funext n
+      exact hs n
+    exact ⟨s, by rw [he]; exact ht⟩
   have hr : Tendsto (fun n => freeResolvent κ hk ((s n).toLp 2)) atTop
       (𝓝 (freeResolvent κ hk f)) :=
     (freeResolvent κ hk).continuous.continuousAt.tendsto.comp hs
