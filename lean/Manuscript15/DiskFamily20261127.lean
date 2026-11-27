@@ -1,4 +1,5 @@
 import EulerianGrothendieck.ComplexArcsineDisk
+import Bridge.AppendixAGd
 
 /-! M15 Lemma 8.1 (27 November 2026): variable-radius disk.
 The scalar minimisation is independent of the analytic branch. Reuse the
@@ -464,6 +465,97 @@ theorem metallic_difference {n : ℝ} (hn : 0 ≤ n) :
   ring
 
 
+/-- Hyperbolic and trigonometric parametrisations of the metallic root. -/
+theorem metallic_sinh_log {n : ℝ} (hn : 0 ≤ n) :
+    Real.sinh (Real.log (metallic n)) = n/2 := by
+  have hp := metallic_pos hn
+  have hd := metallic_difference hn
+  rw [Real.sinh_eq, Real.exp_log hp, Real.exp_neg, Real.exp_log hp]
+  rw [one_div] at hd
+  linarith
+
+theorem metallic_cosh_log {n : ℝ} (hn : 0 ≤ n) :
+    Real.cosh (Real.log (metallic n)) = Real.sqrt (1+(n/2)^2) := by
+  have h := Real.cosh_sq (Real.log (metallic n))
+  rw [metallic_sinh_log hn] at h
+  rw [← h, Real.sqrt_sq (Real.cosh_pos _).le]
+
+theorem metallic_gd_log {n : ℝ} (hn : 0 ≤ n) :
+    EulerianBridge.AppendixA.gd (Real.log (metallic n)) = Real.arctan (n/2) := by
+  rw [EulerianBridge.AppendixA.gd_eq, metallic_sinh_log hn]
+
+theorem metallic_sech_cos {n : ℝ} (hn : 0 ≤ n) :
+    1/Real.cosh (Real.log (metallic n)) =
+      Real.cos (EulerianBridge.AppendixA.gd (Real.log (metallic n))) := by
+  rw [metallic_cosh_log hn,metallic_gd_log hn]
+  simpa only [one_div] using (Real.cos_arctan (n/2)).symm
+
+theorem metallic_tanh_log {n : ℝ} (hn : 0 ≤ n) :
+    Real.tanh (Real.log (metallic n)) = (n/2)/Real.sqrt (1+(n/2)^2) := by
+  rw [Real.tanh_eq_sinh_div_cosh, metallic_sinh_log hn,metallic_cosh_log hn]
+
+theorem metallic_gd_inverse {n : ℝ} (hn : 0 ≤ n) :
+    EulerianBridge.AppendixA.gdInv (Real.arctan (n/2)) = Real.log (metallic n) := by
+  rw [← metallic_gd_log hn,EulerianBridge.AppendixA.gdInv_gd]
+
+theorem metallic_tan_half_angle {n : ℝ} (hn : 0 ≤ n) :
+    metallic n = Real.tan (Real.pi/4+Real.arctan (n/2)/2) := by
+  have ha : |Real.arctan (n/2)| < Real.pi/2 := by
+    rw [abs_lt]
+    exact ⟨Real.neg_pi_div_two_lt_arctan _,Real.arctan_lt_pi_div_two _⟩
+  have ht : 0 < Real.tan (Real.pi/4+Real.arctan (n/2)/2) := by
+    apply Real.tan_pos_of_pos_of_lt_pi_div_two
+    · linarith [(abs_lt.mp ha).1]
+    · linarith [(abs_lt.mp ha).2]
+  have he := metallic_gd_inverse hn
+  rw [EulerianBridge.AppendixA.gdInv_eq_log_tan ha] at he
+  have hh := congrArg Real.exp he
+  rw [Real.exp_log ht, Real.exp_log (metallic_pos hn)] at hh
+  exact hh.symm
+
+theorem first_regime_metallic {r : ℝ} (hr : 0 < r) (hl : r ≤ threshold) :
+    let n := 2*(1-r)
+    1/Real.sqrt (1+(1-r)^2) = 1/Real.cosh (Real.log (metallic n)) ∧
+    1/Real.sqrt (1+(1-r)^2) =
+      Real.cos (EulerianBridge.AppendixA.gd (Real.log (metallic n))) ∧
+    1/Real.sqrt (1+(1-r)^2) = Real.cos (Real.arctan (1-r)) := by
+  dsimp only
+  have hn : 0 ≤ 2*(1-r) := by linarith [threshold_lt_one]
+  have he : 2*(1-r)/2 = 1-r := by ring
+  have hc := metallic_cosh_log hn
+  rw [he] at hc
+  constructor
+  · rw [hc]
+  constructor
+  · rw [← metallic_sech_cos hn,hc]
+  · simpa only [one_div] using (Real.cos_arctan (1-r)).symm
+
+theorem first_regime_sharp_metallic {r : ℝ} (hr : 0 < r)
+    (hr2 : r < Real.sqrt 2) (hl : r ≤ threshold) :
+    IsLeast {L : ℝ | ∀ a ∈ disk r, ∀ b ∈ disk r, ‖H0 a-H0 b‖ ≤ L*‖a-b‖}
+      (1/Real.cosh (Real.log (metallic (2*(1-r))))) := by
+  rw [← (first_regime_metallic hr hl).1]
+  exact first_regime_sharp hr hr2 hl
+
+theorem metallic_one : metallic 1 = (1+Real.sqrt 5)/2 := by
+  unfold metallic
+  norm_num
+
+theorem metallic_three_halves : metallic (3/2) = 2 := by
+  unfold metallic
+  have h : Real.sqrt ((3/2:ℝ)^2+4) = 5/2 := by
+    rw [show (3/2:ℝ)^2+4=(5/2)^2 by norm_num,Real.sqrt_sq (by norm_num : (0:ℝ) ≤ 5/2)]
+  rw [h]
+  norm_num
+
+theorem metallic_two : metallic 2 = 1+Real.sqrt 2 := by
+  unfold metallic
+  have h : Real.sqrt ((2:ℝ)^2+4) = 2*Real.sqrt 2 := by
+    rw [show (2:ℝ)^2+4=4*2 by norm_num,Real.sqrt_mul (by norm_num : (0:ℝ) ≤ 4)]
+    norm_num
+  rw [h]
+  ring
+
 end Manuscript15.DiskFamily20261127
 #print axioms Manuscript15.DiskFamily20261127.disk_half
 #print axioms Manuscript15.DiskFamily20261127.threshold_pos
@@ -510,3 +602,16 @@ end Manuscript15.DiskFamily20261127
 #print axioms Manuscript15.DiskFamily20261127.metallic_pos
 #print axioms Manuscript15.DiskFamily20261127.metallic_quadratic
 #print axioms Manuscript15.DiskFamily20261127.metallic_difference
+
+#print axioms Manuscript15.DiskFamily20261127.metallic_sinh_log
+#print axioms Manuscript15.DiskFamily20261127.metallic_cosh_log
+#print axioms Manuscript15.DiskFamily20261127.metallic_gd_log
+#print axioms Manuscript15.DiskFamily20261127.metallic_sech_cos
+#print axioms Manuscript15.DiskFamily20261127.metallic_tanh_log
+#print axioms Manuscript15.DiskFamily20261127.metallic_gd_inverse
+#print axioms Manuscript15.DiskFamily20261127.metallic_tan_half_angle
+#print axioms Manuscript15.DiskFamily20261127.first_regime_metallic
+#print axioms Manuscript15.DiskFamily20261127.first_regime_sharp_metallic
+#print axioms Manuscript15.DiskFamily20261127.metallic_one
+#print axioms Manuscript15.DiskFamily20261127.metallic_three_halves
+#print axioms Manuscript15.DiskFamily20261127.metallic_two
