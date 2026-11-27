@@ -62,6 +62,15 @@ jobs:
             assert names, module
             assert len(names)==len(set(names)), module
             for name in names:
+              # Older modules print local names; Lean reports their fully qualified names.
+              if '.' not in name:
+                qualified = re.findall(r"'([^']+)' (?:depends on axioms:|does not depend on any axioms)",log)
+                matches = {q for q in qualified if q == name or q.endswith('.'+name)}
+                local = {q for q in matches if q.startswith('Manuscript13.'+module+'.')}
+                if local:
+                  matches = local
+                assert len(matches)==1,(module,name,matches)
+                name = next(iter(matches))
               full="'"+name+"'"
               found=re.findall(re.escape(full)+r" depends on axioms: \[([^\]]*)\]",log,re.S)
               assert found or full+" does not depend on any axioms" in log,name
