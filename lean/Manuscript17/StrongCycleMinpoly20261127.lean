@@ -63,12 +63,11 @@ theorem eigenvector_last_nonzero (n : ℕ) (a : Fin (n+2) → ℂ) (r w z : ℂ)
       have hrow := congrFun he i.succ
       rw [row_succ, h1] at hrow
       simp [h1] at hrow
-      have h0 : v i.castSucc = 0 := (mul_eq_zero.mp hrow).resolve_left hr
+      have h0 : v i.castSucc = 0 := hrow.resolve_left hr
       convert h0 using 1
       congr 1
       apply Fin.ext
       simp [i]
-      omega
   convert haux (n+1-j.val) (by omega) using 1
   congr 1
   apply Fin.ext
