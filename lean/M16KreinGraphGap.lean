@@ -543,6 +543,11 @@ theorem hodge_shift_bound (V : L2 HodgeIndex →L[ℂ] L2 HodgeIndex) (z : ℂ)
       GraphResolvent (perturb (hodgeRealization.graph : Set _) V) z R ∧
       ‖R‖ ≤ 1/(4-‖V‖-‖z‖) := by
   letI : Nonempty HodgeIndex := ⟨⟨0, ⟨0, by decide⟩⟩⟩
+  have : Nontrivial (L2 HodgeIndex) := by
+    classical
+    obtain ⟨j⟩ := ‹Nonempty HodgeIndex›
+    exact ⟨⟨lp.single 2 j 1, 0, fun h => by
+      simpa using congrArg (fun x : L2 HodgeIndex => x j) h⟩⟩
   obtain ⟨R,hR,hn⟩ := reference_zero_graph hodgeEigen 4 (by norm_num)
     (fun j => le_trans (hodgeEigen_lower j) (le_abs_self _))
   exact perturbed_diagonal_resolvent _ R V z 4 (by norm_num) hn h hR
@@ -553,6 +558,11 @@ theorem dirac_shift_bound (V : L2 DiracIndex →L[ℂ] L2 DiracIndex) (z : ℂ)
       GraphResolvent (perturb (diracRealization.graph : Set _) V) z R ∧
       ‖R‖ ≤ 1/(3/2-‖V‖-‖z‖) := by
   letI : Nonempty DiracIndex := ⟨⟨0, false, ⟨0, by decide⟩⟩⟩
+  have : Nontrivial (L2 DiracIndex) := by
+    classical
+    obtain ⟨j⟩ := ‹Nonempty DiracIndex›
+    exact ⟨⟨lp.single 2 j 1, 0, fun h => by
+      simpa using congrArg (fun x : L2 DiracIndex => x j) h⟩⟩
   obtain ⟨R,hR,hn⟩ := reference_zero_graph diracEigen (3/2) (by norm_num) diracEigen_lower
   exact perturbed_diagonal_resolvent _ R V z (3/2) (by norm_num) hn h hR
 
