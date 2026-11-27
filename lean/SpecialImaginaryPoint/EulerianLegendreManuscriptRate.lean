@@ -21,12 +21,16 @@ theorem normalizedRate_eq_manuscriptRate (s : ℝ) :
     refine ⟨x / Real.sqrt 3, ?_⟩
     have hx : Real.sqrt 3 * (x / Real.sqrt 3) = x := by
       field_simp [hq]
+    change s * (x / Real.sqrt 3) - cumulant (Real.sqrt 3 * (x / Real.sqrt 3)) =
+      (s / Real.sqrt 3) * x - cumulant x
     rw [hx]
     ring
   · rintro ⟨h, rfl⟩
     refine ⟨Real.sqrt 3 * h, ?_⟩
     have hx : (s / Real.sqrt 3) * (Real.sqrt 3 * h) = s*h := by
       field_simp [hq]
+    change (s / Real.sqrt 3) * (Real.sqrt 3 * h) - cumulant (Real.sqrt 3 * h) =
+      s * h - cumulant (Real.sqrt 3 * h)
     rw [hx]
 
 theorem manuscriptRate_order_six_bound :
