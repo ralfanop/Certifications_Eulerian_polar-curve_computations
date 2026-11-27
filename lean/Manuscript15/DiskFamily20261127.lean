@@ -5,7 +5,7 @@ The scalar minimisation is independent of the analytic branch. Reuse the
 existing H0, sqrtOneSub, branch identities and sharp half-radius theorem.
 No new axioms. The statements below are CI candidates until checked. -/
 noncomputable section
-open Complex
+open Complex Filter Topology
 namespace Manuscript15.DiskFamily20261127
 open EulerianGrothendieck.ArcsinDisk
 
@@ -422,6 +422,48 @@ theorem second_regime_sharp {r : ℝ} (hr : 0 < r) (hr2 : r < Real.sqrt 2)
     (boundary_norm_eq_radius hr.le (second_point_radius hr hr2 hl hsgn))
     (second_point_value hr hr2 hl hsgn) (fun w hw => disk_second_lower hw hr2)
 
+theorem second_regime_formula {r : ℝ} (hr : 0 < r) (hr2 : r < Real.sqrt 2) :
+    1/Real.sqrt (Real.sqrt ((2-r^2)^2/2)) =
+      Real.sqrt (Real.sqrt 2)/Real.sqrt (2-r^2) := by
+  have hs := Real.sq_sqrt (show (0:ℝ) ≤ 2 by norm_num)
+  have hp := mul_pos (sub_pos.mpr hr2) (show 0 < Real.sqrt 2+r by positivity)
+  have h0 : 0 < 2-r^2 := by nlinarith
+  rw [Real.sqrt_div' _ (by norm_num),Real.sqrt_sq h0.le,
+    Real.sqrt_div' _ (Real.sqrt_nonneg 2)]
+  have h1 : 0 < Real.sqrt (2-r^2) := Real.sqrt_pos.2 h0
+  have h2 : 0 < Real.sqrt (Real.sqrt 2) := by positivity
+  field_simp
+
+theorem second_regime_sharp_explicit {r : ℝ} (hr : 0 < r) (hr2 : r < Real.sqrt 2)
+    (hl : threshold ≤ r) :
+    IsLeast {L : ℝ | ∀ a ∈ disk r, ∀ b ∈ disk r, ‖H0 a-H0 b‖ ≤ L*‖a-b‖}
+      (Real.sqrt (Real.sqrt 2)/Real.sqrt (2-r^2)) := by
+  rw [← second_regime_formula hr hr2]
+  exact second_regime_sharp hr hr2 hl
+
+/-- Metallic ratio with a real, nonnegative parameter. -/
+def metallic (n : ℝ) : ℝ := (n+Real.sqrt (n^2+4))/2
+
+theorem metallic_pos {n : ℝ} (hn : 0 ≤ n) : 0 < metallic n := by
+  unfold metallic
+  positivity
+
+theorem metallic_quadratic (n : ℝ) : metallic n^2-n*metallic n-1=0 := by
+  unfold metallic
+  have hs := Real.sq_sqrt (show 0 ≤ n^2+4 by positivity)
+  nlinarith
+
+theorem metallic_difference {n : ℝ} (hn : 0 ≤ n) :
+    metallic n-1/metallic n=n := by
+  have hp := metallic_pos hn
+  have hq := metallic_quadratic n
+  have h : 1/metallic n = metallic n-n := by
+    apply (div_eq_iff hp.ne').2
+    nlinarith
+  rw [h]
+  ring
+
+
 end Manuscript15.DiskFamily20261127
 #print axioms Manuscript15.DiskFamily20261127.disk_half
 #print axioms Manuscript15.DiskFamily20261127.threshold_pos
@@ -462,3 +504,9 @@ end Manuscript15.DiskFamily20261127
 #print axioms Manuscript15.DiskFamily20261127.sharp_from_boundary_min
 #print axioms Manuscript15.DiskFamily20261127.first_regime_sharp
 #print axioms Manuscript15.DiskFamily20261127.second_regime_sharp
+
+#print axioms Manuscript15.DiskFamily20261127.second_regime_formula
+#print axioms Manuscript15.DiskFamily20261127.second_regime_sharp_explicit
+#print axioms Manuscript15.DiskFamily20261127.metallic_pos
+#print axioms Manuscript15.DiskFamily20261127.metallic_quadratic
+#print axioms Manuscript15.DiskFamily20261127.metallic_difference
