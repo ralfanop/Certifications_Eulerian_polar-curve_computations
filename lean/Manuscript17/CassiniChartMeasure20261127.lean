@@ -24,7 +24,7 @@ theorem chart_u_derivative (u p : ℝ) (h : u ∈ Ioo (0:ℝ) 1) (i : Fin 3) :
   fin_cases i
   · simpa [chart, tangentU] using (altitude_derivative u h).mul_const (cos p)
   · simpa [chart, tangentU] using (altitude_derivative u h).mul_const (sin p)
-  · simpa [chart, tangentU] using (hasDerivAt_id u)
+  · simpa [chart, tangentU] using (hasDerivAt_id' u)
 
 theorem chart_p_derivative (u p : ℝ) (i : Fin 3) :
     HasDerivAt (fun v => chart u v i) (tangentP u p i) p := by
@@ -67,7 +67,7 @@ def coordinateMeasure : Measure (ℝ × ℝ) :=
 theorem altitude_mass :
     altitudeMeasure univ = ENNReal.ofReal (1/2-Real.log (1+Real.sqrt 2)/(2*Real.sqrt 2)) := by
   unfold altitudeMeasure
-  rw [withDensity_apply _ measurableSet_univ, Measure.restrict_univ]
+  rw [withDensity_apply _ MeasurableSet.univ, Measure.restrict_univ]
   have hi : Integrable areaDensity ((volume : Measure ℝ).restrict (Ioc 0 1)) :=
     (intervalIntegrable_iff_integrableOn_Ioc_of_le (by norm_num : (0:ℝ) ≤ 1)).mp
       areaDensity_intervalIntegrable
@@ -84,6 +84,7 @@ theorem coordinate_mass :
     coordinateMeasure univ =
       ENNReal.ofReal (Real.pi*(1-Real.log (1+Real.sqrt 2)/Real.sqrt 2)) := by
   unfold coordinateMeasure
+  have : SFinite longitudeMeasure := by unfold longitudeMeasure; infer_instance
   rw [← Set.univ_prod_univ, Measure.prod_prod, altitude_mass, longitude_mass]
   have hp : 0 ≤ 2*Real.pi := by positivity
   rw [← ENNReal.ofReal_mul' hp]
@@ -104,7 +105,7 @@ theorem chart_measurable : Measurable (fun z : ℝ × ℝ => chart z.1 z.2) := b
 theorem embedded_mass :
     embeddedMeasure univ =
       ENNReal.ofReal (Real.pi*(1-Real.log (1+Real.sqrt 2)/Real.sqrt 2)) := by
-  rw [embeddedMeasure, Measure.map_apply chart_measurable measurableSet_univ,
+  rw [embeddedMeasure, Measure.map_apply chart_measurable MeasurableSet.univ,
     preimage_univ, coordinate_mass]
 
 #print axioms altitude_derivative
