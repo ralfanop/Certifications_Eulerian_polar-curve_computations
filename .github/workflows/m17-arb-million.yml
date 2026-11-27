@@ -1,0 +1,44 @@
+name: M17 Arb million-place Cassini and L8
+on:
+  pull_request:
+    paths:
+      - 'numerics/arb/m17_cassini_area_million.py'
+      - '.github/workflows/m17-arb-million.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'numerics/arb/m17_cassini_area_million.py'
+      - '.github/workflows/m17-arb-million.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact head and pinned backend
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee m17-million-head.log
+          python -m pip install 'python-flint==0.9.0'
+      - name: Certify and validate exact decimal endpoints
+        run: |
+          set -euo pipefail
+          python -I numerics/arb/m17_cassini_area_million.py | tee m17-million.log
+          grep -F 'SUCCESS M17 ARB 1000001 EXACT DECIMAL PLACES' m17-million.log
+          sha256sum m17-cassini-area-arb-1000001-decimal-certificate.json | tee m17-million-sha256.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m17-million-exact-decimal-certificate
+          path: |
+            m17-cassini-area-arb-1000001-decimal-certificate.json
+            m17-million*.log
+          if-no-files-found: error
