@@ -1,0 +1,66 @@
+name: M13 Ellis Parseval Tonelli exact-head audit
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript13/EllisFourier20261124.lean'
+      - 'lean/Manuscript13/EllisBirman20261124.lean'
+      - 'lean/Manuscript13/BirmanOperator20261124.lean'
+      - 'lean/Manuscript13/EllisGramKernelOperator20261124.lean'
+      - 'lean/Manuscript13/EllisParsevalTonelli20261126.lean'
+      - '.github/workflows/m13-ellis-parseval-tonelli-20261126.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Exact-head pinned Lean 4 compile and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/ellis-parseval-tonelli.log
+          mkdir -p /tmp/gram-olean/Manuscript13
+          lake env lean -M16768 -o /tmp/gram-olean/Manuscript13/EllisFourier20261124.olean Manuscript13/EllisFourier20261124.lean 2>&1 | tee -a /tmp/ellis-parseval-tonelli.log
+          lake env bash -c 'export LEAN_PATH="/tmp/gram-olean:$LEAN_PATH"; lean -M16768 -o /tmp/gram-olean/Manuscript13/EllisBirman20261124.olean Manuscript13/EllisBirman20261124.lean' 2>&1 | tee -a /tmp/ellis-parseval-tonelli.log
+          lake env bash -c 'export LEAN_PATH="/tmp/gram-olean:$LEAN_PATH"; lean -M16768 -o /tmp/gram-olean/Manuscript13/BirmanOperator20261124.olean Manuscript13/BirmanOperator20261124.lean' 2>&1 | tee -a /tmp/ellis-parseval-tonelli.log
+          lake env bash -c 'export LEAN_PATH="/tmp/gram-olean:$LEAN_PATH"; lean -M16768 -o /tmp/gram-olean/Manuscript13/EllisGramKernelOperator20261124.olean Manuscript13/EllisGramKernelOperator20261124.lean' 2>&1 | tee -a /tmp/ellis-parseval-tonelli.log
+          lake env bash -c 'export LEAN_PATH="/tmp/gram-olean:$LEAN_PATH"; lean -M16768 Manuscript13/EllisParsevalTonelli20261126.lean' 2>&1 | tee -a /tmp/ellis-parseval-tonelli.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/ellis-parseval-tonelli.log; then exit 1; fi
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('/tmp/ellis-parseval-tonelli.log').read_text()
+          declarations={"Manuscript13.EllisParsevalTonelli20261126":["lp_norm_sq_integral","lp_norm_sq_lintegral","row_parseval","row_energy_lintegral","row_coordinate_ae","row_coordinate_measurable","kernel_hs_lintegral","kernel_hs_summable","kernel_hs_exact","adjoint_hs_lintegral","gram_diagonal_trace","gram_diagonal_summable"]}
+          count=0
+          for ns, names in declarations.items():
+            for name in names:
+              full="'"+ns+"."+name+"'"
+              found=re.findall(re.escape(full)+r" depends on axioms: \[([^\]]*)\]",t,re.S)
+              assert found or full+" does not depend on any axioms" in t,full
+              for a in found:
+                assert {x.strip() for x in a.split(',') if x.strip()} <= {
+                   'propext','Quot.sound','Classical.choice'},(full,a)
+              count+=1
+          assert count==12
+          print("SUCCESS ELLIS PARSEVAL TONELLI LEAN AXIOM AUDIT",count)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ellis-parseval-tonelli-lean-20261126-log
+          path: /tmp/ellis-parseval-tonelli.log
+          if-no-files-found: warn
