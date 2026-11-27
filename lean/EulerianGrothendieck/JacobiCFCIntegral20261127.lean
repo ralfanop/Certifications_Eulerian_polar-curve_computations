@@ -15,6 +15,9 @@ open M12BilateralJacobi
 
 abbrev Spec (u : Bonds) := spectrum ℂ (J u)
 
+local instance (u : Bonds) : CompactSpace (Spec u) :=
+  isCompact_iff_compactSpace.mp (spectrum.isCompact (𝕜 := ℂ) (J u))
+
 def specId (u : Bonds) : C(Spec u, ℂ) :=
   (ContinuousMap.id ℂ).restrict (Spec u)
 
@@ -40,7 +43,7 @@ theorem spectrum_real (u : Bonds) (z : Spec u) : star (z:ℂ) = (z:ℂ) := by
 
 def evalL (u : Bonds) (z : Spec u) : C(Spec u,ℂ) →L[ℂ] ℂ :=
   (show C(Spec u,ℂ) →ₗ[ℂ] ℂ from (ContinuousMap.evalAlgHom ℂ ℂ z).toLinearMap).mkContinuous 1
-    (fun f => by
+    (fun (f : C(Spec u,ℂ)) => by
       change ‖f z‖ ≤ 1 * ‖f‖
       simpa only [one_mul] using ContinuousMap.norm_coe_le_norm f z)
 
