@@ -72,17 +72,18 @@ theorem cutoff_strong (u : Bonds) (x : H) :
 
 /-- Strong convergence is stable under applying a uniformly bounded varying
 operator to a norm-convergent varying vector. -/
+set_option maxHeartbeats 2000000 in
 theorem strong_apply (T : ℕ → Op) (A : Op) (x : ℕ → H) (y : H)
     (hT : ∀ z : H, Tendsto (fun N => T N z) atTop (𝓝 (A z)))
     (C : ℝ) (hC : 0 ≤ C) (hb : ∀ N, ‖T N‖ ≤ C)
     (hx : Tendsto x atTop (𝓝 y)) :
     Tendsto (fun N => T N (x N)) atTop (𝓝 (A y)) := by
   have h₁ : Tendsto (fun N => ‖x N-y‖) atTop (𝓝 0) := by
-    simpa using (hx.sub tendsto_const_nhds).norm
+    simpa using (hx.sub (tendsto_const_nhds : Tendsto (fun _ : ℕ => y) atTop (𝓝 y))).norm
   have h₂ : Tendsto (fun N => ‖T N y-A y‖) atTop (𝓝 0) := by
-    simpa using ((hT y).sub tendsto_const_nhds).norm
+    simpa using ((hT y).sub (tendsto_const_nhds : Tendsto (fun _ : ℕ => A y) atTop (𝓝 (A y)))).norm
   have hg : Tendsto (fun N => C*‖x N-y‖+‖T N y-A y‖) atTop (𝓝 0) := by
-    simpa using (tendsto_const_nhds.mul h₁).add h₂
+    simpa using ((tendsto_const_nhds : Tendsto (fun _ : ℕ => C) atTop (𝓝 C)).mul h₁).add h₂
   rw [tendsto_iff_norm_sub_tendsto_zero]
   apply squeeze_zero' (Eventually.of_forall fun _ => norm_nonneg _) _ hg
   filter_upwards [] with N
@@ -90,8 +91,7 @@ theorem strong_apply (T : ℕ → Op) (A : Op) (x : ℕ → H) (y : H)
     ‖T N (x N)-A y‖ = ‖T N (x N-y)+(T N y-A y)‖ := by
       rw [map_sub]; congr 1; abel
     _ ≤ ‖T N (x N-y)‖+‖T N y-A y‖ := norm_add_le _ _
-    _ ≤ C*‖x N-y‖+‖T N y-A y‖ := add_le_add_right
-      (((T N).le_opNorm _).trans (mul_le_mul_of_nonneg_right (hb N) (norm_nonneg _))) _
+    _ ≤ C*‖x N-y‖+‖T N y-A y‖ := add_le_add (((T N).le_opNorm _).trans (mul_le_mul_of_nonneg_right (hb N) (norm_nonneg _))) le_rfl
 
 theorem cutoff_power_strong (u : Bonds) (n : ℕ) (x : H) :
     Tendsto (fun N : ℕ => ((J (cut u N))^n) x) atTop (𝓝 (((J u)^n) x)) := by
