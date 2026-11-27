@@ -11,6 +11,14 @@ open scoped ENNReal InnerProductSpace
 namespace M12FourierLocality
 open M12BilateralJacobi M12JacobiFrechet M12JacobiFourier M12JacobiPropagation
 
+local instance : Nontrivial Op := by
+  refine ⟨⟨0,1,?_⟩⟩
+  intro h
+  let x : H := lp.single 2 (0:ℤ) 1
+  have he := congrArg (fun T : Op => T x (0:ℤ)) h
+  change (0:ℂ) = x 0 at he
+  simp [x,lp.single_apply] at he
+
 def U (u : Bonds) (t : ℝ) : Op := exp (((t:ℂ)*Complex.I) • J u)
 
 theorem unitary_entry_bound (u : Bonds) (t : ℝ) (k l : ℤ) :
@@ -82,7 +90,9 @@ theorem bond_product_entry (A C : Op) (m k l : ℤ) :
   rw [bond_rank_two,map_add]
   have hs (j : ℤ) (z : ℂ) : lp.single 2 j z = z • (lp.single 2 j 1 : H) := by
     ext i
-    by_cases h : i=j <;> simp [lp.single_apply,h,Ne.symm h]
+    by_cases h : i=j
+    · subst i; simp [lp.single_apply]
+    · simp [lp.single_apply,h,Ne.symm h]
   rw [hs m,hs (m-1),map_smul,map_smul]
   change (C x (m-1))*entry A k m+(C x m)*entry A k (m-1) = _
   change entry C (m-1) l*entry A k m+entry C m l*entry A k (m-1) = _
@@ -109,7 +119,7 @@ theorem product_decay (a b d L : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b)
     calc
       _ ≤ (L/(1+b)^N)*(2^N*(1+b)^N) :=
         mul_le_mul h₁ h₂ hp.le (by positivity)
-      _ = _ := by field_simp; ring
+      _ = _ := by field_simp <;> ring
   · have h₁ : ‖x‖*‖y‖ ≤ L/(1+a)^N := by
       calc
         _ ≤ ‖x‖*1 := mul_le_mul_of_nonneg_left hy (norm_nonneg _)
@@ -120,7 +130,7 @@ theorem product_decay (a b d L : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b)
     calc
       _ ≤ (L/(1+a)^N)*(2^N*(1+a)^N) :=
         mul_le_mul h₁ h₂ hp.le (by positivity)
-      _ = _ := by field_simp; ring
+      _ = _ := by field_simp <;> ring
 
 theorem bond_density_bound (u : Bonds) (t s : ℝ) (hs : s ∈ Icc (0:ℝ) 1)
     (m k l : ℤ) (N : ℕ) :
@@ -199,16 +209,16 @@ theorem duhamel_entry_bound (u : Bonds) (t : ℝ) (m k l : ℤ) (N : ℕ) :
 /-- Integrated bound for the actual Duhamel bond entry, assuming only
 the scalar absolute Fourier moment and measurability of the entry. -/
 theorem fourier_bond_decay (u : Bonds) (w : ℝ → ℂ) (m k l : ℤ) (N : ℕ)
-    (hm : Integrable (fun t : ℝ => ‖w t‖*|t|*(1+|t|)^N))
+    (hm : Integrable (fun t : ℝ => ‖w t‖*|t| *(1+|t|)^N))
     (hi : Integrable (fun t : ℝ => w t*((t:ℂ)*Complex.I)*entry (bondDuhamel u t m) k l)) :
     ‖∫ t : ℝ, w t*((t:ℂ)*Complex.I)*entry (bondDuhamel u t m) k l‖ ≤
-      (2*2^N*K N*(∫ t : ℝ, ‖w t‖*|t|*(1+|t|)^N))/(1+|(k:ℝ)-m|+|(m:ℝ)-l|)^N := by
+      (2*2^N*K N*(∫ t : ℝ, ‖w t‖*|t| *(1+|t|)^N))/(1+|(k:ℝ)-m|+|(m:ℝ)-l|)^N := by
   let C := 2*2^N*K N/(1+|(k:ℝ)-m|+|(m:ℝ)-l|)^N
   have hC : 0 ≤ C := by dsimp [C]; positivity
   calc
     _ ≤ ∫ t : ℝ, ‖w t*((t:ℂ)*Complex.I)*entry (bondDuhamel u t m) k l‖ :=
       norm_integral_le_integral_norm _
-    _ ≤ ∫ t : ℝ, C*(‖w t‖*|t|*(1+|t|)^N) := by
+    _ ≤ ∫ t : ℝ, C*(‖w t‖*|t| *(1+|t|)^N) := by
       apply integral_mono hi.norm (hm.const_mul C)
       intro t
       rw [norm_mul,norm_mul,norm_mul,Complex.norm_real,Complex.norm_I,mul_one,Real.norm_eq_abs]
