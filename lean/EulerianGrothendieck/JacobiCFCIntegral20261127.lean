@@ -37,7 +37,7 @@ theorem spectrum_real (u : Bonds) (z : Spec u) : star (z:ℂ) = (z:ℂ) := by
   exact congrArg (fun f : C(Spec u,ℂ) => f z) he
 
 def evalL (u : Bonds) (z : Spec u) : C(Spec u,ℂ) →L[ℂ] ℂ :=
-  (ContinuousMap.evalAlgHom ℂ z).toLinearMap.mkContinuous 1
+  (ContinuousMap.evalAlgHom ℂ ℂ z).toLinearMap.mkContinuous 1
     (fun f => by simpa only [one_mul] using f.norm_coe_le_norm z)
 
 theorem evalL_apply (u : Bonds) (z : Spec u) (g : C(Spec u,ℂ)) :
@@ -49,20 +49,21 @@ def phase (u : Bonds) (t : ℝ) : C(Spec u,ℂ) :=
 theorem phase_apply (u : Bonds) (t : ℝ) (z : Spec u) :
     phase u t z = Complex.exp (((t:ℂ)*Complex.I)*(z:ℂ)) := by
   unfold phase
-  change (ContinuousMap.evalAlgHom ℂ z) (exp _) = _
-  rw [NormedSpace.map_exp _ (evalL u z).continuous,← Complex.exp_eq_exp_ℂ]
+  change (ContinuousMap.evalAlgHom ℂ ℂ z) (exp _) = _
+  rw [NormedSpace.map_exp (ContinuousMap.evalAlgHom ℂ ℂ z) (evalL u z).continuous,← Complex.exp_eq_exp_ℂ]
   congr 1
   rfl
 
 theorem hom_phase (u : Bonds) (t : ℝ) :
     hom u (phase u t) = exp (((t:ℂ)*Complex.I) • J u) := by
   unfold phase
-  rw [NormedSpace.map_exp _ (homL u).continuous,map_smul,hom_id]
+  rw [NormedSpace.map_exp (hom u) (homL u).continuous,map_smul,hom_id]
 
 theorem phase_continuous (u : Bonds) : Continuous (phase u) := by
   unfold phase
-  exact M12ExpFrechet.exp_cont.comp
-    ((Complex.continuous_ofReal.mul continuous_const).smul continuous_const)
+  have hc : Continuous (fun t : ℝ => ((t:ℂ)*Complex.I) • specId u) :=
+    (Complex.continuous_ofReal.mul (continuous_const : Continuous (fun _ : ℝ => Complex.I))).smul continuous_const
+  exact (M12ExpFrechet.exp_cont : Continuous (exp : C(Spec u,ℂ) → C(Spec u,ℂ))).comp hc
 
 theorem phase_norm_le (u : Bonds) (t : ℝ) : ‖phase u t‖ ≤ 1 := by
   apply (ContinuousMap.norm_le _ zero_le_one).2
@@ -97,7 +98,9 @@ theorem cfc_fourier (u : Bonds) (w : ℝ → ℂ) (hw : Integrable w)
     apply integral_congr_ae
     filter_upwards [] with t
     rw [map_smul,evalL_apply,phase_apply,smul_eq_mul]
-  rw [hg,← homL_apply,← (homL u).integral_comp_comm hi]
+  rw [hg,← homL_apply]
+  have hh := (homL u).integral_comp_comm hi
+  rw [← hh]
   apply integral_congr_ae
   filter_upwards [] with t
   rw [map_smul,homL_apply,hom_phase]
