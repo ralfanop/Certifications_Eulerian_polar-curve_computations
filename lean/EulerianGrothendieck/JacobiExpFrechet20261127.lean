@@ -35,8 +35,12 @@ theorem kernel_joint_cont (A : R) :
     exp_cont.comp (continuous_snd.smul continuous_fst)
   exact ((ContinuousLinearMap.mulLeftRight ℝ R).continuous.comp h₁).clm_apply h₂
 
-theorem kernel_cont (A C : R) : Continuous (kernel A C) :=
-  (kernel_joint_cont A).comp (continuous_const.prodMk continuous_id)
+set_option maxHeartbeats 2000000 in
+theorem kernel_cont (A C : R) : Continuous (kernel A C) := by
+  have hc : Continuous (fun s : ℝ => (C, s)) := continuous_const.prodMk continuous_id
+  have h := (kernel_joint_cont A).comp hc
+  change Continuous (fun s : ℝ => kernel A C s) at h
+  exact h
 
 def D (A C : R) : R →L[ℝ] R :=
   ∫ s in (0:ℝ)..1, kernel A C s
