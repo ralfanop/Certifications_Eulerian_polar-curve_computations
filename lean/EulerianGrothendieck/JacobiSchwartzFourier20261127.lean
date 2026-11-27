@@ -9,7 +9,7 @@ so inversion and all absolute moments follow from Mathlib. -/
 set_option maxHeartbeats 2000000
 noncomputable section
 open MeasureTheory NormedSpace
-open scoped SchwartzMap FourierTransform InnerProductSpace
+open scoped SchwartzMap FourierTransform InnerProductSpace ContDiff
 namespace M12SchwartzFourier
 open M12BilateralJacobi M12JacobiCFCIntegral
 
@@ -26,7 +26,7 @@ def dilation : ℝ ≃L[ℝ] ℝ where
         have h : (2*Real.pi:ℝ) ≠ 0 := by positivity
         field_simp
       map_add' := by intro x y; ring
-      map_smul' := by intro c x; simp only [smul_eq_mul]; ring }
+      map_smul' := by intro c x; simp only [smul_eq_mul,RingHom.id_apply]; ring }
   continuous_toFun := continuous_const.mul continuous_id
   continuous_invFun := continuous_id.div_const _
 
@@ -54,7 +54,10 @@ theorem weight_formula (f : 𝓢(ℝ,ℂ)) (t : ℝ) :
     congr 1
     push_cast
     ring
-  rw [h,Measure.integral_comp_mul_left,abs_of_pos (by positivity : 0 < (2*Real.pi:ℝ)⁻¹)]
+  rw [h]
+  have he := Measure.integral_comp_mul_left (fun y : ℝ => f y*Complex.exp (-((t:ℂ)*Complex.I*(y:ℂ)))) (2*Real.pi)
+  rw [abs_of_pos (by positivity : 0 < (2*Real.pi:ℝ)⁻¹)] at he
+  exact he
 
 theorem weight_continuous (f : 𝓢(ℝ,ℂ)) : Continuous (weight f : ℝ → ℂ) :=
   (weight f).continuous
@@ -72,7 +75,7 @@ theorem mixed_moment (g : 𝓢(ℝ,ℂ)) (N k : ℕ) :
     ring
 
 theorem weight_moment (f : 𝓢(ℝ,ℂ)) (N : ℕ) :
-    Integrable (fun t : ℝ => ‖weight f t‖*|t|*(1+|t|)^N) := by
+    Integrable (fun t : ℝ => ‖weight f t‖*|t| *(1+|t|)^N) := by
   simpa only [pow_one] using mixed_moment (weight f) N 1
 
 /-- Scalar Fourier inversion at angular frequency with the exact
