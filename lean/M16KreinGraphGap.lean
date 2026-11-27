@@ -535,6 +535,64 @@ theorem reference_zero_graph {ι : Type*} (lam : ι → ℝ) (g : ℝ)
     dsimp [w]
     rw [← mul_assoc,mul_inv_cancel₀ (hne j),one_mul]
 
+-- Specialize the two diagonal estimates to the printed constants.
+theorem hodge_shift_bound (V : L2 HodgeIndex →L[ℂ] L2 HodgeIndex) (z : ℂ)
+    (h : ‖V‖+‖z‖ < 4) :
+    ∃ R : L2 HodgeIndex →L[ℂ] L2 HodgeIndex,
+      GraphResolvent (perturb (hodgeRealization.graph : Set _) V) z R ∧
+      ‖R‖ ≤ 1/(4-‖V‖-‖z‖) := by
+  obtain ⟨R,hR,hn⟩ := reference_zero_graph hodgeEigen 4 (by norm_num)
+    (fun j => le_trans (hodgeEigen_lower j) (le_abs_self _))
+  exact perturbed_diagonal_resolvent _ R V z 4 (by norm_num) hn h hR
+
+theorem dirac_shift_bound (V : L2 DiracIndex →L[ℂ] L2 DiracIndex) (z : ℂ)
+    (h : ‖V‖+‖z‖ < 3/2) :
+    ∃ R : L2 DiracIndex →L[ℂ] L2 DiracIndex,
+      GraphResolvent (perturb (diracRealization.graph : Set _) V) z R ∧
+      ‖R‖ ≤ 1/(3/2-‖V‖-‖z‖) := by
+  obtain ⟨R,hR,hn⟩ := reference_zero_graph diracEigen (3/2) (by norm_num) diracEigen_lower
+  exact perturbed_diagonal_resolvent _ R V z (3/2) (by norm_num) hn h hR
+
+-- Equation (174) implies the gap condition (170) once the
+-- background multiplication estimate (147) is available.
+theorem background_gap (c e H p a d : ℝ)
+    (hc : 0 ≤ c) (hH : 0 ≤ H) (hp : 0 ≤ p)
+    (hb : c ≤ |e|*H*p)
+    (hg : 2*|e|^2*H^2*p^2 < a*d) : 2*c^2 < a*d := by
+  have hh : 0 ≤ |e|*H*p := by positivity
+  nlinarith [mul_nonneg (sub_nonneg.mpr hb) (show 0 ≤ |e|*H*p+c by positivity)]
+
+theorem schur_series_converges {E F : Type*}
+    [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E] [Nontrivial E]
+    [NormedAddCommGroup F] [NormedSpace ℂ F]
+    (ra : E →L[ℂ] E) (rd : F →L[ℂ] F)
+    (x : F →L[ℂ] E) (y : E →L[ℂ] F)
+    (a d t : ℝ) (ht : t < M16Krein.gapRadius a d ‖y‖)
+    (hra : ‖ra‖ ≤ 1/(a-t)) (hrd : ‖rd‖ ≤ 1/(d-t))
+    (hx : ‖x‖ ≤ 2*‖y‖) :
+    let k := ((ra.comp x).comp rd).comp y
+    HasSum (fun n : ℕ => k^n) (∑' n : ℕ, k^n) ∧
+      (1-k)*(∑' n : ℕ, k^n) = 1 ∧
+      (∑' n : ℕ, k^n)*(1-k) = 1 := by
+  dsimp only
+  let k := ((ra.comp x).comp rd).comp y
+  have h := disk_small_coupling ra rd x y a d t ht hra hrd hx
+  have hk : ‖k‖ < 1 := by
+    apply lt_of_le_of_lt _ h
+    dsimp [k]
+    calc
+      _ ≤ ‖(ra.comp x).comp rd‖*‖y‖ := ContinuousLinearMap.opNorm_comp_le _ _
+      _ ≤ (‖ra.comp x‖*‖rd‖)*‖y‖ := by
+        gcongr <;> exact ContinuousLinearMap.opNorm_comp_le _ _
+      _ ≤ (‖ra‖*‖x‖)*‖rd‖*‖y‖ := by
+        gcongr <;> exact ContinuousLinearMap.opNorm_comp_le _ _
+  obtain ⟨hs,h1,h2,_⟩ := neumann_series k hk
+  exact ⟨hs,h1,h2⟩
+
+#print axioms hodge_shift_bound
+#print axioms dirac_shift_bound
+#print axioms background_gap
+#print axioms schur_series_converges
 #print axioms hodgeEigen_lower
 #print axioms diracEigen_lower
 #print axioms reference_realizations_closed
