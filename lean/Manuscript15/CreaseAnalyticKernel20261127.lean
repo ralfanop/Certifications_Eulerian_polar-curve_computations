@@ -24,7 +24,7 @@ theorem inv_sqrt_first_order_remainder (x : ℝ) (hx : 0 ≤ x) :
   have hs : 0 < s := by linarith
   have he : s*(1/s-1+x/2)=(s-1)^2*(s+2)/2 := by
     calc
-      _ = 1-s+s*x/2 := by field_simp [hs.ne']; ring
+      _ = 1-s+s*x/2 := by field_simp [hs.ne'] <;> ring
       _ = _ := by rw [show x=s^2-1 by linarith]; ring
   have hfac : x=(s-1)*(s+1) := by nlinarith
   have h4 : (4:ℝ) ≤ (s+1)^2 := by
@@ -34,9 +34,9 @@ theorem inv_sqrt_first_order_remainder (x : ℝ) (hx : 0 ≤ x) :
     nlinarith [mul_le_mul_of_nonneg_left h4 (sq_nonneg (s-1))]
   constructor
   · apply nonneg_of_mul_nonneg_left _ hs
-    rw [he]
+    rw [mul_comm,he]
     positivity
-  · apply (mul_le_mul_left hs).mp
+  · apply (mul_le_mul_left₀ hs).mp
     rw [he]
     have hlin : (s+2)/2 ≤ 3*s/2 := by linarith
     have hmid := mul_le_mul_of_nonneg_left hlin (sq_nonneg (s-1))
@@ -73,8 +73,11 @@ theorem actual_phase_kernel_bound (k u : ℝ) (hk : 0 ≤ k) :
   have h := inv_sqrt_first_order_remainder x hx
   have h1 := mul_nonneg hk h.1
   have h2 := mul_le_mul_of_nonneg_left h.2 hk
-  change 0 ≤ k/Real.sqrt (1+x)-k+k*x/2 ∧
-    k/Real.sqrt (1+x)-k+k*x/2 ≤ (3*k/8)*(1+k^2)^2*(Real.sinh u)^4
+  have he' : k/Real.sqrt (1+(1+k^2)*(Real.sinh u)^2)-k+
+      k*(1+k^2)*(Real.sinh u)^2/2 = k/Real.sqrt (1+x)-k+k*x/2 := by
+    dsimp [x]
+    ring
+  rw [he']
   have he : k*(1/Real.sqrt (1+x)-1+x/2)=
       k/Real.sqrt (1+x)-k+k*x/2 := by ring
   rw [he] at h1 h2
