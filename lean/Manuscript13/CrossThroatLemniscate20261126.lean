@@ -39,12 +39,13 @@ theorem lem_map_jacobian (t : ℝ) (ht : t ∈ Ioo (0:ℝ) 1) :
   have hs : 0 < Real.sqrt (1-t^2) := Real.sqrt_pos.2 hq
   have hs2 := Real.sq_sqrt hq.le
   have hd : HasDerivAt (fun x : ℝ => 1-x^2) (-2*t) t := by
-    convert ((hasDerivAt_const t (1:ℝ)).sub ((hasDerivAt_id t).pow 2)) using 1 <;> ring
+    convert ((hasDerivAt_const t (1:ℝ)).sub ((hasDerivAt_id t).pow 2)) using 1 <;> first | rfl | (simp [id]; ring)
   have h := (hasDerivAt_id t).div (hd.sqrt (ne_of_gt hq)) (ne_of_gt hs)
   unfold lemMap
-  convert h.hasDerivWithinAt using 1
+  convert h.hasDerivWithinAt using 1 <;> try rfl
+  simp only [id_eq, one_mul]
   field_simp [ne_of_gt hs]
-  nlinarith [hs2]
+  nlinarith only [hs2]
 
 theorem lem_map_inj : InjOn lemMap (Ioo (0:ℝ) 1) := by
   intro t ht s hs h
@@ -100,7 +101,7 @@ theorem lem_weight (t : ℝ) (ht : t ∈ Ioo (0:ℝ) 1) :
   have hR : 0 ≤ 1/Real.sqrt (1-t^4) := by positivity
   have he : ((1/(Real.sqrt (1-t^2))^3) * (c/Real.sqrt ((1+lemMap t^2)*(c^2+lemMap t^2))))^2 =
       (1/Real.sqrt (1-t^4))^2 := by
-    rw [mul_pow,div_pow,div_pow,div_pow,hs6,Real.sq_sqrt hDpos.le,selfdual_sq,hD,Real.sq_sqrt ht4.le]
+    rw [mul_pow,div_pow,div_pow,div_pow,hs6,Real.sq_sqrt hDpos.le,hD,selfdual_sq,Real.sq_sqrt ht4.le]
     field_simp [ne_of_gt hq,ne_of_gt ht4,show 1+t^2 ≠ 0 by positivity] <;> ring
   nlinarith only [he,hL,hR]
 
@@ -134,8 +135,8 @@ theorem critical_gamma_exact :
   have hpi : Real.sqrt Real.pi^2 = Real.pi := Real.sq_sqrt Real.pi_pos.le
   rw [div_pow,mul_pow,h40,mul_pow,hpi]
   field_simp
-  rw [show (4:ℝ)*Real.sqrt (Real.pi/5)*Real.sqrt 40*Real.sqrt (2*Real.pi) =
-    4*(Real.sqrt (Real.pi/5)*Real.sqrt 40)*Real.sqrt (2*Real.pi) by ring,hs]
+  rw [mul_comm Real.pi (2:ℝ)]
+  rw [hs]
   nlinarith only [hsq]
 
 def betaProfile (s : ℝ) := s^(-3/4:ℝ)*(1-s)^(-1/2:ℝ)
@@ -167,7 +168,7 @@ theorem beta_map_image : (fun t : ℝ => t^4) '' Ioo (0:ℝ) 1 = Ioo 0 1 := by
 
 theorem beta_map_jacobian (t : ℝ) (_ : t ∈ Ioo (0:ℝ) 1) :
     HasDerivWithinAt (fun s : ℝ => s^4) (4*t^3) (Ioo (0:ℝ) 1) t := by
-  convert ((hasDerivAt_id t).pow 4).hasDerivWithinAt using 1 <;> ring
+  convert ((hasDerivAt_id t).pow 4).hasDerivWithinAt using 1 <;> first | rfl | (simp [id]; ring)
 
 theorem beta_weight (t : ℝ) (ht : t ∈ Ioo (0:ℝ) 1) :
     (4*t^3)*betaProfile (t^4) = 4*lemProfile t := by
@@ -215,10 +216,18 @@ theorem gamma_beta_ratio :
       ((∫ s in Ioo (0:ℝ) 1,betaProfile s):ℂ) := by
     first | exact Complex.ofReal_integral.symm | exact?
   rw [hcast] at h
-  rw [← Complex.ofReal_inj]
-  push_cast
-  simpa only [Complex.Gamma_ofReal,Complex.ofReal_div,Complex.ofReal_mul,
-    show (1/4:ℂ)+(1/2:ℂ)=3/4 by ring] using h
+  norm_num only [show (1/4:ℂ)+(1/2:ℂ)=3/4 by ring] at h
+  have hq : Complex.Gamma (1/4:ℂ) = (Real.Gamma (1/4):ℂ) := by
+    rw [show (1/4:ℂ) = ((1/4:ℝ):ℂ) by norm_num]
+    exact Complex.Gamma_ofReal _
+  have hh : Complex.Gamma (1/2:ℂ) = (Real.Gamma (1/2):ℂ) := by
+    rw [show (1/2:ℂ) = ((1/2:ℝ):ℂ) by norm_num]
+    exact Complex.Gamma_ofReal _
+  have ht : Complex.Gamma (3/4:ℂ) = (Real.Gamma (3/4):ℂ) := by
+    rw [show (3/4:ℂ) = ((3/4:ℝ):ℂ) by norm_num]
+    exact Complex.Gamma_ofReal _
+  rw [hq,hh,ht,← Complex.ofReal_mul,← Complex.ofReal_div] at h
+  exact Complex.ofReal_inj.mp h
 
 theorem lem_gamma_of_beta :
     lemPeriod = Real.Gamma (1/4)^2/(4*Real.sqrt (2*Real.pi)) := by
@@ -234,7 +243,20 @@ theorem lem_gamma_of_beta :
   have h2 : 0 < Real.sqrt 2 := by positivity
   rw [Real.sqrt_mul (by norm_num : (0:ℝ) ≤ 2)]
   field_simp [ne_of_gt hq,ne_of_gt hp,ne_of_gt h2] at h ⊢
-  nlinarith [congrArg (fun x : ℝ => lemPeriod*x) hg]
+  have he : (4 * lemPeriod * Real.Gamma (3/4)) * Real.Gamma (1/4) =
+      (Real.Gamma (1/4) * Real.sqrt Real.pi) * Real.Gamma (1/4) :=
+    congrArg (fun x : ℝ => x * Real.Gamma (1/4)) h
+  have he' : (4 * lemPeriod * Real.sqrt Real.pi * Real.sqrt 2 - Real.Gamma (1/4)^2) *
+      Real.sqrt Real.pi = 0 := by
+    calc
+      _ = 4 * lemPeriod * (Real.sqrt Real.pi * Real.sqrt 2 * Real.sqrt Real.pi) -
+          (Real.Gamma (1/4) * Real.sqrt Real.pi) * Real.Gamma (1/4) := by ring
+      _ = 4 * lemPeriod * (Real.Gamma (1/4) * Real.Gamma (3/4)) -
+          (Real.Gamma (1/4) * Real.sqrt Real.pi) * Real.Gamma (1/4) := by rw [hg]
+      _ = 0 := by linarith only [he, show 4 * lemPeriod * (Real.Gamma (1/4) * Real.Gamma (3/4)) =
+          (4 * lemPeriod * Real.Gamma (3/4)) * Real.Gamma (1/4) by ring]
+  have hz := (mul_eq_zero.mp he').resolve_right (ne_of_gt hp)
+  linarith only [hz]
 
 theorem actual_throat_gamma (a : ℝ) (ha : 0 < a) :
     (1/a)*(∫ u in Ioi (0:ℝ), weight a (complementary c) u) =
