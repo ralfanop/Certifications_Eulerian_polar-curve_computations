@@ -53,8 +53,8 @@ jobs:
           for f in ["m11-axioms.log", "m11-cumulant.log"]:
               s = Path(f).read_text()
               assert not re.search(r"\b(?:error|warning):|sorryAx|Lean\.ofReduceBool", s), f
-              reports = re.findall(r"'([^']+)' depends on axioms:\s*\[([^\]]*)\]", s)
-              empty = re.findall(r"'([^']+)' does not depend on any axioms", s)
+              reports = re.findall(r"^'([^\r\n]+?)' depends on axioms:\s*\[([^\]]*)\][ \t]*$", s, re.M)
+              empty = re.findall(r"^'([^\r\n]+?)' does not depend on any axioms[ \t]*$", s, re.M)
               names = {n for n, _ in reports} | set(empty)
               for name, axioms in reports:
                   assert set(re.findall(r"[A-Za-z_][A-Za-z0-9_.]*", axioms)) <= allowed, (name, axioms)
