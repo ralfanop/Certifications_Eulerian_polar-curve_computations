@@ -62,7 +62,7 @@ jobs:
           import re, json, hashlib
           from pathlib import Path
           out = {}
-          for m,n in [('M16KreinSpatial',12),('M16KreinDomains',7),('M16KreinOperator',15),('M16KreinGraphGap',24)]:
+          for m,n in [('M16KreinSpatial',12),('M16KreinDomains',7),('M16KreinOperator',15),('M16KreinGraphGap',28)]:
               p = Path('lean') / (m+'.lean')
               src = p.read_text()
               log = Path('/tmp/m16-gap-'+m+'.log').read_text()
@@ -95,7 +95,7 @@ jobs:
               out[m]={'source_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'reports':len(actual)}
           out['head'] = Path('/tmp/m16-gap-head.log').read_text().strip()
           Path('/tmp/m16-gap-audit.json').write_text(json.dumps(out,indent=2)+'\n')
-          print('SUCCESS: 24 new and 34 Krein dependency declarations')
+          print('SUCCESS: 28 new and 34 Krein dependency declarations')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
