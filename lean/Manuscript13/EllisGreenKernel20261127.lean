@@ -22,6 +22,7 @@ theorem positive_half (κ ξ t : ℝ) (ht : 0 ≤ t) :
   push_cast
   have h : (-(κ : ℂ) - (2*Real.pi*ξ : ℝ)*Complex.I)*t =
       ((-κ*t : ℝ) : ℂ) + -((2*Real.pi*ξ*t : ℝ) : ℂ)*Complex.I := by push_cast; ring
+  push_cast at h
   rw [h, Complex.exp_add]
   push_cast
   <;> ring
@@ -33,6 +34,7 @@ theorem negative_half (κ ξ t : ℝ) (ht : t ≤ 0) :
   push_cast
   have h : ((κ : ℂ) - (2*Real.pi*ξ : ℝ)*Complex.I)*t =
       ((-κ*(-t) : ℝ) : ℂ) + -((2*Real.pi*ξ*t : ℝ) : ℂ)*Complex.I := by push_cast; ring
+  push_cast at h
   rw [h, Complex.exp_add]
   push_cast
   <;> ring
