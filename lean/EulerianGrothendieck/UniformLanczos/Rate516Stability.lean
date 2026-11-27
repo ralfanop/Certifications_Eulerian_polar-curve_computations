@@ -140,7 +140,7 @@ theorem tail_weight_bound (N q : ℕ) (hN : 1 ≤ N) (hq : N+1 ≤ q)
       exact h.trans (by simpa only [one_mul] using mul_le_mul_of_nonneg_right hx1 (by positivity : 0 ≤ y^(2*(q-1))))
     · have hzx : z ≤ x := by dsimp [x,z]; nlinarith [mul_nonneg hε.le (sub_nonneg.mpr (le_of_not_ge hcase))]
       have h := (pow_le_pow_left₀ hz.le hzx (2*N)).trans (pow_le_pow_right₀ hx (by omega : 2*N ≤ 2*(N+1)))
-      exact h.trans (by simpa only [mul_one] using mul_le_mul_of_nonneg_left hy1 (by positivity : 0 ≤ x^(2*(N+1)))))
+      exact h.trans (by simpa only [mul_one] using mul_le_mul_of_nonneg_left hy1 (by positivity : 0 ≤ x^(2*(N+1))))
   change (x⁻¹^(N+1))^2*(y^(2*q))⁻¹ ≤ (z^(2*N))⁻¹*(y^2)⁻¹
   rw [←pow_mul,inv_pow,show (N+1)*2=2*(N+1) by omega,
     show 2*q=2*(q-1)+2 by omega,pow_add y, mul_inv,←mul_assoc,←mul_inv]
@@ -185,7 +185,7 @@ theorem residual_sum_order (N q : ℕ) (hN : 1 ≤ N) (hq : N+1 ≤ q)
     calc
       _ ≤ ((ε*c/2*M)^(2*N))⁻¹ :=
         inv_anti₀ (pow_pos hp _) (pow_le_pow_left₀ hp.le hh _)
-      _ = _ := by rw [mul_pow,mul_inv,div_eq_mul_inv]
+      _ = _ := by simp only [div_eq_mul_inv,mul_pow,mul_inv]
   have hz : 0 ≤ Z2 := tsum_nonneg fun n => by positivity
   have hA : (1/M^(2*N))*(∑ k ∈ W, w k) ≤ Ωε ε/M^(2*N) := by
     rw [one_div_mul_eq_div]
