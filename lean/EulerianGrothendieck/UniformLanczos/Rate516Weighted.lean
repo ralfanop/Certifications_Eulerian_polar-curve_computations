@@ -20,7 +20,7 @@ theorem pow_sub_one_bound (q : ℝ) (hq : 1 ≤ q) (n : ℕ) :
     rw [pow_succ q (n+1)]
     calc
       q^(n+1)*q-1 = q*(q^(n+1)-1)+(q-1) := by ring
-      _ ≤ q*((↑n+1)*(q-1)*q^n)+(q-1)*q^(n+1) := add_le_add h₁ h₂
+      _ ≤ q*((↑n+1)*(q-1)*q^n)+(q-1)*q^(n+1) := add_le_add h₁ (by simpa only [mul_one] using h₂)
       _ = (↑n+1+1)*(q-1)*(q^(n+1)) := by rw [pow_succ q n]; ring
 
 /-- Ratio form of equation (201), at p = n+2. -/
@@ -206,6 +206,7 @@ theorem centre_energy (W : Finset ℤ) (j : ℤ) (hj : j ∈ W)
   have he := energy_of_coercive W (fun k => s k^2) d h hμ₀ (fun k _ => sq_nonneg _) hc
   have hj' := Finset.single_le_sum (f := fun k => s k^2*d k^2)
     (fun k _ => mul_nonneg (sq_nonneg _) (sq_nonneg _)) hj
+  change s j ^ 2 * d j ^ 2 ≤ ∑ k ∈ W, s k ^ 2 * d k ^ 2 at hj'
   rw [hsj,one_pow,one_mul] at hj'
   exact hj'.trans he
 
