@@ -403,7 +403,7 @@ theorem coupling_adjoint (M : E →L[ℝ] F) (H : E →L[ℝ] E) (e : ℝ)
 
 theorem couplingY_bound (M : E →L[ℝ] F) (H : E →L[ℝ] E) (e C : ℝ)
     (hC : 0 ≤ C) (h : ∀ a, ‖M (H a)‖ ≤ C*‖a‖) :
-    ‖couplingY M H e‖ ≤ |e|*C := by
+    ‖couplingY M H e‖ ≤ |e| *C := by
   apply ContinuousLinearMap.opNorm_le_bound _ (mul_nonneg (abs_nonneg e) hC)
   intro a
   change ‖e • M (H a)‖ ≤ _
@@ -484,7 +484,7 @@ theorem perturbed_diagonal_resolvent {E : Type*}
     change (x = R f+K x) ↔ _
     constructor
     · intro hx
-      have he : x-K x = R f := by rw [hx,add_sub_cancel_right]
+      have he : x-K x = R f := (sub_eq_iff_eq_add).2 hx
       rw [← he,hleft]
     · intro hx
       rw [hx]
@@ -516,7 +516,8 @@ theorem reference_zero_graph {ι : Type*} (lam : ι → ℝ) (g : ℝ)
     rw [hh,abs_zero] at hj
     linarith
   have hw (j : ι) : ‖w j‖ ≤ 1/g := by
-    rw [w,norm_inv,Complex.norm_real,Real.norm_eq_abs,← one_div]
+    change ‖(lam j : ℂ)⁻¹‖ ≤ 1/g
+    rw [norm_inv,Complex.norm_real,Real.norm_eq_abs,← one_div]
     exact one_div_le_one_div_of_le hg (hl j)
   let R := diagonal w (1/g) (by positivity) hw
   refine ⟨R,?_,diagonal_norm_le _ _ _ _⟩
@@ -541,6 +542,7 @@ theorem hodge_shift_bound (V : L2 HodgeIndex →L[ℂ] L2 HodgeIndex) (z : ℂ)
     ∃ R : L2 HodgeIndex →L[ℂ] L2 HodgeIndex,
       GraphResolvent (perturb (hodgeRealization.graph : Set _) V) z R ∧
       ‖R‖ ≤ 1/(4-‖V‖-‖z‖) := by
+  letI : Nonempty HodgeIndex := ⟨⟨0, ⟨0, by decide⟩⟩⟩
   obtain ⟨R,hR,hn⟩ := reference_zero_graph hodgeEigen 4 (by norm_num)
     (fun j => le_trans (hodgeEigen_lower j) (le_abs_self _))
   exact perturbed_diagonal_resolvent _ R V z 4 (by norm_num) hn h hR
@@ -550,6 +552,7 @@ theorem dirac_shift_bound (V : L2 DiracIndex →L[ℂ] L2 DiracIndex) (z : ℂ)
     ∃ R : L2 DiracIndex →L[ℂ] L2 DiracIndex,
       GraphResolvent (perturb (diracRealization.graph : Set _) V) z R ∧
       ‖R‖ ≤ 1/(3/2-‖V‖-‖z‖) := by
+  letI : Nonempty DiracIndex := ⟨⟨0, false, ⟨0, by decide⟩⟩⟩
   obtain ⟨R,hR,hn⟩ := reference_zero_graph diracEigen (3/2) (by norm_num) diracEigen_lower
   exact perturbed_diagonal_resolvent _ R V z (3/2) (by norm_num) hn h hR
 
@@ -557,10 +560,10 @@ theorem dirac_shift_bound (V : L2 DiracIndex →L[ℂ] L2 DiracIndex) (z : ℂ)
 -- background multiplication estimate (147) is available.
 theorem background_gap (c e H p a d : ℝ)
     (hc : 0 ≤ c) (hH : 0 ≤ H) (hp : 0 ≤ p)
-    (hb : c ≤ |e|*H*p)
-    (hg : 2*|e|^2*H^2*p^2 < a*d) : 2*c^2 < a*d := by
-  have hh : 0 ≤ |e|*H*p := by positivity
-  nlinarith [mul_nonneg (sub_nonneg.mpr hb) (show 0 ≤ |e|*H*p+c by positivity)]
+    (hb : c ≤ |e| *H*p)
+    (hg : 2*|e| ^2*H^2*p^2 < a*d) : 2*c^2 < a*d := by
+  have hh : 0 ≤ |e| *H*p := by positivity
+  nlinarith [mul_nonneg (sub_nonneg.mpr hb) (show 0 ≤ |e| *H*p+c by positivity)]
 
 theorem schur_series_converges {E F : Type*}
     [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E] [Nontrivial E]
