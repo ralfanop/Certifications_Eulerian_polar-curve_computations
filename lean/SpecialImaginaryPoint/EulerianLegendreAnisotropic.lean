@@ -31,10 +31,10 @@ theorem actualCoupledPotential_remainder :
   have hq := rotationQ_sq
   have hq0 := rotationQ_nonneg
   have hq1 : rotationQ ≤ 1 := by nlinarith [sq_nonneg (rotationQ-1)]
-  have hs0 : |u+w| ≤ 1/2 := (abs_add u w).trans (by linarith)
+  have hs0 : |u+w| ≤ 1/2 := (abs_add_le u w).trans (by linarith)
   have ht0 : |u-w| ≤ 1/2 := by
     rw [sub_eq_add_neg]
-    exact (abs_add u (-w)).trans (by rw [abs_neg]; linarith)
+    exact (abs_add_le u (-w)).trans (by rw [abs_neg]; linarith)
   have hs : |s| ≤ 1/2 := by
     dsimp [s]
     rw [abs_mul, abs_of_nonneg hq0]
@@ -74,8 +74,8 @@ theorem actualCoupledPotential_remainder :
     ring
   rw [he]
   calc
-    _ ≤ |normalizedRate s-(s^2/2+s^4/20)|+
-        |normalizedRate t-(t^2/2+t^4/20)| := abs_add _ _
+    _ ≤ |normalizedRate s-(s^2/2+s^4/20)| +
+        |normalizedRate t-(t^2/2+t^4/20)| := abs_add_le _ _
     _ ≤ C*|s|^6+C*|t|^6 := add_le_add (h s hs) (h t ht)
     _ ≤ 2*C*(u^2+w^2)^3 := by
       linarith [mul_le_mul_of_nonneg_left hsp hC, mul_le_mul_of_nonneg_left htp hC]
@@ -90,11 +90,11 @@ theorem actualScaledPotential_box_bound (R : ℝ) (hR : 1 ≤ R) :
       0 < e → e ≤ 1/(24*R) → |v| ≤ R → |z| ≤ R → |l| ≤ R →
         |actualScaledPotential e v z l - anisotropicLimit v z l| ≤ C*e^2 := by
   obtain ⟨A,hA,hrem⟩ := actualCoupledPotential_remainder
-  let B : ℝ := R^2+12*R^3
-  let C : ℝ := A*(2*R^2)^3+7*R^4/40+12*R*B
+  let D : ℝ := R^2+12*R^3
+  let C : ℝ := A*(2*R^2)^3+7*R^4/40+12*R*D
   have hR0 : 0 ≤ R := by linarith
   have hRp : 0 < R := by linarith
-  have hB : 0 ≤ B := by dsimp [B]; positivity
+  have hB : 0 ≤ D := by dsimp [D]; positivity
   refine ⟨C, by dsimp [C]; positivity, fun e v z l he hcut hv hz hl => ?_⟩
   have heR : e*R ≤ 1/24 := by
     have hh := (le_div_iff₀ (by positivity : 0 < 24*R)).mp hcut
@@ -120,7 +120,7 @@ theorem actualScaledPotential_box_bound (R : ℝ) (hR : 1 ≤ R) :
   let d := 1+12*l*e^2
   have hde : |12*l*e^2| ≤ 1/2 := by
     calc
-      _ = 12*|l|*e^2 := by rw [abs_mul,abs_mul,abs_of_nonneg (sq_nonneg e)]; norm_num
+      _ = 12*|l| *e^2 := by rw [abs_mul,abs_mul,abs_of_nonneg (sq_nonneg e)]; norm_num
       _ ≤ 12*R*e^2 := by gcongr
       _ ≤ 12*R*e := by gcongr
       _ ≤ _ := by nlinarith
@@ -157,34 +157,34 @@ theorem actualScaledPotential_box_bound (R : ℝ) (hR : 1 ≤ R) :
     rw [abs_of_nonneg (by positivity)]
     have hh := mul_le_mul_of_nonneg_right he21 (by positivity : 0 ≤ z^4)
     nlinarith
-  have hterm : |z^2+12*l*v^2| ≤ B := by
+  have hterm : |z^2+12*l*v^2| ≤ D := by
     calc
-      _ ≤ |z^2|+|12*l*v^2| := abs_add _ _
-      _ = z^2+12*|l|*v^2 := by
+      _ ≤ |z^2| +|12*l*v^2| := abs_add_le _ _
+      _ = z^2+12*|l| *v^2 := by
         rw [abs_of_nonneg (sq_nonneg z),abs_mul,abs_mul,abs_of_nonneg (sq_nonneg v)]
         norm_num
-      _ ≤ B := by
+      _ ≤ D := by
         have hh := mul_le_mul hl hv2 (sq_nonneg v) hR0
-        dsimp [B]
+        dsimp [D]
         nlinarith
-  have hnum : |6*l*(z^2+12*l*v^2)| ≤ 6*R*B := by
+  have hnum : |6*l*(z^2+12*l*v^2)| ≤ 6*R*D := by
     calc
-      _ = 6*|l|*|z^2+12*l*v^2| := by simp [abs_mul]
+      _ = 6*|l| *|z^2+12*l*v^2| := by simp [abs_mul]
       _ ≤ _ := by gcongr
-  have hdiv : |6*l*(z^2+12*l*v^2)/d| ≤ 12*R*B := by
+  have hdiv : |6*l*(z^2+12*l*v^2)/d| ≤ 12*R*D := by
     rw [abs_div,abs_of_pos hdp]
     apply (div_le_iff₀ hdp).2
-    have hh := mul_le_mul_of_nonneg_left hd (by positivity : 0 ≤ 12*R*B)
+    have hh := mul_le_mul_of_nonneg_left hd (by positivity : 0 ≤ 12*R*D)
     nlinarith
   have hinner : |(6*v^2*z^2+e^2*z^4)/40-6*l*(z^2+12*l*v^2)/d| ≤
-      7*R^4/40+12*R*B := by
+      7*R^4/40+12*R*D := by
     rw [sub_eq_add_neg]
-    exact (abs_add _ _).trans (by rw [abs_neg]; exact add_le_add hquad hdiv)
+    exact (abs_add_le _ _).trans (by rw [abs_neg]; exact add_le_add hquad hdiv)
   have hjet : |coupledApproximation (1/d) (e*v) (e^2*z)-e^4*anisotropicLimit v z l|
-      ≤ (7*R^4/40+12*R*B)*e^6 := by
+      ≤ (7*R^4/40+12*R*D)*e^6 := by
     rw [hj, abs_mul, abs_of_nonneg (by positivity : 0 ≤ e^6)]
     calc
-      _ ≤ e^6*(7*R^4/40+12*R*B) := mul_le_mul_of_nonneg_left hinner (by positivity)
+      _ ≤ e^6*(7*R^4/40+12*R*D) := mul_le_mul_of_nonneg_left hinner (by positivity)
       _ = _ := by ring
   have hcombined : |actualCoupledPotential (1/d) (e*v) (e^2*z)-e^4*anisotropicLimit v z l|
       ≤ C*e^6 := by
@@ -192,9 +192,9 @@ theorem actualScaledPotential_box_bound (R : ℝ) (hR : 1 ≤ R) :
       (actualCoupledPotential (1/d) (e*v) (e^2*z)-coupledApproximation (1/d) (e*v) (e^2*z))+
       (coupledApproximation (1/d) (e*v) (e^2*z)-e^4*anisotropicLimit v z l) := by ring
     rw [hsplit]
-    refine (abs_add _ _).trans ?_
+    refine (abs_add_le _ _).trans ?_
     calc
-      _ ≤ A*(2*R^2)^3*e^6+(7*R^4/40+12*R*B)*e^6 := add_le_add hrem' hjet
+      _ ≤ A*(2*R^2)^3*e^6+(7*R^4/40+12*R*D)*e^6 := add_le_add hrem' hjet
       _ = _ := by dsimp [C]; ring
   have he4p : 0 < e^4 := pow_pos he _
   change |actualCoupledPotential (1/d) (e*v) (e^2*z)/e^4-anisotropicLimit v z l| ≤ C*e^2
