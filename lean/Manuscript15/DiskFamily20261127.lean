@@ -359,7 +359,7 @@ theorem boundary_derivative_le_lipschitz {r L : ℝ} {z : ℂ}
       filter_upwards [Ioo_mem_nhdsGT (show (0:ℝ)<1 by norm_num)] with h hh using hh.2
     filter_upwards [self_mem_nhdsWithin,hmem] with h hp h1
     have hp' : 0 < h := hp
-    simp only [Function.comp,Complex.ofReal_zero,mul_zero,add_zero]
+    simp only [Function.comp,Complex.ofReal_zero,mul_zero,add_zero,zero_add]
     have he : z+d*(h:ℂ)-I = ((1-h:ℝ):ℂ)*(z-I) := by
       dsimp [d]
       push_cast
