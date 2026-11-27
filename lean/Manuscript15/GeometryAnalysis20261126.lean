@@ -20,8 +20,8 @@ theorem immersion_x_derivative (R Phi : ℝ → ℝ) (x theta r Rp q : ℝ)
   have hA : HasDerivAt (fun t => theta+Phi t) q x := by
     exact hPhi.const_add theta
   constructor
-  · convert (hR.mul_const r).mul hA.cos using 1 <;> first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
-  · convert (hR.mul_const r).mul hA.sin using 1 <;> first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
+  · convert (hR.mul_const r).mul hA.cos using 1 <;> first | rfl | ring | (funext z; try simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (try simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
+  · convert (hR.mul_const r).mul hA.sin using 1 <;> first | rfl | ring | (funext z; try simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (try simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
 
 theorem immersion_theta_derivative (r : ℝ → ℝ) (theta R phi rp : ℝ)
     (hr : HasDerivAt r rp theta) :
@@ -32,8 +32,8 @@ theorem immersion_theta_derivative (r : ℝ → ℝ) (theta R phi rp : ℝ)
   have hA : HasDerivAt (fun t : ℝ => t+phi) 1 theta :=
     (hasDerivAt_id theta).add_const phi
   constructor
-  · convert (hr.const_mul R).mul hA.cos using 1 <;> first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
-  · convert (hr.const_mul R).mul hA.sin using 1 <;> first | rfl | (funext z; simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
+  · convert (hr.const_mul R).mul hA.cos using 1 <;> first | rfl | ring | (funext z; try simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (try simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
+  · convert (hr.const_mul R).mul hA.sin using 1 <;> first | rfl | ring | (funext z; try simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring) | (try simp only [id_eq, Pi.mul_apply, Pi.add_apply, Pi.sub_apply, Pi.pow_apply]; ring)
 
 -- Actual second x derivatives of the differentiated immersion, not merely
 -- formal symbols for the first derivative.
