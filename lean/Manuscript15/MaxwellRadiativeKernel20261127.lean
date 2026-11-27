@@ -22,6 +22,7 @@ theorem hermitian_quadratic_im_zero (H : E →L[ℂ] E)
   rw [hH] at h
   have hi := inner_im_symm (𝕜 := ℂ) u (H u)
   rw [← h] at hi
+  change (inner ℂ u (H u)).im = -(inner ℂ u (H u)).im at hi
   linarith
 
 theorem radiative_kernel_pointwise (H : E →L[ℂ] E) (C : E →L[ℂ] F)
@@ -36,7 +37,13 @@ theorem radiative_kernel_pointwise (H : E →L[ℂ] E) (C : E →L[ℂ] F)
     simp only [Complex.sub_im, Complex.mul_im, Complex.I_re, Complex.I_im,
       zero_mul, one_mul, zero_add, add_zero, Complex.zero_im,
       hermitian_quadratic_im_zero H hH u, inner_self_eq_norm_sq] at hi
-    have hc : C u = 0 := norm_eq_zero.mp (by nlinarith)
+    have hself : (inner ℂ (C u) (C u)).re = ‖C u‖^2 := by
+      first
+      | change RCLike.re (inner ℂ (C u) (C u)) = ‖C u‖^2
+        exact inner_self_eq_norm_sq (𝕜 := ℂ) (C u)
+      | rw [inner_self_eq_norm_sq_to_K]; simp
+    rw [hself] at hi
+    have hc : C u = 0 := norm_eq_zero.mp (by nlinarith [norm_nonneg (C u)])
     have hhu : H u = 0 := by simpa [hc] using hz
     exact ⟨hhu,hc⟩
   · rintro ⟨hu,hc⟩
@@ -58,8 +65,9 @@ theorem radiative_coercive_exclusion (H : E →L[ℂ] E) (C : E →L[ℂ] F)
   have h := hbound u
   rw [h1,h2,norm_zero] at h
   have hn : ‖u‖^2 ≤ 0 := by
-    apply (mul_le_mul_left hδ).mp
-    simpa using h
+    by_contra! hp
+    have hpos := mul_pos hδ hp
+    linarith
   exact norm_eq_zero.mp (by nlinarith [norm_nonneg u])
 
 end Manuscript15.MaxwellRadiativeKernel20261127
