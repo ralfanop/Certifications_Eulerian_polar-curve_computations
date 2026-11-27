@@ -67,7 +67,8 @@ theorem radiative_coercive_exclusion (H : E →L[ℂ] E) (C : E →L[ℂ] F)
   have hn : ‖u‖^2 ≤ 0 := by
     by_contra! hp
     have hpos := mul_pos hδ hp
-    linarith
+    have hz : δ * ‖u‖^2 ≤ 0 := by simpa using h
+    exact (not_lt_of_ge hz) hpos
   exact norm_eq_zero.mp (by nlinarith [norm_nonneg u])
 
 end Manuscript15.MaxwellRadiativeKernel20261127
