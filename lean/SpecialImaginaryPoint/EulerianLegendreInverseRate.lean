@@ -75,7 +75,9 @@ theorem inverseSlope_second_zero : deriv (deriv inverseSlope) 0 = -(6 / 5) := by
   have hd := hb.mul (inverseLangevin_analytic rateDomain_zero).deriv.differentiableAt.hasDerivAt
   change HasDerivAt
     (fun m => deriv (deriv langevin) (inverseLangevin m) * deriv inverseLangevin m) _ 0 at hd
-  rw [hd.deriv, inverseLangevin_zero, langevin_second_deriv_zero, langevin_third_deriv_zero,
+  rw [hd.deriv]
+  simp only [Function.comp_apply]
+  rw [inverseLangevin_zero, langevin_second_deriv_zero, langevin_third_deriv_zero,
     inverseLangevin_hasDerivAt_zero.deriv]
   ring
 
@@ -292,7 +294,12 @@ theorem normalizedRate_order_six_bound :
   have hpoly : 3*(s / Real.sqrt 3)^2/2 + 9*(s / Real.sqrt 3)^4/20 =
       s^2/2 + s^4/20 := by
     field_simp [ne_of_gt hs]
-    nlinarith [congrArg (fun t : ℝ => t^2) hsq]
+    have h4 : (Real.sqrt 3)^4 = 9 := by
+      calc
+        (Real.sqrt 3)^4 = ((Real.sqrt 3)^2)^2 := by ring
+        _ = 9 := by rw [hsq]; norm_num
+    rw [h4, hsq]
+    <;> ring
   rw [hpoly] at hr
   exact hr.trans (mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (abs_nonneg _) hm 6) hC)
 
