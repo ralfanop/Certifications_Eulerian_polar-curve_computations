@@ -77,26 +77,20 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'm11-final-audit-20261127'
     permissions:
-      contents: write
-      actions: read
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: m11-final-audit-20261127
-      - name: Preserve exact original artifacts, verify hashes and rational endpoints
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Verify committed original archives, hashes and rational endpoints
         shell: bash
         run: |
           set -euo pipefail
           d=certificates/m11/dkappa-10000-20261126
-          mkdir -p "$d"
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
           cd "$d"
-          for id in 15157600626 15156354842 15156574431 14905741653; do
-            gh api "repos/$REPO/actions/artifacts/$id/zip" > "github-actions-artifact-$id.zip"
-          done
-          cat > SHA256SUMS <<'EOF'
+          diff -u SHA256SUMS - <<'EOF'
           404b897eb98676f087c0a816d1a643beb08f16ebcd7a1f9d97c43ca19588aa00  github-actions-artifact-15157600626.zip
           379302713db76d4c1776d0dcf87c75eb3ff2530272a8f981220c1a0fd0ce2241  github-actions-artifact-15156354842.zip
           abe830aa4c2158ab3935c5a017cf30e774613ec32c3717abec60a130476441b8  github-actions-artifact-15156574431.zip
@@ -148,14 +142,3 @@ jobs:
           assert hashlib.sha256(dec.encode("ascii")).hexdigest()==c["decimal_sha256"]
           print("PASS: exact rational audit, original length endpoints, both halves, 10000 fractional digits")
           PY
-      - name: Commit verified originals to dedicated archival branch only
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add certificates/m11/dkappa-10000-20261126/
-          if ! git diff --cached --quiet; then
-            git commit -m "M11 preserve independently verified D_kappa 10000-decimal artifacts"
-            git push origin HEAD:refs/heads/m11-final-audit-20261127
-          fi
