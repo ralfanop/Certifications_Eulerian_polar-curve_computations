@@ -73,7 +73,9 @@ theorem hasProd_spectralDet (eig : ℕ → ℝ) (hn : ∀ i, 0 ≤ eig i)
     (log_summable eig hn hs).hasSum
   change Tendsto (fun s : Finset ℕ => ∏ i ∈ s, (1 + eig i))
     atTop (nhds (spectralDet eig))
-  simpa only [Function.comp_apply, finite_product_eq eig hn, spectralDet] using h
+  change Tendsto (fun s : Finset ℕ => Real.exp (∑ i ∈ s, Real.log (1 + eig i)))
+    atTop (nhds (spectralDet eig)) at h
+  simpa only [finite_product_eq eig hn] using h
 
 theorem gram_eigen_product (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ)
     (e : HilbertBasis ℕ ℝ H) (eig : ℕ → ℝ)
