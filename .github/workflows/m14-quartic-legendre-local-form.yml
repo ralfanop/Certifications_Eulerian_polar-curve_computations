@@ -1,0 +1,49 @@
+name: M14 quartic Legendre local form
+on:
+  push:
+    branches: [draft/m14-quartic-legendre-20261125]
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/QuarticLegendreLocalForm.lean'
+      - '.github/workflows/m14-quartic-legendre-local-form.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned Lean
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve Mathlib cache
+        working-directory: lean
+        run: lake exe cache get
+      - name: Compile and audit ten exact prerequisites
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean SpecialImaginaryPoint/QuarticLegendreLocalForm.lean 2>&1 | tee /tmp/m14-quartic.log
+          python - <<'PY'
+          import re
+          s = open('/tmp/m14-quartic.log').read()
+          assert not re.search(r'sorryAx|Lean\.ofReduceBool|declaration uses|: error:',s)
+          found = re.findall(r"depends on axioms: \[([^\]]*)\]|does not depend on any axioms",s)
+          assert len(found) == 10, found
+          for a in found:
+              assert set(filter(None,a.split(', '))) <= {'propext','Classical.choice','Quot.sound'}, a
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-quartic-lean-log
+          path: /tmp/m14-quartic.log

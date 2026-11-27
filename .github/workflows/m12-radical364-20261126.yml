@@ -1,0 +1,60 @@
+name: M12 equation 364 radical exact-head audit
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/Radical36420261127.lean'
+      - 'lean/EulerianGrothendieck/CriticalWindowGammaVacuum.lean'
+      - 'lean/EulerianGrothendieck/CrossNormalization20261126.lean'
+      - '.github/workflows/m12-radical364-20261126.yml'
+  workflow_dispatch:
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Rebuild certified dependency chain and new theorems
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "EXACT_HEAD=$(git rev-parse HEAD)"
+          lake exe cache get
+          lake build EulerianGrothendieck.FockVacuumProjection EulerianGrothendieck.VectorOptimum
+          mkdir -p .lake/build/lib/lean
+          for module in CriticalWindowQuartic CriticalWindowGlobalMGF CriticalWindowComplexMGF CriticalWindowAnalyticRemainder CriticalWindowFockDomination CriticalWindowGammaVacuum CriticalWindowFinalAssembly CriticalWindowPointwise CriticalWindowDCT CriticalWindowLocalUniform CrossNormalization20261126; do
+            lake env lean -o ".lake/build/lib/lean/${module}.olean" "${module}.lean"
+          done
+          lake env lean Radical36420261127.lean 2>&1 | tee /tmp/m12-radical364.log
+      - name: Audit all seven declarations
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          src=Path('lean/EulerianGrothendieck/Radical36420261127.lean').read_text()
+          data=Path('/tmp/m12-radical364.log').read_text()
+          assert not re.search(r'\b(sorry|admit|axiom|opaque|native_decide)\b',src)
+          assert ': error:' not in data and 'sorryAx' not in data and 'Lean.ofReduceBool' not in data
+          names=re.findall(r'^#print axioms (\S+)$',src,re.M)
+          assert len(names)==7
+          for name in names:
+              m=re.search(r"'"+re.escape(name)+r"' depends on axioms: \[([^\]]*)\]",data)
+              if m:
+                  assert {x.strip() for x in m.group(1).split(',') if x.strip()}<={'propext','Classical.choice','Quot.sound'},name
+              else:
+                  assert "'"+name+"' does not depend on any axioms" in data,name
+              print('AXIOM AUDIT SUCCESS',name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-radical364-audit
+          path: /tmp/m12-radical364.log

@@ -1,0 +1,60 @@
+name: M13 cross throat elliptic period exact-head audit
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript13/CrossThroatElliptic20261125.lean'
+      - 'lean/Manuscript13/EllisFourier20261124.lean'
+      - 'lean/EulerianGrothendieck/CriticalWindowGammaVacuum.lean'
+      - '.github/workflows/m13-cross-throat-elliptic-period-20261125.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Exact-head pinned Lean 4 compile and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/m13-cross-throat.log
+          mkdir -p /tmp/m13-cross-olean/Manuscript13 /tmp/m13-cross-olean/EulerianGrothendieck
+          lake env bash -c 'export LEAN_PATH="/tmp/m13-cross-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m13-cross-olean/Manuscript13/EllisFourier20261124.olean Manuscript13/EllisFourier20261124.lean' 2>&1 | tee -a /tmp/m13-cross-throat.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m13-cross-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m13-cross-olean/EulerianGrothendieck/CriticalWindowGammaVacuum.olean EulerianGrothendieck/CriticalWindowGammaVacuum.lean' 2>&1 | tee -a /tmp/m13-cross-throat.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m13-cross-olean:$LEAN_PATH"; lean -M16768 Manuscript13/CrossThroatElliptic20261125.lean' 2>&1 | tee -a /tmp/m13-cross-throat.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m13-cross-throat.log; then exit 1; fi
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('/tmp/m13-cross-throat.log').read_text()
+          names=["complementary_pos","complementary_sq","potential_origin","factor_nonneg","normalized_eq_sq","quarter_square","weight_eq_sqrt","factor_scale","weight_scale","overlap_scale","scaledWeight_formula","tangent_jacobian","tangent_weight","quartic_bridge","criticalF0_gamma","self_dual_complement","self_dual_bridge","tangent_inj","tangent_image","scaled_integral_elliptic","actual_throat_period","actual_throat_quartic","elliptic_den_pos","elliptic_continuous","scaledWeight_integrable","actual_self_dual"]
+          count=0
+          for name in names:
+              full="'Manuscript13.CrossThroatElliptic20261125."+name+"'"
+              found=re.findall(re.escape(full)+r" depends on axioms: \[([^\]]*)\]",t,re.S)
+              assert found or full+" does not depend on any axioms" in t,full
+              for a in found:
+                  assert {x.strip() for x in a.split(',') if x.strip()} <= {'propext','Quot.sound','Classical.choice'},(full,a)
+              count+=1
+          assert count==26
+          print("SUCCESS M13 CROSS THROAT ELLIPTIC AUDIT",count)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m13-cross-throat-elliptic-audit
+          path: /tmp/m13-cross-throat.log
+          if-no-files-found: warn

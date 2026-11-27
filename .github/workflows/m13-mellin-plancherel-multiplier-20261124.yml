@@ -1,0 +1,62 @@
+name: M13 Mellin Plancherel and multiplier exact-head audit
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript13/MellinRindler20261124.lean'
+      - 'lean/Manuscript13/MellinL2LogJacobian20261124.lean'
+      - 'lean/Manuscript13/MellinPlancherelMultiplier20261124.lean'
+      - '.github/workflows/m13-mellin-plancherel-multiplier-20261124.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Exact-head pinned Lean 4 compile and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/mellin-plancherel-multiplier.log
+          mkdir -p /tmp/mellin-olean/Manuscript13
+          lake env lean -M16768 -o /tmp/mellin-olean/Manuscript13/MellinRindler20261124.olean Manuscript13/MellinRindler20261124.lean 2>&1 | tee -a /tmp/mellin-plancherel-multiplier.log
+          lake env bash -c 'export LEAN_PATH="/tmp/mellin-olean:$LEAN_PATH"; lean -M16768 -o /tmp/mellin-olean/Manuscript13/MellinL2LogJacobian20261124.olean Manuscript13/MellinL2LogJacobian20261124.lean' 2>&1 | tee -a /tmp/mellin-plancherel-multiplier.log
+          lake env bash -c 'export LEAN_PATH="/tmp/mellin-olean:$LEAN_PATH"; lean -M16768 Manuscript13/MellinPlancherelMultiplier20261124.lean' 2>&1 | tee -a /tmp/mellin-plancherel-multiplier.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/mellin-plancherel-multiplier.log; then exit 1; fi
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('/tmp/mellin-plancherel-multiplier.log').read_text()
+          declarations={"Manuscript13.MellinPlancherelMultiplier20261124":["mellinFourier","mellin_norm","mellin_inverse","mellin_surjective","mul_mem","mulFun","mulFun_ae","mulFun_bound","mulLinear","mulOperator","mulOperator_ae","mulOperator_norm_le","mulOperator_norm_lower","rindler_ae_bound","rindlerOperator","rindlerOperator_norm","cyclesBand_angular","cutoff_measurable","cutoff_bound","spectralProject","spectralProject_ae","spectralProject_idempotent","spectralProject_norm_le","mellinProject","mellinProject_apply","mellinProject_idempotent","angular_cosine_kernel"]}
+          count=0
+          for ns, names in declarations.items():
+            for name in names:
+              full="'"+ns+"."+name+"'"
+              found=re.findall(re.escape(full)+r" depends on axioms: \[([^\]]*)\]",t,re.S)
+              assert found or full+" does not depend on any axioms" in t,full
+              for a in found:
+                assert {x.strip() for x in a.split(',') if x.strip()} <= {
+                   'propext','Quot.sound','Classical.choice'},(full,a)
+              count+=1
+          assert count==27
+          print("SUCCESS MELLIN PLANCHEREL MULTIPLIER LEAN AXIOM AUDIT",count)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mellin-plancherel-multiplier-lean-20261124-log
+          path: /tmp/mellin-plancherel-multiplier.log
+          if-no-files-found: warn
