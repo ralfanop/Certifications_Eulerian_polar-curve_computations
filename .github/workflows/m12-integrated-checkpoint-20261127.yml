@@ -1,0 +1,260 @@
+name: M12 integrated checkpoint exact-main audit (63 declarations)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/m12-integrated-checkpoint-20261127.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit_634:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 04e9d61ba96fc5d4ffb53b99f4650b0c898e6901
+      - name: Exact-head pinned Lean 4 compile and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "04e9d61ba96fc5d4ffb53b99f4650b0c898e6901"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/m13-lemniscate-beta.log
+          mkdir -p /tmp/m13-cross-olean/Manuscript13 /tmp/m13-cross-olean/EulerianGrothendieck
+          lake env bash -c 'export LEAN_PATH="/tmp/m13-cross-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m13-cross-olean/Manuscript13/EllisFourier20261124.olean Manuscript13/EllisFourier20261124.lean' 2>&1 | tee -a /tmp/m13-lemniscate-beta.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m13-cross-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m13-cross-olean/EulerianGrothendieck/CriticalWindowGammaVacuum.olean EulerianGrothendieck/CriticalWindowGammaVacuum.lean' 2>&1 | tee -a /tmp/m13-lemniscate-beta.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m13-cross-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m13-cross-olean/Manuscript13/CrossThroatElliptic20261125.olean Manuscript13/CrossThroatElliptic20261125.lean' 2>&1 | tee -a /tmp/m13-lemniscate-beta.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m13-cross-olean:$LEAN_PATH"; lean -M16768 Manuscript13/CrossThroatLemniscate20261126.lean' 2>&1 | tee -a /tmp/m13-lemniscate-beta.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m13-lemniscate-beta.log; then exit 1; fi
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('/tmp/m13-lemniscate-beta.log').read_text()
+          names=["selfdual_sq","lem_map_sq","lem_map_pos","lem_map_jacobian","lem_map_inj","lem_map_image","lem_weight","lem_period","actual_throat_lemniscate","critical_gamma_exact","beta_map_inj","beta_map_image","beta_map_jacobian","beta_weight","lem_beta_integral","gamma_beta_ratio","lem_gamma_of_beta","actual_throat_gamma","actual_throat_critical"]
+          count=0
+          for name in names:
+              full="'Manuscript13.CrossThroatLemniscate20261126."+name+"'"
+              found=re.findall(re.escape(full)+r" depends on axioms: \[([^\]]*)\]",t,re.S)
+              assert found or full+" does not depend on any axioms" in t,full
+              for a in found:
+                  assert {x.strip() for x in a.split(',') if x.strip()} <= {'propext','Quot.sound','Classical.choice'},(full,a)
+              count+=1
+          assert count==19
+          print("SUCCESS M13 LEMNISCATE BETA AUDIT",count)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m13-lemniscate-beta-audit
+          path: /tmp/m13-lemniscate-beta.log
+          if-no-files-found: warn
+  audit_649:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 04e9d61ba96fc5d4ffb53b99f4650b0c898e6901
+      - name: Restore pinned Lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Rebuild certified dependency chain and new theorems
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "04e9d61ba96fc5d4ffb53b99f4650b0c898e6901"
+          echo "EXACT_HEAD=$(git rev-parse HEAD)"
+          lake exe cache get
+          lake build EulerianGrothendieck.FockVacuumProjection EulerianGrothendieck.VectorOptimum
+          mkdir -p .lake/build/lib/lean
+          for module in CriticalWindowQuartic CriticalWindowGlobalMGF CriticalWindowComplexMGF CriticalWindowAnalyticRemainder CriticalWindowFockDomination CriticalWindowGammaVacuum CriticalWindowFinalAssembly CriticalWindowPointwise CriticalWindowDCT CriticalWindowLocalUniform CrossNormalization20261126; do
+            lake env lean -o ".lake/build/lib/lean/${module}.olean" "${module}.lean"
+          done
+          lake env lean Radical36420261127.lean 2>&1 | tee /tmp/m12-radical364.log
+      - name: Audit all seven declarations
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          src=Path('lean/EulerianGrothendieck/Radical36420261127.lean').read_text()
+          data=Path('/tmp/m12-radical364.log').read_text()
+          assert not re.search(r'\b(sorry|admit|axiom|opaque|native_decide)\b',src)
+          assert ': error:' not in data and 'sorryAx' not in data and 'Lean.ofReduceBool' not in data
+          names=re.findall(r'^#print axioms (\S+)$',src,re.M)
+          assert len(names)==7
+          for name in names:
+              m=re.search(r"'"+re.escape(name)+r"' depends on axioms: \[([^\]]*)\]",data)
+              if m:
+                  assert {x.strip() for x in m.group(1).split(',') if x.strip()}<={'propext','Classical.choice','Quot.sound'},name
+              else:
+                  assert "'"+name+"' does not depend on any axioms" in data,name
+              print('AXIOM AUDIT SUCCESS',name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-radical364-audit
+          path: /tmp/m12-radical364.log
+  audit_651:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 04e9d61ba96fc5d4ffb53b99f4650b0c898e6901
+      - name: Restore pinned Lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Rebuild certified dependency chain and new theorems
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "04e9d61ba96fc5d4ffb53b99f4650b0c898e6901"
+          echo "EXACT_HEAD=$(git rev-parse HEAD)"
+          lake exe cache get
+          lake build EulerianGrothendieck.FockVacuumProjection EulerianGrothendieck.VectorOptimum
+          mkdir -p .lake/build/lib/lean
+          for module in CriticalWindowQuartic CriticalWindowGlobalMGF CriticalWindowComplexMGF CriticalWindowAnalyticRemainder CriticalWindowFockDomination CriticalWindowGammaVacuum CriticalWindowFinalAssembly CriticalWindowPointwise CriticalWindowDCT CriticalWindowLocalUniform CrossNormalization20261126; do
+            lake env lean -o ".lake/build/lib/lean/${module}.olean" "${module}.lean"
+          done
+          lake env lean CrossAnalytic20261127.lean 2>&1 | tee /tmp/m12-cw-quartic-analytic.log
+      - name: Audit all seventeen declarations
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          src=Path('lean/EulerianGrothendieck/CrossAnalytic20261127.lean').read_text()
+          data=Path('/tmp/m12-cw-quartic-analytic.log').read_text()
+          assert not re.search(r'\b(sorry|admit|axiom|opaque|native_decide)\b',src)
+          assert ': error:' not in data and 'sorryAx' not in data and 'Lean.ofReduceBool' not in data
+          names=re.findall(r'^#print axioms (\S+)$',src,re.M)
+          assert len(names)==17
+          for name in names:
+              m=re.search(r"'"+re.escape(name)+r"' depends on axioms: \[([^\]]*)\]",data)
+              if m:
+                  assert {x.strip() for x in m.group(1).split(',') if x.strip()}<={'propext','Classical.choice','Quot.sound'},name
+              else:
+                  assert "'"+name+"' does not depend on any axioms" in data,name
+              print('AXIOM AUDIT SUCCESS',name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-cw-quartic-analytic-audit
+          path: /tmp/m12-cw-quartic-analytic.log
+  audit_652:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 04e9d61ba96fc5d4ffb53b99f4650b0c898e6901
+      - name: Exact-head pinned Lean 4 compile and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "04e9d61ba96fc5d4ffb53b99f4650b0c898e6901"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/m12-bilateral-jacobi.log
+          mkdir -p /tmp/m12-jacobi-olean/Manuscript16
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-jacobi-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-jacobi-olean/Manuscript16/V166L2SpectralInverse.olean Manuscript16/V166L2SpectralInverse.lean' 2>&1 | tee -a /tmp/m12-bilateral-jacobi.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-jacobi-olean:$LEAN_PATH"; lean -M16768 EulerianGrothendieck/KreinBilateralJacobi20261127.lean' 2>&1 | tee -a /tmp/m12-bilateral-jacobi.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m12-bilateral-jacobi.log; then exit 1; fi
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('/tmp/m12-bilateral-jacobi.log').read_text()
+          names=["reindex_norm","shift_norm_le","weight_norm_le","J_apply","J_norm_le","forward_backward","J_selfAdjoint","S0_square","S0_selfAdjoint","parity_anticomm","power_entry_outside"]
+          count=0
+          for name in names:
+              full="'M12BilateralJacobi."+name+"'"
+              found=re.findall(re.escape(full)+r" depends on axioms: \[([^\]]*)\]",t,re.S)
+              assert found or full+" does not depend on any axioms" in t,full
+              for a in found:
+                  assert {x.strip() for x in a.split(',') if x.strip()} <= {'propext','Quot.sound','Classical.choice'},(full,a)
+              count+=1
+          assert count==11
+          print("SUCCESS M12 BILATERAL JACOBI AUDIT",count)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-bilateral-jacobi-audit
+          path: /tmp/m12-bilateral-jacobi.log
+          if-no-files-found: warn
+  audit_654:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 04e9d61ba96fc5d4ffb53b99f4650b0c898e6901
+      - name: Exact-head pinned Lean 4 compile and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "04e9d61ba96fc5d4ffb53b99f4650b0c898e6901"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/m12-selfdual-elliptic.log
+          mkdir -p /tmp/m12-selfdual-olean/Manuscript13 /tmp/m12-selfdual-olean/Manuscript15 /tmp/m12-selfdual-olean/EulerianGrothendieck
+          export LEAN_PATH="/tmp/m12-selfdual-olean:${LEAN_PATH:-}"
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/Manuscript13/EllisFourier20261124.olean Manuscript13/EllisFourier20261124.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/EulerianGrothendieck/CriticalWindowGammaVacuum.olean EulerianGrothendieck/CriticalWindowGammaVacuum.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/Manuscript13/CrossThroatElliptic20261125.olean Manuscript13/CrossThroatElliptic20261125.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/Manuscript13/CrossThroatLemniscate20261126.olean Manuscript13/CrossThroatLemniscate20261126.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/Manuscript15/CrossQuarticCurve20261125.olean Manuscript15/CrossQuarticCurve20261125.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/Manuscript15/CrossQuarticPeriodDifferential20261125.olean Manuscript15/CrossQuarticPeriodDifferential20261125.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/Manuscript15/CrossQuarticFinitePeriod20261125.olean Manuscript15/CrossQuarticFinitePeriod20261125.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/Manuscript15/CrossQuarticImproperPeriod20261125.olean Manuscript15/CrossQuarticImproperPeriod20261125.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 EulerianGrothendieck/SelfDualElliptic20261127.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m12-selfdual-elliptic.log; then exit 1; fi
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('/tmp/m12-selfdual-elliptic.log').read_text()
+          names=["quarticDensity_integrable","reciprocal_image","reciprocal_weight","reciprocal_period","quartic_half_period","selfdual_weight","selfdual_K_from_weight","equation_387","selfdual_K_gamma"]
+          count=0
+          for name in names:
+              full="'M12SelfDualElliptic."+name+"'"
+              found=re.findall(re.escape(full)+r" depends on axioms: \[([^\]]*)\]",t,re.S)
+              assert found or full+" does not depend on any axioms" in t,full
+              for a in found:
+                  assert {x.strip() for x in a.split(',') if x.strip()} <= {'propext','Quot.sound','Classical.choice'},(full,a)
+              count+=1
+          assert count==9
+          print("SUCCESS M12 SELFDUAL ELLIPTIC AUDIT",count)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-selfdual-elliptic-audit
+          path: /tmp/m12-selfdual-elliptic.log
+          if-no-files-found: warn
