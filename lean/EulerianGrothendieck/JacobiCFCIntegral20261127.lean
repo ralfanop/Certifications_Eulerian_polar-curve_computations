@@ -1,6 +1,8 @@
 import EulerianGrothendieck.JacobiFourier20261127
 import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Instances
 import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+import Mathlib.Topology.ContinuousMap.Compact
+import Mathlib.Analysis.Normed.Algebra.Spectrum
 
 /-! The Bochner Fourier representation of Mathlib's actual normal
 continuous functional calculus. Scalar Fourier inversion is a separate
@@ -37,8 +39,10 @@ theorem spectrum_real (u : Bonds) (z : Spec u) : star (z:ℂ) = (z:ℂ) := by
   exact congrArg (fun f : C(Spec u,ℂ) => f z) he
 
 def evalL (u : Bonds) (z : Spec u) : C(Spec u,ℂ) →L[ℂ] ℂ :=
-  (ContinuousMap.evalAlgHom ℂ ℂ z).toLinearMap.mkContinuous 1
-    (fun f => by simpa only [one_mul] using f.norm_coe_le_norm z)
+  (show C(Spec u,ℂ) →ₗ[ℂ] ℂ from (ContinuousMap.evalAlgHom ℂ ℂ z).toLinearMap).mkContinuous 1
+    (fun f => by
+      change ‖f z‖ ≤ 1 * ‖f‖
+      simpa only [one_mul] using ContinuousMap.norm_coe_le_norm f z)
 
 theorem evalL_apply (u : Bonds) (z : Spec u) (g : C(Spec u,ℂ)) :
     evalL u z g = g z := rfl
@@ -50,14 +54,14 @@ theorem phase_apply (u : Bonds) (t : ℝ) (z : Spec u) :
     phase u t z = Complex.exp (((t:ℂ)*Complex.I)*(z:ℂ)) := by
   unfold phase
   change (ContinuousMap.evalAlgHom ℂ ℂ z) (exp _) = _
-  rw [NormedSpace.map_exp (ContinuousMap.evalAlgHom ℂ ℂ z) (evalL u z).continuous,← Complex.exp_eq_exp_ℂ]
+  rw [NormedSpace.map_exp (ContinuousMap.evalAlgHom ℂ ℂ z).toRingHom (evalL u z).continuous,← Complex.exp_eq_exp_ℂ]
   congr 1
   rfl
 
 theorem hom_phase (u : Bonds) (t : ℝ) :
     hom u (phase u t) = exp (((t:ℂ)*Complex.I) • J u) := by
   unfold phase
-  rw [NormedSpace.map_exp (hom u) (homL u).continuous,map_smul,hom_id]
+  rw [NormedSpace.map_exp (hom u).toAlgHom.toRingHom (homL u).continuous,map_smul,hom_id]
 
 theorem phase_continuous (u : Bonds) : Continuous (phase u) := by
   unfold phase
