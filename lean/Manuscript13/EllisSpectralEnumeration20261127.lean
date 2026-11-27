@@ -2,6 +2,7 @@ import Mathlib
 import Manuscript13.EllisFredholmClosure20261127
 open MeasureTheory Set Filter
 open scoped Topology ENNReal
+set_option maxHeartbeats 2000000
 namespace Manuscript13.EllisSpectralEnumeration20261127
 noncomputable section
 open Manuscript13.EllisGramKernelOperator20261124
@@ -11,7 +12,7 @@ open Manuscript13.EllisBirman20261124 (spectralDet)
 theorem orthonormal_countable {ι : Type*} (v : ι → H) (hv : Orthonormal ℝ v) :
     Countable ι := by
   letI : Fact (1 ≤ (2 : ℝ≥0∞)) := ⟨by norm_num⟩
-  haveI : TopologicalSpace.SecondCountableTopology H := by infer_instance
+  haveI : SecondCountableTopology H := by infer_instance
   apply Pairwise.countable_of_isOpen_disjoint (s := fun i => Metric.ball (v i) (1/2))
   · intro i j hij
     apply Set.disjoint_left.mpr
@@ -42,11 +43,11 @@ theorem interval_mass (n : ℕ) : volume (intervalSet n) = 1 := by
   simp
 
 def intervalVector (n : ℕ) : H :=
-  indicatorConstLp 2 measurableSet_Ico (by rw [interval_mass]; simp) (1 : ℝ)
+  indicatorConstLp 2 (s := intervalSet n) (by exact measurableSet_Ico) (by rw [interval_mass]; simp) (1 : ℝ)
 
 theorem intervalVector_ae (n : ℕ) :
     (fun x => intervalVector n x) =ᵐ[volume] (intervalSet n).indicator (fun _ => (1:ℝ)) :=
-  indicatorConstLp_coeFn
+  by unfold intervalVector; exact indicatorConstLp_coeFn
 
 theorem interval_disjoint {i j : ℕ} (h : i ≠ j) :
     Disjoint (intervalSet i) (intervalSet j) := by
@@ -74,7 +75,9 @@ theorem interval_orthonormal : Orthonormal ℝ intervalVector := by
         filter_upwards [intervalVector_ae i] with x hx
         rw [hx]
         by_cases h : x ∈ intervalSet i <;> simp [Set.indicator,h]
-      _ = 1 := by rw [integral_indicator (measurableSet_Ico : MeasurableSet (intervalSet i)), integral_const]; simp [interval_mass]
+      _ = 1 := by have hm : MeasurableSet (intervalSet i) := measurableSet_Ico
+        rw [integral_indicator hm, integral_const]
+        simp [interval_mass]
   · simp only [if_neg hij]
     calc
       _ = ∫ x : ℝ, (0:ℝ) := by
@@ -94,8 +97,8 @@ theorem not_finiteDimensional_H : ¬ FiniteDimensional ℝ H := by
   simpa using hh
 
 theorem hilbertBasis_index_infinite {ι : Type*} (b : HilbertBasis ι ℝ H) : Infinite ι := by
-  apply infinite_of_not_finite
-  intro h
+  by_contra h
+  have h : Finite ι := not_infinite_iff_finite.mp h
   letI : Finite ι := h
   letI : Fintype ι := Fintype.ofFinite ι
   apply not_finiteDimensional_H
