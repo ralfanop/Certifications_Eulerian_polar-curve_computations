@@ -83,18 +83,18 @@ theorem distribution_mul_of_ae (g : ℝ → ℂ) (hg : g.HasTemperateGrowth) (u 
 theorem first_mem_of_bessel (u : H) (h : besselH2 u) :
     MemLp (fun x => dSymbol x * EllisComplexResolvent20261127.fourier u x) 2 volume := by
   unfold besselH2 at h
-  apply h.mono'
+  apply h.of_le
   · exact (dSymbol_growth.1.continuous.aestronglyMeasurable).mul (Lp.memLp (EllisComplexResolvent20261127.fourier u)).aestronglyMeasurable
   · filter_upwards [] with x
     rw [norm_mul, norm_mul]
     have hb : ‖dSymbol x‖ ≤ 1 + frequencySquare x := by
-      unfold dSymbol frequencySquare
-      rw [norm_mul, norm_mul, norm_mul, Complex.norm_I, mul_one, Complex.norm_real,
-        Real.norm_eq_abs, abs_of_nonneg Real.pi_pos.le, Complex.norm_real, Real.norm_eq_abs]
-      norm_num
-      have h₁ : 0 ≤ (2 * Real.pi) := by positivity
-      rw [← abs_mul, abs_of_nonneg h₁] <;> try nlinarith [sq_nonneg (|2 * Real.pi * x| - 1)]
-      all_goals try nlinarith [sq_nonneg (|2 * Real.pi * x| - 1), sq_abs (2 * Real.pi * x)]
+      have he : ‖dSymbol x‖ = |2 * Real.pi * x| := by
+        unfold dSymbol
+        simp [norm_mul, Real.norm_eq_abs, abs_mul, abs_of_nonneg Real.pi_pos.le]
+        <;> ring
+      rw [he]
+      unfold frequencySquare
+      nlinarith [sq_abs (2 * Real.pi * x), sq_nonneg (|2 * Real.pi * x| - 1)]
     rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (by unfold frequencySquare; positivity)]
     exact mul_le_mul_of_nonneg_right hb (norm_nonneg _)
 
