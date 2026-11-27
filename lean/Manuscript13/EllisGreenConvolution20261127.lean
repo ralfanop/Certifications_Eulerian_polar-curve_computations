@@ -59,7 +59,8 @@ theorem fourier_integral_agreement (f : H) (hf : Integrable (fun x : ℝ => f x)
     ((Lp.memLp (EllisComplexResolvent20261127.fourier f)).locallyIntegrable (by norm_num)) hc.locallyIntegrable
   intro t ht hs
   have hs' : HasCompactSupport (Complex.ofRealCLM ∘ t) := hs.comp_left rfl
-  have ht' : ContDiff ℝ (⊤ : WithTop ℕ∞) (Complex.ofRealCLM ∘ t) := by fun_prop
+  have ht' : ContDiff ℝ ((⊤ : ℕ∞) : WithTop ℕ∞) (Complex.ofRealCLM ∘ t) :=
+    Complex.ofRealCLM.contDiff.comp ht
   let φ := hs'.toSchwartzMap ht'
   have he := congrArg (fun z : TemperedDistribution ℝ ℂ => z φ)
     (Lp.fourier_toTemperedDistribution_eq f)
