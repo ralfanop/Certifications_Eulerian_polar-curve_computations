@@ -126,9 +126,50 @@ theorem density_quadratic_remainder_from_sinh (k t : ℝ)
       gcongr
     _ ≤ _ := by nlinarith [show 0 ≤ |t|^4 by positivity]
 
+
+/- The exponential Taylor bound supplies the previously assumed local sinh estimates. -/
+theorem sinh_local_bounds (t : ℝ) (ht : |t| ≤ 1) :
+    |Real.sinh t| ≤ 2*|t| ∧ |Real.sinh t-t| ≤ |t|^3 := by
+  have hp := Real.exp_bound (x := t) (n := 3) ht (by decide)
+  have hm := Real.exp_bound (x := -t) (n := 3) (by simpa using ht) (by decide)
+  norm_num [Finset.sum_range_succ, Nat.factorial] at hp hm
+  rw [abs_neg] at hm
+  have he : Real.sinh t-t =
+      ((Real.exp t-(1+t+t^2/2))-(Real.exp (-t)-(1-t+t^2/2)))/2 := by
+    rw [Real.sinh_eq]
+    ring
+  have hr : |Real.sinh t-t| ≤ |t|^3 := by
+    rw [he, abs_div, abs_of_pos (by norm_num : (0:ℝ)<2)]
+    apply (div_le_iff₀ (by norm_num : (0:ℝ)<2)).2
+    have hp' : |Real.exp t-(1+t+t^2/2)| ≤ (2/9:ℝ)*|t|^3 := by
+      convert hp using 1 <;> ring_nf
+    have hm' : |Real.exp (-t)-(1-t+t^2/2)| ≤ (2/9:ℝ)*|t|^3 := by
+      convert hm using 1 <;> ring_nf
+    calc
+      _ ≤ |Real.exp t-(1+t+t^2/2)|+|Real.exp (-t)-(1-t+t^2/2)| := abs_sub _ _
+      _ ≤ _ := by linarith [hp',hm',show 0 ≤ |t|^3 by positivity]
+  refine ⟨?_,hr⟩
+  have hc : |t|^3 ≤ |t| := by
+    calc
+      |t|^3 = |t|*|t|*|t| := by ring
+      _ ≤ 1*1*|t| := by gcongr
+      _ = _ := by ring
+  calc
+    |Real.sinh t| = |(Real.sinh t-t)+t| := by congr 1 <;> ring
+    _ ≤ |Real.sinh t-t|+|t| := abs_add_le _ _
+    _ ≤ _ := by linarith
+
+theorem density_quadratic_remainder_local (k t : ℝ)
+    (hk0 : 0 ≤ k) (hk1 : k ≤ 3/2) (ht : |t| ≤ 1) :
+    |density k t - (k-k*(1+k^2)/2*t^2)| ≤ 300*|t|^4 := by
+  obtain ⟨hS,hSt⟩ := sinh_local_bounds t ht
+  exact density_quadratic_remainder_from_sinh k t hk0 hk1 hS hSt
+
 end Manuscript15.ConcreteCreaseRemainder20261127
 
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.sqrt_reciprocal_remainder
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.density_continuous
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.density_nonnegative_bounded
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.density_quadratic_remainder_from_sinh
+#print axioms Manuscript15.ConcreteCreaseRemainder20261127.sinh_local_bounds
+#print axioms Manuscript15.ConcreteCreaseRemainder20261127.density_quadratic_remainder_local
