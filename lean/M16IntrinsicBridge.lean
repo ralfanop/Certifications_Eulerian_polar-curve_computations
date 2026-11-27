@@ -92,7 +92,7 @@ theorem curl_restriction (v w : Fields) (hv : Smooth1 v) (hw : Smooth1 w)
   obtain ⟨h4,h5,h6⟩ := frameDeriv_restriction_three x v.2.1 w.2.1 hv.2.1 hw.2.1 (fun y => (h y).2.1)
   obtain ⟨h7,h8,h9⟩ := frameDeriv_restriction_three x v.2.2 w.2.2 hv.2.2 hw.2.2 (fun y => (h y).2.2)
   simp only [curlFrame,h1,h2,h3,h4,h5,h6,h7,h8,h9,(h x).1,(h x).2.1,(h x).2.2]
-  exact ⟨rfl,rfl,rfl⟩
+  exact ⟨trivial,trivial,trivial⟩
 
 theorem codiff_restriction (v w : Fields) (hv : Smooth1 v) (hw : Smooth1 w)
     (h : SameFields v w) (x : S3) :
