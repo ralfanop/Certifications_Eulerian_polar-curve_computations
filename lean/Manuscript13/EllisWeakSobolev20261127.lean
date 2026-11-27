@@ -27,9 +27,11 @@ theorem dSquare_eq (x : ℝ) : dSquare x = -(frequencySquare x : ℂ) := by
   <;> ring
 
 theorem dSymbol_growth : dSymbol.HasTemperateGrowth := by unfold dSymbol; fun_prop
-theorem dSquare_growth : dSquare.HasTemperateGrowth := by unfold dSquare; fun_prop
+theorem dSquare_growth : dSquare.HasTemperateGrowth := by
+  unfold dSquare
+  exact dSymbol_growth.mul dSymbol_growth
 
-theorem fourier_embed (u : H) : 𝓕 (embed u) = embed (fourier u) :=
+theorem fourier_embed (u : H) : 𝓕 (embed u) = embed (EllisComplexResolvent20261127.fourier u) :=
   Lp.fourier_toTemperedDistribution_eq u
 
 theorem fourier_weakD (u : TD) :
@@ -37,7 +39,7 @@ theorem fourier_weakD (u : TD) :
   unfold weakD
   rw [TemperedDistribution.fourier_lineDerivOp_eq]
   have h : (fun x : ℝ => ((inner ℝ x (1:ℝ) : ℝ) : ℂ)).HasTemperateGrowth := by fun_prop
-  rw [← TemperedDistribution.smulLeftCLM_smul h]
+  rw [← ContinuousLinearMap.smul_apply, ← TemperedDistribution.smulLeftCLM_smul h]
   congr 2
   funext x
   simp [dSymbol, Real.inner_apply, mul_assoc]
@@ -79,9 +81,10 @@ theorem distribution_mul_of_ae (g : ℝ → ℂ) (hg : g.HasTemperateGrowth) (u 
   ring
 
 theorem first_mem_of_bessel (u : H) (h : besselH2 u) :
-    MemLp (fun x => dSymbol x * fourier u x) 2 volume := by
+    MemLp (fun x => dSymbol x * EllisComplexResolvent20261127.fourier u x) 2 volume := by
+  unfold besselH2 at h
   apply h.mono'
-  · exact (dSymbol_growth.continuous.aestronglyMeasurable).mul (Lp.memLp (fourier u)).aestronglyMeasurable
+  · exact (dSymbol_growth.1.continuous.aestronglyMeasurable).mul (Lp.memLp (EllisComplexResolvent20261127.fourier u)).aestronglyMeasurable
   · filter_upwards [] with x
     rw [norm_mul, norm_mul]
     have hb : ‖dSymbol x‖ ≤ 1 + frequencySquare x := by
@@ -96,9 +99,9 @@ theorem first_mem_of_bessel (u : H) (h : besselH2 u) :
     exact mul_le_mul_of_nonneg_right hb (norm_nonneg _)
 
 theorem second_mem_of_bessel (u : H) (h : besselH2 u) :
-    MemLp (fun x => dSquare x * fourier u x) 2 volume := by
+    MemLp (fun x => dSquare x * EllisComplexResolvent20261127.fourier u x) 2 volume := by
   have h' := (secondFrequency_iff_bessel u).2 h
-  have hm : MemLp (fun x => -((frequencySquare x : ℂ) * fourier u x)) 2 volume := h'.neg
+  have hm : MemLp (fun x => -((frequencySquare x : ℂ) * EllisComplexResolvent20261127.fourier u x)) 2 volume := h'.neg
   refine MemLp.ae_eq ?_ hm
   filter_upwards [] with x
   simp [dSquare_eq]
@@ -110,9 +113,9 @@ theorem weakH2_iff_bessel (u : H) : weakH2 u ↔ besselH2 u := by
     have he := congrArg (fun z : TD => 𝓕 z) hD
     rw [fourier_weakD_twice, fourier_embed, fourier_embed] at he
     have hae := distribution_mul_ae dSquare dSquare_growth
-      (by unfold dSquare dSymbol; fun_prop) (fourier u) (fourier w) he
-    have hm : MemLp (fun x => dSquare x * fourier u x) 2 volume :=
-      MemLp.ae_eq hae.symm (Lp.memLp (fourier w))
+      (by unfold dSquare dSymbol; fun_prop) (EllisComplexResolvent20261127.fourier u) (EllisComplexResolvent20261127.fourier w) he
+    have hm : MemLp (fun x => dSquare x * EllisComplexResolvent20261127.fourier u x) 2 volume :=
+      MemLp.ae_eq hae.symm (Lp.memLp (EllisComplexResolvent20261127.fourier w))
     apply (secondFrequency_iff_bessel u).1
     have hn := hm.neg
     refine MemLp.ae_eq ?_ hn
@@ -121,10 +124,10 @@ theorem weakH2_iff_bessel (u : H) : weakH2 u ↔ besselH2 u := by
   · intro h
     let vF := (first_mem_of_bessel u h).toLp _
     let wF := (second_mem_of_bessel u h).toLp _
-    let v := fourier.symm vF
-    let w := fourier.symm wF
-    have hvF : fourier v = vF := fourier.apply_symm_apply _
-    have hwF : fourier w = wF := fourier.apply_symm_apply _
+    let v := EllisComplexResolvent20261127.fourier.symm vF
+    let w := EllisComplexResolvent20261127.fourier.symm wF
+    have hvF : EllisComplexResolvent20261127.fourier v = vF := EllisComplexResolvent20261127.fourier.apply_symm_apply _
+    have hwF : EllisComplexResolvent20261127.fourier w = wF := EllisComplexResolvent20261127.fourier.apply_symm_apply _
     have h1 : weakD (embed u) = embed v := by
       apply (fourierEquiv ℂ TD).injective
       change 𝓕 (weakD (embed u)) = 𝓕 (embed v)
