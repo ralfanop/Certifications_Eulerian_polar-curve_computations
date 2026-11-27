@@ -71,7 +71,7 @@ theorem tilted_power (a : ℝ) (ha : 0 ≤ a) (d n : ℕ) (hd : d ≤ n) :
     have hh : (d:ℝ) ≤ (n:ℝ) := by exact_mod_cast hd
     linarith
   simpa only [one_mul] using
-    mul_le_mul_of_nonneg_right ((by rw [← Real.exp_zero]; exact Real.exp_le_exp.mpr h : 1 ≤ Real.exp (-(d:ℝ)+(n:ℝ)*1))) (pow_nonneg ha n)
+    mul_le_mul_of_nonneg_right ((by simpa only [Real.exp_zero] using Real.exp_le_exp.mpr h : 1 ≤ Real.exp (-(d:ℝ)+(n:ℝ)*1))) (pow_nonneg ha n)
 
 /-- Exact exponential cone estimate for the actual bilateral operator. -/
 theorem exponential_entry_bound (u : Bonds) (t : ℝ) (k l : ℤ) (d : ℕ)
