@@ -49,7 +49,7 @@ jobs:
           python - <<'PY'
           import re
           from pathlib import Path
-          counts = {'DiskFamily20261127':53,'DiskFamilyExtremizers20261127':6,'DiskFamilyCassiniTaylor20261127':7,'DiskFamilyDifferential20261127':18}
+          counts = {'DiskFamily20261127':53,'DiskFamilyExtremizers20261127':6,'DiskFamilyCassiniTaylor20261127':7,'DiskFamilyDifferential20261127':24}
           total = 0
           for module, minimum in counts.items():
               source = Path(f'Manuscript15/{module}.lean').read_text()
