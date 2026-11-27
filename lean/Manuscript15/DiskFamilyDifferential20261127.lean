@@ -130,6 +130,7 @@ theorem circle_second_derivative {r : ℝ} (hr : 0 < r) :
     convert hh using 1 <;> simp [circleSlopeFactor]
   have hp := (hasDerivAt_id (0:ℝ)).mul hf
   have hp' : HasDerivAt (fun x : ℝ => x*circleSlopeFactor r x) (1/r) 0 := by
+    change HasDerivAt (id * circleSlopeFactor r) (1/r) 0
     simpa [circleSlopeFactor,Real.sqrt_sq hr.le] using hp
   apply hp'.congr_of_eventuallyEq
   filter_upwards [Metric.ball_mem_nhds (0:ℝ) hr] with x hx
@@ -170,8 +171,10 @@ theorem greatest_derivative_from_boundary {r m : ℝ} {z : ℂ}
   have he' : Real.sqrt m = ‖1-z^2‖ := by
     rw [← he,Real.sqrt_sq (norm_nonneg _)]
   refine ⟨⟨z,hz,?_⟩,?_⟩
-  · rw [(disk_hasDerivAt hz hr2).deriv,norm_branch_derivative,he']
+  · change ‖deriv H0 z‖ = _
+    rw [(disk_hasDerivAt hz hr2).deriv,norm_branch_derivative,he']
   · rintro v ⟨w,hw,rfl⟩
+    change ‖deriv H0 w‖ ≤ _
     rw [(disk_hasDerivAt hw hr2).deriv,norm_branch_derivative]
     have h1 := Real.sqrt_le_sqrt (hmin w hw)
     rw [Real.sqrt_sq (norm_nonneg _)] at h1
