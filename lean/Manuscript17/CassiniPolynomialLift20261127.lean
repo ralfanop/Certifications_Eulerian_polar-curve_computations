@@ -63,9 +63,9 @@ theorem lift_derivative (c : ℝ → Fin 3 → ℝ) (s dt : ℝ) (u : Fin 3 → 
     funext fun z => congrFun (lift_eq_scaled (c z) (hSphere z)) i
   rw [he]
   fin_cases i
-  · simpa [scaledLift,tangent,add_comm,Pi.mul_apply] using ht.mul (hc 0)
-  · simpa [scaledLift,tangent,add_comm,Pi.mul_apply] using ht.mul (hc 1)
-  · simpa [scaledLift,tangent,add_comm,Pi.mul_apply] using ht.mul (hc 2)
+  · simpa [scaledLift,tangent,add_comm] using ht.fun_mul (hc 0)
+  · simpa [scaledLift,tangent,add_comm] using ht.fun_mul (hc 1)
+  · simpa [scaledLift,tangent,add_comm] using ht.fun_mul (hc 2)
   · simpa [scaledLift,tangent] using hasDerivAt_const s (1:ℝ)
   · simpa [scaledLift,tangent] using ht
   · simpa [scaledLift,tangent] using hasDerivAt_const s (1:ℝ)
