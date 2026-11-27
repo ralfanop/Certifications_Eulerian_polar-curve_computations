@@ -23,7 +23,9 @@ def entryMap (k l : ℤ) : Op →L[ℂ] ℂ :=
   ({ toFun := fun T => entry T k l
      map_add' := fun A C => rfl
      map_smul' := fun c A => rfl } : Op →ₗ[ℂ] ℂ).mkContinuous 1
-      (fun T => by simpa only [one_mul] using entry_norm_le T k l)
+      (fun T => by
+        change ‖entry T k l‖ ≤ 1 * ‖T‖
+        simpa only [one_mul] using entry_norm_le T k l)
 
 theorem entryMap_apply (k l : ℤ) (T : Op) : entryMap k l T = entry T k l := rfl
 
@@ -69,7 +71,7 @@ theorem tilted_power (a : ℝ) (ha : 0 ≤ a) (d n : ℕ) (hd : d ≤ n) :
     have hh : (d:ℝ) ≤ (n:ℝ) := by exact_mod_cast hd
     linarith
   simpa only [one_mul] using
-    mul_le_mul_of_nonneg_right (Real.one_le_exp.mpr h) (pow_nonneg ha n)
+    mul_le_mul_of_nonneg_right ((by rw [← Real.exp_zero]; exact Real.exp_le_exp.mpr h : 1 ≤ Real.exp (-(d:ℝ)+(n:ℝ)*1))) (pow_nonneg ha n)
 
 /-- Exact exponential cone estimate for the actual bilateral operator. -/
 theorem exponential_entry_bound (u : Bonds) (t : ℝ) (k l : ℤ) (d : ℕ)
@@ -135,7 +137,7 @@ theorem far_cone_polynomial (u : Bonds) (t : ℝ) (k l : ℤ) (d N : ℕ)
   have h₂ := mul_le_mul_of_nonneg_left h₁ (Real.exp_nonneg (-(d:ℝ)/2))
   rw [show (1+(d:ℝ))/2 = 1/2+(d:ℝ)/2 by ring, Real.exp_add] at h₂
   have he : Real.exp (-(d:ℝ)/2)*Real.exp ((d:ℝ)/2) = 1 := by
-    rw [← Real.exp_add]; simp
+    rw [← Real.exp_add,show -(d:ℝ)/2+(d:ℝ)/2=0 by ring,Real.exp_zero]
   calc
     _ ≤ Real.exp (-(d:ℝ)/2)*(Real.exp (1/2)*Real.exp ((d:ℝ)/2)*(Nat.factorial N:ℝ)*2^N) := h₂
     _ = _ := by
