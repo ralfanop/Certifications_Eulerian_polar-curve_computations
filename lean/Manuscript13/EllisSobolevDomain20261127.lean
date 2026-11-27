@@ -21,7 +21,7 @@ theorem secondFrequency_iff_bessel (u : H) : secondFrequency u ↔ besselH2 u :=
   · intro h
     have h' : MemLp ((fun x : ℝ => (frequencySquare x : ℂ) * fourier u x) +
         (fun x : ℝ => fourier u x)) 2 volume := h.add (Lp.memLp (fourier u))
-    refine MemLp.congr h' ?_
+    refine MemLp.ae_eq ?_ h'
     filter_upwards [] with x
     simp only [Pi.add_apply, Pi.sub_apply]
     push_cast
@@ -29,7 +29,7 @@ theorem secondFrequency_iff_bessel (u : H) : secondFrequency u ↔ besselH2 u :=
   · intro h
     have h' : MemLp ((fun x : ℝ => ((1 + frequencySquare x : ℝ) : ℂ) * fourier u x) -
         (fun x : ℝ => fourier u x)) 2 volume := h.sub (Lp.memLp (fourier u))
-    refine MemLp.congr h' ?_
+    refine MemLp.ae_eq ?_ h'
     filter_upwards [] with x
     simp only [Pi.add_apply, Pi.sub_apply]
     push_cast
@@ -44,7 +44,7 @@ theorem shiftedMem_iff_second (κ : ℝ) (u : H) :
   · intro h
     have h' : MemLp ((fun x : ℝ => (symbol κ x : ℂ) * fourier u x) -
         (fun x : ℝ => ((κ^2 : ℝ) : ℂ) * fourier u x)) 2 volume := h.sub hc
-    refine MemLp.congr h' ?_
+    refine MemLp.ae_eq ?_ h'
     filter_upwards [] with x
     unfold symbol frequencySquare
     simp only [Pi.add_apply, Pi.sub_apply]
@@ -53,7 +53,7 @@ theorem shiftedMem_iff_second (κ : ℝ) (u : H) :
   · intro h
     have h' : MemLp ((fun x : ℝ => (frequencySquare x : ℂ) * fourier u x) +
         (fun x : ℝ => ((κ^2 : ℝ) : ℂ) * fourier u x)) 2 volume := h.add hc
-    refine MemLp.congr h' ?_
+    refine MemLp.ae_eq ?_ h'
     filter_upwards [] with x
     unfold symbol frequencySquare
     simp only [Pi.add_apply, Pi.sub_apply]
@@ -66,7 +66,7 @@ theorem graph_iff_shiftedMem (κ : ℝ) (u : H) :
   constructor
   · rintro ⟨f,hf⟩
     have hf' : MemLp (fun x : ℝ => fourier f x) 2 volume := Lp.memLp (fourier f)
-    exact MemLp.congr hf' hf.symm
+    exact MemLp.ae_eq hf.symm hf'
   · intro h
     refine ⟨fourier.symm (h.toLp _), ?_⟩
     unfold shiftedGraph
