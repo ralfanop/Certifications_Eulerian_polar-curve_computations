@@ -15,10 +15,10 @@ and poles, not merely altitude/longitude coordinates. -/
 def sphereDot (x y : Fin 3 → ℝ) : ℝ := x 0*y 0+x 1*y 1+x 2*y 2
 def t (x : Fin 3 → ℝ) : ℝ := x 2/(2-x 2^2)
 def rhoSq (x : Fin 3 → ℝ) : ℝ := (t x)^2*(1+x 0^2+x 1^2)
-def lift (x : Fin 3 → ℝ) : V := ![t x*x 0,t x*x 1,rhoSq x,t x,1,1]
-def scaledLift (x : Fin 3 → ℝ) : V := ![t x*x 0,t x*x 1,t x*x 2,t x,1,1]
+def lift (x : Fin 3 → ℝ) : V := ![t x*x 0,t x*x 1,rhoSq x,1,t x,1]
+def scaledLift (x : Fin 3 → ℝ) : V := ![t x*x 0,t x*x 1,t x*x 2,1,t x,1]
 def tangent (x u : Fin 3 → ℝ) (dt : ℝ) : V :=
-  ![dt*x 0+t x*u 0,dt*x 1+t x*u 1,dt*x 2+t x*u 2,dt,0,0]
+  ![dt*x 0+t x*u 0,dt*x 1+t x*u 1,dt*x 2+t x*u 2,0,dt,0]
 
 theorem denominator_pos (x : Fin 3 → ℝ) (hx : sphereDot x x = 1) :
     0 < 2-x 2^2 := by
@@ -63,11 +63,11 @@ theorem lift_derivative (c : ℝ → Fin 3 → ℝ) (s dt : ℝ) (u : Fin 3 → 
     funext fun z => congrFun (lift_eq_scaled (c z) (hSphere z)) i
   rw [he]
   fin_cases i
-  · simpa [scaledLift,tangent,add_comm] using ht.mul (hc 0)
-  · simpa [scaledLift,tangent,add_comm] using ht.mul (hc 1)
-  · simpa [scaledLift,tangent,add_comm] using ht.mul (hc 2)
-  · simpa [scaledLift,tangent] using ht
+  · simpa [scaledLift,tangent,add_comm,Pi.mul_apply] using ht.mul (hc 0)
+  · simpa [scaledLift,tangent,add_comm,Pi.mul_apply] using ht.mul (hc 1)
+  · simpa [scaledLift,tangent,add_comm,Pi.mul_apply] using ht.mul (hc 2)
   · simpa [scaledLift,tangent] using hasDerivAt_const s (1:ℝ)
+  · simpa [scaledLift,tangent] using ht
   · simpa [scaledLift,tangent] using hasDerivAt_const s (1:ℝ)
 
 def hyperTangent (x u : Fin 3 → ℝ) : Fin 3 → ℝ :=
