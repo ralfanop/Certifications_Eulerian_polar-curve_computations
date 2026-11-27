@@ -332,6 +332,96 @@ theorem lipschitz_from_modulus {r m : ℝ} (hr : r < Real.sqrt 2) (hm : 0 < m)
   rw [norm_branch_derivative]
   exact (div_le_div_iff₀ hxpos hp).2 (by linarith)
 
+/-- A Lipschitz constant bounds the norm of the derivative at any
+boundary point: take a one-sided radial difference quotient into the disk. -/
+theorem boundary_derivative_le_lipschitz {r L : ℝ} {z : ℂ}
+    (hr : 0 < r) (hr2 : r < Real.sqrt 2)
+    (hz : ‖z-I‖ = r)
+    (hL : ∀ a ∈ disk r, ∀ b ∈ disk r, ‖H0 a-H0 b‖ ≤ L*‖a-b‖) :
+    ‖1/sqrtOneSub z‖ ≤ L := by
+  have hzmem : z ∈ disk r := by
+    simpa [disk,Metric.mem_closedBall,Complex.dist_eq,hz]
+  let d : ℂ := I-z
+  have hdn : ‖d‖ = r := by
+    dsimp [d]
+    rw [show I-z = -(z-I) by ring,norm_neg,hz]
+  have hg : HasDerivAt (fun h : ℝ => z+d*(h:ℂ)) d 0 := by
+    simpa using (((hasDerivAt_id (0:ℝ)).ofReal_comp).const_mul d).const_add z
+  have hd' : HasDerivAt H0 (1/sqrtOneSub z) (z+d*((0:ℝ):ℂ)) := by
+    simpa using disk_hasDerivAt hzmem hr2
+  have hcomp : HasDerivAt (fun h : ℝ => H0 (z+d*(h:ℂ)))
+      (1/sqrtOneSub z*d) 0 :=
+    HasDerivAt.comp (h₂ := H0) (h := fun h : ℝ => z+d*(h:ℂ)) (0:ℝ) hd' hg
+  have hnorm := (continuous_norm.tendsto _).comp hcomp.tendsto_slope_zero_right
+  have key : ‖1/sqrtOneSub z*d‖ ≤ L*r := by
+    apply le_of_tendsto hnorm
+    have hmem : ∀ᶠ h in 𝓝[>] (0:ℝ), h < 1 := by
+      filter_upwards [Ioo_mem_nhdsGT (show (0:ℝ)<1 by norm_num)] with h hh using hh.2
+    filter_upwards [self_mem_nhdsWithin,hmem] with h hp h1
+    have hp' : 0 < h := hp
+    simp only [Function.comp,Complex.ofReal_zero,mul_zero,add_zero]
+    have he : z+d*(h:ℂ)-I = ((1-h:ℝ):ℂ)*(z-I) := by
+      dsimp [d]
+      push_cast
+      ring
+    have hw : z+d*(h:ℂ) ∈ disk r := by
+      rw [disk,Metric.mem_closedBall,Complex.dist_eq,he,norm_mul,Complex.norm_real,
+        Real.norm_eq_abs,abs_of_pos (sub_pos.mpr h1),hz]
+      nlinarith
+    have hb := hL _ hw z hzmem
+    rw [show z+d*(h:ℂ)-z = d*(h:ℂ) by ring,norm_mul,hdn,Complex.norm_real,
+      Real.norm_eq_abs,abs_of_pos hp'] at hb
+    rw [norm_smul,Real.norm_eq_abs,abs_inv,abs_of_pos hp',inv_mul_le_iff₀ hp']
+    calc
+      ‖H0 (z+d*(h:ℂ))-H0 z‖ ≤ L*(r*h) := hb
+      _ = h*(L*r) := by ring
+  rw [norm_mul,hdn] at key
+  exact le_of_mul_le_mul_right key hr
+
+theorem boundary_norm_eq_radius {z : ℂ} {r : ℝ} (hr : 0 ≤ r)
+    (h : z.re^2+(z.im-1)^2=r^2) : ‖z-I‖=r := by
+  rw [boundary_coords] at h
+  nlinarith [norm_nonneg (z-I)]
+
+/-- The least Lipschitz constant is the inverse fourth root of the attained
+positive minimum of the squared modulus. No maximum-modulus assumption. -/
+theorem sharp_from_boundary_min {r m : ℝ} {z : ℂ}
+    (hr : 0 < r) (hr2 : r < Real.sqrt 2) (hm : 0 < m)
+    (hz : ‖z-I‖=r) (he : ‖1-z^2‖^2=m)
+    (hmin : ∀ w ∈ disk r, m ≤ ‖1-w^2‖^2) :
+    IsLeast {L : ℝ | ∀ a ∈ disk r, ∀ b ∈ disk r, ‖H0 a-H0 b‖ ≤ L*‖a-b‖}
+      (1/Real.sqrt (Real.sqrt m)) := by
+  refine ⟨fun a ha b hb => lipschitz_from_modulus hr2 hm hmin ha hb,?_⟩
+  intro L hL
+  have h := boundary_derivative_le_lipschitz hr hr2 hz hL
+  rw [norm_branch_derivative] at h
+  have he' : Real.sqrt m = ‖1-z^2‖ := by
+    rw [← he,Real.sqrt_sq (norm_nonneg _)]
+  rwa [he']
+
+theorem first_regime_sharp {r : ℝ} (hr : 0 < r) (hr2 : r < Real.sqrt 2)
+    (hl : r ≤ threshold) :
+    IsLeast {L : ℝ | ∀ a ∈ disk r, ∀ b ∈ disk r, ‖H0 a-H0 b‖ ≤ L*‖a-b‖}
+      (1/Real.sqrt (1+(1-r)^2)) := by
+  have hm : 0 < (1+(1-r)^2)^2 := by positivity
+  have hh := sharp_from_boundary_min hr hr2 hm
+    (boundary_norm_eq_radius hr.le (first_point_radius r))
+    (first_point_value r) (fun w hw => disk_first_lower hw hr2 hl)
+  simpa only [Real.sqrt_sq (show 0 ≤ 1+(1-r)^2 by positivity)] using hh
+
+theorem second_regime_sharp {r : ℝ} (hr : 0 < r) (hr2 : r < Real.sqrt 2)
+    (hl : threshold ≤ r) :
+    IsLeast {L : ℝ | ∀ a ∈ disk r, ∀ b ∈ disk r, ‖H0 a-H0 b‖ ≤ L*‖a-b‖}
+      (1/Real.sqrt (Real.sqrt ((2-r^2)^2/2))) := by
+  have hs := Real.sq_sqrt (show (0:ℝ) ≤ 2 by norm_num)
+  have hp := mul_pos (sub_pos.mpr hr2) (show 0 < Real.sqrt 2+r by positivity)
+  have h0 : 0 < 2-r^2 := by nlinarith
+  have hm : 0 < (2-r^2)^2/2 := by positivity
+  have hsgn : (1:ℝ)^2=1 := by norm_num
+  exact sharp_from_boundary_min hr hr2 hm
+    (boundary_norm_eq_radius hr.le (second_point_radius hr hr2 hl hsgn))
+    (second_point_value hr hr2 hl hsgn) (fun w hw => disk_second_lower hw hr2)
+
 end Manuscript15.DiskFamily20261127
 #print axioms Manuscript15.DiskFamily20261127.disk_half
 #print axioms Manuscript15.DiskFamily20261127.threshold_pos
@@ -366,3 +456,9 @@ end Manuscript15.DiskFamily20261127
 #print axioms Manuscript15.DiskFamily20261127.disk_hasDerivAt
 #print axioms Manuscript15.DiskFamily20261127.norm_branch_derivative
 #print axioms Manuscript15.DiskFamily20261127.lipschitz_from_modulus
+
+#print axioms Manuscript15.DiskFamily20261127.boundary_derivative_le_lipschitz
+#print axioms Manuscript15.DiskFamily20261127.boundary_norm_eq_radius
+#print axioms Manuscript15.DiskFamily20261127.sharp_from_boundary_min
+#print axioms Manuscript15.DiskFamily20261127.first_regime_sharp
+#print axioms Manuscript15.DiskFamily20261127.second_regime_sharp
