@@ -35,7 +35,7 @@ theorem closed_symmetric_eigenbasis_graph
          (∑ j ∈ s, b.repr y j • b j)) ∈ G := by
       intro s
       induction s using Finset.induction_on with
-      | empty => simpa using G.zero_mem
+      | empty => simpa only [Finset.sum_empty, Prod.mk_zero_zero] using G.zero_mem
       | @insert j s hj ih =>
         simp only [Finset.sum_insert hj]
         have h := G.smul_mem (b.repr x j) (heig j)
