@@ -8,12 +8,15 @@ open M12BilateralJacobi M12JacobiFrechet
 
 /-- Finite cutoff of the literal bilateral bonds. -/
 def cut (u : Bonds) (N : ℕ) : Bonds :=
-  ⟨fun m => if -(N:ℤ) ≤ m ∧ m ≤ (N:ℤ) then u m else 0,
-   fun m => by split_ifs <;> first | exact u.property m | norm_num⟩
+  ⟨fun m => if -(N:ℤ) ≤ m ∧ m ≤ (N:ℤ) then u.1 m else 0,
+   fun m => by
+     change 0 ≤ (if -(N:ℤ) ≤ m ∧ m ≤ (N:ℤ) then u.1 m else 0) ∧
+       (if -(N:ℤ) ≤ m ∧ m ≤ (N:ℤ) then u.1 m else 0) ≤ 1/2
+     split_ifs <;> first | exact u.2 m | norm_num⟩
 
 theorem cut_eq (u : Bonds) (N : ℕ) (m : ℤ)
     (h₁ : -(N:ℤ) ≤ m) (h₂ : m ≤ (N:ℤ)) :
-    cut u N m = u m := by simp [cut,h₁,h₂]
+    (cut u N).1 m = u.1 m := by simp [cut,h₁,h₂]
 
 theorem cut_norm (u : Bonds) (N : ℕ) : ‖J (cut u N)‖ ≤ 1 :=
   J_norm_le _
@@ -21,7 +24,7 @@ theorem cut_norm (u : Bonds) (N : ℕ) : ‖J (cut u N)‖ ≤ 1 :=
 /-- Exact finite propagation of powers on any vector for a common local
 bond window, not just convergence of matrix coefficients. -/
 theorem power_local_agreement (u v : Bonds) (n : ℕ) (k : ℤ) (x : H)
-    (h : ∀ m : ℤ, k-(n:ℤ) ≤ m → m ≤ k+(n:ℤ) → u m = v m) :
+    (h : ∀ m : ℤ, k-(n:ℤ) ≤ m → m ≤ k+(n:ℤ) → u.1 m = v.1 m) :
     ((J u)^n) x k = ((J v)^n) x k := by
   induction n generalizing k with
   | zero => simp
@@ -33,7 +36,7 @@ theorem power_local_agreement (u v : Bonds) (n : ℕ) (k : ℤ) (x : H)
         ih (k+1) (fun m hm hm' => h m (by omega) (by omega))]
 
 theorem derivative_local_agreement (u v : Bonds) (n : ℕ) (m k : ℤ) (x : H)
-    (h : ∀ r : ℤ, k-(n:ℤ) ≤ r → r ≤ k+(n:ℤ) → u r = v r) :
+    (h : ∀ r : ℤ, k-(n:ℤ) ≤ r → r ≤ k+(n:ℤ) → u.1 r = v.1 r) :
     powerD (J u) n (bond m) x k = powerD (J v) n (bond m) x k := by
   induction n generalizing k with
   | zero => simp [powerD]
