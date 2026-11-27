@@ -76,9 +76,11 @@ theorem generator_skew (t : ℝ) (A : (skewSpace R)) :
   skew_smul (A : R) A.property t
 
 theorem generator_norm (t : ℝ) : ‖generator (R := R) t‖ ≤ |t| := by
-  unfold generator
-  rw [norm_smul,Real.norm_eq_abs]
-  simpa using mul_le_mul_of_nonneg_left (Submodule.norm_subtypeL_le (skewSpace R)) (abs_nonneg t)
+  apply ContinuousLinearMap.opNorm_le_bound _ (abs_nonneg t)
+  intro A
+  rw [generator_apply]
+  change ‖t • (A : R)‖ ≤ |t| * ‖(A : R)‖
+  simpa only [Real.norm_eq_abs] using norm_smul_le t (A : R)
 
 def integrand (w : ℝ → R) (A : (skewSpace R)) (t : ℝ) : R :=
   w t * exp (generator t A)
@@ -104,7 +106,7 @@ theorem integrandD_bound (w : ℝ → R) (A : (skewSpace R)) (t : ℝ) :
       _ ≤ ‖D (generator t A) (generator t A)‖ * ‖generator t‖ :=
         ContinuousLinearMap.opNorm_comp_le _ _
       _ ≤ 1 * |t| := mul_le_mul (D_norm_le _ _ (generator_skew t A) (generator_skew t A))
-        (generator_norm (R := R) t) (norm_nonneg _) zero_le_one
+        (generator_norm (R := R) t) (ContinuousLinearMap.opNorm_nonneg _) zero_le_one
       _ = _ := one_mul _
   exact (ContinuousLinearMap.opNorm_comp_le _ _).trans
     (mul_le_mul h₁ h₂ (norm_nonneg _) (norm_nonneg _))
