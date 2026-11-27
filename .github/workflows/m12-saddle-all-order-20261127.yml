@@ -1,0 +1,63 @@
+name: M12 Lemma 5.15 arbitrary-order integrated saddlepoint Taylor estimates
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/Bridge/Saddle/AllOrder20261127.lean'
+      - '.github/workflows/m12-saddle-all-order-20261127.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  audit-saddlepoint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Assert audit uses the exact source HEAD
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "AUDITED_SHA=$(git rev-parse HEAD)" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "AUDITED_REF=$(git symbolic-ref --short HEAD 2>/dev/null || echo detached)" >> "$GITHUB_STEP_SUMMARY"
+      - name: Install repository pinned Lean toolchain
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Build saddlepoint chain and audit arbitrary Taylor order
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.24.0'
+          lake exe cache get
+          lake build Bridge.Saddle.Corollary 2>&1 | tee /tmp/m12-saddle-all-order-build.log
+          lake env lean Bridge/Saddle/AllOrder20261127.lean 2>&1 | tee /tmp/m12-saddle-all-order.log
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          src=Path('Bridge/Saddle/AllOrder20261127.lean').read_text()
+          log=Path('/tmp/m12-saddle-all-order.log').read_text()
+          assert not re.search(r'^\s*(axiom|opaque)\b|\b(sorry|admit|native_decide)\b',src,re.M)
+          assert 'sorryAx' not in log and 'Lean.ofReduceBool' not in log
+          assert not re.search(r'\.lean:\d+:\d+: error',log)
+          names=re.findall(r'^#print axioms (\S+)$',src,re.M)
+          assert len(names)==6 and len(set(names))==6
+          for name in names:
+              m=re.search(r"'"+re.escape(name)+r"' depends on axioms: \[([^\]]*)\]",log)
+              if m:
+                  assert {x.strip() for x in m.group(1).split(',') if x.strip()} <= {'propext','Classical.choice','Quot.sound'},name
+              else:
+                  assert "'"+name+"' does not depend on any axioms" in log,name
+              print('AXIOM AUDIT SUCCESS',name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-saddle-all-order-audit
+          path: |
+            /tmp/m12-saddle-all-order-build.log
+            /tmp/m12-saddle-all-order.log
