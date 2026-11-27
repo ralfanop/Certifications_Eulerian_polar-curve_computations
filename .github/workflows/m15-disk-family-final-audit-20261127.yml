@@ -1,0 +1,73 @@
+name: M15 Lemma 8.1 integrated differential and dependency audit
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/DiskFamily*.lean'
+      - 'lean/EulerianGrothendieck/EulerianGrothendieck/ComplexArcsineDisk.lean'
+      - 'lean/EulerianGrothendieck/Bridge/AppendixA*.lean'
+      - '.github/workflows/m15-disk-family-final-audit-20261127.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'lean/Manuscript15/DiskFamily*.lean'
+      - 'lean/EulerianGrothendieck/EulerianGrothendieck/ComplexArcsineDisk.lean'
+      - 'lean/EulerianGrothendieck/Bridge/AppendixA*.lean'
+      - '.github/workflows/m15-disk-family-final-audit-20261127.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned toolchain and mathlib
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake exe cache get
+      - name: Compile complete chain and inspect all named axioms
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          lake build EulerianGrothendieck.ComplexArcsineDisk Bridge.AppendixAGd 2>&1 | tee /tmp/disk-final-build.log
+          mkdir -p Manuscript15 .lake/build/lib/lean/Manuscript15
+          for m in DiskFamily20261127 DiskFamilyExtremizers20261127 DiskFamilyCassiniTaylor20261127 DiskFamilyDifferential20261127; do
+            cp "../Manuscript15/$m.lean" Manuscript15/
+            lake env lean -M16768 -o ".lake/build/lib/lean/Manuscript15/$m.olean" "Manuscript15/$m.lean" 2>&1 | tee "/tmp/disk-final-$m.log"
+          done
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/disk-final-*.log; then exit 1; fi
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          counts = {'DiskFamily20261127':53,'DiskFamilyExtremizers20261127':6,'DiskFamilyCassiniTaylor20261127':7,'DiskFamilyDifferential20261127':24}
+          total = 0
+          for module, minimum in counts.items():
+              source = Path(f'Manuscript15/{module}.lean').read_text()
+              log = Path(f'/tmp/disk-final-{module}.log').read_text()
+              names = re.findall(r'^#print axioms (\S+)', source, re.M)
+              assert len(names) >= minimum and len(names) == len(set(names)), (module,names)
+              for name in names:
+                  m = re.search(r"'" + re.escape(name) + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+                  if m is None:
+                      assert "'" + name + "' does not depend on any axioms" in log, name
+                  else:
+                      assert {a.strip() for a in m.group(1).split(',') if a.strip()} <= {'propext','Classical.choice','Quot.sound'}, name
+              total += len(names)
+              print(module, 'AXIOM AUDIT SUCCESS:', len(names))
+          print('INTEGRATED AXIOM AUDIT SUCCESS:', total)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-disk-family-integrated-audit
+          path: /tmp/disk-final-*.log
