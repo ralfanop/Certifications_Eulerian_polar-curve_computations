@@ -1,0 +1,73 @@
+name: M12 recovered localisation chain exact-source audit
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513BondWindow.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513ActualTail.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513Exponential.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513UniformFirst.lean'
+      - 'lean/EulerianGrothendieck/UniformLanczos/Lemma513SupportUniform.lean'
+      - '.github/workflows/m12-recover-localization-20261127.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Restore pinned Lean and verify historical blobs
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.24.0'
+          test "$(git hash-object UniformLanczos/Lemma513BondWindow.lean)" = '551841427c717aab4812fab88e3e69a23163b4a0'
+          test "$(git hash-object UniformLanczos/Lemma513ActualTail.lean)" = '9308b0c3b1af70abc98f2e68e34180f1003b271e'
+          test "$(git hash-object UniformLanczos/Lemma513Exponential.lean)" = 'fd6fdc84a06dfa3251770d7902a68199f351afc5'
+          test "$(git hash-object UniformLanczos/Lemma513UniformFirst.lean)" = '108438fab2c0428d277b89c98724257ee5adaa75'
+          test "$(git hash-object UniformLanczos/Lemma513SupportUniform.lean)" = '1a5cca3e915a76cbf3c1dc4e19a7d6e465c4dfda'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Rebuild and independently audit all recovered declarations
+        working-directory: lean/EulerianGrothendieck
+        run: |
+          set -euo pipefail
+          lake exe cache get
+          lake build UniformLanczos.Lemma513UniformFirst UniformLanczos.Lemma513SupportUniform 2>&1 | tee /tmp/m12-recover-localization-build.log
+          : > /tmp/m12-recover-localization.log
+          for m in Lemma513BondWindow Lemma513ActualTail Lemma513Exponential Lemma513UniformFirst Lemma513SupportUniform; do
+            lake env lean "UniformLanczos/$m.lean" 2>&1 | tee -a /tmp/m12-recover-localization.log
+          done
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          modules=["Lemma513BondWindow","Lemma513ActualTail","Lemma513Exponential","Lemma513UniformFirst","Lemma513SupportUniform"]
+          log=Path('/tmp/m12-recover-localization.log').read_text()
+          assert 'sorryAx' not in log and 'Lean.ofReduceBool' not in log and not re.search(r'\.lean:\d+:\d+: error',log)
+          names=[]
+          for module in modules:
+              src=Path('UniformLanczos/'+module+'.lean').read_text()
+              assert not re.search(r'^\s*(axiom|opaque)\b|\b(sorry|admit|native_decide)\b',src,re.M),module
+              names+=re.findall(r'^#print axioms (\S+)$',src,re.M)
+          assert len(names)==19 and len(set(names))==19
+          for name in names:
+              m=re.search(r"'"+re.escape(name)+r"' depends on axioms: \[([^\]]*)\]",log)
+              if m:
+                  assert {x.strip() for x in m.group(1).split(',') if x.strip()} <= {'propext','Classical.choice','Quot.sound'},name
+              else:
+                  assert "'"+name+"' does not depend on any axioms" in log,name
+              print('AXIOM AUDIT SUCCESS',name)
+          print('RECOVERED LOCALISATION SUCCESS',len(names))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-recovered-localization-audit
+          path: |
+            /tmp/m12-recover-localization-build.log
+            /tmp/m12-recover-localization.log
