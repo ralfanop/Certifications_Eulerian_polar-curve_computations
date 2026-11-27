@@ -56,15 +56,18 @@ def phase (u : Bonds) (t : ℝ) : C(Spec u,ℂ) :=
 theorem phase_apply (u : Bonds) (t : ℝ) (z : Spec u) :
     phase u t z = Complex.exp (((t:ℂ)*Complex.I)*(z:ℂ)) := by
   unfold phase
-  change (ContinuousMap.evalAlgHom ℂ ℂ z) (exp _) = _
-  rw [NormedSpace.map_exp (ContinuousMap.evalAlgHom ℂ ℂ z).toRingHom (evalL u z).continuous,← Complex.exp_eq_exp_ℂ]
+  change (ContinuousMap.evalAlgHom ℂ ℂ z).toRingHom (exp _) = _
+  rw [NormedSpace.map_exp (ContinuousMap.evalAlgHom ℂ ℂ z).toRingHom (evalL u z).continuous]
+  rw [← Complex.exp_eq_exp_ℂ]
   congr 1
-  rfl
 
 theorem hom_phase (u : Bonds) (t : ℝ) :
     hom u (phase u t) = exp (((t:ℂ)*Complex.I) • J u) := by
   unfold phase
-  rw [NormedSpace.map_exp (hom u).toAlgHom.toRingHom (homL u).continuous,map_smul,hom_id]
+  change (hom u).toAlgHom.toRingHom (exp _) = _
+  rw [NormedSpace.map_exp (hom u).toAlgHom.toRingHom (homL u).continuous]
+  change exp (hom u (((t:ℂ)*Complex.I) • specId u)) = _
+  rw [map_smul,hom_id]
 
 theorem phase_continuous (u : Bonds) : Continuous (phase u) := by
   unfold phase
@@ -101,7 +104,8 @@ theorem cfc_fourier (u : Bonds) (w : ℝ → ℂ) (hw : Integrable w)
   have hi := phase_integrable u w hw
   have hg : g = ∫ t : ℝ, w t • phase u t := by
     ext z
-    rw [← evalL_apply,← (evalL u z).integral_comp_comm hi,hinv z]
+    change g z = evalL u z (∫ t : ℝ, w t • phase u t)
+    rw [← (evalL u z).integral_comp_comm hi,hinv z]
     apply integral_congr_ae
     filter_upwards [] with t
     rw [map_smul,evalL_apply,phase_apply,smul_eq_mul]
