@@ -11,7 +11,9 @@ open Manuscript13.EllisBirman20261124 (spectralDet)
 
 theorem orthonormal_countable {ι : Type*} (v : ι → H) (hv : Orthonormal ℝ v) :
     Countable ι := by
+  classical
   letI : Fact (1 ≤ (2 : ℝ≥0∞)) := ⟨by norm_num⟩
+  letI : Fact ((2 : ℝ≥0∞) ≠ ⊤) := ⟨by simp⟩
   haveI : SecondCountableTopology H := by infer_instance
   apply Pairwise.countable_of_isOpen_disjoint (s := fun i => Metric.ball (v i) (1/2))
   · intro i j hij
@@ -75,7 +77,8 @@ theorem interval_orthonormal : Orthonormal ℝ intervalVector := by
         filter_upwards [intervalVector_ae i] with x hx
         rw [hx]
         by_cases h : x ∈ intervalSet i <;> simp [Set.indicator,h]
-      _ = 1 := by have hm : MeasurableSet (intervalSet i) := measurableSet_Ico
+      _ = 1 := by
+        have hm : MeasurableSet (intervalSet i) := measurableSet_Ico
         rw [integral_indicator hm, integral_const]
         simp [interval_mass]
   · simp only [if_neg hij]
@@ -102,7 +105,7 @@ theorem hilbertBasis_index_infinite {ι : Type*} (b : HilbertBasis ι ℝ H) : I
   letI : Finite ι := h
   letI : Fintype ι := Fintype.ofFinite ι
   apply not_finiteDimensional_H
-  exact FiniteDimensional.of_fintype_basis b.toOrthonormalBasis.toBasis
+  exact Module.Finite.of_basis b.toOrthonormalBasis.toBasis
 
 def enumerateBasis {ι : Type*} (b : HilbertBasis ι ℝ H) : ι ≃ ℕ := by
   letI : Countable ι := orthonormal_countable b b.orthonormal
@@ -128,7 +131,7 @@ theorem ordinary_basis_exists : Nonempty (HilbertBasis ℕ ℝ H) := by
       exact ⟨q i,by simp [v]⟩
   have ht : (Submodule.span ℝ (Set.range v))ᗮ = ⊥ := by
     rw [hr]
-    first | exact b.orthogonal_span_eq_bot | exact?
+    rw [← Submodule.orthogonal_closure, b.dense_span, Submodule.top_orthogonal_eq_bot]
   exact ⟨HilbertBasis.mkOfOrthogonalEqBot ho ht⟩
 
 theorem gram_product_unconditional (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
