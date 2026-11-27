@@ -1,0 +1,147 @@
+name: M16 eq:hol-integral e^{-2t sqrt B} by the continuous functional calculus of B^{-1} (exact HEAD)
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript16/HolonomyFunctionalCalculus20261127.lean'
+      - 'lean/Manuscript16/HolonomyCircleGenerator20261125.lean'
+      - 'lean/Manuscript16/HolonomyCircleResolvent20261125.lean'
+      - 'lean/Manuscript16/HolonomyMomentSeries20261124.lean'
+      - 'lean/Manuscript16/HolonomyEulerProduct20261124.lean'
+      - 'lean/Manuscript16/ReactiveHolonomyV166.lean'
+      - 'lean/Manuscript16/V166HolonomyPair.lean'
+      - 'lean/Manuscript16/DiracMaxwellCoefficientModel20261124.lean'
+      - 'lean/Manuscript16/V166SpectralCutoffs.lean'
+      - 'lean/Manuscript16/V166L2SpectralInverse.lean'
+      - 'lean/Manuscript16/DiracMaxwellGraphSpace20261124.lean'
+      - 'lean/Manuscript16/DiracMaxwellObstructionIndex20261124.lean'
+      - 'lean/Manuscript16/V166CompactTransfer.lean'
+      - 'lean/Manuscript16/V165GraphNeumann.lean'
+      - 'lean/Manuscript16/V165TypedGraphSchur.lean'
+      - 'lean/SharedCore/FredholmAtkinson.lean'
+      - 'lean/SharedCore/FredholmCompactParametrix.lean'
+      - 'lean/Manuscript16/RobinDirichletRankOne20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletL2Bounded20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletPositive20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletInjective20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletWeakResolvent20261125.lean'
+      - 'lean/Manuscript16/RobinDirichletRealisation20261125.lean'
+      - 'lean/lakefile.toml'
+      - 'lean/lean-toolchain'
+      - 'audits/manuscript16/M16_hol_functional_calculus_20261127.md'
+      - 'audits/M16_M17_exact_head_audit_20261124.md'
+      - '.github/workflows/m16-hol-functional-calculus-20261127.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned Lean 4 toolchain and Mathlib
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m16-hfc-head.log
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          lake env lean --version | tee -a /tmp/m16-hfc-head.log
+      - name: Compile the 22 imported modules and the new module, audit every declaration
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          SRC=Manuscript16/HolonomyFunctionalCalculus20261127
+          DEPS="SharedCore/FredholmCompactParametrix SharedCore/FredholmAtkinson Manuscript16/V165TypedGraphSchur Manuscript16/V165GraphNeumann Manuscript16/V166CompactTransfer Manuscript16/DiracMaxwellObstructionIndex20261124 Manuscript16/DiracMaxwellGraphSpace20261124 Manuscript16/V166L2SpectralInverse Manuscript16/V166SpectralCutoffs Manuscript16/DiracMaxwellCoefficientModel20261124 Manuscript16/V166HolonomyPair Manuscript16/ReactiveHolonomyV166 Manuscript16/HolonomyEulerProduct20261124 Manuscript16/HolonomyMomentSeries20261124 Manuscript16/HolonomyCircleResolvent20261125 Manuscript16/RobinDirichletRankOne20261125 Manuscript16/RobinDirichletL2Bounded20261125 Manuscript16/RobinDirichletPositive20261125 Manuscript16/RobinDirichletInjective20261125 Manuscript16/RobinDirichletWeakResolvent20261125 Manuscript16/RobinDirichletRealisation20261125 Manuscript16/HolonomyCircleGenerator20261125"
+          mkdir -p .lake/build/lib/lean/Manuscript16 .lake/build/lib/lean/SharedCore
+          for m in $DEPS $SRC; do
+            if grep -nE '\bsorry\b|\badmit\b|^\s*axiom\b|\bunsafe\b|implemented_by|extern|native_decide' "$m.lean"; then exit 1; fi
+          done
+          i=0
+          for m in $DEPS; do
+            i=$((i+1))
+            lake env lean -M16768 -o ".lake/build/lib/lean/$m.olean" "$m.lean" 2>&1 | tee "/tmp/m16-hfc-dep-$(printf '%02d' $i)-$(basename $m).log"
+            if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' "/tmp/m16-hfc-dep-$(printf '%02d' $i)-$(basename $m).log"; then exit 1; fi
+          done
+          lake env lean -M16768 -o ".lake/build/lib/lean/$SRC.olean" "$SRC.lean" 2>&1 | tee /tmp/m16-hfc-lean.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|warning:|declaration uses .sorry.|Try this' /tmp/m16-hfc-lean.log; then exit 1; fi
+          python3 - <<'PY'
+          import hashlib, json, re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+
+          def reports(text):
+              # Line-based parser: a report starts at the beginning of a line with a quoted name
+              # (names may end with primes) and its axiom list may wrap over several lines.
+              lines = text.splitlines()
+              out, wrapped, i = {}, 0, 0
+              while i < len(lines):
+                  m = re.match(r"^'(\S+)' depends on axioms: \[(.*)$", lines[i])
+                  if m:
+                      name, body, j = m.group(1), m.group(2), i
+                      while ']' not in body:
+                          j += 1
+                          body += ' ' + lines[j].strip()
+                      wrapped += j > i
+                      out[name] = sorted({x.strip() for x in body.split(']')[0].split(',') if x.strip()})
+                      i = j + 1
+                      continue
+                  m = re.match(r"^'(\S+)' does not depend on any axioms$", lines[i])
+                  if m:
+                      out[m.group(1)] = []
+                  i += 1
+              n_lines = len(re.findall(r"^'\S+' (depends on axioms: \[|does not depend on any axioms)", text, re.M))
+              assert len(out) == n_lines, (len(out), n_lines)
+              return out, wrapped
+
+          deps, dep_wrapped = {}, 0
+          logs = sorted(Path('/tmp').glob('m16-hfc-dep-*.log'))
+          assert len(logs) == 22, len(logs)
+          for p in logs:
+              found, w = reports(p.read_text())
+              dep_wrapped += w
+              for name, axioms in found.items():
+                  assert set(axioms) <= allowed, (p.name, name, axioms)
+                  deps[name] = axioms
+          assert len(deps) == 434, len(deps)
+          src = Path('Manuscript16/HolonomyFunctionalCalculus20261127.lean')
+          log = Path('/tmp/m16-hfc-lean.log').read_text()
+          requested = re.findall(r'^#print axioms (\S+)', src.read_text(), re.M)
+          assert len(requested) == 30 and len(set(requested)) == 30, requested
+          own, own_wrapped = reports(log)
+          assert set(own) == set(requested), sorted(set(own) ^ set(requested))
+          for name in requested:
+              assert set(own[name]) <= allowed, (name, own[name])
+              print('AXIOM AUDIT SUCCESS:', name, own[name])
+          out = {
+              'head': Path('/tmp/m16-hfc-head.log').read_text().split()[0],
+              'source_sha256': hashlib.sha256(src.read_bytes()).hexdigest(),
+              'olean_sha256': hashlib.sha256(Path('.lake/build/lib/lean/Manuscript16/HolonomyFunctionalCalculus20261127.olean').read_bytes()).hexdigest(),
+              'log_sha256': hashlib.sha256(log.encode()).hexdigest(),
+              'axioms': {n: own[n] for n in requested},
+              'wrapped_lists': own_wrapped,
+              'imported_module_axioms': deps,
+              'imported_wrapped_lists': dep_wrapped,
+          }
+          Path('/tmp/m16-hfc-audit.json').write_text(json.dumps(out, indent=2) + '\n')
+          print('SUCCESS:', len(requested), 'declarations (', own_wrapped, 'wrapped lists ) and', len(deps), 'imported reports (', dep_wrapped, 'wrapped lists ); standard axioms only')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-hol-functional-calculus-audit
+          path: |
+            /tmp/m16-hfc-*.log
+            /tmp/m16-hfc-audit.json
