@@ -20,24 +20,22 @@ theorem positive_half (κ ξ t : ℝ) (ht : 0 ≤ t) :
   unfold integrand green ratePlus
   rw [abs_of_nonneg ht]
   push_cast
-  rw [Complex.ofReal_exp]
   have h : (-(κ : ℂ) - (2*Real.pi*ξ : ℝ)*Complex.I)*t =
       ((-κ*t : ℝ) : ℂ) + -((2*Real.pi*ξ*t : ℝ) : ℂ)*Complex.I := by push_cast; ring
   rw [h, Complex.exp_add]
   push_cast
-  ring
+  <;> ring
 
 theorem negative_half (κ ξ t : ℝ) (ht : t ≤ 0) :
     integrand κ ξ t = (1 / (2*(κ : ℂ))) * Complex.exp (rateMinus κ ξ * t) := by
   unfold integrand green rateMinus
   rw [abs_of_nonpos ht]
   push_cast
-  rw [Complex.ofReal_exp]
   have h : ((κ : ℂ) - (2*Real.pi*ξ : ℝ)*Complex.I)*t =
       ((-κ*(-t) : ℝ) : ℂ) + -((2*Real.pi*ξ*t : ℝ) : ℂ)*Complex.I := by push_cast; ring
   rw [h, Complex.exp_add]
   push_cast
-  ring
+  <;> ring
 
 theorem ratePlus_re (κ ξ : ℝ) : (ratePlus κ ξ).re = -κ := by
   simp [ratePlus, Complex.mul_re]
@@ -47,18 +45,22 @@ theorem rateMinus_re (κ ξ : ℝ) : (rateMinus κ ξ).re = κ := by
 theorem positive_integrable (κ ξ : ℝ) (hk : 0 < κ) :
     IntegrableOn (integrand κ ξ) (Ioi 0) := by
   have hr : (ratePlus κ ξ).re < 0 := by rw [ratePlus_re]; linarith
-  apply ((integrableOn_exp_mul_complex_Ioi hr 0).const_mul (1/(2*(κ:ℂ)))).congr_fun
-  · intro t ht
-    exact (positive_half κ ξ t (le_of_lt ht)).symm
-  · exact measurableSet_Ioi
+  have h : Integrable (fun t : ℝ => (1/(2*(κ:ℂ))) * Complex.exp (ratePlus κ ξ*t))
+      (volume.restrict (Ioi 0)) :=
+    (integrableOn_exp_mul_complex_Ioi hr 0).const_mul _
+  refine Integrable.congr h ?_
+  filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
+  exact (positive_half κ ξ t (le_of_lt ht)).symm
 
 theorem negative_integrable (κ ξ : ℝ) (hk : 0 < κ) :
     IntegrableOn (integrand κ ξ) (Iic 0) := by
   have hr : 0 < (rateMinus κ ξ).re := by rw [rateMinus_re]; exact hk
-  apply ((integrableOn_exp_mul_complex_Iic hr 0).const_mul (1/(2*(κ:ℂ)))).congr_fun
-  · intro t ht
-    exact (negative_half κ ξ t ht).symm
-  · exact measurableSet_Iic
+  have h : Integrable (fun t : ℝ => (1/(2*(κ:ℂ))) * Complex.exp (rateMinus κ ξ*t))
+      (volume.restrict (Iic 0)) :=
+    (integrableOn_exp_mul_complex_Iic hr 0).const_mul _
+  refine Integrable.congr h ?_
+  filter_upwards [ae_restrict_mem measurableSet_Iic] with t ht
+  exact (negative_half κ ξ t ht).symm
 
 theorem positive_integral (κ ξ : ℝ) (hk : 0 < κ) :
     (∫ t in Ioi (0:ℝ), integrand κ ξ t) =
@@ -104,7 +106,7 @@ theorem halfline_sum (κ ξ : ℝ) (hk : 0 < κ) :
   field_simp [hp,hm,hs,hκ]
   unfold ratePlus rateMinus symbol
   push_cast
-  ring_nf
+  <;> ring_nf
   simp [Complex.I_sq]
   <;> ring
 
@@ -119,7 +121,7 @@ theorem green_fourier_integral (κ ξ : ℝ) (hk : 0 < κ) :
   calc
     _ = (∫ t in Iic (0:ℝ), integrand κ ξ t) +
         (∫ t in Ioi (0:ℝ), integrand κ ξ t) := by
-      have h := integral_add_compl measurableSet_Iic hi
+      have h := integral_add_compl (s := Iic (0 : ℝ)) measurableSet_Iic hi
       simpa only [compl_Iic] using h.symm
     _ = _ := by rw [negative_integral κ ξ hk,positive_integral κ ξ hk,add_comm]; exact halfline_sum κ ξ hk
 
