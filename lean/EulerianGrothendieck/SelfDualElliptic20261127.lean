@@ -25,7 +25,11 @@ theorem quarticDensity_integrable : Integrable quarticDensity := by
   have hsq : (Real.sqrt 2*Real.sqrt (1+t^4))^2 = 2*(1+t^4) := by
     rw [mul_pow,Real.sq_sqrt (by norm_num : (0:ℝ)≤2),Real.sq_sqrt (by positivity)]
   have hle : 1+t^2 ≤ Real.sqrt 2*Real.sqrt (1+t^4) := by
-    nlinarith [sq_nonneg (t^2-1),Real.sqrt_nonneg (2:ℝ),Real.sqrt_nonneg (1+t^4)]
+    have hnonneg : 0 ≤ Real.sqrt 2 * Real.sqrt (1+t^4) := by positivity
+    have hle2 : (1+t^2)^2 ≤ (Real.sqrt 2*Real.sqrt (1+t^4))^2 := by
+      rw [hsq]
+      nlinarith [sq_nonneg (t^2-1)]
+    exact le_of_sq_le_sq hle2 hnonneg
   change ‖quarticDensity t‖ ≤ Real.sqrt 2*(1+t^2)⁻¹
   rw [Real.norm_eq_abs, abs_of_nonneg (by unfold quarticDensity; positivity),quarticDensity,← div_eq_mul_inv]
   exact (div_le_div_iff₀ hp hq).2 (by simpa using hle)
