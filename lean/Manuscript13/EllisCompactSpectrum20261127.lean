@@ -27,9 +27,16 @@ theorem rankTerm_norm_le (v : H) : ‖rankTerm v‖ ≤ ‖v‖^2 := by
 theorem rankTerm_compact (v : H) : IsCompactOperator (rankTerm v : H → H) := by
   let C : ℝ →L[ℝ] H := (ContinuousLinearMap.id ℝ ℝ).smulRight v
   have hC : IsCompactOperator (C : ℝ → H) := by
-    apply isCompactOperator_of_locallyCompactSpace_dom
+    first
+    | exact isCompactOperator_of_locallyCompactSpace_dom C
+    | exact isCompactOperator_of_locallyCompactSpace_dom (𝕜 := ℝ) (E := ℝ) C
+    | exact?
   have h := hC.comp_clm (innerSL ℝ v)
-  convert h using 1
+  have he : (rankTerm v : H → H) = (C : ℝ → H) ∘ (innerSL ℝ v : H → ℝ) := by
+    funext x
+    rfl
+  rw [he]
+  exact h
 
 theorem rank_series_summable (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ)
     (e : HilbertBasis ℕ ℝ H) :
@@ -58,7 +65,8 @@ theorem rank_series_action (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ)
 theorem rank_series_eq_gram (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ)
     (e : HilbertBasis ℕ ℝ H) :
     (∑' i, rankTerm (kernelOperator a κ ha hk (e i))) = gramOperator a κ ha hk := by
-  ext x
+  apply ContinuousLinearMap.ext
+  intro x
   have hs := (rank_series_summable a κ ha hk e).hasSum
   have h := (ContinuousLinearMap.apply ℝ H x).hasSum hs
   exact h.unique (rank_series_action a κ ha hk e x)
@@ -81,8 +89,9 @@ theorem gram_compact (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ)
 theorem gram_symmetric (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
     (gramOperator a κ ha hk : H →ₗ[ℝ] H).IsSymmetric := by
   intro x y
-  exact Manuscript13.BirmanOperator20261124.gram_symmetric
-    (kernelOperator a κ ha hk).adjoint x y
+  simpa [gramOperator, Manuscript13.BirmanOperator20261124.gram] using
+    Manuscript13.BirmanOperator20261124.gram_symmetric
+      (kernelOperator a κ ha hk).adjoint x y
 
 theorem eigenspaces_complete (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ)
     (e : HilbertBasis ℕ ℝ H) :
