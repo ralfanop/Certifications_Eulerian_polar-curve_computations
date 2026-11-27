@@ -9,9 +9,9 @@ namespace M12JacobiFourier
 open M12BilateralJacobi M12ExpFrechet
 
 section General
-variable {R : Type*} [NormedRing R] [NormedAlgebra ℝ R] [NormedAlgebra ℂ R]
+variable {R : Type*} [NormedRing R] [NormedAlgebra ℝ R]
   [CompleteSpace R] [StarRing R] [ContinuousStar R] [CStarRing R] [Nontrivial R]
-  [StarModule ℝ R] [SMulCommClass ℝ ℂ R]
+  [StarModule ℝ R]
 
 /-- Skew-adjoint subspace in a real/complex Banach star algebra. -/
 def skewSpace (R : Type*) [NormedRing R] [NormedAlgebra ℝ R] [StarRing R] [StarModule ℝ R] : Submodule ℝ R where
@@ -33,7 +33,18 @@ def skewSpace (R : Type*) [NormedRing R] [NormedAlgebra ℝ R] [StarRing R] [Sta
 
 theorem exp_unitary (A : R) (hA : star A = -A) :
     exp A ∈ unitary R := by
-  exact NormedSpace.exp_mem_unitary_of_mem_skewAdjoint (skewAdjoint.mem_iff.mpr hA)
+  rw [Unitary.mem_iff,NormedSpace.star_exp,hA]
+  have hp : A ∈ Metric.eball (0:R) (expSeries ℝ R).radius :=
+    (expSeries_radius_eq_top ℝ R).symm ▸ edist_lt_top _ _
+  have hn : -A ∈ Metric.eball (0:R) (expSeries ℝ R).radius :=
+    (expSeries_radius_eq_top ℝ R).symm ▸ edist_lt_top _ _
+  have h₁ := NormedSpace.exp_add_of_commute_of_mem_ball (𝕂 := ℝ)
+    (Commute.refl A).neg_left hn hp
+  have h₂ := NormedSpace.exp_add_of_commute_of_mem_ball (𝕂 := ℝ)
+    (Commute.refl A).neg_right hp hn
+  rw [neg_add_cancel,exp_zero] at h₁
+  rw [add_neg_cancel,exp_zero] at h₂
+  exact ⟨h₁.symm,h₂.symm⟩
 
 theorem skew_norm (A : R) (hA : star A = -A) : ‖exp A‖ = 1 :=
   CStarRing.norm_of_mem_unitary (exp_unitary A hA)
@@ -62,42 +73,49 @@ theorem generator_apply (t : ℝ) (A : (skewSpace R)) :
 
 theorem generator_skew (t : ℝ) (A : (skewSpace R)) :
     star (generator t A) = -(generator t A) :=
-  skew_smul A A.property t
+  skew_smul (A : R) A.property t
 
-theorem generator_norm (t : ℝ) : ‖generator t‖ ≤ |t| := by
+theorem generator_norm (t : ℝ) : ‖generator (R := R) t‖ ≤ |t| := by
   unfold generator
   rw [norm_smul,Real.norm_eq_abs]
   simpa using mul_le_mul_of_nonneg_left (Submodule.norm_subtypeL_le (skewSpace R)) (abs_nonneg t)
 
-def integrand (w : ℝ → ℂ) (A : (skewSpace R)) (t : ℝ) : R :=
-  w t • exp (generator t A)
+def integrand (w : ℝ → R) (A : (skewSpace R)) (t : ℝ) : R :=
+  w t * exp (generator t A)
 
-def integrandD (w : ℝ → ℂ) (A : (skewSpace R)) (t : ℝ) : (skewSpace R) →L[ℝ] R :=
-  w t • (D (generator t A) (generator t A)).comp (generator t)
+def integrandD (w : ℝ → R) (A : (skewSpace R)) (t : ℝ) : (skewSpace R) →L[ℝ] R :=
+  (ContinuousLinearMap.mulLeftRight ℝ R (w t) 1).comp
+    ((D (generator t A) (generator t A)).comp (generator t))
 
-theorem integrand_hasFDerivAt (w : ℝ → ℂ) (A : (skewSpace R)) (t : ℝ) :
+theorem integrand_hasFDerivAt (w : ℝ → R) (A : (skewSpace R)) (t : ℝ) :
     HasFDerivAt (fun X : (skewSpace R) => integrand w X t) (integrandD w A t) A := by
-  exact ((exp_hasFDerivAt (generator t A)).comp A (generator t).hasFDerivAt).const_smul (w t)
+  have h₁ := (exp_hasFDerivAt (generator t A)).comp A
+    (generator (R := R) t).hasFDerivAt
+  have h₂ := (ContinuousLinearMap.mulLeftRight ℝ R (w t) 1).hasFDerivAt.comp A h₁
+  simpa only [Function.comp_def,ContinuousLinearMap.mulLeftRight_apply,mul_one,integrand,integrandD] using h₂
 
-theorem integrandD_bound (w : ℝ → ℂ) (A : (skewSpace R)) (t : ℝ) :
+theorem integrandD_bound (w : ℝ → R) (A : (skewSpace R)) (t : ℝ) :
     ‖integrandD w A t‖ ≤ ‖w t‖ * |t| := by
   unfold integrandD
-  rw [norm_smul]
-  apply mul_le_mul_of_nonneg_left _ (norm_nonneg _)
-  calc
-    _ ≤ ‖D (generator t A) (generator t A)‖ * ‖generator t‖ :=
-      ContinuousLinearMap.opNorm_comp_le _ _
-    _ ≤ 1 * |t| := mul_le_mul (D_norm_le _ _ (generator_skew t A) (generator_skew t A))
-      (generator_norm t) (norm_nonneg _) zero_le_one
-    _ = _ := one_mul _
+  have h₁ : ‖ContinuousLinearMap.mulLeftRight ℝ R (w t) 1‖ ≤ ‖w t‖ := by
+    simpa using ContinuousLinearMap.opNorm_mulLeftRight_apply_apply_le ℝ R (w t) 1
+  have h₂ : ‖(D (generator t A) (generator t A)).comp (generator t)‖ ≤ |t| := by
+    calc
+      _ ≤ ‖D (generator t A) (generator t A)‖ * ‖generator t‖ :=
+        ContinuousLinearMap.opNorm_comp_le _ _
+      _ ≤ 1 * |t| := mul_le_mul (D_norm_le _ _ (generator_skew t A) (generator_skew t A))
+        (generator_norm (R := R) t) (norm_nonneg _) zero_le_one
+      _ = _ := one_mul _
+  exact (ContinuousLinearMap.opNorm_comp_le _ _).trans
+    (mul_le_mul h₁ h₂ (norm_nonneg _) (norm_nonneg _))
 
-/-- Fourier calculus with w = Fourier transform divided by 2π.
+/-- Fourier calculus with algebra-valued weight w (the intended weight is the central scalar embedding of the Fourier transform divided by 2π).
 The measurable Fourier density and its first absolute moment are the
 analytic input. The operator differentiation is derived, not assumed. -/
-def fourierOp (w : ℝ → ℂ) (A : (skewSpace R)) : R :=
+def fourierOp (w : ℝ → R) (A : (skewSpace R)) : R :=
   ∫ t, integrand w A t
 
-theorem fourier_hasFDerivAt (w : ℝ → ℂ) (A : (skewSpace R))
+theorem fourier_hasFDerivAt (w : ℝ → R) (A : (skewSpace R))
     (hm : ∀ X : (skewSpace R), AEStronglyMeasurable (integrand w X) volume)
     (hi : Integrable (integrand w A) volume)
     (hdm : AEStronglyMeasurable (integrandD w A) volume)
@@ -122,11 +140,26 @@ theorem jacobi_skew (u : Bonds) : star (Complex.I • J u) = -(Complex.I • J u
 /-- Direct specialization of the unitary identity to the actual Jacobi generator. -/
 theorem jacobi_unitary (u : Bonds) (t : ℝ) :
     exp (((t:ℂ)*Complex.I) • J u) ∈ unitary Op := by
-  apply NormedSpace.exp_mem_unitary_of_mem_skewAdjoint
-  apply skewAdjoint.mem_iff.mpr
-  rw [star_smul,(J_selfAdjoint u).star_eq]
-  ext x k
-  simp [Complex.star_def,Complex.conj_I,mul_assoc]
+  let A : Op := ((t:ℂ)*Complex.I) • J u
+  change exp A ∈ unitary Op
+  have hA : star A = -A := by
+    dsimp [A]
+    rw [star_smul,(J_selfAdjoint u).star_eq]
+    ext x k
+    change (star ((t:ℂ)*Complex.I))*J u x k = -(((t:ℂ)*Complex.I)*J u x k)
+    simp [Complex.star_def,Complex.conj_I,mul_assoc]
+  rw [Unitary.mem_iff,NormedSpace.star_exp,hA]
+  have hp : A ∈ Metric.eball (0:Op) (expSeries ℂ Op).radius :=
+    (expSeries_radius_eq_top ℂ Op).symm ▸ edist_lt_top _ _
+  have hn : -A ∈ Metric.eball (0:Op) (expSeries ℂ Op).radius :=
+    (expSeries_radius_eq_top ℂ Op).symm ▸ edist_lt_top _ _
+  have h₁ := NormedSpace.exp_add_of_commute_of_mem_ball (𝕂 := ℂ)
+    (Commute.refl A).neg_left hn hp
+  have h₂ := NormedSpace.exp_add_of_commute_of_mem_ball (𝕂 := ℂ)
+    (Commute.refl A).neg_right hp hn
+  rw [neg_add_cancel,exp_zero] at h₁
+  rw [add_neg_cancel,exp_zero] at h₂
+  exact ⟨h₁.symm,h₂.symm⟩
 
 end M12JacobiFourier
 
