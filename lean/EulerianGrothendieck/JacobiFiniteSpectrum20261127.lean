@@ -112,7 +112,7 @@ theorem eigenvector_action (u : Bonds) (N : ℕ) (r : sites N) :
         ((basis u N r) j:ℂ) • (lp.single 2 (j:ℤ) 1 : H) := by
       apply lp.ext
       funext l
-      change lp.single 2 (j:ℤ) ((basis u N r) j:ℂ) l = ((basis u N r) j:ℂ) * lp.single 2 (j:ℤ) (1:ℂ) l
+      change (lp.single 2 (j:ℤ) ((basis u N r) j:ℂ) : H) l = ((basis u N r) j:ℂ) * (lp.single 2 (j:ℤ) (1:ℂ) : H) l
       by_cases hl : l=(j:ℤ)
       · subst l; simp [lp.single_apply]
       · simp [lp.single_apply,hl,Ne.symm hl]
@@ -133,7 +133,8 @@ theorem eigenvector_ne_zero (u : Bonds) (N : ℕ) (r : sites N) :
     change liftVec N (fun j => ((basis u N r) j:ℂ)) k = 0 at he
     rw [lift_inside] at he
     change (basis u N r) k = (0:ℝ)
-    exact_mod_cast he
+    have he' := congrArg Complex.re he
+    simpa using he'
   have hn := (basis u N).norm_eq_one r
   rw [hz,norm_zero] at hn
   norm_num at hn
@@ -167,7 +168,7 @@ theorem basis_expansion (u : Bonds) (N : ℕ) (l : sites N) :
   by_cases hk : k ∈ Finset.Icc (-(N:ℤ)-1) (N:ℤ)
   · let i : sites N := ⟨k,hk⟩
     have he := congrArg (fun x : EuclideanSpace ℝ (sites N) => ⟪EuclideanSpace.single i (1:ℝ), x⟫_ℝ) h
-    simp only [inner_sum,inner_smul_right,EuclideanSpace.inner_single_left,star_trivial,one_mul] at he
+    simp only [inner_sum,inner_smul_right,EuclideanSpace.inner_single_left,map_one,one_mul] at he
     change (∑ r : sites N, (basis u N r) l * (basis u N r) i) =
       EuclideanSpace.single l (1:ℝ) i at he
     have hc := congrArg Complex.ofReal he
@@ -207,8 +208,7 @@ theorem exp_eigenvector (u : Bonds) (N : ℕ) (r : sites N) (t : ℝ) :
   simp_rw [hp,smul_smul]
   change (∑' n : ℕ, (((n.factorial:ℂ)⁻¹) • a^n) • v) = _
   rw [(NormedSpace.expSeries_summable' (𝕂 := ℂ) a).tsum_smul_const v,
-    ← NormedSpace.exp_eq_tsum ℂ,← Complex.exp_eq_exp_ℂ]
-  rfl
+    ← congrFun (NormedSpace.exp_eq_tsum ℂ) a,← Complex.exp_eq_exp_ℂ]
 
 /-- Literal finite spectral expansion for the actual cutoff phase. -/
 theorem phase_entry (u : Bonds) (N : ℕ) (t : ℝ) (k l : sites N) :
