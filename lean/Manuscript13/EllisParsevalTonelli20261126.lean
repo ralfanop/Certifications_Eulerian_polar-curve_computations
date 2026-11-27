@@ -117,7 +117,7 @@ theorem adjoint_hs_lintegral (A : H →L[ℝ] H) (e : HilbertBasis ℕ ℝ H) :
       have he : inner ℝ (e j) (A.adjoint (e i)) = inner ℝ (e i) (A (e j)) := by
         calc
           _ = inner ℝ (A.adjoint (e i)) (e j) := by exact real_inner_comm _ _
-          _ = _ := A.adjoint_inner_left (e i) (e j)
+          _ = _ := A.adjoint_inner_left (e j) (e i)
       rw [he]
     _ = ∑' j, ∑' i, ENNReal.ofReal ((inner ℝ (e i) (A (e j)))^2) := by
       exact ENNReal.tsum_comm
