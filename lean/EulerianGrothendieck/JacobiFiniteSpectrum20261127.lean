@@ -173,7 +173,7 @@ theorem basis_expansion (u : Bonds) (N : ℕ) (l : sites N) :
       EuclideanSpace.single l (1:ℝ) i at he
     have hc := congrArg Complex.ofReal he
     push_cast at hc
-    change lp.single 2 (l:ℤ) 1 (i:ℤ) =
+    change (lp.single 2 (l:ℤ) (1:ℂ) : H) (i:ℤ) =
       ∑ r : sites N, ((basis u N r) l:ℂ)*eigenvector u N r (i:ℤ)
     simp_rw [eigenvector,lift_inside]
     rw [hc]
