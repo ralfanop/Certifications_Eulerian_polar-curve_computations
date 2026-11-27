@@ -609,3 +609,142 @@ theorem schur_series_converges {E F : Type*}
 #print axioms perturbed_diagonal_resolvent
 #print axioms reference_zero_graph
 end M16KreinGraphGap
+
+
+namespace M16KreinGraphGap
+open MeasureTheory
+open scoped ENNReal
+open M16KreinDomains
+open Manuscript16.V166L2SpectralInverse
+open Manuscript16.DiracMaxwellCoefficientModel20261124
+
+-- The spectral theorem supplies the complete eigenbasis of the geometric
+-- operator; Mathlib's HilbertBasis gives an actual surjective isometry.
+theorem eigenbasis_graph_transport {ι E : Type*} [NormedAddCommGroup E]
+    [InnerProductSpace ℂ E] [CompleteSpace E]
+    (b : HilbertBasis ι ℂ E) (lam : ι → ℂ) (G : Set (E × E))
+    (h : ∀ x y, (x,y) ∈ G ↔ ∀ j, b.repr y j = lam j * b.repr x j) :
+    transport b.repr.toEquiv G = ((multOp lam).graph : Set (L2 ι × L2 ι)) := by
+  ext w
+  change (b.repr.symm w.1,b.repr.symm w.2) ∈ G ↔ w ∈ (multOp lam).graph
+  rw [h,mem_graph_multOp_iff]
+  simp only [LinearIsometryEquiv.apply_symm_apply]
+
+-- In the global left invariant orthonormal spin frame on SU(2),
+-- Gamma(beta) is the Pauli matrix contraction (up to orientation).
+def pauli (a b c : ℝ) (u v : ℂ) : ℂ × ℂ :=
+  ((c:ℂ)*u + ((a:ℂ)-(b:ℂ)*Complex.I)*v,
+   ((a:ℂ)+(b:ℂ)*Complex.I)*u - (c:ℂ)*v)
+
+def spinSq (u v : ℂ) : ℝ := Complex.normSq u + Complex.normSq v
+
+theorem pauli_square (a b c : ℝ) (u v : ℂ) :
+    pauli a b c (pauli a b c u v).1 (pauli a b c u v).2 =
+      (((a*a+b*b+c*c:ℝ):ℂ)*u, ((a*a+b*b+c*c:ℝ):ℂ)*v) := by
+  apply Prod.ext
+  · simp only [pauli,Complex.ofReal_add,Complex.ofReal_mul]
+    linear_combination -(b:ℂ)^2*u*Complex.I_sq
+  · simp only [pauli,Complex.ofReal_add,Complex.ofReal_mul]
+    linear_combination -(b:ℂ)^2*v*Complex.I_sq
+
+-- Explicit real-coordinate polynomial proof of the Clifford norm identity.
+theorem pauli_norm_sq (a b c : ℝ) (u v : ℂ) :
+    spinSq (pauli a b c u v).1 (pauli a b c u v).2 =
+      (a^2+b^2+c^2)*spinSq u v := by
+  simp [spinSq,pauli,Complex.normSq_apply,Complex.mul_re,Complex.mul_im,
+    Complex.add_re,Complex.add_im,Complex.sub_re,Complex.sub_im]
+  ring
+
+theorem pauli_hermitian_real (a b c : ℝ) (u v x y : ℂ) :
+    ((star ((pauli a b c u v).1))*x + (star ((pauli a b c u v).2))*y).re =
+    ((star u)*(pauli a b c x y).1 + (star v)*(pauli a b c x y).2).re := by
+  simp [pauli,Complex.mul_re,Complex.mul_im,Complex.add_re,Complex.add_im,
+    Complex.sub_re,Complex.sub_im,Complex.star_def]
+  ring
+
+-- Integral version of the fibrewise squared estimate. Integrability
+-- is derived by domination of the nonnegative output density.
+theorem integral_square_domination {Ω : Type*} [MeasurableSpace Ω]
+    (μ : Measure Ω) (f g : Ω → ℝ) (C : ℝ)
+    (hg : Integrable g μ) (hf : AEStronglyMeasurable f μ)
+    (hn : ∀ᵐ p ∂μ, 0 ≤ f p) (hb : ∀ᵐ p ∂μ, f p ≤ C^2*g p) :
+    Integrable f μ ∧ (∫ p, f p ∂μ) ≤ C^2 * (∫ p, g p ∂μ) := by
+  have hG : Integrable (fun p => C^2*g p) μ := hg.const_mul _
+  have hF : Integrable f μ := hG.mono_nonneg hf hn hb
+  refine ⟨hF,?_⟩
+  calc
+    _ ≤ ∫ p, C^2*g p ∂μ := integral_mono_ae hF hG hb
+    _ = _ := integral_const_mul _ _
+
+theorem clifford_integral_bound {Ω : Type*} [MeasurableSpace Ω]
+    (μ : Measure Ω) (a b c : Ω → ℝ) (u v : Ω → ℂ) (C : ℝ)
+    (hg : Integrable (fun p => spinSq (u p) (v p)) μ)
+    (hf : AEStronglyMeasurable (fun p =>
+      spinSq (pauli (a p) (b p) (c p) (u p) (v p)).1
+             (pauli (a p) (b p) (c p) (u p) (v p)).2) μ)
+    (hb : ∀ᵐ p ∂μ, a p^2+b p^2+c p^2 ≤ C^2) :
+    (∫ p, spinSq (pauli (a p) (b p) (c p) (u p) (v p)).1
+                   (pauli (a p) (b p) (c p) (u p) (v p)).2 ∂μ)
+      ≤ C^2*(∫ p, spinSq (u p) (v p) ∂μ) := by
+  have hn : ∀ᵐ p ∂μ, 0 ≤ spinSq (pauli (a p) (b p) (c p) (u p) (v p)).1
+                                    (pauli (a p) (b p) (c p) (u p) (v p)).2 :=
+    Filter.Eventually.of_forall (fun p => add_nonneg (Complex.normSq_nonneg _) (Complex.normSq_nonneg _))
+  have hdom : ∀ᵐ p ∂μ, spinSq (pauli (a p) (b p) (c p) (u p) (v p)).1
+                                    (pauli (a p) (b p) (c p) (u p) (v p)).2
+      ≤ C^2*spinSq (u p) (v p) := by
+    filter_upwards [hb] with p hp
+    rw [pauli_norm_sq]
+    exact mul_le_mul_of_nonneg_right hp (add_nonneg (Complex.normSq_nonneg _) (Complex.normSq_nonneg _))
+  exact (integral_square_domination μ _ _ C hg hf hn hdom).2
+
+-- Real-to-complex extension represented explicitly as real/imaginary pairs.
+section Complexification
+variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  [NormedAddCommGroup F] [NormedSpace ℝ F]
+
+def complexScale (z : ℂ) (x : E × E) : E × E :=
+  (z.re • x.1-z.im • x.2,z.im • x.1+z.re • x.2)
+
+def complexExtend (T : E →L[ℝ] F) (x : E × E) : F × F := (T x.1,T x.2)
+
+theorem complexExtend_linear (T : E →L[ℝ] F) (z : ℂ) (x : E × E) :
+    complexExtend T (complexScale z x) = complexScale z (complexExtend T x) := by
+  simp [complexExtend,complexScale,map_sub,map_add,map_smul]
+
+theorem complexExtend_add (T : E →L[ℝ] F) (x y : E × E) :
+    complexExtend T (x+y) = complexExtend T x+complexExtend T y := by
+  apply Prod.ext <;> simp [complexExtend,map_add]
+
+theorem complexExtend_sq_bound (T : E →L[ℝ] F) (x : E × E) :
+    ‖(complexExtend T x).1‖^2+‖(complexExtend T x).2‖^2
+      ≤ ‖T‖^2*(‖x.1‖^2+‖x.2‖^2) := by
+  have h1 := T.le_opNorm x.1
+  have h2 := T.le_opNorm x.2
+  have h1' : ‖T x.1‖^2 ≤ (‖T‖*‖x.1‖)^2 := by
+    nlinarith [mul_nonneg (sub_nonneg.mpr h1) (show 0 ≤ ‖T‖*‖x.1‖+‖T x.1‖ by positivity)]
+  have h2' : ‖T x.2‖^2 ≤ (‖T‖*‖x.2‖)^2 := by
+    nlinarith [mul_nonneg (sub_nonneg.mpr h2) (show 0 ≤ ‖T‖*‖x.2‖+‖T x.2‖ by positivity)]
+  dsimp [complexExtend]
+  nlinarith only [h1',h2']
+
+def complexPair (p : E → E → ℝ) (x y : E × E) : ℂ :=
+  ⟨p x.1 y.1+p x.2 y.2,p x.1 y.2-p x.2 y.1⟩
+
+theorem complexExtend_adjoint (T : E →L[ℝ] F) (S : F →L[ℝ] E)
+    (pE : E → E → ℝ) (pF : F → F → ℝ)
+    (h : ∀ x y, pF (T x) y = pE x (S y)) (x : E × E) (y : F × F) :
+    complexPair pF (complexExtend T x) y = complexPair pE x (complexExtend S y) := by
+  simp only [complexPair,complexExtend,h]
+end Complexification
+
+#print axioms eigenbasis_graph_transport
+#print axioms pauli_square
+#print axioms pauli_norm_sq
+#print axioms pauli_hermitian_real
+#print axioms integral_square_domination
+#print axioms clifford_integral_bound
+#print axioms complexExtend_linear
+#print axioms complexExtend_add
+#print axioms complexExtend_sq_bound
+#print axioms complexExtend_adjoint
+end M16KreinGraphGap
