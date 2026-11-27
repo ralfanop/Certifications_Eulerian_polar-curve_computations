@@ -75,7 +75,7 @@ theorem abs_sin_scaled_integral :
 
 theorem deltoid_speed_abs (b t : ℝ) :
     Real.sqrt ((deriv (deltoidX b) t)^2+(deriv (deltoidY b) t)^2) =
-      4*|b|*|Real.sin ((3/2:ℝ)*t)| := by
+      4 * |b| * |Real.sin ((3/2:ℝ)*t)| := by
   rw [(deltoid_derivatives b t).1.deriv, (deltoid_derivatives b t).2.deriv,
     deltoid_speed_squared]
   have ht : 1-Real.cos (3*t) = 2*(Real.sin ((3/2:ℝ)*t))^2 := by
