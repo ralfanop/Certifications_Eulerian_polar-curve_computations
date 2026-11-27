@@ -105,7 +105,7 @@ theorem actual_integral_residual_bound (M : ℕ) (hM : 4 ≤ M)
         have hx' : |x| < r := by simpa [S] using hx
         simp only [F,U,abs_mul,abs_of_nonneg (actual_gM_nonneg M x),mul_assoc]
         exact mul_le_mul_of_nonneg_right (hinner x hx')
-          (mul_nonneg (mul_nonneg (abs_nonneg _) (abs_nonneg _)) (actual_gM_nonneg M x))
+          (mul_nonneg (abs_nonneg _) (mul_nonneg (abs_nonneg _) (actual_gM_nonneg M x)))
       _ ≤ ∫ x, (A/(M:ℝ))*U x :=
         setIntegral_le_integral (hU.const_mul _) (Filter.Eventually.of_forall fun x => by
           dsimp [U]; exact mul_nonneg hAM (mul_nonneg (abs_nonneg _) (actual_gM_nonneg M x)))
@@ -129,8 +129,10 @@ theorem actual_integral_residual_bound (M : ℕ) (hM : 4 ≤ M)
         simp only [F,P,Q,V,abs_mul,abs_of_nonneg hg] at *
         nlinarith
       _ = Cf*((∫ x in S, P x)+(∫ x in S, Q x))/2 + ∫ x in S, V x := by
-        rw [integral_add (((hP.add hQ).div_const 2).const_mul Cf).integrableOn hV.integrableOn,
-          integral_const_mul,integral_div,integral_add hP.integrableOn hQ.integrableOn]
+        have hi : Integrable (fun x => Cf*((P x+Q x)/2)) (volume.restrict S) :=
+          (((hP.add hQ).div_const 2).const_mul Cf).integrableOn
+        have hv : Integrable V (volume.restrict S) := hV.integrableOn
+        rw [integral_add hi hv, integral_const_mul,integral_div,integral_add hP.integrableOn hQ.integrableOn]
         ring
       _ ≤ Cf*T₁+T₂ := by
         change (∫ x in S, P x) ≤ T₁ at hTp
