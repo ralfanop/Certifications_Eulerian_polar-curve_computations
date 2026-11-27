@@ -391,6 +391,7 @@ theorem hilbert_complete [CompleteSpace H] : CompleteSpace (Complexification H) 
 
 end Complexification
 
+end
 end M16ComplexHilbert
 
 #print axioms M16ComplexHilbert.Complexification.core
