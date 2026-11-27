@@ -29,7 +29,10 @@ theorem E_add (u : Bonds) (s t : ℝ) : E u (s+t) = E u s*E u t := by
   rw [Complex.ofReal_add,show ((s:ℂ)+(t:ℂ)) • J u = (s:ℂ) • J u + (t:ℂ) • J u by
     ext x k
     change ((s:ℂ)+(t:ℂ))*J u x k=(s:ℂ)*J u x k+(t:ℂ)*J u x k
-    ring,NormedSpace.exp_add_of_commute hc]
+    ring]
+  exact NormedSpace.exp_add_of_commute_of_mem_ball (𝕂 := ℂ) hc
+    ((NormedSpace.expSeries_radius_eq_top ℂ Op).symm ▸ edist_lt_top _ _)
+    ((NormedSpace.expSeries_radius_eq_top ℂ Op).symm ▸ edist_lt_top _ _)
 
 theorem E_inverse (u : Bonds) (t : ℝ) :
     E u t*E u (-t)=1 := by
@@ -47,7 +50,7 @@ theorem parity_E (u : Bonds) (t : ℝ) :
     change S0*((t:ℂ) • J u)=(((-t:ℝ):ℂ) • J u)*S0
     rw [mul_smul_comm,smul_mul_assoc,parity_anticomm,Complex.ofReal_neg]
     ext x k
-    change -((t:ℂ)*(J u (S0 x) k)) = (-(t:ℂ))*(J u (S0 x) k)
+    change (t:ℂ)*(-(J u (S0 x) k)) = (-(t:ℂ))*(J u (S0 x) k)
     ring
   unfold E
   simp_rw [NormedSpace.exp_eq_tsum ℂ]
