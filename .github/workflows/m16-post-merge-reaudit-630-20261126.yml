@@ -1,0 +1,129 @@
+name: 'M16 post-merge re-audit of #630 (exact HEAD)'
+on:
+  pull_request:
+    paths:
+      - 'audits/M16_M17_exact_head_audit_20261124.md'
+      - '.github/workflows/m16-post-merge-reaudit-630-20261126.yml'
+      - 'lean/lean-toolchain'
+      - 'lean/lakefile.toml'
+      - 'lean/Manuscript16/FreeEvanescentGenerator20261126.lean'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: 'Exact HEAD contains the merge of #630 and its certifying head; pinned Lean 4 toolchain and Mathlib'
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git rev-parse HEAD | tee /tmp/m16-pm630-head.log
+          # main merge commit of #630 and its certifying head (second parent)
+          git merge-base --is-ancestor e63d3fac9cb668f37fa26a9eb737dda831913edb HEAD
+          echo "ancestor merge e63d3fac9cb668f37fa26a9eb737dda831913edb" | tee -a /tmp/m16-pm630-head.log
+          git merge-base --is-ancestor be00ee0a59c2d300cd1123a867e80bbb56117818 HEAD
+          echo "ancestor head be00ee0a59c2d300cd1123a867e80bbb56117818" | tee -a /tmp/m16-pm630-head.log
+          test "$(git rev-parse e63d3fac9cb668f37fa26a9eb737dda831913edb^1)" = 780fe90753dd8ddef72a9df695fd5275dff85b34
+          test "$(git rev-parse e63d3fac9cb668f37fa26a9eb737dda831913edb^2)" = be00ee0a59c2d300cd1123a867e80bbb56117818
+          echo "parents of e63d3fac: 780fe907 (main), be00ee0a (certifying head)" | tee -a /tmp/m16-pm630-head.log
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          lake env lean --version | tee -a /tmp/m16-pm630-head.log
+      - name: Byte identity with the certified PR head
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          sha256sum -c <<'SUMS' | tee /tmp/m16-pm630-sha256.log
+          58a89f0034c11a3b7a566353594f5c7e89abe333ed0f6ff3489bd36bc30e22eb  Manuscript16/FreeEvanescentGenerator20261126.lean
+          SUMS
+          H=be00ee0a59c2d300cd1123a867e80bbb56117818
+          f=Manuscript16/FreeEvanescentGenerator20261126.lean
+          test "$(git show "$H:lean/$f" | sha256sum | cut -c1-64)" = "$(sha256sum "$f" | cut -c1-64)"
+          echo "identical to certifying head $H: $f" | tee -a /tmp/m16-pm630-sha256.log
+          # no Lean module, toolchain or Mathlib pin was modified, deleted or renamed since the certifying head
+          test -z "$(git diff --name-only --diff-filter=MDR "$H" HEAD -- SharedCore Manuscript16 Manuscript17 EulerianCert lakefile.toml lean-toolchain)"
+          echo "no modified dependency since $H" | tee -a /tmp/m16-pm630-sha256.log
+      - name: 'Compile the 7 imported modules and the module of #630, audit every printed axiom report'
+        shell: bash
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          MODULES="Manuscript16/FreeEvanescentResolvent20261125 Manuscript16/RobinDirichletRankOne20261125 Manuscript16/RobinDirichletL2Bounded20261125 Manuscript16/RobinDirichletPositive20261125 Manuscript16/RobinDirichletInjective20261125 Manuscript16/RobinDirichletWeakResolvent20261125 Manuscript16/RobinDirichletRealisation20261125 Manuscript16/FreeEvanescentGenerator20261126"
+          mkdir -p .lake/build/lib/lean/Manuscript16
+          echo "$MODULES" | tr ' ' '\n' > /tmp/m16-pm630-modules.txt
+          for m in $MODULES; do
+            if grep -nE '\bsorry\b|\badmit\b|^\s*axiom\b|\bunsafe\b|implemented_by|extern' "$m.lean"; then exit 1; fi
+            lake env lean -M16768 -o ".lake/build/lib/lean/$m.olean" "$m.lean" 2>&1 | tee "/tmp/m16-pm630-$(basename $m).log"
+            if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' "/tmp/m16-pm630-$(basename $m).log"; then exit 1; fi
+          done
+          if grep -Eq 'warning:|Try this' /tmp/m16-pm630-FreeEvanescentGenerator20261126.log; then exit 1; fi
+          python3 - <<'PY'
+          import hashlib, json, re
+          from pathlib import Path
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          modules = Path('/tmp/m16-pm630-modules.txt').read_text().split()
+          assert len(modules) == 8, len(modules)
+          report, total, wrapped = {}, 0, 0
+          for m in modules:
+              base = m.split('/')[-1]
+              src = Path(m + '.lean').read_text()
+              log = Path('/tmp/m16-pm630-' + base + '.log').read_text()
+              requested = re.findall(r'^#print axioms (\S+)', src, re.M)
+              n = len(requested)
+              assert len(set(requested)) == n, (base, n)
+              # one printed report per request (names may carry primes, so count the report lines)
+              n_dep = len(re.findall(r"' depends on axioms: \[", log))
+              n_none = len(re.findall(r"' does not depend on any axioms", log))
+              assert n_dep + n_none == n, (base, n_dep, n_none, n)
+              # every printed list, including those that wrap over several lines, is standard
+              for block in re.findall(r"' depends on axioms: \[([^\]]*)\]", log, re.S):
+                  wrapped += '\n' in block
+                  axioms = {x.strip() for x in block.split(',') if x.strip()}
+                  assert axioms <= allowed, (base, sorted(axioms))
+              entries = {}
+              for name in requested:
+                  pre = r"'(?:[^\s']+\.)?" + re.escape(name)
+                  found = re.findall(pre + r"' depends on axioms: \[([^\]]*)\]", log, re.S)
+                  none = re.findall(pre + r"' does not depend on any axioms", log)
+                  assert len(found) + len(none) == 1, (base, name, len(found), len(none))
+                  axioms = sorted({x.strip() for a in found for x in a.split(',') if x.strip()})
+                  assert set(axioms) <= allowed, (base, name, axioms)
+                  entries[name] = axioms
+              report[m] = {
+                  'source_sha256': hashlib.sha256(Path(m + '.lean').read_bytes()).hexdigest(),
+                  'olean_sha256': hashlib.sha256(Path('.lake/build/lib/lean/' + m + '.olean').read_bytes()).hexdigest(),
+                  'axiom_reports': entries,
+              }
+              total += n
+              print('AXIOM AUDIT SUCCESS:', m, n, 'reports')
+          assert len(report['Manuscript16/FreeEvanescentGenerator20261126']['axiom_reports']) == 34
+          assert total == 297, total
+          out = {'head': Path('/tmp/m16-pm630-head.log').read_text().split()[0], 'reports_total': total,
+                 'wrapped_lists': wrapped, 'modules': report}
+          Path('/tmp/m16-pm630-audit.json').write_text(json.dumps(out, indent=2) + '\n')
+          print('SUCCESS:', len(modules), 'modules,', total, 'axiom reports (', wrapped, 'wrapped lists ); standard axioms only')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m16-post-merge-reaudit-630-20261126
+          path: |
+            /tmp/m16-pm630-*.log
+            /tmp/m16-pm630-modules.txt
+            /tmp/m16-pm630-audit.json

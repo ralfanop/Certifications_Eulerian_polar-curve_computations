@@ -30,9 +30,12 @@ def geom_zero(coeffs,d):
     return r,rp,rpp,V,V.sqrt()
 
 
-def zero_jet(kind,scale,a,b,degree):
+def zero_jet(kind,scale,a,b,degree,initial_coeffs=None):
     # First-order coefficient follows exactly from the ODE at the vertex.
-    coeffs=[arb(0),scale if kind=='E' else scale/(a+b)];m=2
+    first=scale if kind=='E' else scale/(a+b)
+    coeffs=[arb(0),first] if initial_coeffs is None else list(initial_coeffs)
+    m=len(coeffs)
+    assert 2<=m<=degree and coeffs[0].is_zero() and coeffs[1].contains(first)
     while m<degree:
         d=min(2*m,degree);y=arb_series(coeffs,prec=d)
         r,p,q,V,v=geom_zero(coeffs,d) if kind=='E' else geom(kind,y,a,b)

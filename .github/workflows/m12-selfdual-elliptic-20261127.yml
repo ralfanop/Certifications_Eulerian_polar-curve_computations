@@ -1,0 +1,67 @@
+name: M12 selfdual elliptic exact-head audit
+on:
+  pull_request:
+    paths:
+      - 'lean/EulerianGrothendieck/SelfDualElliptic20261127.lean'
+      - 'lean/Manuscript13/CrossThroatLemniscate20261126.lean'
+      - 'lean/Manuscript15/CrossQuarticImproperPeriod20261125.lean'
+      - '.github/workflows/m12-selfdual-elliptic-20261127.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Exact-head pinned Lean 4 compile and axiom audit
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          git rev-parse HEAD | tee /tmp/m12-selfdual-elliptic.log
+          mkdir -p /tmp/m12-selfdual-olean/Manuscript13 /tmp/m12-selfdual-olean/Manuscript15 /tmp/m12-selfdual-olean/EulerianGrothendieck
+          export LEAN_PATH="/tmp/m12-selfdual-olean:${LEAN_PATH:-}"
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/Manuscript13/EllisFourier20261124.olean Manuscript13/EllisFourier20261124.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/EulerianGrothendieck/CriticalWindowGammaVacuum.olean EulerianGrothendieck/CriticalWindowGammaVacuum.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/Manuscript13/CrossThroatElliptic20261125.olean Manuscript13/CrossThroatElliptic20261125.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/Manuscript13/CrossThroatLemniscate20261126.olean Manuscript13/CrossThroatLemniscate20261126.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/Manuscript15/CrossQuarticCurve20261125.olean Manuscript15/CrossQuarticCurve20261125.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/Manuscript15/CrossQuarticPeriodDifferential20261125.olean Manuscript15/CrossQuarticPeriodDifferential20261125.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/Manuscript15/CrossQuarticFinitePeriod20261125.olean Manuscript15/CrossQuarticFinitePeriod20261125.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 -o /tmp/m12-selfdual-olean/Manuscript15/CrossQuarticImproperPeriod20261125.olean Manuscript15/CrossQuarticImproperPeriod20261125.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          lake env bash -c 'export LEAN_PATH="/tmp/m12-selfdual-olean:$LEAN_PATH"; lean -M16768 EulerianGrothendieck/SelfDualElliptic20261127.lean' 2>&1 | tee -a /tmp/m12-selfdual-elliptic.log
+          if grep -Eq 'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.' /tmp/m12-selfdual-elliptic.log; then exit 1; fi
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('/tmp/m12-selfdual-elliptic.log').read_text()
+          names=["quarticDensity_integrable","reciprocal_image","reciprocal_weight","reciprocal_period","quartic_half_period","selfdual_weight","selfdual_K_from_weight","equation_387","selfdual_K_gamma"]
+          count=0
+          for name in names:
+              full="'M12SelfDualElliptic."+name+"'"
+              found=re.findall(re.escape(full)+r" depends on axioms: \[([^\]]*)\]",t,re.S)
+              assert found or full+" does not depend on any axioms" in t,full
+              for a in found:
+                  assert {x.strip() for x in a.split(',') if x.strip()} <= {'propext','Quot.sound','Classical.choice'},(full,a)
+              count+=1
+          assert count==9
+          print("SUCCESS M12 SELFDUAL ELLIPTIC AUDIT",count)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m12-selfdual-elliptic-audit
+          path: /tmp/m12-selfdual-elliptic.log
+          if-no-files-found: warn
