@@ -27,7 +27,8 @@ theorem phase_derivative (t x : ℝ) :
   have h := (Complex.hasDerivAt_exp (((t:ℂ)*Complex.I)*(x:ℂ))).comp (x:ℂ)
     ((hasDerivAt_id (x:ℂ)).const_mul ((t:ℂ)*Complex.I))
   have h' := h.comp_ofReal (z := x)
-  simpa [phase,mul_comm] using h'
+  unfold phase
+  simpa only [mul_comm,mul_left_comm,mul_assoc] using h'
 
 theorem scalar_derivative (f : 𝓢(ℝ,ℂ)) (x : ℝ) :
     HasDerivAt (fun y : ℝ => f y)
@@ -111,7 +112,7 @@ theorem scalar_DK_offdiag (g : 𝓢(ℝ,ℂ)) (a b : ℝ) (hab : a ≠ b) :
     have hd (s : ℝ) : HasDerivAt (fun s => phase t (p s))
         ((((t:ℂ)*Complex.I)*phase t (p s))*((b:ℂ)-(a:ℂ))) s := by
       have h := (phase_derivative t (p s)).scomp s (hp s)
-      convert h using 1 <;> simp [Complex.real_smul] <;> ring
+      convert h using 1 <;> (try simp [Complex.real_smul]) <;> ring
     have hc : Continuous (fun s => phase t (p s)) :=
       (continuous_iff_continuousAt.mpr fun s => (phase_derivative t s).continuousAt).comp
         (((continuous_const.sub continuous_id).mul continuous_const).add (continuous_id.mul continuous_const))
@@ -142,6 +143,7 @@ theorem scalar_DK_offdiag (g : 𝓢(ℝ,ℂ)) (a b : ℝ) (hab : a ≠ b) :
     _ = ((∫ t : ℝ, weight g t*phase t b)-(∫ t : ℝ, weight g t*phase t a))/((b:ℂ)-(a:ℂ)) := by
       rw [integral_div,integral_sub (hi b) (hi a)]
     _ = _ := by
+      unfold phase
       rw [← scalar_inversion g b,← scalar_inversion g a]
       have hn : (a:ℂ)-(b:ℂ) ≠ 0 := by exact_mod_cast sub_ne_zero.mpr hab
       field_simp <;> ring
@@ -171,24 +173,44 @@ theorem gram_psd {ι : Type*} [Fintype ι] (c : ι → ℝ) (v : ℤ → ι → 
     (hc : ∀ i, 0 ≤ c i) (W : Finset ℤ) (x : ℤ → ℝ) :
     0 ≤ ∑ k ∈ W, ∑ m ∈ W, gram c v k m*x k*x m := by
   classical
+  have hswap :
+      (∑ k ∈ W, ∑ m ∈ W, (∑ i : ι, c i*v k i*v m i)*x k*x m) =
+      ∑ i : ι, ∑ k ∈ W, ∑ m ∈ W, c i*v k i*v m i*x k*x m := by
+    calc
+      _ = ∑ k ∈ W, ∑ m ∈ W, ∑ i : ι, c i*v k i*v m i*x k*x m := by
+        apply Finset.sum_congr rfl
+        intro k _
+        apply Finset.sum_congr rfl
+        intro m _
+        rw [Finset.sum_mul,Finset.sum_mul]
+      _ = ∑ k ∈ W, ∑ i : ι, ∑ m ∈ W, c i*v k i*v m i*x k*x m := by
+        apply Finset.sum_congr rfl
+        intro k _
+        exact Finset.sum_comm
+      _ = _ := Finset.sum_comm
   unfold gram
-  simp_rw [Finset.sum_mul]
-  rw [Finset.sum_comm]
+  rw [hswap]
   apply Finset.sum_nonneg
   intro i _
-  rw [Finset.sum_comm]
   have he :
       (∑ k ∈ W, ∑ m ∈ W, c i*v k i*v m i*x k*x m) =
       c i*(∑ k ∈ W, v k i*x k)^2 := by
-    rw [pow_two,Finset.mul_sum]
-    simp_rw [Finset.mul_sum]
-    apply Finset.sum_congr rfl
-    intro k _
-    apply Finset.sum_congr rfl
-    intro m _
-    ring
+    calc
+      _ = ∑ k ∈ W, ∑ m ∈ W, (c i*(v k i*x k))*(v m i*x m) := by
+        apply Finset.sum_congr rfl
+        intro k _
+        apply Finset.sum_congr rfl
+        intro m _
+        ring
+      _ = (∑ k ∈ W, c i*(v k i*x k))*(∑ m ∈ W,v m i*x m) := by
+        rw [Finset.sum_mul]
+        apply Finset.sum_congr rfl
+        intro k _
+        rw [Finset.mul_sum]
+      _ = _ := by rw [Finset.mul_sum, pow_two] <;> ring
   rw [he]
   exact mul_nonneg (hc i) (sq_nonneg _)
+
 
 def actualKernel (g : 𝓢(ℝ,ℂ)) (u : Bonds) (k m : ℤ) : ℝ :=
   (∫ t : ℝ, (weight g t*((t:ℂ)*Complex.I)) •
@@ -201,7 +223,7 @@ theorem kernel_entry_limit (g : 𝓢(ℝ,ℂ)) (u : Bonds) (k m : ℤ) :
     simpa using weight_moment g 0
   have h := M12SmoothCompressions.fourier_derivative_strong u (weight g) m
     (lp.single 2 (k-1) 1) (weight_continuous g).aestronglyMeasurable hm
-  let ev : H →L[ℂ] ℂ := lp.evalCLM ℂ (by norm_num : (2:ℝ≥0∞) ≠ 0) k
+  let ev : H →L[ℂ] ℂ := lp.evalCLM ℂ (fun _ : ℤ => ℂ) 2 k
   exact Complex.continuous_re.continuousAt.tendsto.comp (ev.continuous.continuousAt.tendsto.comp h)
 
 /-- Actual bilateral PSD, with finite spectral equality on each fixed
@@ -211,11 +233,11 @@ theorem bilateral_psd (g : 𝓢(ℝ,ℂ)) (u : Bonds) (f fp : ℝ → ℝ)
     (hmono : MonotoneOn f (Icc (-1:ℝ) 1))
     (hfp : ∀ a ∈ Icc (-1:ℝ) 1, 0 ≤ fp a)
     (W : Finset ℤ) (x : ℤ → ℝ)
-    (hfinite : ∀ᶠ N : ℕ in atTop, ∃ (n : ℕ) (λ : Fin n → ℝ)
+    (hfinite : ∀ᶠ N : ℕ in atTop, ∃ (n : ℕ) (lam : Fin n → ℝ)
       (v : ℤ → Fin n × Fin n → ℝ),
-      (∀ i, λ i ∈ Icc (-1:ℝ) 1) ∧
+      (∀ i, lam i ∈ Icc (-1:ℝ) 1) ∧
       ∀ k ∈ W, ∀ m ∈ W, actualKernel g (cut u N) k m =
-        gram (fun i : Fin n × Fin n => (1/2:ℝ)*dd f fp (λ i.1) (λ i.2)) v k m) :
+        gram (fun i : Fin n × Fin n => (1/2:ℝ)*dd f fp (lam i.1) (lam i.2)) v k m) :
     0 ≤ ∑ k ∈ W, ∑ m ∈ W, actualKernel g u k m*x k*x m := by
   have h : Tendsto (fun N : ℕ => ∑ k ∈ W, ∑ m ∈ W,
       actualKernel g (cut u N) k m*x k*x m) atTop
@@ -227,9 +249,9 @@ theorem bilateral_psd (g : 𝓢(ℝ,ℂ)) (u : Bonds) (f fp : ℝ → ℝ)
     exact ((kernel_entry_limit g u k m).mul tendsto_const_nhds).mul tendsto_const_nhds
   apply le_of_tendsto_of_tendsto tendsto_const_nhds h
   filter_upwards [hfinite] with N hN
-  obtain ⟨n,λ,v,hλ,he⟩ := hN
-  have hg := gram_psd (fun i : Fin n × Fin n => (1/2:ℝ)*dd f fp (λ i.1) (λ i.2)) v
-    (fun i => mul_nonneg (by norm_num) (dividedDifference_nonneg f fp hmono hfp (hλ i.1) (hλ i.2))) W x
+  obtain ⟨n,lam,v,hlam,he⟩ := hN
+  have hg := gram_psd (fun i : Fin n × Fin n => (1/2:ℝ)*dd f fp (lam i.1) (lam i.2)) v
+    (fun i => mul_nonneg (by norm_num) (dividedDifference_nonneg f fp hmono hfp (hlam i.1) (hlam i.2))) W x
   convert hg using 1
   apply Finset.sum_congr rfl
   intro k hk
