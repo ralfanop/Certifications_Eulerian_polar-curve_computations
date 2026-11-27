@@ -28,7 +28,8 @@ theorem orthonormal_frame (x : S3) :
     qDot (frame1 x.val) (frame2 x.val) = 0 ∧
     qDot (frame1 x.val) (frame3 x.val) = 0 ∧
     qDot (frame2 x.val) (frame3 x.val) = 0 := by
-  simp [frame1,frame2,frame3,qMul_dot,x.property,qDot,qi,qj,qk]
+  simp only [frame1,frame2,frame3,qMul_dot,x.property,one_mul]
+  norm_num [qDot,qi,qj,qk]
 
 theorem qMul_self_conj (x : Q) (hx : qSq x = 1) :
     qMul x (qConj x) = qOne := by
