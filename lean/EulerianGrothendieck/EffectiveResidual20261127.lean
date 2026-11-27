@@ -32,11 +32,11 @@ power-series coefficient of the real exponential. -/
 theorem exponential_tail_order (c M : ℝ) (hc : 0 < c) (hM : 0 < M) (N : ℕ) :
     Real.exp (-(c*M)) ≤ (Nat.factorial N : ℝ) / (c*M)^N := by
   have h : (c*M)^N / (Nat.factorial N : ℝ) ≤ Real.exp (c*M) :=
-    Real.pow_div_factorial_le_exp N (by positivity)
+    Real.pow_div_factorial_le_exp (c*M) (by positivity) N
   have hp : 0 < (c*M)^N := by positivity
   have hf : 0 < (Nat.factorial N : ℝ) := by exact_mod_cast Nat.factorial_pos N
   rw [Real.exp_neg,inv_eq_one_div,div_le_div_iff₀ (Real.exp_pos _) hp]
-  simpa only [one_mul] using (div_le_iff₀ hf).mp h
+  simpa only [one_mul, mul_comm (Nat.factorial N : ℝ)] using (div_le_iff₀ hf).mp h
 
 theorem absorb_polynomial_tail (c M : ℝ) (hc : 0 < c) (hM : 1 ≤ M) (N : ℕ) :
     (M+1)^2 * Real.exp (-(c*M)) ≤
