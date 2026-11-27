@@ -39,7 +39,7 @@ theorem lem_map_jacobian (t : ℝ) (ht : t ∈ Ioo (0:ℝ) 1) :
   have hs : 0 < Real.sqrt (1-t^2) := Real.sqrt_pos.2 hq
   have hs2 := Real.sq_sqrt hq.le
   have hd : HasDerivAt (fun x : ℝ => 1-x^2) (-2*t) t := by
-    convert ((hasDerivAt_const t (1:ℝ)).sub ((hasDerivAt_id t).pow 2)) using 1 <;> first | rfl | (simp [id]; ring)
+    convert ((hasDerivAt_const t (1:ℝ)).sub ((hasDerivAt_id t).pow 2)) using 1 <;> first | rfl | (simp [id] <;> ring)
   have h := (hasDerivAt_id t).div (hd.sqrt (ne_of_gt hq)) (ne_of_gt hs)
   unfold lemMap
   convert h.hasDerivWithinAt using 1 <;> try rfl
@@ -168,7 +168,7 @@ theorem beta_map_image : (fun t : ℝ => t^4) '' Ioo (0:ℝ) 1 = Ioo 0 1 := by
 
 theorem beta_map_jacobian (t : ℝ) (_ : t ∈ Ioo (0:ℝ) 1) :
     HasDerivWithinAt (fun s : ℝ => s^4) (4*t^3) (Ioo (0:ℝ) 1) t := by
-  convert ((hasDerivAt_id t).pow 4).hasDerivWithinAt using 1 <;> first | rfl | (simp [id]; ring)
+  convert ((hasDerivAt_id t).pow 4).hasDerivWithinAt using 1 <;> first | rfl | (simp [id] <;> ring)
 
 theorem beta_weight (t : ℝ) (ht : t ∈ Ioo (0:ℝ) 1) :
     (4*t^3)*betaProfile (t^4) = 4*lemProfile t := by
@@ -227,7 +227,7 @@ theorem gamma_beta_ratio :
     rw [show (3/4:ℂ) = ((3/4:ℝ):ℂ) by norm_num]
     exact Complex.Gamma_ofReal _
   rw [hq,hh,ht,← Complex.ofReal_mul,← Complex.ofReal_div] at h
-  exact Complex.ofReal_inj.mp h
+  exact Complex.ofReal_inj.mp (hcast.symm.trans h)
 
 theorem lem_gamma_of_beta :
     lemPeriod = Real.Gamma (1/4)^2/(4*Real.sqrt (2*Real.pi)) := by
