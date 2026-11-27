@@ -27,7 +27,7 @@ theorem gaussianMajorant_integrable (c : ℝ) (hc : 0 < c) (d : ℕ) :
   have h₁ := integrable_exp_neg_mul_sq hc
   have h₂ : Integrable (fun z : ℝ => z^(2*d)*Real.exp (-c*z^2)) := by
     have h := integrable_rpow_mul_exp_neg_mul_sq hc
-      (show (-1:ℝ) < ((2*d:ℕ):ℝ) by positivity)
+      (show (-1:ℝ) < ((2*d:ℕ):ℝ) by have h : (0:ℝ) ≤ ((2*d:ℕ):ℝ) := Nat.cast_nonneg _; linarith)
     simpa only [Real.rpow_natCast] using h
   have he : gaussianMajorant c d = fun z =>
       Real.exp (-c*z^2)+z^(2*d)*Real.exp (-c*z^2) := by
