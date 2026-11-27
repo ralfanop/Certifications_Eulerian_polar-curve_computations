@@ -1,0 +1,144 @@
+name: M11 final audit of exact aggregated commit
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/m11-final-merge-audit-20261127.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: m11-final-merge-audit-20261127
+  cancel-in-progress: false
+jobs:
+  lean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: lean
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: a32ea88fd0aa4569a9d65cdf9650c3edf944baf2
+          persist-credentials: false
+      - name: Verify exact merged tree and pinned toolchain
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = a32ea88fd0aa4569a9d65cdf9650c3edf944baf2
+          test "$(cat lean-toolchain)" = leanprover/lean4:v4.35.0-rc3
+          grep -F 0272bbe1c093d038d7257ab15306abd58245f9ff lakefile.toml
+      - name: Install Lean
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch Mathlib
+        run: |
+          set -euo pipefail
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = 0272bbe1c093d038d7257ab15306abd58245f9ff
+          lake exe cache get
+      - name: Build and audit complete EulerianCert suite and dedicated Proposition 3.17
+        run: |
+          set -euo pipefail
+          lake build EulerianCert 2>&1 | tee m11-build.log
+          lake env lean AxiomCheck.lean 2>&1 | tee m11-axioms.log
+          lake env lean EulerianCert/M11StandardizedCumulant.lean 2>&1 | tee m11-cumulant.log
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          allowed = {"propext", "Classical.choice", "Quot.sound"}
+          for f in ["m11-axioms.log", "m11-cumulant.log"]:
+              s = Path(f).read_text()
+              assert not re.search(r"\b(?:error|warning):|sorryAx|Lean\.ofReduceBool", s), f
+              reports = re.findall(r"^'([^\r\n]+?)' depends on axioms:\s*\[([^\]]*)\][ \t]*$", s, re.M)
+              empty = re.findall(r"^'([^\r\n]+?)' does not depend on any axioms[ \t]*$", s, re.M)
+              names = {n for n, _ in reports} | set(empty)
+              for name, axioms in reports:
+                  assert set(re.findall(r"[A-Za-z_][A-Za-z0-9_.]*", axioms)) <= allowed, (name, axioms)
+              if f == "m11-axioms.log":
+                  expected = set(re.findall(r"^#print axioms (\S+)", Path("AxiomCheck.lean").read_text(), re.M))
+                  assert expected <= names, (expected - names)
+              else:
+                  expected = {"mgf_zero","mgf_eq_sinh","mgf_eq_total","moment_eq","moment_one","moment_two","moment_four","fourth_centered_cumulant","quartic_log_jet","fourth_log_coefficient","complexMGF_zero","complexMGF_eq_sinh","complexMGF_entire","complexMGF_restrict_real","mgf_analytic_jet","mgf_analyticAt_zero","log_mgf_analytic_jet","log_mgf_bigO","log_mgf_fourth_deriv","fourth_derivative_eq_moment_cumulant"}
+                  assert {n.split(".")[-1] for n in names} == expected
+              print(f, len(names), "standard-axiom reports verified")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m11-final-exact-merge-lean-audit
+          path: lean/m11-*.log
+          if-no-files-found: warn
+  archive:
+    needs: lean
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'm11-final-audit-20261127'
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Verify committed original archives, hashes and rational endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          d=certificates/m11/dkappa-10000-20261126
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+          cd "$d"
+          diff -u SHA256SUMS - <<'EOF'
+          404b897eb98676f087c0a816d1a643beb08f16ebcd7a1f9d97c43ca19588aa00  github-actions-artifact-15157600626.zip
+          379302713db76d4c1776d0dcf87c75eb3ff2530272a8f981220c1a0fd0ce2241  github-actions-artifact-15156354842.zip
+          abe830aa4c2158ab3935c5a017cf30e774613ec32c3717abec60a130476441b8  github-actions-artifact-15156574431.zip
+          ca3783678530f201a051e3d494cf62e1db8b26f17fd4c79c7d937b9ad8994b42  github-actions-artifact-14905741653.zip
+          EOF
+          sha256sum -c SHA256SUMS
+          python - <<'PY'
+          import hashlib, json, sys, zipfile
+          from fractions import Fraction as F
+          sys.set_int_max_str_digits(0)
+          def load(i,n):
+              with zipfile.ZipFile(f"github-actions-artifact-{i}.zip") as z:
+                  assert z.testzip() is None
+                  b=z.read(n)
+              return json.loads(b),hashlib.sha256(b).hexdigest()
+          def interval(d,k):
+              return tuple(F(int(d[k][x]["numerator"]),int(d[k][x]["denominator"])) for x in ["lower","upper"])
+          m,mh=load(15157600626,"combined.json")
+          c,_=load(15157600626,"certified.json")
+          l,lh=load(14905741653,"m11-length-130k-curvature-chart.json")
+          assert mh==c["combined_sha256"] and lh==c["length_manifest_sha256"]
+          assert c["producer_head_sha"]=="542b1b6553a9a8c0dd0a70e429f92abfcfd3bed0"
+          assert c["length_source_head_sha"]==l["source_head_sha"]=="59d9884b7346b4e3296336be56f3bb702f1b2686"
+          assert m["parameters"]=={"bits":60000,"target":34000,"panels":128}
+          assert l["enclosure"]["relative_bits"]==130032
+          a,b=interval(l,"enclosure")
+          assert (b-a)*2**125000<a
+          for direction,i in [(1,15156354842),(-1,15156574431)]:
+              h,hh=load(i,"checkpoint.json")
+              with zipfile.ZipFile(f"github-actions-artifact-{i}.zip") as z:
+                  assert z.read("producer-head.txt").decode().strip()==c["producer_head_sha"]
+                  assert hh==z.read("checkpoint.sha256").decode().split()[0]
+              assert hh==c["half_manifests_sha256"][str(direction)]
+              assert h["parameters"]==m["parameters"]
+              half=h["half"]
+              assert half==next(x for x in m["halves"] if x["direction"]==direction)
+              assert len(half["orders"])==64 and min(half["orders"])>0
+              source=half["historical_euler_source"]
+              assert source["manifest_sha256"]==lh and source["source_ci"]==45357327165
+              assert source["source_head_sha"]==c["length_source_head_sha"]
+              x,y=interval(half,"Eulerian_half_length")
+              assert 2*x<=a<=b<=2*y
+          lo,hi=interval(m,"discrepancy")
+          a,b=map(sum,zip(*(interval(h,"integral") for h in m["halves"])))
+          assert 0<lo<=hi and lo**2<=a<=b<=hi**2 and (hi-lo)*2**34000<lo
+          dec=c["rounded_decimal"]
+          q=F(dec)
+          assert len(dec.split(".")[1])==10000 and q-F(1,2*10**10000)<lo<=hi<q+F(1,2*10**10000)
+          assert hashlib.sha256(dec.encode("ascii")).hexdigest()==c["decimal_sha256"]
+          print("PASS: exact rational audit, original length endpoints, both halves, 10000 fractional digits")
+          PY
