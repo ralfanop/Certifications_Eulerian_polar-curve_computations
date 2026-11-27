@@ -35,11 +35,19 @@ theorem tsum_dominated (F : ℕ → ℕ → H) (f : ℕ → H) (g : ℕ → ℝ)
     hg' (fun N => Eventually.of_forall (hb N)) (Eventually.of_forall hlim)
   simpa only [count_integral_eq_tsum _ hfn, count_integral_eq_tsum _ (hFN _)] using h
 
+local instance : Nontrivial Op := by
+  refine ⟨⟨0,1,?_⟩⟩
+  intro h
+  let x : H := lp.single 2 (0:ℤ) 1
+  have he := congrArg (fun T : Op => T x (0:ℤ)) h
+  change (0:ℂ) = x 0 at he
+  simp [x,lp.single_apply] at he
+
 def A (u : Bonds) (t : ℝ) : Op := ((t:ℂ)*Complex.I) • J u
 def E (u : Bonds) (t : ℝ) : Op := exp (A u t)
 
 theorem generator_power_strong (u : Bonds) (t : ℝ) (n : ℕ) (x : H) :
-    Tendsto (fun N : ℕ => (A (cut u N) t)^n x) atTop (𝓝 ((A u t)^n x)) := by
+    Tendsto (fun N : ℕ => ((A (cut u N) t)^n) x) atTop (𝓝 (((A u t)^n) x)) := by
   unfold A
   simp only [smul_pow,ContinuousLinearMap.smul_apply]
   exact (cutoff_power_strong u n x).const_smul (((t:ℂ)*Complex.I)^n)
@@ -55,16 +63,16 @@ theorem exp_apply_series (B : Op) (x : H) :
 
 theorem cutoff_exp_strong (u : Bonds) (t : ℝ) (x : H) :
     Tendsto (fun N : ℕ => E (cut u N) t x) atTop (𝓝 (E u t x)) := by
-  let F : ℕ → ℕ → H := fun N n => ((n.factorial:ℂ)⁻¹) • (A (cut u N) t)^n x
-  let f : ℕ → H := fun n => ((n.factorial:ℂ)⁻¹) • (A u t)^n x
+  let F : ℕ → ℕ → H := fun N n => ((n.factorial:ℂ)⁻¹) • ((A (cut u N) t)^n) x
+  let f : ℕ → H := fun n => ((n.factorial:ℂ)⁻¹) • ((A u t)^n) x
   let g : ℕ → ℝ := fun n => ((n.factorial:ℝ)⁻¹)*|t|^n*‖x‖
   have hg : Summable g := (exp_real_summable |t|).mul_right ‖x‖
   have hb (v : Bonds) (n : ℕ) :
-      ‖((n.factorial:ℂ)⁻¹) • (A v t)^n x‖ ≤ g n := by
+      ‖((n.factorial:ℂ)⁻¹) • ((A v t)^n) x‖ ≤ g n := by
     rw [norm_smul,norm_inv,Complex.norm_natCast]
     calc
       _ ≤ ((n.factorial:ℝ)⁻¹)*(‖(A v t)^n‖*‖x‖) :=
-        mul_le_mul_of_nonneg_left ((A v t)^n).le_opNorm x (by positivity)
+        mul_le_mul_of_nonneg_left (((A v t)^n).le_opNorm x) (by positivity)
       _ ≤ ((n.factorial:ℝ)⁻¹)*(|t|^n*‖x‖) :=
         mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right
           (generator_power_norm v t n) (norm_nonneg x)) (by positivity)
