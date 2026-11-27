@@ -28,7 +28,7 @@ theorem phase_derivative (t x : ℝ) :
     ((hasDerivAt_id (x:ℂ)).const_mul ((t:ℂ)*Complex.I))
   have h' := h.comp_ofReal (z := x)
   unfold phase
-  simpa only [mul_comm,mul_left_comm,mul_assoc] using h'
+  simpa only [Function.comp_def,mul_one,mul_comm,mul_left_comm,mul_assoc] using h'
 
 theorem scalar_derivative (f : 𝓢(ℝ,ℂ)) (x : ℝ) :
     HasDerivAt (fun y : ℝ => f y)
@@ -112,7 +112,7 @@ theorem scalar_DK_offdiag (g : 𝓢(ℝ,ℂ)) (a b : ℝ) (hab : a ≠ b) :
     have hd (s : ℝ) : HasDerivAt (fun s => phase t (p s))
         ((((t:ℂ)*Complex.I)*phase t (p s))*((b:ℂ)-(a:ℂ))) s := by
       have h := (phase_derivative t (p s)).scomp s (hp s)
-      convert h using 1 <;> (try simp [Complex.real_smul]) <;> ring
+      convert h using 1 <;> (try simp [Complex.real_smul,Complex.ofReal_sub]) <;> (try ring)
     have hc : Continuous (fun s => phase t (p s)) :=
       (continuous_iff_continuousAt.mpr fun s => (phase_derivative t s).continuousAt).comp
         (((continuous_const.sub continuous_id).mul continuous_const).add (continuous_id.mul continuous_const))
@@ -207,7 +207,7 @@ theorem gram_psd {ι : Type*} [Fintype ι] (c : ι → ℝ) (v : ℤ → ι → 
         apply Finset.sum_congr rfl
         intro k _
         rw [Finset.mul_sum]
-      _ = _ := by rw [Finset.mul_sum, pow_two] <;> ring
+      _ = _ := by rw [← Finset.mul_sum,pow_two]; ring
   rw [he]
   exact mul_nonneg (hc i) (sq_nonneg _)
 
