@@ -147,7 +147,9 @@ theorem current_difference_derivative (b c : ℝ) :
   have h : HasDerivAt (fun s : ℝ => 2*s*b+s^2*c)
       (((0:ℝ)*0+2*1)*b + (2*0^(2-1)*1)*c) 0 := by
     convert (((hasDerivAt_const (0:ℝ) (2:ℝ)).mul (hasDerivAt_id (0:ℝ))).mul_const b |>.add
-      (((hasDerivAt_id (0:ℝ)).pow 2).mul_const c) using 1 <;> ring
+      (((hasDerivAt_id (0:ℝ)).pow 2).mul_const c)) using 1
+    · funext s; simp only [Pi.add_apply, Pi.mul_apply, Pi.pow_apply, id]
+    · simp
   simpa using h
 
 section ProjectedCouplings
@@ -175,8 +177,6 @@ theorem projected_adjoint (J : E →L[ℝ] H) (M : H →L[ℝ] F)
   rw [map_smul, ContinuousLinearMap.adjoint_comp, ContinuousLinearMap.adjoint_comp,
     hT, smul_smul]
   congr 1
-  ext x
-  rfl
 
 theorem projected_compact (J : E →L[ℝ] H) (M : H →L[ℝ] F)
     (T : H →L[ℝ] H) (e : ℝ) (hT : IsCompactOperator (T : H → H)) :
