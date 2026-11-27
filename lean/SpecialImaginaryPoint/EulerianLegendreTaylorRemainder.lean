@@ -46,7 +46,8 @@ theorem cumulant_fifth_deriv_zero :
     intro x
     have h := ((hf (-x)).hasDerivAt.comp x (hasDerivAt_id x).neg)
     have h' : HasDerivAt (fun y : ℝ => f (-y)) (deriv f (-x) * -1) x := by
-      simpa [id_eq] using h
+      change HasDerivAt (fun y : ℝ => f (-y)) _ x at h
+      simpa only [smul_eq_mul, mul_neg, mul_one, neg_mul, one_mul] using h
     have hfun : (fun y : ℝ => f (-y)) = f := funext he
     rw [hfun] at h'
     linarith [h'.unique (hf x).hasDerivAt]
@@ -56,7 +57,8 @@ theorem cumulant_fifth_deriv_zero :
     intro x
     have h := ((hf (-x)).hasDerivAt.comp x (hasDerivAt_id x).neg)
     have h' : HasDerivAt (fun y : ℝ => f (-y)) (deriv f (-x) * -1) x := by
-      simpa [id_eq] using h
+      change HasDerivAt (fun y : ℝ => f (-y)) _ x at h
+      simpa only [smul_eq_mul, mul_neg, mul_one, neg_mul, one_mul] using h
     have hfun : (fun y : ℝ => f (-y)) = (fun y : ℝ => -f y) := funext he
     rw [hfun] at h'
     have hn : HasDerivAt (fun y : ℝ => -f y) (-deriv f x) x := (hf x).hasDerivAt.neg
