@@ -48,7 +48,7 @@ theorem green_fourier (κ : ℝ) (hk : 0 < κ) (ξ : ℝ) :
 /-- Compatibility of the ordinary integral Fourier transform and the L² transform on
 their common L¹∩L² domain, via the distribution embedding and Schwartz test functions. -/
 theorem fourier_integral_agreement (f : H) (hf : Integrable (fun x : ℝ => f x)) :
-    (fun x => fourier f x) =ᵐ[volume] (𝓕 (fun x : ℝ => f x)) := by
+    (fun x => EllisComplexResolvent20261127.fourier f x) =ᵐ[volume] (𝓕 (fun x : ℝ => f x)) := by
   have hc : Continuous (𝓕 (fun x : ℝ => f x)) := by
     first
     | exact hf.continuous_fourier
@@ -56,7 +56,7 @@ theorem fourier_integral_agreement (f : H) (hf : Integrable (fun x : ℝ => f x)
         (innerSL ℝ).continuous₂ hf
     | exact?
   apply ae_eq_of_integral_contDiff_smul_eq
-    ((Lp.memLp (fourier f)).locallyIntegrable (by norm_num)) hc.locallyIntegrable
+    ((Lp.memLp (EllisComplexResolvent20261127.fourier f)).locallyIntegrable (by norm_num)) hc.locallyIntegrable
   intro t ht hs
   have hs' : HasCompactSupport (Complex.ofRealCLM ∘ t) := hs.comp_left rfl
   have ht' : ContDiff ℝ ∞ (Complex.ofRealCLM ∘ t) := by fun_prop
@@ -65,7 +65,7 @@ theorem fourier_integral_agreement (f : H) (hf : Integrable (fun x : ℝ => f x)
     (Lp.fourier_toTemperedDistribution_eq f)
   simp only [TemperedDistribution.fourier_apply, Lp.toTemperedDistribution_apply] at he
   calc
-    _ = ∫ x : ℝ, φ x • fourier f x := by rfl
+    _ = ∫ x : ℝ, φ x • EllisComplexResolvent20261127.fourier f x := by rfl
     _ = ∫ x : ℝ, (𝓕 φ) x • f x := he.symm
     _ = ∫ x : ℝ, φ x • (𝓕 (fun y : ℝ => f y)) x := by
       rw [SchwartzMap.fourier_coe]
@@ -95,15 +95,20 @@ theorem conv_row_pair (κ : ℝ) (hk : 0 < κ) (x : ℝ) (f : H) :
   filter_upwards [(conv_row_mem κ hk x).coeFn_toLp] with t ht
   have hrow : convRow κ hk x t = green κ (x-t) := ht
   rw [hrow]
-  simp [green, RCLike.inner_apply, mul_comm]
+  change green κ (x-t) * f t = star (green κ (x-t)) * f t
+  rw [show star (green κ (x-t)) = green κ (x-t) by unfold green; exact Complex.conj_ofReal _]
 
 theorem conv_input_continuous (κ : ℝ) (hk : 0 < κ) (x : ℝ) :
     Continuous (fun f : H => conv κ (fun t => f t) x) := by
-  simpa only [conv_row_pair κ hk x] using (innerSL ℂ (convRow κ hk x)).continuous
+  have he : (fun f : H => conv κ (fun t => f t) x) = (innerSL ℂ (convRow κ hk x) : H → ℂ) := by
+    funext f
+    exact conv_row_pair κ hk x f
+  rw [he]
+  exact (innerSL ℂ (convRow κ hk x)).continuous
 
 theorem conv_schwartz_integrable (κ : ℝ) (hk : 0 < κ) (f : 𝓢(ℝ,ℂ)) :
     Integrable (conv κ f) :=
-  (green_integrable κ hk).integrable_convolution f.integrable
+  (green_integrable κ hk).integrable_convolution (ContinuousLinearMap.mul ℂ ℂ) f.integrable
 
 theorem conv_schwartz_mem (κ : ℝ) (hk : 0 < κ) (f : 𝓢(ℝ,ℂ)) :
     MemLp (conv κ f) 2 volume := by
@@ -133,16 +138,16 @@ theorem conv_schwartz_fourier (κ : ℝ) (hk : 0 < κ) (f : 𝓢(ℝ,ℂ)) (ξ :
 
 theorem resolvent_schwartz_conv (κ : ℝ) (hk : 0 < κ) (f : 𝓢(ℝ,ℂ)) :
     (fun x => freeResolvent κ hk (f.toLp 2) x) =ᵐ[volume]
-      (fun x => conv κ (fun t => f.toLp 2 t) x) := by
+      (fun x => conv κ (fun t => f.toLp 2 volume t) x) := by
   let g := (conv_schwartz_mem κ hk f).toLp _
   have hg : (fun x => g x) =ᵐ[volume] conv κ f :=
     (conv_schwartz_mem κ hk f).coeFn_toLp
   have hgi : Integrable (fun x => g x) :=
     (conv_schwartz_integrable κ hk f).congr hg.symm
-  have hf : (fun x => f.toLp 2 x) =ᵐ[volume] (f : ℝ → ℂ) := f.coeFn_toLp 2 volume
-  have hfi : Integrable (fun x => f.toLp 2 x) := f.integrable.congr hf.symm
+  have hf : (fun x => f.toLp 2 volume x) =ᵐ[volume] (f : ℝ → ℂ) := f.coeFn_toLp (p := 2) (μ := volume)
+  have hfi : Integrable (fun x => f.toLp 2 volume x) := f.integrable.congr hf.symm
   have he : g = freeResolvent κ hk (f.toLp 2) := by
-    apply fourier.injective
+    apply EllisComplexResolvent20261127.fourier.injective
     apply Lp.ext
     filter_upwards [fourier_integral_agreement g hgi, fourier_integral_agreement (f.toLp 2) hfi,
       freeResolvent_fourier_ae κ hk (f.toLp 2)] with x h1 h2 h3
@@ -163,18 +168,21 @@ theorem resolvent_convolution_ae (κ : ℝ) (hk : 0 < κ) (f : H) :
     SchwartzMap.denseRange_toLpCLM (p := 2) ENNReal.ofNat_ne_top
   obtain ⟨s,hs⟩ : ∃ s : ℕ → 𝓢(ℝ,ℂ),
       Tendsto (fun n => (s n).toLp 2) atTop (𝓝 f) := by
-    first | exact hd.exists_seq_tendsto f | exact?
+    have hf : f ∈ closure (Set.range (SchwartzMap.toLpCLM ℝ ℂ 2 (volume : Measure ℝ))) := hd f
+    obtain ⟨a,ha,ht⟩ := mem_closure_iff_seq_limit.mp hf
+    choose s hs using ha
+    exact ⟨s, by simpa only [SchwartzMap.toLpCLM_apply, hs] using ht⟩
   have hr : Tendsto (fun n => freeResolvent κ hk ((s n).toLp 2)) atTop
       (𝓝 (freeResolvent κ hk f)) :=
     (freeResolvent κ hk).continuous.continuousAt.tendsto.comp hs
   obtain ⟨ns,hns,hae⟩ := (tendstoInMeasure_of_tendsto_Lp hr).exists_seq_tendsto_ae
   have hall : ∀ᵐ x ∂volume, ∀ n : ℕ,
-      freeResolvent κ hk ((s n).toLp 2) x = conv κ (fun t => (s n).toLp 2 t) x :=
+      freeResolvent κ hk ((s n).toLp 2) x = conv κ (fun t => (s n).toLp 2 volume t) x :=
     ae_all_iff.mpr (fun n => resolvent_schwartz_conv κ hk (s n))
   filter_upwards [hae,hall] with x hx hy
   have hc := (conv_input_continuous κ hk x).continuousAt.tendsto.comp (hs.comp hns.tendsto_atTop)
   have hsame : (fun n => freeResolvent κ hk ((s (ns n)).toLp 2) x) =
-      (fun n => conv κ (fun t => (s (ns n)).toLp 2 t) x) := funext (fun n => hy (ns n))
+      (fun n => conv κ (fun t => (s (ns n)).toLp 2 volume t) x) := funext (fun n => hy (ns n))
   rw [hsame] at hx
   exact (tendsto_nhds_unique hx hc).trans (conv_integral κ (fun t => f t) x)
 
