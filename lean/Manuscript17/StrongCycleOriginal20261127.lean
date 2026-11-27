@@ -44,7 +44,7 @@ theorem original_minpoly_eq_charpoly (n : ℕ) (a : Fin (n+2) → ℂ) (r w : �
 
 /-- The coordinate functional on the eigenspace of the transpose. -/
 def lastCoord (n : ℕ) (a : Fin (n+2) → ℂ) (r w z : ℂ) :
-    ((matrix n a r w).mulVecLin.eigenspace z) →ₗ[ℂ] ℂ where
+    (Module.End.eigenspace (matrix n a r w).mulVecLin z) →ₗ[ℂ] ℂ where
   toFun v := v.val (Fin.last (n+1))
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
@@ -53,18 +53,18 @@ theorem lastCoord_injective (n : ℕ) (a : Fin (n+2) → ℂ) (r w z : ℂ)
     (hr : r ≠ 0) : Function.Injective (lastCoord n a r w z) := by
   intro x y h
   have hzero : lastCoord n a r w z (x-y) = 0 := by rw [map_sub,h,sub_self]
-  have hv : ((x-y : (matrix n a r w).mulVecLin.eigenspace z) : Fin (n+2) → ℂ) = 0 := by
+  have hv : ((x-y : Module.End.eigenspace (matrix n a r w).mulVecLin z) : Fin (n+2) → ℂ) = 0 := by
     by_contra hn
     have he := Module.End.mem_eigenspace_iff.mp (x-y).property
-    change (matrix n a r w) *ᵥ ((x-y : (matrix n a r w).mulVecLin.eigenspace z) : Fin (n+2) → ℂ) =
-      z • ((x-y : (matrix n a r w).mulVecLin.eigenspace z) : Fin (n+2) → ℂ) at he
+    change (matrix n a r w) *ᵥ ((x-y : Module.End.eigenspace (matrix n a r w).mulVecLin z) : Fin (n+2) → ℂ) =
+      z • ((x-y : Module.End.eigenspace (matrix n a r w).mulVecLin z) : Fin (n+2) → ℂ) at he
     exact (eigenvector_last_nonzero n a r w z hr _ hn he) hzero
   have hsub : x-y = 0 := Subtype.ext hv
   exact sub_eq_zero.mp hsub
 
 /-- Geometric multiplicity is at most one, including repeated roots. -/
 theorem eigenspace_finrank_le_one (n : ℕ) (a : Fin (n+2) → ℂ) (r w z : ℂ)
-    (hr : r ≠ 0) : Module.finrank ℂ ((matrix n a r w).mulVecLin.eigenspace z) ≤ 1 := by
+    (hr : r ≠ 0) : Module.finrank ℂ (Module.End.eigenspace (matrix n a r w).mulVecLin z) ≤ 1 := by
   simpa using LinearMap.finrank_le_finrank_of_injective (lastCoord_injective n a r w z hr)
 
 #print axioms original_transpose
