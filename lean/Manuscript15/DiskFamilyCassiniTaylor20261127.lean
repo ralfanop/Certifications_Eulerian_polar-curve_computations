@@ -69,7 +69,7 @@ theorem cassini_level_remainder {t x y : ℝ} (ht : 0 < t) (hy : 0 ≤ y)
   let e := y-t
   have ha : 1 ≤ a := by dsimp [a]; nlinarith
   have hap : 0 < a := by linarith
-  have hsum : 0 < 2*a+d := by dsimp [a,d]; positivity
+  have hsum : 0 < 2*a+d := by dsimp [a,d]; nlinarith [sq_nonneg t,sq_nonneg x,sq_nonneg y]
   have hp : d*(2*a+d)=4*x^2 := by
     dsimp [a,d]
     unfold cassiniLevel at he
@@ -100,10 +100,16 @@ theorem cassini_level_remainder {t x y : ℝ} (ht : 0 < t) (hy : 0 ≤ y)
     convert h using 1 <;> ring
   have hrel : 2*t*e+e^2=d-x^2 := by dsimp [e,d]; ring
   have hcoef : cassiniCurvature t=(2-a)/(t*a) := by unfold cassiniCurvature; dsimp [a]; ring
-  have herr : 2*t*(e-cassiniCurvature t*x^2/2) = -(d^2/(2*a))-e^2 := by
+  have hdform : d = 2*x^2/a-d^2/(2*a) := by
+    field_simp [hap.ne']
+    nlinarith [hp]
+  have hcoeff : 2*t*(cassiniCurvature t*x^2/2)=2*x^2/a-x^2 := by
     rw [hcoef]
-    field_simp [ht.ne',hap.ne']
-    nlinarith [hp,hrel]
+    field_simp [ht.ne',hap.ne'] <;> ring
+  have herr : 2*t*(e-cassiniCurvature t*x^2/2) = -(d^2/(2*a))-e^2 := by
+    calc
+      _ = 2*t*e-(2*x^2/a-x^2) := by rw [← hcoeff]; ring
+      _ = _ := by linarith [hrel,hdform]
   have hdSq : d^2 ≤ 4*x^4 := by
     have h := pow_le_pow_left₀ hd0 hd2 2
     convert h using 1 <;> ring
