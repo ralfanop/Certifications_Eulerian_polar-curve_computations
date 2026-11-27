@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'lean/M16KreinGraphGap.lean'
+      - 'audits/manuscript16/M16_krein_geometric_bridge_20261127.md'
       - 'lean/SharedCore/FredholmCompactParametrix.lean'
       - 'lean/SharedCore/FredholmAtkinson.lean'
       - 'lean/Manuscript16/V165TypedGraphSchur.lean'
