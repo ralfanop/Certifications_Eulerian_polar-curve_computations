@@ -36,12 +36,12 @@ theorem inv_sqrt_first_order_remainder (x : ℝ) (hx : 0 ≤ x) :
   · apply nonneg_of_mul_nonneg_left _ hs
     rw [mul_comm,he]
     positivity
-  · apply (mul_le_mul_left₀ hs).mp
-    rw [he]
+  · by_contra! hbad
+    have hstrict := mul_pos hs (sub_pos.mpr hbad)
     have hlin : (s+2)/2 ≤ 3*s/2 := by linarith
     have hmid := mul_le_mul_of_nonneg_left hlin (sq_nonneg (s-1))
     have hlast := mul_le_mul_of_nonneg_left hsq hs0
-    nlinarith [hmid,hlast]
+    nlinarith [hmid, hlast, hstrict, he]
 
 theorem reparametrized_phase_radicand (k u : ℝ) :
     (Real.cosh u)^2-(k/Real.sqrt (1+k^2))^2 =
