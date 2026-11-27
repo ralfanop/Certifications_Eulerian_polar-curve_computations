@@ -70,8 +70,7 @@ theorem tangent_frame_unique (x : S3) (a b c d e f : ℝ)
     (h : qMul x.val (0,a,b,c) = qMul x.val (0,d,e,f)) :
     a = d ∧ b = e ∧ c = f := by
   have hh := congrArg (qMul (qConj x.val)) h
-  rw [← qMul_assoc,← qMul_assoc,qConj_mul_self x.val x.property,
-    qOne_mul,qOne_mul] at hh
+  simp only [← qMul_assoc,qConj_mul_self x.val x.property,qOne_mul] at hh
   exact ⟨congrArg (fun v : Q => v.2.1) hh,
     congrArg (fun v : Q => v.2.2.1) hh,
     congrArg (fun v : Q => v.2.2.2) hh⟩
@@ -85,16 +84,16 @@ def leftLinear (u : Q) : Q →ₗ[ℝ] Q where
   map_add' := by
     intro x y
     apply Prod.ext
-    · simp [qMul]; ring
+    · simp [qMul] <;> ring
     · apply Prod.ext
-      · simp [qMul]; ring
+      · simp [qMul] <;> ring
       · apply Prod.ext <;> simp [qMul] <;> ring
   map_smul' := by
     intro a x
     apply Prod.ext
-    · simp [qMul,smul_eq_mul]; ring
+    · simp [qMul,smul_eq_mul] <;> ring
     · apply Prod.ext
-      · simp [qMul,smul_eq_mul]; ring
+      · simp [qMul,smul_eq_mul] <;> ring
       · apply Prod.ext <;> simp [qMul,smul_eq_mul] <;> ring
 
 def leftMap (u : Q) : Q →L[ℝ] Q :=
@@ -191,10 +190,10 @@ theorem frameDeriv_const (j x : Q) (c : ℝ) :
 theorem curlFrame_constant (a b c : ℝ) :
     curlFrame (constantField a b c) = constantField (-2*a) (-2*b) (-2*c) := by
   apply Prod.ext
-  · funext x; simp [curlFrame,constantField,frameDeriv_const]; ring
+  · funext x; simp [curlFrame,constantField,frameDeriv_const] <;> ring
   · apply Prod.ext
-    · funext x; simp [curlFrame,constantField,frameDeriv_const]; ring
-    · funext x; simp [curlFrame,constantField,frameDeriv_const]; ring
+    · funext x; simp [curlFrame,constantField,frameDeriv_const] <;> ring
+    · funext x; simp [curlFrame,constantField,frameDeriv_const] <;> ring
 
 theorem codiffFrame_constant (a b c : ℝ) :
     codiffFrame (constantField a b c) = fun _ => 0 := by
@@ -206,11 +205,40 @@ theorem hodgeFrame_constant (a b c : ℝ) :
   unfold hodgeFrame
   rw [curlFrame_constant,curlFrame_constant,codiffFrame_constant]
   apply Prod.ext
-  · funext x; simp [gradFrame,constantField,frameDeriv_const]; ring
+  · funext x; simp [gradFrame,constantField,frameDeriv_const] <;> ring
   · apply Prod.ext
-    · funext x; simp [gradFrame,constantField,frameDeriv_const]; ring
-    · funext x; simp [gradFrame,constantField,frameDeriv_const]; ring
+    · funext x; simp [gradFrame,constantField,frameDeriv_const] <;> ring
+    · funext x; simp [gradFrame,constantField,frameDeriv_const] <;> ring
 
+-- Structure constants in the quaternionic left frame: the expression
+-- is the bracket of the ambient linear vector fields x ↦ xj, x ↦ xk.
+def frameBracket (j k x : Q) : Q :=
+  qMul (qMul x j) k - qMul (qMul x k) j
+
+theorem frameBracket12 (x : Q) : frameBracket qi qj x = (2:ℝ) • frame3 x := by
+  apply Prod.ext
+  · simp [frameBracket,frame3,qMul,qi,qj,qk,smul_eq_mul] <;> ring
+  · apply Prod.ext
+    · simp [frameBracket,frame3,qMul,qi,qj,qk,smul_eq_mul] <;> ring
+    · apply Prod.ext <;> simp [frameBracket,frame3,qMul,qi,qj,qk,smul_eq_mul] <;> ring
+
+theorem frameBracket23 (x : Q) : frameBracket qj qk x = (2:ℝ) • frame1 x := by
+  apply Prod.ext
+  · simp [frameBracket,frame1,qMul,qi,qj,qk,smul_eq_mul] <;> ring
+  · apply Prod.ext
+    · simp [frameBracket,frame1,qMul,qi,qj,qk,smul_eq_mul] <;> ring
+    · apply Prod.ext <;> simp [frameBracket,frame1,qMul,qi,qj,qk,smul_eq_mul] <;> ring
+
+theorem frameBracket31 (x : Q) : frameBracket qk qi x = (2:ℝ) • frame2 x := by
+  apply Prod.ext
+  · simp [frameBracket,frame2,qMul,qi,qj,qk,smul_eq_mul] <;> ring
+  · apply Prod.ext
+    · simp [frameBracket,frame2,qMul,qi,qj,qk,smul_eq_mul] <;> ring
+    · apply Prod.ext <;> simp [frameBracket,frame2,qMul,qi,qj,qk,smul_eq_mul] <;> ring
+
+#print axioms frameBracket12
+#print axioms frameBracket23
+#print axioms frameBracket31
 #print axioms radial_tangent
 #print axioms orthonormal_frame
 #print axioms qMul_self_conj
