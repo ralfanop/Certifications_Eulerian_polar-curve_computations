@@ -47,7 +47,9 @@ theorem upper_minor (n : ℕ) (d : Fin (n+2) → ℂ) (r w : ℂ) :
     have hval : j.val < i.val := hij
     have hne : i.succ ≠ j.succ := by intro h; have := congrArg Fin.val h; simp at this; omega
     have hstep : i.succ.val+1 ≠ j.succ.val := by simp; omega
-    simp [Matrix.submatrix, pencil, hne, hstep]
+    have hne' : i ≠ j := by intro e; subst j; omega
+    have hstep' : i.val+1 ≠ j.val := by omega
+    simp [Matrix.submatrix, pencil, hne', hstep']
 
 /-- The last-row first-column minor is lower triangular, all diagonal entries -r. -/
 theorem lower_minor (n : ℕ) (d : Fin (n+2) → ℂ) (r w : ℂ) :
@@ -63,7 +65,8 @@ theorem lower_minor (n : ℕ) (d : Fin (n+2) → ℂ) (r w : ℂ) :
       simp at this
       omega
     have hstep : i.castSucc.val+1 ≠ j.succ.val := by simp; omega
-    simp [Matrix.submatrix, pencil, hne, hstep]
+    have hne' : i.val ≠ j.val := by omega
+    simp [Matrix.submatrix, pencil, hne, hne']
 
 /-- All orders n+2, without assuming r or w nonzero. -/
 theorem determinant (n : ℕ) (d : Fin (n+2) → ℂ) (r w : ℂ) :
@@ -101,7 +104,8 @@ theorem determinant (n : ℕ) (d : Fin (n+2) → ℂ) (r w : ℂ) :
     funext i
     simp
   rw [he, upper_minor]
-  rw [neg_pow, ← mul_assoc, ← mul_assoc]
+  simp only [one_pow, mul_one]
+  rw [neg_pow]
   have hs : (-1:ℂ)^(n+1) * (-1)^(n+1) = 1 := by
     rw [← mul_pow]
     simp
