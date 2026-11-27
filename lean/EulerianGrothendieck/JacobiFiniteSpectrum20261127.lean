@@ -110,7 +110,9 @@ theorem eigenvector_action (u : Bonds) (N : ℕ) (r : sites N) :
     intro j _
     have hs : lp.single 2 (j:ℤ) ((basis u N r) j:ℂ) =
         ((basis u N r) j:ℂ) • (lp.single 2 (j:ℤ) 1 : H) := by
-      ext l
+      apply lp.ext
+      funext l
+      change lp.single 2 (j:ℤ) ((basis u N r) j:ℂ) l = ((basis u N r) j:ℂ) * lp.single 2 (j:ℤ) (1:ℂ) l
       by_cases hl : l=(j:ℤ)
       · subst l; simp [lp.single_apply]
       · simp [lp.single_apply,hl,Ne.symm hl]
@@ -130,6 +132,7 @@ theorem eigenvector_ne_zero (u : Bonds) (N : ℕ) (r : sites N) :
     have he := congrArg (fun x : H => x (k:ℤ)) h
     change liftVec N (fun j => ((basis u N r) j:ℂ)) k = 0 at he
     rw [lift_inside] at he
+    change (basis u N r) k = (0:ℝ)
     exact_mod_cast he
   have hn := (basis u N).norm_eq_one r
   rw [hz,norm_zero] at hn
@@ -143,7 +146,11 @@ theorem eigenvalue_interval (u : Bonds) (N : ℕ) (r : sites N) :
     (by simpa using mul_le_mul_of_nonneg_right (J_norm_le (cut u N)) hv.le)
   change ‖J (cut u N) (eigenvector u N r)‖ ≤ ‖v‖ at h
   rw [eigenvector_action,norm_smul,Complex.norm_real,Real.norm_eq_abs] at h
-  exact abs_le.mp ((mul_le_mul_right₀ hv).mp (by simpa [v] using h))
+  apply abs_le.mp
+  by_contra! hn
+  have hh := mul_pos (sub_pos.mpr hn) hv
+  change 0 < (|eigenvalues u N r|-1)*‖eigenvector u N r‖ at hh
+  nlinarith only [h,hh]
 
 theorem basis_expansion (u : Bonds) (N : ℕ) (l : sites N) :
     (lp.single 2 (l:ℤ) 1 : H) =
@@ -159,7 +166,8 @@ theorem basis_expansion (u : Bonds) (N : ℕ) (l : sites N) :
   rw [lp.coeFn_sum,Finset.sum_apply]
   by_cases hk : k ∈ Finset.Icc (-(N:ℤ)-1) (N:ℤ)
   · let i : sites N := ⟨k,hk⟩
-    have he := congrArg (fun x : EuclideanSpace ℝ (sites N) => x i) h
+    have he := congrArg (fun x : EuclideanSpace ℝ (sites N) => ⟪EuclideanSpace.single i (1:ℝ), x⟫_ℝ) h
+    simp only [inner_sum,inner_smul_right,EuclideanSpace.inner_single_left,star_trivial,one_mul] at he
     change (∑ r : sites N, (basis u N r) l * (basis u N r) i) =
       EuclideanSpace.single l (1:ℝ) i at he
     have hc := congrArg Complex.ofReal he
@@ -197,6 +205,7 @@ theorem exp_eigenvector (u : Bonds) (N : ℕ) (r : sites N) (t : ℝ) :
   change exp (A (cut u N) t) v = _
   rw [exp_apply_series]
   simp_rw [hp,smul_smul]
+  change (∑' n : ℕ, (((n.factorial:ℂ)⁻¹) • a^n) • v) = _
   rw [(NormedSpace.expSeries_summable' (𝕂 := ℂ) a).tsum_smul_const v,
     ← NormedSpace.exp_eq_tsum ℂ,← Complex.exp_eq_exp_ℂ]
   rfl
