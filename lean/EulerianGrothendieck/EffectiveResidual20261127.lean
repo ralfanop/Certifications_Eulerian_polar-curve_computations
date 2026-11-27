@@ -32,11 +32,11 @@ power-series coefficient of the real exponential. -/
 theorem exponential_tail_order (c M : ℝ) (hc : 0 < c) (hM : 0 < M) (N : ℕ) :
     Real.exp (-(c*M)) ≤ (Nat.factorial N : ℝ) / (c*M)^N := by
   have h : (c*M)^N / (Nat.factorial N : ℝ) ≤ Real.exp (c*M) :=
-    Real.pow_div_factorial_le_exp (by positivity) N
+    Real.pow_div_factorial_le_exp N (by positivity)
   have hp : 0 < (c*M)^N := by positivity
   have hf : 0 < (Nat.factorial N : ℝ) := by exact_mod_cast Nat.factorial_pos N
   rw [Real.exp_neg,inv_eq_one_div,div_le_div_iff₀ (Real.exp_pos _) hp]
-  exact (div_le_iff₀ hf).mp h |>.trans_eq (by ring)
+  simpa only [one_mul] using (div_le_iff₀ hf).mp h
 
 theorem absorb_polynomial_tail (c M : ℝ) (hc : 0 < c) (hM : 1 ≤ M) (N : ℕ) :
     (M+1)^2 * Real.exp (-(c*M)) ≤
@@ -66,7 +66,7 @@ theorem residual_order (c M A T C R : ℝ) (hc : 0 < c) (hM : 1 ≤ M)
     |R| ≤ A/M^N + T*(M+1)^2*Real.exp (-(c*M)) := hR
     _ ≤ A/M^N + T*(4*(Nat.factorial (N+2):ℝ)/c^(N+2)/M^N) := by
       rw [mul_assoc T]
-      exact add_le_add_left (mul_le_mul_of_nonneg_left h hT) _
+      exact add_le_add le_rfl (mul_le_mul_of_nonneg_left h hT)
     _ = _ := by ring
 
 end M12EffectiveResidual
