@@ -100,7 +100,7 @@ theorem density_quadratic_remainder_from_sinh (k t : ℝ)
       _ = _ := by ring
   have hsum : |Real.sinh t+t| ≤ 3*|t| := by
     calc
-      _ ≤ |Real.sinh t|+|t| := abs_add_le _ _
+      _ ≤ |Real.sinh t| + |t| := abs_add_le _ _
       _ ≤ _ := by linarith
   have hsqdiff : |(Real.sinh t)^2-t^2| ≤ 3*|t|^4 := by
     rw [show (Real.sinh t)^2-t^2 = (Real.sinh t-t)*(Real.sinh t+t) by ring, abs_mul]
@@ -146,19 +146,19 @@ theorem sinh_local_bounds (t : ℝ) (ht : |t| ≤ 1) :
     have hm' : |Real.exp (-t)-(1-t+t^2/2)| ≤ (2/9:ℝ)*|t|^3 := by
       convert hm using 1 <;> ring_nf
     calc
-      _ ≤ |Real.exp t-(1+t+t^2/2)|+|Real.exp (-t)-(1-t+t^2/2)| := by
+      _ ≤ |Real.exp t-(1+t+t^2/2)| + |Real.exp (-t)-(1-t+t^2/2)| := by
         simpa only [sub_eq_add_neg, abs_neg] using
           (abs_add_le (Real.exp t-(1+t+t^2/2)) (-(Real.exp (-t)-(1-t+t^2/2))))
       _ ≤ _ := by linarith [hp',hm',show 0 ≤ |t|^3 by positivity]
   refine ⟨?_,hr⟩
   have hc : |t|^3 ≤ |t| := by
     calc
-      |t|^3 = |t|*|t|*|t| := by ring
+      |t|^3 = |t| * |t| * |t| := by ring
       _ ≤ 1*1*|t| := by gcongr
       _ = _ := by ring
   calc
     |Real.sinh t| = |(Real.sinh t-t)+t| := by congr 1 <;> ring
-    _ ≤ |Real.sinh t-t|+|t| := abs_add_le _ _
+    _ ≤ |Real.sinh t-t| + |t| := abs_add_le _ _
     _ ≤ _ := by linarith
 
 theorem density_quadratic_remainder_local (k t : ℝ)
