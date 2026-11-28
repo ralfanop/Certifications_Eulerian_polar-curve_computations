@@ -82,7 +82,7 @@ theorem inverse_scale (y : Fin 3 → ℝ) (hy : surface y) (hn : y ≠ 0) :
   unfold t inversePoint at hq ⊢
   apply (div_eq_iff hq.ne').2
   field_simp [hp.ne']
-  <;> linear_combination (radial y)*(-he)
+  linear_combination -he
 
 theorem image_inverse (y : Fin 3 → ℝ) (hy : surface y) (hn : y ≠ 0) :
     imagePoint (inversePoint y) = y := by
