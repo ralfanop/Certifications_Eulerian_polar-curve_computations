@@ -123,8 +123,12 @@ theorem sinh_local_bounds (t : ℝ) (ht : |t| ≤ 1) :
       convert hm using 1 <;> ring_nf
     calc
       _ ≤ |Real.exp t-(1+t+t^2/2)| + |Real.exp (-t)-(1-t+t^2/2)| := by
-        simpa only [sub_eq_add_neg, abs_neg] using
-          (abs_add_le (Real.exp t-(1+t+t^2/2)) (-(Real.exp (-t)-(1-t+t^2/2))))
+        have htriangle (A B : ℝ) : |A-B| ≤ |A| + |B| := by
+          calc
+            |A-B| = |A+(-B)| := by rw [sub_eq_add_neg]
+            _ ≤ |A| + |-B| := abs_add_le A (-B)
+            _ = _ := by rw [abs_neg]
+        exact htriangle _ _
       _ ≤ _ := by linarith [hp',hm',show 0 ≤ |t|^3 by positivity]
   refine ⟨?_,hr⟩
   have hc : |t|^3 ≤ |t| := by
@@ -322,8 +326,11 @@ theorem concrete_crease_sixth_remainder (k u : ℝ)
       r^8 = r^6*r^2 := by ring
       _ ≤ r^6*1 := by gcongr; linarith
       _ = _ := by ring
-  have hk2 : k^2 ≤ (9/4:ℝ) := by nlinarith [mul_nonneg hk0 (sub_nonneg.mpr hk1),
-      mul_nonneg (sub_nonneg.mpr hk1) (show 0 ≤ k+3/2 by linarith)]
+  have hk2 : k^2 ≤ (9/4:ℝ) := by
+    have hsumk : 0 ≤ k+3/2 := by linarith
+    have hprod : 0 ≤ (3/2-k)*(k+3/2) :=
+      mul_nonneg (sub_nonneg.mpr hk1) hsumk
+    nlinarith [hprod]
   have hk4 : k^4 ≤ (81/16:ℝ) := by
     calc
       k^4 = (k^2)^2 := by ring
@@ -514,7 +521,7 @@ theorem concrete_scaled_locally_uniform (V L : ℝ) (hV : 0 ≤ V) (hL : 0 ≤ L
     heδ.le.trans ((min_le_right _ _).trans
       ((min_le_right _ _).trans (min_le_left _ _)))
   have heK : ε < η/(K+1) :=
-    heδ.trans ((min_le_right _ _).trans
+    lt_of_lt_of_le heδ ((min_le_right _ _).trans
       ((min_le_right _ _).trans (min_le_right _ _)))
   have hbox : ε*V ≤ 1/8 := by
     have h := (le_div_iff₀ (show 0 < 8*(V+1) by positivity)).mp heV
