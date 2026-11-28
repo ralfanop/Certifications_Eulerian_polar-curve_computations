@@ -1,0 +1,65 @@
+name: M15 2026-11-28 projective quartic descent Lean4 exact-HEAD
+
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript15/ProjectiveQuarticDescent20261128.lean'
+      - '.github/workflows/m15-projective-quartic-descent-20261128.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  projective-quartic-descent:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify pinned mathlib and all 23 kernel declarations on exact PR HEAD
+        working-directory: lean
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/m15-projective-quartic-descent-20261128
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          git rev-parse HEAD | tee /tmp/m15-projective-quartic-descent-20261128/head.txt
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors --retry-delay 5 \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
+          lake exe cache get
+          mkdir -p .lake/build/lib/lean/Manuscript15
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/ProjectiveQuarticCharts20261127.olean Manuscript15/ProjectiveQuarticCharts20261127.lean
+          lake env lean -M16768 Manuscript15/ProjectiveQuarticDescent20261128.lean \
+            2>&1 | tee /tmp/m15-projective-quartic-descent-20261128/lean.log
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          src=Path('Manuscript15/ProjectiveQuarticDescent20261128.lean').read_text()
+          log=Path('/tmp/m15-projective-quartic-descent-20261128/lean.log').read_text()
+          forbidden=re.compile(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s',re.M)
+          assert not forbidden.search(src), 'forbidden source construct'
+          assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.',log), 'admitted proof or Lean error'
+          names=re.findall(r'^#print axioms (Manuscript15\.ProjectiveQuarticDescent20261128\.\w+)$',src,re.M)
+          assert len(names)==23 and len(set(names))==23, (len(names),names)
+          for name in names:
+            m=re.search(re.escape("'"+name+"'")+r' depends on axioms: \[([^\]]*)\]',log,re.S)
+            if m:
+              present={x.strip() for x in m.group(1).split(',') if x.strip()}
+              assert present <= {'propext','Classical.choice','Quot.sound'},(name,present)
+            else:
+              assert "'"+name+"' does not depend on any axioms" in log,name
+          print('M15 28 NOV PROJECTIVE QUARTIC DESCENT EXACT HEAD 23 DECLARATIONS SUCCESS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m15-20261128-projective-quartic-descent-exact-head
+          path: /tmp/m15-projective-quartic-descent-20261128/
