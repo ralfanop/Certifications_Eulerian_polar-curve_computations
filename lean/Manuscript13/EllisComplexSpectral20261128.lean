@@ -118,6 +118,114 @@ theorem complex_spectral_corollary (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
   rw [complexBasis_apply]
   exact complex_eigenvector a κ ha hk (e i) (eig i) (he i)
 
+/-- The diagonal expansion is a theorem for every vector, not merely
+an assertion on a family of eigenvectors. -/
+theorem diagonal_action (T : HC →L[ℂ] HC) (e : HilbertBasis ℕ ℂ HC) (eig : ℕ → ℝ)
+    (he : ∀ i, T (e i) = (eig i : ℂ) • e i) (x : HC) :
+    HasSum (fun i => ((eig i : ℂ) * inner ℂ (e i) x) • e i) (T x) := by
+  have h := T.hasSum (e.hasSum_repr x)
+  convert h using 1
+  funext i
+  rw [map_smul,he,HilbertBasis.repr_apply_apply,smul_smul,mul_comm]
+
+theorem diagonal_inner_sum (T : HC →L[ℂ] HC) (e : HilbertBasis ℕ ℂ HC) (eig : ℕ → ℝ)
+    (he : ∀ i, T (e i) = (eig i : ℂ) • e i) (x y : HC) :
+    HasSum (fun i => (eig i : ℂ) * inner ℂ x (e i) * inner ℂ (e i) y)
+      (inner ℂ x (T y)) := by
+  have h := (innerSL ℂ x).hasSum (diagonal_action T e eig he y)
+  convert h using 1
+  funext i
+  rw [innerSL_apply_apply,inner_smul_right]
+  ring
+
+theorem diagonal_selfAdjoint (T : HC →L[ℂ] HC) (e : HilbertBasis ℕ ℂ HC) (eig : ℕ → ℝ)
+    (he : ∀ i, T (e i) = (eig i : ℂ) • e i) : IsSelfAdjoint T := by
+  apply ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr
+  intro x y
+  have h1 := diagonal_inner_sum T e eig he x y
+  have h2 := Complex.conjCLE.toContinuousLinearMap.hasSum (diagonal_inner_sum T e eig he y x)
+  have h3 : HasSum (fun i => (eig i : ℂ) * inner ℂ x (e i) * inner ℂ (e i) y)
+      (inner ℂ (T x) y) := by
+    convert h2 using 1
+    · funext i
+      simp only [ContinuousLinearEquiv.coe_coe,Complex.conjCLE_apply,map_mul,Complex.conj_ofReal,
+        inner_conj_symm]
+      ring
+    · simpa only [ContinuousLinearEquiv.coe_coe,Complex.conjCLE_apply,inner_conj_symm]
+  exact h3.unique h1
+
+theorem diagonal_positive (T : HC →L[ℂ] HC) (e : HilbertBasis ℕ ℂ HC) (eig : ℕ → ℝ)
+    (he : ∀ i, T (e i) = (eig i : ℂ) • e i) (hn : ∀ i, 0 ≤ eig i) (x : HC) :
+    0 ≤ (inner ℂ x (T x)).re := by
+  have h := Complex.reCLM.hasSum (diagonal_inner_sum T e eig he x x)
+  rw [← h.tsum_eq]
+  apply tsum_nonneg
+  intro i
+  change 0 ≤ ((eig i : ℂ) * inner ℂ x (e i) * inner ℂ (e i) x).re
+  rw [← inner_conj_symm x (e i)]
+  simp only [Complex.mul_re,Complex.mul_im,Complex.ofReal_re,Complex.ofReal_im,
+    Complex.conj_re,Complex.conj_im,zero_mul,sub_zero,zero_add,add_zero]
+  nlinarith [mul_nonneg (hn i) (sq_nonneg (inner ℂ (e i) x).re),
+    mul_nonneg (hn i) (sq_nonneg (inner ℂ (e i) x).im)]
+
+def complexRank (v : HC) : HC →L[ℂ] HC := (innerSL ℂ v).smulRight v
+
+theorem complexRank_norm_le (v : HC) : ‖complexRank v‖ ≤ ‖v‖^2 := by
+  apply ContinuousLinearMap.opNorm_le_bound _ (sq_nonneg _)
+  intro x
+  change ‖inner ℂ v x • v‖ ≤ ‖v‖^2 * ‖x‖
+  rw [norm_smul]
+  calc
+    _ ≤ (‖v‖ * ‖x‖) * ‖v‖ := mul_le_mul_of_nonneg_right (norm_inner_le_norm _ _) (norm_nonneg _)
+    _ = _ := by ring
+
+theorem complex_rank_summable (e : HilbertBasis ℕ ℂ HC) (eig : ℕ → ℝ)
+    (hn : ∀ i, 0 ≤ eig i) (hs : Summable eig) :
+    Summable (fun i => (eig i : ℂ) • complexRank (e i)) := by
+  apply Summable.of_norm_bounded hs
+  intro i
+  rw [norm_smul,Complex.norm_real,Real.norm_eq_abs,abs_of_nonneg (hn i)]
+  have hb := complexRank_norm_le (e i)
+  rw [e.orthonormal.norm_eq_one i,one_pow] at hb
+  nlinarith [mul_le_mul_of_nonneg_left hb (hn i)]
+
+theorem complex_rank_expansion (T : HC →L[ℂ] HC) (e : HilbertBasis ℕ ℂ HC) (eig : ℕ → ℝ)
+    (he : ∀ i, T (e i) = (eig i : ℂ) • e i) (hn : ∀ i, 0 ≤ eig i) (hs : Summable eig) :
+    (∑' i, (eig i : ℂ) • complexRank (e i)) = T := by
+  apply ContinuousLinearMap.ext
+  intro x
+  have h := (ContinuousLinearMap.apply ℂ HC x).hasSum (complex_rank_summable e eig hn hs).hasSum
+  have hx := diagonal_action T e eig he x
+  have h' : HasSum (fun i => ((eig i : ℂ) * inner ℂ (e i) x) • e i)
+      ((∑' i, (eig i : ℂ) • complexRank (e i)) x) := by
+    convert h using 1
+    funext i
+    change _ = (eig i : ℂ) • (inner ℂ (e i) x • e i)
+    rw [smul_smul]
+  exact h'.unique hx
+
+theorem weighted_selfAdjoint (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
+    IsSelfAdjoint (birmanSchwinger a κ ha hk) := by
+  obtain ⟨e,eig,he,_⟩ := complex_spectral_corollary a κ ha hk
+  exact diagonal_selfAdjoint _ e eig he
+
+theorem weighted_positive (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) (x : HC) :
+    0 ≤ (inner ℂ x (birmanSchwinger a κ ha hk x)).re := by
+  obtain ⟨e,eig,he,hn,_⟩ := complex_spectral_corollary a κ ha hk
+  exact diagonal_positive _ e eig he hn x
+
+/-- A summable rank-one representation, with exact sum of the
+nonnegative rank-one coefficients, for the actual weighted operator.
+This explicitly exhibits a nuclear decomposition. -/
+theorem weighted_nuclear_expansion (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
+    ∃ (e : HilbertBasis ℕ ℂ HC) (eig : ℕ → ℝ),
+      (∀ i, 0 ≤ eig i) ∧ Summable eig ∧ (∑' i, eig i) = Real.pi/(4*a*κ) ∧
+      Summable (fun i => (eig i : ℂ) • complexRank (e i)) ∧
+      (∑' i, (eig i : ℂ) • complexRank (e i)) = birmanSchwinger a κ ha hk := by
+  obtain ⟨e,eig,he,hn,hs,ht,_⟩ := complex_spectral_corollary a κ ha hk
+  exact ⟨e,eig,hn,hs,ht,complex_rank_summable e eig hn hs,
+    complex_rank_expansion _ e eig he hn hs⟩
+
 end
 end Manuscript13.EllisComplexSpectral20261128
 #print axioms Manuscript13.EllisComplexSpectral20261128.real_mem
@@ -132,3 +240,14 @@ end Manuscript13.EllisComplexSpectral20261128
 #print axioms Manuscript13.EllisComplexSpectral20261128.complexBasis
 #print axioms Manuscript13.EllisComplexSpectral20261128.complexBasis_apply
 #print axioms Manuscript13.EllisComplexSpectral20261128.complex_spectral_corollary
+#print axioms Manuscript13.EllisComplexSpectral20261128.diagonal_action
+#print axioms Manuscript13.EllisComplexSpectral20261128.diagonal_inner_sum
+#print axioms Manuscript13.EllisComplexSpectral20261128.diagonal_selfAdjoint
+#print axioms Manuscript13.EllisComplexSpectral20261128.diagonal_positive
+#print axioms Manuscript13.EllisComplexSpectral20261128.complexRank
+#print axioms Manuscript13.EllisComplexSpectral20261128.complexRank_norm_le
+#print axioms Manuscript13.EllisComplexSpectral20261128.complex_rank_summable
+#print axioms Manuscript13.EllisComplexSpectral20261128.complex_rank_expansion
+#print axioms Manuscript13.EllisComplexSpectral20261128.weighted_selfAdjoint
+#print axioms Manuscript13.EllisComplexSpectral20261128.weighted_positive
+#print axioms Manuscript13.EllisComplexSpectral20261128.weighted_nuclear_expansion
