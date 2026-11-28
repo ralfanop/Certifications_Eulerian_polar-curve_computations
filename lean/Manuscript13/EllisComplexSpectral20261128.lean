@@ -46,10 +46,14 @@ theorem split_complex (z : HC) :
     complexify_ae (imagPart z),Lp.coeFn_smul Complex.I (complexify (imagPart z)),
     Lp.coeFn_add (complexify (realPart z)) (Complex.I • complexify (imagPart z))]
       with x hr hi hcr hci hs hadd
-  rw [hadd,hs,hcr,hci,hr,hi]
-  change ((z x).re : ℂ) + Complex.I * ((z x).im : ℂ) = z x
-  rw [mul_comm Complex.I]
-  exact Complex.re_add_im _
+  change (complexify (realPart z) + Complex.I • complexify (imagPart z)) x = z x
+  calc
+    _ = complexify (realPart z) x + (Complex.I • complexify (imagPart z)) x := hadd
+    _ = z x := by
+      rw [hs,hcr,hci,hr,hi]
+      change ((z x).re : ℂ) + Complex.I * ((z x).im : ℂ) = z x
+      rw [mul_comm Complex.I]
+      exact Complex.re_add_im _
 
 theorem real_basis_zero (e : HilbertBasis ℕ ℝ HR) (x : HR)
     (h : ∀ i, inner ℝ (e i) x = 0) : x = 0 := by
@@ -134,9 +138,10 @@ theorem diagonal_inner_sum (T : HC →L[ℂ] HC) (e : HilbertBasis ℕ ℂ HC) (
       (inner ℂ x (T y)) := by
   have h := (innerSL ℂ x).hasSum (diagonal_action T e eig he y)
   convert h using 1
-  funext i
-  rw [innerSL_apply_apply,inner_smul_right]
-  ring
+  · funext i
+    rw [innerSL_apply_apply,inner_smul_right]
+    ring
+  · rfl
 
 theorem diagonal_selfAdjoint (T : HC →L[ℂ] HC) (e : HilbertBasis ℕ ℂ HC) (eig : ℕ → ℝ)
     (he : ∀ i, T (e i) = (eig i : ℂ) • e i) : IsSelfAdjoint T := by
@@ -158,6 +163,7 @@ theorem diagonal_positive (T : HC →L[ℂ] HC) (e : HilbertBasis ℕ ℂ HC) (e
     (he : ∀ i, T (e i) = (eig i : ℂ) • e i) (hn : ∀ i, 0 ≤ eig i) (x : HC) :
     0 ≤ (inner ℂ x (T x)).re := by
   have h := Complex.reCLM.hasSum (diagonal_inner_sum T e eig he x x)
+  change HasSum _ (inner ℂ x (T x)).re at h
   rw [← h.tsum_eq]
   apply tsum_nonneg
   intro i
@@ -199,9 +205,10 @@ theorem complex_rank_expansion (T : HC →L[ℂ] HC) (e : HilbertBasis ℕ ℂ H
   have h' : HasSum (fun i => ((eig i : ℂ) * inner ℂ (e i) x) • e i)
       ((∑' i, (eig i : ℂ) • complexRank (e i)) x) := by
     convert h using 1
-    funext i
-    change _ = (eig i : ℂ) • (inner ℂ (e i) x • e i)
-    rw [smul_smul]
+    · funext i
+      change _ = (eig i : ℂ) • (inner ℂ (e i) x • e i)
+      rw [smul_smul]
+    · rfl
   exact h'.unique hx
 
 theorem weighted_selfAdjoint (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
@@ -237,8 +244,13 @@ theorem overlap_nonneg (x y : HC) : 0 ≤ overlapReal x y := by
   positivity
 
 theorem overlap_symm (x y : HC) : overlapReal x y = overlapReal y x := by
-  have hr : (inner ℂ x y).re = (inner ℂ y x).re := inner_re_symm x y
-  have hi : (inner ℂ x y).im = -(inner ℂ y x).im := inner_im_symm x y
+  have hc : star (inner ℂ x y) = inner ℂ y x := inner_conj_symm y x
+  have hr : (inner ℂ x y).re = (inner ℂ y x).re := by
+    simpa using congrArg Complex.re hc
+  have hi : (inner ℂ x y).im = -(inner ℂ y x).im := by
+    have h := congrArg Complex.im hc
+    simp at h
+    linarith
   unfold overlapReal
   rw [hr,hi]
   ring
@@ -251,9 +263,10 @@ theorem overlap_parseval (e : HilbertBasis ℕ ℂ HC) (x : HC) :
     change overlapReal (e i) x = (inner ℂ x (e i) * inner ℂ (e i) x).re
     have hc : inner ℂ x (e i) = (starRingEnd ℂ) (inner ℂ (e i) x) :=
       (inner_conj_symm x (e i)).symm
+    unfold overlapReal
     rw [hc]
-    simp [overlapReal,Complex.mul_re,Complex.conj_re,Complex.conj_im]
-    <;> ring
+    change _ = (star (inner ℂ (e i) x) * inner ℂ (e i) x).re
+    simp [Complex.mul_re,Complex.conj_re,Complex.conj_im] <;> ring
   · exact (inner_self_eq_norm_sq (𝕜 := ℂ) x).symm
 
 def overlap (x y : HC) : ℝ≥0∞ := ENNReal.ofReal (overlapReal x y)
@@ -350,7 +363,8 @@ theorem fredholmSection_det (T : HC →L[ℂ] HC) (e : HilbertBasis ℕ ℂ HC)
       simp [Matrix.diagonal]
     · have hval : (i : ℕ) ≠ (j : ℕ) := fun h => hij (Subtype.ext h)
       simp [Matrix.diagonal,hij,hval]
-  rw [hm,Matrix.det_diagonal,Finset.prod_coe_sort]
+  rw [hm,Matrix.det_diagonal]
+  exact Finset.prod_coe_sort s (fun i : ℕ => 1 + (lam i : ℂ))
 
 structure PositiveSpectralData (T : HC →L[ℂ] HC) where
   basis : HilbertBasis ℕ ℂ HC
