@@ -22,10 +22,10 @@ theorem lobe_coordinate_bound (y : Fin 3 → ℝ) (hy : y ∈ closedLobe) (i : F
   have h0 : 0 ≤ y 2 := by nlinarith [sq_nonneg (y 0),sq_nonneg (y 1),sq_nonneg (y 2)]
   have h1 : y 2 ≤ 1 := by
     by_contra! h
-    nlinarith [sq_nonneg (y 0),sq_nonneg (y 1),mul_pos h (sub_pos.mpr h)]
+    nlinarith [sq_nonneg (y 0),sq_nonneg (y 1),mul_pos (one_pos.trans h) (sub_pos.mpr h)]
   have h2 : (y 0)^2 ≤ 1 := by nlinarith [sq_nonneg (y 1),sq_nonneg (y 2)]
   have h3 : (y 1)^2 ≤ 1 := by nlinarith [sq_nonneg (y 0),sq_nonneg (y 2)]
-  fin_cases i
+  fin_cases i <;> simp only [Fin.zero_eta, Fin.mk_one, Fin.reduceFinMk, Fin.isValue]
   · rw [abs_le]
     constructor <;> nlinarith
   · rw [abs_le]
