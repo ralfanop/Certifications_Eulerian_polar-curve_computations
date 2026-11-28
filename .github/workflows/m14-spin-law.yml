@@ -1,0 +1,50 @@
+name: Eulerian finite spin logarithmic saturation and Fisher curvature
+on:
+  push:
+    branches: [main, m14-spin-log-legendre-fisher-20261128]
+    paths:
+      - 'lean/SpecialImaginaryPoint/EulerianSpinLaw.lean'
+      - '.github/workflows/m14-spin-law.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/EulerianSpinLaw.lean'
+      - '.github/workflows/m14-spin-law.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 6 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - run: lake exe cache get
+        working-directory: lean
+      - name: Compile and audit
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          lake env lean SpecialImaginaryPoint/EulerianSpinLaw.lean 2>&1 | tee /tmp/spin-law.log
+          python - <<'PY'
+          import re
+          s=open('/tmp/spin-law.log').read()
+          assert not re.search(r'sorryAx|Lean\.ofReduceBool|declaration uses|: error:',s)
+          a=re.findall(r"^'([^']+)' (?:depends on axioms: \[([^\]]*)\]|does not depend on any axioms)",s,re.M)
+          assert len(a)==len({n for n,_ in a})==32,a
+          for n,ax in a:
+              assert set(filter(None,(v.strip() for v in ax.split(',')))) <= {'propext','Classical.choice','Quot.sound'},(n,ax)
+          print('32/32 spin-law declarations audited')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spin-law-lean-audit
+          path: /tmp/spin-law.log
