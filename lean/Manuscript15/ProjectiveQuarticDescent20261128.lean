@@ -326,6 +326,97 @@ theorem target_exact_four_branch_roots :
     · simpa [rootList] using hs4
     · simpa [rootList] using hsn
 
+
+def infinityPoint (p q w : ℂ) (hw : w^2=1) : ConePoint p q := by
+  refine ⟨1,0,0,w,?_,?_,?_⟩
+  · norm_num
+  · simpa using hw
+  · simp
+
+def infinityPositive (p q : ℂ) : ConePoint p q :=
+  infinityPoint p q 1 (by norm_num)
+
+def infinityNegative (p q : ℂ) : ConePoint p q :=
+  infinityPoint p q (-1) (by norm_num)
+
+theorem infinity_classes_exhaustive {p q : ℂ} (x : ConePoint p q) (hc : x.c=0) :
+    projectiveClass x = projectiveClass (infinityPositive p q) ∨
+    projectiveClass x = projectiveClass (infinityNegative p q) := by
+  obtain ⟨hb,ha,hd⟩ := infinity_coordinates x hc
+  rcases hd with hd | hd
+  · left
+    apply Quotient.sound
+    refine ⟨x.a⁻¹,inv_ne_zero ha,?_,?_,?_,?_⟩
+    · change 1=x.a⁻¹*x.a
+      exact (inv_mul_cancel₀ ha).symm
+    · change 0=x.a⁻¹*x.b
+      rw [hb,mul_zero]
+    · change 0=x.a⁻¹*x.c
+      rw [hc,mul_zero]
+    · change 1=x.a⁻¹*x.d
+      rw [hd,inv_mul_cancel₀ ha]
+  · right
+    apply Quotient.sound
+    refine ⟨x.a⁻¹,inv_ne_zero ha,?_,?_,?_,?_⟩
+    · change 1=x.a⁻¹*x.a
+      exact (inv_mul_cancel₀ ha).symm
+    · change 0=x.a⁻¹*x.b
+      rw [hb,mul_zero]
+    · change 0=x.a⁻¹*x.c
+      rw [hc,mul_zero]
+    · change -1=x.a⁻¹*x.d
+      rw [hd,mul_neg,inv_mul_cancel₀ ha]
+
+theorem infinity_classes_distinct (p q : ℂ) :
+    projectiveClass (infinityPositive p q) ≠
+    projectiveClass (infinityNegative p q) := by
+  intro h
+  have hrel : ConeRel (infinityPositive p q) (infinityNegative p q) :=
+    Quotient.exact h
+  rcases hrel with ⟨s,_,ha,_,_,hd⟩
+  change (1:ℂ)=s*1 at ha
+  change (-1:ℂ)=s*1 at hd
+  have hbad : (-1:ℂ)=1 := hd.trans ha.symm
+  norm_num at hbad
+
+theorem affine_fiber_two_values {p q : ℂ} (x : ConePoint p q)
+    (hc : x.c ≠ 0) (t w : ℂ) (ht : x.b/x.c=t)
+    (hw : w^2=t^4+p*t^2+q) :
+    x.d/x.c=w ∨ x.d/x.c= -w := by
+  have h := (affine_coordinate_equations x hc).2
+  rw [ht,← hw] at h
+  have hf : (x.d/x.c-w)*(x.d/x.c+w)=0 := by linear_combination h
+  rcases mul_eq_zero.mp hf with h | h
+  · exact Or.inl (sub_eq_zero.mp h)
+  · exact Or.inr (eq_neg_of_add_eq_zero_left h)
+
+theorem affine_fiber_representative {p q : ℂ} (x : ConePoint p q)
+    (hc : x.c ≠ 0) (t w : ℂ) (ht : x.b/x.c=t)
+    (hd : x.d/x.c=w) (hw : w^2=t^4+p*t^2+q) :
+    projectiveClass x = projectiveClass (affinePoint p q t w hw) := by
+  apply Quotient.sound
+  refine ⟨x.c⁻¹,inv_ne_zero hc,?_,?_,?_,?_⟩
+  · change t^2=x.c⁻¹*x.a
+    rw [← ht,(affine_coordinate_equations x hc).1,div_eq_mul_inv,mul_comm]
+  · change t=x.c⁻¹*x.b
+    rw [← ht,div_eq_mul_inv,mul_comm]
+  · change 1=x.c⁻¹*x.c
+    exact (inv_mul_cancel₀ hc).symm
+  · change w=x.c⁻¹*x.d
+    rw [← hd,div_eq_mul_inv,mul_comm]
+
+theorem affine_fiber_distinct (p q t w : ℂ) (hw : w^2=t^4+p*t^2+q)
+    (hw0 : w ≠ 0) (hneg : (-w)^2=t^4+p*t^2+q) :
+    projectiveClass (affinePoint p q t w hw) ≠
+      projectiveClass (affinePoint p q t (-w) hneg) := by
+  intro h
+  have hrel : ConeRel (affinePoint p q t w hw) (affinePoint p q t (-w) hneg) :=
+    Quotient.exact h
+  have hcoords := normalized_representative_unique _ _ rfl rfl hrel
+  have hsame : w= -w := hcoords.2.2.2
+  apply hw0
+  linear_combination (1/2:ℂ)*hsame
+
 end Manuscript15.ProjectiveQuarticDescent20261128
 
 #print axioms Manuscript15.ProjectiveQuarticDescent20261128.coneRel_equivalence
@@ -346,3 +437,8 @@ end Manuscript15.ProjectiveQuarticDescent20261128
 #print axioms Manuscript15.ProjectiveQuarticDescent20261128.source_exact_four_branch_roots
 #print axioms Manuscript15.ProjectiveQuarticDescent20261128.target_root_squares
 #print axioms Manuscript15.ProjectiveQuarticDescent20261128.target_exact_four_branch_roots
+#print axioms Manuscript15.ProjectiveQuarticDescent20261128.infinity_classes_exhaustive
+#print axioms Manuscript15.ProjectiveQuarticDescent20261128.infinity_classes_distinct
+#print axioms Manuscript15.ProjectiveQuarticDescent20261128.affine_fiber_two_values
+#print axioms Manuscript15.ProjectiveQuarticDescent20261128.affine_fiber_representative
+#print axioms Manuscript15.ProjectiveQuarticDescent20261128.affine_fiber_distinct
