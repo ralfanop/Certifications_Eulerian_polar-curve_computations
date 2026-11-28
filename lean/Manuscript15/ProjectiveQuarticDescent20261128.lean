@@ -173,6 +173,136 @@ theorem infinity_coordinates {p q : ℂ} (x : ConePoint p q) (hc : x.c=0) :
   · exact ⟨hb,ha,Or.inl (sub_eq_zero.mp h)⟩
   · exact ⟨hb,ha,Or.inr (eq_neg_of_add_eq_zero_left h)⟩
 
+
+def rootList (r s : ℂ) : Fin 4 → ℂ := ![r,-r,s,-s]
+
+theorem rootList_injective (r s : ℂ) (hr : r ≠ 0) (hs : s ≠ 0)
+    (h : r^2 ≠ s^2) : Function.Injective (rootList r s) := by
+  have hrn : r ≠ -r := by
+    intro he
+    apply hr
+    linear_combination (1/2:ℂ)*he
+  have hsn : s ≠ -s := by
+    intro he
+    apply hs
+    linear_combination (1/2:ℂ)*he
+  have hrs : r ≠ s := by
+    intro he
+    exact h (by rw [he])
+  have hrns : r ≠ -s := by
+    intro he
+    exact h (by rw [he]; ring)
+  have hnrs : -r ≠ s := by
+    intro he
+    apply hrns
+    linear_combination -he
+  have hnrns : -r ≠ -s := by
+    intro he
+    apply hrs
+    linear_combination -he
+  intro i j hij
+  fin_cases i <;> fin_cases j <;> simp_all [rootList]
+
+theorem rootList_exhausts (r s t : ℂ)
+    (h : (t^2-r^2)*(t^2-s^2)=0) :
+    ∃ j : Fin 4, rootList r s j=t := by
+  rcases mul_eq_zero.mp h with h | h
+  · have hf : (t-r)*(t+r)=0 := by linear_combination h
+    rcases mul_eq_zero.mp hf with hf | hf
+    · exact ⟨0,by simpa [rootList] using (sub_eq_zero.mp hf).symm⟩
+    · exact ⟨1,by simpa [rootList] using (eq_neg_of_add_eq_zero_left hf).symm⟩
+  · have hf : (t-s)*(t+s)=0 := by linear_combination h
+    rcases mul_eq_zero.mp hf with hf | hf
+    · exact ⟨2,by simpa [rootList] using (sub_eq_zero.mp hf).symm⟩
+    · exact ⟨3,by simpa [rootList] using (eq_neg_of_add_eq_zero_left hf).symm⟩
+
+def sourceR : ℂ := (↑(Real.sqrt (2:ℝ)) : ℂ)/2*(1+Complex.I)
+def sourceS : ℂ := (↑(Real.sqrt (2:ℝ)) : ℂ)/2*(1-Complex.I)
+
+theorem source_root_squares : sourceR^2=Complex.I ∧ sourceS^2= -Complex.I := by
+  have hR : (Real.sqrt (2:ℝ))^2=2 := Real.sq_sqrt (by norm_num)
+  have hC : (↑(Real.sqrt (2:ℝ)) : ℂ)^2=2 := by exact_mod_cast hR
+  constructor
+  · unfold sourceR
+    calc
+      _ = (↑(Real.sqrt (2:ℝ)) : ℂ)^2/4*(1+Complex.I)^2 := by ring
+      _ = _ := by rw [hC]; linear_combination (1/2:ℂ)*Complex.I_sq
+  · unfold sourceS
+    calc
+      _ = (↑(Real.sqrt (2:ℝ)) : ℂ)^2/4*(1-Complex.I)^2 := by ring
+      _ = _ := by rw [hC]; linear_combination (1/2:ℂ)*Complex.I_sq
+
+theorem source_exact_four_branch_roots :
+    ∃ f : Fin 4 → ℂ, Function.Injective f ∧ ∀ t : ℂ,
+      t^4+1=0 ↔ ∃ j, f j=t := by
+  obtain ⟨hr,hs⟩ := source_root_squares
+  have hr0 : sourceR ≠ 0 := by
+    intro h
+    rw [h] at hr
+    exact Complex.I_ne_zero (by simpa using hr.symm)
+  have hs0 : sourceS ≠ 0 := by
+    intro h
+    rw [h] at hs
+    exact Complex.I_ne_zero (by simpa using hs)
+  have hne : sourceR^2 ≠ sourceS^2 := by
+    rw [hr,hs]
+    intro h
+    apply Complex.I_ne_zero
+    linear_combination (1/2:ℂ)*h
+  refine ⟨rootList sourceR sourceS,rootList_injective _ _ hr0 hs0 hne,?_⟩
+  intro t
+  constructor
+  · intro h
+    apply rootList_exhausts
+    rw [hr,hs]
+    linear_combination h-Complex.I_sq
+  · rintro ⟨j,rfl⟩
+    fin_cases j <;> simp [rootList] <;>
+      first
+      | rw [show sourceR^4=(sourceR^2)^2 by ring,hr,Complex.I_sq]; ring
+      | rw [show (-sourceR)^4=(sourceR^2)^2 by ring,hr,Complex.I_sq]; ring
+      | rw [show sourceS^4=(sourceS^2)^2 by ring,hs]; rw [neg_pow]; norm_num [Complex.I_sq]
+      | rw [show (-sourceS)^4=(sourceS^2)^2 by ring,hs]; rw [neg_pow]; norm_num [Complex.I_sq]
+
+def targetR : ℂ := Complex.I
+def targetS : ℂ := (↑(Real.sqrt (2:ℝ)) : ℂ)*Complex.I
+
+theorem target_root_squares : targetR^2= -1 ∧ targetS^2= -2 := by
+  have hR : (Real.sqrt (2:ℝ))^2=2 := Real.sq_sqrt (by norm_num)
+  have hC : (↑(Real.sqrt (2:ℝ)) : ℂ)^2=2 := by exact_mod_cast hR
+  constructor
+  · exact Complex.I_sq
+  · rw [targetS,mul_pow,hC,Complex.I_sq]
+    norm_num
+
+theorem target_exact_four_branch_roots :
+    ∃ f : Fin 4 → ℂ, Function.Injective f ∧ ∀ t : ℂ,
+      t^4+3*t^2+2=0 ↔ ∃ j, f j=t := by
+  obtain ⟨hr,hs⟩ := target_root_squares
+  have hr0 : targetR ≠ 0 := by
+    intro h
+    rw [h] at hr
+    norm_num at hr
+  have hs0 : targetS ≠ 0 := by
+    intro h
+    rw [h] at hs
+    norm_num at hs
+  have hne : targetR^2 ≠ targetS^2 := by rw [hr,hs]; norm_num
+  refine ⟨rootList targetR targetS,rootList_injective _ _ hr0 hs0 hne,?_⟩
+  intro t
+  constructor
+  · intro h
+    apply rootList_exhausts
+    rw [hr,hs]
+    linear_combination h
+  · rintro ⟨j,rfl⟩
+    fin_cases j <;> simp [rootList] <;>
+      first
+      | rw [show targetR^4=(targetR^2)^2 by ring,hr]; norm_num
+      | rw [show (-targetR)^4=(targetR^2)^2 by ring,show (-targetR)^2=targetR^2 by ring,hr]; norm_num
+      | rw [show targetS^4=(targetS^2)^2 by ring,hs]; norm_num
+      | rw [show (-targetS)^4=(targetS^2)^2 by ring,show (-targetS)^2=targetS^2 by ring,hs]; norm_num
+
 end Manuscript15.ProjectiveQuarticDescent20261128
 
 #print axioms Manuscript15.ProjectiveQuarticDescent20261128.coneRel_equivalence
@@ -187,3 +317,9 @@ end Manuscript15.ProjectiveQuarticDescent20261128
 #print axioms Manuscript15.ProjectiveQuarticDescent20261128.source_branch_polynomial_simple
 #print axioms Manuscript15.ProjectiveQuarticDescent20261128.target_branch_polynomial_simple
 #print axioms Manuscript15.ProjectiveQuarticDescent20261128.infinity_coordinates
+#print axioms Manuscript15.ProjectiveQuarticDescent20261128.rootList_injective
+#print axioms Manuscript15.ProjectiveQuarticDescent20261128.rootList_exhausts
+#print axioms Manuscript15.ProjectiveQuarticDescent20261128.source_root_squares
+#print axioms Manuscript15.ProjectiveQuarticDescent20261128.source_exact_four_branch_roots
+#print axioms Manuscript15.ProjectiveQuarticDescent20261128.target_root_squares
+#print axioms Manuscript15.ProjectiveQuarticDescent20261128.target_exact_four_branch_roots
