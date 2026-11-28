@@ -257,12 +257,24 @@ theorem source_exact_four_branch_roots :
     rw [hr,hs]
     linear_combination h-Complex.I_sq
   · rintro ⟨j,rfl⟩
-    fin_cases j <;> simp [rootList] <;>
-      first
-      | rw [show sourceR^4=(sourceR^2)^2 by ring,hr,Complex.I_sq]; ring
-      | rw [show (-sourceR)^4=(sourceR^2)^2 by ring,hr,Complex.I_sq]; ring
-      | rw [show sourceS^4=(sourceS^2)^2 by ring,hs]; rw [neg_pow]; norm_num [Complex.I_sq]
-      | rw [show (-sourceS)^4=(sourceS^2)^2 by ring,hs]; rw [neg_pow]; norm_num [Complex.I_sq]
+    have hr4 : sourceR^4+1=0 := by
+      rw [show sourceR^4=(sourceR^2)^2 by ring,hr,Complex.I_sq]
+      norm_num
+    have hs4 : sourceS^4+1=0 := by
+      rw [show sourceS^4=(sourceS^2)^2 by ring,hs,
+        show (-Complex.I)^2=Complex.I^2 by ring,Complex.I_sq]
+      norm_num
+    have hrn : (-sourceR)^4+1=0 := by
+      rw [show (-sourceR)^4=sourceR^4 by ring]
+      exact hr4
+    have hsn : (-sourceS)^4+1=0 := by
+      rw [show (-sourceS)^4=sourceS^4 by ring]
+      exact hs4
+    fin_cases j
+    · simpa [rootList] using hr4
+    · simpa [rootList] using hrn
+    · simpa [rootList] using hs4
+    · simpa [rootList] using hsn
 
 def targetR : ℂ := Complex.I
 def targetS : ℂ := (↑(Real.sqrt (2:ℝ)) : ℂ)*Complex.I
@@ -296,12 +308,23 @@ theorem target_exact_four_branch_roots :
     rw [hr,hs]
     linear_combination h
   · rintro ⟨j,rfl⟩
-    fin_cases j <;> simp [rootList] <;>
-      first
-      | rw [show targetR^4=(targetR^2)^2 by ring,hr]; norm_num
-      | rw [show (-targetR)^4=(targetR^2)^2 by ring,show (-targetR)^2=targetR^2 by ring,hr]; norm_num
-      | rw [show targetS^4=(targetS^2)^2 by ring,hs]; norm_num
-      | rw [show (-targetS)^4=(targetS^2)^2 by ring,show (-targetS)^2=targetS^2 by ring,hs]; norm_num
+    have hr4 : targetR^4+3*targetR^2+2=0 := by
+      rw [show targetR^4=(targetR^2)^2 by ring,hr]
+      norm_num
+    have hs4 : targetS^4+3*targetS^2+2=0 := by
+      rw [show targetS^4=(targetS^2)^2 by ring,hs]
+      norm_num
+    have hrn : (-targetR)^4+3*(-targetR)^2+2=0 := by
+      rw [show (-targetR)^4=targetR^4 by ring,show (-targetR)^2=targetR^2 by ring]
+      exact hr4
+    have hsn : (-targetS)^4+3*(-targetS)^2+2=0 := by
+      rw [show (-targetS)^4=targetS^4 by ring,show (-targetS)^2=targetS^2 by ring]
+      exact hs4
+    fin_cases j
+    · simpa [rootList] using hr4
+    · simpa [rootList] using hrn
+    · simpa [rootList] using hs4
+    · simpa [rootList] using hsn
 
 end Manuscript15.ProjectiveQuarticDescent20261128
 
