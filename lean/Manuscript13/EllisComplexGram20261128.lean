@@ -32,7 +32,7 @@ theorem gram_integral_ae (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) (f : HR) :
       apply integral_congr_ae
       filter_upwards [applyLp_ae a κ ha hk (row a κ hk u)] with v hv
       change A (row a κ hk u) v = rowApply a κ hk (row a κ hk u) v at hv
-      rw [hv, rowApply, real_inner_comm (row a κ hk v) (row a κ hk u), row_inner]
+      rw [hv, rowApply, real_inner_comm (row a κ hk u) (row a κ hk v), row_inner]
       first
       | change f v * bsKernel a κ u v = bsKernel a κ u v * f v
         ring
@@ -61,7 +61,7 @@ theorem complex_mem (f : HR) : MemLp (fun x : ℝ => (f x : ℂ)) 2 volume := by
   apply (Lp.memLp f).of_le
   · exact (Complex.continuous_ofReal.comp_aestronglyMeasurable (Lp.memLp f).aestronglyMeasurable)
   · filter_upwards [] with x
-    rw [Complex.norm_real]
+    simp [Complex.norm_real]
 
 def complexify (f : HR) : HC := (complex_mem f).toLp _
 
@@ -87,13 +87,9 @@ theorem gram_intertwine (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) (f : HR) :
       apply integral_congr_ae
       filter_upwards [complexify_ae f] with v h
       rw [h]
-      push_cast
-      rfl
+      push_cast <;> rfl
     _ = _ := by
-      first
-      | exact Complex.ofReal_integral.symm
-      | rw [Complex.ofReal_integral]
-      | exact?
+      exact integral_complex_ofReal
 
 theorem complexify_real_smul (c : ℝ) (f : HR) :
     complexify (c • f) = (c : ℂ) • complexify f := by
@@ -118,10 +114,7 @@ theorem complexify_inner (f g : HR) :
       rw [hf,hg]
       simp [RCLike.inner_apply,Complex.ofReal_mul,mul_comm]
     _ = _ := by
-      first
-      | exact Complex.ofReal_integral.symm
-      | rw [Complex.ofReal_integral]
-      | exact?
+      exact integral_complex_ofReal
 
 theorem complexify_orthonormal (e : ℕ → HR) (he : Orthonormal ℝ e) :
     Orthonormal ℂ (fun n => complexify (e n)) := by
