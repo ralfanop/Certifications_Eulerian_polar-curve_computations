@@ -14,7 +14,7 @@ def alpha (n : ℕ) (i : Fin (n+2)) : ℂ :=
   (Real.cos (angle n i) : ℂ)
 
 def radius (n : ℕ) : ℂ :=
-  (((1/2 : ℝ) ^ ((n+1 : ℝ)/(n+2))) : ℂ)
+  (((1/2 : ℝ) ^ ((n+1 : ℝ)/(n+2)) : ℝ) : ℂ)
 
 theorem angle_mem (n : ℕ) (i : Fin (n+2)) :
     angle n i ∈ Set.Ioo (0:ℝ) Real.pi := by
@@ -102,7 +102,9 @@ theorem radius_power (n : ℕ) :
   have h : ((1/2:ℝ)^((n+1:ℝ)/(n+2)))^(n+2:ℕ) = 1/(2:ℝ)^(n+1) := by
     rw [← Real.rpow_natCast, ← Real.rpow_mul (by norm_num : 0 ≤ (1/2:ℝ)), he, Real.rpow_natCast, div_pow, one_pow]
   unfold radius
-  exact_mod_cast h
+  rw [← Complex.ofReal_pow, h]
+  push_cast
+  rfl
 
 theorem radius_ne_zero (n : ℕ) : radius n ≠ 0 := by
   have h := radius_power n
