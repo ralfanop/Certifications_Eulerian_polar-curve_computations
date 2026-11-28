@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - name: Verify pinned mathlib and all 16 kernel proofs on exact PR HEAD
+      - name: Verify pinned mathlib and all 18 kernel proofs on exact PR HEAD
         working-directory: lean
         env:
           EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -54,7 +54,7 @@ jobs:
           assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.',kernel), 'dependency check failed'
           assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.',log), 'admitted proof or Lean error'
           names=re.findall(r'^#print axioms (Manuscript15\.ConcreteCreaseRemainder20261127\.\w+)$',src,re.M)
-          assert len(names)==16 and len(set(names))==16, (len(names),names)
+          assert len(names)==18 and len(set(names))==18, (len(names),names)
           for name in names:
             m=re.search(re.escape("'"+name+"'")+r' depends on axioms: \[([^\]]*)\]',log,re.S)
             if m:
@@ -62,7 +62,7 @@ jobs:
               assert present <= {'propext','Classical.choice','Quot.sound'},(name,present)
             else:
               assert "'"+name+"' does not depend on any axioms" in log,name
-          print('M15 27 NOV QUARTIC UNIFORM REMAINDER EXACT HEAD 16 THEOREMS SUCCESS')
+          print('M15 27 NOV QUARTIC UNIFORM REMAINDER EXACT HEAD 18 THEOREMS SUCCESS')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
