@@ -178,7 +178,8 @@ theorem basis_expansion (u : Bonds) (N : ℕ) (l : sites N) :
     simp_rw [eigenvector,lift_inside]
     rw [hc]
     by_cases hi : i=l
-    · subst i; simp [lp.single_apply,EuclideanSpace.single_apply]
+    · have heq : (i:ℤ)=(l:ℤ) := congrArg (fun z : sites N => (z:ℤ)) hi
+      rw [heq,lp.single_apply_self,EuclideanSpace.single_apply,if_pos hi] <;> norm_num
     · have hn : (i:ℤ)≠(l:ℤ) := fun hh => hi (Subtype.ext hh)
       simp [lp.single_apply,EuclideanSpace.single_apply,hi,hn]
   · have hn : k≠(l:ℤ) := fun h => hk (h ▸ l.property)
