@@ -50,8 +50,9 @@ theorem split_complex (z : HC) :
   calc
     _ = complexify (realPart z) x + (Complex.I • complexify (imagPart z)) x := hadd
     _ = z x := by
-      rw [hs,hcr,hci,hr,hi]
-      change ((z x).re : ℂ) + Complex.I * ((z x).im : ℂ) = z x
+      rw [hs,hcr]
+      change ((realPart z x : ℝ) : ℂ) + Complex.I * complexify (imagPart z) x = z x
+      rw [hci,hr,hi]
       rw [mul_comm Complex.I]
       exact Complex.re_add_im _
 
@@ -244,13 +245,8 @@ theorem overlap_nonneg (x y : HC) : 0 ≤ overlapReal x y := by
   positivity
 
 theorem overlap_symm (x y : HC) : overlapReal x y = overlapReal y x := by
-  have hc : star (inner ℂ x y) = inner ℂ y x := inner_conj_symm y x
-  have hr : (inner ℂ x y).re = (inner ℂ y x).re := by
-    simpa using congrArg Complex.re hc
-  have hi : (inner ℂ x y).im = -(inner ℂ y x).im := by
-    have h := congrArg Complex.im hc
-    simp at h
-    linarith
+  have hr : (inner ℂ x y).re = (inner ℂ y x).re := inner_re_symm x y
+  have hi : (inner ℂ x y).im = -(inner ℂ y x).im := inner_im_symm x y
   unfold overlapReal
   rw [hr,hi]
   ring
@@ -261,12 +257,11 @@ theorem overlap_parseval (e : HilbertBasis ℕ ℂ HC) (x : HC) :
   convert h using 1
   · funext i
     change overlapReal (e i) x = (inner ℂ x (e i) * inner ℂ (e i) x).re
-    have hc : inner ℂ x (e i) = (starRingEnd ℂ) (inner ℂ (e i) x) :=
-      (inner_conj_symm x (e i)).symm
+    have hr : (inner ℂ x (e i)).re = (inner ℂ (e i) x).re := inner_re_symm x (e i)
+    have hi : (inner ℂ x (e i)).im = -(inner ℂ (e i) x).im := inner_im_symm x (e i)
     unfold overlapReal
-    rw [hc]
-    change _ = (star (inner ℂ (e i) x) * inner ℂ (e i) x).re
-    simp [Complex.mul_re,Complex.conj_re,Complex.conj_im] <;> ring
+    rw [Complex.mul_re,hr,hi]
+    ring
   · exact (inner_self_eq_norm_sq (𝕜 := ℂ) x).symm
 
 def overlap (x y : HC) : ℝ≥0∞ := ENNReal.ofReal (overlapReal x y)
