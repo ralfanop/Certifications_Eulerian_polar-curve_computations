@@ -9,3 +9,5 @@ New Lean modules check the actual positive-B1 convention, degree-one Bernoulli p
 New Arb producer uses 3,600,000 working bits and 1,000,001 **fractional decimal digits**, with exact rational endpoint checks. It distinguishes printed effective moment from ideal sqrt(2) ratio. At H=-6.5 the text says no induction exists while the target is below saturation. The ideal spin-one inverse is finite for this target; the CI tests this rather than certifying the false nonexistence claim. Empirical accuracy is not claimed. No author manuscript modification.
 
 Status: implementation submitted; CI results and exact commit audit must be checked before declaring certification.
+
+Follow-up: actual punctured Bernoulli residue limit; actual interval Fourier integral and principal branch counterexample; characteristic determinant, Pauli double commutator and explicit global Gram factorisation/positivity added to the proposed Lean audit. These new declarations remain pending successful CI.

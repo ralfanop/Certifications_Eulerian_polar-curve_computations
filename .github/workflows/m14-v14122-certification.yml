@@ -19,11 +19,13 @@ jobs:
       matrix:
         include:
           - module: V14122Bernoulli
-            count: 9
+            count: 10
           - module: V14122Spin
             count: 5
           - module: V14122Krein
-            count: 10
+            count: 16
+          - module: V14122Fourier
+            count: 5
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:

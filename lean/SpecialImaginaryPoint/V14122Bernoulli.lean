@@ -25,7 +25,7 @@ def bernoulliFunction (s : ℂ) : ℂ :=
 theorem function_zero : bernoulliFunction 0 = 1 := by simp [bernoulliFunction]
 
 theorem function_one : bernoulliFunction 1 = (1 : ℂ) / 2 := by
-  simp [bernoulliFunction, riemannZeta_zero]
+  norm_num [bernoulliFunction, riemannZeta_zero]
 
 theorem interpolation (k : ℕ) :
     bernoulliFunction ((k : ℂ) + 1) = (bernoulli' (k + 1) : ℂ) := by
@@ -52,6 +52,28 @@ theorem discriminant_family (s A C : ℝ)
 theorem discriminant_monic : (16:ℚ)*(1/32)*(4*(1/32)-(1/2)^2)^2 = 1/128 := by
   norm_num
 
+/-- Actual removable limit, using the established zeta residue at one. -/
+theorem removable_limit :
+    Tendsto bernoulliFunction (𝓝[≠] (0 : ℂ)) (𝓝 (1 : ℂ)) := by
+  have hcont : ContinuousAt (fun s : ℂ => 1-s) 0 :=
+    (continuous_const.sub continuous_id).continuousAt
+  have hmap : Tendsto (fun s : ℂ => 1-s) (𝓝[≠] 0) (𝓝[≠] 1) := by
+    refine tendsto_nhdsWithin_iff.mpr ⟨?_, ?_⟩
+    · simpa using hcont.tendsto.mono_left nhdsWithin_le_nhds
+    · filter_upwards [self_mem_nhdsWithin] with s hs
+      have hs0 : s ≠ 0 := hs
+      change 1-s ≠ 1
+      intro he
+      apply hs0
+      linear_combination -he
+  refine (riemannZeta_residue_one.comp hmap).congr' ?_
+  filter_upwards [self_mem_nhdsWithin] with s hs
+  have hs0 : s ≠ 0 := hs
+  simp only [Function.comp_def, bernoulliFunction, if_neg hs0]
+  congr 1
+  ring
+
+#print axioms removable_limit
 #print axioms convention
 #print axioms polynomial_one
 #print axioms polynomial_endpoint
