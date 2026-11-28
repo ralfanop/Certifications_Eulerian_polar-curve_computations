@@ -47,12 +47,14 @@ theorem spinCritical_gt_reference_sub_one (j : ℝ) (hj : (1:ℝ)/2 ≤ j) :
   change 2/(1-1/spinRatio j) = R at href
   have hprod := (div_eq_iff hg.ne').1 href
   have htarget : 1/spinRatio j = 1-2/R := by
-    field_simp [hRp.ne']
-    nlinarith only [hprod]
+    have h : 2/R = 1-1/spinRatio j := (div_eq_iff hRp.ne').2 (by nlinarith only [hprod])
+    linarith only [h]
   have hex : R*x < Real.exp x-1 := by
     have h := exp_gt_quadratic x hx
     have hRx : R = x+1 := by dsimp [x]; ring
-    simpa only [hRx,mul_comm] using h
+    calc
+      R*x = x*(x+1) := by rw [hRx]; ring
+      _ < _ := h
   have hdiv : 2/(Real.exp x-1) < 2/(R*x) :=
     div_lt_div_of_pos_left (by norm_num) (mul_pos hRp hxpos) hex
   have hdiff : 2/x-2/R = 2/(R*x) := by
@@ -152,9 +154,7 @@ theorem halfTaylor_lagrange (n : ℕ) (x : ℝ) (hx : 0 < x) :
   change (1+x) ^ (1/2:ℝ)-halfTaylor n x = _ at h
   rw [show iteratedDeriv (n+1) f t = _ from half_iteratedDeriv (n+1) t (by have := ht.1; linarith)] at h
   rw [show (1+x)-1=x by ring] at h
-  calc
-    _ = _ := h
-    _ = _ := by ring
+  convert h using 1 <;> ring
 
 theorem halfTaylor_error (n : ℕ) (x : ℝ) (hx : 0 < x) :
     |(1+x) ^ (1/2:ℝ)-halfTaylor n x| ≤
@@ -189,7 +189,9 @@ theorem spin_algebraic_error (j : ℝ) (hj : 0 < j) (N : ℕ) :
   calc
     _ ≤ (2*j)*(|halfFalling (N+2)/(Nat.factorial (N+2):ℝ)|*(1/j)^(N+2)) :=
       mul_le_mul_of_nonneg_left h (by positivity)
-    _ = _ := by rw [div_pow,one_pow,show N+2=N+1+1 by omega,pow_succ]; field_simp [hj.ne'] <;> ring
+    _ = _ := by
+      rw [div_pow,one_pow,show j^(N+2)=j^(N+1)*j by rw [← pow_succ]; congr 1 <;> omega]
+      field_simp [hj.ne'] <;> ring
 
 theorem spin_total_error (j : ℝ) (hj : (1:ℝ)/2 ≤ j) (N : ℕ) :
     |spinCritical j-spinTaylor j N| <
@@ -217,6 +219,34 @@ theorem spin_order20_error (j : ℝ) (hj : (1:ℝ)/2 ≤ j) :
   rw [halfFalling_22_coefficient,div_div] at h
   exact h
 
+theorem spin_order20_upper (j : ℝ) (hj : (1:ℝ)/2 ≤ j) :
+    spinCritical j < spinTaylor j 20 := by
+  have hjp : 0 < j := by linarith
+  obtain ⟨t,ht,h⟩ := halfTaylor_lagrange 21 (1/j) (by positivity)
+  have hc : halfFalling 22/(Nat.factorial 22:ℝ) < 0 := by
+    norm_num [halfFalling, Nat.factorial]
+  have htpos : 0 < t := by have := ht.1; linarith
+  have hneg : (1+1/j) ^ (1/2:ℝ)-halfTaylor 21 (1/j) < 0 := by
+    rw [h]
+    exact mul_neg_of_neg_of_pos (mul_neg_of_neg_of_pos hc (by positivity)) (Real.rpow_pos_of_pos htpos _)
+  have hpoly : spinReference j < spinTaylor j 20 := by
+    rw [spinReference_rpow j hjp,spinTaylor]
+    have hmul := mul_lt_mul_of_pos_left (sub_neg.mp hneg) hjp
+    linarith only [hmul]
+  exact (sub_pos.mp (spin_exponential_error j hj).1).trans hpoly
+
+theorem spin_order20_signed_error (j : ℝ) (hj : (1:ℝ)/2 ≤ j) :
+    0 < spinTaylor j 20-spinCritical j ∧
+    spinTaylor j 20-spinCritical j <
+      (24466267020:ℝ)/(4^21*j^21) +
+      spinReference j^2/(Real.exp (spinReference j-1)-1) := by
+  have hp := sub_pos.mpr (spin_order20_upper j hj)
+  have h := spin_order20_error j hj
+  rw [abs_sub_comm,abs_of_pos hp] at h
+  exact ⟨hp,h⟩
+
+#print axioms spin_order20_upper
+#print axioms spin_order20_signed_error
 #print axioms spinReference_gt_four
 #print axioms exp_gt_quadratic
 #print axioms spinCritical_gt_reference_sub_one
