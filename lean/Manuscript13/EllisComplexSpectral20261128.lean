@@ -270,35 +270,35 @@ theorem overlap_mass_right (e : HilbertBasis ℕ ℂ HC) (x : HC) (hx : ‖x‖ 
   simpa only [overlap,overlap_symm x] using overlap_mass e x hx
 
 theorem overlap_distinct (T : HC →L[ℂ] HC) (hT : IsSelfAdjoint T)
-    (x y : HC) (λ μ : ℝ) (hx : T x = (λ : ℂ) • x)
-    (hy : T y = (μ : ℂ) • y) (hne : λ ≠ μ) : overlap x y = 0 := by
+    (x y : HC) (lam μ : ℝ) (hx : T x = (lam : ℂ) • x)
+    (hy : T y = (μ : ℂ) • y) (hne : lam ≠ μ) : overlap x y = 0 := by
   have h : inner ℂ (T x) y = inner ℂ x (T y) :=
     (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hT) x y
   rw [hx,hy,inner_smul_left,inner_smul_right] at h
-  have he : (starRingEnd ℂ) (λ : ℂ) = (λ : ℂ) := Complex.conj_ofReal λ
+  have he : (starRingEnd ℂ) (lam : ℂ) = (lam : ℂ) := Complex.conj_ofReal lam
   rw [he] at h
-  have hz : ((λ : ℂ) - (μ : ℂ)) * inner ℂ x y = 0 := by
+  have hz : ((lam : ℂ) - (μ : ℂ)) * inner ℂ x y = 0 := by
     rw [sub_mul,h,sub_self]
-  have hne' : (λ : ℂ) - (μ : ℂ) ≠ 0 := sub_ne_zero.mpr (by exact_mod_cast hne)
+  have hne' : (lam : ℂ) - (μ : ℂ) ≠ 0 := sub_ne_zero.mpr (by exact_mod_cast hne)
   have hz' := (mul_eq_zero.mp hz).resolve_left hne'
   simp [overlap,overlapReal,hz']
 
 /-- Every nonnegative spectral weight has the same total in two complete
 eigenbases. No assumption of equal multiplicities is used. -/
 theorem spectral_weight_invariant (T : HC →L[ℂ] HC)
-    (e f : HilbertBasis ℕ ℂ HC) (λ μ : ℕ → ℝ)
-    (he : ∀ i, T (e i) = (λ i : ℂ) • e i)
+    (e f : HilbertBasis ℕ ℂ HC) (lam μ : ℕ → ℝ)
+    (he : ∀ i, T (e i) = (lam i : ℂ) • e i)
     (hf : ∀ j, T (f j) = (μ j : ℂ) • f j) (w : ℝ → ℝ≥0∞) :
-    (∑' i, w (λ i)) = ∑' j, w (μ j) := by
-  have hT := diagonal_selfAdjoint T e λ he
-  have hw (i j : ℕ) : w (λ i) * overlap (e i) (f j) =
+    (∑' i, w (lam i)) = ∑' j, w (μ j) := by
+  have hT := diagonal_selfAdjoint T e lam he
+  have hw (i j : ℕ) : w (lam i) * overlap (e i) (f j) =
       w (μ j) * overlap (e i) (f j) := by
-    by_cases h : λ i = μ j
+    by_cases h : lam i = μ j
     · rw [h]
-    · rw [overlap_distinct T hT (e i) (f j) (λ i) (μ j) (he i) (hf j) h]
+    · rw [overlap_distinct T hT (e i) (f j) (lam i) (μ j) (he i) (hf j) h]
       simp
   calc
-    _ = ∑' i, ∑' j, w (λ i) * overlap (e i) (f j) := by
+    _ = ∑' i, ∑' j, w (lam i) * overlap (e i) (f j) := by
       apply tsum_congr
       intro i
       rw [ENNReal.tsum_mul_left,overlap_mass_right f (e i) (e.orthonormal.norm_eq_one i),mul_one]
@@ -313,18 +313,18 @@ theorem spectral_weight_invariant (T : HC →L[ℂ] HC)
       rw [ENNReal.tsum_mul_left,overlap_mass e (f j) (f.orthonormal.norm_eq_one j),mul_one]
 
 theorem spectralDet_independent (T : HC →L[ℂ] HC)
-    (e f : HilbertBasis ℕ ℂ HC) (λ μ : ℕ → ℝ)
-    (he : ∀ i, T (e i) = (λ i : ℂ) • e i)
+    (e f : HilbertBasis ℕ ℂ HC) (lam μ : ℕ → ℝ)
+    (he : ∀ i, T (e i) = (lam i : ℂ) • e i)
     (hf : ∀ j, T (f j) = (μ j : ℂ) • f j)
-    (hλ : ∀ i, 0 ≤ λ i) (hμ : ∀ j, 0 ≤ μ j)
-    (hsλ : Summable λ) (hsμ : Summable μ) :
-    spectralDet λ = spectralDet μ := by
-  have hp := Manuscript13.EllisFredholmProduct20261127.log_summable λ hλ hsλ
+    (hlam : ∀ i, 0 ≤ lam i) (hμ : ∀ j, 0 ≤ μ j)
+    (hslam : Summable lam) (hsμ : Summable μ) :
+    spectralDet lam = spectralDet μ := by
+  have hp := Manuscript13.EllisFredholmProduct20261127.log_summable lam hlam hslam
   have hq := Manuscript13.EllisFredholmProduct20261127.log_summable μ hμ hsμ
-  have hpn : ∀ i, 0 ≤ Real.log (1 + λ i) := fun i => Real.log_nonneg (by linarith [hλ i])
+  have hpn : ∀ i, 0 ≤ Real.log (1 + lam i) := fun i => Real.log_nonneg (by linarith [hlam i])
   have hqn : ∀ j, 0 ≤ Real.log (1 + μ j) := fun j => Real.log_nonneg (by linarith [hμ j])
-  have h := spectral_weight_invariant T e f λ μ he hf (fun t => ENNReal.ofReal (Real.log (1+t)))
-  change (∑' i, ENNReal.ofReal (Real.log (1 + λ i))) =
+  have h := spectral_weight_invariant T e f lam μ he hf (fun t => ENNReal.ofReal (Real.log (1+t)))
+  change (∑' i, ENNReal.ofReal (Real.log (1 + lam i))) =
     ∑' j, ENNReal.ofReal (Real.log (1 + μ j)) at h
   rw [← ENNReal.ofReal_tsum_of_nonneg hpn hp,← ENNReal.ofReal_tsum_of_nonneg hqn hq] at h
   have hh := (ENNReal.ofReal_eq_ofReal_iff (tsum_nonneg hpn) (tsum_nonneg hqn)).1 h
@@ -338,10 +338,10 @@ def fredholmSection (T : HC →L[ℂ] HC) (e : HilbertBasis ℕ ℂ HC)
   fun i j => inner ℂ (e i) (e j + T (e j))
 
 theorem fredholmSection_det (T : HC →L[ℂ] HC) (e : HilbertBasis ℕ ℂ HC)
-    (λ : ℕ → ℝ) (he : ∀ i, T (e i) = (λ i : ℂ) • e i) (s : Finset ℕ) :
-    (fredholmSection T e s).det = ∏ i ∈ s, (1 + (λ i : ℂ)) := by
+    (lam : ℕ → ℝ) (he : ∀ i, T (e i) = (lam i : ℂ) • e i) (s : Finset ℕ) :
+    (fredholmSection T e s).det = ∏ i ∈ s, (1 + (lam i : ℂ)) := by
   classical
-  have hm : fredholmSection T e s = Matrix.diagonal (fun i : s => 1 + (λ i : ℂ)) := by
+  have hm : fredholmSection T e s = Matrix.diagonal (fun i : s => 1 + (lam i : ℂ)) := by
     ext i j
     unfold fredholmSection
     rw [he,inner_add_right,inner_smul_right,(orthonormal_iff_ite.mp e.orthonormal) i j]
@@ -384,8 +384,7 @@ theorem fredholmSection_limit (T : HC →L[ℂ] HC)
   apply hh.congr
   intro s
   rw [fredholmSection_det T d.basis d.eig d.eigen]
-  push_cast
-  rfl
+  push_cast <;> rfl
 
 theorem weighted_spectral_data (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
     Nonempty (PositiveSpectralData (birmanSchwinger a κ ha hk)) := by
