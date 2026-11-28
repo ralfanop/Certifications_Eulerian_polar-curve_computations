@@ -110,8 +110,8 @@ theorem half_no_global_descent :
       Real.sin_pos_of_pos_of_lt_pi (by linarith [Real.pi_pos]) (by linarith [Real.pi_pos])
     have hh : Complex.sin t = (Real.sin (Real.pi/3):ℂ) := by
       dsimp [t]
-      rw [← Complex.ofReal_div,Complex.ofReal_sin]
-      norm_num
+      simpa only [Complex.ofReal_div, Complex.ofReal_ofNat, Complex.ofReal_sin] using
+        (rfl : ((Real.sin (Real.pi/3):ℝ):ℂ) = ((Real.sin (Real.pi/3):ℝ):ℂ))
     rw [hh]
     exact_mod_cast hp.ne'
   have ht' : Complex.sin (t+2*(Real.pi:ℂ)) ≠ 0 := by
