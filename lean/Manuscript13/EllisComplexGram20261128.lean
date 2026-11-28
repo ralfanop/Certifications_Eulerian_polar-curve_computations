@@ -96,12 +96,13 @@ theorem complexify_real_smul (c : ℝ) (f : HR) :
   apply Lp.ext
   filter_upwards [complexify_ae (c • f),complexify_ae f,Lp.coeFn_smul c f,
     Lp.coeFn_smul (c : ℂ) (complexify f)] with x h1 h2 h3 h4
-  rw [h1,h3,h4,h2]
-  simp [smul_eq_mul,Complex.ofReal_mul]
+  rw [h1,h3,h4]
+  change ((c * f x : ℝ) : ℂ) = (c : ℂ) * complexify f x
+  rw [h2,Complex.ofReal_mul]
 
 theorem complex_eigenvector (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ)
-    (f : HR) (λ : ℝ) (h : gramOperator a κ ha hk f = λ • f) :
-    birmanSchwinger a κ ha hk (complexify f) = (λ : ℂ) • complexify f := by
+    (f : HR) (lam : ℝ) (h : gramOperator a κ ha hk f = lam • f) :
+    birmanSchwinger a κ ha hk (complexify f) = (lam : ℂ) • complexify f := by
   rw [gram_intertwine a κ ha hk f,h,complexify_real_smul]
 
 theorem complexify_inner (f g : HR) :
