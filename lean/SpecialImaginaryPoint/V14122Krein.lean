@@ -135,9 +135,9 @@ theorem gram_factorization (g a : ℝ) (hp : dp g a ≠ 0) (hm : dm g a ≠ 0) :
   have wr (k : Fin 4) : (diagWeight g a k).re =
       (![ (g+1)*dd g a/(2*dp g a), (1-g)*dd g a/(2*dm g a),
         1/(2*dp g a), 1/(2*dm g a)] : Fin 4 → ℝ) k := by
-    fin_cases k <;> simp only [diagWeight, Matrix.cons_val_zero, Matrix.cons_val_succ, Complex.ofReal_re]
+    fin_cases k <;> rfl
   have wi (k : Fin 4) : (diagWeight g a k).im = 0 := by
-    fin_cases k <;> simp only [diagWeight, Matrix.cons_val_zero, Matrix.cons_val_succ, Complex.ofReal_im]
+    fin_cases k <;> rfl
   apply Matrix.ext
   intro i j
   fin_cases i <;> fin_cases j <;> apply Complex.ext <;>
@@ -145,7 +145,9 @@ theorem gram_factorization (g a : ℝ) (hp : dp g a ≠ 0) (hm : dm g a ≠ 0) :
       Fin.sum_univ_succ,Complex.mul_re,Complex.mul_im,Complex.add_re,Complex.add_im,
       Complex.sub_re,Complex.sub_im,Complex.neg_re,Complex.neg_im,pow_succ,wr,wi] <;>
     simp [dp,dm,cp,cm,dd] <;>
-    field_simp [hp',hm',hp2,hm2] <;> ring
+    have hp3 : g*2+a^2 ≠ 0 := by simpa [mul_comm] using hp'
+    have hm3 : g*2-a^2 ≠ 0 := by simpa [mul_comm] using hm'
+    field_simp [hp',hm',hp2,hm2,hp3,hm3] <;> ring
 
 theorem chol_injective (g a : ℝ) (hp : dp g a ≠ 0) (hm : dm g a ≠ 0) :
     Function.Injective (chol g a).mulVec := by
