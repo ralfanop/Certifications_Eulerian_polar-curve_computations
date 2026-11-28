@@ -247,6 +247,117 @@ theorem speed_scaled_limit (n : ℕ) (hn : 0 < n) :
   simpa only [Function.comp_def,Real.sqrt_one] using
     (Real.continuous_sqrt.continuousAt (x := (1:ℝ))).tendsto.comp (fisher_scaled_limit n hn)
 
+/-- Comparison of the actual intrinsic tail length with scaled speed bounds. -/
+theorem saturation_scaled_bounds (n : ℕ) (hn : 0 < n) (a c d : ℝ)
+    (ha : 0 ≤ a) (hd : 0 ≤ d)
+    (hlo : ∀ s ≥ a, c ≤ Real.exp (s/2)*speed n s)
+    (hhi : ∀ s ≥ a, Real.exp (s/2)*speed n s ≤ d) :
+    2*c ≤ Real.exp (a/2)*saturationDistance n a ∧
+      Real.exp (a/2)*saturationDistance n a ≤ 2*d := by
+  have hex (s : ℝ) : Real.exp (s/2)*Real.exp (-s/2)=1 := by
+    rw [← Real.exp_add]
+    convert Real.exp_zero using 1 <;> ring
+  have hpoint (s : ℝ) (hs : a ≤ s) :
+      c*Real.exp (-s/2) ≤ speed n s ∧
+      speed n s ≤ d*Real.exp (-s/2) := by
+    have he : (Real.exp (s/2)*speed n s)*Real.exp (-s/2)=speed n s := by
+      calc
+        _ = (Real.exp (s/2)*Real.exp (-s/2))*speed n s := by ring
+        _ = _ := by rw [hex,one_mul]
+    constructor
+    · have h := mul_le_mul_of_nonneg_right (hlo s hs) (Real.exp_pos (-s/2)).le
+      rwa [he] at h
+    · have h := mul_le_mul_of_nonneg_right (hhi s hs) (Real.exp_pos (-s/2)).le
+      rwa [he] at h
+  have hlen (b : ℝ) (hb : a ≤ b) :
+      2*c*(Real.exp (-a/2)-Real.exp (-b/2)) ≤ fisherLength n a b ∧
+      fisherLength n a b ≤ 2*d*(Real.exp (-a/2)-Real.exp (-b/2)) := by
+    have hc : Continuous (fun s : ℝ => c*Real.exp (-s/2)) := by fun_prop
+    have hd' : Continuous (fun s : ℝ => d*Real.exp (-s/2)) := by fun_prop
+    have h1 := intervalIntegral.integral_mono_on hb
+      (hc.intervalIntegrable a b) ((speed_continuous n).intervalIntegrable a b)
+      (fun s hs => (hpoint s hs.1).1)
+    have h2 := intervalIntegral.integral_mono_on hb
+      ((speed_continuous n).intervalIntegrable a b) (hd'.intervalIntegrable a b)
+      (fun s hs => (hpoint s hs.1).2)
+    rw [intervalIntegral.integral_const_mul,exponential_integral] at h1 h2
+    unfold fisherLength
+    constructor
+    · convert h1 using 1 <;> ring
+    · convert h2 using 1 <;> ring
+  have hupper (b : ℝ) (hb : a ≤ b) :
+      fisherLength n a b ≤ 2*d*Real.exp (-a/2) := by
+    have h := (hlen b hb).2
+    nlinarith [mul_nonneg hd (Real.exp_pos (-b/2)).le]
+  have hB : BddAbove (fisherLength n a '' Set.Ici a) := by
+    refine ⟨2*d*Real.exp (-a/2),?_⟩
+    rintro _ ⟨b,hb,rfl⟩
+    exact hupper b hb
+  have hne : (fisherLength n a '' Set.Ici a).Nonempty :=
+    ⟨fisherLength n a a,⟨a,le_rfl,rfl⟩⟩
+  have hu : saturationDistance n a ≤ 2*d*Real.exp (-a/2) := by
+    unfold saturationDistance
+    apply csSup_le hne
+    rintro _ ⟨b,hb,rfl⟩
+    exact hupper b hb
+  have he : Tendsto (fun b : ℝ => Real.exp (-b/2)) atTop (𝓝 0) := by
+    apply Real.tendsto_exp_atBot.comp
+    apply tendsto_atBot.2
+    intro b
+    filter_upwards [eventually_ge_atTop (-2*b)] with t ht
+    linarith
+  have hlim : Tendsto (fun b : ℝ => 2*c*(Real.exp (-a/2)-Real.exp (-b/2)))
+      atTop (𝓝 (2*c*Real.exp (-a/2))) := by
+    simpa using (tendsto_const_nhds (x := 2*c)).mul
+      ((tendsto_const_nhds (x := Real.exp (-a/2))).sub he)
+  have hl : 2*c*Real.exp (-a/2) ≤ saturationDistance n a := by
+    apply le_of_tendsto hlim
+    filter_upwards [eventually_ge_atTop a] with b hb
+    exact (hlen b hb).1.trans (le_csSup hB ⟨b,hb,rfl⟩)
+  constructor
+  · have h := mul_le_mul_of_nonneg_left hl (Real.exp_pos (a/2)).le
+    calc
+      2*c = 2*c*(Real.exp (a/2)*Real.exp (-a/2)) := by rw [hex,mul_one]
+      _ = Real.exp (a/2)*(2*c*Real.exp (-a/2)) := by ring
+      _ ≤ _ := h
+  · have h := mul_le_mul_of_nonneg_left hu (Real.exp_pos (a/2)).le
+    calc
+      _ ≤ Real.exp (a/2)*(2*d*Real.exp (-a/2)) := h
+      _ = 2*d*(Real.exp (a/2)*Real.exp (-a/2)) := by ring
+      _ = _ := by rw [hex,mul_one]
+
+theorem saturation_distance_scaled_limit (n : ℕ) (hn : 0 < n) :
+    Tendsto (fun a => Real.exp (a/2)*saturationDistance n a) atTop (𝓝 2) := by
+  apply tendsto_order.2
+  constructor
+  · intro l hl
+    let c : ℝ := (l+2)/4
+    have hc : c < 1 := by dsimp [c]; linarith
+    obtain ⟨A,hA⟩ := eventually_atTop.1 ((tendsto_order.1 (speed_scaled_limit n hn)).1 c hc)
+    obtain ⟨B,hB⟩ := eventually_atTop.1 ((tendsto_order.1 (speed_scaled_limit n hn)).2 2 (by norm_num))
+    filter_upwards [eventually_ge_atTop (max (max A B) 0)] with a ha
+    have ha0 : 0 ≤ a := (le_max_right _ _).trans ha
+    have haA : A ≤ a := (le_max_left A B).trans ((le_max_left (max A B) 0).trans ha)
+    have haB : B ≤ a := (le_max_right A B).trans ((le_max_left (max A B) 0).trans ha)
+    have hh := (saturation_scaled_bounds n hn a c 2 ha0 (by norm_num)
+      (fun s hs => (hA s (haA.trans hs)).le)
+      (fun s hs => (hB s (haB.trans hs)).le)).1
+    dsimp [c] at hh
+    linarith
+  · intro u hu
+    let d : ℝ := (u+2)/4
+    have hd : 1 < d := by dsimp [d]; linarith
+    obtain ⟨A,hA⟩ := eventually_atTop.1 ((tendsto_order.1 (speed_scaled_limit n hn)).2 d hd)
+    filter_upwards [eventually_ge_atTop (max A 0)] with a ha
+    have ha0 : 0 ≤ a := (le_max_right A 0).trans ha
+    have hhi (s : ℝ) (hs : a ≤ s) : Real.exp (s/2)*speed n s ≤ d :=
+      (hA s ((le_max_left A 0).trans (ha.trans hs))).le
+    have hlo (s : ℝ) (_ : a ≤ s) : 0 ≤ Real.exp (s/2)*speed n s := by
+      unfold speed
+      positivity
+    have hh := (saturation_scaled_bounds n hn a 0 d ha0 (by linarith) hlo hhi).2
+    dsimp [d] at hh
+    linarith
 end
 end M14.EulerianSpinLaw
 
@@ -279,6 +390,50 @@ theorem perfect_square (v z l : ℝ) (h : z^2 = 360*l^2) :
   have hs := Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 10)
   rw [div_pow,mul_pow,hs]
   ring
+theorem gerono_zero_locus (v z a : ℝ) :
+    quartic v z (-a) = 0 ↔ 40*z^2 = v^2*(240*a-v^2) := by
+  unfold quartic
+  constructor <;> intro h <;> nlinarith only [h]
+
+theorem double_well_minimum (v z a : ℝ) :
+    -360*a^2 ≤ quartic v z (-a) ∧
+      (quartic v z (-a) = -360*a^2 ↔ v^2 = 120*a ∧ z=0) := by
+  rw [completed_square]
+  have h := sq_nonneg (v^2+120*(-a))
+  have hz := sq_nonneg z
+  constructor
+  · nlinarith only [h,hz]
+  · constructor
+    · intro he
+      have h1 : (v^2+120*(-a))^2=0 := by nlinarith only [he,h,hz]
+      have h2 : z^2=0 := by nlinarith only [he,h,hz]
+      have h3 : v^2+120*(-a)=0 := by simpa using h1
+      have h4 : z=0 := by simpa using h2
+      exact ⟨by linarith,h4⟩
+    · rintro ⟨hv,hz'⟩
+      rw [hz',show v^2+120*(-a)=0 by linarith]
+      ring
+
+theorem selfdual_energy (a w E : ℝ) (ha : 0 < a)
+    (hw : 0 ≤ w) (hE : w^2 = 40*(E+360*a^2)) :
+    2*w/(120*a+w) = 1/2 ↔ E = -320*a^2 := by
+  have hp : 0 < 120*a+w := by linarith
+  constructor
+  · intro h
+    have h' := (div_eq_iff hp.ne').mp h
+    have hw' : w=40*a := by linarith
+    rw [hw'] at hE
+    nlinarith only [hE]
+  · intro h
+    rw [h] at hE
+    have hh : w^2=(40*a)^2 := by nlinarith only [hE]
+    have hw' : w=40*a := by
+      have hfac : (w-40*a)*(w+40*a)=0 := by nlinarith only [hh]
+      rcases mul_eq_zero.mp hfac with h1 | h2
+      · linarith
+      · linarith
+    apply (div_eq_iff hp.ne').2
+    linarith
 end
 end M14.Quartic
 
@@ -299,3 +454,9 @@ end M14.Quartic
 #print axioms M14.Quartic.completed_square
 #print axioms M14.Quartic.perfect_square_locus
 #print axioms M14.Quartic.perfect_square
+
+#print axioms M14.EulerianSpinLaw.saturation_scaled_bounds
+#print axioms M14.EulerianSpinLaw.saturation_distance_scaled_limit
+#print axioms M14.Quartic.gerono_zero_locus
+#print axioms M14.Quartic.double_well_minimum
+#print axioms M14.Quartic.selfdual_energy
