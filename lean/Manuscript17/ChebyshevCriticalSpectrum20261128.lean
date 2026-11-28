@@ -30,7 +30,7 @@ theorem critical_value_sq (m : ℤ) (hm : m ≠ 0) (z : ℂ)
     exact (mul_eq_zero.mp h).resolve_left hmC
   obtain ⟨θ, rfl⟩ := Complex.cos_surjective z
   have hs := U_complex_cos θ (m-1)
-  rw [hU, zero_mul, sub_add_cancel] at hs
+  rw [hU, zero_mul, Int.cast_sub, Int.cast_one, sub_add_cancel] at hs
   rw [T_complex_cos]
   have h := Complex.sin_sq_add_cos_sq ((m:ℂ)*θ)
   rw [← hs, zero_pow (by decide : (2:ℕ) ≠ 0), zero_add] at h
@@ -55,12 +55,11 @@ theorem critical_second_derivative_ne_zero (m : ℤ) (hm : m ≠ 0) (z : ℂ)
   have h := one_sub_X_sq_mul_iterate_derivative_T_eval (R := ℂ) m 0 z
   intro hzero
   change (1-z^2) * (derivative (derivative (T ℂ m))).eval z =
-    (2*0+1)*z*(derivative (T ℂ m)).eval z -
-      ((m:ℂ)^2-0^2)*(T ℂ m).eval z at h
+    (2*((0:ℕ):ℂ)+1)*z*(derivative (T ℂ m)).eval z -
+      ((m:ℂ)^2-((0:ℕ):ℂ)^2)*(T ℂ m).eval z at h
   rw [hzero, hd] at h
-  simp at h
   exact (mul_ne_zero (pow_ne_zero 2 hmC) hw) (by
-    linear_combination -h)
+    linear_combination h)
 
 theorem noncritical_fiber_derivative (m : ℤ) (hm : m ≠ 0) (w z : ℂ)
     (hw1 : w ≠ 1) (hw2 : w ≠ -1) (hz : (fiber m w).eval z = 0) :
