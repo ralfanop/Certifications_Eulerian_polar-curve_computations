@@ -1,0 +1,61 @@
+name: M17 original Jordan chains Lean
+on:
+  pull_request:
+    paths:
+      - 'lean/Manuscript17/OriginalJordanChains20261128.lean'
+      - '.github/workflows/m17-original-jordan-chains.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'lean/Manuscript17/OriginalJordanChains20261128.lean'
+      - '.github/workflows/m17-original-jordan-chains.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pinned toolchain
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan.sh
+          sh /tmp/elan.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake update
+          lake exe cache get
+      - name: Compile and audit all declarations
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/Manuscript17
+          lake env lean -o .lake/build/lib/lean/Manuscript17/StrongCycleKrylov20261127.olean Manuscript17/StrongCycleKrylov20261127.lean
+          lake env lean -o .lake/build/lib/lean/Manuscript17/StrongCycleMinpoly20261127.olean Manuscript17/StrongCycleMinpoly20261127.lean
+          lake env lean -o .lake/build/lib/lean/Manuscript17/StrongCycleOriginal20261127.olean Manuscript17/StrongCycleOriginal20261127.lean
+          lake env lean -o .lake/build/lib/lean/Manuscript17/StrongCycleGeneral20261127.olean Manuscript17/StrongCycleGeneral20261127.lean
+          lake env lean -o .lake/build/lib/lean/Manuscript17/StrongCycleChebyshev20261128.olean Manuscript17/StrongCycleChebyshev20261128.lean
+          lake env lean -o .lake/build/lib/lean/Manuscript17/ChebyshevCriticalSpectrum20261128.olean Manuscript17/ChebyshevCriticalSpectrum20261128.lean
+          lake env lean -o .lake/build/lib/lean/Manuscript17/StrongCycleJordan20261128.olean Manuscript17/StrongCycleJordan20261128.lean
+          lake env lean Manuscript17/OriginalJordanChains20261128.lean 2>&1 | tee /tmp/m17-jordan-chains.log
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          s = Path('/tmp/m17-jordan-chains.log').read_text()
+          assert not re.search(r'sorryAx|Lean.ofReduceBool|error:', s)
+          a = re.findall(r"depends on axioms: \[([^\]]*)\]", s, re.S)
+          assert len(a)+s.count('does not depend on any axioms') == 6
+          assert all(set(x.strip() for x in b.split(',') if x.strip()) <= {'propext','Classical.choice','Quot.sound'} for b in a)
+          print('M17 original Jordan chains axiom audit passed')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m17-original-jordan-chains-log
+          path: /tmp/m17-jordan-chains.log
