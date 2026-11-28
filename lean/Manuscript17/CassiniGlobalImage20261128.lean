@@ -25,7 +25,7 @@ theorem image_on_surface (x : Fin 3 → ℝ) (hx : northern x) :
   have hs := hx.1
   unfold sphereDot at hs
   unfold surface imagePoint
-  linear_combination -h + (t x)^2*hs
+  linear_combination -h - (t x)^2*hs
 
 theorem equator_collapse (x : Fin 3 → ℝ) (hx : northern x) :
     imagePoint x = 0 ↔ x 2 = 0 := by
@@ -76,12 +76,13 @@ theorem inverse_scale (y : Fin 3 → ℝ) (hy : surface y) (hn : y ≠ 0) :
   have hp := radial_pos y hn
   have hs := radial_sq y
   have hq := denominator_pos (inversePoint y) (inverse_northern y hy hn).1
-  unfold t inversePoint at *
-  apply (div_eq_iff hq.ne').2
   unfold sphereDot at hs
   unfold surface at hy
+  have he : 2*radial y^2 - (y 2)^2 = y 2 := by linarith
+  unfold t inversePoint at hq ⊢
+  apply (div_eq_iff hq.ne').2
   field_simp [hp.ne']
-  nlinarith
+  <;> linear_combination (radial y)*(-he)
 
 theorem image_inverse (y : Fin 3 → ℝ) (hy : surface y) (hn : y ≠ 0) :
     imagePoint (inversePoint y) = y := by
