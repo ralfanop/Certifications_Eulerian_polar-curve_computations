@@ -41,7 +41,7 @@ theorem spinCritical_gt_reference_sub_one (j : ℝ) (hj : (1:ℝ)/2 ≤ j) :
   have hRp : 0 < R := by linarith
   have heta := spinRatio_gt_one j hjp
   have hg : 0 < 1-1/spinRatio j := by
-    have h := (div_lt_iff₀ (show 0 < spinRatio j by linarith)).2 heta
+    have h : 1/spinRatio j < 1 := (div_lt_iff₀ (show 0 < spinRatio j by linarith)).2 (by simpa using heta)
     linarith
   have href := reference_spin_eq j hjp
   change 2/(1-1/spinRatio j) = R at href
@@ -137,7 +137,11 @@ theorem halfTaylor_lagrange (n : ℕ) (x : ℝ) (hx : 0 < x) :
     intro t ht
     exact (Real.contDiffAt_rpow_const_of_ne (p := (1/2:ℝ))
       (show t ≠ 0 by have := ht.1; linarith)).contDiffWithinAt
-  obtain ⟨t,ht,h⟩ := taylor_mean_remainder_lagrange_iteratedDeriv hab hcd
+  have hcd' : ContDiffOn ℝ (n+1) f (Set.uIcc 1 (1+x)) := by
+    rwa [Set.uIcc_of_le hab.le]
+  obtain ⟨t,ht,h⟩ := taylor_mean_remainder_lagrange_iteratedDeriv hab.ne hcd'
+  rw [Set.uIoo_of_le hab.le] at ht
+  rw [Set.uIcc_of_le hab.le] at h
   have hte : taylorWithinEval f n (Set.Icc 1 (1+x)) 1 (1+x) = halfTaylor n x := by
     rw [taylor_within_apply]
     unfold halfTaylor
@@ -187,7 +191,7 @@ theorem spin_algebraic_error (j : ℝ) (hj : 0 < j) (N : ℕ) :
       (2*j)*((1+1/j) ^ (1/2:ℝ)-halfTaylor (N+1) (1/j)) by ring,
     abs_mul,abs_of_pos (by positivity : 0 < 2*j)]
   calc
-    _ ≤ (2*j)*(|halfFalling (N+2)/(Nat.factorial (N+2):ℝ)|*(1/j)^(N+2)) :=
+    _ ≤ (2*j)*(|halfFalling (N+2)/(Nat.factorial (N+2):ℝ)| *(1/j)^(N+2)) :=
       mul_le_mul_of_nonneg_left h (by positivity)
     _ = _ := by
       rw [div_pow,one_pow,show j^(N+2)=j^(N+1)*j by rw [← pow_succ]; congr 1 <;> omega]
