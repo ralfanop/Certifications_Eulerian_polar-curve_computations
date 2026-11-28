@@ -31,10 +31,9 @@ theorem q_hasDerivAt (n : ℕ) (hn : 0 < n) (t : ℝ) :
 
 theorem q_strictMono (n : ℕ) (hn : 0 < n) : StrictMono (q n) := by
   apply strictMono_of_deriv_pos
-  · exact continuous_iff_continuousAt.mpr (fun t => (q_hasDerivAt n hn t).continuousAt)
-  · intro t
-    rw [(q_hasDerivAt n hn t).deriv]
-    exact div_pos (variance_positive n hn t) (spin_pos n hn)
+  intro t
+  rw [(q_hasDerivAt n hn t).deriv]
+  exact div_pos (variance_positive n hn t) (spin_pos n hn)
 
 theorem level_reflect (n k : ℕ) (hk : k ≤ n) :
     level n (n-k) = -level n k := by
@@ -54,10 +53,20 @@ theorem raw_reflect_zero (n : ℕ) (t : ℝ) :
       rw [level_reflect n k hk']
       ring_nf
     _ = _ := by
-      first
-      | simpa using (Finset.sum_range_reflect
-          (fun k => (level n k)^0*Real.exp (level n k*t)) (n+1))
-      | exact?
+      apply Finset.sum_bij (fun k _ => n-k)
+      · intro k hk
+        have hk' := Finset.mem_range.mp hk
+        exact Finset.mem_range.mpr (by omega)
+      · intro i hi j hj hij
+        have hi' := Finset.mem_range.mp hi
+        have hj' := Finset.mem_range.mp hj
+        omega
+      · intro j hj
+        have hj' := Finset.mem_range.mp hj
+        refine ⟨n-j, Finset.mem_range.mpr (by omega), ?_⟩
+        omega
+      · intro k hk
+        rfl
 
 theorem raw_reflect_one (n : ℕ) (t : ℝ) :
     rawMoment n 1 (-t) = -rawMoment n 1 t := by
@@ -72,10 +81,20 @@ theorem raw_reflect_one (n : ℕ) (t : ℝ) :
       rw [level_reflect n k hk']
       ring_nf
     _ = _ := by
-      first
-      | simpa using (Finset.sum_range_reflect
-          (fun k => -(level n k)^1*Real.exp (level n k*t)) (n+1))
-      | exact?
+      apply Finset.sum_bij (fun k _ => n-k)
+      · intro k hk
+        have hk' := Finset.mem_range.mp hk
+        exact Finset.mem_range.mpr (by omega)
+      · intro i hi j hj hij
+        have hi' := Finset.mem_range.mp hi
+        have hj' := Finset.mem_range.mp hj
+        omega
+      · intro j hj
+        have hj' := Finset.mem_range.mp hj
+        refine ⟨n-j, Finset.mem_range.mpr (by omega), ?_⟩
+        omega
+      · intro k hk
+        rfl
 
 theorem q_odd (n : ℕ) (hn : 0 < n) (t : ℝ) : q n (-t) = -q n t := by
   rw [q_eq_mean n hn,q_eq_mean n hn,mean,mean,raw_reflect_one,raw_reflect_zero]
@@ -83,7 +102,7 @@ theorem q_odd (n : ℕ) (hn : 0 < n) (t : ℝ) : q n (-t) = -q n t := by
 
 theorem q_upper (n : ℕ) (hn : 0 < n) (t : ℝ) : q n t < 1 := by
   have h := scaled_deficit n hn t
-  have hp := mul_pos (Real.exp_pos (-t)) (ratio_positive n hn _ (Real.exp_pos _).le)
+  have hp := mul_pos (Real.exp_pos (-t)) (ratio_positive n hn (Real.exp (-t)) (Real.exp_pos (-t)).le)
   have hq : 0 < spin n*(1-q n t) := by rw [h]; exact hp
   exact sub_pos.mp (pos_of_mul_pos_left hq (spin_pos n hn).le)
 
@@ -156,7 +175,8 @@ theorem P_upper_linear (n : ℕ) (r : ℝ) (hr : 0 ≤ r) (hr1 : r ≤ 1) :
   simp only [pow_zero]
   have h : (∑ k ∈ Finset.range n, r^(k+1)) ≤ ∑ _k ∈ Finset.range n, r :=
     Finset.sum_le_sum (fun k hk => pow_succ_le_self r hr hr1 k)
-  simpa using (add_le_add_right h 1)
+  have hh : (∑ k ∈ Finset.range n, r^(k+1)) ≤ (n:ℝ)*r := by simpa using h
+  linarith
 
 theorem A_upper_linear (n : ℕ) (hn : 0 < n) (r : ℝ) (hr : 0 ≤ r) (hr1 : r ≤ 1) :
     A n r ≤ 1+(n:ℝ)^2*r := by
@@ -323,10 +343,11 @@ theorem speed_bound (n : ℕ) (hn : 0 < n) (t : ℝ) (ht : 0 ≤ t) :
   have h := Real.sqrt_le_sqrt (fisher_exponential_bound n hn t ht)
   rw [Real.sqrt_mul (by positivity : 0 ≤ (n:ℝ)^3)] at h
   have he : Real.sqrt (Real.exp (-t)) = Real.exp (-t/2) := by
-    apply (Real.sqrt_eq_iff_sq_eq (Real.exp_pos _).le (Real.exp_pos _).le).2
-    rw [pow_two,← Real.exp_add]
-    congr 1
-    ring
+    have hs : (Real.exp (-t/2))^2 = Real.exp (-t) := by
+      rw [pow_two,← Real.exp_add]
+      congr 1
+      ring
+    rw [← hs, Real.sqrt_sq_eq_abs, abs_of_pos (Real.exp_pos _)]
   simpa only [he] using h
 
 theorem speed_continuous (n : ℕ) : Continuous (speed n) := by
@@ -351,7 +372,7 @@ theorem exponential_integral (a b : ℝ) :
     have h := (((hasDerivAt_id t).neg.div_const 2).exp).const_mul (-2:ℝ)
     convert h using 1 <;> simp [id] <;> ring
   have hc : Continuous (fun t : ℝ => Real.exp (-t/2)) := by fun_prop
-  rw [intervalIntegral.integral_eq_sub_of_hasDerivAt (fun t ht => hd t) hc.intervalIntegrable]
+  rw [intervalIntegral.integral_eq_sub_of_hasDerivAt (fun t ht => hd t) (hc.intervalIntegrable a b)]
   ring
 
 theorem fisher_length_bound (n : ℕ) (hn : 0 < n) (a b : ℝ) (ha : 0 ≤ a) (hab : a ≤ b) :
@@ -360,7 +381,7 @@ theorem fisher_length_bound (n : ℕ) (hn : 0 < n) (a b : ℝ) (ha : 0 ≤ a) (h
   have hc : Continuous (fun t : ℝ => Real.sqrt ((n:ℝ)^3)*Real.exp (-t/2)) := by fun_prop
   have hle : (∫ t in a..b, speed n t) ≤
       ∫ t in a..b, Real.sqrt ((n:ℝ)^3)*Real.exp (-t/2) := by
-    apply intervalIntegral.integral_mono_on hab (speed_continuous n).intervalIntegrable hc.intervalIntegrable
+    apply intervalIntegral.integral_mono_on hab ((speed_continuous n).intervalIntegrable a b) (hc.intervalIntegrable a b)
     intro t ht
     exact speed_bound n hn t (ha.trans ht.1)
   rw [intervalIntegral.integral_const_mul,exponential_integral] at hle
@@ -382,11 +403,11 @@ theorem saturation_distance_bound (n : ℕ) (hn : 0 < n) (a : ℝ) (ha : 0 ≤ a
     have hp : 0 ≤ 2*Real.sqrt ((n:ℝ)^3)*Real.exp (-b/2) := by positivity
     nlinarith
   have hb : BddAbove (fisherLength n a '' Set.Ici a) := by
-    refine ⟨_,?_⟩
+    refine ⟨2*Real.sqrt ((n:ℝ)^3)*Real.exp (-a/2),?_⟩
     rintro _ ⟨b,hb,rfl⟩
     exact hB b hb
   have hzero : 0 ∈ fisherLength n a '' Set.Ici a := by
-    refine ⟨a,le_rfl,?_⟩
+    refine ⟨a,show a ∈ Set.Ici a from Set.mem_Ici.mpr le_rfl,?_⟩
     simp [fisherLength]
   exact ⟨le_csSup hb hzero,csSup_le ⟨0,hzero⟩ (by
     rintro _ ⟨b,hb,rfl⟩
@@ -519,7 +540,3 @@ end M14.EulerianLegendre
 #print axioms M14.EulerianLegendre.classical_conjugate_lower
 #print axioms M14.EulerianLegendre.classical_endpoint_unbounded
 #print axioms M14.EulerianLegendre.classical_conjugate_diverges
-
-
-end
-end M14.EulerianSpinLaw
