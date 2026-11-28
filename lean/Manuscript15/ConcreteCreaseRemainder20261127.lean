@@ -487,6 +487,53 @@ theorem phase_original_kernel (k u : ℝ) :
   intro t _
   exact (Manuscript15.CreaseAnalyticKernel20261127.actual_phase_kernel_reparametrization k t).symm
 
+
+theorem concrete_self_dual_remainder (u : ℝ) (hu : |u| ≤ 1/8) :
+    |crease 1 u-u^4/6| ≤ (81920/3:ℝ)*|u|^6 := by
+  have h := concrete_crease_sixth_remainder 1 u (by norm_num) (by norm_num) hu
+  norm_num [Manuscript15.CrossQuartic20261125.creaseQuarticJet] at h
+  convert h using 1 <;> ring_nf
+
+theorem concrete_scaled_locally_uniform (V L : ℝ) (hV : 0 ≤ V) (hL : 0 ≤ L)
+    (η : ℝ) (hη : 0 < η) :
+    ∃ δ : ℝ, 0 < δ ∧
+      ∀ ε lam v : ℝ, 0 < ε → ε < δ → |v| ≤ V → |lam| ≤ L →
+      |3*crease (Real.sqrt (1-80*lam*ε^2)) (ε*v)/(20*ε^4)-
+        (v^4/40+6*lam*v^2)| < η := by
+  let K : ℝ := 4096*V^6+4*L*V^4+200*L^2*V^4
+  have hK : 0 ≤ K := by dsimp [K]; positivity
+  let δ : ℝ := min 1 (min (1/(8*(V+1))) (min (1/(160*(L+1))) (η/(K+1))))
+  have hδ : 0 < δ := by dsimp [δ]; positivity
+  refine ⟨δ,hδ,?_⟩
+  intro ε lam v hε heδ hv hl
+  have he1 : ε ≤ 1 := by
+    exact heδ.le.trans (min_le_left _ _)
+  have heV : ε ≤ 1/(8*(V+1)) :=
+    heδ.le.trans ((min_le_right _ _).trans (min_le_left _ _))
+  have heL : ε ≤ 1/(160*(L+1)) :=
+    heδ.le.trans ((min_le_right _ _).trans
+      ((min_le_right _ _).trans (min_le_left _ _)))
+  have heK : ε < η/(K+1) :=
+    heδ.trans ((min_le_right _ _).trans
+      ((min_le_right _ _).trans (min_le_right _ _)))
+  have hbox : ε*V ≤ 1/8 := by
+    have h := (le_div_iff₀ (show 0 < 8*(V+1) by positivity)).mp heV
+    nlinarith
+  have hε2 : ε^2 ≤ ε := by nlinarith [mul_nonneg hε.le (sub_nonneg.mpr he1)]
+  have hsmall : 80*L*ε^2 ≤ 3/4 := by
+    have h := (le_div_iff₀ (show 0 < 160*(L+1) by positivity)).mp heL
+    have hmul := mul_le_mul_of_nonneg_left hε2 (show 0 ≤ 80*L by positivity)
+    nlinarith
+  have hlup : lam ≤ L := (abs_le.mp hl).2
+  have hmul := mul_le_mul_of_nonneg_right hlup (show 0 ≤ 80*ε^2 by positivity)
+  have hrad : 0 ≤ 1-80*lam*ε^2 := by linarith
+  have h := concrete_scaled_error_uniform_box (Real.sqrt (1-80*lam*ε^2))
+    ε v lam V L hε he1 (Real.sq_sqrt hrad) (Real.sqrt_nonneg _)
+    hsmall hbox hv hl
+  have hkη := (lt_div_iff₀ (show 0 < K+1 by positivity)).mp heK
+  have hmulK := mul_le_mul_of_nonneg_right hε2 hK
+  exact h.trans_lt (show ε^2*K < η by nlinarith)
+
 end Manuscript15.ConcreteCreaseRemainder20261127
 
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.sqrt_reciprocal_remainder
@@ -505,3 +552,5 @@ end Manuscript15.ConcreteCreaseRemainder20261127
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.concrete_crease_sixth_remainder
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.concrete_scaled_error_uniform_box
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.phase_original_kernel
+#print axioms Manuscript15.ConcreteCreaseRemainder20261127.concrete_self_dual_remainder
+#print axioms Manuscript15.ConcreteCreaseRemainder20261127.concrete_scaled_locally_uniform
