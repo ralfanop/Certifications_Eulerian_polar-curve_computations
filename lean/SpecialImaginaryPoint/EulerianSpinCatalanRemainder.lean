@@ -194,7 +194,7 @@ theorem spin_algebraic_error (j : ℝ) (hj : 0 < j) (N : ℕ) :
     _ ≤ (2*j)*(|halfFalling (N+2)/(Nat.factorial (N+2):ℝ)| *(1/j)^(N+2)) :=
       mul_le_mul_of_nonneg_left h (by positivity)
     _ = _ := by
-      rw [div_pow,one_pow,show j^(N+2)=j^(N+1)*j by rw [← pow_succ]; congr 1 <;> omega]
+      rw [div_pow,one_pow,show j^(N+2)=j^(N+1)*j by rw [← pow_succ]]
       field_simp [hj.ne'] <;> ring
 
 theorem spin_total_error (j : ℝ) (hj : (1:ℝ)/2 ≤ j) (N : ℕ) :
