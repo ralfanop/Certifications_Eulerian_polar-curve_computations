@@ -9,7 +9,7 @@ geometric eigenbasis or a compact geometric inverse.
 -/
 
 open Filter Topology Set
-open M16ComplexHilbert.Complexification
+open M16ComplexHilbert M16ComplexHilbert.Complexification
 open M16IntrinsicBridge
 
 namespace M16ComplexificationDensityCompact
@@ -41,7 +41,7 @@ theorem continuous_pair :
   rw [h]
   have hc : Continuous (ofReal : E → Complexification E) :=
     (ofRealLi : E →ₗᵢ[ℝ] Complexification E).continuous
-  exact (hc.comp continuous_fst).add (continuous_const.smul (hc.comp continuous_snd))
+  exact (hc.comp continuous_fst).add ((hc.comp continuous_snd).const_smul Complex.I)
 
 /-- A dense real domain yields a dense domain in the actual complex Hilbert norm. -/
 theorem dense_complex_domain (s : Set E) (hs : Dense s) :
@@ -90,11 +90,11 @@ theorem compact_complexify (S : E →L[ℝ] F)
   have h1 : Tendsto (fun u : Complexification E => u.1)
       (𝓝 (0 : Complexification E)) (𝓝 (0 : E)) := by
     simpa only [zero_fst] using
-      (continuous_real_part (E := E)).continuousAt (x := (0 : Complexification E))
+      (continuous_real_part (E := E)).tendsto (0 : Complexification E)
   have h2 : Tendsto (fun u : Complexification E => u.2)
       (𝓝 (0 : Complexification E)) (𝓝 (0 : E)) := by
     simpa only [zero_snd] using
-      (continuous_imag_part (E := E)).continuousAt (x := (0 : Complexification E))
+      (continuous_imag_part (E := E)).tendsto (0 : Complexification E)
   have hU : U ∈ 𝓝 (0 : Complexification E) :=
     Filter.inter_mem (h1 hV) (h2 hV)
   refine ⟨U,hU,(fun p : F × F => mk p.1 p.2) '' (K ×ˢ K),
@@ -118,7 +118,7 @@ theorem compact_of_complexify (S : E →L[ℝ] F)
   have ht : Tendsto (ofReal : E → Complexification E) (𝓝 (0 : E))
       (𝓝 (0 : Complexification E)) := by
     have hz : ofReal (0 : E) = 0 := rfl
-    simpa only [hz] using hc.continuousAt (x := (0 : E))
+    simpa only [hz] using hc.tendsto (0 : E)
   refine ⟨ofReal ⁻¹' V, ht hV, (fun u : Complexification F => u.1) '' K,
     hK.image (continuous_real_part (E := F)), ?_⟩
   rintro _ ⟨x,hx,rfl⟩
