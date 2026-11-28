@@ -232,6 +232,80 @@ theorem phase_cubic_remainder_local (k u : ℝ)
         -(phase k u - (k*u-k*(1+k^2)*u^3/6)) := by ring
     rwa [hid, abs_neg] at hh
 
+
+theorem even_series_tail_bound (x : ℝ) (hx : |x| ≤ 1/2)
+    (f : ℕ → ℝ) (hs : Summable f)
+    (hf : ∀ n : ℕ, |f (n+3)| ≤ |x|^6*(1/4:ℝ)^n) :
+    |(∑' n, f n) - (f 0+f 1+f 2)| ≤ 2*|x|^6 := by
+  have hg : HasSum (fun n : ℕ => (1/4:ℝ)^n) (4/3:ℝ) := by
+    convert hasSum_geometric_of_lt_one (show (0:ℝ) ≤ 1/4 by norm_num)
+      (show (1/4:ℝ) < 1 by norm_num) using 1 <;> norm_num
+  have hgm := hg.mul_left (|x|^6)
+  have hb := tsum_of_norm_bounded (f := fun n : ℕ => f (n+3)) hgm
+    (fun n => by simpa only [Real.norm_eq_abs] using hf n)
+  rw [Real.norm_eq_abs] at hb
+  have hsplit := hs.sum_add_tsum_nat_add 3
+  norm_num [Finset.sum_range_succ] at hsplit
+  have he : (∑' n, f n) - (f 0+f 1+f 2) =
+      ∑' n : ℕ, f (n+3) := by linarith
+  rw [he]
+  linarith [hb, show 0 ≤ |x|^6 by positivity]
+
+theorem even_power_tail_majorant (x : ℝ) (hx : |x| ≤ 1/2) (n : ℕ) :
+    |x|^(2*(n+3)) ≤ |x|^6*(1/4:ℝ)^n := by
+  rw [show 2*(n+3) = 6+2*n by omega, pow_add, pow_mul]
+  apply mul_le_mul_of_nonneg_left _ (by positivity)
+  have hsq : |x|^2 ≤ (1/4:ℝ) := by
+    calc
+      _ ≤ (1/2:ℝ)^2 := by gcongr
+      _ = _ := by norm_num
+  gcongr
+
+theorem cos_fourth_remainder (x : ℝ) (hx : |x| ≤ 1/2) :
+    |Real.cos x-(1-x^2/2+x^4/24)| ≤ 2*|x|^6 := by
+  let f : ℕ → ℝ := fun n => (-1)^n*x^(2*n)/((2*n).factorial : ℝ)
+  have hs : HasSum f (Real.cos x) := Real.hasSum_cos x
+  have ht := even_series_tail_bound x hx f hs.summable (by
+    intro n
+    dsimp [f]
+    rw [abs_div, abs_mul, abs_pow, abs_pow]
+    norm_num
+    have hfac : (1:ℝ) ≤ ((2*(n+3)).factorial : ℝ) := by
+      exact_mod_cast (Nat.factorial_pos (2*(n+3)))
+    have hpos : (0:ℝ) < ((2*(n+3)).factorial : ℝ) := by positivity
+    rw [abs_of_pos hpos]
+    calc
+      _ ≤ |x|^(2*(n+3)) := by
+        apply (div_le_iff₀ hpos).2
+        nlinarith [mul_nonneg (show 0 ≤ |x|^(2*(n+3)) by positivity)
+          (sub_nonneg.mpr hfac)]
+      _ ≤ _ := even_power_tail_majorant x hx n)
+  rw [hs.tsum_eq] at ht
+  norm_num [f] at ht
+  convert ht using 1 <;> ring_nf
+
+theorem cosh_fourth_remainder (x : ℝ) (hx : |x| ≤ 1/2) :
+    |Real.cosh x-(1+x^2/2+x^4/24)| ≤ 2*|x|^6 := by
+  let f : ℕ → ℝ := fun n => x^(2*n)/((2*n).factorial : ℝ)
+  have hs : HasSum f (Real.cosh x) := Real.hasSum_cosh x
+  have ht := even_series_tail_bound x hx f hs.summable (by
+    intro n
+    dsimp [f]
+    rw [abs_div, abs_pow]
+    have hfac : (1:ℝ) ≤ ((2*(n+3)).factorial : ℝ) := by
+      exact_mod_cast (Nat.factorial_pos (2*(n+3)))
+    have hpos : (0:ℝ) < ((2*(n+3)).factorial : ℝ) := by positivity
+    rw [abs_of_pos hpos]
+    calc
+      _ ≤ |x|^(2*(n+3)) := by
+        apply (div_le_iff₀ hpos).2
+        nlinarith [mul_nonneg (show 0 ≤ |x|^(2*(n+3)) by positivity)
+          (sub_nonneg.mpr hfac)]
+      _ ≤ _ := even_power_tail_majorant x hx n)
+  rw [hs.tsum_eq] at ht
+  norm_num [f] at ht
+  convert ht using 1 <;> ring_nf
+
 end Manuscript15.ConcreteCreaseRemainder20261127
 
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.sqrt_reciprocal_remainder
@@ -243,3 +317,7 @@ end Manuscript15.ConcreteCreaseRemainder20261127
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.phase_cubic_remainder_nonneg
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.phase_neg
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.phase_cubic_remainder_local
+#print axioms Manuscript15.ConcreteCreaseRemainder20261127.even_series_tail_bound
+#print axioms Manuscript15.ConcreteCreaseRemainder20261127.even_power_tail_majorant
+#print axioms Manuscript15.ConcreteCreaseRemainder20261127.cos_fourth_remainder
+#print axioms Manuscript15.ConcreteCreaseRemainder20261127.cosh_fourth_remainder
