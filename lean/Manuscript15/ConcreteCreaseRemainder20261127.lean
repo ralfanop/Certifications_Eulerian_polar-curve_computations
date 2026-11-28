@@ -167,6 +167,71 @@ theorem density_quadratic_remainder_local (k t : ℝ)
   obtain ⟨hS,hSt⟩ := sinh_local_bounds t ht
   exact density_quadratic_remainder_from_sinh k t hk0 hk1 hS hSt
 
+
+theorem phase_cubic_remainder_nonneg (k u : ℝ)
+    (hk0 : 0 ≤ k) (hk1 : k ≤ 3/2) (hu0 : 0 ≤ u) (hu1 : u ≤ 1) :
+    |phase k u - (k*u-k*(1+k^2)*u^3/6)| ≤ 60*u^5 := by
+  let a : ℝ := k*(1+k^2)/2
+  let p : ℝ → ℝ := fun t => k-a*t^2
+  let e : ℝ → ℝ := fun t => density k t-p t
+  have hp : Continuous p := by dsimp [p]; fun_prop
+  have he : Continuous e := (density_continuous k).sub hp
+  have hpoly : (∫ t in (0:ℝ)..u, p t) = k*u-k*(1+k^2)*u^3/6 := by
+    dsimp [p]
+    rw [intervalIntegral.integral_sub (continuous_const.intervalIntegrable _ _)
+      ((continuous_const.mul (continuous_id.pow 2)).intervalIntegrable _ _),
+      intervalIntegral.integral_const, intervalIntegral.integral_const_mul, integral_pow]
+    simp [a, smul_eq_mul] <;> ring
+  have heq : (∫ t in (0:ℝ)..u, e t) =
+      phase k u - (k*u-k*(1+k^2)*u^3/6) := by
+    dsimp [e, phase]
+    rw [intervalIntegral.integral_sub ((density_continuous k).intervalIntegrable _ _)
+      (hp.intervalIntegrable _ _), hpoly]
+  have hmono : (∫ t in (0:ℝ)..u, |e t|) ≤
+      ∫ t in (0:ℝ)..u, 300*t^4 := by
+    apply intervalIntegral.integral_mono_on hu0
+      (he.abs.intervalIntegrable _ _)
+      ((continuous_const.mul (continuous_id.pow 4)).intervalIntegrable _ _)
+    intro t ht
+    have ht0 : 0 ≤ t := ht.1
+    have ht1 : |t| ≤ 1 := by rw [abs_of_nonneg ht0]; exact ht.2.trans hu1
+    have h := density_quadratic_remainder_local k t hk0 hk1 ht1
+    rw [abs_of_nonneg ht0] at h
+    exact h
+  rw [← heq]
+  calc
+    _ ≤ (∫ t in (0:ℝ)..u, |e t|) := intervalIntegral.abs_integral_le_integral_abs hu0
+    _ ≤ (∫ t in (0:ℝ)..u, 300*t^4) := hmono
+    _ = _ := by
+      rw [intervalIntegral.integral_const_mul, integral_pow]
+      norm_num <;> ring
+
+theorem phase_neg (k u : ℝ) : phase k (-u) = -phase k u := by
+  have hd : ∀ t : ℝ, density k (-t) = density k t := by
+    intro t
+    simp [density, Real.sinh_neg]
+  unfold phase
+  have h : (∫ t in (0:ℝ)..u, density k (-t)) =
+      ∫ t in -u..(0:ℝ), density k t := by
+    simpa only [neg_zero] using
+      (intervalIntegral.integral_comp_neg (f := density k) (a := (0:ℝ)) (b := u))
+  simp only [hd] at h
+  rw [intervalIntegral.integral_symm, ← h]
+
+theorem phase_cubic_remainder_local (k u : ℝ)
+    (hk0 : 0 ≤ k) (hk1 : k ≤ 3/2) (hu : |u| ≤ 1) :
+    |phase k u - (k*u-k*(1+k^2)*u^3/6)| ≤ 60*|u|^5 := by
+  rcases le_or_gt 0 u with h | h
+  · rw [abs_of_nonneg h] at hu ⊢
+    exact phase_cubic_remainder_nonneg k u hk0 hk1 h hu
+  · have hu' : 0 ≤ -u := by linarith
+    rw [abs_of_neg h] at hu ⊢
+    have hh := phase_cubic_remainder_nonneg k (-u) hk0 hk1 hu' hu
+    rw [phase_neg] at hh
+    have hid : -phase k u - (k*(-u)-k*(1+k^2)*(-u)^3/6) =
+        -(phase k u - (k*u-k*(1+k^2)*u^3/6)) := by ring
+    rwa [hid, abs_neg] at hh
+
 end Manuscript15.ConcreteCreaseRemainder20261127
 
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.sqrt_reciprocal_remainder
@@ -175,3 +240,6 @@ end Manuscript15.ConcreteCreaseRemainder20261127
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.density_quadratic_remainder_from_sinh
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.sinh_local_bounds
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.density_quadratic_remainder_local
+#print axioms Manuscript15.ConcreteCreaseRemainder20261127.phase_cubic_remainder_nonneg
+#print axioms Manuscript15.ConcreteCreaseRemainder20261127.phase_neg
+#print axioms Manuscript15.ConcreteCreaseRemainder20261127.phase_cubic_remainder_local
