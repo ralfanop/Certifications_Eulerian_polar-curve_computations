@@ -291,6 +291,7 @@ theorem cosh_fourth_remainder (x : ℝ) (hx : |x| ≤ 1/2) :
   convert ht using 1 <;> ring_nf
 
 
+set_option maxHeartbeats 4000000 in
 theorem concrete_crease_sixth_remainder (k u : ℝ)
     (hk0 : 0 ≤ k) (hk1 : k ≤ 3/2) (hu : |u| ≤ 1/8) :
     |crease k u - Manuscript15.CrossQuartic20261125.creaseQuarticJet k u|
@@ -363,7 +364,7 @@ theorem concrete_crease_sixth_remainder (k u : ℝ)
       _ ≤ 60*r^5+r^3 := by rw [abs_neg]; exact add_le_add hjet hau
       _ ≤ _ := by
         have hnonneg : 0 ≤ r^3 := pow_nonneg hr0 _
-        linarith [hr5, hnonneg]
+        linarith only [hr5, hnonneg]
   have hy : |y| ≤ 2*r := by
     calc
       |y| = |e+k*u| := by dsimp [e]; congr 1 <;> ring
@@ -421,8 +422,8 @@ theorem concrete_crease_sixth_remainder (k u : ℝ)
       _ ≤ 2*(2*r)^6+(184*r^6)/2+(44*r^6)/24 := by
         rw [abs_div, abs_neg, abs_of_pos (by norm_num : (0:ℝ)<2),
           abs_div, abs_of_pos (by norm_num : (0:ℝ)<24)]
-        gcongr <;> assumption
-      _ ≤ _ := by nlinarith [show 0 ≤ r^6 by positivity]
+        linarith only [ht', hsq, hfour]
+      _ ≤ _ := by nlinarith only [show 0 ≤ r^6 by positivity]
   have hH : |H| ≤ 2 := by
     have hH0 : 0 ≤ H := by dsimp [H]; positivity
     rw [abs_of_nonneg hH0]
