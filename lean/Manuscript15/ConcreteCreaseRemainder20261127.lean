@@ -253,7 +253,7 @@ theorem cos_fourth_remainder (x : ℝ) (hx : |x| ≤ 1/2) :
     have hfac : (1:ℝ) ≤ ((2*(n+3)).factorial : ℝ) := by
       exact_mod_cast (Nat.succ_le_of_lt (Nat.factorial_pos (2*(n+3))))
     have hpos : (0:ℝ) < ((2*(n+3)).factorial : ℝ) := by positivity
-    rw [abs_of_pos hpos]
+    try rw [abs_of_pos hpos]
     calc
       _ ≤ |x|^(2*(n+3)) := by
         apply (div_le_iff₀ hpos).2
@@ -275,7 +275,7 @@ theorem cosh_fourth_remainder (x : ℝ) (hx : |x| ≤ 1/2) :
     have hfac : (1:ℝ) ≤ ((2*(n+3)).factorial : ℝ) := by
       exact_mod_cast (Nat.succ_le_of_lt (Nat.factorial_pos (2*(n+3))))
     have hpos : (0:ℝ) < ((2*(n+3)).factorial : ℝ) := by positivity
-    rw [abs_of_pos hpos]
+    try rw [abs_of_pos hpos]
     calc
       _ ≤ |x|^(2*(n+3)) := by
         apply (div_le_iff₀ hpos).2
