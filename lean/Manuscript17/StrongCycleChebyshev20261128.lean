@@ -33,7 +33,9 @@ theorem angle_mem (n : ℕ) (i : Fin (n+2)) :
 
 theorem alpha_injective (n : ℕ) : Function.Injective (alpha n) := by
   intro i j h
-  have he : Real.cos (angle n i) = Real.cos (angle n j) := by exact_mod_cast h
+  have he : Real.cos (angle n i) = Real.cos (angle n j) := by
+    unfold alpha at h
+    exact Complex.ofReal_injective h
   have hi := angle_mem n i
   have hj := angle_mem n j
   have ha : angle n i = angle n j :=
@@ -81,7 +83,6 @@ theorem concrete_factor (n : ℕ) (z : ℂ) :
     dsimp [p]
     rw [leadingCoeff_T]
     congr 1
-    omega
   have hf := (IsAlgClosed.splits p).eval_eq_prod_roots z
   rw [hr, hl] at hf
   have hprod : (S.val.map (fun x => z-x)).prod = ∏ i : Fin (n+2), (z-alpha n i) := by
@@ -100,6 +101,7 @@ theorem radius_power (n : ℕ) :
     field_simp [hn]
   have h : ((1/2:ℝ)^((n+1:ℝ)/(n+2)))^(n+2:ℕ) = 1/(2:ℝ)^(n+1) := by
     rw [← Real.rpow_natCast, ← Real.rpow_mul (by norm_num : 0 ≤ (1/2:ℝ)), he, Real.rpow_natCast, div_pow, one_pow]
+  unfold radius
   exact_mod_cast h
 
 theorem radius_ne_zero (n : ℕ) : radius n ≠ 0 := by
