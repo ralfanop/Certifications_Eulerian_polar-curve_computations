@@ -16,7 +16,7 @@ def normalization (n : ℕ) : ℂ := 2^(n+1)
 
 theorem normalization_ne_zero (n : ℕ) : normalization n ≠ 0 := by
   unfold normalization
-  positivity
+  exact pow_ne_zero _ (by norm_num)
 
 theorem pencil_eq (n : ℕ) (w z : ℂ) :
     Matrix.scalar (Fin (n+2)) z - A n w =
@@ -80,18 +80,18 @@ theorem algebraic_multiplicity_le_one (n : ℕ) (w z : ℂ)
   exact (noncritical_fiber_derivative (n+2 : ℤ) (by omega) w z h1 h2 e0.symm) e1.symm
 
 theorem generalized_dimension (n : ℕ) (w z : ℂ) :
-    Module.finrank ℂ ((A n w).mulVecLin.maxGenEigenspace z) =
+    Module.finrank ℂ (Module.End.maxGenEigenspace (A n w).mulVecLin z) =
       rootMultiplicity z (A n w).charpoly := by
-  rw [Module.End.finrank_maxGenEigenspace_eq, Matrix.charpoly_mulVecLin]
+  rw [LinearMap.finrank_maxGenEigenspace_eq, Matrix.charpoly_mulVecLin]
 
 theorem generalized_dimension_le_two (n : ℕ) (w z : ℂ) :
-    Module.finrank ℂ ((A n w).mulVecLin.maxGenEigenspace z) ≤ 2 := by
+    Module.finrank ℂ (Module.End.maxGenEigenspace (A n w).mulVecLin z) ≤ 2 := by
   rw [generalized_dimension]
   exact algebraic_multiplicity_le_two n w z
 
 theorem generalized_dimension_le_one (n : ℕ) (w z : ℂ)
     (h1 : w ≠ 1) (h2 : w ≠ -1) :
-    Module.finrank ℂ ((A n w).mulVecLin.maxGenEigenspace z) ≤ 1 := by
+    Module.finrank ℂ (Module.End.maxGenEigenspace (A n w).mulVecLin z) ≤ 1 := by
   rw [generalized_dimension]
   exact algebraic_multiplicity_le_one n w z h1 h2
 
@@ -112,7 +112,7 @@ theorem single_block_of_sum_eq_max (l : List ℕ) (hpos : ∀ k ∈ l, 0 < k)
     rcases hk with rfl | hk
     · have hz : l.sum = 0 := by simp at hs; omega
       cases l with
-      | nil => exact ⟨a,rfl⟩
+      | nil => exact ⟨k,rfl⟩
       | cons c l =>
         have hc := hp c (by simp)
         simp at hz
