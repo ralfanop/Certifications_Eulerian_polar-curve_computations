@@ -1,0 +1,54 @@
+name: M14 Catalan moments and resolvent bridge
+on:
+  push:
+    branches: [main, m14-catalan-moments-resolvent-20261128]
+    paths:
+      - 'lean/SpecialImaginaryPoint/EulerianCatalanMomentBridge.lean'
+      - '.github/workflows/m14-catalan-moment-bridge.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/EulerianCatalanMomentBridge.lean'
+      - '.github/workflows/m14-catalan-moment-bridge.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 6 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - run: lake exe cache get
+        working-directory: lean
+      - name: Compile dependencies and audit
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for module in EulerianLegendreDuality EulerianLegendreOrigin EulerianLegendreSupport EulerianLangevinRange EulerianSpinLaw EulerianSpinThreshold EulerianSpinCompletion EulerianSpinSharpAsymptotics EulerianSpinCatalanRemainder; do
+            lake env lean -o ".lake/build/lib/lean/SpecialImaginaryPoint/$module.olean" "SpecialImaginaryPoint/$module.lean" 2>&1 | tee "/tmp/$module.log"
+          done
+          lake env lean SpecialImaginaryPoint/EulerianCatalanMomentBridge.lean 2>&1 | tee /tmp/catalan-moment-bridge.log
+          python - <<'PY'
+          import re
+          s=open('/tmp/catalan-moment-bridge.log').read()
+          assert not re.search(r'sorryAx|Lean\.ofReduceBool|declaration uses|: error:',s)
+          a=re.findall(r"^'([^']+)' (?:depends on axioms: \[([^\]]*)\]|does not depend on any axioms)",s,re.M)
+          assert len(a)==len({n for n,_ in a})==11,a
+          for n,ax in a:
+              assert set(filter(None,(v.strip() for v in ax.split(',')))) <= {'propext','Classical.choice','Quot.sound'},(n,ax)
+          print('11/11 Catalan moment bridge declarations audited')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: catalan-moment-bridge-audit
+          path: /tmp/catalan-moment-bridge.log
