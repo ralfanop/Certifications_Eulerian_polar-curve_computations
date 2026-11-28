@@ -206,10 +206,20 @@ theorem normalizedVariance_limit (n : ℕ) (hn : 0 < n) :
   have hd := (hc.continuousAt (x := (0:ℝ))).div
     ((P_cont n).continuousAt (x := (0:ℝ))) hp
   have h1 : Tendsto (fun r => C n r/P n r) (𝓝 0) (𝓝 1) := by
-    simpa only [C_zero n hn,P_zero,one_div_one,Pi.div_apply] using hd.tendsto
+    have he : (C n / P n) = (fun r => C n r / P n r) := by
+      funext r
+      rfl
+    have ht := hd.tendsto
+    rw [he] at ht
+    change Tendsto (fun r => C n r / P n r) (𝓝 0) (𝓝 (C n 0 / P n 0)) at ht
+    rw [C_zero n hn, P_zero, one_div_one] at ht
+    exact ht
   have h2 : Tendsto (fun r : ℝ => r*(ratio n r)^2) (𝓝 0) (𝓝 0) := by
     simpa using (show Tendsto (fun r : ℝ => r) (𝓝 0) (𝓝 0) from tendsto_id).mul ((ratio_limit n hn).pow 2)
-  simpa only [normalizedVariance,sub_zero] using h1.sub h2
+  have ht := h1.sub h2
+  change Tendsto (fun r => C n r / P n r - r * (ratio n r)^2) (𝓝 0) (𝓝 ((1:ℝ)-0)) at ht
+  rw [sub_zero] at ht
+  exact ht
 
 theorem fisher_scaled_limit (n : ℕ) (hn : 0 < n) :
     Tendsto (fun t => Real.exp t*fisher n t) atTop (𝓝 1) := by
