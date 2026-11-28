@@ -226,6 +226,181 @@ theorem weighted_nuclear_expansion (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
   exact ⟨e,eig,hn,hs,ht,complex_rank_summable e eig hn hs,
     complex_rank_expansion _ e eig he hn hs⟩
 
+/-! Independence of the Fredholm product: compare any two complete
+orthonormal eigenbases by the nonnegative overlap matrix. Tonelli
+counts all multiplicities, without an assumed matching permutation. -/
+def overlapReal (x y : HC) : ℝ :=
+  (inner ℂ x y).re ^ 2 + (inner ℂ x y).im ^ 2
+
+theorem overlap_nonneg (x y : HC) : 0 ≤ overlapReal x y := by
+  unfold overlapReal
+  positivity
+
+theorem overlap_symm (x y : HC) : overlapReal x y = overlapReal y x := by
+  have hr : (inner ℂ x y).re = (inner ℂ y x).re := inner_re_symm x y
+  have hi : (inner ℂ x y).im = -(inner ℂ y x).im := inner_im_symm x y
+  unfold overlapReal
+  rw [hr,hi]
+  ring
+
+theorem overlap_parseval (e : HilbertBasis ℕ ℂ HC) (x : HC) :
+    HasSum (fun i => overlapReal (e i) x) (‖x‖ ^ 2) := by
+  have h := Complex.reCLM.hasSum (e.hasSum_inner_mul_inner x x)
+  convert h using 1
+  · funext i
+    change overlapReal (e i) x = (inner ℂ x (e i) * inner ℂ (e i) x).re
+    have hc : inner ℂ x (e i) = (starRingEnd ℂ) (inner ℂ (e i) x) :=
+      (inner_conj_symm x (e i)).symm
+    rw [hc]
+    simp [overlapReal,Complex.mul_re,Complex.conj_re,Complex.conj_im]
+    <;> ring
+  · exact (inner_self_eq_norm_sq (𝕜 := ℂ) x).symm
+
+def overlap (x y : HC) : ℝ≥0∞ := ENNReal.ofReal (overlapReal x y)
+
+theorem overlap_mass (e : HilbertBasis ℕ ℂ HC) (x : HC) (hx : ‖x‖ = 1) :
+    (∑' i, overlap (e i) x) = 1 := by
+  unfold overlap
+  rw [← ENNReal.ofReal_tsum_of_nonneg (fun i => overlap_nonneg (e i) x)
+    (overlap_parseval e x).summable,(overlap_parseval e x).tsum_eq,hx]
+  norm_num
+
+theorem overlap_mass_right (e : HilbertBasis ℕ ℂ HC) (x : HC) (hx : ‖x‖ = 1) :
+    (∑' i, overlap x (e i)) = 1 := by
+  simpa only [overlap,overlap_symm x] using overlap_mass e x hx
+
+theorem overlap_distinct (T : HC →L[ℂ] HC) (hT : IsSelfAdjoint T)
+    (x y : HC) (λ μ : ℝ) (hx : T x = (λ : ℂ) • x)
+    (hy : T y = (μ : ℂ) • y) (hne : λ ≠ μ) : overlap x y = 0 := by
+  have h : inner ℂ (T x) y = inner ℂ x (T y) :=
+    (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hT) x y
+  rw [hx,hy,inner_smul_left,inner_smul_right] at h
+  have he : (starRingEnd ℂ) (λ : ℂ) = (λ : ℂ) := Complex.conj_ofReal λ
+  rw [he] at h
+  have hz : ((λ : ℂ) - (μ : ℂ)) * inner ℂ x y = 0 := by
+    rw [sub_mul,h,sub_self]
+  have hne' : (λ : ℂ) - (μ : ℂ) ≠ 0 := sub_ne_zero.mpr (by exact_mod_cast hne)
+  have hz' := (mul_eq_zero.mp hz).resolve_left hne'
+  simp [overlap,overlapReal,hz']
+
+/-- Every nonnegative spectral weight has the same total in two complete
+eigenbases. No assumption of equal multiplicities is used. -/
+theorem spectral_weight_invariant (T : HC →L[ℂ] HC)
+    (e f : HilbertBasis ℕ ℂ HC) (λ μ : ℕ → ℝ)
+    (he : ∀ i, T (e i) = (λ i : ℂ) • e i)
+    (hf : ∀ j, T (f j) = (μ j : ℂ) • f j) (w : ℝ → ℝ≥0∞) :
+    (∑' i, w (λ i)) = ∑' j, w (μ j) := by
+  have hT := diagonal_selfAdjoint T e λ he
+  have hw (i j : ℕ) : w (λ i) * overlap (e i) (f j) =
+      w (μ j) * overlap (e i) (f j) := by
+    by_cases h : λ i = μ j
+    · rw [h]
+    · rw [overlap_distinct T hT (e i) (f j) (λ i) (μ j) (he i) (hf j) h]
+      simp
+  calc
+    _ = ∑' i, ∑' j, w (λ i) * overlap (e i) (f j) := by
+      apply tsum_congr
+      intro i
+      rw [ENNReal.tsum_mul_left,overlap_mass_right f (e i) (e.orthonormal.norm_eq_one i),mul_one]
+    _ = ∑' i, ∑' j, w (μ j) * overlap (e i) (f j) := by
+      apply tsum_congr
+      intro i
+      exact tsum_congr (hw i)
+    _ = ∑' j, ∑' i, w (μ j) * overlap (e i) (f j) := ENNReal.tsum_comm
+    _ = _ := by
+      apply tsum_congr
+      intro j
+      rw [ENNReal.tsum_mul_left,overlap_mass e (f j) (f.orthonormal.norm_eq_one j),mul_one]
+
+theorem spectralDet_independent (T : HC →L[ℂ] HC)
+    (e f : HilbertBasis ℕ ℂ HC) (λ μ : ℕ → ℝ)
+    (he : ∀ i, T (e i) = (λ i : ℂ) • e i)
+    (hf : ∀ j, T (f j) = (μ j : ℂ) • f j)
+    (hλ : ∀ i, 0 ≤ λ i) (hμ : ∀ j, 0 ≤ μ j)
+    (hsλ : Summable λ) (hsμ : Summable μ) :
+    spectralDet λ = spectralDet μ := by
+  have hp := Manuscript13.EllisFredholmProduct20261127.log_summable λ hλ hsλ
+  have hq := Manuscript13.EllisFredholmProduct20261127.log_summable μ hμ hsμ
+  have hpn : ∀ i, 0 ≤ Real.log (1 + λ i) := fun i => Real.log_nonneg (by linarith [hλ i])
+  have hqn : ∀ j, 0 ≤ Real.log (1 + μ j) := fun j => Real.log_nonneg (by linarith [hμ j])
+  have h := spectral_weight_invariant T e f λ μ he hf (fun t => ENNReal.ofReal (Real.log (1+t)))
+  change (∑' i, ENNReal.ofReal (Real.log (1 + λ i))) =
+    ∑' j, ENNReal.ofReal (Real.log (1 + μ j)) at h
+  rw [← ENNReal.ofReal_tsum_of_nonneg hpn hp,← ENNReal.ofReal_tsum_of_nonneg hqn hq] at h
+  have hh := (ENNReal.ofReal_eq_ofReal_iff (tsum_nonneg hpn) (tsum_nonneg hqn)).1 h
+  unfold spectralDet
+  rw [hh]
+
+/-- Actual finite-dimensional matrix of I+T compressed to the span
+of a finite subset of an orthonormal basis. -/
+def fredholmSection (T : HC →L[ℂ] HC) (e : HilbertBasis ℕ ℂ HC)
+    (s : Finset ℕ) : Matrix s s ℂ :=
+  fun i j => inner ℂ (e i) (e j + T (e j))
+
+theorem fredholmSection_det (T : HC →L[ℂ] HC) (e : HilbertBasis ℕ ℂ HC)
+    (λ : ℕ → ℝ) (he : ∀ i, T (e i) = (λ i : ℂ) • e i) (s : Finset ℕ) :
+    (fredholmSection T e s).det = ∏ i ∈ s, (1 + (λ i : ℂ)) := by
+  classical
+  have hm : fredholmSection T e s = Matrix.diagonal (fun i : s => 1 + (λ i : ℂ)) := by
+    ext i j
+    unfold fredholmSection
+    rw [he,inner_add_right,inner_smul_right,(orthonormal_iff_ite.mp e.orthonormal) i j]
+    by_cases hij : i = j
+    · subst j
+      simp [Matrix.diagonal]
+    · have hval : (i : ℕ) ≠ (j : ℕ) := fun h => hij (Subtype.ext h)
+      simp [Matrix.diagonal,hij,hval]
+  rw [hm,Matrix.det_diagonal,Finset.prod_coe_sort]
+
+structure PositiveSpectralData (T : HC →L[ℂ] HC) where
+  basis : HilbertBasis ℕ ℂ HC
+  eig : ℕ → ℝ
+  eigen : ∀ i, T (basis i) = (eig i : ℂ) • basis i
+  nonneg : ∀ i, 0 ≤ eig i
+  summable : Summable eig
+
+/-- Operator-level determinant on the positive summable spectral class.
+The witness is not part of the value, by positiveFredholmDet_eq. -/
+def positiveFredholmDet (T : HC →L[ℂ] HC) (h : Nonempty (PositiveSpectralData T)) : ℝ :=
+  spectralDet (Classical.choice h).eig
+
+theorem positiveFredholmDet_eq (T : HC →L[ℂ] HC) (h : Nonempty (PositiveSpectralData T))
+    (d : PositiveSpectralData T) : positiveFredholmDet T h = spectralDet d.eig := by
+  let c := Classical.choice h
+  exact spectralDet_independent T c.basis d.basis c.eig d.eig c.eigen d.eigen
+    c.nonneg d.nonneg c.summable d.summable
+
+/-- Independent characterization by the ordinary matrix determinants
+of every finite eigenbasis compression, not merely a scalar bound. -/
+theorem fredholmSection_limit (T : HC →L[ℂ] HC)
+    (h : Nonempty (PositiveSpectralData T)) (d : PositiveSpectralData T) :
+    Tendsto (fun s : Finset ℕ => (fredholmSection T d.basis s).det)
+      atTop (𝓝 (positiveFredholmDet T h : ℂ)) := by
+  rw [positiveFredholmDet_eq T h d]
+  have hp := Manuscript13.EllisFredholmProduct20261127.hasProd_spectralDet d.eig d.nonneg d.summable
+  have hh := Complex.continuous_ofReal.continuousAt.tendsto.comp hp
+  change Tendsto (fun s : Finset ℕ => ((∏ i ∈ s, (1 + d.eig i) : ℝ) : ℂ))
+    atTop (𝓝 (spectralDet d.eig : ℂ)) at hh
+  apply hh.congr
+  intro s
+  rw [fredholmSection_det T d.basis d.eig d.eigen]
+  push_cast
+  rfl
+
+theorem weighted_spectral_data (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
+    Nonempty (PositiveSpectralData (birmanSchwinger a κ ha hk)) := by
+  obtain ⟨e,eig,he,hn,hs,_⟩ := complex_spectral_corollary a κ ha hk
+  exact ⟨⟨e,eig,he,hn,hs⟩⟩
+
+theorem weighted_fredholm_bound (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
+    1 < positiveFredholmDet (birmanSchwinger a κ ha hk) (weighted_spectral_data a κ ha hk) ∧
+    positiveFredholmDet (birmanSchwinger a κ ha hk) (weighted_spectral_data a κ ha hk) ≤
+      Real.exp (Real.pi/(4*a*κ)) := by
+  obtain ⟨e,eig,he,hn,hs,ht,hprod,hlo,hhi⟩ := complex_spectral_corollary a κ ha hk
+  let d : PositiveSpectralData (birmanSchwinger a κ ha hk) := ⟨e,eig,he,hn,hs⟩
+  rw [positiveFredholmDet_eq _ _ d]
+  exact ⟨hlo,hhi⟩
+
 end
 end Manuscript13.EllisComplexSpectral20261128
 #print axioms Manuscript13.EllisComplexSpectral20261128.real_mem
@@ -251,3 +426,21 @@ end Manuscript13.EllisComplexSpectral20261128
 #print axioms Manuscript13.EllisComplexSpectral20261128.weighted_selfAdjoint
 #print axioms Manuscript13.EllisComplexSpectral20261128.weighted_positive
 #print axioms Manuscript13.EllisComplexSpectral20261128.weighted_nuclear_expansion
+#print axioms Manuscript13.EllisComplexSpectral20261128.overlapReal
+#print axioms Manuscript13.EllisComplexSpectral20261128.overlap_nonneg
+#print axioms Manuscript13.EllisComplexSpectral20261128.overlap_symm
+#print axioms Manuscript13.EllisComplexSpectral20261128.overlap_parseval
+#print axioms Manuscript13.EllisComplexSpectral20261128.overlap
+#print axioms Manuscript13.EllisComplexSpectral20261128.overlap_mass
+#print axioms Manuscript13.EllisComplexSpectral20261128.overlap_mass_right
+#print axioms Manuscript13.EllisComplexSpectral20261128.overlap_distinct
+#print axioms Manuscript13.EllisComplexSpectral20261128.spectral_weight_invariant
+#print axioms Manuscript13.EllisComplexSpectral20261128.spectralDet_independent
+#print axioms Manuscript13.EllisComplexSpectral20261128.fredholmSection
+#print axioms Manuscript13.EllisComplexSpectral20261128.fredholmSection_det
+#print axioms Manuscript13.EllisComplexSpectral20261128.PositiveSpectralData
+#print axioms Manuscript13.EllisComplexSpectral20261128.positiveFredholmDet
+#print axioms Manuscript13.EllisComplexSpectral20261128.positiveFredholmDet_eq
+#print axioms Manuscript13.EllisComplexSpectral20261128.fredholmSection_limit
+#print axioms Manuscript13.EllisComplexSpectral20261128.weighted_spectral_data
+#print axioms Manuscript13.EllisComplexSpectral20261128.weighted_fredholm_bound
