@@ -45,6 +45,22 @@ jobs:
           git show 'cb839dc5521ef108191604da03dadd6e2c4f32d2:lean/Manuscript17/CassiniChartMeasure20261127.lean' | cmp - 'Manuscript17/CassiniChartMeasure20261127.lean'
           git merge-base --is-ancestor 4719dbbc4b95a367c5f18f186ea12260b9422444 HEAD
           git show 'c1d3f32d12cffe9f90129b35b55f9e2d9ded835d:numerics/arb/m17_cassini_area_million.py' | cmp - ../numerics/arb/m17_cassini_area_million.py
+          git merge-base --is-ancestor 10c6efabd27c85e37bcf818956b9988d468f2b2e HEAD
+          git show '10c6efabd27c85e37bcf818956b9988d468f2b2e:lean/EulerianCert/CassiniFeffermanTangent20261124.lean' | cmp - 'EulerianCert/CassiniFeffermanTangent20261124.lean'
+          git merge-base --is-ancestor b8a953ae6be27ce4a518a2b69f9b673e795f0abb HEAD
+          git show 'b8a953ae6be27ce4a518a2b69f9b673e795f0abb:lean/Manuscript17/StrongCycleMinpoly20261127.lean' | cmp - 'Manuscript17/StrongCycleMinpoly20261127.lean'
+          git merge-base --is-ancestor f0ac4219911e70359956ed09de2c9b18213076b3 HEAD
+          git show 'f0ac4219911e70359956ed09de2c9b18213076b3:lean/Manuscript17/StrongCycleOriginal20261127.lean' | cmp - 'Manuscript17/StrongCycleOriginal20261127.lean'
+          git merge-base --is-ancestor bdb9c449d09bed35123be86993069419fa7cea2b HEAD
+          git show 'bdb9c449d09bed35123be86993069419fa7cea2b:lean/Manuscript17/CassiniPolynomialLift20261127.lean' | cmp - 'Manuscript17/CassiniPolynomialLift20261127.lean'
+          git merge-base --is-ancestor acd5f88209c49baaa8a88016c51bdf2a26c0c892 HEAD
+          git show 'acd5f88209c49baaa8a88016c51bdf2a26c0c892:lean/Manuscript17/StrongCycleChebyshev20261128.lean' | cmp - 'Manuscript17/StrongCycleChebyshev20261128.lean'
+          git merge-base --is-ancestor 18d139aea825062d86beeb4488e5884611b31636 HEAD
+          git show '18d139aea825062d86beeb4488e5884611b31636:lean/Manuscript17/ChebyshevCriticalSpectrum20261128.lean' | cmp - 'Manuscript17/ChebyshevCriticalSpectrum20261128.lean'
+          git merge-base --is-ancestor fd333c15ba7be5c7a8e6d5e19f916135fb535070 HEAD
+          git show 'fd333c15ba7be5c7a8e6d5e19f916135fb535070:lean/Manuscript17/CassiniGlobalImage20261128.lean' | cmp - 'Manuscript17/CassiniGlobalImage20261128.lean'
+          git merge-base --is-ancestor b307be8147093b4dc052700210b829f577074df4 HEAD
+          git show 'b307be8147093b4dc052700210b829f577074df4:lean/Manuscript17/CrossConnections20261125.lean' | cmp - 'Manuscript17/CrossConnections20261125.lean'
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan.sh
@@ -54,7 +70,7 @@ jobs:
           lake update
           test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = '0272bbe1c093d038d7257ab15306abd58245f9ff'
           lake exe cache get
-      - name: Recompile all four merged modules and the area dependency
+      - name: Recompile all merged M17 modules and dependencies
         working-directory: lean
         run: |
           set -euo pipefail
@@ -64,10 +80,20 @@ jobs:
           lake env lean -o '.lake/build/lib/lean/Manuscript17/StrongCycleGeneral20261127.olean' 'Manuscript17/StrongCycleGeneral20261127.lean' 2>&1 | tee '/tmp/m17-audit-StrongCycleGeneral20261127.log'
           lake env lean -o '.lake/build/lib/lean/Manuscript17/StrongCycleKrylov20261127.olean' 'Manuscript17/StrongCycleKrylov20261127.lean' 2>&1 | tee '/tmp/m17-audit-StrongCycleKrylov20261127.log'
           lake env lean -o '.lake/build/lib/lean/Manuscript17/CassiniChartMeasure20261127.olean' 'Manuscript17/CassiniChartMeasure20261127.lean' 2>&1 | tee '/tmp/m17-audit-CassiniChartMeasure20261127.log'
+          mkdir -p .lake/build/lib/lean/Manuscript16
+          lake env lean -o '.lake/build/lib/lean/Manuscript16/QuarticPartitionSusceptibility20261125.olean' 'Manuscript16/QuarticPartitionSusceptibility20261125.lean'
+          lake env lean -o '.lake/build/lib/lean/EulerianCert/CassiniFeffermanTangent20261124.olean' 'EulerianCert/CassiniFeffermanTangent20261124.lean' 2>&1 | tee '/tmp/m17-audit-CassiniFeffermanTangent20261124.log'
+          lake env lean -o '.lake/build/lib/lean/Manuscript17/StrongCycleMinpoly20261127.olean' 'Manuscript17/StrongCycleMinpoly20261127.lean' 2>&1 | tee '/tmp/m17-audit-StrongCycleMinpoly20261127.log'
+          lake env lean -o '.lake/build/lib/lean/Manuscript17/StrongCycleOriginal20261127.olean' 'Manuscript17/StrongCycleOriginal20261127.lean' 2>&1 | tee '/tmp/m17-audit-StrongCycleOriginal20261127.log'
+          lake env lean -o '.lake/build/lib/lean/Manuscript17/CassiniPolynomialLift20261127.olean' 'Manuscript17/CassiniPolynomialLift20261127.lean' 2>&1 | tee '/tmp/m17-audit-CassiniPolynomialLift20261127.log'
+          lake env lean -o '.lake/build/lib/lean/Manuscript17/StrongCycleChebyshev20261128.olean' 'Manuscript17/StrongCycleChebyshev20261128.lean' 2>&1 | tee '/tmp/m17-audit-StrongCycleChebyshev20261128.log'
+          lake env lean -o '.lake/build/lib/lean/Manuscript17/ChebyshevCriticalSpectrum20261128.olean' 'Manuscript17/ChebyshevCriticalSpectrum20261128.lean' 2>&1 | tee '/tmp/m17-audit-ChebyshevCriticalSpectrum20261128.log'
+          lake env lean -o '.lake/build/lib/lean/Manuscript17/CassiniGlobalImage20261128.olean' 'Manuscript17/CassiniGlobalImage20261128.lean' 2>&1 | tee '/tmp/m17-audit-CassiniGlobalImage20261128.log'
+          lake env lean -o '.lake/build/lib/lean/Manuscript17/CrossConnections20261125.olean' 'Manuscript17/CrossConnections20261125.lean' 2>&1 | tee '/tmp/m17-audit-CrossConnections20261125.log'
           python - <<'PY'
           import re
           from pathlib import Path
-          modules = [["CassiniAreaIntegral20261124",13],["CassiniChartGeometry20261127",13],["StrongCycleGeneral20261127",9],["StrongCycleKrylov20261127",7],["CassiniChartMeasure20261127",9]]
+          modules = [["CassiniAreaIntegral20261124",13],["CassiniChartGeometry20261127",13],["StrongCycleGeneral20261127",9],["StrongCycleKrylov20261127",7],["CassiniChartMeasure20261127",9],["CassiniFeffermanTangent20261124",8],["StrongCycleMinpoly20261127",5],["StrongCycleOriginal20261127",5],["CassiniPolynomialLift20261127",8],["StrongCycleChebyshev20261128",7],["ChebyshevCriticalSpectrum20261128",7],["CassiniGlobalImage20261128",9],["CrossConnections20261125",8]]
           total = 0
           for m,n in modules:
               s = Path('/tmp/m17-audit-'+m+'.log').read_text()
@@ -76,8 +102,8 @@ jobs:
               assert len(a)+s.count('does not depend on any axioms') == n
               assert all(set(x.strip() for x in b.split(',') if x.strip()) <= {'propext','Classical.choice','Quot.sound'} for b in a)
               total += n
-          assert total == 51
-          print('SUCCESS M17 integrated 51 reports; standard axioms only')
+          assert total == 108
+          print('SUCCESS M17 integrated 108 reports; standard axioms only')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
