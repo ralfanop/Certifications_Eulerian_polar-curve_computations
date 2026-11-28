@@ -1,0 +1,54 @@
+name: M14 sharp saturation and quartic identities
+on:
+  push:
+    branches: [main, m14-spin-sharp-asymptotics-quartic-20261128]
+    paths:
+      - 'lean/SpecialImaginaryPoint/EulerianSpinSharpAsymptotics.lean'
+      - '.github/workflows/m14-spin-sharp-asymptotics.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/EulerianSpinSharpAsymptotics.lean'
+      - '.github/workflows/m14-spin-sharp-asymptotics.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 6 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - run: lake exe cache get
+        working-directory: lean
+      - name: Compile dependencies and audit
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for module in EulerianLegendreDuality EulerianLegendreOrigin EulerianLegendreSupport EulerianLangevinRange EulerianSpinLaw EulerianSpinThreshold EulerianSpinCompletion; do
+            lake env lean -o ".lake/build/lib/lean/SpecialImaginaryPoint/$module.olean" "SpecialImaginaryPoint/$module.lean" 2>&1 | tee "/tmp/$module.log"
+          done
+          lake env lean SpecialImaginaryPoint/EulerianSpinSharpAsymptotics.lean 2>&1 | tee /tmp/spin-sharp-asymptotics.log
+          python - <<'PY'
+          import re
+          s=open('/tmp/spin-sharp-asymptotics.log').read()
+          assert not re.search(r'sorryAx|Lean\.ofReduceBool|declaration uses|: error:',s)
+          a=re.findall(r"^'([^']+)' (?:depends on axioms: \[([^\]]*)\]|does not depend on any axioms)",s,re.M)
+          assert len(a)==len({n for n,_ in a})==17,a
+          for n,ax in a:
+              assert set(filter(None,(v.strip() for v in ax.split(',')))) <= {'propext','Classical.choice','Quot.sound'},(n,ax)
+          print('17/17 sharp asymptotics declarations audited')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spin-sharp-asymptotics-audit
+          path: /tmp/spin-sharp-asymptotics.log
