@@ -361,7 +361,9 @@ theorem concrete_crease_sixth_remainder (k u : ℝ)
       |e| = |(e+a*u^3)+(-(a*u^3))| := by congr 1 <;> ring
       _ ≤ |e+a*u^3| + |-(a*u^3)| := abs_add_le _ _
       _ ≤ 60*r^5+r^3 := by rw [abs_neg]; exact add_le_add hjet hau
-      _ ≤ _ := by linarith
+      _ ≤ _ := by
+        have hnonneg : 0 ≤ r^3 := pow_nonneg hr0 _
+        linarith [hr5, hnonneg]
   have hy : |y| ≤ 2*r := by
     calc
       |y| = |e+k*u| := by dsimp [e]; congr 1 <;> ring
@@ -406,6 +408,8 @@ theorem concrete_crease_sixth_remainder (k u : ℝ)
   have hcos : |Real.cos y-Q| ≤ 222*r^6 := by
     have hy1 : |y| ≤ 1/2 := by linarith
     have ht := cos_fourth_remainder y hy1
+    have ht' : |Real.cos y-(1-y^2/2+y^4/24)| ≤ 2*(2*r)^6 :=
+      ht.trans (by gcongr)
     have hid : Real.cos y-Q = (Real.cos y-(1-y^2/2+y^4/24)) +
         (-(y^2-(k^2*u^2-2*k*a*u^4))/2)+(y^4-k^4*u^4)/24 := by
       dsimp [Q,b]; ring
@@ -413,11 +417,11 @@ theorem concrete_crease_sixth_remainder (k u : ℝ)
     calc
       _ ≤ |Real.cos y-(1-y^2/2+y^4/24)| +
           |-(y^2-(k^2*u^2-2*k*a*u^4))/2| + |(y^4-k^4*u^4)/24| := by
-        exact (abs_add_le _ _).trans (add_le_add_right (abs_add_le _ _) _)
+        exact (abs_add_le _ _).trans (add_le_add (abs_add_le _ _) le_rfl)
       _ ≤ 2*(2*r)^6+(184*r^6)/2+(44*r^6)/24 := by
         rw [abs_div, abs_neg, abs_of_pos (by norm_num : (0:ℝ)<2),
           abs_div, abs_of_pos (by norm_num : (0:ℝ)<24)]
-        gcongr
+        gcongr <;> assumption
       _ ≤ _ := by nlinarith [show 0 ≤ r^6 by positivity]
   have hH : |H| ≤ 2 := by
     have hH0 : 0 ≤ H := by dsimp [H]; positivity
@@ -455,7 +459,7 @@ theorem concrete_crease_sixth_remainder (k u : ℝ)
   calc
     _ ≤ |(Real.cosh u-H)*Real.cos y| + |H*(Real.cos y-Q)| +
         |H*Q-1-Manuscript15.CrossQuartic20261125.creaseQuarticJet k u| := by
-      exact (abs_add_le _ _).trans (add_le_add_right (abs_add_le _ _) _)
+      exact (abs_add_le _ _).trans (add_le_add (abs_add_le _ _) le_rfl)
     _ ≤ (2*r^6)*1+2*(222*r^6)+3*r^6 := by
       rw [abs_mul,abs_mul]
       gcongr
