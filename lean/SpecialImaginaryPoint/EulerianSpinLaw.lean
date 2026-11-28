@@ -98,7 +98,9 @@ theorem ratio_limit (n : ℕ) (hn : 0 < n) :
   have hp : P n 0 ≠ 0 := by rw [P_zero]; norm_num
   have h := ((A_cont n).continuousAt (x := (0:ℝ))).div
     ((P_cont n).continuousAt (x := (0:ℝ))) hp
-  simpa [ratio,A_zero n hn,P_zero] using h.tendsto
+  have hf : ratio n = A n / P n := rfl
+  rw [hf]
+  simpa [A_zero n hn,P_zero] using h.tendsto
 
 theorem exp_neg_limit : Tendsto (fun t : ℝ => Real.exp (-t)) atTop (𝓝 0) :=
   Real.tendsto_exp_atBot.comp tendsto_neg_atTop_atBot
@@ -209,14 +211,14 @@ theorem rawMoment_hasDerivAt (n j : ℕ) (t : ℝ) :
       HasDerivAt (fun u : ℝ => ∑ k ∈ s, (level n k)^j*Real.exp (level n k*u))
         (∑ k ∈ s, (level n k)^(j+1)*Real.exp (level n k*t)) t := by
     induction s using Finset.induction_on with
-    | empty => simp
+    | empty => simpa using (hasDerivAt_const t (0:ℝ))
     | @insert k s hk ih =>
       have hl : HasDerivAt (fun u : ℝ => level n k*u) (level n k) t := by
-        simpa only [mul_one] using (hasDerivAt_id t).const_mul (level n k)
+        simpa only [mul_one,id_eq] using (hasDerivAt_id t).const_mul (level n k)
       have hh := (hl.exp.const_mul ((level n k)^j)).add ih
       convert hh using 1
       · funext u
-        simp only [Finset.sum_insert hk]
+        simp only [Finset.sum_insert hk,Pi.add_apply]
       · rw [Finset.sum_insert hk,pow_succ]
         ring
   exact h _
@@ -238,6 +240,8 @@ theorem mean_hasDerivAt (n : ℕ) (t : ℝ) :
     HasDerivAt (mean n) (variance n t) t := by
   have hne := (raw_zero_pos n t).ne'
   have h := (rawMoment_hasDerivAt n 1 t).div (rawMoment_hasDerivAt n 0 t) hne
+  have hf : mean n = rawMoment n 1 / rawMoment n 0 := rfl
+  rw [hf]
   convert h using 1
   unfold variance mean
   norm_num
@@ -289,7 +293,7 @@ theorem logProbability_hasDerivAt (n k : ℕ) (t : ℝ) :
     rw [logProbability,Real.log_div (Real.exp_ne_zero _) (raw_zero_pos n u).ne',Real.log_exp]
   rw [hf]
   have hl : HasDerivAt (fun u : ℝ => level n k*u) (level n k) t := by
-    simpa only [mul_one] using (hasDerivAt_id t).const_mul (level n k)
+    simpa only [mul_one,id_eq] using (hasDerivAt_id t).const_mul (level n k)
   exact hl.sub ((rawMoment_hasDerivAt n 0 t).log (raw_zero_pos n t).ne')
 
 def fisher (n : ℕ) (t : ℝ) : ℝ :=
