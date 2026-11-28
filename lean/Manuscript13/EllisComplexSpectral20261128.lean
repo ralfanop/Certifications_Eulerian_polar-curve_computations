@@ -409,6 +409,86 @@ theorem weighted_fredholm_bound (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
   rw [positiveFredholmDet_eq _ _ d]
   exact ⟨hlo,hhi⟩
 
+/-- Multiplicity, including the possibly infinite zero eigenspace,
+is recovered by counting the spectral weight of a singleton. -/
+theorem eigenvalue_multiplicity_invariant (T : HC →L[ℂ] HC)
+    (e f : HilbertBasis ℕ ℂ HC) (lam mu : ℕ → ℝ)
+    (he : ∀ i, T (e i) = (lam i : ℂ) • e i)
+    (hf : ∀ j, T (f j) = (mu j : ℂ) • f j) (t : ℝ) :
+    (∑' i, (if lam i = t then 1 else 0 : ℝ≥0∞)) =
+      ∑' j, (if mu j = t then 1 else 0 : ℝ≥0∞) := by
+  classical
+  exact spectral_weight_invariant T e f lam mu he hf
+    (fun x => if x = t then 1 else 0)
+
+/-- Nonnegative summable spectrum transfers to any other complete
+real-eigenvalue basis; no summability premise on the second basis. -/
+theorem eigen_trace_invariant (T : HC →L[ℂ] HC)
+    (e f : HilbertBasis ℕ ℂ HC) (lam mu : ℕ → ℝ)
+    (he : ∀ i, T (e i) = (lam i : ℂ) • e i)
+    (hf : ∀ j, T (f j) = (mu j : ℂ) • f j)
+    (hn : ∀ i, 0 ≤ lam i) (hs : Summable lam) :
+    (∀ j, 0 ≤ mu j) ∧ Summable mu ∧ (∑' j, mu j) = ∑' i, lam i := by
+  have hp (j : ℕ) : 0 ≤ mu j := by
+    have h := diagonal_positive T e lam he hn (f j)
+    rw [hf,inner_smul_right,inner_self_eq_norm_sq_to_K,
+      f.orthonormal.norm_eq_one j] at h
+    simpa using h
+  have hh := spectral_weight_invariant T e f lam mu he hf ENNReal.ofReal
+  rw [← ENNReal.ofReal_tsum_of_nonneg hn hs] at hh
+  have hfinite : (∑' j, ENNReal.ofReal (mu j)) ≠ ⊤ := by
+    rw [← hh]
+    exact ENNReal.ofReal_ne_top
+  have hm : Summable mu := by
+    have ht := ENNReal.summable_toReal hfinite
+    simpa only [ENNReal.toReal_ofReal (hp _)] using ht
+  rw [← ENNReal.ofReal_tsum_of_nonneg hp hm] at hh
+  exact ⟨hp,hm,((ENNReal.ofReal_eq_ofReal_iff (tsum_nonneg hn) (tsum_nonneg hp)).1 hh).symm⟩
+
+theorem weighted_any_eigenbasis (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ)
+    (f : HilbertBasis ℕ ℂ HC) (mu : ℕ → ℝ)
+    (hf : ∀ j, birmanSchwinger a κ ha hk (f j) = (mu j : ℂ) • f j) :
+    (∀ j, 0 ≤ mu j) ∧ Summable mu ∧ (∑' j, mu j) = Real.pi/(4*a*κ) ∧
+    spectralDet mu = positiveFredholmDet (birmanSchwinger a κ ha hk)
+      (weighted_spectral_data a κ ha hk) := by
+  obtain ⟨e,lam,he,hn,hs,ht,_⟩ := complex_spectral_corollary a κ ha hk
+  obtain ⟨hm,hsm,htm⟩ := eigen_trace_invariant _ e f lam mu he hf hn hs
+  let d : PositiveSpectralData (birmanSchwinger a κ ha hk) := ⟨f,mu,hf,hm,hsm⟩
+  exact ⟨hm,hsm,htm.trans ht,(positiveFredholmDet_eq _ _ d).symm⟩
+
+theorem complexRank_compact (v : HC) : IsCompactOperator (complexRank v : HC → HC) := by
+  let C : ℂ →L[ℂ] HC := (ContinuousLinearMap.id ℂ ℂ).smulRight v
+  have hC : IsCompactOperator (C : ℂ → HC) := by
+    first
+    | exact isCompactOperator_of_locallyCompactSpace_dom C
+    | exact?
+  have h := hC.comp_clm (innerSL ℂ v)
+  have he : (complexRank v : HC → HC) = (C : ℂ → HC) ∘ (innerSL ℂ v : HC → ℂ) := by
+    funext x
+    rfl
+  rw [he]
+  exact h
+
+theorem weighted_compact (a κ : ℝ) (ha : 0 < a) (hk : 0 < κ) :
+    IsCompactOperator (birmanSchwinger a κ ha hk : HC → HC) := by
+  obtain ⟨e,eig,he,hn,hs,_⟩ := complex_spectral_corollary a κ ha hk
+  have h := (complex_rank_summable e eig hn hs).hasSum
+  rw [complex_rank_expansion _ e eig he hn hs] at h
+  apply isCompactOperator_of_tendsto h
+  apply Filter.Eventually.of_forall
+  intro s
+  classical
+  induction s using Finset.induction_on with
+  | empty => simpa using (isCompactOperator_zero : IsCompactOperator (0 : HC → HC))
+  | @insert i s hi ih =>
+    rw [Finset.sum_insert hi]
+    have hc := complexRank_compact (e i)
+    have hci : IsCompactOperator (((eig i : ℂ) • complexRank (e i)) : HC → HC) := by
+      first
+      | exact hc.smul _
+      | exact?
+    exact hci.add ih
+
 end
 end Manuscript13.EllisComplexSpectral20261128
 #print axioms Manuscript13.EllisComplexSpectral20261128.real_mem
@@ -452,3 +532,8 @@ end Manuscript13.EllisComplexSpectral20261128
 #print axioms Manuscript13.EllisComplexSpectral20261128.fredholmSection_limit
 #print axioms Manuscript13.EllisComplexSpectral20261128.weighted_spectral_data
 #print axioms Manuscript13.EllisComplexSpectral20261128.weighted_fredholm_bound
+#print axioms Manuscript13.EllisComplexSpectral20261128.eigenvalue_multiplicity_invariant
+#print axioms Manuscript13.EllisComplexSpectral20261128.eigen_trace_invariant
+#print axioms Manuscript13.EllisComplexSpectral20261128.weighted_any_eigenbasis
+#print axioms Manuscript13.EllisComplexSpectral20261128.complexRank_compact
+#print axioms Manuscript13.EllisComplexSpectral20261128.weighted_compact
