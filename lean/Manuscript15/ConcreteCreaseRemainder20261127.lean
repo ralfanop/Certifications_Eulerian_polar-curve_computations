@@ -110,7 +110,6 @@ theorem sinh_local_bounds (t : ℝ) (ht : |t| ≤ 1) :
   have hp := Real.exp_bound (x := t) (n := 3) ht (by decide)
   have hm := Real.exp_bound (x := -t) (n := 3) (by simpa using ht) (by decide)
   norm_num [Finset.sum_range_succ, Nat.factorial] at hp hm
-  simp only [abs_neg] at hm
   have he : Real.sinh t-t =
       ((Real.exp t-(1+t+t^2/2))-(Real.exp (-t)-(1-t+t^2/2)))/2 := by
     rw [Real.sinh_eq]
@@ -155,8 +154,12 @@ theorem phase_cubic_remainder_nonneg (k u : ℝ)
   have he : Continuous e := (density_continuous k).sub hp
   have hpoly : (∫ t in (0:ℝ)..u, p t) = k*u-k*(1+k^2)*u^3/6 := by
     dsimp [p]
-    rw [intervalIntegral.integral_sub (continuous_const.intervalIntegrable _ _)
-      ((continuous_const.mul (continuous_id.pow 2)).intervalIntegrable _ _),
+    have hconst : IntervalIntegrable (fun _ : ℝ => k) volume 0 u :=
+      continuous_const.intervalIntegrable _ _
+    have hpow : IntervalIntegrable (fun t : ℝ => a*t^2) volume 0 u := by
+      apply Continuous.intervalIntegrable
+      fun_prop
+    rw [intervalIntegral.integral_sub hconst hpow,
       intervalIntegral.integral_const, intervalIntegral.integral_const_mul, integral_pow]
     simp [a, smul_eq_mul] <;> ring
   have heq : (∫ t in (0:ℝ)..u, e t) =
@@ -474,6 +477,16 @@ theorem concrete_scaled_error_uniform_box
     crease k ε v lam (81920/3) V L hε hε1 hk (by norm_num) hv hl hrem
   convert hh using 1 <;> ring_nf
 
+
+theorem phase_original_kernel (k u : ℝ) :
+    phase k u = ∫ t in (0:ℝ)..u,
+      (k/Real.sqrt (1+k^2)) /
+        Real.sqrt ((Real.cosh t)^2-(k/Real.sqrt (1+k^2))^2) := by
+  unfold phase
+  apply intervalIntegral.integral_congr
+  intro t _
+  exact (Manuscript15.CreaseAnalyticKernel20261127.actual_phase_kernel_reparametrization k t).symm
+
 end Manuscript15.ConcreteCreaseRemainder20261127
 
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.sqrt_reciprocal_remainder
@@ -491,3 +504,4 @@ end Manuscript15.ConcreteCreaseRemainder20261127
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.cosh_fourth_remainder
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.concrete_crease_sixth_remainder
 #print axioms Manuscript15.ConcreteCreaseRemainder20261127.concrete_scaled_error_uniform_box
+#print axioms Manuscript15.ConcreteCreaseRemainder20261127.phase_original_kernel
