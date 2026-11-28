@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - name: Verify pinned mathlib and all 9 kernel proofs on exact PR HEAD
+      - name: Verify pinned mathlib and all 15 kernel proofs on exact PR HEAD
         working-directory: lean
         env:
           EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -38,6 +38,8 @@ jobs:
           mkdir -p .lake/build/lib/lean/Manuscript15
           lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/CrossQuarticCurve20261125.olean Manuscript15/CrossQuarticCurve20261125.lean
           lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/QuarticUniformTransfer20261127.olean Manuscript15/QuarticUniformTransfer20261127.lean
+          lake env lean -M16768 -o .lake/build/lib/lean/Manuscript15/CreaseAnalyticKernel20261127.olean Manuscript15/CreaseAnalyticKernel20261127.lean \
+            2>&1 | tee /tmp/m15-concrete-crease-remainder-20261127/kernel.log
           lake env lean -M16768 Manuscript15/ConcreteCreaseRemainder20261127.lean \
             2>&1 | tee /tmp/m15-concrete-crease-remainder-20261127/lean.log
           python3 - <<'PY'
@@ -47,9 +49,11 @@ jobs:
           log=Path('/tmp/m15-concrete-crease-remainder-20261127/lean.log').read_text()
           forbidden=re.compile(r'\b(sorry|sorryAx|admit|native_decide|unsafe)\b|^\s*axiom\s',re.M)
           assert not forbidden.search(src), 'forbidden source construct'
+          kernel=Path('/tmp/m15-concrete-crease-remainder-20261127/kernel.log').read_text()
+          assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.',kernel), 'dependency check failed'
           assert not re.search(r'sorryAx|Lean.ofReduceBool|error:|declaration uses .sorry.',log), 'admitted proof or Lean error'
           names=re.findall(r'^#print axioms (Manuscript15\.ConcreteCreaseRemainder20261127\.\w+)$',src,re.M)
-          assert len(names)==9 and len(set(names))==9, (len(names),names)
+          assert len(names)==15 and len(set(names))==15, (len(names),names)
           for name in names:
             m=re.search(re.escape("'"+name+"'")+r' depends on axioms: \[([^\]]*)\]',log,re.S)
             if m:
@@ -57,7 +61,7 @@ jobs:
               assert present <= {'propext','Classical.choice','Quot.sound'},(name,present)
             else:
               assert "'"+name+"' does not depend on any axioms" in log,name
-          print('M15 27 NOV QUARTIC UNIFORM REMAINDER EXACT HEAD 9 THEOREMS SUCCESS')
+          print('M15 27 NOV QUARTIC UNIFORM REMAINDER EXACT HEAD 15 THEOREMS SUCCESS')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
