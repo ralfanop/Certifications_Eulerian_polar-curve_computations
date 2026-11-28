@@ -128,6 +128,8 @@ theorem gram_factorization (g a : ℝ) (hp : dp g a ≠ 0) (hm : dm g a ≠ 0) :
     W g * N g a = (chol g a).conjTranspose * Matrix.diagonal (diagWeight g a) * chol g a := by
   have hp' : 2*g+a^2 ≠ 0 := hp
   have hm' : 2*g-a^2 ≠ 0 := hm
+  have hp3 : g*2+a^2 ≠ 0 := by simpa [mul_comm] using hp'
+  have hm3 : g*2-a^2 ≠ 0 := by simpa [mul_comm] using hm'
   have hp2 : 4*g+2*a^2 ≠ 0 := by intro h; apply hp'; linarith
   have hm2 : 4*g-2*a^2 ≠ 0 := by intro h; apply hm'; linarith
   have hdp : 2*dp g a ≠ 0 := mul_ne_zero (by norm_num) hp
@@ -145,8 +147,6 @@ theorem gram_factorization (g a : ℝ) (hp : dp g a ≠ 0) (hm : dm g a ≠ 0) :
       Fin.sum_univ_succ,Complex.mul_re,Complex.mul_im,Complex.add_re,Complex.add_im,
       Complex.sub_re,Complex.sub_im,Complex.neg_re,Complex.neg_im,pow_succ,wr,wi] <;>
     simp [dp,dm,cp,cm,dd] <;>
-    have hp3 : g*2+a^2 ≠ 0 := by simpa [mul_comm] using hp'
-    have hm3 : g*2-a^2 ≠ 0 := by simpa [mul_comm] using hm'
     field_simp [hp',hm',hp2,hm2,hp3,hm3] <;> ring
 
 theorem chol_injective (g a : ℝ) (hp : dp g a ≠ 0) (hm : dm g a ≠ 0) :
