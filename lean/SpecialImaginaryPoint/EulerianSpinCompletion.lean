@@ -104,7 +104,9 @@ theorem q_upper (n : ℕ) (hn : 0 < n) (t : ℝ) : q n t < 1 := by
   have h := scaled_deficit n hn t
   have hp := mul_pos (Real.exp_pos (-t)) (ratio_positive n hn (Real.exp (-t)) (Real.exp_pos (-t)).le)
   have hq : 0 < spin n*(1-q n t) := by rw [h]; exact hp
-  exact sub_pos.mp (pos_of_mul_pos_left hq (spin_pos n hn).le)
+  by_contra! hbad
+  exact (not_lt_of_ge (mul_nonpos_of_nonneg_of_nonpos (spin_pos n hn).le
+    (sub_nonpos.mpr hbad))) hq
 
 theorem q_range_bound (n : ℕ) (hn : 0 < n) (t : ℝ) : q n t ∈ Set.Ioo (-1:ℝ) 1 := by
   have h := q_upper n hn (-t)
