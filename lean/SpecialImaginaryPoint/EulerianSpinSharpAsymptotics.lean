@@ -274,10 +274,10 @@ theorem saturation_scaled_bounds (n : ℕ) (hn : 0 < n) (a c d : ℝ)
       fisherLength n a b ≤ 2*d*(Real.exp (-a/2)-Real.exp (-b/2)) := by
     have hc : Continuous (fun s : ℝ => c*Real.exp (-s/2)) := by fun_prop
     have hd' : Continuous (fun s : ℝ => d*Real.exp (-s/2)) := by fun_prop
-    have h1 := intervalIntegral.integral_mono_on hb
+    have h1 := intervalIntegral.integral_mono_on (μ := MeasureTheory.volume) hb
       (hc.intervalIntegrable a b) ((speed_continuous n).intervalIntegrable a b)
       (fun s hs => (hpoint s hs.1).1)
-    have h2 := intervalIntegral.integral_mono_on hb
+    have h2 := intervalIntegral.integral_mono_on (μ := MeasureTheory.volume) hb
       ((speed_continuous n).intervalIntegrable a b) (hd'.intervalIntegrable a b)
       (fun s hs => (hpoint s hs.1).2)
     rw [intervalIntegral.integral_const_mul,exponential_integral] at h1 h2
@@ -294,7 +294,7 @@ theorem saturation_scaled_bounds (n : ℕ) (hn : 0 < n) (a c d : ℝ)
     rintro _ ⟨b,hb,rfl⟩
     exact hupper b hb
   have hne : (fisherLength n a '' Set.Ici a).Nonempty :=
-    ⟨fisherLength n a a,⟨a,le_rfl,rfl⟩⟩
+    ⟨fisherLength n a a,⟨a,Set.mem_Ici.mpr (le_refl a),rfl⟩⟩
   have hu : saturationDistance n a ≤ 2*d*Real.exp (-a/2) := by
     unfold saturationDistance
     apply csSup_le hne
@@ -313,7 +313,7 @@ theorem saturation_scaled_bounds (n : ℕ) (hn : 0 < n) (a c d : ℝ)
   have hl : 2*c*Real.exp (-a/2) ≤ saturationDistance n a := by
     apply le_of_tendsto hlim
     filter_upwards [eventually_ge_atTop a] with b hb
-    exact (hlen b hb).1.trans (le_csSup hB ⟨b,hb,rfl⟩)
+    exact (hlen b hb).1.trans (le_csSup hB ⟨b,Set.mem_Ici.mpr hb,rfl⟩)
   constructor
   · have h := mul_le_mul_of_nonneg_left hl (Real.exp_pos (a/2)).le
     calc
