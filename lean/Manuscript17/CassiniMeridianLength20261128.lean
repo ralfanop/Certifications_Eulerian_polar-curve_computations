@@ -27,7 +27,7 @@ theorem latitude_unit (s p : ℝ) : sphereDot (latitude s p) (latitude s p) = 1 
 theorem meridian_unit (s p : ℝ) : sphereDot (meridianTangent s p) (meridianTangent s p) = 1 := by
   simp [sphereDot,meridianTangent]
   calc
-    -sin s*cos p*(-sin s*cos p)+ -sin s*sin p*(-sin s*sin p)+cos s*cos s =
+    sin s*cos p*(sin s*cos p)+sin s*sin p*(sin s*sin p)+cos s*cos s =
       sin s^2*(sin p^2+cos p^2)+cos s^2 := by ring
     _ = 1 := by rw [sin_sq_add_cos_sq, mul_one, sin_sq_add_cos_sq]
 
@@ -70,13 +70,13 @@ theorem scale_latitude (s p : ℝ) : t (latitude s p) = meridianSpeed s := by
   simp [t,latitude,meridianSpeed]
   rw [show 2-sin s^2 = 1+cos s^2 by nlinarith [sin_sq_add_cos_sq s]]
 
-theorem meridianSpeed_nonneg (s : ℝ) (hs : s ∈ Icc (0:ℝ) (pi/2)) :
+theorem meridianSpeed_nonneg (s : ℝ) (hs : s ∈ Icc (0:ℝ) (π/2)) :
     0 ≤ meridianSpeed s := by
   apply div_nonneg
   · exact sin_nonneg_of_nonneg_of_le_pi hs.1 (by linarith [hs.2,pi_pos])
   · positivity
 
-theorem meridian_metric_speed (s p dt : ℝ) (hs : s ∈ Icc (0:ℝ) (pi/2)) :
+theorem meridian_metric_speed (s p dt : ℝ) (hs : s ∈ Icc (0:ℝ) (π/2)) :
     sqrt (EulerianCert.CassiniFeffermanTangent20261124.B
       (tangent (latitude s p) (meridianTangent s p) dt)
       (tangent (latitude s p) (meridianTangent s p) dt)) = meridianSpeed s := by
@@ -84,7 +84,7 @@ theorem meridian_metric_speed (s p dt : ℝ) (hs : s ∈ Icc (0:ℝ) (pi/2)) :
     (meridian_orthogonal s p),meridian_unit,mul_one,scale_latitude,
     sqrt_sq_eq_abs,abs_of_nonneg (meridianSpeed_nonneg s hs)]
 
-theorem parallel_metric_speed (s p dt : ℝ) (hs : s ∈ Icc (0:ℝ) (pi/2)) :
+theorem parallel_metric_speed (s p dt : ℝ) (hs : s ∈ Icc (0:ℝ) (π/2)) :
     sqrt (EulerianCert.CassiniFeffermanTangent20261124.B
       (tangent (latitude s p) (parallelTangent s p) dt)
       (tangent (latitude s p) (parallelTangent s p) dt)) = parallelSpeed s := by
@@ -97,40 +97,44 @@ theorem parallel_metric_speed (s p dt : ℝ) (hs : s ∈ Icc (0:ℝ) (pi/2)) :
 theorem primitive_derivative (s : ℝ) :
     HasDerivAt (fun a => -arctan (cos a)) (meridianSpeed s) s := by
   have h := ((Real.hasDerivAt_arctan (cos s)).comp s (Real.hasDerivAt_cos s)).neg
-  convert h using 1 <;> simp [meridianSpeed] <;> ring
+  convert h using 1
+  · funext a
+    simp
+  · simp [meridianSpeed]
+    ring
 
 theorem meridian_length (s : ℝ) :
-    (∫ a in (0:ℝ)..s, meridianSpeed a) = pi/4-arctan (cos s) := by
+    (∫ a in (0:ℝ)..s, meridianSpeed a) = π/4-arctan (cos s) := by
   have hc : Continuous meridianSpeed := by
     unfold meridianSpeed
     exact continuous_sin.div (by fun_prop) (fun x => by positivity)
-  rw [integral_eq_sub_of_hasDerivAt (fun x _ => primitive_derivative x) hc.intervalIntegrable]
+  rw [integral_eq_sub_of_hasDerivAt (fun x _ => primitive_derivative x) (hc.intervalIntegrable _ _)]
   simp [Real.arctan_one]
   ring
 
 theorem full_meridian_length :
-    (∫ a in (0:ℝ)..(pi/2), meridianSpeed a) = pi/4 := by
+    (∫ a in (0:ℝ)..(π/2), meridianSpeed a) = π/4 := by
   rw [meridian_length,cos_pi_div_two,arctan_zero,sub_zero]
 
 theorem parallel_length (s : ℝ) :
-    (∫ p in (0:ℝ)..(2*pi), parallelSpeed s) = 2*pi*parallelSpeed s := by
+    (∫ p in (0:ℝ)..(2*π), parallelSpeed s) = 2*π*parallelSpeed s := by
   simp [intervalIntegral.integral_const,smul_eq_mul]
 
 theorem meridian_length_tendsto_zero :
     Filter.Tendsto (fun s : ℝ => ∫ a in (0:ℝ)..s, meridianSpeed a)
       (nhds 0) (nhds 0) := by
   simp_rw [meridian_length]
-  have hc : Continuous (fun s : ℝ => pi/4-arctan (cos s)) := by fun_prop
+  have hc : Continuous (fun s : ℝ => π/4-arctan (cos s)) := by fun_prop
   simpa [Real.arctan_one] using hc.continuousAt (x:=0).tendsto
 
 theorem parallel_length_tendsto_zero :
-    Filter.Tendsto (fun s : ℝ => ∫ p in (0:ℝ)..(2*pi), parallelSpeed s)
+    Filter.Tendsto (fun s : ℝ => ∫ p in (0:ℝ)..(2*π), parallelSpeed s)
       (nhds 0) (nhds 0) := by
   simp_rw [parallel_length]
   have hc : Continuous meridianSpeed := by
     unfold meridianSpeed
     exact continuous_sin.div (by fun_prop) (fun x => by positivity)
-  have h : Continuous (fun s : ℝ => 2*pi*(meridianSpeed s*cos s)) := by fun_prop
+  have h : Continuous (fun s : ℝ => 2*π*(meridianSpeed s*cos s)) := by fun_prop
   simpa [parallelSpeed,meridianSpeed] using h.continuousAt (x:=0).tendsto
 
 #print axioms latitude_unit
