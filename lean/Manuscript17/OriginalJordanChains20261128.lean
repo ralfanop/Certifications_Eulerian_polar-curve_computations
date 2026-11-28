@@ -15,7 +15,7 @@ theorem original_row (n : ℕ) (a : Fin (n+2) → ℂ) (r w : ℂ)
       a i.castSucc * v i.castSucc + r * v i.succ := by
   classical
   have hi : i.castSucc ≠ i.succ := by intro h; have := congrArg Fin.val h; simp at this
-  have hlast : i.castSucc.val ≠ n+1 := by omega
+  have hlast : i.castSucc.val ≠ n+1 := by have := i.isLt; rw [Fin.val_castSucc]; omega
   unfold Matrix.mulVec dotProduct
   calc
     (∑ j, original n a r w i.castSucc j * v j) =
@@ -34,6 +34,7 @@ theorem original_row (n : ℕ) (a : Fin (n+2) → ℂ) (r w : ℂ)
             apply h1
             apply Fin.ext
             simpa using he.symm
+          simp only [Fin.val_castSucc] at hs hlast
           simp [original,h0,Ne.symm h0,h1,hlast,hs]
     _ = _ := by rw [Finset.sum_add_distrib]; simp
 
@@ -67,8 +68,10 @@ theorem firstCoord_injective (n : ℕ) (a : Fin (n+2) → ℂ) (r w z : ℂ)
 
 theorem original_geometric_le_one (n : ℕ) (w z : ℂ) :
     Module.finrank ℂ (Module.End.eigenspace (A n w).mulVecLin z) ≤ 1 := by
-  simpa [A] using LinearMap.finrank_le_finrank_of_injective
+  have h := LinearMap.finrank_le_finrank_of_injective
     (firstCoord_injective n (alpha n) (radius n) w z (radius_ne_zero n))
+  rw [Module.finrank_self] at h
+  exact h
 
 /-- A generalized eigenvector not in the eigenspace produces an actual
 length-two Jordan chain, by choosing the least vanishing power. -/
@@ -77,8 +80,9 @@ theorem chain_of_generalized_not_eigen {V : Type*} [AddCommGroup V] [Module ℂ 
     (hv : v ∈ Module.End.maxGenEigenspace f z)
     (hne : v ∉ Module.End.eigenspace f z) :
     ∃ x y : V, x ≠ 0 ∧ f x = z • x ∧ f y = z • y + x := by
+  classical
   let D := f-z • (1 : Module.End ℂ V)
-  have hnil : ∃ k : ℕ, (D^k) v = 0 := Module.End.mem_maxGenEigenspace.mp hv
+  have hnil : ∃ k : ℕ, (D^k) v = 0 := (Module.End.mem_maxGenEigenspace f z v).mp hv
   have hmin : (D^(Nat.find hnil)) v = 0 := Nat.find_spec hnil
   have hnot : D v ≠ 0 := by
     intro h
