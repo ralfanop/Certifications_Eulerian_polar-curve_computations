@@ -126,14 +126,16 @@ def diagWeight (g a : ℝ) : Fin 4 → ℂ :=
 set_option maxHeartbeats 8000000 in
 theorem gram_factorization (g a : ℝ) (hp : dp g a ≠ 0) (hm : dm g a ≠ 0) :
     W g * N g a = (chol g a).conjTranspose * Matrix.diagonal (diagWeight g a) * chol g a := by
-  have hp' : (2*(g:ℂ)+(a:ℂ)^2) ≠ 0 := by exact_mod_cast hp
-  have hm' : (2*(g:ℂ)-(a:ℂ)^2) ≠ 0 := by exact_mod_cast hm
-  ext i j
-  fin_cases i <;> fin_cases j <;>
+  have hp' : 2*g+a^2 ≠ 0 := hp
+  have hm' : 2*g-a^2 ≠ 0 := hm
+  apply Matrix.ext
+  intro i j
+  fin_cases i <;> fin_cases j <;> apply Complex.ext <;>
     simp [W,N,chol,diagWeight,dp,dm,cp,cm,dd,Matrix.mul_apply,Matrix.diagonal,
-      Matrix.conjTranspose_apply,Fin.sum_univ_succ] <;>
-    push_cast <;> field_simp [hp',hm'] <;> ring_nf <;>
-    (try simp [Complex.I_sq]) <;> ring
+      Matrix.conjTranspose_apply,Fin.sum_univ_succ,Complex.mul_re,Complex.mul_im,
+      Complex.add_re,Complex.add_im,Complex.sub_re,Complex.sub_im,Complex.neg_re,
+      Complex.neg_im,pow_succ] <;>
+    field_simp [hp',hm'] <;> ring
 
 theorem chol_injective (g a : ℝ) (hp : dp g a ≠ 0) (hm : dm g a ≠ 0) :
     Function.Injective (chol g a).mulVec := by
