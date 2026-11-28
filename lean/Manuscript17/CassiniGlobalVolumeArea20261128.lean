@@ -17,7 +17,9 @@ theorem hRad_derivative (r : ℝ) (hr : r ∈ Ioo (0:ℝ) 1) :
   have h : 0 < 1-r^2 := by nlinarith [hr.1,hr.2]
   have hd := (hasDerivAt_const r (1:ℝ)).sub (hasDerivAt_pow 2 r)
   have hs := (Real.hasDerivAt_sqrt h.ne').comp r hd
-  convert hs using 1 <;> simp [hRad] <;> ring
+  convert hs using 1
+  · rfl
+  · simp [hRad]; ring
 
 theorem radial_substitution (r : ℝ) (hr : r ∈ Ioo (0:ℝ) 1) :
     areaDensity (hRad r) * (-r/hRad r) = -radialDensity r := by
@@ -93,9 +95,9 @@ theorem disk_integral :
   rw [h1] at hf
   have h2 : (∫ p in polarCoord.target, p.1 • f (polarCoord.symm p)) =
       ∫ p in Ioo (0:ℝ) 1 ×ˢ Ioo (-Real.pi) Real.pi, radialDensity p.1 := by
-    rw [← integral_indicator (measurableSet_Ioo.prod measurableSet_Ioo)]
-    rw [← integral_indicator polarCoord.open_target.measurableSet]
-    apply integral_congr_ae
+    rw [← MeasureTheory.integral_indicator (measurableSet_Ioo.prod measurableSet_Ioo)]
+    rw [← MeasureTheory.integral_indicator polarCoord.open_target.measurableSet]
+    apply MeasureTheory.integral_congr_ae
     apply Filter.Eventually.of_forall
     intro p
     have ht : p ∈ polarCoord.target ↔ 0 < p.1 ∧ -Real.pi < p.2 ∧ p.2 < Real.pi := by rfl
@@ -117,9 +119,10 @@ theorem disk_integral :
   rw [← hf]
   have hprod := setIntegral_prod_mul (μ := (volume : Measure ℝ)) (ν := (volume : Measure ℝ)) radialDensity (fun _ : ℝ => (1:ℝ)) (Ioo 0 1) (Ioo (-Real.pi) Real.pi)
   simp only [mul_one] at hprod
-  rw [hprod]
-  rw [integral_Ioo_eq_integral_Ioc, ← intervalIntegral.integral_of_le (by norm_num : (0:ℝ) ≤ 1), radial_integral]
+  rw [Measure.volume_eq_prod, hprod]
+  rw [← integral_Ioc_eq_integral_Ioo, ← intervalIntegral.integral_of_le (by norm_num : (0:ℝ) ≤ 1), radial_integral]
   simp [MeasureTheory.integral_const, Real.volume_Ioo, ENNReal.toReal_ofReal (by linarith [Real.pi_pos] : 0 ≤ Real.pi - -Real.pi)]
+  rw [max_eq_left (by positivity : (0:ℝ) ≤ Real.pi + Real.pi)]
   have hs : Real.sqrt 2 ≠ 0 := by positivity
   field_simp [hs]
   <;> ring
