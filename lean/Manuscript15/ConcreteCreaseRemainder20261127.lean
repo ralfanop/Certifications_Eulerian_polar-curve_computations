@@ -1,4 +1,5 @@
 import Manuscript15.QuarticUniformTransfer20261127
+import Manuscript15.CreaseAnalyticKernel20261127
 
 /-! Source: M15 26 Nov, FRENCH_YEN_1992_2002(4), prop:cross-crease15.
 Real-coordinate prerequisite to the concrete sixth-order remainder.
@@ -23,33 +24,9 @@ def crease (k u : ℝ) : ℝ :=
 theorem sqrt_reciprocal_remainder (x : ℝ) (hx : 0 ≤ x) :
     0 ≤ 1 / Real.sqrt (1+x) - 1 + x/2 ∧
     1 / Real.sqrt (1+x) - 1 + x/2 ≤ x^2 := by
-  let s := Real.sqrt (1+x)
-  have hs0 : 0 ≤ s := Real.sqrt_nonneg _
-  have hsq : s^2 = 1+x := Real.sq_sqrt (by linarith)
-  have hs : 1 ≤ s := by
-    by_contra! h
-    have hp := mul_pos (sub_pos.mpr h) (show 0 < 1+s by linarith)
-    nlinarith
-  have hspos : 0 < s := by linarith
-  have hiden : 1/s - 1 + x/2 = (s-1)^2*(s+2)/(2*s) := by
-    calc
-      _ = 1/s - 1 + (s^2-1)/2 := by rw [show x = s^2-1 by linarith]
-      _ = _ := by field_simp [hspos.ne'] <;> ring
-  have hx' : x = (s-1)*(s+1) := by nlinarith
-  change 0 ≤ 1/s - 1 + x/2 ∧ 1/s - 1 + x/2 ≤ x^2
-  rw [hiden]
-  constructor
-  · positivity
-  · apply (div_le_iff₀ (show 0 < 2*s by positivity)).2
-    have hfour : 4 ≤ (s+1)^2 := by
-      nlinarith [sq_nonneg (s-1)]
-    have hfactor : s+2 ≤ 2*s*(s+1)^2 := by
-      have hm := mul_nonneg hs0 (sub_nonneg.mpr hfour)
-      nlinarith
-    calc
-      (s-1)^2*(s+2) ≤ (s-1)^2*(2*s*(s+1)^2) :=
-        mul_le_mul_of_nonneg_left hfactor (sq_nonneg _)
-      _ = x^2*(2*s) := by rw [hx']; ring
+  obtain ⟨h0,h1⟩ :=
+    Manuscript15.CreaseAnalyticKernel20261127.inv_sqrt_first_order_remainder x hx
+  exact ⟨h0,h1.trans (by nlinarith [sq_nonneg x])⟩
 
 theorem density_continuous (k : ℝ) : Continuous (density k) := by
   unfold density
