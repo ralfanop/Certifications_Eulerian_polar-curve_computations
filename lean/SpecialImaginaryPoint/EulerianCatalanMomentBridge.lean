@@ -31,8 +31,11 @@ theorem catMoment_recurrence (n : ℕ) :
     linear_combination h3
   unfold catMoment
   rw [pow_succ]
-  field_simp
-  linear_combination h4
+  calc
+    ((n:ℝ)+2)*((catalan (n+1):ℝ)/(4^n*4)) =
+        (((n:ℝ)+2)*(catalan (n+1):ℝ))/(4^n*4) := by ring
+    _ = (2*(2*(n:ℝ)+1)*(catalan n:ℝ))/(4^n*4) := by rw [h4]
+    _ = _ := by ring
 
 theorem halfFalling_catalan (n : ℕ) :
     2*halfFalling (n+1)/(Nat.factorial (n+1):ℝ) =
@@ -52,8 +55,10 @@ theorem halfFalling_catalan (n : ℕ) :
       field_simp [hn,hn2]
       <;> ring
     rw [he,ih,pow_succ]
-    field_simp [hn2]
-    linear_combination -(-1:ℝ)^n * hc
+    have hcat : catMoment (n+1) = (((n:ℝ)+1/2)*catMoment n)/((n:ℝ)+2) :=
+      (eq_div_iff hn2).2 (by rw [mul_comm]; exact hc)
+    rw [hcat]
+    ring
 
 theorem catMoment_nonneg (n : ℕ) : 0 ≤ catMoment n := by
   unfold catMoment
@@ -88,7 +93,8 @@ theorem spinTaylor_catalan (j : ℝ) (hj : 0 < j) (N : ℕ) :
       field_simp [hj.ne'] <;> ring
     rw [ht,ih,h]
     unfold catalanSpinTaylor
-    rw [Finset.sum_range_succ]
+    have hs := Finset.sum_range_succ (fun k : ℕ => (-1:ℝ)^k*catMoment k/j^k) (N+1)
+    rw [hs]
     ring
 
 theorem spin_catalan_total_error (j : ℝ) (hj : (1:ℝ)/2 ≤ j) (N : ℕ) :
@@ -125,9 +131,7 @@ theorem sinEven_recurrence (n : ℕ) :
     sinEven (n+1) = (2*(n:ℝ)+1)/(2*(n:ℝ)+2)*sinEven n := by
   unfold sinEven
   rw [show 2*(n+1)=2*n+2 by omega,integral_sin_pow]
-  simp [Real.sin_pi,Real.sin_zero]
-  push_cast
-  <;> ring
+  simp [Real.sin_pi,Real.sin_zero] <;> push_cast <;> ring
 
 theorem sinEven_central (n : ℕ) :
     sinEven n = Real.pi*(Nat.centralBinom n:ℝ)/4^n := by
@@ -138,14 +142,24 @@ theorem sinEven_central (n : ℕ) :
     have h : ((n:ℝ)+1)*(Nat.centralBinom (n+1):ℝ) =
       2*(2*(n:ℝ)+1)*(Nat.centralBinom n:ℝ) := by
       exact_mod_cast Nat.succ_mul_centralBinom_succ n
-    field_simp
-    linear_combination -Real.pi*h
+    have hn : (n:ℝ)+1 ≠ 0 := by positivity
+    have hh : (Nat.centralBinom (n+1):ℝ) =
+        2*(2*(n:ℝ)+1)*(Nat.centralBinom n:ℝ)/((n:ℝ)+1) :=
+      (eq_div_iff hn).2 (by rw [mul_comm]; exact h)
+    rw [hh]
+    have hn' : 2*(n:ℝ)+2 ≠ 0 := by positivity
+    field_simp [hn,hn']
+    <;> ring
 
 theorem angularMoment_eq (n : ℕ) : angularMoment n = catMoment n := by
   have h : (∫ t in (0:ℝ)..Real.pi, Real.sin t^(2*n)*Real.cos t^2) =
       sinEven n - sinEven (n+1) := by
     unfold sinEven
-    rw [← intervalIntegral.integral_sub ((Real.continuous_sin.pow (2*n)).intervalIntegrable _ _) ((Real.continuous_sin.pow (2*(n+1))).intervalIntegrable _ _)]
+    have h1 : IntervalIntegrable (fun t : ℝ => Real.sin t^(2*n)) MeasureTheory.volume 0 Real.pi :=
+      (Real.continuous_sin.pow (2*n)).intervalIntegrable _ _
+    have h2 : IntervalIntegrable (fun t : ℝ => Real.sin t^(2*(n+1))) MeasureTheory.volume 0 Real.pi :=
+      (Real.continuous_sin.pow (2*(n+1))).intervalIntegrable _ _
+    rw [← intervalIntegral.integral_sub h1 h2]
     apply intervalIntegral.integral_congr
     intro t _
     rw [show 2*(n+1)=2*n+2 by omega,pow_add]
