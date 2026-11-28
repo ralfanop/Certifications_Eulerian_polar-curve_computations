@@ -61,6 +61,12 @@ jobs:
           git show 'fd333c15ba7be5c7a8e6d5e19f916135fb535070:lean/Manuscript17/CassiniGlobalImage20261128.lean' | cmp - 'Manuscript17/CassiniGlobalImage20261128.lean'
           git merge-base --is-ancestor b307be8147093b4dc052700210b829f577074df4 HEAD
           git show 'b307be8147093b4dc052700210b829f577074df4:lean/Manuscript17/CrossConnections20261125.lean' | cmp - 'Manuscript17/CrossConnections20261125.lean'
+          git merge-base --is-ancestor b8c5697d160e374b041b21c14a820c8b87fff2a7 HEAD
+          git show 'b8c5697d160e374b041b21c14a820c8b87fff2a7:lean/Manuscript17/StrongCycleJordan20261128.lean' | cmp - 'Manuscript17/StrongCycleJordan20261128.lean'
+          git merge-base --is-ancestor 65d2048ee0d2ad64e12c2447e1d5d2b648c7a706 HEAD
+          git show '65d2048ee0d2ad64e12c2447e1d5d2b648c7a706:lean/Manuscript17/CassiniGlobalGraph20261128.lean' | cmp - 'Manuscript17/CassiniGlobalGraph20261128.lean'
+          git merge-base --is-ancestor 40f6ff309fe1edc7840d7fd2033f4d0c91cce426 HEAD
+          git show '40f6ff309fe1edc7840d7fd2033f4d0c91cce426:lean/Manuscript17/CassiniMeridianLength20261128.lean' | cmp - 'Manuscript17/CassiniMeridianLength20261128.lean'
           test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.35.0-rc3'
           grep -F '0272bbe1c093d038d7257ab15306abd58245f9ff' lakefile.toml
           curl --proto '=https' --tlsv1.2 -fsSL --retry 6 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan.sh
@@ -90,10 +96,13 @@ jobs:
           lake env lean -o '.lake/build/lib/lean/Manuscript17/ChebyshevCriticalSpectrum20261128.olean' 'Manuscript17/ChebyshevCriticalSpectrum20261128.lean' 2>&1 | tee '/tmp/m17-audit-ChebyshevCriticalSpectrum20261128.log'
           lake env lean -o '.lake/build/lib/lean/Manuscript17/CassiniGlobalImage20261128.olean' 'Manuscript17/CassiniGlobalImage20261128.lean' 2>&1 | tee '/tmp/m17-audit-CassiniGlobalImage20261128.log'
           lake env lean -o '.lake/build/lib/lean/Manuscript17/CrossConnections20261125.olean' 'Manuscript17/CrossConnections20261125.lean' 2>&1 | tee '/tmp/m17-audit-CrossConnections20261125.log'
+          lake env lean -o '.lake/build/lib/lean/Manuscript17/StrongCycleJordan20261128.olean' 'Manuscript17/StrongCycleJordan20261128.lean' 2>&1 | tee '/tmp/m17-audit-StrongCycleJordan20261128.log'
+          lake env lean -o '.lake/build/lib/lean/Manuscript17/CassiniGlobalGraph20261128.olean' 'Manuscript17/CassiniGlobalGraph20261128.lean' 2>&1 | tee '/tmp/m17-audit-CassiniGlobalGraph20261128.log'
+          lake env lean -o '.lake/build/lib/lean/Manuscript17/CassiniMeridianLength20261128.olean' 'Manuscript17/CassiniMeridianLength20261128.lean' 2>&1 | tee '/tmp/m17-audit-CassiniMeridianLength20261128.log'
           python - <<'PY'
           import re
           from pathlib import Path
-          modules = [["CassiniAreaIntegral20261124",13],["CassiniChartGeometry20261127",13],["StrongCycleGeneral20261127",9],["StrongCycleKrylov20261127",7],["CassiniChartMeasure20261127",9],["CassiniFeffermanTangent20261124",8],["StrongCycleMinpoly20261127",5],["StrongCycleOriginal20261127",5],["CassiniPolynomialLift20261127",8],["StrongCycleChebyshev20261128",7],["ChebyshevCriticalSpectrum20261128",7],["CassiniGlobalImage20261128",9],["CrossConnections20261125",8]]
+          modules = [["CassiniAreaIntegral20261124",13],["CassiniChartGeometry20261127",13],["StrongCycleGeneral20261127",9],["StrongCycleKrylov20261127",7],["CassiniChartMeasure20261127",9],["CassiniFeffermanTangent20261124",8],["StrongCycleMinpoly20261127",5],["StrongCycleOriginal20261127",5],["CassiniPolynomialLift20261127",8],["StrongCycleChebyshev20261128",7],["ChebyshevCriticalSpectrum20261128",7],["CassiniGlobalImage20261128",9],["CrossConnections20261125",8],["StrongCycleJordan20261128",12],["CassiniGlobalGraph20261128",16],["CassiniMeridianLength20261128",17]]
           total = 0
           for m,n in modules:
               s = Path('/tmp/m17-audit-'+m+'.log').read_text()
@@ -102,8 +111,8 @@ jobs:
               assert len(a)+s.count('does not depend on any axioms') == n
               assert all(set(x.strip() for x in b.split(',') if x.strip()) <= {'propext','Classical.choice','Quot.sound'} for b in a)
               total += n
-          assert total == 108
-          print('SUCCESS M17 integrated 108 reports; standard axioms only')
+          assert total == 153
+          print('SUCCESS M17 integrated 153 reports; standard axioms only')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
