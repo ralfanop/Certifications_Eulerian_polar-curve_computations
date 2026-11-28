@@ -1,0 +1,82 @@
+name: Eulerian spin saturation thresholds
+on:
+  push:
+    branches: [main, m14-eulerian-spin-thresholds-20261128]
+    paths:
+      - 'lean/SpecialImaginaryPoint/EulerianSpinThreshold.lean'
+      - 'certificates/manuscript14/spin_threshold_arb.py'
+      - '.github/workflows/m14-spin-threshold.yml'
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/EulerianSpinThreshold.lean'
+      - 'certificates/manuscript14/spin_threshold_arb.py'
+      - '.github/workflows/m14-spin-threshold.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 6 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - run: lake exe cache get
+        working-directory: lean
+      - name: Compile certified dependency chain and new proofs
+        working-directory: lean
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          for module in EulerianLegendreDuality EulerianLegendreOrigin EulerianLegendreSupport EulerianLangevinRange; do
+            lake env lean -o ".lake/build/lib/lean/SpecialImaginaryPoint/$module.olean" "SpecialImaginaryPoint/$module.lean" 2>&1 | tee "/tmp/$module.log"
+          done
+          lake env lean SpecialImaginaryPoint/EulerianSpinThreshold.lean 2>&1 | tee /tmp/threshold.log
+          python - <<'PY'
+          import re
+          s=open('/tmp/threshold.log').read()
+          assert not re.search(r'sorryAx|Lean\.ofReduceBool|declaration uses|: error:',s)
+          a=re.findall(r"^'([^']+)' (?:depends on axioms: \[([^\]]*)\]|does not depend on any axioms)",s,re.M)
+          assert len(a)==len({n for n,_ in a})==11,a
+          for n,ax in a:
+              assert set(filter(None,(v.strip() for v in ax.split(',')))) <= {'propext','Classical.choice','Quot.sound'},(n,ax)
+          print('11/11 threshold declarations audited')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spin-threshold-lean-audit
+          path: /tmp/threshold.log
+  arb:
+    strategy:
+      fail-fast: false
+      matrix:
+        case: ['printed','1','2','3','4','5','6','10','20']
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install python-flint==0.9.0
+      - name: Strict million-place root enclosure
+        run: |
+          set -euo pipefail
+          python certificates/manuscript14/spin_threshold_arb.py --case ${{ matrix.case }} --bits 3600000 --digits 1000001 | tee threshold.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spin-threshold-${{ matrix.case }}
+          path: |
+            threshold.json.gz
+            threshold.log
