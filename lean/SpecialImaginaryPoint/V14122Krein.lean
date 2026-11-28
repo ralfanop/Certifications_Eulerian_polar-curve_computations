@@ -83,8 +83,8 @@ theorem characteristic_determinant (g a : ℝ) (y : ℂ) :
     Matrix.det (y • (1 : Matrix (Fin 4) (Fin 4) ℂ) - H g a) =
       y^4 + ((a:ℂ)^2-2)*y^2 + 1-(g:ℂ)^2 := by
   rw [Matrix.det_succ_row_zero]
-  simp [Matrix.det_fin_three,H,Matrix.one_apply,Fin.sum_univ_succ]
-  ring_nf <;> simp [Complex.I_sq] <;> ring
+  simp [Matrix.det_fin_three,H,Matrix.one_apply,Fin.sum_univ_succ,Fin.succAbove]
+  <;> norm_num [Fin.succAbove,Fin.castSucc,Fin.succ] <;> ring_nf <;> (try simp [Complex.I_sq]) <;> ring
 
 def sigma1 : Matrix (Fin 2) (Fin 2) ℂ := !![0,1;1,0]
 def sigma2 : Matrix (Fin 2) (Fin 2) ℂ := !![0,-Complex.I;Complex.I,0]
@@ -133,7 +133,7 @@ theorem gram_factorization (g a : ℝ) (hp : dp g a ≠ 0) (hm : dm g a ≠ 0) :
     simp [W,N,chol,diagWeight,dp,dm,cp,cm,dd,Matrix.mul_apply,Matrix.diagonal,
       Matrix.conjTranspose_apply,Fin.sum_univ_succ] <;>
     push_cast <;> field_simp [hp',hm'] <;> ring_nf <;>
-    simp [Complex.I_sq] <;> ring
+    (try simp [Complex.I_sq]) <;> ring
 
 theorem chol_injective (g a : ℝ) (hp : dp g a ≠ 0) (hm : dm g a ≠ 0) :
     Function.Injective (chol g a).mulVec := by
