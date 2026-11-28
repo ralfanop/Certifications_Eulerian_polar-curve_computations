@@ -1,0 +1,55 @@
+name: M14 equation 211 — normalized Viete tail
+on:
+  pull_request:
+    paths:
+      - 'lean/SpecialImaginaryPoint/Eq211VieteTail.lean'
+      - 'lean/SpecialImaginaryPoint/Section89Certificate.lean'
+      - '.github/workflows/m14-eq211-viete-tail.yml'
+  push:
+    branches: [main, m14-eq211-viete-tail-20261128]
+    paths:
+      - 'lean/SpecialImaginaryPoint/Eq211VieteTail.lean'
+      - '.github/workflows/m14-eq211-viete-tail.yml'
+  workflow_dispatch:
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 6 --retry-all-errors https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Retrieve pinned Mathlib cache
+        working-directory: lean
+        run: lake exe cache get
+      - name: Compile original certificate and exact corrected equation
+        working-directory: lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD
+          mkdir -p .lake/build/lib/lean/SpecialImaginaryPoint
+          lake env lean -o .lake/build/lib/lean/SpecialImaginaryPoint/Section89Certificate.olean SpecialImaginaryPoint/Section89Certificate.lean 2>&1 | tee /tmp/m14-eq211-base.log
+          lake env lean SpecialImaginaryPoint/Eq211VieteTail.lean 2>&1 | tee /tmp/m14-eq211.log
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          logs = [Path('/tmp/m14-eq211-base.log').read_text(), Path('/tmp/m14-eq211.log').read_text()]
+          allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+          for log in logs:
+              assert not re.search(r'sorryAx|Lean\.ofReduceBool|declaration uses|: error:', log)
+              for axioms in re.findall(r'depends on axioms: \[([^\]]*)\]', log):
+                  assert set(filter(None, (a.strip() for a in axioms.split(',')))) <= allowed, axioms
+          reports = re.findall(r"^'([^']+)' (?:depends on axioms: \[[^\]]*\]|does not depend on any axioms)", logs[1], re.M)
+          assert len(reports) == len(set(reports)) == 9, reports
+          print('9/9 exact Eq. 211 declarations audited')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m14-eq211-viete-tail-audit
+          path: /tmp/m14-eq211*.log
