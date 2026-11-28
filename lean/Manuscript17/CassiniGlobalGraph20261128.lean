@@ -74,7 +74,11 @@ theorem graph_dx (p : ℝ × ℝ) (hp : p ∈ disk) (i : Fin 3) :
   · have hd := ((hasDerivAt_const p.1 (1:ℝ)).sub (hasDerivAt_pow 2 p.1)).sub
         (hasDerivAt_const p.1 (p.2^2))
     have hs := (Real.hasDerivAt_sqrt h.ne').comp p.1 hd
-    convert hs using 1 <;> simp [graph,dx,height] <;> ring
+    convert hs using 1
+    · funext a
+      simp [graph,height]
+    · simp [dx,height]
+      ring
 
 theorem graph_dy (p : ℝ × ℝ) (hp : p ∈ disk) (i : Fin 3) :
     HasDerivAt (fun b => graph (p.1,b) i) (dy p i) p.2 := by
@@ -86,7 +90,11 @@ theorem graph_dy (p : ℝ × ℝ) (hp : p ∈ disk) (i : Fin 3) :
   · simpa [graph,dy] using hasDerivAt_id' p.2
   · have hd := (hasDerivAt_const p.2 (1-p.1^2)).sub (hasDerivAt_pow 2 p.2)
     have hs := (Real.hasDerivAt_sqrt h.ne').comp p.2 hd
-    convert hs using 1 <;> simp [graph,dy,height] <;> ring
+    convert hs using 1
+    · funext b
+      simp [graph,height]
+    · simp [dy,height]
+      ring
 
 theorem graph_tangent (p : ℝ × ℝ) (hp : p ∈ disk) :
     sphereDot (graph p) (dx p) = 0 ∧ sphereDot (graph p) (dy p) = 0 := by
@@ -105,7 +113,7 @@ theorem gram_determinant (p : ℝ × ℝ) (hp : p ∈ disk) :
   unfold g11 g12 g22 density
   simp [sphereDot,dx,dy]
   field_simp [h]
-  linear_combination (t (graph p))^4 * (-hs)
+  linear_combination (t (graph p))^4 * height p^2 * hs
 
 theorem volume_density (p : ℝ × ℝ) (hp : p ∈ disk) :
     Real.sqrt (g11 p*g22 p-(g12 p)^2) = density p := by
@@ -139,8 +147,9 @@ theorem pole_zero : hemisphereVolume {![0,0,1]} = 0 := by
     intro p hp
     have h : graph p = ![0,0,1] := hp
     have hh := congrArg horizontal h
-    simpa [horizontal_graph,horizontal] using hh
-  apply le_antisymm _ (zero_le _)
+    rw [horizontal_graph] at hh
+    simpa [horizontal] using hh
+  refine le_antisymm ?_ zero_le
   calc
     diskVolume (graph ⁻¹' {(![0,0,1] : Fin 3 → ℝ)}) ≤ diskVolume {(0,0)} :=
       measure_mono he
